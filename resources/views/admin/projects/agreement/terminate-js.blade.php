@@ -127,15 +127,15 @@
                     $(
                         "#duration_months").val(defaultDuration);
 
-                    $('#no_of_installments option').each(function() {
-                        if ($(this).text().trim() === defaultDuration.toString()) {
-                            $(this).prop('readonly', true);
-                            $(this).prop('selected', true).trigger('change');
-                            // $(this).next('.select2-container')
-                            //     .find('.select2-selection')
-                            //     .addClass('readonly');
-                        }
-                    });
+                    // $('#no_of_installments option').each(function() {
+                    //     if ($(this).text().trim() === defaultDuration.toString()) {
+                    //         $(this).prop('readonly', true);
+                    //         $(this).prop('selected', true).trigger('change');
+                    //         // $(this).next('.select2-container')
+                    //         //     .find('.select2-selection')
+                    //         //     .addClass('readonly');
+                    //     }
+                    // });
                 }
                 // Else: do nothing, keep the contract-level dates/duration
             },
