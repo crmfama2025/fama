@@ -1,5 +1,5 @@
 @foreach ($contract_units_details as $unitkey => $unitDetail)
-    <div class="apdi profitDeletecls{{ $unitkey }}">
+    <div class="apdi profitDeletecls{{ $unitkey }}" data-index="{{ $unitkey }}">
         <div class="form-group">
             <input type="hidden" name="unit_detail[id][]" value="{{ $unitDetail->id ?? '' }}">
             <div class="form-group row">

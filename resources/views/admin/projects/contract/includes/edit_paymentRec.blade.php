@@ -1,5 +1,5 @@
 @foreach ($contract_payment_receivables as $reckey => $paymentReceivable)
-    <div class="receivableaddmore">
+    <div class="receivableaddmore" data-index="{{ $reckey }}">
         <div class="form-group row">
             {{-- <span>{{ $reckey }}</span> --}}
             <input type="hidden" name="receivables[id][]" value="{{ $paymentReceivable->id ?? '' }}">

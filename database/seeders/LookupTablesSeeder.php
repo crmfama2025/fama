@@ -13,35 +13,72 @@ class LookupTablesSeeder extends Seeder
      */
     public function run(): void
     {
-        // Countries
-        DB::table('property_size_units')->insert([
-            ['unit_name' => 'Sq.ft', 'created_at' => now()],
-            ['unit_name' => 'Sq.mt', 'created_at' => now()],
-        ]);
+        $now = now();
 
-        DB::table('contract_types')->insert([
-            ['contract_type' => 'Direct Fama', 'created_at' => now(), 'shortcode' => 'DF'],
-            ['contract_type' => 'Fama Faateh', 'created_at' => now(), 'shortcode' => 'FF'],
-        ]);
+        // Property Size Units
+        DB::table('property_size_units')->upsert(
+            [
+                ['unit_name' => 'Sq.ft', 'created_at' => $now, 'updated_at' => $now],
+                ['unit_name' => 'Sq.mt', 'created_at' => $now, 'updated_at' => $now],
+            ],
+            ['unit_name'],
+            ['updated_at']
+        );
 
-        DB::table('unit_types')->insert([
-            ['unit_type' => 'Studio', 'created_at' => now()],
-            ['unit_type' => '1BHK', 'created_at' => now()],
-            ['unit_type' => '2BHK', 'created_at' => now()],
-            ['unit_type' => '3BHK', 'created_at' => now()],
-            ['unit_type' => '4BHK', 'created_at' => now()],
-            ['unit_type' => '5BHK', 'created_at' => now()],
-            ['unit_type' => '6BHK', 'created_at' => now()],
-        ]);
+        // Contract Types
+        DB::table('contract_types')->upsert(
+            [
+                [
+                    'contract_type' => 'Direct Fama',
+                    'shortcode'     => 'DF',
+                    'created_at'    => $now,
+                    'updated_at'    => $now,
+                ],
+                [
+                    'contract_type' => 'Fama Faateh',
+                    'shortcode'     => 'FF',
+                    'created_at'    => $now,
+                    'updated_at'    => $now,
+                ],
+            ],
+            ['contract_type'],
+            ['shortcode', 'updated_at']
+        );
 
-        DB::table('unit_statuses')->insert([
-            ['unit_status' => 'Furnished', 'created_at' => now()],
-            ['unit_status' => 'Un Furnished', 'created_at' => now()],
-        ]);
+        // Unit Types
+        DB::table('unit_types')->upsert(
+            [
+                ['unit_type' => 'Studio', 'created_at' => $now, 'updated_at' => $now],
+                ['unit_type' => '1BHK', 'created_at' => $now, 'updated_at' => $now],
+                ['unit_type' => '2BHK', 'created_at' => $now, 'updated_at' => $now],
+                ['unit_type' => '3BHK', 'created_at' => $now, 'updated_at' => $now],
+                ['unit_type' => '4BHK', 'created_at' => $now, 'updated_at' => $now],
+                ['unit_type' => '5BHK', 'created_at' => $now, 'updated_at' => $now],
+                ['unit_type' => '6BHK', 'created_at' => $now, 'updated_at' => $now],
+                ['unit_type' => 'Pent house', 'created_at' => $now, 'updated_at' => $now],
+            ],
+            ['unit_type'],
+            ['updated_at']
+        );
 
-        DB::table('unit_size_units')->insert([
-            ['unit_size_unit' => 'sq. ft', 'created_at' => now()],
-            ['unit_size_unit' => 'sq. m', 'created_at' => now()],
-        ]);
+        // Unit Statuses
+        DB::table('unit_statuses')->upsert(
+            [
+                ['unit_status' => 'Furnished', 'created_at' => $now, 'updated_at' => $now],
+                ['unit_status' => 'Un Furnished', 'created_at' => $now, 'updated_at' => $now],
+            ],
+            ['unit_status'],
+            ['updated_at']
+        );
+
+        // Unit Size Units
+        DB::table('unit_size_units')->upsert(
+            [
+                ['unit_size_unit' => 'sq. ft', 'created_at' => $now, 'updated_at' => $now],
+                ['unit_size_unit' => 'sq. m', 'created_at' => $now, 'updated_at' => $now],
+            ],
+            ['unit_size_unit'],
+            ['updated_at']
+        );
     }
 }

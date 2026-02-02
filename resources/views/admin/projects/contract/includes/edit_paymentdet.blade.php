@@ -1,5 +1,5 @@
 @foreach ($contract_payment_details as $paymentkey => $paymentDetail)
-    <div class="payment_mode_div">
+    <div class="payment_mode_div" data-index="{{ $paymentkey }}">
         <div class="form-group row">
             <input type="hidden" name="payment_detail[id][]" value="{{ $paymentDetail->id ?? '' }}">
             <div class="col-md-4">
