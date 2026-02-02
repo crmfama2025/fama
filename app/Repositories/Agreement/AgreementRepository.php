@@ -4,6 +4,7 @@ namespace App\Repositories\Agreement;
 
 use App\Models\Agreement;
 use App\Models\AgreementPaymentDetail;
+use App\Models\agreementSubunitRentBifurcation;
 use App\Models\AgreementUnit;
 use App\Models\Contract;
 use App\Models\ContractSubunitDetail;
@@ -165,7 +166,9 @@ class AgreementRepository
             'agreement_payment.installment',
             'agreement_documents',
             'agreement_units.contractSubunitDetail',
-            'agreement_units.contractUnitDetail.unit_type'
+            'agreement_units.contractUnitDetail.unit_type',
+            'agreement_units.contractUnitDetail.contractSubUnitDetails',
+            'agreement_units.agreementSubunitRentBifurcation'
         ])->findOrFail($id);
     }
 
@@ -406,5 +409,56 @@ class AgreementRepository
         // dd($result);
 
         return $query;
+    }
+    public function rentBifurcationStore($data)
+    {
+        DB::beginTransaction();
+
+        try {
+            $insertData = [];
+
+            foreach ($data['bifurcation'] as $row) {
+
+                // Update existing records
+                if (!empty($row['id'])) {
+                    agreementSubunitRentBifurcation::where('id', $row['id'])->update([
+                        'rent_per_month' => $row['rent_per_month'],
+                        'updated_by' => auth()->user()->id,
+                        'updated_at' => now(),
+                    ]);
+                } else {
+                    // Prepare new rows to insert
+                    $insertData[] = [
+                        'agreement_id' => $data['agreement_id'],
+                        'agreement_unit_id' => $data['agreement_unit_id'],
+                        'contract_unit_details_id' => $data['contract_unit_details_id'],
+                        'contract_subunit_details_id' => $row['contract_subunit_details_id'],
+                        'rent_per_month' => $row['rent_per_month'],
+                        'added_by' => auth()->user()->id,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                }
+            }
+
+            // Insert all new rows at once
+            if (!empty($insertData)) {
+                agreementSubunitRentBifurcation::insert($insertData);
+            }
+
+            DB::commit();
+
+            return [
+                'status' => true,
+                'message' => 'Rent bifurcation saved successfully'
+            ];
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return [
+                'status' => false,
+                'message' => 'Failed to save rent bifurcation',
+                'error' => $e->getMessage()
+            ];
+        }
     }
 }

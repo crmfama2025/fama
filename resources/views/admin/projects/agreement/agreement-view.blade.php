@@ -5,6 +5,7 @@
     @php
         $business_type = ' - ';
         $type = $agreement->contract->contract_unit->business_type;
+        $contract_type = $agreement->contract->contract_type_id;
         if ($type == 1) {
             $business_type = 'B2B';
         } else {
@@ -251,11 +252,16 @@
                                                         @endif
 
                                                         <th>Subunit Type</th>
+                                                        @if ($type == 1 && $contract_type == 1)
+                                                            <th>Rent per Month</th>
+                                                            <th>Split Rent</th>
+                                                        @endif
                                                     </tr>
                                                 </thead>
 
                                                 <tbody>
                                                     @foreach ($agreement->agreement_units as $unit)
+                                                        {{-- {{ dd($unit) }} --}}
                                                         <tr class="text-center">
                                                             <td>{{ $unit->contractUnitDetail->unit_number }}</td>
                                                             <td>{{ $unit->contractUnitDetail->unit_type->unit_type }}</td>
@@ -279,6 +285,27 @@
                                                                 @endphp
                                                                 {{ $types[$unit->contractUnitDetail->subunittype] ?? '-' }}
                                                             </td>
+                                                            @if ($type == 1 && $contract_type == 1)
+                                                                <td>{{ $unit->rent_per_month ?? '-' }}</td>
+                                                                @php
+                                                                    $hasBifurcation = $unit->agreementSubunitRentBifurcation->isNotEmpty();
+                                                                @endphp
+
+                                                                <td>
+                                                                    <button type="button"
+                                                                        class="btn btn-sm {{ $hasBifurcation ? 'btn-warning' : 'btn-primary' }} ms-2 openRentModal"
+                                                                        data-unit-id="{{ $unit->id }}"
+                                                                        data-subunit-count="{{ $unit->contractUnitDetail->subunitcount_per_unit }}"
+                                                                        data-subunits='@json($unit->contractUnitDetail->contractSubUnitDetails)'
+                                                                        data-units='@json($unit->contractUnitDetail)'
+                                                                        data-agreement-id="{{ $agreement->id }}"
+                                                                        title="{{ $hasBifurcation ? 'Edit Rent Bifurcation' : 'Split Rent' }}">
+
+                                                                        <i
+                                                                            class="fa {{ $hasBifurcation ? 'fa-edit' : 'fa-sitemap' }}"></i>
+                                                                    </button>
+                                                                </td>
+                                                            @endif
                                                         </tr>
                                                     @endforeach
                                                 </tbody>
@@ -662,6 +689,55 @@
             </div>
             <!-- /.modal -->
 
+            <div class="modal fade" id="rentBifurcationModal" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+
+                        <form id="rentBifurcationForm" method="POST" action="#">
+                            @csrf
+
+                            <div class="modal-header">
+                                <h5 class="modal-title">Rent Bifurcation</h5>
+                                <button type="button" class="close" data-dismiss="modal">
+                                    <span>&times;</span>
+                                </button>
+                            </div>
+
+                            <div class="modal-body">
+                                <div class="py-2 float-lg-right">Total Unit Rent Per Month: <span
+                                        class="text-danger font-weight-bold" id="totalUnitRent"></span></div>
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Subunit</th>
+                                            <th>Rent</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="bifurcationRows"></tbody>
+                                </table>
+                                {{-- <p>Sum of Subunit Rents: <span id="sumSubunitRent">0.00</span></p> --}}
+                                <p id="rentMismatchError" class="text-danger fw-bold" style="display:none;">
+                                    Error: Sum of subunit rents does not match total unit rent!
+                                </p>
+
+                                <input type="hidden" name="contract_unit_details_id" id="bifurcationUnitId">
+                                <input type="hidden" name="agreement_unit_id" id="agreementUnitId">
+                                <input type="hidden" name="agreement_id" id="agreementId">
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-primary" id="saveRentBifurcation">Save</button>
+                            </div>
+
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+
+
+
 
 
 
@@ -751,6 +827,10 @@
 @endsection
 @section('custom_js')
     <script>
+        let agreement = @json($agreement);
+        console.log(agreement);
+    </script>
+    <script>
         $(document).on('click', '.open-invoice-modal', function(e) {
             e.preventDefault();
             const agreementId = $(this).data('agreementid');
@@ -820,6 +900,164 @@
                 $('#terminationDateText').text(date);
                 $('#terminationDateBox').removeClass('d-none');
             }
+        });
+    </script>
+    <script>
+        $(document).on('click', '.openRentModal', function() {
+
+            const unit = $(this).data('units');
+            const subunits = $(this).data('subunits');
+            const unitRent = Number(unit?.total_rent_per_unit_per_month);
+            const agreementUnitId = $(this).data('unit-id');
+            const agreementId = $(this).data('agreement-id');
+            const agreementUnits = agreement.agreement_units; // agreement must be defined globally
+            const currentUnit = agreementUnits.find(u => u.id == agreementUnitId);
+            console.log("currentUnit:", agreementUnits, currentUnit);
+            const savedRents = currentUnit?.agreement_subunit_rent_bifurcation || [];
+            console.log(savedRents);
+            console.log(unitRent);
+            console.log(subunits);
+            console.log(unit);
+
+            let rows = '';
+            let runningTotal = 0;
+
+            $('#totalUnitRent').text(unitRent.toFixed(2));
+            subunits.forEach((subunit, index) => {
+
+                // let value = unit.subunit_rent_per_unit;
+                const saved = savedRents.find(r => r.contract_subunit_details_id === subunit.id);
+                console.log("saved:", saved);
+                const value = saved ? Number(saved.rent_per_month) : Number(unit?.subunit_rent_per_unit);
+                console.log("value:", value);
+                const split_id = saved ? saved.id : null;
+
+                runningTotal += value;
+                rows += `
+                    <tr class="subunit-row" data-subunit-id="${subunit.id}" data-split-id="${split_id}">
+                        <td>
+                            ${subunit.subunit_no}
+                            <input type="hidden"
+                                name="subunits[${index}][id]"
+                                value="${subunit.id}">
+                        </td>
+                        <td>
+                            <input type="number"
+                                step="0.01"
+                                class="form-control subunit-rent"
+                                name="subunits[${index}][rent]"
+                                value="${value}">
+                        </td>
+                    </tr>
+                `;
+            });
+            rows += `
+                    <tr>
+                        <td class="font-weight-bold text-right">
+                            Total
+                        </td>
+                        <td id="sumSubunitRent" class="font-weight-bold">
+                            ${runningTotal.toFixed(2)}
+                        </td>
+                    </tr>
+                `;
+
+            $('#bifurcationRows').html(rows);
+            $('#bifurcationUnitId').val(unit.id);
+            $('#agreementUnitId').val(agreementUnitId);
+            $('#agreementId').val(agreementId);
+            // $('#sumSubunitRent').text(runningTotal.toFixed(2));
+            // Check total and enable/disable button
+            toggleSubmitButton(unitRent);
+            $('#rentBifurcationModal').modal('show');
+        });
+        $(document).on('input', '.subunit-rent', function() {
+            let sum = 0;
+            $('.subunit-rent').each(function() {
+                sum += Number($(this).val()) || 0;
+            });
+            $('#sumSubunitRent').text(sum.toFixed(2));
+            const totalUnitRent = Number($('#totalUnitRent').text());
+            toggleSubmitButton(totalUnitRent);
+        });
+        // Function to toggle submit button
+        function toggleSubmitButton(unitRent) {
+            let sum = 0;
+            $('.subunit-rent').each(function() {
+                sum += Number($(this).val()) || 0;
+            });
+
+            if (sum.toFixed(2) == unitRent.toFixed(2)) {
+                $('#saveRentBifurcation').prop('disabled', false);
+                $('#rentMismatchError').hide();
+            } else {
+                $('#saveRentBifurcation').prop('disabled', true);
+                $('#rentMismatchError').show();
+            }
+        }
+    </script>
+    <script>
+        $('#rentBifurcationForm').on('submit', function(e) {
+            e.preventDefault();
+
+            // let totalUnitRent = parseFloat($('#totalUnitRent').text()) || 0;
+            // let sumSubunitRent = 0;
+
+            // // Calculate total of subunit rents
+            // $('.subunit-rent-input').each(function() {
+            //     sumSubunitRent += parseFloat($(this).val()) || 0;
+            // });
+
+            // // Validation: rent mismatch
+            // if (sumSubunitRent.toFixed(2) !== totalUnitRent.toFixed(2)) {
+            //     $('#rentMismatchError').show();
+            //     return false;
+            // } else {
+            //     $('#rentMismatchError').hide();
+            // }
+
+            // Prepare subunit data
+            let bifurcationData = [];
+
+            $('.subunit-row').each(function() {
+                bifurcationData.push({
+                    contract_subunit_details_id: $(this).data('subunit-id'),
+                    rent_per_month: $(this).find('.subunit-rent').val()
+                });
+                if ($(this).data('split-id')) {
+                    bifurcationData[bifurcationData.length - 1].id = $(this).data('split-id');
+                }
+            });
+            console.log(bifurcationData);
+
+            let formData = {
+                _token: $('input[name="_token"]').val(),
+                agreement_id: $('#agreementId').val(),
+                agreement_unit_id: $('#agreementUnitId').val(),
+                contract_unit_details_id: $('#bifurcationUnitId').val(),
+                bifurcation: bifurcationData
+            };
+
+            $.ajax({
+                url: "{{ route('rent-bifurcation.store') }}",
+                type: "POST",
+                data: formData,
+                success: function(response) {
+                    $('#rentBifurcationModal').modal('hide');
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Saved!',
+                        text: response.message,
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                },
+                error: function(xhr) {
+                    toastr.error('Something went wrong');
+                    console.error(xhr.responseText);
+                }
+            });
         });
     </script>
 @endsection

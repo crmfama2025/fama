@@ -957,4 +957,9 @@ class AgreementService
             ->with(['columns' => $columns])
             ->toJson();
     }
+
+    public function rentBifurcationStore($data)
+    {
+        return $this->agreementRepository->rentBifurcationStore($data);
+    }
 }

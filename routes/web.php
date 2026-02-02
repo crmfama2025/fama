@@ -244,6 +244,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/preview-email', function () {
         return view('admin.emails.test-email', ['name' => 'Test User']);
     });
+
+    Route::post('agreement/rent-bifurcation', [AgreementController::class, 'rentBifurcationStore'])->name('rent-bifurcation.store');
 });
 
 

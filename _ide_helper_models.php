@@ -230,6 +230,8 @@ namespace App\Models{
  * @property-read \App\Models\User|null $deletedBy
  * @property-read \App\Models\TenantInvoice|null $invoice
  * @property-read \App\Models\PaymentMode|null $paymentMode
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ClearedReceivable> $receivedPayments
+ * @property-read int|null $received_payments_count
  * @property-write mixed $paid_date
  * @property-write mixed $paymentdate
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail newModelQuery()
@@ -2895,5 +2897,40 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|WhatsappMessage whereVariables($value)
  */
 	class WhatsappMessage extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property int $id
+ * @property int $agreement_id
+ * @property int $agreement_unit_id
+ * @property int $contract_unit_details_id
+ * @property int $contract_subunit_details_id
+ * @property string $rent_per_month
+ * @property int $added_by
+ * @property int|null $updated_by
+ * @property int|null $deleted_by
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\User|null $deletedBy
+ * @method static \Illuminate\Database\Eloquent\Builder|agreementSubunitRentBifurcation newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|agreementSubunitRentBifurcation newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|agreementSubunitRentBifurcation onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|agreementSubunitRentBifurcation query()
+ * @method static \Illuminate\Database\Eloquent\Builder|agreementSubunitRentBifurcation whereAddedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|agreementSubunitRentBifurcation whereAgreementId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|agreementSubunitRentBifurcation whereAgreementUnitId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|agreementSubunitRentBifurcation whereContractSubunitDetailsId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|agreementSubunitRentBifurcation whereContractUnitDetailsId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|agreementSubunitRentBifurcation whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|agreementSubunitRentBifurcation whereDeletedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|agreementSubunitRentBifurcation whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|agreementSubunitRentBifurcation whereRentPerMonth($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|agreementSubunitRentBifurcation whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|agreementSubunitRentBifurcation whereUpdatedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|agreementSubunitRentBifurcation withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|agreementSubunitRentBifurcation withoutTrashed()
+ */
+	class agreementSubunitRentBifurcation extends \Eloquent {}
 }
 
