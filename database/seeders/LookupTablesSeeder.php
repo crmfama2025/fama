@@ -32,6 +32,7 @@ class LookupTablesSeeder extends Seeder
             ['unit_type' => '4BHK', 'created_at' => now()],
             ['unit_type' => '5BHK', 'created_at' => now()],
             ['unit_type' => '6BHK', 'created_at' => now()],
+            ['unit_type' => 'Pent house', 'created_at' => now()],
         ]);
 
         DB::table('unit_statuses')->insert([
