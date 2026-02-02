@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class agreementSubunitRentBifurcation extends Model
+class AgreementSubunitRentBifurcation extends Model
 {
     use HasFactory, SoftDeletes, HasActivityLog, HasDeletedBy;
 
