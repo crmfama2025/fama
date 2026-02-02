@@ -800,7 +800,7 @@ class AgreementService
                     title="Agreement"><i class="fas fa-handshake"></i></a>';
                 }
 
-                if (Gate::allows('agreement.edit') && $row->agreement_status == 0) {
+                if (Gate::allows('agreement.edit') && $row->agreement_status == 0 && paymentStatus($row->id)) {
 
                     $action .= '<a href="' . $editUrl . '" class="btn btn-info  btn-sm m-1" title="Edit agreement"><i
                         class="fas fa-pencil-alt"></i></a>';
