@@ -328,7 +328,7 @@
                                             </a>
                                         </li>
                                     @endif
-                                    @if (auth()->user()->hasPermissionInRange(65, 73) ||
+                                    @if (auth()->user()->hasPermissionInRange(68, 76) ||
                                             Gate::any(['agreement.terminate', 'agreement.invoice_upload', 'agreement.manage_installments']))
                                         <li class="nav-item">
                                             <a href="{{ route('agreement.index') }}"
