@@ -282,8 +282,30 @@
                                                                         3 => 'Room',
                                                                         4 => 'Full Flat',
                                                                     ];
+
                                                                 @endphp
-                                                                {{ $types[$unit->contractUnitDetail->subunittype] ?? '-' }}
+                                                                @if ($type == 2)
+                                                                    {{ $types[$unit->contractSubunitDetail->subunit_type] ?? '-' }}
+                                                                @elseif($type == 1)
+                                                                    @php
+                                                                        $subunitType =
+                                                                            $unit->contractUnitDetail->subunittype;
+
+                                                                        // Always convert comma-separated values to array
+                                                                        $subunitTypes = explode(',', $subunitType);
+
+                                                                        $labels = collect($subunitTypes)
+                                                                            ->map(
+                                                                                fn($type) => $types[
+                                                                                    (int) trim($type)
+                                                                                ] ?? null,
+                                                                            )
+                                                                            ->filter()
+                                                                            ->implode(', ');
+                                                                    @endphp
+                                                                    {{ $labels ?: '-' }}
+                                                                @endif
+
                                                             </td>
                                                             @if ($type == 1 && $contract_type == 1)
                                                                 <td>{{ $unit->rent_per_month ?? '-' }}</td>

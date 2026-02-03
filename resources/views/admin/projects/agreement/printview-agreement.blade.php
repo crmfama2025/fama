@@ -22,9 +22,11 @@
                         </div>
                     </div><!-- /.container-fluid -->
                 </section>
-                @include('admin.projects.agreement.partials.agreement_content', [
-                    'agreement' => $agreement,
-                ])
+                <div class="table-responsive">
+                    @include('admin.projects.agreement.partials.agreement_content', [
+                        'agreement' => $agreement,
+                    ])
+                </div>
                 <div class="mt-5 text-center">
                     <a href="{{ route('agreement.index') }}" class="btn btn-default">back</a>
                     <a href="{{ route('agreement.print', $agreement->id) }}" rel="noopener" target="_blank"
