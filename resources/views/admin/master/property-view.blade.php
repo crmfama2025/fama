@@ -197,36 +197,9 @@
     </div>
 @endsection
 @section('custom_js')
-    {{-- <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&callback=initPropertyMap" async defer>
-    </script>
-    <script>
-        function initPropertyMap() {
-            const lat = {{ $property->latitude ?? 0 }};
-            const lng = {{ $property->longitude ?? 0 }};
-
-            if (!lat || !lng) return;
-
-            const map = new google.maps.Map(document.getElementById('propertyMap'), {
-                center: {
-                    lat: lat,
-                    lng: lng
-                },
-                zoom: 15,
-            });
-
-            new google.maps.Marker({
-                position: {
-                    lat: lat,
-                    lng: lng
-                },
-                map: map,
-                title: "{{ $property->property_name }}"
-            });
-        }
-    </script> --}}
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script>
+    {{-- <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script> --}}
+    {{-- <script>
         document.addEventListener('DOMContentLoaded', function() {
             const lat = {{ $property->latitude ?? 0 }};
             const lng = {{ $property->longitude ?? 0 }};
@@ -247,5 +220,38 @@
                 .bindPopup("{{ $property->property_name }}")
                 .openPopup();
         });
+    </script> --}}
+    <script>
+        function initMap() {
+            const lat = {{ $property->latitude ?? 0 }};
+            const lng = {{ $property->longitude ?? 0 }};
+
+            if (!lat || !lng) return;
+
+            const location = {
+                lat: lat,
+                lng: lng
+            };
+
+            const map = new google.maps.Map(document.getElementById("propertyMap"), {
+                zoom: 15,
+                center: location,
+            });
+
+            const marker = new google.maps.Marker({
+                position: location,
+                map: map,
+                title: "{{ $property->property_name }}"
+            });
+
+            const infoWindow = new google.maps.InfoWindow({
+                content: "{{ $property->property_name }}"
+            });
+
+            marker.addListener("click", () => {
+                infoWindow.open(map, marker);
+            });
+        }
     </script>
-@endsection
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD46-CF9pTGIQpnKNkvc1eeZwBH2pQ70qQ&callback=initMap" async
+    @endsection
