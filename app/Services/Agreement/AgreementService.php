@@ -517,6 +517,7 @@ class AgreementService
                         $exisistingUnit = $this->agreementUnitService->getById($agUnitId);
                         if ($exisistingUnit->contract_unit_details_id != $unit['contract_unit_details_id']) {
                             makeUnitVacant($exisistingUnit->contract_unit_details_id, $ct->id);
+                            deleteBifurcations($exisistingUnit->contract_unit_details_id);
                         }
                         $createdUnit = $this->agreementUnitService->update($unitdata);
                     } else {

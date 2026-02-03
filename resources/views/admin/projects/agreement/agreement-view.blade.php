@@ -548,6 +548,10 @@
                                     </div>
                                 @endforeach
                             </div>
+                            <div class="float-lg-right">Total Agreement Amount:
+                                <span
+                                    class="text-bold text-blue my-1">{{ number_format($agreement->agreement_payment->total_rent_annum, 2) }}</span>
+                            </div>
 
 
 
@@ -556,7 +560,7 @@
                             <!-- /.row -->
 
                             <!-- this row will not appear when printing -->
-                            <div class="row no-print mt-2">
+                            <div class="row no-print mt-3">
                                 <div class="col-12 d-xl-flex justify-content-between">
                                     <a href="{{ route('agreement.index') }}" class="btn btn-info"><i
                                             class="fas mr-2 fa-arrow-left"></i>Back</a>
