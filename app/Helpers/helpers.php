@@ -2,6 +2,7 @@
 
 use App\Models\Agreement;
 use App\Models\AgreementPaymentDetail;
+use App\Models\AgreementSubunitRentBifurcation;
 use App\Models\ClearedReceivable;
 use App\Models\Contract;
 use App\Models\ContractPaymentDetail;
@@ -899,4 +900,12 @@ function format_k($number)
     }
 
     return number_format($number);
+}
+function deleteBifurcations($contract_unit_details_id)
+{
+    $bifurcations = AgreementSubunitRentBifurcation::where('contract_unit_details_id', $contract_unit_details_id)->get();
+
+    foreach ($bifurcations as $bifurcation) {
+        $bifurcation->delete();
+    }
 }
