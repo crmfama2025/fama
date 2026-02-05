@@ -1201,12 +1201,26 @@ namespace App\Models{
 
 namespace App\Models{
 /**
- * @property-read \App\Models\Agreement|null $contract
+ * @property int $id
+ * @property int $contract_id
+ * @property int $old_status
+ * @property int $new_status
+ * @property string $changed_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Agreement $contract
  * @property-read \App\Models\User|null $deletedBy
  * @method static \Illuminate\Database\Eloquent\Builder|ContractStatusLogs newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ContractStatusLogs newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ContractStatusLogs onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|ContractStatusLogs query()
+ * @method static \Illuminate\Database\Eloquent\Builder|ContractStatusLogs whereChangedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ContractStatusLogs whereContractId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ContractStatusLogs whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ContractStatusLogs whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ContractStatusLogs whereNewStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ContractStatusLogs whereOldStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ContractStatusLogs whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractStatusLogs withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|ContractStatusLogs withoutTrashed()
  */
@@ -1359,7 +1373,7 @@ namespace App\Models{
  * @property string $rent_per_unit_per_month
  * @property string $rent_per_unit_per_annum
  * @property string $total_rent_per_unit_per_month
- * @property int $subunittype
+ * @property string $subunittype 1-partition, 2-bedspace, 3-room, 4-full flat
  * @property int $subunitcount_per_unit
  * @property string $subunit_rent_per_unit
  * @property string|null $unit_profit_perc

@@ -180,11 +180,13 @@
                                                         @endphp
                                                         @foreach ($contract->contract_unit_details as $unitdetail)
                                                             @php
-                                                                $subtype[] = subunittypeName($unitdetail->subunittype);
+                                                                // subunittypeName();
+                                                                $subtype[] = $unitdetail->subunittype;
                                                             @endphp
                                                         @endforeach
                                                         <span class="tag tag-success">Partition Type :
-                                                            {{ implode(',', array_unique($subtype)) }} </span> <br>
+                                                            {{ subunittypeName(implode(', ', array_unique($subtype))) }}
+                                                        </span> <br>
                                                     </p>
                                                 </div>
 

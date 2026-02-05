@@ -166,13 +166,13 @@ class Contract extends Model
                 'contract_detail',
                 'contract_unit',
                 'contract_rentals',
-                'contract_documents',
                 'contract_otc',
                 'contract_payments'
             ];
 
             // hasMany relations
             $hasManyRelations = [
+                'contract_documents',
                 'contract_payment_receivables',
                 'contract_payment_details',
                 'contract_subunit_details',

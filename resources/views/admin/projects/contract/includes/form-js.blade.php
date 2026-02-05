@@ -383,13 +383,13 @@
                                 <label class="labelpermission" for="partition` + highestIndex + `"> Partition </label>
                             </div>
                             <div class="icheckbox icheck-success d-inline">
-                                <input type="checkbox" name="unit_detail[partition][` + highestIndex +
+                                <input type="checkbox" name="unit_detail[bedspace][` + highestIndex +
                 `]" id="bedspace` +
                 highestIndex + `" class="bedcheck" value="2" required>
                                 <label class="labelpermission" for="bedspace` + highestIndex + `"> Bedspace </label>
                             </div>
                             <div class="icheckbox icheck-success d-inline">
-                                <input type="checkbox" name="unit_detail[partition][` + highestIndex + `]" id="room` +
+                                <input type="checkbox" name="unit_detail[room][` + highestIndex + `]" id="room` +
                 highestIndex + `" class="roomcheck" value="3" required>
                                 <label class="labelpermission" for="room` + highestIndex + `"> Room </label>
                             </div>
@@ -614,24 +614,24 @@
             $checkbox.off('change').on('change', function() {
                 const isChecked = $checkbox.prop('checked');
 
-                // 🔹 Make checkboxes mutually exclusive
-                $.each(map, function(otherCheck, otherDiv) {
-                    if (otherCheck !== check) {
-                        $(otherCheck).prop('checked', false);
-                        const $otherDiv = $(otherDiv);
-                        $otherDiv.show(); // keep visible briefly for logic
+                // // 🔹 Make checkboxes mutually exclusive
+                // $.each(map, function(otherCheck, otherDiv) {
+                //     if (otherCheck !== check) {
+                //         $(otherCheck).prop('checked', false);
+                //         const $otherDiv = $(otherDiv);
+                //         $otherDiv.show(); // keep visible briefly for logic
 
-                        // Clear only user-typed values (not original DB values)
-                        $otherDiv.find('input, select, textarea').each(function() {
-                            const $input = $(this);
-                            if ($input.val() !== $input.data('original-value')) {
-                                $input.val('');
-                            }
-                        });
+                //         // Clear only user-typed values (not original DB values)
+                //         $otherDiv.find('input, select, textarea').each(function() {
+                //             const $input = $(this);
+                //             if ($input.val() !== $input.data('original-value')) {
+                //                 $input.val('');
+                //             }
+                //         });
 
-                        $otherDiv.hide(); // finally hide
-                    }
-                });
+                //         $otherDiv.hide(); // finally hide
+                //     }
+                // });
 
                 // 🔹 Show/hide this one
                 if (isChecked) {
@@ -844,47 +844,49 @@
         let totalRoom = 0;
         let totalPartitionFb = 0;
         let totalBedSpaceFb = 0;
+
         let totSubValue = 0;
         let cod = 0;
         let totFlat = 0;
 
-        const countOfHouses = $('.unit_no').filter((_, el) => $(el).val()).length;
-        const totalUnitCount = $('.unit_count').filter((_, el) => $(el).val()).length;
-        if ($('#contract_type').val() == '1') {
+        $('.unit_no').each((_, el) => {
+            const $row = $(el).closest('div.form-group').parent(); // assuming each unit is a row
 
-            // Sum values
-            const sumValues = selector => $('.' + selector).toArray().reduce((sum, el) => sum + (parseFloat($(el)
-                .val()) || 0), 0);
+            // Get subunit counts per unit
+            const partitions = parseFloat($row.find('.total_partitions').val()) || 0;
+            const bedspaces = parseFloat($row.find('.total_bedspaces').val()) || 0;
+            const rooms = parseFloat($row.find('.total_room').val()) || 0;
+
+            const partitionsFb = parseFloat($row.find('.total_partitions_fb').val()) || 0;
+            const bedspacesFb = parseFloat($row.find('.total_bedspaces_fb').val()) || 0;
+
+            const mainSubunitSum = partitions + bedspaces + rooms;
+            const fbSubunitSum = partitionsFb + bedspacesFb;
 
 
-
-            // Conditional calculation
-            if (countOfHouses > 0) {
-                totalPartition = sumValues('total_partitions');
-                totalBedSpace = sumValues('total_bedspaces');
-                totalRoom = sumValues('total_room');
+            // totSubValue = sum of all subunits if any exist
+            if (mainSubunitSum > 0) {
+                totSubValue += mainSubunitSum;
+                cod += partitions; // cod is main partitions only
             }
 
-            if (totalUnitCount > 0) {
-                totalPartitionFb = sumValues('total_partitions_fb');
-                totalBedSpaceFb = sumValues('total_bedspaces_fb');
+            if (fbSubunitSum > 0) {
+                totSubValue += fbSubunitSum;
+                cod += partitionsFb; // include FB partitions in cod if needed
             }
-            // Calculate totSubValue and cod
 
-            if (totalPartition > 0) cod = totSubValue = totalPartition;
-            if (totalBedSpace > 0) totSubValue += totalBedSpace;
-            if (totalRoom > 0) totSubValue += totalRoom;
+            // If unit has no subunits at all
+            if (mainSubunitSum === 0 && fbSubunitSum === 0) {
+                totSubValue += 1; // counts as full flat
+            }
+            totFlat += 1;
 
-            if (totSubValue === 0) totSubValue = totalUnitCount || countOfHouses;
+        });
 
-            totFlat = totalUnitCount || countOfHouses;
-
-            if (totalPartitionFb > 0) cod = totSubValue = totalPartitionFb;
-            if (totalBedSpaceFb > 0) totSubValue += totalBedSpaceFb;
-        } else {
-            totFlat = totalUnitCount || countOfHouses;
-            if (totSubValue === 0) totSubValue = totalUnitCount || countOfHouses;
-            if (totalPartitionFb > 0) cod = totSubValue;
+        // If contract type is not 1, consider all as flats
+        if ($('#contract_type').val() != '1') {
+            totSubValue = totFlat || totSubValue;
+            cod = totalPartitionFb || 0;
         }
 
         return {
@@ -895,8 +897,9 @@
             totalBedSpaceFb,
             totSubValue,
             cod,
-            totFlat,
+            totFlat
         };
+
     }
 
 
@@ -1508,7 +1511,8 @@
     $('.rentPartition, .rentBedspace, .rentRoom, .rentFlat').hide();
     let totalflatcount = 0;
 
-    $(document).on('change', '.unit_type, .partcheck, .bedcheck, .partcheck_fb, .bedcheck_fb, .fullBuildCheck',
+    $(document).on('change',
+        '.unit_type, .partcheck, .bedcheck, .roomcheck , .partcheck_fb, .bedcheck_fb, .fullBuildCheck',
         function() {
             subUnitCheck();
         });
@@ -1560,7 +1564,7 @@
         if ($('.bedcheck:checked').length > 0) {
             $('.rentBedspace').show();
         }
-
+        console.log($('.roomcheck:checked'));
         if ($('.roomcheck:checked').length > 0) {
             $('.rentRoom').show();
         }
@@ -1608,6 +1612,7 @@
 
 
     function calculateRoi() {
+        console.log('calculate roi');
         let contract_type = '{{ $contract ? $contract->contract_type_id : '' }}';
         if (contract_type == '2') {
             calculateRoiFF();
@@ -1624,8 +1629,9 @@
             let total_bs = totalBedspace() * rentPerBedspace;
             let total_room = totalRoom() * rentPerRoom;
             calculateFlatcount();
-            $('#subunit_count_per_contract').val(calculateSubAccommodations().totSubValue);
 
+            $('#subunit_count_per_contract').val(calculateSubAccommodations().totSubValue);
+            console.log($('#subunit_count_per_contract').val());
             let total_flats = totalflatcount * rentPerFlat;
 
             let total_rent_rec = customRound(total_part + total_bs + total_room + total_flats);
@@ -1729,12 +1735,12 @@
                 if (prevffBlocks.length > no_of_units) {
                     if (!existingBtn) {
                         lastFormGroup.insertAdjacentHTML('beforeend', `
-                        <div class="col-sm-1 btndeleteProf">
-                            <button type="button" class="btn-danger btn-block dlt-divProf btndetdProfit mt-31" title="Delete" data-toggle="tooltip">
-                                <i class="fa fa-trash fa-1x"></i>
-                            </button>
-                        </div>
-                    `);
+                                <div class="col-sm-1 btndeleteProf">
+                                    <button type="button" class="btn-danger btn-block dlt-divProf btndetdProfit mt-31" title="Delete" data-toggle="tooltip">
+                                        <i class="fa fa-trash fa-1x"></i>
+                                    </button>
+                                </div>
+                            `);
 
                         $('.contractFormSubmit').prop('disabled', true);
 
@@ -1759,6 +1765,7 @@
                                         no_of_units) {
                                         remainingDeletes.forEach(div => div
                                             .remove());
+                                        console.log('after remove');
                                         $('.contractFormSubmit').prop('disabled', false);
                                     }
                                 } else {
@@ -1779,6 +1786,7 @@
                                 '.rentPerUnitFF')
                             .length <= no_of_units) {
                             remainingDeletes.forEach(div => div.remove());
+                            console.log('after remove else');
                             $('.contractFormSubmit').prop('disabled', false);
                         }
                     }
@@ -1931,6 +1939,7 @@
     });
 
     function installmentChangeRec(ele) {
+        console.log('installment rec change');
         $('.receivable_maindiv').show();
 
         let rec_inst = $('#rent_installments').find(':selected').text();
@@ -1949,16 +1958,18 @@
 
             // ✅ Add delete button only if more blocks than rec_inst
             if (prevffBlocks.length > rec_inst) {
+                console.log('if greater limit');
                 if (!existingBtn) {
+                    console.log('if exist');
                     formGroup.insertAdjacentHTML('beforeend', `
-                <div class="col-sm-1 btndelete">
-                    <button type="button" class="btn btn-danger btn-block dlt-divRec btndetdRec" title="Delete" data-toggle="tooltip">
-                        <i class="fa fa-trash fa-1x"></i>
-                    </button>
-                </div>
-            `);
+                            <div class="col-sm-1 btndelete">
+                                <button type="button" class="btn btn-danger btn-block dlt-divRec btndetdRec" title="Delete" data-toggle="tooltip">
+                                    <i class="fa fa-trash fa-1x"></i>
+                                </button>
+                            </div>
+                        `);
 
-                    $('.contractFormSubmit').prop('disabled', true);
+                    $('.contractFormSubmit').attr('disabled', true);
 
                     // ✅ Attach delete event
                     const removeBtn = formGroup.querySelector('.dlt-divRec');
@@ -1972,6 +1983,7 @@
             }
             // ✅ If count matches or below limit — remove delete buttons
             else {
+
                 if (existingBtn) {
                     const remainingDeletes = containerPayment.querySelectorAll('.btndelete');
                     const remainingPayments = containerPayment.querySelectorAll(
@@ -2011,8 +2023,7 @@
                             allowOutsideClick: false, // Prevents closing by clicking outside
                             allowEscapeKey: false, // Prevents closing by pressing Escape key
                             didOpen: () => {
-                                Swal
-                                    .showLoading(); // Shows the built-in loader
+                                Swal.showLoading(); // Shows the built-in loader
                             }
                         });
 
@@ -2035,8 +2046,7 @@
 
                                     // window.location.reload();
                                     Swal.close();
-                                    valueTorentRec('change');
-                                    finalRecCal();
+
 
                                     // ✅ Recheck after removal
                                     const remainingDeletes = containerPayment.querySelectorAll(
@@ -2049,6 +2059,9 @@
                                         remainingDeletes.forEach(div => div.remove());
                                         $('.contractFormSubmit').prop('disabled', false);
                                     }
+
+                                    valueTorentRec('change');
+                                    finalRecCal();
                                 },
                                 error: function(err) {
                                     toastr.error(err.responseJSON.message);
@@ -2058,8 +2071,7 @@
                         } else {
                             block.remove();
                             Swal.close();
-                            valueTorentRec('change');
-                            finalRecCal();
+
                             // ✅ Recheck after removal
                             const remainingDeletes = containerPayment.querySelectorAll('.btndelete');
                             const remainingPayments = containerPayment.querySelectorAll('.receivableaddmore');
@@ -2068,6 +2080,8 @@
                                 remainingDeletes.forEach(div => div.remove());
                                 $('.contractFormSubmit').prop('disabled', false);
                             }
+                            valueTorentRec('change');
+                            finalRecCal();
                         }
 
                     } else {
@@ -2100,6 +2114,7 @@
 
 
         if (rec_inst > prevPayCount) {
+
             let diffValk = rec_inst - prevPayCount;
             let start = prevPayCount;
 
@@ -2158,7 +2173,6 @@
     }
 
     function calculateRoiFF() {
-        console.log('roiff');
         $('#subunit_count_per_contract').val(calculateSubAccommodations().totSubValue);
         let totalrev = 0;
         $('.unit_revenue').each(function() {
@@ -2234,8 +2248,6 @@
             valueTorentRec('change');
             finalRecCal();
 
-
-
         }
     }
 
@@ -2247,6 +2259,7 @@
 
 
     function valueTorentRec(action) {
+        console.log('value to rent rec');
         let rent_per_flat = parseFloat($('#rent_per_flat').val()) || 0;
 
         let totRentperflat = 0;
@@ -2265,21 +2278,25 @@
     }
 
     function finalRecCal() {
+        console.log('final rec cal');
         let totPaymentRec = 0;
 
         $('.rec_payment_amount').each(function() {
             totPaymentRec += parseFloat($(this).val()) || 0;
         });
 
-
-
         if ((totPaymentRec.toFixed(2) - $('.total_rental').val()) != 0) {
             $('.total_rental_inst').val(totPaymentRec.toFixed(2));
             $('.error-text-installment').show();
-            $('.contractFormSubmit').attr('disabled', 'true');
+            $('.contractFormSubmit').attr('disabled', true);
         } else {
             $('.error-text-installment').hide();
-            $('.contractFormSubmit').removeAttr('disabled');
+            const btnDetdRec = $('.btndetdRec:visible');
+            if (btnDetdRec.length == 0) {
+                // btndetdRec not visible / not present → enable submit
+                $('.contractFormSubmit').removeAttr('disabled');
+            }
+            // $('.contractFormSubmit').removeAttr('disabled');
         }
     }
 
@@ -2321,11 +2338,11 @@
         CalculatePayables();
 
         subUnitCheck(edit = true);
-        // finalRecCal();
-        console.log('roi call edit');
         calculateRoi();
-        console.log('roi call edit');
+        finalRecCal();
         valueTorentRec('load');
+
+
 
         $('.rec_payment_amount').on('input change', function() {
             finalRecCal();

@@ -68,18 +68,22 @@ class SubUnitDetailRepository
         }
     }
 
-    public function existPrevSubType($detailId, $is_partition)
+    public function existPrevSubType($detailId, $subUnitData, $key)
     {
-        if ($is_partition == '1') {
-            $subunit_type = ['2', '3'];
-        } else if ($is_partition == '2') {
-            $subunit_type = ['1', '3'];
-        } else {
-            $subunit_type = ['1', '2'];
+        $subunit_type = array();
+        if (isset($subUnitData['is_partition'][$key]) && $subUnitData['is_partition'][$key] == '1') {
+            $subunit_type[] = 1;
+        }
+        if (isset($subUnitData['is_bedspace'][$key]) && $subUnitData['is_bedspace'][$key] == '2') {
+            $subunit_type[] = 2;
+        }
+
+        if (isset($subUnitData['is_room'][$key]) &&  $subUnitData['is_room'][$key] == '3') {
+            $subunit_type[] = 3;
         }
 
         return ContractSubunitDetail::where('contract_unit_detail_id', $detailId)
-            ->whereIn('subunit_type', $subunit_type)
+            ->whereNotIn('subunit_type', $subunit_type)
             ->pluck('id')
             ->toArray();
     }

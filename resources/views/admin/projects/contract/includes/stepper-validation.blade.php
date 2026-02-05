@@ -98,9 +98,13 @@
                     // OTHER STEPS → NEXT
                     if (validateStep(stepIndex)) {
                         window.stepper.next();
+                        console.log(window.stepper._currentIndex);
 
                         if (window.stepper._currentIndex === 6) {
                             rentPerUnitFamaFaateh();
+                            finalRecCal();
+                            valueTorentRec('change');
+                            console.log('stepper 6');
                         }
                     } else {
                         alert('Please fill all required fields in this step.');
@@ -111,7 +115,48 @@
 
 
             document.addEventListener('click', function(e) {
+                // get current active step
+                const activeStep = document.querySelector('.bs-stepper .step.active');
+                if (!activeStep) return;
+
+                // get data-target value (e.g. "#step-1")
+                const targetSelector = activeStep.getAttribute('data-target');
+                if (!targetSelector) return;
+
+                // actual content container
+                const stepContent = document.querySelector(targetSelector);
+                if (!stepContent) return;
+
+                // find Next button inside content
+                const nextBtn = stepContent.querySelector('.nextBtn');
+                const submitBtn = stepContent.querySelector('.contractFormSubmit');
+
+
                 if (e.target.matches('.prevBtn')) {
+
+                    let isDisabled = false;
+
+                    if (nextBtn) {
+                        // normal steps
+                        isDisabled = nextBtn.disabled === true;
+                    } else if (submitBtn) {
+                        // last step
+                        isDisabled = submitBtn.disabled === true;
+                    }
+
+                    // ❌ If Next is disabled → stop + alert
+                    if (isDisabled) {
+                        Swal.fire({
+                            icon: 'warning',
+                            text: 'Please make sure all values match before going back.',
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 2500,
+                        });
+                        return;
+                    }
+
                     window.stepper.previous(); // safe even if current step is first
                 }
 
@@ -125,6 +170,14 @@
 
                         if (window.stepper._currentIndex === 6) { // adjust step index
                             rentPerUnitFamaFaateh();
+                            CalculatePayables();
+
+                        }
+
+                        if (window.stepper._currentIndex === window.stepper._steps.length - 1 &&
+                            !@json($contract && $contract->exists)) {
+                            finalRecCal();
+                            valueTorentRec('change');
                         }
 
                     } else {
