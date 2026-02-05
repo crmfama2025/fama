@@ -19,7 +19,7 @@ class ContractSubunitDetail extends Model
         'subunit_no',
         'subunit_type',
         'subunit_code',
-        'subunit_type',
+        'subunit_rent',
         'added_by',
         'updated_by',
         'deleted_by',

@@ -74,7 +74,8 @@ class SubUnitDetailService
                     'contract_unit_id' => $subUnitData['contract_unit_id'],
                     'contract_unit_detail_id' => $detailId[$key],
                     'subunit_type' => $subunit_type,
-                    'subunit_no' => $subunitno,
+                    'subunit_no' => $subunitno['subunitno'],
+                    'subunit_rent' => $subunitno['subunitrent'],
                     'subunit_code' => $subunitcode,
                     'added_by' => $user_id ? $user_id : auth()->user()->id,
                 );
@@ -144,7 +145,8 @@ class SubUnitDetailService
                             $detailId,
                             $user_id,
                             $subunit_type,
-                            $subunitno
+                            $subunitno['subunitno'],
+                            $subunitno['subunitrent']
                         );
                     }
                 } elseif ($currentCount > $requiredCount) {
@@ -168,7 +170,7 @@ class SubUnitDetailService
     }
 
 
-    public function createloop($subUnitData, $key, $detailId, $user_id, $subunit_type, $subunitno)
+    public function createloop($subUnitData, $key, $detailId, $user_id, $subunit_type, $subunitno, $subunitrent)
     {
         $subunitcode = 'P' . $subUnitData['project_no'] . '/' . $subUnitData['company_code'] . '/' . $subUnitData['unit_no'][$key] . '/' . $subunitno;
         // print($subunitcode);
@@ -181,6 +183,7 @@ class SubUnitDetailService
             'contract_unit_detail_id' => $detailId, //detailId[$key]->id,
             'subunit_type' => $subunit_type,
             'subunit_no' => $subunitno,
+            'subunit_rent' => $subunitrent,
             'subunit_code' => $subunitcode,
             'added_by' => $user_id ? $user_id : auth()->user()->id,
         );
