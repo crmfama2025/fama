@@ -20,12 +20,12 @@
             <div class="container-fluid">
                 <div class="row mb-2">
                     <div class="col-sm-6">
-                        <h1>Installment details</h1>
+                        <h1>Agreement details</h1>
                     </div>
                     <div class="col-sm-6">
                         <ol class="breadcrumb float-sm-right">
                             <li class="breadcrumb-item"><a href="#">Home</a></li>
-                            <li class="breadcrumb-item active">Installment details</li>
+                            <li class="breadcrumb-item active">Agreement details</li>
                         </ol>
                         <!-- Back to List Button -->
                         <a href="{{ route('agreement.index') }}" class="btn btn-info float-sm-right mx-2 btn-sm ml-2">
@@ -45,7 +45,7 @@
 
 
                         <!-- Main content -->
-                        <div class="invoice p-3 mb-3">
+                        <div class="invoice p-4 mb-3">
                             <span
                                 class="{{ 'badge badge-danger ' . ($agreement->contract->contract_type_id == 1 ? 'price-badge-df ' : 'price-badge-ff') }}">
                                 {{ $agreement->contract->contract_type->contract_type }} Project
@@ -59,8 +59,11 @@
                                     <h5 class="font-weight-bold text-primary mb-2">Vendor Details</h5>
                                     <address>
                                         <span class="project_id">P - {{ $agreement->contract->project_number }}</span></br>
-                                        <span
-                                            class="vendor_name">{{ strtoupper($agreement->contract->vendor->vendor_name) }}</span></br>
+                                        {{-- <span
+                                            class="vendor_name">{{ strtoupper($agreement->contract->vendor->vendor_name) }}</span></br> --}}
+                                        <a href="{{ route('vendors.show', $agreement->contract->vendor->id) }}"
+                                            class="linkhover"
+                                            target="_blank">{{ strtoupper($agreement->contract->vendor->vendor_name) }}</a></br>
                                         <span
                                             class="name">{{ strtoupper($agreement->contract->company->company_name) }}</span></br>
                                         <span
@@ -69,8 +72,10 @@
                                         <span class="area">{{ strtoupper($agreement->contract->area->area_name) }}</span>,
                                         <span
                                             class="locality">{{ strtoupper($agreement->contract->locality->locality_name) }}</span>,
-                                        <span
-                                            class="building">{{ strtoupper($agreement->contract->property->property_name) }}
+                                        <span class="building">
+                                            <a href="{{ route('property.show', $agreement->contract->property->id) }}"
+                                                class="linkhover"
+                                                target="_blank">{{ strtoupper($agreement->contract->property->property_name) }}</a>
                                             -
                                             @foreach ($agreement->agreement_units as $unit)
                                                 {{ strtoupper($unit->contractUnitDetail->unit_number) }}@if (!$loop->last)
@@ -94,7 +99,7 @@
                                                 class="vendor_name">{{ strtoupper($agreement->tenant->tenant_name) }}</span></br>
                                             <span class="mobile">{{ $agreement->tenant->tenant_mobile }}</span></br>
                                             <span class="email">{{ $agreement->tenant->tenant_email }}</span></br>
-                                            <span
+                                            {{-- <span
                                                 class="area">{{ strtoupper($agreement->contract->area->area_name) }}</span>,
                                             <span
                                                 class="locality">{{ strtoupper($agreement->contract->locality->locality_name) }}</span>,
@@ -106,7 +111,7 @@
                                                         ,
                                                     @endif
                                                 @endforeach
-                                            </span></br>
+                                            </span></br> --}}
                                             <span
                                                 class="start_date">{{ \Carbon\Carbon::parse($agreement->start_date)->format('d/m/Y') }}</span>
                                             - <span
@@ -891,6 +896,7 @@
             }
 
             uploadBtn.prop('disabled', true);
+            showLoader();
 
             $.ajax({
                 url: "{{ url('agreement-invoice-upload') }}/",
@@ -899,11 +905,13 @@
                 processData: false,
                 contentType: false,
                 success: function(response) {
+                    hideLoader();
                     toastr.success(response.message);
                     $('#modal-invoiceUpload').modal('hide');
                     window.location.reload();
                 },
                 error: function(xhr) {
+                    hideLoader();
                     uploadBtn.prop('disabled', false);
                     const response = xhr.responseJSON;
                     if (xhr.status === 422 && response?.errors) {
