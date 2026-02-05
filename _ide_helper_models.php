@@ -1422,7 +1422,7 @@ namespace App\Models{
  * @property string $rent_per_unit_per_month
  * @property string $rent_per_unit_per_annum
  * @property string $total_rent_per_unit_per_month
- * @property int $subunittype
+ * @property string $subunittype 1-partition, 2-bedspace, 3-room, 4-full flat
  * @property int $subunitcount_per_unit
  * @property string $subunit_rent_per_unit
  * @property string|null $unit_profit_perc

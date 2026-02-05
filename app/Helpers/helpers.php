@@ -55,12 +55,20 @@ function subunitNoGeneration($subUnitData, $key, $i)
     if (isset($subUnitData['is_partition'][$key])) {
         if ($subUnitData['is_partition'][$key] == '1') {
             $subunitno = 'P' . $i;
-        } else if ($subUnitData['is_partition'][$key] == '2') {
+        }
+    }
+    if (isset($subUnitData['is_bedspace'][$key])) {
+        if ($subUnitData['is_bedspace'][$key] == '2') {
             $subunitno = 'BS' . $i;
-        } else {
+        }
+    }
+    if (isset($subUnitData['is_room'][$key])) {
+        if ($subUnitData['is_room'][$key] == '3') {
             $subunitno = 'R' . $i;
         }
-    } else {
+    }
+
+    if (!isset($subUnitData['is_room'][$key]) && !isset($subUnitData['is_bedspace'][$key]) && !isset($subUnitData['is_partition'][$key])) {
         $subunitno = 'FL' . $i;
     }
 
@@ -70,38 +78,88 @@ function subunitNoGeneration($subUnitData, $key, $i)
 
 function subUnitCount($subUnitData, $i)
 {
+    // dd($subUnitData);
     $subunitcount = 0;
     if (isset($subUnitData['is_partition'][$i])) {
-        if ($subUnitData['is_partition'][$i] == '1') {
-            $subunitcount = $subUnitData['partition'][$i];
-        } else if ($subUnitData['is_partition'][$i] == '2') {
-            $subunitcount = $subUnitData['bedspace'][$i];
-        } else {
-            $subunitcount = $subUnitData['room'][$i];
+        if ($subUnitData['is_partition'][$i]) {
+            $subunitcount += $subUnitData['partition'][$i];
         }
-    } else {
-        $subunitcount++;
+    }
+
+    if (isset($subUnitData['is_bedspace'][$i])) {
+        if ($subUnitData['is_bedspace'][$i]) {
+            $subunitcount += $subUnitData['bedspace'][$i];
+        }
+    }
+
+    if (isset($subUnitData['is_room'][$i])) {
+        if ($subUnitData['is_room'][$i]) {
+            $subunitcount += $subUnitData['room'][$i];
+        }
+    }
+
+    if (!isset($subUnitData['is_room'][$i]) && !isset($subUnitData['is_bedspace'][$i]) && !isset($subUnitData['is_partition'][$i])) {
+        $subunitcount = 1;
     }
 
     return $subunitcount;
 }
 
-function subUnitType($subUnitData, $i)
+function subUnitTypeSingle($subUnitData, $i)
 {
     $subunit_type = '0';
-    if (isset($subUnitData['is_partition'][$i])) {
-        if ($subUnitData['is_partition'][$i] == '1') {
-            $subunit_type = '1';
-        } else if ($subUnitData['is_partition'][$i] == '2') {
-            $subunit_type = '2';
-        } else {
-            $subunit_type = '3';
-        }
-    } else {
-        $subunit_type = '4';
+    if (!empty($subUnitData['is_partition'][$i]) && $subUnitData['is_partition'][$i] == '1') {
+        $subunit_type = 1;
     }
 
+    if (!empty($subUnitData['is_bedspace'][$i]) && $subUnitData['is_bedspace'][$i] == '2') {
+        $subunit_type = 2;
+    }
+
+    if (!empty($subUnitData['is_room'][$i]) && $subUnitData['is_room'][$i] == '3') {
+        $subunit_type = 3;
+    }
+
+    if (empty($subUnitData['is_room'][$i]) && empty($subUnitData['is_bedspace'][$i]) && empty($subUnitData['is_partition'][$i])) {
+        $subunit_type = 4;
+    }
+
+    // if (isset($subUnitData['is_partition'][$i])) {
+    //     if ($subUnitData['is_partition'][$i] == '1') {
+    //         $subunit_type = '1';
+    //     } else if ($subUnitData['is_partition'][$i] == '2') {
+    //         $subunit_type = '2';
+    //     } else {
+    //         $subunit_type = '3';
+    //     }
+    // } else {
+    //     $subunit_type = '4';
+    // }
+
     return $subunit_type;
+}
+
+function subUnitType($subUnitData, $i)
+{
+    $types = [];
+
+    if (!empty($subUnitData['is_partition'][$i]) && $subUnitData['is_partition'][$i] == '1') {
+        $types[1] = $subUnitData['partition'][$i] ?? 0;
+    }
+
+    if (!empty($subUnitData['is_bedspace'][$i]) && $subUnitData['is_bedspace'][$i] == '2') {
+        $types[2] = $subUnitData['bedspace'][$i] ?? 0;
+    }
+
+    if (!empty($subUnitData['is_room'][$i]) && $subUnitData['is_room'][$i] == '3') {
+        $types[3] = $subUnitData['room'][$i] ?? 0;
+    }
+
+    if (empty($subUnitData['is_room'][$i]) && empty($subUnitData['is_bedspace'][$i]) && empty($subUnitData['is_partition'][$i])) {
+        $types[4] = 1;
+    }
+
+    return $types; // [type => requiredCount]
 }
 
 function getPartitionValue($dataArr, $key, $receivable_installments)
@@ -115,39 +173,52 @@ function getPartitionValue($dataArr, $key, $receivable_installments)
     $subunitcount_per_unit = 0;
     $subunit_rent_per_unit = 0;
     $total_rent_per_unit_per_month = 0;
-    // dd($dataArr);
+    // dump($dataArr);
     if (array_key_exists('partition', $dataArr) && isset($dataArr['partition'][$key])) {
+        // dump($dataArr['partition']);
         if ($dataArr['partition'][$key] == 1) {
             $partition = 1;
             // dd($dataArr['rent_per_partition']);
-            $rent_per_unit_per_month = $dataArr['rent_per_partition'];
+            $rent_per_unit_per_month += $dataArr['rent_per_partition'];
             $subunittype = 1;
             $subunitcount_per_unit += $dataArr['total_partition'][$key];
-            $subunit_rent_per_unit = $dataArr['rent_per_partition'];
-            $total_rent_per_unit_per_month = $dataArr['total_partition'][$key] * $dataArr['rent_per_partition'];
-        } else if ($dataArr['partition'][$key] == 2) {
-            $bedspace = 1;
-            $rent_per_unit_per_month = $dataArr['rent_per_bedspace'];
-            $subunittype = 2;
-            $subunitcount_per_unit += $dataArr['total_bedspace'][$key];
-            $subunit_rent_per_unit = $dataArr['rent_per_bedspace'];
-            $total_rent_per_unit_per_month = $dataArr['total_bedspace'][$key] * $dataArr['rent_per_bedspace'];
-        } else {
-            $room = 1;
-            $rent_per_unit_per_month = $dataArr['rent_per_room'];
-            $subunittype = 3;
-            $subunitcount_per_unit += $dataArr['total_room'][$key];
-            $subunit_rent_per_unit = $dataArr['rent_per_room'];
-            $total_rent_per_unit_per_month = $dataArr['total_room'][$key] * $dataArr['rent_per_room'];
+            $subunit_rent_per_unit += $dataArr['rent_per_partition'];
+            $total_rent_per_unit_per_month += $dataArr['total_partition'][$key] * $dataArr['rent_per_partition'];
         }
-    } else {
+    }
+
+    if (array_key_exists('bedspace', $dataArr) && isset($dataArr['bedspace'][$key])) {
+        if ($dataArr['bedspace'][$key] == 2) {
+            $bedspace = 1;
+            $rent_per_unit_per_month += $dataArr['rent_per_bedspace'];
+            $subunittype = $subunittype ? $subunittype . ', 2' : 2;
+            $subunitcount_per_unit += $dataArr['total_bedspace'][$key];
+            $subunit_rent_per_unit += $dataArr['rent_per_bedspace'];
+            $total_rent_per_unit_per_month += $dataArr['total_bedspace'][$key] * $dataArr['rent_per_bedspace'];
+        }
+    }
+
+    if (array_key_exists('room', $dataArr) && isset($dataArr['room'][$key])) {
+        if ($dataArr['room'][$key] == 3) {
+            $room = 1;
+            $rent_per_unit_per_month += $dataArr['rent_per_room'];
+            $subunittype = $subunittype ? $subunittype . ', 3' : 3;
+            $subunitcount_per_unit += $dataArr['total_room'][$key];
+            $subunit_rent_per_unit += $dataArr['rent_per_room'];
+            $total_rent_per_unit_per_month += $dataArr['total_room'][$key] * $dataArr['rent_per_room'];
+        }
+    }
+
+    if (!isset($dataArr['partition'][$key]) && !isset($dataArr['bedspace'][$key]) && !isset($dataArr['room'][$key])) {
         $rent_per_unit_per_month = $dataArr['rent_per_flat'];
         $subunittype = 4;
-        $subunitcount_per_unit += 1;
+        $subunitcount_per_unit = 1;
         $subunit_rent_per_unit = $dataArr['rent_per_flat'];
         $total_rent_per_unit_per_month  = $dataArr['rent_per_flat'];
     }
 
+    // dump($bedspace);
+    // dump($room);
     $rent_per_flat = $dataArr['rent_per_flat'];
     $installment = Installment::find($receivable_installments);
 
@@ -164,8 +235,9 @@ function getPartitionValue($dataArr, $key, $receivable_installments)
         $subunit_rent_per_unit = $rent_per_flat;
         $total_rent_per_unit_per_month  = $rent_per_flat;
     }
-    // print($rent_per_unit_per_month);
-    // dd($rent_per_unit_per_month);
+    // print('rent_per_unit_per_month - ' . $rent_per_unit_per_month);
+    // print('subunit_rent_per_unit - ' . $subunit_rent_per_unit);
+    // print('total_rent_per_unit_per_month - ' . $total_rent_per_unit_per_month);
     $rent_per_unit_per_annum = $rent_per_unit_per_month * $installment;
 
     $total_rent_per_unit_per_annum = $total_rent_per_unit_per_month * $installment;
@@ -189,57 +261,139 @@ function getPartitionValue($dataArr, $key, $receivable_installments)
 
 function subunittypeName($subunittype)
 {
-    if ($subunittype == 1) {
-        return 'Partition';
-    } else if ($subunittype == 2) {
-        return 'Bedspace';
-    } else if ($subunittype == 3) {
-        return 'Room';
-    } else {
-        return 'Full FLat';
+    $types = array_unique(explode(', ', $subunittype));
+
+    $subunit_name = '';
+    foreach ($types as $key => $type) {
+        if ($type == 1) {
+            $name = 'PARTITION';
+        } else if ($type == 2) {
+            $name = 'BEDSPACE';
+        } else if ($type == 3) {
+            $name = 'ROOM';
+        } else {
+            $name = 'FULL FLAT';
+        }
+
+        $subunit_name = ($subunit_name) ? $subunit_name . ', ' . $name : $name;
     }
+
+    return $subunit_name;
+}
+
+function subunittypeCount($unitDetails)
+{
+    $types = explode(',', $unitDetails->subunittype);
+
+    $subunitCount = '';
+    $unitrent = '';
+    foreach ($types as $key => $type) {
+        if ($type == 1) {
+            $unitCount = $unitDetails->total_partition;
+            $rent = $unitDetails->rent_per_partition;
+        } else if ($type == 2) {
+            $unitCount = $unitDetails->total_bedspace;
+            $rent = $unitDetails->rent_per_bedspace;
+        } else if ($type == 3) {
+            $unitCount = $unitDetails->total_room;
+            $rent = $unitDetails->rent_per_room;
+        } else {
+            $unitCount = 1;
+            $rent = $unitDetails->rent_per_flat;
+        }
+
+        $subunitCount = ($subunitCount) ? $subunitCount . ', ' . $unitCount : $unitCount;
+        $unitrent = ($unitrent) ? $unitrent . ' - ' . 'AED ' . $rent : 'AED ' . $rent;
+    }
+
+    return ['subunitCount' => $subunitCount, 'unitrent' => $unitrent];
 }
 
 
+// need to change
 function getAccommodationDetails($unitDetails)
 {
-    // dd($unitDetails);
-    $accocmmodation = $title = $price_title = '';
-    $total_price = $price = 0;
+    // // dd($unitDetails);
+    // $accocmmodation = $title = $price_title = '';
+    // $total_price = $price = 0;
 
-    if ($unitDetails->partition != null) {
-        $title = 'Partition';
-        $price_title = 'Per Partiton';
-        $accocmmodation = $unitDetails->total_partition;
-        $price = $unitDetails->rent_per_partition;
-    } elseif ($unitDetails->bedspace != null) {
-        $title = 'Bedspace';
-        $price_title = 'Per Bedspace';
-        $accocmmodation = $unitDetails->total_bedspace;
-        $price = $unitDetails->rent_per_bedspace;
-    } elseif ($unitDetails->room != null) {
-        $title = 'Bedspace';
-        $price_title = 'Per Bedspace';
-        $accocmmodation = $unitDetails->total_room;
-        $price = $unitDetails->rent_per_room;
-    } else {
-        $title = 'Full Flat';
-        $price_title = 'Per Flat';
-        $accocmmodation = 1;
-        $price = $unitDetails->rent_per_flat;
+    // if ($unitDetails->partition != null) {
+    //     $title = 'Partition';
+    //     $price_title = 'Per Partiton';
+    //     $accocmmodation = $unitDetails->total_partition;
+    //     $price = $unitDetails->rent_per_partition;
+    // }
+    // if ($unitDetails->bedspace != null) {
+    //     $title = 'Bedspace';
+    //     $price_title = 'Per Bedspace';
+    //     $accocmmodation = $unitDetails->total_bedspace;
+    //     $price = $unitDetails->rent_per_bedspace;
+    // }
+    // if ($unitDetails->room != null) {
+    //     $title = 'Room';
+    //     $price_title = 'Per Room';
+    //     $accocmmodation = $unitDetails->total_room;
+    //     $price = $unitDetails->rent_per_room;
+    // }
+
+    // if ($unitDetails->partition == null && $unitDetails->bedspace == null && $unitDetails->room == null) {
+    //     $title = 'Full Flat';
+    //     $price_title = 'Per Flat';
+    //     $accocmmodation = 1;
+    //     $price = $unitDetails->rent_per_flat;
+    // }
+
+    // $total_price = $unitDetails->total_rent_per_unit_per_month;
+
+    // $return = array(
+    //     'title' => $title,
+    //     'price_title' => $price_title,
+    //     'accommodation' => $accocmmodation,
+    //     'price' => $price,
+    //     'total_price' => $total_price
+    // );
+
+    // return $return;
+
+    $rows = [];
+
+    if (!empty($unitDetails->total_room)) {
+        $rows[] = [
+            'type'  => 'Room',
+            'count' => $unitDetails->total_room,
+            'rent'  => tonumeric($unitDetails->rent_per_room),
+        ];
     }
 
-    $total_price = $unitDetails->total_rent_per_unit_per_month;
+    if (!empty($unitDetails->total_partition)) {
+        $rows[] = [
+            'type'  => 'Partition',
+            'count' => $unitDetails->total_partition,
+            'rent'  => tonumeric($unitDetails->rent_per_partition),
+        ];
+    }
 
-    $return = array(
-        'title' => $title,
-        'price_title' => $price_title,
-        'accommodation' => $accocmmodation,
-        'price' => $price,
-        'total_price' => $total_price
-    );
+    if (!empty($unitDetails->total_bedspace)) {
+        $rows[] = [
+            'type'  => 'BS',
+            'count' => $unitDetails->total_bedspace,
+            'rent'  => tonumeric($unitDetails->rent_per_bedspace),
+        ];
+    }
 
-    return $return;
+    if (empty($unitDetails->total_bedspace) && empty($unitDetails->total_room) && empty($unitDetails->total_partition)) {
+        $rows[] = [
+            'type'  => 'FL',
+            'count' => 1,
+            'rent'  => tonumeric($unitDetails->rent_per_flat),
+        ];
+    }
+
+
+    return [
+        'subunits'    => $rows,
+        'total_price' => $unitDetails->total_rent_per_unit_per_month,
+    ];
 }
 
 function formatNumber($number)

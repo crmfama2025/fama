@@ -43,6 +43,7 @@ class UnitDetailRepository
     {
         $detId = [];
         foreach ($dataArray as $data) {
+            // dd($data);
             $detId[] = ContractUnitDetail::create($data)->id;
         }
         return  $detId;

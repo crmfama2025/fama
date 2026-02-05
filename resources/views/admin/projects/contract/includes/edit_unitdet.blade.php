@@ -95,7 +95,7 @@
                                 Partition </label>
                         </div>
                         <div class="icheckbox icheck-success d-inline">
-                            <input type="checkbox" name="unit_detail[partition][{{ $unitkey }}]"
+                            <input type="checkbox" name="unit_detail[bedspace][{{ $unitkey }}]"
                                 id="bedspace{{ $unitkey }}" class="bedcheck" value="2"
                                 {{ old('unit_detail.bedspace', $unitDetail->bedspace ?? '') == 1 ? 'checked' : '' }}
                                 required>
@@ -103,7 +103,7 @@
                                 Bedspace </label>
                         </div>
                         <div class="icheckbox icheck-success d-inline">
-                            <input type="checkbox" name="unit_detail[partition][{{ $unitkey }}]"
+                            <input type="checkbox" name="unit_detail[room][{{ $unitkey }}]"
                                 id="room{{ $unitkey }}" class="roomcheck" value="3"
                                 {{ old('unit_detail.room', $unitDetail->room ?? '') == 1 ? 'checked' : '' }} required>
                             <label class="labelpermission" for="room{{ $unitkey }}"> Room </label>

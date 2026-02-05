@@ -52,7 +52,7 @@ class ContractRepository
             DB::raw('MAX(rent_per_partition) as rent_per_partition'),
             DB::raw('MAX(rent_per_bedspace) as rent_per_bedspace'),
             DB::raw('MAX(rent_per_room) as rent_per_room'),
-            DB::raw('MAX(total_rent_per_unit_per_month) as rent_per_flat')
+            DB::raw('MAX(rent_per_flat) as rent_per_flat')
         )
             ->where('contract_id', $id)
             ->first();

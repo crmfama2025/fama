@@ -48,7 +48,7 @@ class SubUnitDetailService
             for ($i = 1; $i <= $subunitcount; $i++) {
                 // print_r($detailId);
                 // $subunit_type = '0';
-                $subunit_type = subUnitType($subUnitData, $key);
+                $subunit_type = subUnitTypeSingle($subUnitData, $key);
                 $subunitno = subunitNoGeneration($subUnitData, $key, $i);
                 // if (isset($subUnitData['is_partition'][$key])) {
                 //     if ($subUnitData['is_partition'][$key] == '1') {
@@ -92,89 +92,76 @@ class SubUnitDetailService
         foreach ($subUnitData['unit_type'] as $key => $value) {
             // print_r('update loop ' . $key);
             $this->syncSubunits($subUnitData, $key, $detailId[$key], $user_id);
+            // dump('update');
         }
     }
 
     public function syncSubunits($subUnitData, $key, $detailId, $user_id)
     {
         DB::transaction(function () use ($detailId, $subUnitData, $key, $user_id) {
-            // dd('before');
 
-            // if (isset($subUnitData['is_partition'][$key])) {
-            //     if ($subUnitData['is_partition'][$key] == '1') {
-            //         $subunit_type = '1';
-            //     } else if ($subUnitData['is_partition'][$key] == '2') {
-            //         $subunit_type = '2';
-            //     } else {
-            //         $subunit_type = '3';
-            //     }
-            // } else {
-            //     $subunit_type = '4';
-            // }
+            // 1️⃣ Active subunit types with required counts
+            $requestedTypes = subUnitType($subUnitData, $key);
+            // example: [1 => 3, 2 => 2]
 
-            $subunit_type = subUnitType($subUnitData, $key);
+            // 2️⃣ Delete subunits of REMOVED types
+            $deleteIds = $this->subunitdetRepo
+                ->existPrevSubType($detailId, $subUnitData, $key);
 
-            // 🔹 Get existing subunits for this detail
+            if (!empty($deleteIds)) {
+                ContractSubunitDetail::whereIn('id', $deleteIds)->forceDelete();
+            }
+
+            // 3️⃣ Get existing subunits grouped by type
             $existing = ContractSubunitDetail::where('contract_unit_detail_id', $detailId)
-                ->where('subunit_type', $subunit_type)
                 ->orderBy('id')
-                ->get();
+                ->get()
+                ->groupBy('subunit_type');
 
-            $currentCount = $existing->count();
+            // 4️⃣ Loop PER SUBUNIT TYPE
+            foreach ($requestedTypes as $subunit_type => $requiredCount) {
+                $existingForType = $existing[$subunit_type] ?? collect();
+                $currentCount    = $existingForType->count();
 
-            // echo "</pre>";
-            // print_r($subUnitData);
-            $subunitcount = subUnitCount($subUnitData, $key);
-            // if (isset($subUnitData['is_partition'][$key])) {
-            //     if ($subUnitData['is_partition'][$key] == '1') {
-            //         $subunitcount = $subUnitData['partition'][$key];
-            //     } else if ($subUnitData['is_partition'][$key] == '2') {
-            //         $subunitcount = $subUnitData['bedspace'][$key];
-            //     } else {
-            //         $subunitcount = $subUnitData['room'][$key];
-            //     }
-            // } else {
-            //     $subunitcount++;
-            // }
-            // dd('before');
-            $existPrevTypeId = $this->subunitdetRepo->existPrevSubType($detailId, $subUnitData['is_partition'][$key] ?? 0);
-            // dd($existPrevTypeId);
-            if ($existPrevTypeId) {
-                ContractSubunitDetail::whereIn('id', $existPrevTypeId)->forceDelete();
-            }
+                if ($currentCount < $requiredCount) {
+                    /* ========================= CASE 1: ADD ========================== */
+                    // print('case 1');
 
+                    $toAdd = $requiredCount - $currentCount;
 
-            // 🔹 CASE 1: Add missing subunits
-            if ($currentCount < $subunitcount) {
-                // print('case 1');
-                $toAdd = $subunitcount - $currentCount;
+                    for ($i = 1; $i <= $toAdd; $i++) {
 
-                for ($j = 0; $j < $toAdd; $j++) {
+                        $subunitno = subunitNoGeneration(
+                            $subUnitData,
+                            $key,
+                            $currentCount + $i,
+                            $subunit_type // 👈 IMPORTANT
+                        );
 
-                    $subunitno = subunitNoGeneration($subUnitData, $key, $currentCount + $j + 1);
+                        $this->createloop(
+                            $subUnitData,
+                            $key,
+                            $detailId,
+                            $user_id,
+                            $subunit_type,
+                            $subunitno
+                        );
+                    }
+                } elseif ($currentCount > $requiredCount) {
+                    /* ========================= CASE 2: REMOVE  ========================== */
 
-                    // $this->createLoop($subUnitData, $key, $detailId[$key]->id, $user_id, $i, $subunit_type);
-                    $this->createloop($subUnitData, $key, $detailId, $user_id, $subunit_type, $subunitno);
-                }
-            }
+                    $toDelete = $currentCount - $requiredCount;
 
-            // 🔹 CASE 2: Remove extra subunits
-            elseif ($currentCount > $subunitcount) {
-                // print('case 2');
-                $toDelete = $currentCount - $subunitcount;
+                    $idsToDelete = $existingForType
+                        ->sortByDesc('id')
+                        ->take($toDelete)
+                        ->pluck('id');
 
-                // delete from the last entries
-                $idsToDelete = $existing->sortByDesc('id')->take($toDelete)->pluck('id');
-                ContractSubunitDetail::whereIn('id', $idsToDelete)->forceDelete();
-            }
-
-            // 🔹 CASE 3: Update existing if needed (optional)
-            else {
-                // print('case 3');
-                for ($i = 1; $i <= $subunitcount; $i++) {
-                    $subunitno = subunitNoGeneration($subUnitData, $key, $i);
-
-                    $this->createloop($subUnitData, $key, $detailId, $user_id, $subunit_type, $subunitno);
+                    ContractSubunitDetail::whereIn('id', $idsToDelete)->forceDelete();
+                } else {
+                    /* ========================= CASE 3: COUNT SAME ========================== */
+                    // nothing needed – numbering already correct
+                    continue;
                 }
             }
         });
