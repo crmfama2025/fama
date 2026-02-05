@@ -176,13 +176,14 @@
 
                                                         @if ($isPdf)
                                                             <a href="{{ $filePath }}" target="_blank"
-                                                                class="btn btn-outline-primary btn-sm mr-1">
+                                                                class="btn btn-outline-primary btn-sm mr-1"
+                                                                title="Click to View File">
                                                                 <i class="fas fa-file-pdf"></i> View PDF
                                                             </a>
                                                         @else
                                                             <a href="{{ $filePath }}" target="_blank" class="mr-1">
                                                                 <img src="{{ $filePath }}" class="documentpreview"
-                                                                    alt="Document">
+                                                                    title="Click to View File" alt="Document">
                                                             </a>
                                                         @endif
                                                         <p class="small text-muted mt-1">
