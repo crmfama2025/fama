@@ -2,8 +2,8 @@
       $contractType = $agreement->contract->contract_type_id;
       $business_type = $agreement->contract->contract_unit->business_type;
       if ($contractType == 2) {
-          $contact_person = $agreement->contract->contact_person;
-          $contact_number = $agreement->contract->contact_number;
+          $contact_person = $agreement->tenant->contact_person;
+          $contact_number = $agreement->tenant->contact_number;
           //   $email = 'Adil@faateh.ae';
           $email = $agreement->tenant->tenant_email;
           $tenant_name = $agreement->tenant->tenant_name;
@@ -103,7 +103,8 @@
                           </td>
                           <td bgcolor="#FFFFFF">
                               <div align="center" class="text-sm text-sm">
-                                  <strong>{{ $agreement->contract->area->area_name }}</strong>
+                                  <strong>{{ $agreement->contract->locality->locality_name }} -
+                                      {{ $agreement->contract->area->area_name }}</strong>
                               </div>
                           </td>
                           <td bgcolor="#FFFFFF">
@@ -114,7 +115,7 @@
                           <td>
                               <div align="center" class="text-sm text-sm">
                                   <strong>
-                                      {{ \Carbon\Carbon::parse($agreement->start_date)->format('d-m-Y') }}
+                                      {{ \Carbon\Carbon::parse($agreement->contract->contract_detail->closing_date)->format('d/m/Y') }}
                                   </strong>
                               </div>
                           </td>
@@ -173,7 +174,7 @@
                               </div>
                           </td>
                           <td colspan="2">
-                              <div align="center" class="text-sm text-sm">
+                              <div align="center" class="text-sm text-sm" style="color: #1a73e8;">
                                   {{-- <strong>
                                 {{ $agreement->tenant->tenant_email }}</strong> --}}
                                   <strong>
@@ -189,6 +190,7 @@
                                   <strong> <span class="text-sm text-sm style14">Contact Person</span></strong>
                               </div>
                           </td>
+                          {{-- {{ dd($contact_person) }} --}}
                           <td bgcolor="#FFFFFF" colspan="2" width="30.9%">
                               <div align="center" class="text-sm text-sm">
                                   <strong>{{ ucfirst($contact_person) }}</strong>
