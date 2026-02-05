@@ -28,9 +28,9 @@
                     ])
                 </div>
                 <div class="mt-5 text-center">
-                    <a href="{{ route('agreement.index') }}" class="btn btn-default">back</a>
+                    <a href="{{ route('agreement.index') }}" class="btn btn-default mb-2">Back</a>
                     <a href="{{ route('agreement.print', $agreement->id) }}" rel="noopener" target="_blank"
-                        class="btn btn-info">Print</a>
+                        class="btn btn-info mb-2">Print</a>
                 </div>
             </div>
         </section>
