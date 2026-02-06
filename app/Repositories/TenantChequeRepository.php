@@ -130,6 +130,7 @@ class TenantChequeRepository
                 'agreement.contract.contract_unit_details',
                 'agreement.contract.property',
                 'agreement.agreement_units.contractUnitDetail',
+                'agreement.agreement_units.contractSubunitDetail',
                 'agreement.agreement_units',
                 'clearedReceivables'
             )
@@ -219,6 +220,12 @@ class TenantChequeRepository
                 $q->whereHas('contractUnitDetail', function ($q2) use ($filters) {
                     $q2->where('id', $filters['unit_id']);
                 });
+                // ALSO apply tenant condition if exists
+                if (!empty($filters['tenant_id'])) {
+                    $q->whereHas('agreement.tenant', function ($q3) use ($filters) {
+                        $q3->where('id', $filters['tenant_id']);
+                    });
+                }
             });
         } elseif (!empty($filters['property_id'])) {
             $query->whereHas('agreement.contract.property', function ($q) use ($filters) {
@@ -234,9 +241,18 @@ class TenantChequeRepository
                 $q->where('company_id', $filters['company_id']);
             });
         }
+        if (empty($filters['unit_id']) && !empty($filters['tenant_id'])) {
+
+            $query->whereHas('agreement.tenant', function ($q) use ($filters) {
+                $q->where('id', $filters['tenant_id']);
+            });
+            // dd($filters['tenant_id']);
+        }
 
 
         // $query->orderBy('agreement_payment_details.id', 'desc');
+        // $results = $query->get();
+        // dd($results);
 
         return $query;
     }

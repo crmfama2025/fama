@@ -464,4 +464,13 @@ class AgreementRepository
             ];
         }
     }
+    public function getAllAgreements()
+    {
+        return Agreement::with([
+            'agreement_units:id,agreement_id,contract_unit_details_id',
+            'tenant:id,tenant_name,agreement_id'
+        ])
+            ->select('id')
+            ->get();
+    }
 }
