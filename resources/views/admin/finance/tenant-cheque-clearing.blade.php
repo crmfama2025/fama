@@ -55,7 +55,7 @@
                                     </div>
 
                                     <div class="card-body">
-                                        <form class="form-row align-items-end fileterform">
+                                        <form class="form-row align-items-end fileterform justify-content-end">
                                             <!-- From Date -->
                                             <div class="form-group col-md-2">
                                                 <label for="dateFrom" class="asterisk">From</label>
@@ -103,6 +103,16 @@
                                                         <option value="{{ $unit->id }}">{{ $unit->unit_number }}
                                                         </option>
                                                     @endforeach --}}
+                                                </select>
+                                            </div>
+                                            <div class="form-group col-md-2">
+                                                <label for="unitSelect">Tenant</label>
+                                                <select class="form-control select2" id="tenantSelect" name="tenant_id">
+                                                    <option value="">Select Tenant</option>
+                                                    @foreach ($tenants as $tenant)
+                                                        <option value="{{ $tenant->id }}">{{ $tenant->tenant_name }}
+                                                        </option>
+                                                    @endforeach
                                                 </select>
                                             </div>
                                             <!-- Unit -->
@@ -192,6 +202,7 @@
                                                             <th>Tenant</th>
                                                             <th>Building</th>
                                                             <th>Unit</th>
+                                                            <th>Subunit</th>
                                                             <th>Due Date</th>
                                                             <th>Payment Mode</th>
                                                             <th>Amount</th>
@@ -656,6 +667,7 @@
                         d.property_id = $('#propertySelect').val();
                         d.unit_id = $('#unitSelect').val();
                         d.mode_id = $('#modeSelect').val();
+                        d.tenant_id = $('#tenantSelect').val();
 
                     },
                 },
@@ -695,6 +707,16 @@
                     {
                         data: 'unit_number',
                         name: 'agreement.agreement_units.contractUnitDetail.unit_number',
+
+                    },
+                    {
+                        data: 'subunit_no',
+                        name: 'agreement.agreement_units.contractSubunitDetail.subunit_no',
+                        render: function(data, type, row) {
+                            return data ? data : ' - ';
+                        },
+                        orderable: false,
+                        searchable: true
 
                     },
                     {
@@ -922,6 +944,7 @@
             $('#mode_change_reason').val('');
             $('#bank_id').val('');
             $('#cheque_no').val('');
+
         }
         $('#clearing_amount_input').on('input', function() {
             let entered = parseFloat($(this).val()) || 0;
@@ -1002,7 +1025,10 @@
     {{-- Filetr section --}}
     <script>
         let units = @json($units);
+        let tenants = @json($tenants);
+        let agreements = @json($agreements);
         // console.log('units', units)
+        console.log(agreements);
 
         $(document).on('change', '#propertySelect', function() {
             propertyChange();
@@ -1025,6 +1051,45 @@
 
             unitSelect.trigger('change');
         }
+        $(document).on('change', '#unitSelect', function() {
+            unitChange();
+        });
+
+        function unitChange() {
+            let unit_id = $('#unitSelect').val();
+            let tenantSelect = $('#tenantSelect');
+
+            tenantSelect.empty();
+            tenantSelect.append('<option value="">Select Tenant</option>');
+
+            if (!unit_id) return;
+
+            let addedTenants = new Set();
+
+            agreements.forEach(agreement => {
+                // Check if this agreement has the selected unit
+                let hasUnit = agreement.agreement_units?.some(
+                    au => au.contract_unit_details_id == unit_id
+                );
+
+                if (hasUnit && agreement.tenant) {
+                    if (!addedTenants.has(agreement.tenant.id)) {
+                        addedTenants.add(agreement.tenant.id);
+
+                        tenantSelect.append(
+                            `<option value="${agreement.tenant.id}">
+                        ${agreement.tenant.tenant_name}
+                    </option>`
+                        );
+                    }
+                }
+            });
+
+            tenantSelect.trigger('change');
+        }
+
+
+
         $('input[name="companyFileter"]').on('change', function() {
             table.ajax.reload();
         });
@@ -1037,6 +1102,12 @@
 
             $('#dateFrom input').val('');
             $('#dateTo input').val('');
+            $('#tenantSelect').val(null).trigger('change');
+            showLoader();
+
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
         });
     </script>
     <script>
