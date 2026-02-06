@@ -55,24 +55,28 @@ function subunitNoGeneration($subUnitData, $key, $i)
     if (isset($subUnitData['is_partition'][$key])) {
         if ($subUnitData['is_partition'][$key] == '1') {
             $subunitno = 'P' . $i;
+            $subunitrent = $subUnitData['rent_per_partition'];
         }
     }
     if (isset($subUnitData['is_bedspace'][$key])) {
         if ($subUnitData['is_bedspace'][$key] == '2') {
             $subunitno = 'BS' . $i;
+            $subunitrent = $subUnitData['rent_per_bedspace'];
         }
     }
     if (isset($subUnitData['is_room'][$key])) {
         if ($subUnitData['is_room'][$key] == '3') {
             $subunitno = 'R' . $i;
+            $subunitrent = $subUnitData['rent_per_room'];
         }
     }
 
     if (!isset($subUnitData['is_room'][$key]) && !isset($subUnitData['is_bedspace'][$key]) && !isset($subUnitData['is_partition'][$key])) {
         $subunitno = 'FL' . $i;
+        $subunitrent = $subUnitData['rent_per_flat'];
     }
 
-    return $subunitno;
+    return ['subunitno' => $subunitno, 'subunitrent' => $subunitrent];
 }
 
 
