@@ -2330,11 +2330,17 @@
 
         paymentSplit();
         $('.unit_profit_perc').trigger('change');
+
+        $('#contract_type').on('select2:opening', function(e) {
+            e.preventDefault();
+        });
+        console.log($('#contract_type').prop('readonly'));
+        // $('#contract_type').trigger('change');
     }
 
     if (isEdit) {
         // console.log('Editing mode');
-        //     $('#contract_type').trigger('change');
+
         CalculatePayables();
 
         subUnitCheck(edit = true);
@@ -2348,6 +2354,10 @@
             finalRecCal();
         });
 
+        $('#contract_type').on('select2:opening', function(e) {
+            e.preventDefault();
+        });
+        // $('#contract_type').trigger('change');
 
         let contract_type = '{{ $contract ? $contract->contract_type_id : '' }}';
         if (contract_type == '2') {
