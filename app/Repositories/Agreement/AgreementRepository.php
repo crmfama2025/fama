@@ -67,12 +67,15 @@ class AgreementRepository
     }
     public function delete($id)
     {
-        $agreement = $this->find($id);
-        $agreement->deleted_by = auth()->user()->id;
-        $agreement->save();
-        $contract_id = $agreement->contract_id;
-        $this->makeVacant($id, $contract_id);
-        return $agreement->delete();
+        return DB::transaction(function () use ($id) {
+            $agreement = $this->find($id);
+            $agreement->deleted_by = auth()->user()->id;
+            $agreement->save();
+            $contract_id = $agreement->contract_id;
+            $this->makeVacant($id, $contract_id);
+            $agreement->delete();
+            return true;
+        });
     }
 
 

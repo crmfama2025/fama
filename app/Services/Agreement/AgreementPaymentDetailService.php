@@ -132,4 +132,8 @@ class AgreementPaymentDetailService
     {
         return $this->agreementPaymentDetailRepository->getWhere(['agreement_id' => $agreementId]);
     }
+    public function getByAgreementUnitId($agreementUnitId)
+    {
+        return $this->agreementPaymentDetailRepository->getWhere(['agreement_unit_id' => $agreementUnitId]);
+    }
 }

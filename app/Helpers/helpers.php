@@ -438,11 +438,12 @@ function getPaymentDetails($paymentId, $unitId)
 }
 function makeUnitVacant($unitId, $contract_id)
 {
-    $unit = ContractUnitDetail::find($unitId);
-    if ($unit) {
-        $unit->is_vacant = 0;
-        $unit->save();
-    }
+    $unit = ContractUnitDetail::findOrFail($unitId);
+    $unit->update([
+        'is_vacant' => 0,
+        'subunit_occupied_count' => 0,
+        'subunit_vacant_count' => $unit->subunitcount_per_unit,
+    ]);
     $subunit = ContractSubunitDetail::where('contract_unit_detail_id', $unitId)->get();
     foreach ($subunit as $sub) {
         $sub->is_vacant = 0;
