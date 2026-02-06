@@ -6,6 +6,12 @@
     <link rel="stylesheet" href="{{ asset('assets/fontawesome-free/css/all.min.css') }}">
     <!-- Theme style -->
     <link rel="stylesheet" href="{{ asset('css/adminlte.min.css') }}">
+    <style>
+        /* table {
+                background: url('{{ asset('images/fama-letterhead.png') }}') center center;
+                background-size: cover;
+            } */
+    </style>
 @endsection
 @section('content')
     <div class="content-wrapper">

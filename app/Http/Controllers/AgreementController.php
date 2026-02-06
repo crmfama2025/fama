@@ -175,7 +175,7 @@ class AgreementController extends Controller
         $agreement = $this->agreementService->getDetails($id);
         $page = 0;
         $pdf = Pdf::loadView('admin.projects.agreement.pdf-agreement', compact('agreement', 'page'))
-            ->setPaper([0, 0, 830, 1400]);
+            ->setPaper([0, 0, 930, 1250]);
         return $pdf->stream('agreement-' . $agreement->id . '.pdf');
     }
     public function agreementDocuments($id)
