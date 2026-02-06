@@ -225,10 +225,11 @@
                                                     <td>{{ strtoupper($unitDetails->property_type->property_type) }}
                                                     <td>{{ strtoupper($unitDetails->floor_no) }}</td>
                                                     <td>{{ strtoupper($unitDetails->unit_status->unit_status) }}</td>
-                                                    <td>{{ $unitDetails->unit_rent_per_annum }}</td>
+                                                    <td>{{ 'AED ' . $unitDetails->unit_rent_per_annum }}</td>
                                                     </td>
                                                     <td>
-                                                        @if ($unitDetails->partition)
+                                                        {{ subunittypeName($unitDetails->subunittype) }}
+                                                        {{-- @if ($unitDetails->partition)
                                                             PARTITION
                                                         @elseif($unitDetails->bedspace)
                                                             BEDSPACE
@@ -236,11 +237,12 @@
                                                             ROOM
                                                         @else
                                                             -
-                                                        @endif
+                                                        @endif --}}
 
                                                     </td>
                                                     <td>
-                                                        @if ($unitDetails->partition)
+                                                        {{ subunittypeCount($unitDetails)['subunitCount'] }}
+                                                        {{-- @if ($unitDetails->partition)
                                                             {{ $unitDetails->total_partition }}
                                                         @elseif($unitDetails->bedspace)
                                                             {{ $unitDetails->total_bedspace }}
@@ -248,10 +250,11 @@
                                                             {{ $unitDetails->total_room }}
                                                         @else
                                                             -
-                                                        @endif
+                                                        @endif --}}
                                                     </td>
                                                     <td>
-                                                        @if ($unitDetails->partition)
+                                                        {{ subunittypeCount($unitDetails)['unitrent'] }}
+                                                        {{-- @if ($unitDetails->partition)
                                                             {{ $unitDetails->rent_per_partition }}
                                                         @elseif($unitDetails->bedspace)
                                                             {{ $unitDetails->rent_per_bedspace }}
@@ -259,12 +262,12 @@
                                                             {{ $unitDetails->rent_per_room }}
                                                         @else
                                                             -
-                                                        @endif
+                                                        @endif --}}
                                                     </td>
                                                     <td>{{ $unitDetails->rent_per_flat ?? ' - ' }}</td>
                                                     <td>{{ $unitDetails->unit_profit_perc ?? ' - ' }}</td>
                                                     <td>{{ $unitDetails->unit_profit ?? ' - ' }}</td>
-                                                    <td>{{ $unitDetails->unit_revenue ?? ' - ' }}</td>
+                                                    <td>{{ 'AED ' . $unitDetails->unit_revenue ?? ' - ' }}</td>
                                                 </tr>
                                             @endforeach
 
@@ -431,10 +434,23 @@
                     document.body.removeChild(link);
 
                     hideLoader();
+                    swal.fire({
+                        icon: 'success',
+                        title: 'Scope Generated',
+                        text: 'Please upload Vendor Contract and Proceed with Contract Approval.',
+                        type: 'success'
+                    }).then((result) => {
+                        // This code runs after the "OK" button is clicked
+                        window.location.href = response
+                            .redirect_url; // Replace 'next_page.html' with your URL
+                    });
+
+
                     // // 2. REDIRECT AFTER 1 SEC
                     // setTimeout(() => {
-                    // window.location.href = response.redirect_url;
-                    window.location.reload();
+
+                    // window.location.reload();
+
                     // }, 800);
 
                     // if (response.download_url) {
