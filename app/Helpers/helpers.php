@@ -48,30 +48,31 @@ function dateFormatChange($value, $format)
 }
 
 
-function subunitNoGeneration($subUnitData, $key, $i)
+function subunitNoGeneration($subUnitData, $key, $i, $subunit_type)
 {
-    // print_r($subUnitData);
+    // dump($subUnitData);
+    // print_r($subunit_type);
     // dd('increement room no - ' . $i);
-    if (isset($subUnitData['is_partition'][$key])) {
-        if ($subUnitData['is_partition'][$key] == '1') {
-            $subunitno = 'P' . $i;
-            $subunitrent = $subUnitData['rent_per_partition'];
-        }
+    // if (isset($subUnitData['is_partition'][$key])) {
+    if ($subunit_type == '1') {
+        $subunitno = 'P' . $i;
+        $subunitrent = $subUnitData['rent_per_partition'];
     }
-    if (isset($subUnitData['is_bedspace'][$key])) {
-        if ($subUnitData['is_bedspace'][$key] == '2') {
-            $subunitno = 'BS' . $i;
-            $subunitrent = $subUnitData['rent_per_bedspace'];
-        }
+    // }
+    // if (isset($subUnitData['is_bedspace'][$key])) {
+    else if ($subunit_type == '2') {
+        $subunitno = 'BS' . $i;
+        $subunitrent = $subUnitData['rent_per_bedspace'];
     }
-    if (isset($subUnitData['is_room'][$key])) {
-        if ($subUnitData['is_room'][$key] == '3') {
-            $subunitno = 'R' . $i;
-            $subunitrent = $subUnitData['rent_per_room'];
-        }
+    // }
+    // if (isset($subUnitData['is_room'][$key])) {
+    else if ($subunit_type == '3') {
+        $subunitno = 'R' . $i;
+        $subunitrent = $subUnitData['rent_per_room'];
     }
+    // }
 
-    if (!isset($subUnitData['is_room'][$key]) && !isset($subUnitData['is_bedspace'][$key]) && !isset($subUnitData['is_partition'][$key])) {
+    else {
         $subunitno = 'FL' . $i;
         $subunitrent = $subUnitData['rent_per_flat'];
     }
