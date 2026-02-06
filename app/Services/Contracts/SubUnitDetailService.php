@@ -27,63 +27,32 @@ class SubUnitDetailService
 
     public function create($detailId, array $subUnitData, $user_id)
     {
-        // dd($detailId);
-        // dd($subUnitData);
         $subunitArr = [];
         foreach ($subUnitData['unit_type'] as $key => $value) {
-            // dd($subUnitData);
-            $subunitcount = subUnitCount($subUnitData, $key);
-            // if (isset($subUnitData['is_partition'][$key])) {
-            //     if ($subUnitData['is_partition'][$key] == '1') {
-            //         $subunitcount = $subUnitData['partition'][$key];
-            //     } else if ($subUnitData['is_partition'][$key] == '2') {
-            //         $subunitcount = $subUnitData['bedspace'][$key];
-            //     } else {
-            //         $subunitcount = $subUnitData['room'][$key];
-            //     }
-            // } else {
-            //     $subunitcount++;
-            // }
 
-            for ($i = 1; $i <= $subunitcount; $i++) {
-                // print_r($detailId);
-                // $subunit_type = '0';
-                $subunit_type = subUnitTypeSingle($subUnitData, $key);
-                $subunitno = subunitNoGeneration($subUnitData, $key, $i);
-                // if (isset($subUnitData['is_partition'][$key])) {
-                //     if ($subUnitData['is_partition'][$key] == '1') {
-                //         $subunitno = 'P' . $i;
-                //         $subunit_type = '1';
-                //     } else if ($subUnitData['is_partition'][$key] == '2') {
-                //         $subunitno = 'BS' . $i;
-                //         $subunit_type = '2';
-                //     } else {
-                //         $subunitno = 'R' . $i;
-                //         $subunit_type = '3';
-                //     }
-                // } else {
-                //     $subunitno = 'FL' . $i;
-                //     $subunit_type = '4';
-                // }
+            $subunit_type = subUnitType($subUnitData, $key);
 
-                $subunitcode = 'P' . $subUnitData['project_no'] . '/' . $subUnitData['company_code'] . '/' .  $subUnitData['unit_no'][$key] . '/' . $subunitno;
-                // dd('aftercode');
+            foreach ($subunit_type as $subType => $value) {
 
-                $subunitArr = array(
-                    'contract_id' => $subUnitData['contract_id'],
-                    'contract_unit_id' => $subUnitData['contract_unit_id'],
-                    'contract_unit_detail_id' => $detailId[$key],
-                    'subunit_type' => $subunit_type,
-                    'subunit_no' => $subunitno['subunitno'],
-                    'subunit_rent' => $subunitno['subunitrent'],
-                    'subunit_code' => $subunitcode,
-                    'added_by' => $user_id ? $user_id : auth()->user()->id,
-                );
-                // dd($subunitArr);
+                for ($i = 1; $i <= $value; $i++) {
+                    $subunitno = subunitNoGeneration($subUnitData, $key, $i, $subType);
 
-                $this->subunitdetRepo->create($subunitArr);
+                    $subunitcode = 'P' . $subUnitData['project_no'] . '/' . $subUnitData['company_code'] . '/' .  $subUnitData['unit_no'][$key] . '/' . $subunitno['subunitno'];
+
+                    $subunitArr = array(
+                        'contract_id' => $subUnitData['contract_id'],
+                        'contract_unit_id' => $subUnitData['contract_unit_id'],
+                        'contract_unit_detail_id' => $detailId[$key],
+                        'subunit_type' => $subType,
+                        'subunit_no' => $subunitno['subunitno'],
+                        'subunit_rent' => $subunitno['subunitrent'],
+                        'subunit_code' => $subunitcode,
+                        'added_by' => $user_id ? $user_id : auth()->user()->id,
+                    );
+
+                    $this->subunitdetRepo->create($subunitArr);
+                }
             }
-            // print_r('after loop');
         }
     }
 
@@ -95,6 +64,7 @@ class SubUnitDetailService
             $this->syncSubunits($subUnitData, $key, $detailId[$key], $user_id);
             // dump('update');
         }
+        // dd('update');
     }
 
     public function syncSubunits($subUnitData, $key, $detailId, $user_id)
@@ -187,7 +157,7 @@ class SubUnitDetailService
             'subunit_code' => $subunitcode,
             'added_by' => $user_id ? $user_id : auth()->user()->id,
         );
-        // dd($subunitArr);
+
         if ($oldValue || $existing) {
             if ($existing) {
                 // dd('exist');

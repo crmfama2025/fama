@@ -184,6 +184,7 @@ class UnitDetailService
         // dd('after unit loop');
         return DB::transaction(function () use ($data, $dataArr, $contractData, $unit_id, $user_id, $insertData) {
             $unitDetId = array();
+
             if ($insertData) {
                 $unitDetId = $this->createManyData($insertData, $dataArr, $contractData, $unit_id, $user_id, 1);
             }
@@ -200,7 +201,6 @@ class UnitDetailService
 
             return $unitDetId;
         });
-
 
         $this->validate($dataArr, $id);
         $dataArr['updated_by'] = auth()->user()->id;
@@ -228,7 +228,6 @@ class UnitDetailService
         // } else {
         //     $is_partition++;
         // }
-        // dd($contractData);
 
         $subUnitData = array(
             'is_partition' => (isset($dataArr['partition'])) ? $dataArr['partition'] : '',
@@ -241,7 +240,7 @@ class UnitDetailService
             'rent_per_partition' => (isset($dataArr['partition']) > 0) ? $dataArr['rent_per_partition'] : 0,
             'rent_per_bedspace' => (isset($dataArr['bedspace']) > 0) ? $dataArr['rent_per_bedspace'] : 0,
             'rent_per_room' => (isset($dataArr['room']) > 0) ?  $dataArr['rent_per_room']  : 0,
-            'rent_per_flat' => (isset($dataArr['partition']) == 0 && isset($dataArr['bedspace']) == 0 && isset($dataArr['room']) == 0) ? $dataArr['rent_per_flat'] : 0,
+            'rent_per_flat' => $dataArr['rent_per_flat'],
             'project_no' => $contractData->project_number,
             'contract_id' => $contractData->id,
             'contract_unit_id' => $unit_id,
