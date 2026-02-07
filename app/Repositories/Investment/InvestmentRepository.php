@@ -74,7 +74,7 @@ class InvestmentRepository
 
     public function getQuery(array $filters = []): Builder
     {
-        $query = Investment::with('investor', 'payoutBatch', 'profitInterval', 'company', 'investmentReferral');
+        $query = Investment::with('investor', 'payoutBatch', 'profitInterval', 'company', 'investmentReferral', 'investedCompany');
         if (!empty($filters['investor_id'])) {
             $query->where('investor_id', $filters['investor_id']);
         }
@@ -136,7 +136,8 @@ class InvestmentRepository
             'payoutBatch',
             'investmentReferral.referrer',
             'investmentDocument',
-            'investmentReceivedPayments'
+            'investmentReceivedPayments',
+            'investedCompany'
         ])->findOrFail($id);
     }
 

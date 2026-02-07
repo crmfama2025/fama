@@ -107,7 +107,8 @@ class InvestmentService
                 'investment_type' => $investmentType,
                 'next_profit_release_date' => parseDate($data['next_profit_release_date']),
                 // 'next_referral_commission_release_date' => $next_profit_release_date,
-                'initial_profit_release_month' => Carbon::parse($data['next_profit_release_date'])->format('M Y')
+                'initial_profit_release_month' => Carbon::parse($data['next_profit_release_date'])->format('M Y'),
+                'invested_company_id' => $data['invested_company_id']
             ];
             $this->validate($investmentData);
             // dd($investmentData);
@@ -270,7 +271,8 @@ class InvestmentService
                 // 'investment_type' => $investmentType,
                 'next_profit_release_date' => parseDate($data['next_profit_release_date']),
                 // 'next_referral_commission_release_date' => $data['next_profit_release_date'],
-                'initial_profit_release_month' => Carbon::parse($data['next_profit_release_date'])->format('M Y')
+                'initial_profit_release_month' => Carbon::parse($data['next_profit_release_date'])->format('M Y'),
+                'invested_company_id' => $data['invested_company_id']
             ];
 
             $this->validate($investmentData);
@@ -455,6 +457,7 @@ class InvestmentService
         $columns = [
             ['data' => 'DT_RowIndex', 'name' => 'id'],
             ['data' => 'company_name', 'name' => 'company.company_name'],
+            ['data' => 'invested_company_name', 'name' => 'investedCompany.company_name'],
             ['data' => 'investor_name', 'name' => 'investor.investor_name'],
             ['data' => 'investment_amount', 'name' => 'investment_amount'],
             ['data' => 'total_received_amount', 'name' => 'total_received_amount'],
@@ -476,6 +479,11 @@ class InvestmentService
             ->of($query)
             ->addIndexColumn()
             ->addColumn('company_name', fn($row) => $row->company->company_name ?? '-')
+            ->addColumn(
+                'invested_company_name',
+                fn($row) =>
+                $row->investedCompany->company_name ?? '-'
+            )
             ->addColumn('investor_name', fn($row) => $row->investor->investor_name . " - " . $row->investor->investor_code ?? '-')
 
             ->addColumn('investment_amount', fn($row) => number_format($row->investment_amount, 2))

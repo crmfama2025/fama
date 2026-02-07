@@ -23,6 +23,8 @@
                      <tr>
                          {{-- <th>#</th> --}}
                          <th>Investment Code</th>
+                         <th>Company</th>
+                         <th>Invested Company</th>
                          <th>Investment Date</th>
                          <th>Investment Amount</th>
                          <th>Received</th>
@@ -35,6 +37,8 @@
                  <tbody>
                      <tr>
                          <td>{{ $investment->investment_code }}</td>
+                         <td>{{ $investment->company->company_name }}</td>
+                         <td>{{ $investment->investedCompany->company_name ?? ' - ' }}</td>
                          <td>{{ getFormattedDate($investment->investment_date) }}</td>
                          <td>{{ number_format($investment->investment_amount, 2) }}</td>
                          <td class="text-success">

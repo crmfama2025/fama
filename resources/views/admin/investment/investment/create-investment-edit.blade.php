@@ -109,7 +109,7 @@
 
                                                 <div class="col-md-4">
                                                     <div class="form-group">
-                                                        <label>Received Amount</label>
+                                                        <label class="asterisk">Received Amount</label>
                                                         <input type="number" class="form-control" name="received_amount"
                                                             id="received_amount" placeholder="Enter Received Amount"
                                                             value="{{ old('received_amount', isset($investment) && $investment->received_amount ? $investment->received_amount : $parent['amount'] ?? '') }}"
@@ -568,6 +568,22 @@
                                                         <select class="form-control select2" name="company_bank_id"
                                                             id="company_bank_id" required>
                                                             <option value="">Select Company Bank</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <label class="asterisk">Invested Company</label>
+                                                        <select class="form-control select2" name="invested_company_id"
+                                                            id="invested_company_id" required>
+                                                            <option value="">Select Company</option>
+                                                            @foreach ($data['companyBanks'] as $company)
+                                                                <option value="{{ $company->id }}"
+                                                                    data-banks='@json($company->banks)'
+                                                                    {{ old('invested_company_id', isset($investment->invested_company_id) ? $investment->invested_company_id : '') == $company->id ? 'selected' : '' }}>
+                                                                    {{ $company->company_name }}
+                                                                </option>
+                                                            @endforeach
                                                         </select>
                                                     </div>
                                                 </div>

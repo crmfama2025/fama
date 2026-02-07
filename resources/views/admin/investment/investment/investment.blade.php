@@ -57,6 +57,7 @@
                                             <th>Action</th>
                                             <th>Status</th>
                                             <th>Company Name</th>
+                                            <th>Invested Company</th>
                                             <th>Investor Name</th>
                                             <th>Investment Amount</th>
                                             <th>Received Amount</th>
@@ -333,6 +334,10 @@
                     {
                         data: 'company_name',
                         name: 'company.company_name'
+                    },
+                    {
+                        data: 'invested_company_name',
+                        name: 'investedCompany.company_name'
                     },
                     {
                         data: 'investor_name',

@@ -1292,6 +1292,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int $is_vacant
+ * @property string|null $subunit_rent
  * @property-read \App\Models\Contract $contract
  * @property-read \App\Models\ContractUnit $contract_unit
  * @property-read \App\Models\ContractUnitDetail $contract_unit_detail
@@ -1311,6 +1312,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|ContractSubunitDetail whereIsVacant($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractSubunitDetail whereSubunitCode($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractSubunitDetail whereSubunitNo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ContractSubunitDetail whereSubunitRent($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractSubunitDetail whereSubunitType($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractSubunitDetail whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractSubunitDetail whereUpdatedBy($value)
