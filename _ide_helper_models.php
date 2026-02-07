@@ -1197,6 +1197,16 @@ namespace App\Models{
 
 namespace App\Models{
 /**
+ * @property-read \App\Models\User|null $user
+ * @method static \Illuminate\Database\Eloquent\Builder|ContractScopeLog newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ContractScopeLog newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ContractScopeLog query()
+ */
+	class ContractScopeLog extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
  * @property int $id
  * @property int $contract_template_id
  * @property string $page_type
