@@ -449,10 +449,31 @@ function makeUnitVacant($unitId, $contract_id)
         $sub->save();
     }
 }
+
 function getVacantUnits($id)
 {
     $unit_count = ContractUnitDetail::where('contract_id', $id)->where('is_vacant', 0)->count();
     return $unit_count;
+}
+
+function getOccupiedUnits($id)
+{
+    $contract = Contract::find($id);
+
+    $occupied = $vacant = $paymentReceived = $payamentPending = 0;
+    foreach ($contract->contract_unit_details as $contractUnitdetail) {
+        $occupied += $contractUnitdetail->subunit_occupied_count;
+        $vacant += $contractUnitdetail->subunit_vacant_count;
+        $paymentReceived += $contractUnitdetail->total_payment_received;
+        $payamentPending += $contractUnitdetail->total_payment_pending;
+    }
+
+    return [
+        'occupied' => $occupied,
+        'vacant' => $vacant,
+        'paymentReceived' => $paymentReceived,
+        'payamentPending' => $payamentPending
+    ];
 }
 // function paymentStatus($agreementid)
 // {
@@ -512,6 +533,7 @@ function contractStatusName($contract_status)
     elseif ($contract_status == 6) return 'Partially Signed';
     elseif ($contract_status == 7) return 'Fully Signed';
     elseif ($contract_status == 8) return 'Expired';
+    elseif ($contract_status == 9) return 'Terminated';
 }
 
 function contractStatusClass($contract_status)
@@ -525,6 +547,7 @@ function contractStatusClass($contract_status)
     elseif ($contract_status == 6) return 'badge bg-gradient-maroon text-white';
     elseif ($contract_status == 7) return 'badge bg-gradient-lightblue text-white';
     elseif ($contract_status == 8) return 'badge badge-dark text-white';
+    elseif ($contract_status == 9) return 'badge badge-danger text-white';
 }
 
 function statusCount($status)

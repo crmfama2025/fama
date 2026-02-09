@@ -47,21 +47,21 @@ class Handler extends ExceptionHandler
         });
     }
 
-    public function render($request, Throwable $exception)
-    {
-        if ($exception instanceof TokenMismatchException) {
+    // public function render($request, Throwable $exception)
+    // {
+    //     if ($exception instanceof TokenMismatchException) {
 
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'message' => 'Session expired. Please login again.'
-                ], 419);
-            }
+    //         if ($request->expectsJson()) {
+    //             return response()->json([
+    //                 'message' => 'Session expired. Please login again.'
+    //             ], 419);
+    //         }
 
-            return redirect()
-                ->route('login')
-                ->with('message', 'Your session expired. Please login again.');
-        }
+    //         return redirect()
+    //             ->route('login')
+    //             ->with('message', 'Your session expired. Please login again.');
+    //     }
 
-        return parent::render($request, $exception);
-    }
+    //     return parent::render($request, $exception);
+    // }
 }
