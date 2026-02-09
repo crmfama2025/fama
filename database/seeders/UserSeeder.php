@@ -43,7 +43,7 @@ class UserSeeder extends Seeder
             'investor',
             'investment',
             'finance',
-            'report'
+            'report',
         ];
 
         foreach ($modules as $module) {
@@ -53,7 +53,7 @@ class UserSeeder extends Seeder
             ]);
 
             if ($module == 'finance') {
-                $subModule = ['payout', 'cheque_clearing'];
+                $subModule = ['payout', 'payable_cheque_clearing', 'receivable_cheque_clearing'];
             } elseif ($module == 'report') {
                 $subModule = ['view'];
             } else {
@@ -73,10 +73,13 @@ class UserSeeder extends Seeder
                     $subModule[] = 'document_upload';
                     $subModule[] = 'manage_installments';
                     $subModule[] = 'renew';
+                    $subModule[] = 'rent_split';
                 }
                 if (in_array($module, ['investment'])) {
                     $subModule[] = 'terminate';
                     $subModule[] = 'submit_pending';
+                    $subModule[] = 'referrals';
+                    $subModule[] = 'soa';
                 }
             }
 
