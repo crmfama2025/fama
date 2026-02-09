@@ -43,4 +43,8 @@ class InvestorPayout extends Model
     {
         return $this->belongsTo(Investor::class, 'investor_referrence_id');
     }
+    public function investorPayoutDistribution()
+    {
+        return $this->hasmany(InvestorPaymentDistribution::class, 'payout_id', 'id');
+    }
 }

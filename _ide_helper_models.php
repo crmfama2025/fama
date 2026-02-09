@@ -1175,6 +1175,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Contract $contract
  * @property-read \App\Models\User|null $deletedBy
+ * @method static \Illuminate\Database\Eloquent\Builder|ContractScope logs()
  * @method static \Illuminate\Database\Eloquent\Builder|ContractScope newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ContractScope newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ContractScope onlyTrashed()
@@ -1197,10 +1198,29 @@ namespace App\Models{
 
 namespace App\Models{
 /**
+ * @property int $id
+ * @property int $contract_scope_id
+ * @property int|null $user_id
+ * @property string $action
+ * @property string|null $description
+ * @property array|null $old_values
+ * @property array|null $new_values
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\ContractScope $contractScope
  * @property-read \App\Models\User|null $user
  * @method static \Illuminate\Database\Eloquent\Builder|ContractScopeLog newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ContractScopeLog newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ContractScopeLog query()
+ * @method static \Illuminate\Database\Eloquent\Builder|ContractScopeLog whereAction($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ContractScopeLog whereContractScopeId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ContractScopeLog whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ContractScopeLog whereDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ContractScopeLog whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ContractScopeLog whereNewValues($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ContractScopeLog whereOldValues($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ContractScopeLog whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ContractScopeLog whereUserId($value)
  */
 	class ContractScopeLog extends \Eloquent {}
 }
@@ -1651,6 +1671,7 @@ namespace App\Models{
  * @property int $payout_batch_id
  * @property int $company_id
  * @property int $profit_interval_id
+ * @property int $invested_company_id
  * @property string $investment_amount
  * @property int $investment_type 0-New
  * @property string $received_amount
@@ -1704,6 +1725,7 @@ namespace App\Models{
  * @property-read \App\Models\User|null $deletedBy
  * @property-read mixed $formatted_investment_amount
  * @property-read mixed $is_active
+ * @property-read \App\Models\Company|null $investedCompany
  * @property-read \App\Models\InvestmentDocument|null $investmentDocument
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvestmentReceivedPayment> $investmentReceivedPayments
  * @property-read int|null $investment_received_payments_count
@@ -1731,6 +1753,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereHasReinvestment($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereInitialProfitReleaseMonth($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Investment whereInvestedCompanyId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereInvestmentAmount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereInvestmentCode($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereInvestmentDate($value)
@@ -1877,6 +1900,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read \App\Models\ReferralCommissionFrequency|null $commissionFrequency
  * @property-read \App\Models\User|null $deletedBy
+ * @property-read \App\Models\Investment|null $investment
  * @property-read \App\Models\Investor|null $investor
  * @property-read \App\Models\Investor|null $referrer
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentReferral newModelQuery()

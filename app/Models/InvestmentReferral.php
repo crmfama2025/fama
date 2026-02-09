@@ -48,10 +48,18 @@ class InvestmentReferral extends Model
     {
         return $this->belongsTo(ReferralCommissionFrequency::class, 'referral_commission_frequency_id');
     }
+    public function investment()
+    {
+        return $this->belongsTo(investment::class, 'investment_id');
+    }
 
 
     //     public function getPendingAmountAttribute()
     //     {
     //         return $this->referral_commission_amount - $this->referral_commission_released_amount;
     //     }
+    public function investorPayouts()
+    {
+        return $this->hasMany(InvestorPayout::class, 'payout_reference_id', 'id');
+    }
 }

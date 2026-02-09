@@ -21,6 +21,7 @@ use App\Http\Controllers\PdfSignController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\PropertyTypeController;
 use App\Http\Controllers\ReceivablesClearingController;
+use App\Http\Controllers\ReferralController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VendorController;
 use App\Services\BrevoService;
@@ -246,6 +247,9 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::post('agreement/rent-bifurcation', [AgreementController::class, 'rentBifurcationStore'])->name('rent-bifurcation.store');
+    Route::get('investments/referrals', [ReferralController::class, 'referrals'])->name('referrals.index');
+    Route::get('investments/referrals-list', [ReferralController::class, 'getReferrals'])->name('referrals.list');
+    Route::get('investments/referrals-view/{referral}', [ReferralController::class, 'show'])->name('referrals.show');
 });
 
 

@@ -3,6 +3,7 @@
 namespace App\Services\Investment;
 
 use App\Models\Company;
+use App\Models\InvestmentReferral;
 use App\Models\Investor;
 use App\Models\PayoutBatch;
 use App\Models\ProfitInterval;
@@ -817,5 +818,101 @@ class InvestmentService
         if ($validator->fails()) {
             throw new ValidationException($validator);
         }
+    }
+    public function getReferrals(array $filters = [])
+    {
+        $query = $this->investmentRepository->getReferralQuery($filters);
+
+        $columns = [
+            ['data' => 'DT_RowIndex', 'name' => 'id'],
+            ['data' => 'investment_date', 'name' => 'investment.investment_date'],
+            ['data' => 'investor_name', 'name' => 'referrer.investor_name'],
+            ['data' => 'referral_commission_perc', 'name' => 'referral_commission_perc'],
+            ['data' => 'referral_commission_amount', 'name' => 'referral_commission_amount'],
+            ['data' => 'referral_commission_frequency', 'name' => 'commissionFrequency.commission_frequency_name'],
+            ['data' => 'action', 'name' => 'action', 'orderable' => false, 'searchable' => false],
+        ];
+
+        return datatables()
+            ->of($query)
+            ->addIndexColumn()
+            ->addColumn('investment_date', fn($row) => getFormattedDate($row->investment->investment_date))
+
+            // investor name
+            // ->addColumn('investor_name', function ($row) {
+            //     return ($row->referrer->investor_name ?? '-') .
+            //         ' - ' .
+            //         ($row->referrer->investor_code ?? '');
+            // })
+
+            // referral commission percentage
+            ->addColumn('referral_commission_perc', function ($row) {
+                return $row->referral_commission_perc
+                    ? $row->referral_commission_perc . '%'
+                    : '-';
+            })
+
+            // referral commission amount
+            ->addColumn('referral_commission_amount', function ($row) {
+                return $row->referral_commission_amount
+                    ? number_format($row->referral_commission_amount, 2)
+                    : '-';
+            })
+
+            // referral commission frequency
+            ->addColumn('referral_commission_frequency', function ($row) {
+                return $row->commissionFrequency->commission_frequency_name ?? '-';
+            })
+            ->addColumn('referral_status', function ($row) {
+                if (strtolower($row->referral_commission_frequency_id ?? '') === 1) {
+                    $status = ($row->referral_commission_status == 1) ? 'Expired' : 'Active';
+                } else {
+                    $status = 'Active';
+                }
+
+                $class = ($status == 'Active') ? 'badge-success' : 'badge-danger';
+
+                return "<span class='badge {$class}'>" . $status . "</span>";
+            })
+            ->addColumn('investor_name', function ($row) {
+                if (!$row->referrer) {
+                    return '-';
+                }
+
+                $url = route('investor.show', $row->referrer->id);
+
+                return '<a href="' . $url . '" class="text-primary fw-semibold text-decoration-none">'
+                    . e($row->referrer->investor_name) . ' - ' . e($row->referrer->investor_code) .
+                    '</a>';
+            })
+
+
+            // action buttons
+            ->addColumn('action', function ($row) {
+                $action = '';
+
+                // if (Gate::allows('investment.view')) {
+                $action .= '<a href="' . route('referrals.show', $row->id) . '"
+                class="btn btn-sm btn-primary">
+                <i class="fas fa-eye"></i>
+            </a>';
+                // }
+
+                return $action;
+            })
+
+            ->rawColumns(['action', 'referral_status', 'investor_name'])
+            ->toJson();
+    }
+    public function getReferralDetails($id)
+    {
+        return InvestmentReferral::with([
+            'investor',
+            'referrer',
+            'investment',
+            'referrer',
+            'investorPayouts.investorPayoutDistribution'
+
+        ])->findOrFail($id);
     }
 }
