@@ -142,15 +142,12 @@ class ProjectScopeDataService
             $scope = $this->scopeRepo->update($data, $hasScope->id);
         } else {
             $scope = $this->scopeRepo->create($data);
+
+            $upData['is_scope_generated'] = 1;
+            $upData['contract_status'] = 1;
+            $upData['scope_generated_by'] = auth()->user()->id;
+            $this->contractrepo->update($contractId, $upData);
         }
-
-
-
-        $upData['is_scope_generated'] = 1;
-        $upData['contract_status'] = 1;
-        $upData['scope_generated_by'] = auth()->user()->id;
-
-        $this->contractrepo->update($contractId, $upData);
 
         return $scope;
     }
