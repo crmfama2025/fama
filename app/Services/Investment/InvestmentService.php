@@ -885,6 +885,26 @@ class InvestmentService
                     . e($row->referrer->investor_name) . ' - ' . e($row->referrer->investor_code) .
                     '</a>';
             })
+            ->addColumn('referred_investor_name', function ($row) {
+                if (!$row->investor) {
+                    return '-';
+                }
+
+                $url = route('investor.show', $row->investor->id);
+
+                return '<a href="' . $url . '" class="text-green fw-semibold text-decoration-none">'
+                    . e($row->investor->investor_name) . ' - ' . e($row->investor->investor_code) .
+                    '</a>';
+            })
+            ->addColumn('referred_investment_amount', function ($row) {
+                if (!$row->investment) {
+                    return '-';
+                }
+
+
+
+                return $row->investment->investment_amount;
+            })
 
 
             // action buttons
@@ -901,7 +921,7 @@ class InvestmentService
                 return $action;
             })
 
-            ->rawColumns(['action', 'referral_status', 'investor_name'])
+            ->rawColumns(['action', 'referral_status', 'investor_name', 'referred_investor_name', 'referred_investment_amount'])
             ->toJson();
     }
     public function getReferralDetails($id)

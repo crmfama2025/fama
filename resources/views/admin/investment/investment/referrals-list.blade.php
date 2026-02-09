@@ -55,7 +55,9 @@
                                             <th>Commission Amount</th>
                                             <th>Referral Status</th>
                                             <th>Frequency</th>
-                                            <th>Payment Terms</th>
+                                            {{-- <th>Payment Terms</th> --}}
+                                            <th>Referred Investor Name</th>
+                                            <th>Referred Investment Amount</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -102,7 +104,7 @@
             table = $('#referralsTable').DataTable({
                 processing: true,
                 serverSide: true,
-                responsive: true,
+                // responsive: true,
                 pageLength: 5,
 
                 ajax: {
@@ -141,12 +143,36 @@
                         data: 'referral_commission_frequency',
                         name: 'commissionFrequency.commission_frequency_name'
                     },
+                    // {
+                    //     data: 'referral_commission_frequency',
+                    //     name: 'commissionFrequency.commission_frequency_name'
+                    // },
+                    {
+                        data: 'referred_investor_name',
+                        name: 'investor.investor_name'
+                    },
+                    {
+                        data: 'referred_investment_amount',
+                        name: 'investment.investment_amount'
+                    },
 
                 ],
 
                 order: [
                     [0, 'desc']
-                ]
+                ],
+                dom: 'Bfrtip',
+                buttons: [{
+                    extend: 'excelHtml5',
+                    text: 'Export Excel',
+                    title: 'Investments Data',
+                    action: function(e, dt, node, config) {
+                        let searchValue = dt.search();
+                        let url = "{{ route('referral.export') }}" + "?search=" +
+                            encodeURIComponent(searchValue);
+                        window.location.href = url;
+                    }
+                }]
             });
         });
     </script>

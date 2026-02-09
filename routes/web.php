@@ -250,6 +250,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('investments/referrals', [ReferralController::class, 'referrals'])->name('referrals.index');
     Route::get('investments/referrals-list', [ReferralController::class, 'getReferrals'])->name('referrals.list');
     Route::get('investments/referrals-view/{referral}', [ReferralController::class, 'show'])->name('referrals.show');
+    Route::get('referrals/export-referral', [ReferralController::class, 'exportReferral'])->name('referral.export');
 });
 
 

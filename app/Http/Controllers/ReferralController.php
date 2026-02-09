@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\ReferralExport;
 use App\Models\InvestmentReferral;
 use App\Repositories\Investment\InvestmentRepository;
 use App\Services\Investment\InvestmentService;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ReferralController extends Controller
 {
@@ -37,5 +39,11 @@ class ReferralController extends Controller
         $title = "Referral View";
         // dd($referraldata);
         return view('admin.investment.investment.view-referral', compact('referral', 'title'));
+    }
+    public function exportReferral()
+    {
+        $search = request('search') ?? null;
+
+        return Excel::download(new ReferralExport($search), 'referrals.xlsx');
     }
 }
