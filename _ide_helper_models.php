@@ -1902,6 +1902,8 @@ namespace App\Models{
  * @property-read \App\Models\User|null $deletedBy
  * @property-read \App\Models\Investment|null $investment
  * @property-read \App\Models\Investor|null $investor
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvestorPayout> $investorPayouts
+ * @property-read int|null $investor_payouts_count
  * @property-read \App\Models\Investor|null $referrer
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentReferral newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentReferral newQuery()
@@ -2220,6 +2222,8 @@ namespace App\Models{
  * @property-read \App\Models\Investment|null $investment
  * @property-read \App\Models\InvestmentReferral|null $investmentReferral
  * @property-read \App\Models\Investor|null $investor
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvestorPaymentDistribution> $investorPayoutDistribution
+ * @property-read int|null $investor_payout_distribution_count
  * @property-read \App\Models\Investor|null $investorReference
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorPayout newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorPayout newQuery()

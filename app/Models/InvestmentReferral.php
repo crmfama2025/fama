@@ -50,7 +50,7 @@ class InvestmentReferral extends Model
     }
     public function investment()
     {
-        return $this->belongsTo(investment::class, 'investment_id');
+        return $this->belongsTo(Investment::class, 'investment_id');
     }
 
 
