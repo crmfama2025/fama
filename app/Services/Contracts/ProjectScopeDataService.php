@@ -30,13 +30,23 @@ class ProjectScopeDataService
             'vendor',
 
         ])
-            ->whereIn('contract_status', [0, 1])
+            // ->whereIn('contract_status', [0, 1])
             ->find($contractId);
 
         // dd($contract);
 
         if (!$contract) {
             return [];
+        }
+
+        if ($contract->contract_type_id == 2) {
+            $total_otc = formatNumber(
+                $contract->contract_rentals?->commission +
+                    $contract->contract_rentals?->deposit +
+                    $contract->contract_detail?->ejari
+            );
+        } else {
+            $total_otc = formatNumber($contract->contract_rentals?->total_otc);
         }
 
         return [
@@ -49,6 +59,7 @@ class ProjectScopeDataService
             'vendor_name' => $contract->vendor?->vendor_name ?? '',
             'start_date' => $contract->contract_detail?->start_date ?? '',
             'end_date' => $contract->contract_detail?->end_date ?? '',
+            'ejari' => $contract->contract_detail?->ejari ?? '',
             'total_units' => $contract->contract_unit?->no_of_units ?? 0,
             'total_contract_amount' => formatNumber($contract->contract_rentals?->rent_per_annum_payable),
             'unit_type' => $contract->contract_unit?->unit_type_count,
@@ -61,8 +72,9 @@ class ProjectScopeDataService
             'deposit_perc' => $contract->contract_rentals?->deposit_percentage,
             'commission_perc' => $contract->contract_rentals?->commission_percentage,
             'total_payment_to_vendor' => formatNumber($contract->contract_rentals?->total_payment_to_vendor),
-            'total_otc' => formatNumber($contract->contract_rentals?->total_otc),
+            'total_otc' => $total_otc,
             'final_cost' => formatNumber($contract->contract_rentals?->final_cost),
+            'initial_rent' => formatNumber(toNumeric($contract->contract_rentals?->rent_per_annum_payable) / 4),
             'initial_investment' => formatNumber($contract->contract_rentals?->initial_investment),
             'expected_profit' => formatNumber($contract->contract_rentals?->expected_profit),
             'roi' => $contract->contract_rentals?->roi_perc,
@@ -91,6 +103,7 @@ class ProjectScopeDataService
 
             'plot_no' => $contract->property?->plot_no ?? '',
             'unit_numbers' => $contract->contract_unit?->unit_numbers,
+            'sub_unit_count' => $contract->contract_unit?->total_subunit_count_per_contract,
             'closing_date' => $contract->contract_detail?->closing_date,
             'payable_installment' => $contract->contract_payments?->installment?->installment_name,
 
@@ -129,15 +142,12 @@ class ProjectScopeDataService
             $scope = $this->scopeRepo->update($data, $hasScope->id);
         } else {
             $scope = $this->scopeRepo->create($data);
+
+            $upData['is_scope_generated'] = 1;
+            $upData['contract_status'] = 1;
+            $upData['scope_generated_by'] = auth()->user()->id;
+            $this->contractrepo->update($contractId, $upData);
         }
-
-
-
-        $upData['is_scope_generated'] = 1;
-        $upData['contract_status'] = 1;
-        $upData['scope_generated_by'] = auth()->user()->id;
-
-        $this->contractrepo->update($contractId, $upData);
 
         return $scope;
     }

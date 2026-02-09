@@ -2,6 +2,7 @@
 
 use App\Exports\Styles\DirectScopeStyles;
 use App\Exports\Styles\FFScopeStyles;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
@@ -33,15 +34,15 @@ function renderSummary($sheet, $contract, $title)
 
     $summaryArr = [
         ['Building Name', '', $contract['property_name'], '', '', '', 'OTC', '', 'Furniture', ''],
-        ['Number of Houses', '', $contract['total_units'] . ' Houses', '', '', '', 'Cost of Development', '', $contract['cost_of_development'], ''],
-        ['Vendor Name', '', $contract['vendor_name'], '', '', '', 'Cost of Beds', '', $contract['cost_of_beds'], ''],
-        ['Total Contract Amt', '', $contract['total_contract_amount'], '', '', '',  'Cost of Mattresses', '', $contract['cost_of_mattresses'], ''],
-        ['Unit Type', '', $contract['unit_type'], '', '', '', 'Cost of Cabinets', '', $contract['cost_of_cabinets'], ''],
-        ['Grace Period', '', $contract['grace_period'], '', '', '',  'Appliances', '', $contract['appliances'], ''],
-        ['Commission', '', $contract['commission'], '', '', '',  'Decoration', '', $contract['decoration'], ''],
-        ['Contract Fee', '', $contract['contract_fee'], '', '', '',  'Dewa Deposit', '', $contract['dewa_deposit'], ''],
-        ['Refundable Deposit', '', $contract['refundable_deposit'], '', '', '',  'Total OTC', '', $contract['total_otc'], ''],
-        ['Total Payment to Vendor', '', $contract['total_payment_to_vendor'], '', '', '',  'Expected Rental', '', $contract['expected_rental'], ''],
+        ['Number of Houses', '', $contract['total_units'] . ' Houses', '', '', '', 'Cost of Development', '', toNumeric($contract['cost_of_development']), ''],
+        ['Vendor Name', '', $contract['vendor_name'], '', '', '', 'Cost of Beds', '', toNumeric($contract['cost_of_beds']), ''],
+        ['Total Contract Amt', '', $contract['total_contract_amount'], '', '', '',  'Cost of Mattresses', '', toNumeric($contract['cost_of_mattresses']), ''],
+        ['Unit Type', '', $contract['unit_type'], '', '', '', 'Cost of Cabinets', '', toNumeric($contract['cost_of_cabinets']), ''],
+        ['Grace Period', '', $contract['grace_period'] . ' Month', '', '', '',  'Appliances', '', toNumeric($contract['appliances']), ''],
+        ['Commission', '', $contract['commission'], '', '', '',  'Decoration', '', toNumeric($contract['decoration']), ''],
+        ['Contract Fee', '', $contract['contract_fee'], '', '', '',  'Dewa Deposit', '', toNumeric($contract['dewa_deposit']), ''],
+        ['Refundable Deposit', '', $contract['refundable_deposit'], '', '', '',  'Total OTC', '', toNumeric($contract['total_otc']), ''],
+        ['Total Payment to Vendor', '', $contract['total_payment_to_vendor'], '', '', '',  'Expected Rental', '', toNumeric($contract['expected_rental']), ''],
         ['Total OTC', '', $contract['total_otc'], '', '', '', 'Number of Months', '', $contract['number_of_months'], ''],
         ['Final Cost', '', $contract['final_cost'], '', '', '', 'Total Rental', '', $contract['total_rental'], ''],
         ['Initial Investment', '', $contract['initial_investment'], '', '', '',  'Plot Number', '', $contract['plot_no'], ''],
@@ -87,106 +88,264 @@ function renderSummary($sheet, $contract, $title)
         'alignment' => ['horizontal' => 'left', 'vertical' => 'center'],
         'borders' => ['allBorders' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]],
     ]);
+
+    $sheet->getStyle('I3:I11')
+        ->getNumberFormat()
+        ->setFormatCode(NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
 }
 
 function renderUnitDetails($sheet, $contract)
 {
-    $subunitCount = $total_per_contract = $rentAnnum = [];
-    foreach ($contract['unit_details'] as $key => $unitdetail) {
+    $startColumn = 'K';
+    $startRow    = 4;
 
-        $subunitdet = getAccommodationDetails($unitdetail);
+    $unitDetaiArr = [];
 
-        if ($key == 0)
-            $unitDetaiArr[] = ['Type', 'Room', 'Rent', $subunitdet['title'], $subunitdet['price_title'], 'Total'];
+    // ===============================
+    // HEADER
+    // ===============================
+    $unitDetaiArr[] = [
+        'Type',
+        'Room',
+        'Rent',
+        'Sub Unit Type',
+        'Sub unit Count',
+        'Sub unit Rent',
+        'Total',
+    ];
+
+    $rentAnnum = [];
+    $totalPerContract = [];
+
+    // ===============================
+    // DATA ROWS
+    // ===============================
+    $subUnitTotalCount = 0;
+    foreach ($contract['unit_details'] as $unitdetail) {
+
+        $data     = getAccommodationDetails($unitdetail);
+        $subunits = $data['subunits'];
+        $total    = $data['total_price'];
+
+        $isFirstRow = true;
 
 
-        $unitDetaiArr[] = [
-            $unitdetail->unit_type->unit_type ?? '',
-            $unitdetail->unit_number ?? '',
-            $unitdetail->unit_rent_per_annum ?? 0,
-            $subunitdet['accommodation'],
-            $subunitdet['price'],
-            $subunitdet['total_price'],
-        ];
-        $subunitCount[] = $subunitdet['accommodation'];
-        $total_per_contract[] = $subunitdet['total_price'];
-        $rentAnnum[] = toNumeric($unitdetail->unit_rent_per_annum);
+        foreach ($subunits as $sub) {
+
+            $unitDetaiArr[] = [
+                $isFirstRow ? ($unitdetail->unit_type->unit_type ?? '') : '',
+                $isFirstRow ? ($unitdetail->unit_number ?? '') : '',
+                $isFirstRow ? (tonumeric($unitdetail->unit_rent_per_annum) ?? 0) : null,
+                $sub['type'],
+                $sub['count'],
+                $sub['rent'],
+                $isFirstRow ? $total : null,
+            ];
+
+            $isFirstRow = false;
+            // $subUnitTotalCount += (int) $sub['count'];
+        }
+
+        $rentAnnum[] = $unitdetail->unit_rent_per_annum;
+        $totalPerContract[] = $total;
     }
 
-    $unitDetaiArr[] = [];
-    $unitDetaiArr[] = [];
+    // ===============================
+    // SUMMARY ROWS
+    // ===============================
+    $unitDetaiArr[] = []; // blank row
+    $unitDetaiArr[] = []; // blank row
 
-    $unitDetaiArr[] = ['', '', array_sum($rentAnnum), array_sum($subunitCount), '', array_sum($total_per_contract)];
-    $unitDetaiArr[] = ['', '', array_sum($rentAnnum) / 4, '', '', ''];
-    $unitDetaiArr[] = ['', '', array_sum($rentAnnum) * 0.1, '', '', ''];
+    // TOTAL ROW
+    $unitDetaiArr[] = [
+        '',
+        '',
+        array_sum($rentAnnum), // M (Rent)
+        '',                    // N
+        $contract['sub_unit_count'],    // O (Sub unit Count)
+        '',                    // P
+        array_sum($totalPerContract), // Q (Total)
+    ];
 
-    // Write the array starting at row 4, column K
-    $sheet->fromArray($unitDetaiArr, null, 'K4');
+    // QUARTER RENT
+    $unitDetaiArr[] = [
+        '',
+        '',
+        array_sum($rentAnnum) / 4,
+        '',
+        '',
+        '',
+        ''
+    ];
 
-    // Calculate the last row
-    $lastRow = 4 + count($unitDetaiArr) - 1;
+    // 10% VALUE
+    $unitDetaiArr[] = [
+        '',
+        '',
+        array_sum($rentAnnum) * 0.1,
+        '',
+        '',
+        '',
+        ''
+    ];
 
-    // 🔹 Apply style for entire table (borders, fill, alignment)
-    $sheet->getStyle("K4:P" . ($lastRow - 2))->applyFromArray([
-        'alignment' => ['horizontal' => 'center', 'vertical' => 'center'],
-        'borders' => ['allBorders' => [
-            'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN
-        ]],
-        'fill' => [
-            'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-            'color' => ['rgb' => '9BC2E6'],
-        ],
-    ]);
 
-    // 🔹 Make header row (only first row) bold
-    $sheet->getStyle('K4:P4')->getFont()->setBold(true);
 
-    $sheet->getStyle("K" . ($lastRow - 3) . ":P" . ($lastRow - 1))
+    // ===============================
+    // WRITE TO SHEET
+    // ===============================
+    $sheet->fromArray($unitDetaiArr, null, "{$startColumn}{$startRow}");
+
+    $lastRow    = $startRow + count($unitDetaiArr) - 1;
+    $lastColumn = 'Q'; // K → Q (7 columns)
+
+    // ===============================
+    // MERGE K L M Q BASED ON SUBUNITS
+    // ===============================
+    $currentRow = $startRow + 1;
+
+    foreach ($contract['unit_details'] as $unitdetail) {
+
+        $data     = getAccommodationDetails($unitdetail);
+        $rowCount = count($data['subunits']);
+
+        if ($rowCount > 1) {
+            $endRow = $currentRow + $rowCount - 1;
+
+            $sheet->mergeCells("K{$currentRow}:K{$endRow}");
+            $sheet->mergeCells("L{$currentRow}:L{$endRow}");
+            $sheet->mergeCells("M{$currentRow}:M{$endRow}");
+            $sheet->mergeCells("Q{$currentRow}:Q{$endRow}");
+
+            $sheet->getStyle("K{$currentRow}:Q{$endRow}")
+                ->getAlignment()
+                ->setVertical(Alignment::VERTICAL_CENTER);
+        }
+
+        $currentRow += $rowCount;
+    }
+
+    // ===============================
+    // MERGE SUMMARY ROWS (K + L)
+    // ===============================
+    $summaryStartRow = $lastRow - 2;
+
+    for ($r = $summaryStartRow; $r <= $lastRow; $r++) {
+        $sheet->mergeCells("K{$r}:L{$r}");
+    }
+
+    // ===============================
+    // HEADER STYLE (BLUE + BOLD)
+    // ===============================
+    $sheet->getStyle("K{$startRow}:{$lastColumn}{$startRow}")
         ->applyFromArray([
-            'borders' => [
-                'allBorders' => [
-                    'borderStyle' => Border::BORDER_NONE,
-                ],
-            ],
-        ]);
-
-
-    $sheet->getStyle("K" . ($lastRow - 2) . ":P" . ($lastRow - 2))
-        ->applyFromArray([
-            'font' => [
-                'bold' => true,
+            'font' => ['bold' => true],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical'   => Alignment::VERTICAL_CENTER,
             ],
             'fill' => [
                 'fillType' => Fill::FILL_SOLID,
-                'startColor' => [
-                    'argb' => 'FFC000', // yellow
-                ],
+                'startColor' => ['rgb' => '9BC2E6'],
             ],
             'borders' => [
                 'allBorders' => [
-                    'borderStyle' => Border::BORDER_NONE,
+                    'borderStyle' => Border::BORDER_THIN,
                 ],
             ],
         ]);
 
-    $sheet->getStyle("K" . ($lastRow - 1) . ":P" . $lastRow)
+    // ===============================
+    // BODY STYLE (BLUE + BORDERS)
+    // ===============================
+    $sheet->getStyle("K" . ($startRow + 1) . ":{$lastColumn}{$lastRow}")
         ->applyFromArray([
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical'   => Alignment::VERTICAL_CENTER,
+            ],
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => ['rgb' => '9BC2E6'],
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                ],
+            ],
+        ]);
+
+
+    $sheet->getStyle("K" . ($summaryStartRow - 1) . ":{$lastColumn}" . ($summaryStartRow - 1))
+        ->applyFromArray([
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical'   => Alignment::VERTICAL_CENTER,
+            ],
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => ['rgb' => '9BC2E6'],
+            ],
             'borders' => [
                 'allBorders' => [
                     'borderStyle' => Border::BORDER_NONE,
                 ],
             ],
-            'font' => [
-                'color' => [
-                    'argb' => 'D0CECE', // black text color
-                ],
-            ],
-
         ]);
 
-    $sheet->getStyle("M5:P11")
+
+    // ===============================
+    // Highlight row yellow
+    // ===============================
+    $sheet->getStyle("K{$summaryStartRow}:Q{$summaryStartRow}")
+        ->applyFromArray([
+            'font' => ['bold' => true],
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => ['argb' => 'FFC000'],
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_NONE,
+                ],
+            ],
+        ]);
+
+    // ===============================
+    // Fade other rows
+    // ===============================
+    $sheet->getStyle("K" . ($summaryStartRow + 1) . ":{$lastColumn}{$lastRow}")
+        ->applyFromArray([
+            'font' => [
+                'color' => ['argb' => 'D0CECE'],
+            ],
+            'fill' => [
+                'fillType' => Fill::FILL_NONE,
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_NONE,
+                ],
+            ],
+        ]);
+
+    // ===============================
+    // NUMBER FORMAT
+    // ===============================
+    // Rent (M)
+    $sheet->getStyle("M" . ($startRow + 1) . ":M{$lastRow}")
         ->getNumberFormat()
-        ->setFormatCode(NumberFormat::FORMAT_NUMBER_00);
+        ->setFormatCode(NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
+
+    // Sub unit Rent (P)
+    $sheet->getStyle("P" . ($startRow + 1) . ":P{$lastRow}")
+        ->getNumberFormat()
+        ->setFormatCode(NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
+
+    // Total (Q)
+    $sheet->getStyle("Q" . ($startRow + 1) . ":Q{$lastRow}")
+        ->getNumberFormat()
+        ->setFormatCode(NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
 }
 
 function renderPayables($sheet, $contract, $title)
@@ -200,11 +359,11 @@ function renderPayables($sheet, $contract, $title)
     $payableArr = [
         ['SN', 'Description', '', 'Total Payables in AED'],
         ['', '', '', ''],
-        ['1', 'Rental', '', $contract['total_contract_amount']],
-        ['2', 'Ref.Deposit', '', $contract['refundable_deposit']],
-        ['3', 'Commission', '', $contract['commission']],
-        ['4', 'OTC', '', $contract['total_otc']],
-        ['5', 'Contractor fee', '', $contract['contract_fee']],
+        ['1', 'Rental', '', toNumeric($contract['total_contract_amount'])],
+        ['2', 'Ref.Deposit', '', toNumeric($contract['refundable_deposit'])],
+        ['3', 'Commission', '', toNumeric($contract['commission'])],
+        ['4', 'OTC', '', toNumeric($contract['total_otc'])],
+        ['5', 'Contractor fee', '', toNumeric($contract['contract_fee'])],
         ['6', '', '', ''],
         ['7', '', '', ''],
         ['8', '', '', ''],
@@ -265,7 +424,7 @@ function renderPayables($sheet, $contract, $title)
     ]);
     $sheet->getStyle("D19:D35")
         ->getNumberFormat()
-        ->setFormatCode(NumberFormat::FORMAT_NUMBER_00);
+        ->setFormatCode(NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
 }
 
 
@@ -278,7 +437,7 @@ function renderPaymentToVendor($sheet, $contract)
         $installmentDet[] = [
             paymentDetailScope($paymentDet),
             DateTime::createFromFormat('d-m-Y', $paymentDet->payment_date)->format('d-M-Y'),
-            formatNumber($paymentDet->payment_amount)
+            toNumeric($paymentDet->payment_amount)
         ];
     }
 
@@ -311,7 +470,7 @@ function renderPaymentToVendor($sheet, $contract)
     ]);
     $sheet->getStyle("E19:G35")
         ->getNumberFormat()
-        ->setFormatCode(NumberFormat::FORMAT_NUMBER_00);
+        ->setFormatCode(NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
 }
 
 function renderReceivables($sheet, $contract)
@@ -321,7 +480,7 @@ function renderReceivables($sheet, $contract)
         $arrayofRec[] = toNumeric($paymentRec->receivable_amount);
         $installmentRec[] = [
             DateTime::createFromFormat('d-m-Y', $paymentRec->receivable_date)->format('d-M-Y'),
-            formatNumber($paymentRec->receivable_amount)
+            toNumeric($paymentRec->receivable_amount)
         ];
     }
 
@@ -365,9 +524,9 @@ function renderReceivables($sheet, $contract)
     $sheet->getStyle("E21:F35")->applyFromArray($centerAlign);
     $sheet->getStyle("H21:H35")->applyFromArray($centerAlign);
 
-    $sheet->getStyle("H19:J35")
+    $sheet->getStyle("I21:J35")
         ->getNumberFormat()
-        ->setFormatCode(NumberFormat::FORMAT_NUMBER_00);
+        ->setFormatCode(NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
 }
 
 function renderTotal($sheet, $contract)
@@ -377,8 +536,8 @@ function renderTotal($sheet, $contract)
     ];
 
     $totalArr = [
-        ['Total', '', '', $contract['final_cost'], '', '', $contract['total_payment_to_vendor'], '', $contract['total_rental'], '0.00'],
-        ['Profit Margin', '', '', '', '', '', '', '', $contract['expected_profit'], ''],
+        ['Total', '', '', toNumeric($contract['final_cost']), '', '', toNumeric($contract['total_payment_to_vendor']), '', toNumeric($contract['total_rental']), '0.00'],
+        ['Profit Margin', '', '', '', '', '', '', '', toNumeric($contract['expected_profit']), ''],
     ];
 
     $sheet->fromArray($totalArr, null, 'A36');
@@ -427,7 +586,7 @@ function renderTotal($sheet, $contract)
     ]));
 
     $totalArr = [
-        ['Profit%', $contract['profit_percentage'] . '%'],
+        ['Profit%', toNumeric($contract['profit_percentage']) . '%'],
     ];
 
     $sheet->fromArray($totalArr, null, 'H38');
@@ -454,6 +613,8 @@ function renderTotal($sheet, $contract)
             'color' => ['rgb' => 'FF0000'],
         ],
     ]));
+
+    $sheet->getStyle("A36:J37")->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
 }
 
 function renderRenewDetailsDF($sheet, $contract)
@@ -524,10 +685,10 @@ function renderFamaPaymentSummary($sheet, $contract)
         ['Rent Payable', $contract['total_contract_amount']],
         ['Deposit', $contract['refundable_deposit']],
         ['Commission', $contract['commission']],
-        ['Ejari Registration Fee', '0'],
-        ['Total to be paid', $contract['total_contract_amount']],
+        ['Ejari Registration Fee', $contract['ejari']],
+        ['Total to be paid', $contract['total_payment_to_vendor']],
         ['Total Revenue', $contract['total_rental']],
-        ['Initial Rent', $contract['initial_investment']],
+        ['Initial Rent', $contract['initial_rent']],
         ['One Time Cost', $contract['total_otc']],
         ['Initial Investment', $contract['initial_investment']],
         ['Profit', $contract['expected_profit']],
@@ -561,7 +722,7 @@ function renderFamaPayables($sheet, $contract)
             $paymentDet->bank?->bank_name ?? $paymentDet->payment_mode?->payment_mode_name,
             $paymentDet->cheque_no,
             DateTime::createFromFormat('d-m-Y', $paymentDet->payment_date)->format('d-M-Y'),
-            formatNumber($paymentDet->payment_amount)
+            toNumeric($paymentDet->payment_amount)
         ];
     }
 
@@ -571,7 +732,7 @@ function renderFamaPayables($sheet, $contract)
     ];
     $payableDetArr = array_merge($payableInstallmentsArr, $installmentDet);
 
-    $payableDetArr = array_merge($payableDetArr, [['', '', '', $contract['total_contract_amount']]]);
+    $payableDetArr = array_merge($payableDetArr, [['', '', '', toNumeric($contract['total_payment_to_vendor'])]]);
     // dd($payableDetArr);
 
     // Write the array starting at row 2
@@ -617,79 +778,94 @@ function renderFamaPayables($sheet, $contract)
     ]);
     $sheet->getStyle("D21:D25")
         ->getNumberFormat()
-        ->setFormatCode(NumberFormat::FORMAT_NUMBER_00);
+        ->setFormatCode(NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
 }
 
 function renderReceivablesFF($sheet, $contract)
 {
     $installmentRec = $arrayofRec = [];
-    foreach ($contract['contract_payment_receivables'] as $key => $paymentRec) {
-        $arrayofRec[] = toNumeric($paymentRec->receivable_amount);
+
+    foreach ($contract['contract_payment_receivables'] as $paymentRec) {
+        $amount = toNumeric($paymentRec->receivable_amount);
+
+        $arrayofRec[] = $amount;
         $installmentRec[] = [
             DateTime::createFromFormat('d-m-Y', $paymentRec->receivable_date)->format('d-M-Y'),
-            formatNumber($paymentRec->receivable_amount)
+            $amount
         ];
     }
 
-
     $payableRecArr = [
-        ['Sold To Faateh', 'Receivables',],
-        ['Total Receivables in 12 Cheques',     $contract['total_rental']],
+        ['Sold To Faateh', 'Receivables'],
+        ['Total Receivables in 12 Cheques', toNumeric($contract['total_rental'])],
         ['Receivables Date From Faateh to Fama', ''],
     ];
+
     $receivableDetArr = array_merge($payableRecArr, $installmentRec);
 
-    // Write the array starting at row 2
-    $sheet->fromArray($receivableDetArr, null, 'A27');
+    $startRow = 27;
+    $sheet->fromArray($receivableDetArr, null, 'A' . $startRow);
+
+    /* ------------------ Dynamic row calculation ------------------ */
+
+    $headerRows = count($payableRecArr);       // 3
+    $installmentRows = count($installmentRec);
+
+    $firstInstallmentRow = $startRow + $headerRows;
+    $lastDataRow = $firstInstallmentRow + $installmentRows - 1;
+    $totalRow = $lastDataRow + 1;
+
+    /* ------------------ Styles ------------------ */
 
     $leftAlign = [
         'alignment' => ['horizontal' => 'left', 'vertical' => 'center'],
     ];
 
     $greenFill = [
-        'borders' => ['allBorders' => [
-            'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN
-        ]],
+        'borders' => [
+            'allBorders' => [
+                'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN
+            ]
+        ],
         'fill' => [
             'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-            'color' => ['rgb' => 'C6E0B4'], // background color (green)
+            'color' => ['rgb' => 'C6E0B4'],
         ],
     ];
 
-    $sheet->getStyle('A27:B29')->applyFromArray(array_merge_recursive(
-        [
-            'font' => [
-                'bold' => true,
-            ],
-        ],
-        $leftAlign,
-        $greenFill
-    ));
+    $sheet->getStyle("A{$startRow}:B" . ($startRow + 2))
+        ->applyFromArray(array_merge_recursive(
+            ['font' => ['bold' => true]],
+            $leftAlign,
+            $greenFill
+        ));
 
-    $sheet->getStyle('B28:B28')->applyFromArray([
-        'alignment' => ['horizontal' => 'right', 'vertical' => 'center'],
-    ]);
+    $sheet->getStyle("B" . ($startRow + 1))
+        ->getAlignment()
+        ->setHorizontal('right');
 
-    $sheet->getStyle("A30:B42")->applyFromArray(array_merge_recursive(
-        [
-            'alignment' => ['horizontal' => 'right', 'vertical' => 'center'],
-        ],
-        $greenFill
-    ));
+    $sheet->getStyle("A{$firstInstallmentRow}:B{$totalRow}")
+        ->applyFromArray(array_merge_recursive(
+            ['alignment' => ['horizontal' => 'right', 'vertical' => 'center']],
+            $greenFill
+        ));
 
-    $sheet->setCellValue('B42', formatNumber(array_sum($arrayofRec)));
-    $sheet->getStyle('B42')->applyFromArray(
-        [
-            'font' => [
-                'bold' => true,
-            ],
-        ]
-    );
+    /* ------------------ Total row ------------------ */
+
+    // $sheet->setCellValue("A{$totalRow}", 'Total');
+    $sheet->setCellValue("B{$totalRow}", formatNumber(array_sum($arrayofRec)));
+
+    $sheet->getStyle("A{$totalRow}:B{$totalRow}")
+        ->applyFromArray([
+            'font' => ['bold' => true],
+        ]);
 
 
-    $sheet->getStyle("A27:B42")
+    /* ------------------ Number format ------------------ */
+
+    $sheet->getStyle("B" . ($startRow + 1) . ":B{$totalRow}")
         ->getNumberFormat()
-        ->setFormatCode(NumberFormat::FORMAT_NUMBER_00);
+        ->setFormatCode(NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
 }
 
 function renderSummaryFF($sheet, $contract)
@@ -721,13 +897,13 @@ function renderSummaryFF($sheet, $contract)
         ['Unit Type', $contract['unit_type']],
         ['Contract Start Date ', $contract['start_date']],
         ['Contract End Date', $contract['end_date']],
-        ['Grace Period', $contract['grace_period']],
+        ['Grace Period', $contract['grace_period'] . ' Month'],
         ['Total Amount of Contract', $contract['total_contract_amount']],
-        ['Deposit ' . toNumeric($contract['deposit_perc']) . '%'],
+        ['Deposit ' . toNumeric($contract['deposit_perc']) . '%', $contract['refundable_deposit']],
         ['Commission ' . toNumeric($contract['commission_perc']) . '%', $contract['commission']],
         ['Ejari Fee', ''],
         ['Payment in (Number of Cheques)', $contract['payable_installment']],
-        ['Total Payable Amount', $contract['total_contract_amount']]
+        ['Total Payable Amount', $contract['total_payment_to_vendor']]
     ];
 
     // Write the array starting at row 2
@@ -776,9 +952,9 @@ function renderPaymentSummary($sheet, $contract)
     ]);
 
     $summaryArr = [
-        ['Total Cost of Fama', $contract['total_contract_amount']],
-        ['Profit on Cost', $contract['expected_profit']],
-        ['Total Revenue of Fama', $contract['total_rental']],
+        ['Total Cost of Fama', toNumeric($contract['total_payment_to_vendor'])],
+        ['Profit on Cost', toNumeric($contract['expected_profit'])],
+        ['Total Revenue of Fama', toNumeric($contract['total_rental'])],
     ];
 
     // Write the array starting at row 2
@@ -792,14 +968,18 @@ function renderPaymentSummary($sheet, $contract)
     $sheet->getStyle('G29:G31')->applyFromArray([
         'alignment' => ['horizontal' => 'right', 'vertical' => 'center'],
     ]);
+
+    $sheet->getStyle("G29:G31")
+        ->getNumberFormat()
+        ->setFormatCode(NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
 }
 
 function renderUnitDetailsFF($sheet, $contract)
 {
-    $profitPerc = $profit = $rentAnnum = $revenue = $comm = $depo = [];
+    $profitPerc = $profit = $rentAnnum = $revenue = $comm = $depo = $rentPayable = [];
     foreach ($contract['unit_details'] as $key => $unitdetail) {
 
-        $subunitdet = getAccommodationDetails($unitdetail);
+        // $subunitdet = getAccommodationDetails($unitdetail);
 
 
 
@@ -807,7 +987,7 @@ function renderUnitDetailsFF($sheet, $contract)
         $commonData =  [
             $unitdetail->unit_number ?? '',
             $unitdetail->unit_type->unit_type ?? '',
-            $unitdetail->unit_rent_per_annum ?? 0,
+            toNumeric($unitdetail->unit_rent_per_annum) ?? 0,
         ];
 
         if ($contract['parent']) {
@@ -816,17 +996,17 @@ function renderUnitDetailsFF($sheet, $contract)
         } else {
             $extraHead = ['commission', 'deposit',];
             $extraData = [
-                $unitdetail->unit_commission ?? 0,
-                $unitdetail->unit_deposit ?? 0,
+                toNumeric($unitdetail->unit_commission) ?? 0,
+                toNumeric($unitdetail->unit_deposit) ?? 0,
             ];
         }
 
         $commonHeadEnd = ['Total Amount Payable', 'Profit %', 'Profit', 'Revenue'];
         $commonDataEnd = [
-            $unitdetail->unit_amount_payable ?? 0,
+            toNumeric($unitdetail->unit_amount_payable) ?? 0,
             $unitdetail->unit_profit_perc . '%' ?? 0,
-            $unitdetail->unit_profit ?? 0,
-            $unitdetail->unit_revenue ?? 0,
+            toNumeric($unitdetail->unit_profit) ?? 0,
+            toNumeric($unitdetail->unit_revenue) ?? 0,
         ];
         if ($key == 0)
             $unitDetaiArr[] = array_merge(array_merge($commonHead, $extraHead), $commonHeadEnd);
@@ -837,6 +1017,7 @@ function renderUnitDetailsFF($sheet, $contract)
         $comm[] = toNumeric($unitdetail->unit_commission);
         $depo[] = toNumeric($unitdetail->unit_deposit);
         $rentAnnum[] = toNumeric($unitdetail->unit_rent_per_annum);
+        $rentPayable[] = toNumeric($unitdetail->unit_amount_payable);
         $revenue[] = toNumeric($unitdetail->unit_revenue);
     }
 
@@ -845,6 +1026,7 @@ function renderUnitDetailsFF($sheet, $contract)
     $unitDetaiArr[] = [];
 
     $totrentannum = formatNumber(array_sum($rentAnnum));
+    $totrentPayable = formatNumber(array_sum($rentPayable));
 
 
     if ($contract['parent']) {
@@ -852,7 +1034,7 @@ function renderUnitDetailsFF($sheet, $contract)
             '',
             '',
             $totrentannum,
-            $totrentannum,
+            $totrentPayable,
             formatNumber(array_sum($profitPerc) / count($profitPerc)) . '%',
             formatNumber(array_sum($profit)),
             formatNumber(array_sum($revenue))
@@ -867,7 +1049,7 @@ function renderUnitDetailsFF($sheet, $contract)
             $totrentannum,
             formatNumber(array_sum($comm)),
             formatNumber(array_sum($depo)),
-            $totrentannum,
+            $totrentPayable,
             formatNumber(array_sum($profitPerc) / count($profitPerc)) . '%',
             formatNumber(array_sum($profit)),
             formatNumber(array_sum($revenue))
@@ -931,7 +1113,7 @@ function renderUnitDetailsFF($sheet, $contract)
             ],
         ]);
 
-    $sheet->getStyle("K" . ($lastRow - 1) . ":P" . $lastRow)
+    $sheet->getStyle("K" . ($lastRow - 1) . ":{$lastColumn}" . $lastRow)
         ->applyFromArray([
             'alignment' => ['horizontal' => 'right', 'vertical' => 'center'],
             'borders' => [
@@ -948,9 +1130,9 @@ function renderUnitDetailsFF($sheet, $contract)
         ]);
 
 
-    $sheet->getStyle("K5:O13")
+    $sheet->getStyle("K5:Q15")
         ->getNumberFormat()
-        ->setFormatCode(NumberFormat::FORMAT_NUMBER_00);
+        ->setFormatCode(NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
 }
 
 function renderRenewDetailsFF($sheet, $contract)

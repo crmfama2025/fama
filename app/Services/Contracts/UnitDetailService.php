@@ -184,6 +184,7 @@ class UnitDetailService
         // dd('after unit loop');
         return DB::transaction(function () use ($data, $dataArr, $contractData, $unit_id, $user_id, $insertData) {
             $unitDetId = array();
+
             if ($insertData) {
                 $unitDetId = $this->createManyData($insertData, $dataArr, $contractData, $unit_id, $user_id, 1);
             }
@@ -201,7 +202,6 @@ class UnitDetailService
             return $unitDetId;
         });
 
-
         $this->validate($dataArr, $id);
         $dataArr['updated_by'] = auth()->user()->id;
         return $this->unitdetRepo->update($id, $dataArr);
@@ -209,18 +209,45 @@ class UnitDetailService
 
     public function getsubUnitData($dataArr, $contractData, $unit_id)
     {
+
+        // $is_partition = 0;
+        // if (isset($subUnitData['is_partition'][$i])) {
+        //     // if ($subUnitData['is_partition'][$i] == '1') {
+        //     $is_partition = $subUnitData['partition'][$i];
+        //     // }
+        // }
+        // if (isset($subUnitData['is_bedspace'][$i])) {
+        //     // if ($subUnitData['is_bedspace'][$i] == '1') {
+        //     $is_partition += $subUnitData['bedspace'][$i];
+        //     // }
+        // }
+        // if (isset($subUnitData['room'][$i])) {
+        //     // if ($subUnitData['room'][$i] == '1') {
+        //     $is_partition += $subUnitData['room'][$i];
+        //     // }
+        // } else {
+        //     $is_partition++;
+        // }
+
         $subUnitData = array(
             'is_partition' => (isset($dataArr['partition'])) ? $dataArr['partition'] : '',
-            // 'is_bedspace' => $is_bedspace,
-            'partition' => $dataArr['total_partition'],
-            'bedspace' => $dataArr['total_bedspace'],
-            'room' => $dataArr['total_room'],
+            'is_bedspace' => (isset($dataArr['bedspace'])) ? $dataArr['bedspace'] : '',
+            'is_room' => (isset($dataArr['room'])) ? $dataArr['room'] : '',
+            // 'is_flat' => (isset($dataArr['room'])) ? $dataArr['room'] : '',
+            'partition' => (isset($dataArr['partition'])) ? $dataArr['total_partition'] : 0,
+            'bedspace' => (isset($dataArr['bedspace'])) ? $dataArr['total_bedspace'] : 0,
+            'room' => (isset($dataArr['room'])) ? $dataArr['total_room'] : 0,
+            'rent_per_partition' => (isset($dataArr['partition']) > 0) ? $dataArr['rent_per_partition'] : 0,
+            'rent_per_bedspace' => (isset($dataArr['bedspace']) > 0) ? $dataArr['rent_per_bedspace'] : 0,
+            'rent_per_room' => (isset($dataArr['room']) > 0) ?  $dataArr['rent_per_room']  : 0,
+            'rent_per_flat' => $dataArr['rent_per_flat'],
             'project_no' => $contractData->project_number,
             'contract_id' => $contractData->id,
             'contract_unit_id' => $unit_id,
             'company_code' => $contractData->company->company_short_code,
             'unit_no' => $dataArr['unit_number'],
             'unit_type' => $dataArr['unit_type_id'],
+            'subunittype' => $contractData->subunittype,
         );
 
         return $subUnitData;
@@ -260,9 +287,9 @@ class UnitDetailService
             'bedspace' => $bedspace,
             'room' => $room,
             'maid_room' => $dataArr['maid_room'][$key] ?? 0,
-            'total_partition' => $dataArr['total_partition'][$key] ?? 0,
-            'total_bedspace' => $dataArr['total_bedspace'][$key] ?? 0,
-            'total_room' => $dataArr['total_room'][$key] ?? 0,
+            'total_partition' => ($partition > 0) ? $dataArr['total_partition'][$key] : 0,
+            'total_bedspace' => ($bedspace > 0) ? $dataArr['total_bedspace'][$key] : 0,
+            'total_room' => ($room > 0) ? $dataArr['total_room'][$key] : 0,
             'rent_per_partition' => ($partition > 0) ? $dataArr['rent_per_partition'] : 0,
             'rent_per_bedspace' => ($bedspace > 0) ? $dataArr['rent_per_bedspace'] : 0,
             'rent_per_room' => ($room > 0) ?  $dataArr['rent_per_room']  : 0,
@@ -282,7 +309,7 @@ class UnitDetailService
             'unit_deposit' => isset($dataArr['unit_deposit']) ? $dataArr['unit_deposit'][$key] : 0,
             'total_payment_pending' => isset($dataArr['unit_revenue']) ? $dataArr['unit_revenue'][$key] : $total_rent_per_unit_per_annum,
         );
-        // dd($unitDetailArr);
+
         if ($action  == 1) {
             $unitDetailArr['added_by'] = $user_id ? $user_id : auth()->user()->id;
         } else {

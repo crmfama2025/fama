@@ -27,62 +27,32 @@ class SubUnitDetailService
 
     public function create($detailId, array $subUnitData, $user_id)
     {
-        // dd($detailId);
-        // dd($subUnitData);
         $subunitArr = [];
         foreach ($subUnitData['unit_type'] as $key => $value) {
-            // dd($subUnitData);
-            $subunitcount = subUnitCount($subUnitData, $key);
-            // if (isset($subUnitData['is_partition'][$key])) {
-            //     if ($subUnitData['is_partition'][$key] == '1') {
-            //         $subunitcount = $subUnitData['partition'][$key];
-            //     } else if ($subUnitData['is_partition'][$key] == '2') {
-            //         $subunitcount = $subUnitData['bedspace'][$key];
-            //     } else {
-            //         $subunitcount = $subUnitData['room'][$key];
-            //     }
-            // } else {
-            //     $subunitcount++;
-            // }
 
-            for ($i = 1; $i <= $subunitcount; $i++) {
-                // print_r($detailId);
-                // $subunit_type = '0';
-                $subunit_type = subUnitType($subUnitData, $key);
-                $subunitno = subunitNoGeneration($subUnitData, $key, $i);
-                // if (isset($subUnitData['is_partition'][$key])) {
-                //     if ($subUnitData['is_partition'][$key] == '1') {
-                //         $subunitno = 'P' . $i;
-                //         $subunit_type = '1';
-                //     } else if ($subUnitData['is_partition'][$key] == '2') {
-                //         $subunitno = 'BS' . $i;
-                //         $subunit_type = '2';
-                //     } else {
-                //         $subunitno = 'R' . $i;
-                //         $subunit_type = '3';
-                //     }
-                // } else {
-                //     $subunitno = 'FL' . $i;
-                //     $subunit_type = '4';
-                // }
+            $subunit_type = subUnitType($subUnitData, $key);
 
-                $subunitcode = 'P' . $subUnitData['project_no'] . '/' . $subUnitData['company_code'] . '/' .  $subUnitData['unit_no'][$key] . '/' . $subunitno;
-                // dd('aftercode');
+            foreach ($subunit_type as $subType => $value) {
 
-                $subunitArr = array(
-                    'contract_id' => $subUnitData['contract_id'],
-                    'contract_unit_id' => $subUnitData['contract_unit_id'],
-                    'contract_unit_detail_id' => $detailId[$key],
-                    'subunit_type' => $subunit_type,
-                    'subunit_no' => $subunitno,
-                    'subunit_code' => $subunitcode,
-                    'added_by' => $user_id ? $user_id : auth()->user()->id,
-                );
-                // dd($subunitArr);
+                for ($i = 1; $i <= $value; $i++) {
+                    $subunitno = subunitNoGeneration($subUnitData, $key, $i, $subType);
 
-                $this->subunitdetRepo->create($subunitArr);
+                    $subunitcode = 'P' . $subUnitData['project_no'] . '/' . $subUnitData['company_code'] . '/' .  $subUnitData['unit_no'][$key] . '/' . $subunitno['subunitno'];
+
+                    $subunitArr = array(
+                        'contract_id' => $subUnitData['contract_id'],
+                        'contract_unit_id' => $subUnitData['contract_unit_id'],
+                        'contract_unit_detail_id' => $detailId[$key],
+                        'subunit_type' => $subType,
+                        'subunit_no' => $subunitno['subunitno'],
+                        'subunit_rent' => $subunitno['subunitrent'],
+                        'subunit_code' => $subunitcode,
+                        'added_by' => $user_id ? $user_id : auth()->user()->id,
+                    );
+
+                    $this->subunitdetRepo->create($subunitArr);
+                }
             }
-            // print_r('after loop');
         }
     }
 
@@ -92,96 +62,85 @@ class SubUnitDetailService
         foreach ($subUnitData['unit_type'] as $key => $value) {
             // print_r('update loop ' . $key);
             $this->syncSubunits($subUnitData, $key, $detailId[$key], $user_id);
+            // dump('update');
         }
+        // dd('update');
     }
 
     public function syncSubunits($subUnitData, $key, $detailId, $user_id)
     {
         DB::transaction(function () use ($detailId, $subUnitData, $key, $user_id) {
-            // dd('before');
 
-            // if (isset($subUnitData['is_partition'][$key])) {
-            //     if ($subUnitData['is_partition'][$key] == '1') {
-            //         $subunit_type = '1';
-            //     } else if ($subUnitData['is_partition'][$key] == '2') {
-            //         $subunit_type = '2';
-            //     } else {
-            //         $subunit_type = '3';
-            //     }
-            // } else {
-            //     $subunit_type = '4';
-            // }
+            // 1️⃣ Active subunit types with required counts
+            $requestedTypes = subUnitType($subUnitData, $key);
+            // example: [1 => 3, 2 => 2]
 
-            $subunit_type = subUnitType($subUnitData, $key);
+            // 2️⃣ Delete subunits of REMOVED types
+            $deleteIds = $this->subunitdetRepo
+                ->existPrevSubType($detailId, $subUnitData, $key);
 
-            // 🔹 Get existing subunits for this detail
+            if (!empty($deleteIds)) {
+                ContractSubunitDetail::whereIn('id', $deleteIds)->forceDelete();
+            }
+
+            // 3️⃣ Get existing subunits grouped by type
             $existing = ContractSubunitDetail::where('contract_unit_detail_id', $detailId)
-                ->where('subunit_type', $subunit_type)
                 ->orderBy('id')
-                ->get();
+                ->get()
+                ->groupBy('subunit_type');
 
-            $currentCount = $existing->count();
+            // 4️⃣ Loop PER SUBUNIT TYPE
+            foreach ($requestedTypes as $subunit_type => $requiredCount) {
+                $existingForType = $existing[$subunit_type] ?? collect();
+                $currentCount    = $existingForType->count();
 
-            // echo "</pre>";
-            // print_r($subUnitData);
-            $subunitcount = subUnitCount($subUnitData, $key);
-            // if (isset($subUnitData['is_partition'][$key])) {
-            //     if ($subUnitData['is_partition'][$key] == '1') {
-            //         $subunitcount = $subUnitData['partition'][$key];
-            //     } else if ($subUnitData['is_partition'][$key] == '2') {
-            //         $subunitcount = $subUnitData['bedspace'][$key];
-            //     } else {
-            //         $subunitcount = $subUnitData['room'][$key];
-            //     }
-            // } else {
-            //     $subunitcount++;
-            // }
-            // dd('before');
-            $existPrevTypeId = $this->subunitdetRepo->existPrevSubType($detailId, $subUnitData['is_partition'][$key] ?? 0);
-            // dd($existPrevTypeId);
-            if ($existPrevTypeId) {
-                ContractSubunitDetail::whereIn('id', $existPrevTypeId)->forceDelete();
-            }
+                if ($currentCount < $requiredCount) {
+                    /* ========================= CASE 1: ADD ========================== */
+                    // print('case 1');
 
+                    $toAdd = $requiredCount - $currentCount;
 
-            // 🔹 CASE 1: Add missing subunits
-            if ($currentCount < $subunitcount) {
-                // print('case 1');
-                $toAdd = $subunitcount - $currentCount;
+                    for ($i = 1; $i <= $toAdd; $i++) {
 
-                for ($j = 0; $j < $toAdd; $j++) {
+                        $subunitno = subunitNoGeneration(
+                            $subUnitData,
+                            $key,
+                            $currentCount + $i,
+                            $subunit_type // 👈 IMPORTANT
+                        );
 
-                    $subunitno = subunitNoGeneration($subUnitData, $key, $currentCount + $j + 1);
+                        $this->createloop(
+                            $subUnitData,
+                            $key,
+                            $detailId,
+                            $user_id,
+                            $subunit_type,
+                            $subunitno['subunitno'],
+                            $subunitno['subunitrent']
+                        );
+                    }
+                } elseif ($currentCount > $requiredCount) {
+                    /* ========================= CASE 2: REMOVE  ========================== */
 
-                    // $this->createLoop($subUnitData, $key, $detailId[$key]->id, $user_id, $i, $subunit_type);
-                    $this->createloop($subUnitData, $key, $detailId, $user_id, $subunit_type, $subunitno);
-                }
-            }
+                    $toDelete = $currentCount - $requiredCount;
 
-            // 🔹 CASE 2: Remove extra subunits
-            elseif ($currentCount > $subunitcount) {
-                // print('case 2');
-                $toDelete = $currentCount - $subunitcount;
+                    $idsToDelete = $existingForType
+                        ->sortByDesc('id')
+                        ->take($toDelete)
+                        ->pluck('id');
 
-                // delete from the last entries
-                $idsToDelete = $existing->sortByDesc('id')->take($toDelete)->pluck('id');
-                ContractSubunitDetail::whereIn('id', $idsToDelete)->forceDelete();
-            }
-
-            // 🔹 CASE 3: Update existing if needed (optional)
-            else {
-                // print('case 3');
-                for ($i = 1; $i <= $subunitcount; $i++) {
-                    $subunitno = subunitNoGeneration($subUnitData, $key, $i);
-
-                    $this->createloop($subUnitData, $key, $detailId, $user_id, $subunit_type, $subunitno);
+                    ContractSubunitDetail::whereIn('id', $idsToDelete)->forceDelete();
+                } else {
+                    /* ========================= CASE 3: COUNT SAME ========================== */
+                    // nothing needed – numbering already correct
+                    continue;
                 }
             }
         });
     }
 
 
-    public function createloop($subUnitData, $key, $detailId, $user_id, $subunit_type, $subunitno)
+    public function createloop($subUnitData, $key, $detailId, $user_id, $subunit_type, $subunitno, $subunitrent)
     {
         $subunitcode = 'P' . $subUnitData['project_no'] . '/' . $subUnitData['company_code'] . '/' . $subUnitData['unit_no'][$key] . '/' . $subunitno;
         // print($subunitcode);
@@ -194,10 +153,11 @@ class SubUnitDetailService
             'contract_unit_detail_id' => $detailId, //detailId[$key]->id,
             'subunit_type' => $subunit_type,
             'subunit_no' => $subunitno,
+            'subunit_rent' => $subunitrent,
             'subunit_code' => $subunitcode,
             'added_by' => $user_id ? $user_id : auth()->user()->id,
         );
-        // dd($subunitArr);
+
         if ($oldValue || $existing) {
             if ($existing) {
                 // dd('exist');

@@ -107,6 +107,11 @@ class ContractController extends Controller
         try {
             $contract = $this->contractService->update($id, $request->all());
 
+            if ($contract->contract_scope != null) {
+                $this->exportBuildingSummary($id, 'update');
+            }
+
+
             return response()->json(['success' => true, 'data' => $contract, 'message' => 'Contract updated successfully'], 200);
         } catch (\Exception $e) {
 
@@ -277,18 +282,25 @@ class ContractController extends Controller
         }
     }
 
-    public function exportBuildingSummary($id)
+    public function exportBuildingSummary($id, $stage = null)
     {
         $contract = $this->contractService->getAllDataById($id);
         $file_name = "Project " . $contract->project_number . (($contract->contract_type_id == 1) ? '_Direct' : '') . (($contract->parent_contract_id) ? '_Renewal' : '') . '_' . $contract->property->property_name . ' Building Summary.xlsx';
 
 
         // Generate temporary signed URL valid for a few seconds
-        $downloadUrl = route('contract.downloadSummary', [
-            'id' => $id,
-            'filename' => urlencode($file_name)
-        ]);
+        if ($stage != null) {
+            $downloadUrl = $this->downloadSummary($id, $file_name);
+        } else {
+            $downloadUrl = route('contract.downloadSummary', [
+                'id' => $id,
+                'filename' => urlencode($file_name)
+            ]);
+        }
 
+
+        // $downloadUrl2 = $this->downloadSummary($id, urlencode($file_name));
+        // dd($downloadUrl);
         return response()->json([
             'file_url' => $downloadUrl,
             'redirect_url' => route('contract.index')
@@ -297,7 +309,7 @@ class ContractController extends Controller
 
     public function downloadSummary($contractId, $filename)
     {
-        // dd('downloadsummary');
+        // dump('downloadsummary');
         // return;
         return Excel::download(new ProjectScopeExport($contractId, $this->scopeService), $filename);
     }

@@ -1197,6 +1197,16 @@ namespace App\Models{
 
 namespace App\Models{
 /**
+ * @property-read \App\Models\User|null $user
+ * @method static \Illuminate\Database\Eloquent\Builder|ContractScopeLog newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ContractScopeLog newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ContractScopeLog query()
+ */
+	class ContractScopeLog extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
  * @property int $id
  * @property int $contract_template_id
  * @property string $page_type
@@ -1292,6 +1302,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int $is_vacant
+ * @property string|null $subunit_rent
  * @property-read \App\Models\Contract $contract
  * @property-read \App\Models\ContractUnit $contract_unit
  * @property-read \App\Models\ContractUnitDetail $contract_unit_detail
@@ -1311,6 +1322,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|ContractSubunitDetail whereIsVacant($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractSubunitDetail whereSubunitCode($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractSubunitDetail whereSubunitNo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ContractSubunitDetail whereSubunitRent($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractSubunitDetail whereSubunitType($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractSubunitDetail whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractSubunitDetail whereUpdatedBy($value)
@@ -1422,7 +1434,7 @@ namespace App\Models{
  * @property string $rent_per_unit_per_month
  * @property string $rent_per_unit_per_annum
  * @property string $total_rent_per_unit_per_month
- * @property int $subunittype
+ * @property string $subunittype 1-partition, 2-bedspace, 3-room, 4-full flat
  * @property int $subunitcount_per_unit
  * @property string $subunit_rent_per_unit
  * @property string|null $unit_profit_perc
