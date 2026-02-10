@@ -128,4 +128,15 @@ class PaymentDetailService
     {
         return $this->paymentdetRepo->delete($id);
     }
+
+
+    public function terminatePendingPayments($contractId, $terminateDate, $balanceAmount)
+    {
+        $retVal = $this->paymentdetRepo
+            ->terminatePendingPayments($contractId, $terminateDate, $balanceAmount);
+
+        // logger('Payments updated', ['rows' => $retVal]);
+
+        return $retVal;
+    }
 }

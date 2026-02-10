@@ -54,7 +54,12 @@ class Contract extends Model
         'approved_date',
         'is_acknowledgement_released',
         'acknowledgement_released_date',
-        'acknowledgement_released_by'
+        'acknowledgement_released_by',
+        'terminated_date',
+        'terminated_reason',
+        'terminated_by',
+        'balance_amount',
+        'balance_received'
     ];
 
     public function property()
@@ -249,5 +254,10 @@ class Contract extends Model
     public function getAcknowledgementReleasedDateAttribute($value)
     {
         return Carbon::parse($value)->format('d-m-Y');
+    }
+
+    public function setTerminatedDateAttribute($value)
+    {
+        $this->attributes['terminated_date'] = Carbon::parse($value)->format('Y-m-d');
     }
 }

@@ -22,11 +22,18 @@ class ContractPayableClear extends Model
         'paid_bank',
         'paid_cheque_number',
         'payment_remarks',
+        'company_id',
+        'returned_status'
     ];
 
     public function contract()
     {
         return $this->belongsTo(Contract::class, 'contract_id', 'id');
+    }
+
+    public function company()
+    {
+        return $this->belongsTo(Company::class, 'company_id', 'id');
     }
 
     public function contractPaymentDetail()

@@ -182,19 +182,19 @@
                     // },
                     {
                         data: 'company_name',
-                        name: 'contractPaymentDetail.contract.company.company_name',
+                        name: 'contract.company.company_name',
                     },
                     {
                         data: 'vendor_name',
-                        name: 'contractPaymentDetail.contract.vendor.vendor_name',
+                        name: 'contract.vendor.vendor_name',
                     },
                     {
                         data: 'property_name',
-                        name: 'contractPaymentDetail.contract.property.property_name',
+                        name: 'contract.property.property_name',
                     },
                     {
                         data: 'payment_date',
-                        name: 'contractPaymentDetail.payment_date',
+                        name: 'payment_date',
                     },
                     {
                         data: 'paid_date',
