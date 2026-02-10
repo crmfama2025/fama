@@ -5,6 +5,7 @@
     @php
         $business_type = ' - ';
         $type = $agreement->contract->contract_unit->business_type;
+        $contract_type = $agreement->contract->contract_type_id;
         if ($type == 1) {
             $business_type = 'B2B';
         } else {
@@ -19,12 +20,12 @@
             <div class="container-fluid">
                 <div class="row mb-2">
                     <div class="col-sm-6">
-                        <h1>Installment details</h1>
+                        <h1>Agreement details</h1>
                     </div>
                     <div class="col-sm-6">
                         <ol class="breadcrumb float-sm-right">
                             <li class="breadcrumb-item"><a href="#">Home</a></li>
-                            <li class="breadcrumb-item active">Installment details</li>
+                            <li class="breadcrumb-item active">Agreement details</li>
                         </ol>
                         <!-- Back to List Button -->
                         <a href="{{ route('agreement.index') }}" class="btn btn-info float-sm-right mx-2 btn-sm ml-2">
@@ -44,7 +45,7 @@
 
 
                         <!-- Main content -->
-                        <div class="invoice p-3 mb-3">
+                        <div class="invoice p-4 mb-3">
                             <span
                                 class="{{ 'badge badge-danger ' . ($agreement->contract->contract_type_id == 1 ? 'price-badge-df ' : 'price-badge-ff') }}">
                                 {{ $agreement->contract->contract_type->contract_type }} Project
@@ -58,8 +59,11 @@
                                     <h5 class="font-weight-bold text-primary mb-2">Vendor Details</h5>
                                     <address>
                                         <span class="project_id">P - {{ $agreement->contract->project_number }}</span></br>
-                                        <span
-                                            class="vendor_name">{{ strtoupper($agreement->contract->vendor->vendor_name) }}</span></br>
+                                        {{-- <span
+                                            class="vendor_name">{{ strtoupper($agreement->contract->vendor->vendor_name) }}</span></br> --}}
+                                        <a href="{{ route('vendors.show', $agreement->contract->vendor->id) }}"
+                                            class="linkhover"
+                                            target="_blank">{{ strtoupper($agreement->contract->vendor->vendor_name) }}</a></br>
                                         <span
                                             class="name">{{ strtoupper($agreement->contract->company->company_name) }}</span></br>
                                         <span
@@ -68,8 +72,10 @@
                                         <span class="area">{{ strtoupper($agreement->contract->area->area_name) }}</span>,
                                         <span
                                             class="locality">{{ strtoupper($agreement->contract->locality->locality_name) }}</span>,
-                                        <span
-                                            class="building">{{ strtoupper($agreement->contract->property->property_name) }}
+                                        <span class="building">
+                                            <a href="{{ route('property.show', $agreement->contract->property->id) }}"
+                                                class="linkhover"
+                                                target="_blank">{{ strtoupper($agreement->contract->property->property_name) }}</a>
                                             -
                                             @foreach ($agreement->agreement_units as $unit)
                                                 {{ strtoupper($unit->contractUnitDetail->unit_number) }}@if (!$loop->last)
@@ -93,7 +99,7 @@
                                                 class="vendor_name">{{ strtoupper($agreement->tenant->tenant_name) }}</span></br>
                                             <span class="mobile">{{ $agreement->tenant->tenant_mobile }}</span></br>
                                             <span class="email">{{ $agreement->tenant->tenant_email }}</span></br>
-                                            <span
+                                            {{-- <span
                                                 class="area">{{ strtoupper($agreement->contract->area->area_name) }}</span>,
                                             <span
                                                 class="locality">{{ strtoupper($agreement->contract->locality->locality_name) }}</span>,
@@ -105,7 +111,7 @@
                                                         ,
                                                     @endif
                                                 @endforeach
-                                            </span></br>
+                                            </span></br> --}}
                                             <span
                                                 class="start_date">{{ \Carbon\Carbon::parse($agreement->start_date)->format('d/m/Y') }}</span>
                                             - <span
@@ -251,11 +257,16 @@
                                                         @endif
 
                                                         <th>Subunit Type</th>
+                                                        @if ($type == 1 && $contract_type == 1)
+                                                            <th>Rent per Month</th>
+                                                            <th>Split Rent</th>
+                                                        @endif
                                                     </tr>
                                                 </thead>
 
                                                 <tbody>
                                                     @foreach ($agreement->agreement_units as $unit)
+                                                        {{-- {{ dd($unit) }} --}}
                                                         <tr class="text-center">
                                                             <td>{{ $unit->contractUnitDetail->unit_number }}</td>
                                                             <td>{{ $unit->contractUnitDetail->unit_type->unit_type }}</td>
@@ -276,9 +287,52 @@
                                                                         3 => 'Room',
                                                                         4 => 'Full Flat',
                                                                     ];
+
                                                                 @endphp
-                                                                {{ $types[$unit->contractUnitDetail->subunittype] ?? '-' }}
+                                                                @if ($type == 2)
+                                                                    {{ $types[$unit->contractSubunitDetail->subunit_type] ?? '-' }}
+                                                                @elseif($type == 1)
+                                                                    @php
+                                                                        $subunitType =
+                                                                            $unit->contractUnitDetail->subunittype;
+
+                                                                        // Always convert comma-separated values to array
+                                                                        $subunitTypes = explode(',', $subunitType);
+
+                                                                        $labels = collect($subunitTypes)
+                                                                            ->map(
+                                                                                fn($type) => $types[
+                                                                                    (int) trim($type)
+                                                                                ] ?? null,
+                                                                            )
+                                                                            ->filter()
+                                                                            ->implode(', ');
+                                                                    @endphp
+                                                                    {{ $labels ?: '-' }}
+                                                                @endif
+
                                                             </td>
+                                                            @if ($type == 1 && $contract_type == 1)
+                                                                <td>{{ $unit->rent_per_month ?? '-' }}</td>
+                                                                @php
+                                                                    $hasBifurcation = $unit->agreementSubunitRentBifurcation->isNotEmpty();
+                                                                @endphp
+
+                                                                <td>
+                                                                    <button type="button"
+                                                                        class="btn btn-sm {{ $hasBifurcation ? 'btn-warning' : 'btn-primary' }} ms-2 openRentModal"
+                                                                        data-unit-id="{{ $unit->id }}"
+                                                                        data-subunit-count="{{ $unit->contractUnitDetail->subunitcount_per_unit }}"
+                                                                        data-subunits='@json($unit->contractUnitDetail->contractSubUnitDetails)'
+                                                                        data-units='@json($unit->contractUnitDetail)'
+                                                                        data-agreement-id="{{ $agreement->id }}"
+                                                                        title="{{ $hasBifurcation ? 'Edit Rent Bifurcation' : 'Split Rent' }}">
+
+                                                                        <i
+                                                                            class="fa {{ $hasBifurcation ? 'fa-edit' : 'fa-sitemap' }}"></i>
+                                                                    </button>
+                                                                </td>
+                                                            @endif
                                                         </tr>
                                                     @endforeach
                                                 </tbody>
@@ -353,6 +407,7 @@
                                                                 <th>Favouring</th>
                                                                 <th>Paid On</th>
                                                                 <th>Paid Amount</th>
+                                                                <th>Balance Amount</th>
                                                                 <th>Status of Termination</th>
                                                                 <th>Composition</th>
                                                                 <th>Invoice Upload</th>
@@ -360,6 +415,7 @@
                                                             </tr>
                                                         </thead>
                                                         <tbody>
+
                                                             @foreach ($agreement->agreement_payment->agreementPaymentDetails->where('agreement_unit_id', $unit->id) as $detail)
                                                                 @php
                                                                     $bgColor = match ($detail->is_payment_received) {
@@ -370,6 +426,29 @@
                                                                         default => '',
                                                                     };
                                                                 @endphp
+                                                                @php
+                                                                    $totalPaid = 0;
+                                                                    $totalBalance = 0;
+                                                                    $totalBalance = 0;
+                                                                    $paid_on = null;
+                                                                @endphp
+
+                                                                {{-- @dump($detail->receivedPayments) --}}
+
+                                                                @foreach ($detail->receivedPayments ?? [] as $receivable)
+                                                                    @php
+                                                                        $totalPaid +=
+                                                                            (float) ($receivable->paid_amount ?? 0);
+                                                                        $totalBalance =
+                                                                            $receivable->pending_amount ?? 0;
+                                                                        if (
+                                                                            $totalPaid > 0 &&
+                                                                            !empty($receivable->paid_date)
+                                                                        ) {
+                                                                            $paid_on = $receivable->paid_date;
+                                                                        }
+                                                                    @endphp
+                                                                @endforeach
                                                                 <tr>
                                                                     <td
                                                                         style="background-color: {{ $bgColor }} !important;">
@@ -395,11 +474,21 @@
                                                                     </td>
                                                                     <td
                                                                         style="background-color: {{ $bgColor }} !important;">
-                                                                        {{ $detail->paid_date ?? '-' }}
+                                                                        {{-- {{ $detail->paid_date ?? '-' }} --}}
+                                                                        {{ $paid_on ? \Carbon\Carbon::parse($paid_on)->format('d/m/Y') : '-' }}
+                                                                    </td>
+                                                                    {{-- @dump($totalPaid) --}}
+                                                                    <td
+                                                                        style="background-color: {{ $bgColor }} !important;">
+                                                                        {{-- {{ number_format($detail->paid_amount, 2) ?? '-' }} --}}
+                                                                        {{ number_format($totalPaid, 2) ?? '-' }}
+
                                                                     </td>
                                                                     <td
                                                                         style="background-color: {{ $bgColor }} !important;">
-                                                                        {{ number_format($detail->paid_amount, 2) ?? '-' }}
+                                                                        {{-- {{ number_format($detail->paid_amount, 2) ?? '-' }} --}}
+                                                                        {{ number_format($totalBalance, 2) ?? '-' }}
+
                                                                     </td>
                                                                     <td
                                                                         style="background-color: {{ $bgColor }} !important;">
@@ -464,12 +553,17 @@
                                                             )
                                                             as $detail
                                                         ) {
+                                                            foreach ($detail->receivedPayments ?? [] as $receivable) {
+                                                                $total_paid += toNumeric($receivable->paid_amount);
+                                                            }
                                                             $total_to_pay += toNumeric($detail->payment_amount);
-                                                            $total_paid += toNumeric($detail->paid_amount);
+                                                            // $total_paid += toNumeric($detail->paid_amount);
                                                         }
                                                         $remaining_amount = $total_to_pay - $total_paid;
                                                     @endphp
                                                     <div class="float-right">
+                                                        <span><strong>Total Unit Revenue:</strong>
+                                                            {{ number_format($total_to_pay, 2) }}</span><br>
                                                         <span><strong>Total Received:</strong>
                                                             {{ number_format($total_paid, 2) }}</span><br>
                                                         <span><strong>Remaining:</strong>
@@ -481,6 +575,10 @@
                                     </div>
                                 @endforeach
                             </div>
+                            <div class="float-lg-right">Total Agreement Amount:
+                                <span
+                                    class="text-bold text-blue my-1">{{ number_format($agreement->agreement_payment->total_rent_annum, 2) }}</span>
+                            </div>
 
 
 
@@ -489,7 +587,7 @@
                             <!-- /.row -->
 
                             <!-- this row will not appear when printing -->
-                            <div class="row no-print mt-2">
+                            <div class="row no-print mt-3">
                                 <div class="col-12 d-xl-flex justify-content-between">
                                     <a href="{{ route('agreement.index') }}" class="btn btn-info"><i
                                             class="fas mr-2 fa-arrow-left"></i>Back</a>
@@ -622,6 +720,57 @@
             </div>
             <!-- /.modal -->
 
+            <div class="modal fade" id="rentBifurcationModal" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+
+                        <form id="rentBifurcationForm" method="POST" action="#">
+                            @csrf
+
+                            <div class="modal-header">
+                                <h5 class="modal-title">Rent Bifurcation</h5>
+                                <button type="button" class="close" data-dismiss="modal">
+                                    <span>&times;</span>
+                                </button>
+                            </div>
+
+                            <div class="modal-body">
+                                <div class="py-2 float-lg-right">Total Unit Rent Per Month: <span
+                                        class="text-danger font-weight-bold" id="totalUnitRent"></span></div>
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Subunit</th>
+                                            <th>Rent</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="bifurcationRows"></tbody>
+                                </table>
+                                {{-- <p>Sum of Subunit Rents: <span id="sumSubunitRent">0.00</span></p> --}}
+                                <p id="rentMismatchError" class="text-danger fw-bold" style="display:none;">
+                                    Error: Sum of subunit rents does not match total unit rent!
+                                </p>
+
+                                <input type="hidden" name="contract_unit_details_id" id="bifurcationUnitId">
+                                <input type="hidden" name="agreement_unit_id" id="agreementUnitId">
+                                <input type="hidden" name="agreement_id" id="agreementId">
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                @if ($agreement->agreement_status == 0 && paymentStatus($agreement->id))
+                                    <button type="submit" class="btn btn-primary" id="saveRentBifurcation">Save</button>
+                                @endif
+                            </div>
+
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+
+
+
 
 
 
@@ -711,6 +860,10 @@
 @endsection
 @section('custom_js')
     <script>
+        let agreement = @json($agreement);
+        console.log(agreement);
+    </script>
+    <script>
         $(document).on('click', '.open-invoice-modal', function(e) {
             e.preventDefault();
             const agreementId = $(this).data('agreementid');
@@ -743,6 +896,7 @@
             }
 
             uploadBtn.prop('disabled', true);
+            showLoader();
 
             $.ajax({
                 url: "{{ url('agreement-invoice-upload') }}/",
@@ -751,11 +905,13 @@
                 processData: false,
                 contentType: false,
                 success: function(response) {
+                    hideLoader();
                     toastr.success(response.message);
                     $('#modal-invoiceUpload').modal('hide');
                     window.location.reload();
                 },
                 error: function(xhr) {
+                    hideLoader();
                     uploadBtn.prop('disabled', false);
                     const response = xhr.responseJSON;
                     if (xhr.status === 422 && response?.errors) {
@@ -780,6 +936,164 @@
                 $('#terminationDateText').text(date);
                 $('#terminationDateBox').removeClass('d-none');
             }
+        });
+    </script>
+    <script>
+        $(document).on('click', '.openRentModal', function() {
+
+            const unit = $(this).data('units');
+            const subunits = $(this).data('subunits');
+            const unitRent = Number(unit?.total_rent_per_unit_per_month);
+            const agreementUnitId = $(this).data('unit-id');
+            const agreementId = $(this).data('agreement-id');
+            const agreementUnits = agreement.agreement_units; // agreement must be defined globally
+            const currentUnit = agreementUnits.find(u => u.id == agreementUnitId);
+            console.log("currentUnit:", agreementUnits, currentUnit);
+            const savedRents = currentUnit?.agreement_subunit_rent_bifurcation || [];
+            console.log(savedRents);
+            console.log(unitRent);
+            console.log(subunits);
+            console.log(unit);
+
+            let rows = '';
+            let runningTotal = 0;
+
+            $('#totalUnitRent').text(unitRent.toFixed(2));
+            subunits.forEach((subunit, index) => {
+
+                // let value = unit.subunit_rent_per_unit;
+                const saved = savedRents.find(r => r.contract_subunit_details_id === subunit.id);
+                console.log("saved:", saved);
+                const value = saved ? Number(saved.rent_per_month) : Number(unit?.subunit_rent_per_unit);
+                console.log("value:", value);
+                const split_id = saved ? saved.id : null;
+
+                runningTotal += value;
+                rows += `
+                    <tr class="subunit-row" data-subunit-id="${subunit.id}" data-split-id="${split_id}">
+                        <td>
+                            ${subunit.subunit_no}
+                            <input type="hidden"
+                                name="subunits[${index}][id]"
+                                value="${subunit.id}">
+                        </td>
+                        <td>
+                            <input type="number"
+                                step="0.01"
+                                class="form-control subunit-rent"
+                                name="subunits[${index}][rent]"
+                                value="${value}">
+                        </td>
+                    </tr>
+                `;
+            });
+            rows += `
+                    <tr>
+                        <td class="font-weight-bold text-right">
+                            Total
+                        </td>
+                        <td id="sumSubunitRent" class="font-weight-bold">
+                            ${runningTotal.toFixed(2)}
+                        </td>
+                    </tr>
+                `;
+
+            $('#bifurcationRows').html(rows);
+            $('#bifurcationUnitId').val(unit.id);
+            $('#agreementUnitId').val(agreementUnitId);
+            $('#agreementId').val(agreementId);
+            // $('#sumSubunitRent').text(runningTotal.toFixed(2));
+            // Check total and enable/disable button
+            toggleSubmitButton(unitRent);
+            $('#rentBifurcationModal').modal('show');
+        });
+        $(document).on('input', '.subunit-rent', function() {
+            let sum = 0;
+            $('.subunit-rent').each(function() {
+                sum += Number($(this).val()) || 0;
+            });
+            $('#sumSubunitRent').text(sum.toFixed(2));
+            const totalUnitRent = Number($('#totalUnitRent').text());
+            toggleSubmitButton(totalUnitRent);
+        });
+        // Function to toggle submit button
+        function toggleSubmitButton(unitRent) {
+            let sum = 0;
+            $('.subunit-rent').each(function() {
+                sum += Number($(this).val()) || 0;
+            });
+
+            if (sum.toFixed(2) == unitRent.toFixed(2)) {
+                $('#saveRentBifurcation').prop('disabled', false);
+                $('#rentMismatchError').hide();
+            } else {
+                $('#saveRentBifurcation').prop('disabled', true);
+                $('#rentMismatchError').show();
+            }
+        }
+    </script>
+    <script>
+        $('#rentBifurcationForm').on('submit', function(e) {
+            e.preventDefault();
+
+            // let totalUnitRent = parseFloat($('#totalUnitRent').text()) || 0;
+            // let sumSubunitRent = 0;
+
+            // // Calculate total of subunit rents
+            // $('.subunit-rent-input').each(function() {
+            //     sumSubunitRent += parseFloat($(this).val()) || 0;
+            // });
+
+            // // Validation: rent mismatch
+            // if (sumSubunitRent.toFixed(2) !== totalUnitRent.toFixed(2)) {
+            //     $('#rentMismatchError').show();
+            //     return false;
+            // } else {
+            //     $('#rentMismatchError').hide();
+            // }
+
+            // Prepare subunit data
+            let bifurcationData = [];
+
+            $('.subunit-row').each(function() {
+                bifurcationData.push({
+                    contract_subunit_details_id: $(this).data('subunit-id'),
+                    rent_per_month: $(this).find('.subunit-rent').val()
+                });
+                if ($(this).data('split-id')) {
+                    bifurcationData[bifurcationData.length - 1].id = $(this).data('split-id');
+                }
+            });
+            console.log(bifurcationData);
+
+            let formData = {
+                _token: $('input[name="_token"]').val(),
+                agreement_id: $('#agreementId').val(),
+                agreement_unit_id: $('#agreementUnitId').val(),
+                contract_unit_details_id: $('#bifurcationUnitId').val(),
+                bifurcation: bifurcationData
+            };
+
+            $.ajax({
+                url: "{{ route('rent-bifurcation.store') }}",
+                type: "POST",
+                data: formData,
+                success: function(response) {
+                    $('#rentBifurcationModal').modal('hide');
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Saved!',
+                        text: response.message,
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                },
+                error: function(xhr) {
+                    toastr.error('Something went wrong');
+                    console.error(xhr.responseText);
+                }
+            });
         });
     </script>
 @endsection

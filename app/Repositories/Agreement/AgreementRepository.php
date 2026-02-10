@@ -4,6 +4,7 @@ namespace App\Repositories\Agreement;
 
 use App\Models\Agreement;
 use App\Models\AgreementPaymentDetail;
+use App\Models\agreementSubunitRentBifurcation;
 use App\Models\AgreementUnit;
 use App\Models\Contract;
 use App\Models\ContractSubunitDetail;
@@ -34,6 +35,8 @@ class AgreementRepository
 
         return Agreement::with(
             'contract',
+            'contract.contract_type',
+            'contract.contract_unit',
             'company',
             'tenant.nationality',
             'agreement_payment.agreementPaymentDetails',
@@ -64,12 +67,15 @@ class AgreementRepository
     }
     public function delete($id)
     {
-        $agreement = $this->find($id);
-        $agreement->deleted_by = auth()->user()->id;
-        $agreement->save();
-        $contract_id = $agreement->contract_id;
-        $this->makeVacant($id, $contract_id);
-        return $agreement->delete();
+        return DB::transaction(function () use ($id) {
+            $agreement = $this->find($id);
+            $agreement->deleted_by = auth()->user()->id;
+            $agreement->save();
+            $contract_id = $agreement->contract_id;
+            $this->makeVacant($id, $contract_id);
+            $agreement->delete();
+            return true;
+        });
     }
 
 
@@ -159,10 +165,13 @@ class AgreementRepository
             'company',
             'tenant.nationality',
             'agreement_payment.agreementPaymentDetails.invoice',
+            'agreement_payment.agreementPaymentDetails.receivedPayments',
             'agreement_payment.installment',
             'agreement_documents',
             'agreement_units.contractSubunitDetail',
-            'agreement_units.contractUnitDetail.unit_type'
+            'agreement_units.contractUnitDetail.unit_type',
+            'agreement_units.contractUnitDetail.contractSubUnitDetails',
+            'agreement_units.agreementSubunitRentBifurcation'
         ])->findOrFail($id);
     }
 
@@ -205,6 +214,19 @@ class AgreementRepository
                     if ($subunitdetail) {
                         $subunitdetail->is_vacant = 0;
                         $subunitdetail->save();
+                    }
+                }
+                foreach ($contract_unit_details as $unit) {
+                    $countdetails = getOccupiedDetails($unit);
+                    // dd($countdetails);
+                    $occupied = $countdetails['occupied'];
+                    $vacant = $countdetails['vacant'];
+                    $unitdetail = ContractUnitDetail::find($unit);
+                    if ($unitdetail) {
+                        // dd($unitdetail);
+                        $unitdetail->subunit_occupied_count = $occupied;
+                        $unitdetail->subunit_vacant_count = $vacant;
+                        $unitdetail->save();
                     }
                 }
             }
@@ -390,5 +412,65 @@ class AgreementRepository
         // dd($result);
 
         return $query;
+    }
+    public function rentBifurcationStore($data)
+    {
+        DB::beginTransaction();
+
+        try {
+            $insertData = [];
+
+            foreach ($data['bifurcation'] as $row) {
+
+                // Update existing records
+                if (!empty($row['id'])) {
+                    agreementSubunitRentBifurcation::where('id', $row['id'])->update([
+                        'rent_per_month' => $row['rent_per_month'],
+                        'updated_by' => auth()->user()->id,
+                        'updated_at' => now(),
+                    ]);
+                } else {
+                    // Prepare new rows to insert
+                    $insertData[] = [
+                        'agreement_id' => $data['agreement_id'],
+                        'agreement_unit_id' => $data['agreement_unit_id'],
+                        'contract_unit_details_id' => $data['contract_unit_details_id'],
+                        'contract_subunit_details_id' => $row['contract_subunit_details_id'],
+                        'rent_per_month' => $row['rent_per_month'],
+                        'added_by' => auth()->user()->id,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                }
+            }
+
+            // Insert all new rows at once
+            if (!empty($insertData)) {
+                agreementSubunitRentBifurcation::insert($insertData);
+            }
+
+            DB::commit();
+
+            return [
+                'status' => true,
+                'message' => 'Rent bifurcation saved successfully'
+            ];
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return [
+                'status' => false,
+                'message' => 'Failed to save rent bifurcation',
+                'error' => $e->getMessage()
+            ];
+        }
+    }
+    public function getAllAgreements()
+    {
+        return Agreement::with([
+            'agreement_units:id,agreement_id,contract_unit_details_id',
+            'tenant:id,tenant_name,agreement_id'
+        ])
+            ->select('id')
+            ->get();
     }
 }

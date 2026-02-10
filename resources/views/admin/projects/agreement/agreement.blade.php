@@ -87,7 +87,7 @@
                                         <tr>
                                             <th style="width: 1%">#</th>
                                             <th>Actions</th>
-                                            <th>Agreement Code</th>
+                                            {{-- <th>Agreement Code</th> --}}
                                             <th>Company Name</th>
                                             <th>Project Details</th>
                                             <th>Customer Type</th>
@@ -214,7 +214,7 @@
             table = $('#agreementTable').DataTable({
                 processing: true,
                 serverSide: true,
-                responsive: true,
+                // responsive: true,
 
                 ajax: {
                     url: "{{ route('agreement.list') }}",
@@ -234,10 +234,10 @@
                         orderable: false,
                         searchable: false
                     },
-                    {
-                        data: 'agreement_code',
-                        name: 'agreements.agreement_code',
-                    },
+                    // {
+                    //     data: 'agreement_code',
+                    //     name: 'agreements.agreement_code',
+                    // },
                     {
                         data: 'company_name',
                         name: 'companies.company_name',
@@ -373,8 +373,6 @@
                         }
                     });
 
-                } else {
-                    toastr.error(errors.responseJSON.message);
                 }
             });
         }

@@ -1,5 +1,14 @@
 @extends('admin.layout.admin_master')
 @section('custom_css')
+    <style>
+        .agreementTable tbody tr {
+            background-color: #f6ffff;
+        }
+
+        .agreementTable thead tr {
+            background-color: #D6EEEE;
+        }
+    </style>
 @endsection
 @section('content')
     <!-- Content Wrapper. Contains page content -->
@@ -39,7 +48,7 @@
                             </div>
                             <!-- /.card-header -->
                             <div class="card-body">
-                                <table class="table">
+                                <table class="table agreementTable">
                                     <thead>
                                         <tr>
                                             <th>#</th>
@@ -94,7 +103,7 @@
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h4 class="modal-title">Import</h4>
+                            <h4 class="modal-title">Upload Documents</h4>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
@@ -167,13 +176,14 @@
 
                                                         @if ($isPdf)
                                                             <a href="{{ $filePath }}" target="_blank"
-                                                                class="btn btn-outline-primary btn-sm mr-1">
+                                                                class="btn btn-outline-primary btn-sm mr-1"
+                                                                title="Click to View File">
                                                                 <i class="fas fa-file-pdf"></i> View PDF
                                                             </a>
                                                         @else
                                                             <a href="{{ $filePath }}" target="_blank" class="mr-1">
                                                                 <img src="{{ $filePath }}" class="documentpreview"
-                                                                    alt="Document">
+                                                                    title="Click to View File" alt="Document">
                                                             </a>
                                                         @endif
                                                         <p class="small text-muted mt-1">
@@ -193,7 +203,7 @@
                             </div>
                             <div class="modal-footer justify-content-between">
                                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                <button type="submit" id="importBtn" class="btn btn-info importBtn">Import</button>
+                                <button type="submit" id="importBtn" class="btn btn-info importBtn">Upload</button>
                             </div>
                         </form>
                     </div>
@@ -243,7 +253,7 @@
                     formValid = false;
                 }
                 if ((secondVal || hasExistingFile) && !firstVal) {
-                    alert(typefield);
+                    // alert(typefield);
                     console.log("typefield: " + typefield);
                     if (typefield == 6) {
                         formValid = true;
@@ -275,6 +285,7 @@
 
             fdata.append('_token', $('meta[name="csrf-token"]').attr('content'));
             // alert("hi");
+            showLoader();
 
             $.ajax({
                 url: url,
@@ -283,12 +294,14 @@
                 processData: false,
                 contentType: false,
                 success: function(response) {
+                    hideLoader();
                     toastr.success(response.message);
                     $('#modal-upload').modal('hide');
                     //  window.location = "{{ route('agreement.index') }}"
                     location.reload();
                 },
                 error: function(xhr) {
+                    hideLoader();
                     uploadBtn.prop('disabled', false);
                     const response = xhr.responseJSON;
                     if (xhr.status === 422 && response?.errors) {

@@ -116,7 +116,7 @@
                                  <label>Makani Number <small class="text-muted font-weight-lighter">(Should have 10
                                          digits)</small></label>
                                  <input type="text" name="makani_number" id="makani_number" class="form-control"
-                                     placeholder="e.g. 1234567890" maxlength="10" pattern="\d{10}">
+                                     placeholder="e.g. 1234567890" maxlength="11">
                              </div>
                              <div class="col-md-6 col-sm-12 mb-3">
                                  <label class="asterisk">Status</label>
@@ -303,4 +303,23 @@
          }
          return true;
      }
+ </script>
+ <script>
+     document.addEventListener('DOMContentLoaded', function() {
+         const input = document.getElementById('makani_number');
+
+         input.addEventListener('input', function() {
+             let value = this.value.replace(/\D/g, ''); // digits only
+
+             if (value.length > 10) {
+                 value = value.substring(0, 10);
+             }
+
+             if (value.length > 5) {
+                 value = value.substring(0, 5) + ' ' + value.substring(5);
+             }
+
+             this.value = value;
+         });
+     });
  </script>

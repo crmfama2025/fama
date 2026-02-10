@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Exports\RecevableClearingExport;
+use App\Models\AgreementTenant;
 use App\Models\Bank;
 use App\Models\PaymentMode;
 use App\Repositories\TenantChequeRepository;
+use App\Services\Agreement\AgreementService;
 use App\Services\CompanyService;
 use App\Services\TenantChequeService;
 use Illuminate\Http\Request;
@@ -17,7 +19,8 @@ class ReceivablesClearingController extends Controller
     public function __construct(
         protected TenantChequeService $tenantChequeService,
         protected TenantChequeRepository $tenantChequeRepository,
-        protected CompanyService $companyService
+        protected CompanyService $companyService,
+        protected AgreementService $agreementService
     ) {}
     //
     public function receivableChequeClearing()
@@ -28,9 +31,11 @@ class ReceivablesClearingController extends Controller
         $properties = getPropertiesHaveContract();
         $units = getUnitshaveAgreement();
         $agpaymentmodes = getPaymentModeHaveAgreement();
+        $tenants = AgreementTenant::all();
+        $agreements = $this->agreementService->getAllAgreements();
         // dd($units);
         $units = getUnitshaveAgreement();
-        return view('admin.finance.tenant-cheque-clearing', compact('payment_modes', 'banks', 'companies', 'properties', 'agpaymentmodes', 'units'));
+        return view('admin.finance.tenant-cheque-clearing', compact('payment_modes', 'banks', 'companies', 'properties', 'agpaymentmodes', 'units', 'tenants', 'agreements'));
     }
     public function receivableChequeClearingList(Request $request)
     {
@@ -46,6 +51,7 @@ class ReceivablesClearingController extends Controller
                 'property_id' => $request->property_id ?? null,
                 'unit_id'     => $request->unit_id ?? null,
                 'mode_id' => $request->mode_id ?? null,
+                'tenant_id' => $request->tenant_id ?? null
             ];
 
             return $this->tenantChequeService->getDataTable($filters);

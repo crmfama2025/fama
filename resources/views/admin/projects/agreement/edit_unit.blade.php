@@ -128,7 +128,8 @@
                         <label class="form-label asterisk">Rent per Month</label>
                         <input type="text" class="form-control rent_per_month"
                             name="unit_detail[{{ $unitkey }}][rent_per_month]" data-count={{ $count }}
-                            value="{{ $unitDetail->rent_per_month }}">
+                            value="{{ $unitDetail->rent_per_month }}"
+                            @if ($businessType == 1) readonly @endif>
                     </div>
 
                     @if ($businessType == 1)

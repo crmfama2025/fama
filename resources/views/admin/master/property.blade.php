@@ -378,9 +378,10 @@
                         }
                     });
 
-                } else {
-                    toastr.error(errors.responseJSON.message);
                 }
+                //  else {
+                //     toastr.error(errors.responseJSON.message);
+                // }
             });
         }
         enableEnterNavigation('#PropertyForm');

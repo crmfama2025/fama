@@ -359,20 +359,25 @@
                                                                                 '.pdf',
                                                                             );
                                                                         @endphp
-
-                                                                        @if ($isPdf)
-                                                                            <a href="{{ $filePath }}" target="_blank"
-                                                                                class="btn btn-outline-primary btn-sm">
-                                                                                <i class="fas fa-file-pdf"></i> View PDF
-                                                                            </a>
-                                                                        @else
-                                                                            <a href="{{ $filePath }}"
-                                                                                target="_blank">
-                                                                                <img src="{{ $filePath }}"
-                                                                                    class="documentpreview"
-                                                                                    alt="Document">
-                                                                            </a>
+                                                                        @if ($document->document_type != 3)
+                                                                            @if ($isPdf)
+                                                                                <a href="{{ $filePath }}"
+                                                                                    target="_blank"
+                                                                                    class="btn btn-outline-primary btn-sm">
+                                                                                    <i class="fas fa-file-pdf"></i> View
+                                                                                    PDF
+                                                                                </a>
+                                                                            @else
+                                                                                <a href="{{ $filePath }}"
+                                                                                    target="_blank">
+                                                                                    <img src="{{ $filePath }}"
+                                                                                        class="documentpreview"
+                                                                                        alt="Document">
+                                                                                </a>
+                                                                            @endif
                                                                         @endif
+
+
                                                                         <p class="small text-muted mt-1">
                                                                             {{ $document->original_document_name }}</p>
 

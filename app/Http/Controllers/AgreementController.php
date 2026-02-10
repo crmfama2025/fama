@@ -51,7 +51,11 @@ class AgreementController extends Controller
     public function create()
     {
         $companies = $this->companyService->getAll();
-        $contracts = $this->contractService->getAllwithUnits();
+        // $contracts = $this->contractService->getAllwithUnits();
+        $contracts = $this->contractService->getAllwithUnits()->map(function ($contract) {
+            $contract->contract_unit->business_type_text = $contract->contract_unit->business_type();
+            return $contract;
+        });
         // dd($contracts);
         $installments = $this->installmentService->getAll();
         $tenantIdentities = TenantIdentity::where('show_status', true)->get();
@@ -81,7 +85,8 @@ class AgreementController extends Controller
     public function show(Agreement $agreement)
     {
         $agreement = $this->agreementService->getDetails($agreement->id);
-        // dd($agreement);
+        // dd($agreement->agreement_units);
+        // dd($agreement->agreement_payment->agreementPaymentDetails);
         return view('admin.projects.agreement.agreement-view', compact('agreement'));
     }
     public function getAgreements(Request $request)
@@ -107,6 +112,10 @@ class AgreementController extends Controller
     public function edit(Agreement $agreement)
     {
         $agreement = $this->agreementService->getById($agreement->id);
+        // dd($agreement);
+        $agreement->contract->contract_unit->business_type_text = $agreement->contract->contract_unit->business_type();
+        // dd($agreement->contract->contract_unit->business_type_text);
+        // dd($agreement);
         $companies = $this->companyService->getAll();
         $contracts = $this->contractService->getAllwithUnits();
         $fullContracts = $this->contractService->fullContracts();
@@ -166,7 +175,7 @@ class AgreementController extends Controller
         $agreement = $this->agreementService->getDetails($id);
         $page = 0;
         $pdf = Pdf::loadView('admin.projects.agreement.pdf-agreement', compact('agreement', 'page'))
-            ->setPaper([0, 0, 830, 1400]);
+            ->setPaper([0, 0, 930, 1250]);
         return $pdf->stream('agreement-' . $agreement->id . '.pdf');
     }
     public function agreementDocuments($id)
@@ -259,7 +268,11 @@ class AgreementController extends Controller
     {
         // dd($agreement_id);
         $companies = $this->companyService->getAll();
-        $contracts = $this->contractService->getAllwithUnits();
+        // $contracts = $this->contractService->getAllwithUnits();
+        $contracts = $this->contractService->getAllwithUnits()->map(function ($contract) {
+            $contract->contract_unit->business_type_text = $contract->contract_unit->business_type();
+            return $contract;
+        });
         // dd($contracts);
         $installments = $this->installmentService->getAll();
         $tenantIdentities = TenantIdentity::where('show_status', true)->get();
@@ -275,8 +288,29 @@ class AgreementController extends Controller
         $contract = $this->contractService->getById($agreement->contract_id);
         // dd($contract);
         $renewalContractId = $contract->children[0]->id;
+        $emirates = Emirate::all();
         // dd($renewalContractId);
         // $renewalContractId = 51;
-        return view('admin.projects.agreement.create-agreement', compact('companies', 'contracts', 'installments', 'unitTypes', 'tenantIdentities', 'paymentmodes', 'banks', 'nationalities', 'contractTypes', 'tenant', 'company_id', 'renewalContractId'));
+        // dd($tenant);
+        return view('admin.projects.agreement.create-agreement', compact('companies', 'contracts', 'installments', 'unitTypes', 'tenantIdentities', 'paymentmodes', 'banks', 'nationalities', 'contractTypes', 'tenant', 'company_id', 'renewalContractId', 'emirates'));
+    }
+    public function rentBifurcationStore(Request $request)
+    {
+        // dd($request->all());
+        try {
+            $bifurcation = $this->agreementService->rentBifurcationStore($request->all());
+
+            return response()->json([
+                'success' => $bifurcation['status'],
+                'data' => $bifurcation,
+                'message' => $bifurcation['message']
+            ], $bifurcation['status'] ? 201 : 500);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+                'error'   => $e->getTraceAsString()
+            ], 500);
+        }
     }
 }

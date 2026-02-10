@@ -4,6 +4,7 @@ namespace App\Repositories\Investment;
 
 use App\Models\Investment;
 use App\Models\InvestmentReceivedPayment;
+use App\Models\InvestmentReferral;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 
 class InvestmentRepository
@@ -74,7 +75,7 @@ class InvestmentRepository
 
     public function getQuery(array $filters = []): Builder
     {
-        $query = Investment::with('investor', 'payoutBatch', 'profitInterval', 'company', 'investmentReferral');
+        $query = Investment::with('investor', 'payoutBatch', 'profitInterval', 'company', 'investmentReferral', 'investedCompany');
         if (!empty($filters['investor_id'])) {
             $query->where('investor_id', $filters['investor_id']);
         }
@@ -136,12 +137,55 @@ class InvestmentRepository
             'payoutBatch',
             'investmentReferral.referrer',
             'investmentDocument',
-            'investmentReceivedPayments'
+            'investmentReceivedPayments',
+            'investedCompany'
         ])->findOrFail($id);
     }
 
     public function getActiveInvestmentByInvestment($investorid)
     {
         return Investment::where(array('investor_id' => $investorid, 'investment_status' => 1))->get();
+    }
+    public function getReferralQuery(array $filters = []): Builder
+    {
+        $query = InvestmentReferral::with('referrer', 'investment', 'investor', 'commissionFrequency', 'investment');
+
+        $result = $query->get();
+        // dd($result);
+        if (!empty($filters['search'])) {
+            $query->orWhere('referral_commission_perc', 'like', '%' . $filters['search'] . '%')
+                ->orWhere('referral_commission_amount', 'like', '%' . $filters['search'] . '%')
+
+                ->orWhereHas('investor', function ($q) use ($filters) {
+                    $q->where('investor_name', 'like', '%' . $filters['search'] . '%');
+                })
+                ->orWhereHas('referrer', function ($q) use ($filters) {
+                    $q->where('investor_name', 'like', '%' . $filters['search'] . '%');
+                })
+                ->orWhereHas('commissionFrequency', function ($q) use ($filters) {
+                    $q->where('commission_frequency_name', 'like', '%' . $filters['search'] . '%');
+                })
+                ->orWhereHas('investment', function ($q) use ($filters) {
+
+                    $search = $filters['search'];
+
+                    try {
+                        $date = \Carbon\Carbon::createFromFormat('d-m-Y', $search)->format('Y-m-d');
+
+                        $q->whereDate('investment_date', $date);
+                    } catch (\Exception $e) {
+                        $q->where('investment_date', 'like', '%' . $search . '%');
+                    }
+                })
+
+
+                ->orWhereRaw("CAST(investment_referrals.id AS CHAR) LIKE ?", ['%' . $filters['search'] . '%']);
+        }
+
+        // if (!empty($filters['company_id'])) {
+        //     $query->Where('company_id', $filters['company_id']);
+        // }
+
+        return $query;
     }
 }

@@ -47,6 +47,10 @@ class AgreementService
     {
         return $this->agreementRepository->all();
     }
+    public function getAllAgreements()
+    {
+        return $this->agreementRepository->getAllAgreements();
+    }
 
     public function getById($id)
     {
@@ -142,7 +146,8 @@ class AgreementService
                         'contract_unit_details_id' => $unit['contract_unit_details_id'],
                         'contract_subunit_details_id' => $unit['contract_subunit_details_id'] ?? null,
                         'rent_per_month' => $unit['rent_per_month'],
-                        'rent_per_annum_agreement' => $rent_annum_agreement,
+                        // 'rent_per_annum_agreement' => $rent_annum_agreement,
+                        'rent_per_annum_agreement' => $unit['rent_per_annum'],
                         'subunit_ids' => $subunit_ids,
                         'unit_revenue' => $contractUnitDetail['unit_revenue'],
                     ];
@@ -171,7 +176,7 @@ class AgreementService
                                 'bank_id' => $detail['bank_id'] ?? null,
                                 'cheque_number' => $detail['cheque_number'] ?? null,
                                 'added_by' => $data['added_by'],
-                                'unit_revenue' => $contractUnitDetail['rent_per_unit_per_annum'],
+                                // 'unit_revenue' => $contractUnitDetail['rent_per_unit_per_annum'],
                             ];
                             // dd($detail_data);
 
@@ -517,6 +522,7 @@ class AgreementService
                         $exisistingUnit = $this->agreementUnitService->getById($agUnitId);
                         if ($exisistingUnit->contract_unit_details_id != $unit['contract_unit_details_id']) {
                             makeUnitVacant($exisistingUnit->contract_unit_details_id, $ct->id);
+                            deleteBifurcations($exisistingUnit->contract_unit_details_id);
                         }
                         $createdUnit = $this->agreementUnitService->update($unitdata);
                     } else {
@@ -526,6 +532,31 @@ class AgreementService
                     $agreementUnitId = $createdUnit->id;
                     $unitId = $unit['contract_unit_details_id'];
                     $paymentDetailsForThisUnit = $data['payment_detail'][$unitId] ?? [];
+
+                    // installment number change
+
+                    // STEP 1: Get existing payment detail IDs from DB
+                    $existingPaymentIds = $this->agreementPaymentDetailService
+                        ->getByAgreementUnitId($agreementUnitId)
+                        ->pluck('id')
+                        ->toArray();
+
+                    //  STEP 2: Collect new IDs from the request
+                    $newPaymentIds = collect($data['payment_detail'][$unitId] ?? [])
+                        ->pluck('detail_id')
+                        ->filter()
+                        ->toArray();
+
+                    //  STEP 3: Find which ones to delete
+                    $toDelete = array_diff($existingPaymentIds, $newPaymentIds);
+
+                    // dd($toDelete);
+
+                    //  Delete removed payments
+                    if (!empty($toDelete)) {
+                        $this->agreementPaymentDetailService->deleteByIds($toDelete);
+                    }
+
                     foreach ($paymentDetailsForThisUnit as $detail) {
                         if (empty($detail['payment_mode_id']) || empty($detail['payment_amount'])) {
                             continue;
@@ -800,7 +831,7 @@ class AgreementService
                     title="Agreement"><i class="fas fa-handshake"></i></a>';
                 }
 
-                if (Gate::allows('agreement.edit') && $row->agreement_status == 0) {
+                if (Gate::allows('agreement.edit') && $row->agreement_status == 0 && paymentStatus($row->id)) {
 
                     $action .= '<a href="' . $editUrl . '" class="btn btn-info  btn-sm m-1" title="Edit agreement"><i
                         class="fas fa-pencil-alt"></i></a>';
@@ -956,5 +987,10 @@ class AgreementService
             // ->rawColumns(['action'])
             ->with(['columns' => $columns])
             ->toJson();
+    }
+
+    public function rentBifurcationStore($data)
+    {
+        return $this->agreementRepository->rentBifurcationStore($data);
     }
 }

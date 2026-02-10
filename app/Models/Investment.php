@@ -79,7 +79,9 @@ class Investment extends Model
         'termination_document',
         'termination_requested_by',
         'terminated_by',
-        'termination_outstanding'
+        'termination_outstanding',
+
+        'invested_company_id'
     ];
 
     public function investor()
@@ -94,7 +96,11 @@ class Investment extends Model
 
     public function company()
     {
-        return $this->belongsTo(Company::class);
+        return $this->belongsTo(Company::class, 'company_id', 'id');
+    }
+    public function investedCompany()
+    {
+        return $this->belongsTo(Company::class, 'invested_company_id', 'id');
     }
 
     public function profitInterval()

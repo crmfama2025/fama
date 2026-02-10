@@ -51,8 +51,12 @@ class UserController extends Controller
             'invoice_upload',
             'manage_installments',
             'payout',
-            'cheque_clearing',
-            'submit_pending'
+            'payable_cheque_clearing',
+            'receivable_cheque_clearing',
+            'submit_pending',
+            'soa',
+            'referrals',
+            'rent_split'
         ];
 
         if ($id) {

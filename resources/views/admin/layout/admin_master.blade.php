@@ -306,7 +306,7 @@
                             </li>
                         @endif
 
-                        @if (auth()->user()->hasPermissionInRange(56, 73) ||
+                        @if (auth()->user()->hasPermissionInRange(56, 77) ||
                                 Gate::any(['contract.send_for_approval', 'contract.sign_after_approval']))
                             <li class="nav-item {{ $project ? 'menu-open' : '' }}">
                                 <a href="#"
@@ -318,7 +318,7 @@
                                     </p>
                                 </a>
                                 <ul class="nav nav-treeview">
-                                    @if (auth()->user()->hasPermissionInRange(56, 64) ||
+                                    @if (auth()->user()->hasPermissionInRange(56, 66) ||
                                             Gate::any(['contract.send_for_approval', 'contract.sign_after_approval']))
                                         <li class="nav-item">
                                             <a href="{{ route('contract.index') }}"
@@ -328,7 +328,7 @@
                                             </a>
                                         </li>
                                     @endif
-                                    @if (auth()->user()->hasPermissionInRange(65, 73) ||
+                                    @if (auth()->user()->hasPermissionInRange(67, 77) ||
                                             Gate::any(['agreement.terminate', 'agreement.invoice_upload', 'agreement.manage_installments']))
                                         <li class="nav-item">
                                             <a href="{{ route('agreement.index') }}"
@@ -342,7 +342,7 @@
                             </li>
                         @endif
 
-                        @if (auth()->user()->hasPermissionInRange(84, 86))
+                        @if (auth()->user()->hasPermissionInRange(94, 95))
                             <li class="nav-item {{ $finance ? 'menu-open' : '' }}">
                                 <a href="#"
                                     class="nav-link {{ $finance ? 'active bg-gradient-projects' : '' }}">
@@ -353,7 +353,7 @@
                                     </p>
                                 </a>
                                 <ul class="nav nav-treeview">
-                                    @if (Gate::any(['finance.cheque_clearing']))
+                                    @if (Gate::any(['finance.payable_cheque_clearing']))
                                         <li class="nav-item">
                                             <a href="{{ route('finance.payable.clearing') }}"
                                                 class="nav-link {{ request()->is('finance/payable*') ? 'active' : '' }}">
@@ -361,9 +361,11 @@
                                                 <p>Payables clearing</p>
                                             </a>
                                         </li>
-
+                                    @endif
+                                    @if (Gate::any(['finance.receivable_cheque_clearing']))
                                         <li class="nav-item">
-                                            <a href="{{ route('tenant.cheque.clearing') }}" class="nav-link">
+                                            <a href="{{ route('tenant.cheque.clearing') }}"
+                                                class="nav-link {{ request()->is('finance/receivable*') ? 'active' : '' }}">
                                                 <i class="far fa-circle nav-icon"></i>
                                                 <p>Receivables clearing</p>
                                             </a>
@@ -373,7 +375,7 @@
                             </li>
                         @endif
 
-                        @if (auth()->user()->hasPermissionInRange(74, 83))
+                        @if (auth()->user()->hasPermissionInRange(78, 93))
                             <li class="nav-item {{ $invest ? 'menu-open' : '' }}">
                                 <a href="#"
                                     class="nav-link {{ $invest ? 'active bg-gradient-projects' : '' }}">
@@ -384,7 +386,7 @@
                                     </p>
                                 </a>
                                 <ul class="nav nav-treeview">
-                                    @if (auth()->user()->hasPermissionInRange(74, 78))
+                                    @if (auth()->user()->hasPermissionInRange(78, 82))
                                         <li class="nav-item ">
                                             <a href="{{ route('investor.index') }}"
                                                 class="nav-link {{ request()->is('investor') ? 'active' : '' }}">
@@ -393,13 +395,22 @@
                                             </a>
                                         </li>
                                     @endif
-                                    <li class="nav-item">
-                                        <a href="{{ route('investment.index') }}"
-                                            class="nav-link {{ request()->is('investment') ? 'active' : '' }}">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>Investments</p>
-                                        </a>
-                                    </li>
+                                    @if (auth()->user()->hasPermissionInRange(83, 91))
+                                        <li class="nav-item">
+                                            <a href="{{ route('investment.index') }}"
+                                                class="nav-link {{ request()->is('investment') ? 'active' : '' }}">
+                                                <i class="far fa-circle nav-icon"></i>
+                                                <p>Investments</p>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="{{ route('referrals.index') }}"
+                                                class="nav-link {{ request()->is('investments/referrals') ? 'active' : '' }}">
+                                                <i class="far fa-circle nav-icon"></i>
+                                                <p>Referrals</p>
+                                            </a>
+                                        </li>
+                                    @endif
                                     @if (Gate::any(['finance.payout']))
                                         <li class="nav-item">
                                             <a href="{{ route('investorPayout.index') }}"
@@ -409,13 +420,15 @@
                                             </a>
                                         </li>
                                     @endif
-                                    <li class="nav-item">
-                                        <a href="{{ route('investment-soa.list') }}"
-                                            class="nav-link  {{ request()->is('investments/investment-soa') ? 'active' : '' }}">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>Investment SOA</p>
-                                        </a>
-                                    </li>
+                                    @if (Gate::any(['investment.soa']))
+                                        <li class="nav-item">
+                                            <a href="{{ route('investment-soa.list') }}"
+                                                class="nav-link  {{ request()->is('investments/investment-soa') ? 'active' : '' }}">
+                                                <i class="far fa-circle nav-icon"></i>
+                                                <p>Investment SOA</p>
+                                            </a>
+                                        </li>
+                                    @endif
                                 </ul>
                             </li>
                         @endif

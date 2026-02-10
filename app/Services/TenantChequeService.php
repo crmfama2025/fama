@@ -165,6 +165,7 @@ class TenantChequeService
             ['data' => 'tenant_name', 'name' => 'tenant_name'],
             ['data' => 'property_name', 'name' => 'property_name'],
             ['data' => 'unit_number', 'name' => 'unit_number'],
+            ['data' => 'subunit_no', 'name' => 'subunit_no'],
             ['data' => 'tenant_details', 'name' => 'tenant_details'],
             ['data' => 'payment_date', 'name' => 'payment_date'],
             ['data' => 'payment_mode_name', 'name' => 'payment_mode_name'],
@@ -195,6 +196,8 @@ class TenantChequeService
                 // dd($row);
                 $number = 'P - ' . $row->agreement->contract->project_number ?? '-';
                 $type = $row->agreement->contract->contract_type->contract_type ?? '-';
+                $b_type_id = $row->agreement->contract->contract_unit->business_type;
+                $b_type = $row->agreement->contract->contract_unit->business_type();
 
                 // return "<strong class=''>{$number}</strong><p class='mb-0'><span>{$type}</span></p>
                 // </p>";
@@ -206,11 +209,16 @@ class TenantChequeService
                 } else {
                     $badgeClass = 'badge badge-secondary';
                 }
+                // Business type color
+                $businessClass = ($b_type_id == 1) ? 'text-olive' : 'text-cyan';
 
                 return "<strong>{$number}</strong>
             <p class='mb-0'>
                 <span class='{$badgeClass}'>{$type}</span>
-            </p>";
+            </p>
+           <strong class='{$businessClass}'>
+            {$b_type}
+        </strong>";
             })
             ->addColumn('tenant_name', function ($row) {
 
@@ -229,6 +237,14 @@ class TenantChequeService
 
                 return $unit && $unit->contractUnitDetail
                     ? $unit->contractUnitDetail->unit_number
+                    : '-';
+            })
+            ->addColumn('subunit_no', function ($row) {
+                // Find the agreement unit that matches this payment detail
+                $unit = $row->agreement->agreement_units->firstWhere('id', $row->agreement_unit_id);
+
+                return $unit && $unit->contractSubunitDetail
+                    ? $unit->contractSubunitDetail->subunit_no
                     : '-';
             })
             ->addColumn('payment_date', function ($row) {

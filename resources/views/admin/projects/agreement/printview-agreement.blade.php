@@ -6,6 +6,12 @@
     <link rel="stylesheet" href="{{ asset('assets/fontawesome-free/css/all.min.css') }}">
     <!-- Theme style -->
     <link rel="stylesheet" href="{{ asset('css/adminlte.min.css') }}">
+    <style>
+        /* table {
+                background: url('{{ asset('images/fama-letterhead.png') }}') center center;
+                background-size: cover;
+            } */
+    </style>
 @endsection
 @section('content')
     <div class="content-wrapper">
@@ -22,13 +28,17 @@
                         </div>
                     </div><!-- /.container-fluid -->
                 </section>
-                @include('admin.projects.agreement.partials.agreement_content', [
-                    'agreement' => $agreement,
-                ])
+                <div class="table-responsive">
+                    @include('admin.projects.agreement.partials.agreement_content', [
+                        'agreement' => $agreement,
+                    ])
+                </div>
                 <div class="mt-5 text-center">
-                    <a href="{{ route('agreement.index') }}" class="btn btn-default">back</a>
+                    <a href="{{ route('agreement.index') }}" class="btn btn-secondary mb-4"><i
+                            class="fas fa-arrow-left"></i>
+                        Back</a>
                     <a href="{{ route('agreement.print', $agreement->id) }}" rel="noopener" target="_blank"
-                        class="btn btn-info">Print</a>
+                        class="btn signinbtn mb-4">Print</a>
                 </div>
             </div>
         </section>

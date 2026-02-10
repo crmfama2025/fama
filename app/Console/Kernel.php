@@ -44,6 +44,9 @@ class Kernel extends ConsoleKernel
         //     ->after(function () {
         //         \Log::info('profit:update-monthly-pending command finished');
         //     });
+        $schedule->command('app:create-agreements-from-contracts')
+            ->everyMinute()
+            ->withoutOverlapping();
     }
 
     /**

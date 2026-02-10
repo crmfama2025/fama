@@ -4,6 +4,7 @@
     let termDate = '';
 
     function checkTerminatedAgreement(contractId) {
+        // alert("test");
         $.get(`/contracts/${contractId}/terminated-agreement-details`, function(data) {
             if (!data) return;
             // alert("test");
@@ -16,13 +17,14 @@
             let today = new Date();
 
             if (terminated) {
+
                 termDate = moment(terminated.terminated_date, "YYYY-MM-DD");
                 ctenddate = moment(data.end_date, "YYYY-MM-DD");
                 console.log('termdate', termDate);
 
-                if (termDate < today && contractEnd < today) {
-                    return;
-                }
+                // if (termDate < today && contractEnd < today) {
+                //     return;
+                // }
 
                 $('#start_date').prop('disabled', false).prop('readonly', false);
                 $('#startdate').datetimepicker('minDate', termDate);
@@ -51,6 +53,7 @@
                     }
                 });
                 remainingReceivables = data.remaining_receivables;
+                console.log("remaining", remainingReceivables);
                 remainingTotal = data.remainingTotal.toFixed(2);
 
 
@@ -127,15 +130,15 @@
                     $(
                         "#duration_months").val(defaultDuration);
 
-                    $('#no_of_installments option').each(function() {
-                        if ($(this).text().trim() === defaultDuration.toString()) {
-                            $(this).prop('readonly', true);
-                            $(this).prop('selected', true).trigger('change');
-                            // $(this).next('.select2-container')
-                            //     .find('.select2-selection')
-                            //     .addClass('readonly');
-                        }
-                    });
+                    // $('#no_of_installments option').each(function() {
+                    //     if ($(this).text().trim() === defaultDuration.toString()) {
+                    //         $(this).prop('readonly', true);
+                    //         $(this).prop('selected', true).trigger('change');
+                    //         // $(this).next('.select2-container')
+                    //         //     .find('.select2-selection')
+                    //         //     .addClass('readonly');
+                    //     }
+                    // });
                 }
                 // Else: do nothing, keep the contract-level dates/duration
             },

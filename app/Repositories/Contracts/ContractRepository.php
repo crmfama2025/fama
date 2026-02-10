@@ -213,7 +213,8 @@ class ContractRepository
             },
             'contract_detail',
             'contract_payment_receivables',
-            'contract_rentals'
+            'contract_rentals',
+            'contract_type'
         ])
             ->withCount('contract_payment_receivables')
             ->withSum('contract_payment_receivables', 'receivable_amount')

@@ -2,6 +2,7 @@
 
 use App\Models\Agreement;
 use App\Models\AgreementPaymentDetail;
+use App\Models\AgreementSubunitRentBifurcation;
 use App\Models\ClearedReceivable;
 use App\Models\Contract;
 use App\Models\ContractPayableClear;
@@ -440,11 +441,12 @@ function getPaymentDetails($paymentId, $unitId)
 }
 function makeUnitVacant($unitId, $contract_id)
 {
-    $unit = ContractUnitDetail::find($unitId);
-    if ($unit) {
-        $unit->is_vacant = 0;
-        $unit->save();
-    }
+    $unit = ContractUnitDetail::findOrFail($unitId);
+    $unit->update([
+        'is_vacant' => 0,
+        'subunit_occupied_count' => 0,
+        'subunit_vacant_count' => $unit->subunitcount_per_unit,
+    ]);
     $subunit = ContractSubunitDetail::where('contract_unit_detail_id', $unitId)->get();
     foreach ($subunit as $sub) {
         $sub->is_vacant = 0;
@@ -1118,4 +1120,12 @@ function format_k($number)
     }
 
     return number_format($number);
+}
+function deleteBifurcations($contract_unit_details_id)
+{
+    $bifurcations = AgreementSubunitRentBifurcation::where('contract_unit_details_id', $contract_unit_details_id)->get();
+
+    foreach ($bifurcations as $bifurcation) {
+        $bifurcation->delete();
+    }
 }

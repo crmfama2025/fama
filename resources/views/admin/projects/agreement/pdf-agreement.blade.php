@@ -10,8 +10,11 @@
         }
 
         body {
-            font-family: DejaVu Sans, sans-serif;
-            font-size: 12px;
+            font-family: calibri, sans-serif;
+            font-size: 16px;
+            background: url('{{ public_path('images/fama-letterhead.png') }}') no-repeat center center;
+            background-size: cover;
+            /*
         }
 
         table {
@@ -27,6 +30,11 @@
             text-align: left;
             vertical-align: top;
         }
+
+        /* table {
+            background: url('{{ public_path('images/fama-letterhead.jpg') }}') no-repeat center center;
+            background-size: cover;
+        } */
 
         th {
             background: #f9f9f9;
@@ -68,12 +76,12 @@
 
 <body>
     {{-- Same agreement tables as your normal view --}}
-    @include('admin.projects.agreement.partials.agreement_content', ['agreement' => $agreement])
+    @include('admin.projects.agreement.partials.agreement_content_print', ['agreement' => $agreement])
 
-
+    {{--
     <div class="footer">
         Fama Real Estate — Generated on {{ now()->format('d/m/Y H:i') }}
-    </div>
+    </div> --}}
 </body>
 
 </html>

@@ -93,4 +93,8 @@ class AgreementPaymentDetail extends Model
     {
         return $this->belongsTo(User::class, 'bounced_by');
     }
+    public function receivedPayments()
+    {
+        return $this->hasMany(ClearedReceivable::class, 'agreement_payment_details_id', 'id');
+    }
 }

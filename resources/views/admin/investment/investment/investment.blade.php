@@ -57,6 +57,7 @@
                                             <th>Action</th>
                                             <th>Status</th>
                                             <th>Company Name</th>
+                                            <th>Invested Company</th>
                                             <th>Investor Name</th>
                                             <th>Investment Amount</th>
                                             <th>Received Amount</th>
@@ -278,7 +279,7 @@
                 processing: true,
                 serverSide: true,
                 responsive: true,
-                pageLength: 5,
+                // pageLength: 5,
                 ajax: {
                     url: "{{ route('investment.list') }}",
                     data: function(d) {
@@ -333,6 +334,10 @@
                     {
                         data: 'company_name',
                         name: 'company.company_name'
+                    },
+                    {
+                        data: 'invested_company_name',
+                        name: 'investedCompany.company_name'
                     },
                     {
                         data: 'investor_name',
@@ -522,9 +527,10 @@
                         }
                     });
 
-                } else {
-                    toastr.error(errors.responseJSON.message);
                 }
+                //  else {
+                //     toastr.error(errors.responseJSON.message);
+                // }
             });
         }
         $(document).on('click', '.openTerminationModal', function() {
