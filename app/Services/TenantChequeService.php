@@ -272,6 +272,15 @@ class TenantChequeService
 
             ->addColumn('payment_amount', fn($row) => getReceivableAmount($row->id))
             ->addColumn('installment_name', function ($row) {
+                // dd($row->transaction_type);
+
+                if (empty($row->agreement_unit_id)) {
+                    return match ((int) $row->transaction_type) {
+                        2 => '<span class="badge bg-danger">Termination Payback</span>',
+                        1 => '<span class="badge bg-success">Termination Receive</span>',
+                        default => '<span class="badge bg-secondary">-</span>',
+                    };
+                }
                 $agreementUnitId = $row->agreement_unit_id;
 
                 $installments = AgreementPaymentDetail::where('agreement_unit_id', $agreementUnitId)
@@ -345,7 +354,7 @@ class TenantChequeService
             })
 
 
-            ->rawColumns(['checkbox', 'tenant_name', 'action', 'project_number', 'business_type', 'status'])
+            ->rawColumns(['checkbox', 'tenant_name', 'action', 'project_number', 'business_type', 'status', 'installment_name'])
             // ->rawColumns(['action'])
             ->with(['columns' => $columns])
             ->toJson();
@@ -450,6 +459,7 @@ class TenantChequeService
                 if (!$payment) {
                     continue;
                 }
+                // dd($payment);
 
 
                 // Use existing mode info if none provided
@@ -510,8 +520,28 @@ class TenantChequeService
                     'has_payment_fully_received' => $TotalStatus,
                 ];
                 $agreement_unit = $payment->agreementUnit;
-                $contract_unit_details_id = $agreement_unit->contract_unit_details_id;
-                updateContractUnitPayments($contract_unit_details_id, $cleared_data['paid_amount']);
+                // dd($payment->transaction_type);
+                if ($payment->transaction_type == 1) {
+                    $unit_count = $payment->agreement->agreement_units->count();
+                    $amount = $cleared_data['paid_amount'] / $unit_count;
+                    // dd($amount);
+                    foreach ($payment->agreement->agreement_units as $unit) {
+
+                        updateContractUnitPayments($unit->contract_unit_details_id, $amount);
+                    }
+                } elseif ($payment->transaction_type == 2) {
+                    $unit_count = $payment->agreement->agreement_units->count();
+                    $amount = $cleared_data['paid_amount'] / $unit_count;
+                    // dd($amount);
+                    foreach ($payment->agreement->agreement_units as $unit) {
+
+                        updateContractUnitReceivablePayback($unit->contract_unit_details_id, $amount);
+                    }
+                } else {
+                    $contract_unit_details_id = $agreement_unit->contract_unit_details_id;
+                    updateContractUnitPayments($contract_unit_details_id, $cleared_data['paid_amount']);
+                }
+
                 $this->tenantChequeRepository->updatePayment($paymentData);
             }
         });
@@ -637,6 +667,13 @@ class TenantChequeService
             ->addColumn('paid_amount', fn($row) => $row->paid_amount)
             ->addColumn('pending_amount', fn($row) => $row->pending_amount)
             ->addColumn('installment_name', function ($row) {
+                if (empty($row->agreementPaymentDetail->agreement_unit_id)) {
+                    return match ((int) $row->agreementPaymentDetail->transaction_type) {
+                        2 => '<span class="badge bg-danger">Termination Payback</span>',
+                        1 => '<span class="badge bg-success">Termination Receive</span>',
+                        default => '<span class="badge bg-secondary">-</span>',
+                    };
+                }
                 $agreementUnitId = $row->agreementPaymentDetail->agreement_unit_id;
                 $installments = AgreementPaymentDetail::where('agreement_unit_id', $agreementUnitId)->orderBy('payment_date')->get();
                 $current = $installments->search(fn($i) => $i->payment_date == $row->agreementPaymentDetail->payment_date) + 1;
@@ -666,7 +703,7 @@ class TenantChequeService
             //     $action .= '<a class="btn btn-success btn-sm clearChequeBtn m-1" title="Clear cheque" data-date="' . $detail->payment_date . '" data-id="' . $detail->id . '" data-form="single" data-amount="' . getReceivableAmount($detail->id) . '" data-payment-mode ="' . $detail->payment_mode_id . '" data-bank-id="' . $detail->bank_id . '" data-cheque-number="' . $detail->cheque_number . '" data-toggle="modal" data-target="#modal-single-clear">Clear</a>';
             //     return $action ?: '-';
             // })
-            ->rawColumns(['tenant_name',  'project_number', 'is_payment_received'])
+            ->rawColumns(['tenant_name',  'project_number', 'is_payment_received', 'installment_name'])
             ->with(['columns' => $columns])
             ->toJson();
     }

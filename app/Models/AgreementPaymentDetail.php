@@ -43,7 +43,8 @@ class AgreementPaymentDetail extends Model
         'bounced_date',
         'bounced_reason',
         'bounced_by',
-        'has_bounced'
+        'has_bounced',
+        'transaction_type'
     ];
 
     /**

@@ -847,7 +847,7 @@ class AgreementService
                 //      data-id="' . $row->id . '" ><i class="fas fa-file-signature"></i></a>
                 // ';
                 if (Gate::allows('agreement.terminate') && ($row->agreement_status == 0)) {
-                    $action .= '<a href="#" class="btn btn-danger btn-sm m-1 open-terminate-modal" title="Terminate" data-id="' . $row->id . '">
+                    $action .= '<a href="#" class="btn btn-danger btn-sm m-1 open-terminate-modal" title="Terminate" data-id="' . $row->id . '" data-company-id="' . $row->contract->company_id . '">
                         <i class="fas fa-file-signature"></i>
                     </a>';
                 }

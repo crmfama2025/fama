@@ -46,7 +46,9 @@ class AgreementController extends Controller
     public function index()
     {
         $title = 'Agreemants';
-        return view("admin.projects.agreement.agreement", compact("title"));
+        $paymentmodes = $this->paymentModeService->getAll();
+        $banks = $this->bankService->getAll();
+        return view("admin.projects.agreement.agreement", compact("title", 'paymentmodes', 'banks'));
     }
     public function create()
     {
@@ -85,6 +87,8 @@ class AgreementController extends Controller
     public function show(Agreement $agreement)
     {
         $agreement = $this->agreementService->getDetails($agreement->id);
+        // dd($agreement);
+        // dd($agreement->agreement_payment_details);
         // dd($agreement->agreement_units);
         // dd($agreement->agreement_payment->agreementPaymentDetails);
         return view('admin.projects.agreement.agreement-view', compact('agreement'));
@@ -211,6 +215,7 @@ class AgreementController extends Controller
     }
     public function terminate(Request $request)
     {
+        // dd($request->all());
         try {
             $agreement = $this->agreementService->terminate($request->all());
             return response()->json(['success' => true, 'data' => $agreement, 'message' => 'Agreeament terminated successfully'], 201);

@@ -223,6 +223,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int $terminate_status
+ * @property int $transaction_type 1 = Receive, 2 = Pay Back
  * @property-read \App\Models\Agreement $agreement
  * @property-read \App\Models\AgreementPayment|null $agreementPayment
  * @property-read \App\Models\AgreementUnit|null $agreementUnit
@@ -263,6 +264,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail wherePaymentDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail wherePaymentModeId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail whereTerminateStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail whereTransactionType($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail whereUpdatedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail withTrashed()

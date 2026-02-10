@@ -22,6 +22,7 @@ class AgreementRepository
 {
     public function __construct(
         protected ContractRepository $contractRepository,
+        protected AgreementPaymentDetailRepository $agreementPaymentDetailRepository
 
 
     ) {}
@@ -164,6 +165,7 @@ class AgreementRepository
             },
             'company',
             'tenant.nationality',
+            'agreement_payment_details',
             'agreement_payment.agreementPaymentDetails.invoice',
             'agreement_payment.agreementPaymentDetails.receivedPayments',
             'agreement_payment.installment',
@@ -307,6 +309,19 @@ class AgreementRepository
 
             $this->makeVacant($agreement_id, $contract_id);
             $this->updatePaymentDetails($agreement_id, $agreement->terminated_date);
+            $insertdata = [
+                'payment_amount' => $data['amount'],
+                'payment_mode_id' => $data['payment_mode_id'],
+                'bank_id' => $data['bank_id'],
+                'cheque_number' => $data['cheque_number'],
+                'transaction_type' => $data['transaction_type'],
+                'agreement_payment_id' => 0,
+                'agreement_unit_id' => 0,
+                'agreement_id' => $data['agreement_id'],
+                'payment_date' => $data['terminated_date'],
+                'added_by' => auth()->user()->id
+            ];
+            $this->agreementPaymentDetailRepository->create($insertdata);
 
             return;
         });

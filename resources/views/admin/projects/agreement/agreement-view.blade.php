@@ -265,11 +265,13 @@
                                                 </thead>
 
                                                 <tbody>
+                                                    {{-- @dd($agreement->agreement_units); --}}
                                                     @foreach ($agreement->agreement_units as $unit)
                                                         {{-- {{ dd($unit) }} --}}
                                                         <tr class="text-center">
                                                             <td>{{ $unit->contractUnitDetail->unit_number }}</td>
-                                                            <td>{{ $unit->contractUnitDetail->unit_type->unit_type }}</td>
+                                                            <td>{{ $unit->contractUnitDetail->unit_type->unit_type ?? ' - ' }}
+                                                            </td>
 
                                                             @if ($type == 2)
                                                                 <td>{{ $unit->contractSubunitDetail->subunit_no ?? '-' }}
@@ -415,6 +417,7 @@
                                                             </tr>
                                                         </thead>
                                                         <tbody>
+                                                            {{-- @dd($agreement->agreement_payment->agreementPaymentDetails); --}}
 
                                                             @foreach ($agreement->agreement_payment->agreementPaymentDetails->where('agreement_unit_id', $unit->id) as $detail)
                                                                 @php
@@ -538,6 +541,94 @@
                                                                         @endif
                                                                     </td>
 
+                                                                </tr>
+                                                            @endforeach
+                                                            {{-- Terminated payments for this agreement --}}
+                                                            @foreach ($agreement->agreement_payment_details->where('agreement_unit_id', 0) as $detail)
+                                                                @php
+                                                                    $bgColor = match ($detail->is_payment_received) {
+                                                                        0 => '#ffcccc',
+                                                                        1 => '#dbffdb',
+                                                                        2 => '#c5f5ff',
+                                                                        3 => '#fff5c5',
+                                                                        default => '',
+                                                                    };
+
+                                                                    if ($detail->transaction_type != 0) {
+                                                                        $bgColor = '#ffe6cc';
+                                                                    }
+                                                                    // @dump($bgColor);
+
+                                                                    $totalPaid = 0;
+                                                                    $totalBalance = 0;
+                                                                    $paid_on = null;
+
+                                                                    foreach (
+                                                                        $detail->receivedPayments ?? []
+                                                                        as $receivable
+                                                                    ) {
+                                                                        $totalPaid +=
+                                                                            (float) ($receivable->paid_amount ?? 0);
+                                                                        $totalBalance =
+                                                                            $receivable->pending_amount ?? 0;
+                                                                        if (
+                                                                            $totalPaid > 0 &&
+                                                                            !empty($receivable->paid_date)
+                                                                        ) {
+                                                                            $paid_on = $receivable->paid_date;
+                                                                        }
+                                                                    }
+                                                                @endphp
+
+                                                                <tr>
+                                                                    <td
+                                                                        style="background-color: {{ $bgColor }} !important;">
+                                                                        {{ \Carbon\Carbon::parse($detail->payment_date)->format('d/m/Y') }}
+                                                                    </td>
+                                                                    <td
+                                                                        style="background-color: {{ $bgColor }} !important;">
+                                                                        {{ $detail->paymentMode->payment_mode_name }}
+                                                                        @if (!empty($detail->bank_id))
+                                                                            - {{ ucfirst($detail->bank->bank_name) }}
+                                                                        @endif
+                                                                        @if (!empty($detail->cheque_number))
+                                                                            - {{ ucfirst($detail->cheque_number) }}
+                                                                        @endif
+                                                                    </td>
+                                                                    <td
+                                                                        style="background-color: {{ $bgColor }} !important;">
+                                                                        {{ number_format($detail->payment_amount, 2) }}
+                                                                    </td>
+                                                                    <td
+                                                                        style="background-color: {{ $bgColor }} !important;">
+                                                                        {{ $agreement->contract->company->company_name }}
+                                                                    </td>
+                                                                    <td
+                                                                        style="background-color: {{ $bgColor }} !important;">
+                                                                        {{ $paid_on ? \Carbon\Carbon::parse($paid_on)->format('d/m/Y') : '-' }}
+                                                                    </td>
+                                                                    <td
+                                                                        style="background-color: {{ $bgColor }} !important;">
+                                                                        {{ number_format($totalPaid, 2) ?? '-' }}
+                                                                    </td>
+                                                                    <td
+                                                                        style="background-color: {{ $bgColor }} !important;">
+                                                                        {{ number_format($totalBalance, 2) ?? '-' }}
+                                                                    </td>
+                                                                    <td
+                                                                        style="background-color: {{ $bgColor }} !important;">
+                                                                        @if ($detail->terminate_status == 0)
+                                                                            <span class="badge bg-success">Active</span>
+                                                                        @else
+                                                                            <span
+                                                                                class="badge bg-warning text-dark">Terminated</span>
+                                                                        @endif
+                                                                    </td>
+                                                                    <td
+                                                                        style="background-color: {{ $bgColor }} !important;">
+                                                                        <span class="badge bg-warning text-dark">RENT
+                                                                            PENDING</span>
+                                                                    </td>
                                                                 </tr>
                                                             @endforeach
                                                         </tbody>

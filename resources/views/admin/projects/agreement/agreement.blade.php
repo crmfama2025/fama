@@ -120,7 +120,7 @@
 
 
             <div class="modal fade" id="modal-terminate">
-                <div class="modal-dialog">
+                <div class="modal-dialog modal-lg">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h4 class="modal-title">Terminate Agreement</h4>
@@ -148,6 +148,65 @@
                                         <label for="inputEmail3" class="col-form-label asterisk">Reason</label>
                                         <textarea name="terminated_reason" id="" class="form-control"></textarea>
                                     </div>
+
+                                    <div class="form-group row">
+                                        <label for="inputEmail3" class="col-form-label asterisk">Amount</label>
+                                        <input type="number" name="amount" id="" class="form-control">
+                                    </div>
+                                    <div class="form-group row mt-2">
+                                        <label class="col-form-label">Transaction Type</label>
+
+                                        <div class="d-flex gap-4 mt-1 mx-1">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="transaction_type"
+                                                    id="receive" value="1" checked>
+                                                <label class="form-check-label" for="receive">
+                                                    Receive
+                                                </label>
+                                            </div>
+
+                                            <div class="form-check ml-2">
+                                                <input class="form-check-input" type="radio" name="transaction_type"
+                                                    id="pay_back" value="2">
+                                                <label class="form-check-label" for="pay_back">
+                                                    Pay Back
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-form-label asterisk">Payment Mode</label>
+
+                                        <select name="payment_mode_id" id="payment_mode_id" class="form-control select2"
+                                            style="width: 100%;">
+                                            <option value="">Select Payment Mode</option>
+
+                                            @foreach ($paymentmodes as $mode)
+                                                <option value="{{ $mode->id }}">
+                                                    {{ $mode->payment_mode_name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group row d-none" id="bank_group">
+                                        <label class="col-form-label asterisk">Bank</label>
+                                        <select name="bank_id" id="bank_id" class="form-control select2"
+                                            style="width: 100%;">
+                                            <option value="">Select Bank</option>
+
+                                            @foreach ($banks as $bank)
+                                                <option value="{{ $bank->id }}">{{ $bank->bank_name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group row d-none" id="cheque_group">
+                                        <label class="col-form-label asterisk">Cheque Number</label>
+                                        <input type="text" name="cheque_number" id="cheque_number"
+                                            class="form-control">
+                                    </div>
+
                                     <input type="hidden" name="agreement_id" id="agreement_id">
                                 </div>
                             </div>
@@ -197,10 +256,30 @@
     <script src="{{ asset('assets/bs-stepper/js/bs-stepper.min.js') }}"></script>
 
     <script>
+        let banks = @json($banks);
         $(document).on('click', '.open-terminate-modal', function(e) {
             e.preventDefault();
             const agreementId = $(this).data('id');
+            const companyId = $(this).data('company-id');
             $('#agreement_id').val(agreementId);
+            $('#bank_id').empty().append('<option value="">Select Bank</option>');
+
+            // Filter banks by company_id
+            let filteredBanks = banks.filter(bank => bank.company_id == companyId);
+
+            // Append filtered banks
+            filteredBanks.forEach(bank => {
+                $('#bank_id').append(
+                    `<option value="${bank.id}">${bank.bank_name}</option>`
+                );
+            });
+
+            // Re-init select2 (important when options change)
+            $('#bank_id').select2({
+                dropdownParent: $('#modal-terminate'),
+                width: '100%'
+            });
+
             $('#terminationdate').datetimepicker({
                 format: 'DD-MM-YYYY',
                 useCurrent: false
@@ -415,6 +494,35 @@
         });
         $('input[name="agreementFilter"]').on('change', function() {
             table.ajax.reload();
+        });
+    </script>
+    <script>
+        $('#payment_mode_id').on('change', function() {
+
+            let selected = $(this).val();
+            console.log(selected);
+
+            // Hide all first
+            $('#bank_group').addClass('d-none');
+            $('#cheque_group').addClass('d-none');
+
+            // Clear values when hidden
+            $('#bank_id').val(null).trigger('change');
+            $('#cheque_number').val('');
+
+            if (selected === '2') {
+                // alert("test");
+                // Bank transfer → show bank only
+                $('#bank_group').removeClass('d-none');
+            }
+
+            if (selected === '3') {
+                // Cheque → show bank + cheque number
+                $('#bank_group').removeClass('d-none');
+                $('#cheque_group').removeClass('d-none');
+            }
+
+            // cash / credit → nothing shown
         });
     </script>
 @endsection

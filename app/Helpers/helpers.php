@@ -669,7 +669,9 @@ function getReceivableAmount($agreement_payment_detail_id)
 }
 function updateContractUnitPayments($contract_unit_details_id, $paid_amount)
 {
+    // dd($paid_amount);
     $contract_unit_detail = ContractUnitDetail::find($contract_unit_details_id);
+    // dd($contract_unit_detail);
 
     if (!$contract_unit_detail) {
         return false;
@@ -1091,4 +1093,21 @@ function deleteBifurcations($contract_unit_details_id)
     foreach ($bifurcations as $bifurcation) {
         $bifurcation->delete();
     }
+}
+function updateContractUnitReceivablePayback($contract_unit_details_id, $paid_amount)
+{
+    // dd($paid_amount);
+    $contract_unit_detail = ContractUnitDetail::find($contract_unit_details_id);
+    // dd($contract_unit_detail);
+
+    if (!$contract_unit_detail) {
+        return false;
+    }
+
+    $contract_unit_detail->total_payment_received -= $paid_amount;
+    $contract_unit_detail->total_payment_pending += $paid_amount;
+    // dd();
+    $contract_unit_detail->save();
+
+    return $contract_unit_detail;
 }
