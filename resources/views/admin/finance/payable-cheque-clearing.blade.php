@@ -150,32 +150,33 @@
                                                 @endforeach
                                             </div>
                                         </div>
-                                        <table id="PayableList" class="table table-striped projects">
-                                            <thead>
-                                                <tr>
-                                                    <th>
-                                                        <div class="icheck-primary d-inline">
-                                                            <input type="checkbox" name="selectall" id="selectAll"
-                                                                value="1" onclick="toggleAllCheckboxes()">
-                                                            <label for="selectAll">All
-                                                            </label>
-                                                        </div>
-                                                    </th>
-                                                    <th>Project</th>
-                                                    <th>Company Name</th>
-                                                    <th>Vendor</th>
-                                                    <th>Building</th>
-                                                    <th>Due Date</th>
-                                                    <th>Payment Mode</th>
-                                                    {{-- <th>Ch.No</th> --}}
-                                                    <th>Amount</th>
-                                                    <th>Composition</th>
-                                                    <th>Returned</th>
-                                                    <th>Action</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {{-- <tr>
+                                        <div class="table-responsive">
+                                            <table id="PayableList" class="table table-striped projects">
+                                                <thead>
+                                                    <tr>
+                                                        <th>
+                                                            <div class="icheck-primary d-inline">
+                                                                <input type="checkbox" name="selectall" id="selectAll"
+                                                                    value="1" onclick="toggleAllCheckboxes()">
+                                                                <label for="selectAll">All
+                                                                </label>
+                                                            </div>
+                                                        </th>
+                                                        <th>Project</th>
+                                                        <th>Company Name</th>
+                                                        <th>Vendor</th>
+                                                        <th>Building</th>
+                                                        <th>Due Date</th>
+                                                        <th>Payment Mode</th>
+                                                        {{-- <th>Ch.No</th> --}}
+                                                        <th>Amount</th>
+                                                        <th>Composition</th>
+                                                        <th>Returned</th>
+                                                        <th>Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {{-- <tr>
                                                     <td>
                                                         <div class="icheck-primary d-inline">
                                                             <input type="checkbox" id="ichek1" class="groupCheckbox"
@@ -201,8 +202,9 @@
                                                     </td>
                                                 </tr> --}}
 
-                                            </tbody>
-                                        </table>
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

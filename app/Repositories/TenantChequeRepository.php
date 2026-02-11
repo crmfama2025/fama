@@ -178,6 +178,9 @@ class TenantChequeRepository
                     ->orWhereHas('paymentMode', function ($q2) use ($search) {
                         $q2->where('payment_mode_name', 'like', "%$search%");
                     })
+                    ->orWhereHas('agreement.contract.company', function ($q2) use ($search) {
+                        $q2->where('company_name', 'like', "%$search%");
+                    })
                     ->orWhereHas('agreement.contract.contract_type', function ($q2) use ($search) {
                         $q2->where('contract_type', 'like', "%$search%");
                     })

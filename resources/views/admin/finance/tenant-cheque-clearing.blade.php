@@ -199,6 +199,7 @@
                                                             </th>
                                                             <th>#</th>
                                                             <th>Project</th>
+                                                            <th>Company</th>
                                                             <th>Tenant</th>
                                                             <th>Building</th>
                                                             <th>Unit</th>
@@ -702,6 +703,10 @@
                         },
                         orderable: false,
                         searchable: true
+                    },
+                    {
+                        data: 'company_name',
+                        name: 'agreement.contract.company.company_name',
                     },
                     {
                         data: 'tenant_name',

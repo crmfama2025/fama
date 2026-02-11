@@ -113,7 +113,8 @@ class RecevableClearingExport implements FromCollection, WithHeadings, ShouldAut
                 'Property' => $row->agreement->contract->property->property_name ?? '-',
                 'Area' => $row->agreement->contract->area->area_name ?? '-',
                 'Locality' => $row->agreement->contract->locality->locality_name ?? '-',
-                'Unit Number' => optional($row->agreementUnit->contractUnitDetail)->unit_number ?? '-',
+                'Unit Number' => optional(optional($row->agreementUnit)->contractUnitDetail)->unit_number ?? '-',
+
                 'Payment Date' => $row->payment_date ? Carbon::parse($row->payment_date)->format('d-m-Y') : '-',
                 'Payment Amount' => $row->payment_amount ?? 0,
                 'Payment Mode' => $row->paymentMode->payment_mode_name ?? '-',
@@ -123,6 +124,11 @@ class RecevableClearingExport implements FromCollection, WithHeadings, ShouldAut
                 'Bounced Reason' => $row->bounced_reason ?? '-',
                 'Bounced Date' => $row->bounced_date ? Carbon::parse($row->bounced_date)->format('d-m-Y') : '-',
                 'Bounced By' => optional($row->bouncedBy)->first_name . ' ' . optional($row->bouncedBy)->last_name ?? '-',
+                'Transaction Type' => $row->transaction_type == 1
+                    ? 'Termination Receivable'
+                    : ($row->transaction_type == 2
+                        ? 'Termination Payback'
+                        : 'Receivable'),
             ];
         });
     }
@@ -153,7 +159,8 @@ class RecevableClearingExport implements FromCollection, WithHeadings, ShouldAut
             'Status',
             'Bounced Reason',
             'Bounced Date',
-            'Bounced By'
+            'Bounced By',
+            'Transaction Type'
         ];
     }
 

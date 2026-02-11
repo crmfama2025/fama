@@ -43,8 +43,8 @@ class receivableReportExport implements FromCollection, WithHeadings, ShouldAuto
             ])
             ->whereHas('agreementPaymentDetail', function ($q) {
                 $q->whereIn('is_payment_received', [1, 2])
-                    ->where('terminate_status', 0)
-                    ->whereDate('payment_date', '>=', Carbon::today());
+                    ->where('terminate_status', 0);
+                // ->whereDate('payment_date', '>=', Carbon::today());
             });
 
 
@@ -86,8 +86,10 @@ class receivableReportExport implements FromCollection, WithHeadings, ShouldAuto
                     ->orWhereRaw("CAST(cleared_receivables.id AS CHAR) LIKE ?", ["%$search%"]);
             });
         }
+        $results = $query->get();
 
         // dd($results);
+
 
         // Date filter
         if (!empty($filters['date_from']) && !empty($filters['date_to'])) {
@@ -115,7 +117,7 @@ class receivableReportExport implements FromCollection, WithHeadings, ShouldAuto
                 'Property' => $detail->agreement->contract->property->property_name ?? '-',
                 'Area' => $detail->agreement->contract->area->area_name ?? '-',
                 'Locality' => $detail->agreement->contract->locality->locality_name ?? '-',
-                'Unit Number' => optional($detail->agreementUnit->contractUnitDetail)->unit_number ?? '-',
+                'Unit Number' => optional(optional($row->agreementUnit)->contractUnitDetail)->unit_number ?? '-',
                 'Payment Date' => $detail->payment_date ? Carbon::parse($detail->payment_date)->format('d-m-Y') : '-',
                 'Paid Date' => $row->paid_date ? Carbon::parse($row->paid_date)->format('d-m-Y') : '-',
                 'payment_amount' => $detail->payment_amount,
@@ -125,9 +127,14 @@ class receivableReportExport implements FromCollection, WithHeadings, ShouldAuto
                 'Bank' => $row->agreementPaymentDetail->bank->bank_name ?? '-',
                 'Cheque Number' => $row->agreementPaymentDetail->cheque_number ?? '-',
                 'Status' => $this->getStatusText($detail->is_payment_received),
-                'Receivable cleared By' => $row->paidBy->first_name . ' ' . $row->paidBy->last_name
+                'Receivable cleared By' => $row->paidBy->first_name . ' ' . $row->paidBy->last_name,
                 // 'Bounced Reason' => $detail->bounced_reason ?? '-',
                 // 'Bounced Date' => $detail->bounced_date ? Carbon::parse($detail->bounced_date)->format('d-m-Y') : '-',
+                'Transaction Type' => $detail->transaction_type == 1
+                    ? 'Termination Receivable'
+                    : ($row->transaction_type == 2
+                        ? 'Termination Payback'
+                        : 'Receivable'),
             ];
         });
     }
@@ -159,9 +166,10 @@ class receivableReportExport implements FromCollection, WithHeadings, ShouldAuto
             'Bank',
             'Cheque Number',
             'Status',
-            'Receivable cleared By'
+            'Receivable cleared By',
             // 'Bounced Reason',
             // 'Bounced Date',
+            'Transaction Type'
         ];
     }
 

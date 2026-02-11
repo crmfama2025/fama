@@ -162,6 +162,7 @@ class TenantChequeService
         $columns = [
             ['data' => 'DT_RowIndex', 'name' => 'agreement_payment_details.id'],
             ['data' => 'project_number', 'name' => 'project_number'],
+            ['data' => 'company_name', 'name' => 'company_name'],
             ['data' => 'tenant_name', 'name' => 'tenant_name'],
             ['data' => 'property_name', 'name' => 'property_name'],
             ['data' => 'unit_number', 'name' => 'unit_number'],
@@ -220,6 +221,7 @@ class TenantChequeService
             {$b_type}
         </strong>";
             })
+            ->addColumn('company_name', fn($row) => $row->agreement->contract->company->company_name ?? '-')
             ->addColumn('tenant_name', function ($row) {
 
                 $name = $row->agreement->tenant->tenant_name ?? '-';
