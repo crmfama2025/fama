@@ -325,6 +325,10 @@ class TenantChequeRepository
                 'agreementPaymentDetail.agreement.contract.property',
                 'agreementPaymentDetail.agreement.agreement_units.contractUnitDetail',
                 'agreementPaymentDetail.agreement.agreement_units',
+                'agreementPaymentDetail.agreement.contract.company',
+                'paidBank',
+                'paidCompany',
+                'paidMode'
             ])
             ->whereHas('agreementPaymentDetail', function ($q) {
                 $q->whereIn('is_payment_received', [1, 2])
@@ -371,6 +375,15 @@ class TenantChequeRepository
                     ->orWhereHas('agreementPaymentDetail.paymentMode', function ($q2) use ($search) {
                         $q2->where('payment_mode_name', 'like', "%$search%");
                     })
+                    ->orWhereHas('paidMode', function ($q2) use ($search) {
+                        $q2->where('payment_mode_name', 'like', "%$search%");
+                    })
+                    ->orWhereHas('paidCompany', function ($q2) use ($search) {
+                        $q2->where('company_name', 'like', "%$search%");
+                    })
+                    ->orWhereHas('agreementPaymentDetail.agreement.contract.company', function ($q2) use ($search) {
+                        $q2->where('company_name', 'like', "%$search%");
+                    })
                     ->orWhereRaw("CAST(cleared_receivables.id AS CHAR) LIKE ?", ["%$search%"]);
                 // if (preg_match('/^\d{2}-\d{2}-\d{4}$/', $search)) {
                 //     // dd($search);
@@ -380,6 +393,9 @@ class TenantChequeRepository
                 // }
             });
         }
+        // if (!empty($filters['company_id'])) {
+        //     $query->where('company_id', $filters['company_id']);
+        // }
 
 
         // Date filter
@@ -389,6 +405,8 @@ class TenantChequeRepository
                 Carbon::createFromFormat('d-m-Y', $filters['date_to'])->format('Y-m-d'),
             ]);
         }
+        // $t = $query->get();
+        // dd($t);
 
         return $query;
     }

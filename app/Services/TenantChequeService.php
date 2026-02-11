@@ -459,6 +459,7 @@ class TenantChequeService
                 if (!$payment) {
                     continue;
                 }
+                // dd($payment->agreementPaymentDetail);
                 // dd($payment);
 
 
@@ -468,6 +469,7 @@ class TenantChequeService
                 $paidCheque = $data['paid_cheque_number'] ?? $payment->cheque_number;
                 $paidAmount = $data['paid_amount'] ?? $payment->payment_amount;
                 $paidDate = $data['paid_date'];
+                $paidCompanyId = $data['paid_company_id'];
                 // dd($paidAmount);
 
                 if (!empty($paidDate)) {
@@ -502,7 +504,8 @@ class TenantChequeService
                     'pending_amount' => $pendingAmount,
                     'agreement_payment_details_id' => $paymentId,
                     'paid_by' => auth()->user()->id,
-                    'agreement_id' => $payment->agreement_id
+                    'agreement_id' => $payment->agreement_id,
+                    'paid_company_id' => $paidCompanyId ?? null
                 ];
                 // dd($detail_date);
                 $this->validate($cleared_data);
@@ -611,6 +614,9 @@ class TenantChequeService
             ['data' => 'unit_number', 'name' => 'unit_number'],
             ['data' => 'payment_date', 'name' => 'payment_date'],
             ['data' => 'payment_mode_name', 'name' => 'payment_mode_name'],
+            // ['data' => 'bank_name', 'name' => 'bank_name'],
+            // ['data' => 'cheque_number', 'name' => 'cheque_number'],
+            ['data' => 'company_name', 'name' => 'company_name'],
             ['data' => 'paid_amount', 'name' => 'paid_amount'],
             ['data' => 'pending_amount', 'name' => 'pending_amount'],
             ['data' => 'installment_name', 'name' => 'installment_name'],
@@ -655,15 +661,33 @@ class TenantChequeService
             ->addColumn('paid_date', fn($row) => $row->paid_date ? Carbon::parse($row->paid_date)->format('d-m-Y') : '-')
 
             ->addColumn('payment_mode_name', function ($row) {
-                $text = $row->agreementPaymentDetail->paymentMode->payment_mode_name ?? '';
-                if (!empty($row->agreementPaymentDetail->bank_id) && $row->agreementPaymentDetail->bank) {
-                    $text .= ' - ' . ucfirst($row->agreementPaymentDetail->bank->bank_name);
+                // $text = $row->agreementPaymentDetail->paymentMode->payment_mode_name ?? '';
+                // if (!empty($row->agreementPaymentDetail->bank_id) && $row->agreementPaymentDetail->bank) {
+                //     $text .= ' - ' . ucfirst($row->agreementPaymentDetail->bank->bank_name);
+                // }
+                // if (!empty($row->agreementPaymentDetail->cheque_number)) {
+                //     $text .= ' - ' . ucfirst($row->agreementPaymentDetail->cheque_number);
+                // }
+                // return $text;
+                if (in_array($row->paidMode?->id, [1, 4])) {
+                    $mode = $row->paidMode?->payment_mode_name;
+                } elseif ($row->paidMode?->id == 2) {
+                    $mode = $row->paidMode?->payment_mode_name . ' - ' . $row->paidBank?->bank_name;
+                } elseif ($row->paidMode?->id == 3) {
+                    $mode = $row->paidMode?->payment_mode_name . ' - ' . $row->paidBank?->bank_name . ' - ' . $row->cheque_no;
+                } else {
+                    $mode = ' - ';
                 }
-                if (!empty($row->agreementPaymentDetail->cheque_number)) {
-                    $text .= ' - ' . ucfirst($row->agreementPaymentDetail->cheque_number);
-                }
-                return $text;
+
+                return $mode;
             })
+            ->addColumn(
+                'company_name',
+                fn($row) =>
+                $row->paidCompany?->company_name
+                    ?? $row->agreementPaymentDetail?->agreement?->contract?->company?->company_name
+                    ?? '-'
+            )
             ->addColumn('paid_amount', fn($row) => $row->paid_amount)
             ->addColumn('pending_amount', fn($row) => $row->pending_amount)
             ->addColumn('installment_name', function ($row) {
@@ -703,7 +727,7 @@ class TenantChequeService
             //     $action .= '<a class="btn btn-success btn-sm clearChequeBtn m-1" title="Clear cheque" data-date="' . $detail->payment_date . '" data-id="' . $detail->id . '" data-form="single" data-amount="' . getReceivableAmount($detail->id) . '" data-payment-mode ="' . $detail->payment_mode_id . '" data-bank-id="' . $detail->bank_id . '" data-cheque-number="' . $detail->cheque_number . '" data-toggle="modal" data-target="#modal-single-clear">Clear</a>';
             //     return $action ?: '-';
             // })
-            ->rawColumns(['tenant_name',  'project_number', 'is_payment_received', 'installment_name'])
+            ->rawColumns(['tenant_name',  'project_number', 'is_payment_received', 'installment_name', 'company_name'])
             ->with(['columns' => $columns])
             ->toJson();
     }

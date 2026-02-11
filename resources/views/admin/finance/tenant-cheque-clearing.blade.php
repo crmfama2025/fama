@@ -419,13 +419,24 @@
 
                                 <!-- Bank -->
                                 <div class="form-group" id="bank_div" style="display:none;">
-                                    <label>Select Bank</label>
-                                    <select id="bank_id" name="paid_bank_id" class="form-control">
-                                        <option value="">Select Bank</option>
-                                        @foreach ($banks as $bank)
-                                            <option value="{{ $bank->id }}">{{ $bank->bank_name }}</option>
-                                        @endforeach
-                                    </select>
+                                    <div class="mb-3">
+                                        <label class="asterisk">Select Company</label>
+                                        <select id="company_id" name="paid_company_id" class="form-control" required>
+                                            <option value="">Select Company</option>
+                                            @foreach ($companies as $com)
+                                                <option value="{{ $com->id }}">{{ $com->company_name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label>Select Bank</label>
+                                        <select id="bank_id" name="paid_bank_id" class="form-control">
+                                            {{-- <option value="">Select Bank</option>
+                                            @foreach ($banks as $bank)
+                                                <option value="{{ $bank->id }}">{{ $bank->bank_name }}</option>
+                                            @endforeach --}}
+                                        </select>
+                                    </div>
                                 </div>
 
                                 <!-- Cheque Number -->
@@ -1027,6 +1038,7 @@
         let units = @json($units);
         let tenants = @json($tenants);
         let agreements = @json($agreements);
+        let banks = @json($banks);
         // console.log('units', units)
         console.log(agreements);
 
@@ -1336,6 +1348,32 @@
         function addClassAsterisk(inputSelector) {
             // alert("test");
             $(inputSelector).prev('label').addClass('asterisk');
+        }
+    </script>
+    <script>
+        $('#company_id').on('change keyup', function() {
+            filterBanksByCompany();
+        });
+
+        function filterBanksByCompany() {
+            let companyId = $('#company_id').val();
+            let bankSelect = $('#bank_id');
+            console.log(bankSelect);
+
+            bankSelect.empty();
+            bankSelect.append('<option value="">Select Bank</option>');
+
+            if (!companyId) {
+                return;
+            }
+
+            let filteredBanks = banks.filter(bank => bank.company_id == companyId);
+
+            filteredBanks.forEach(bank => {
+                bankSelect.append(
+                    `<option value="${bank.id}">${bank.bank_name}</option>`
+                );
+            });
         }
     </script>
 @endsection

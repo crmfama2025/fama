@@ -1900,12 +1900,14 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property int $payment_terms_id
  * @property-read \App\Models\ReferralCommissionFrequency|null $commissionFrequency
  * @property-read \App\Models\User|null $deletedBy
  * @property-read \App\Models\Investment|null $investment
  * @property-read \App\Models\Investor|null $investor
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvestorPayout> $investorPayouts
  * @property-read int|null $investor_payouts_count
+ * @property-read \App\Models\PaymentTerms|null $paymentTerm
  * @property-read \App\Models\Investor|null $referrer
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentReferral newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentReferral newQuery()
@@ -1922,6 +1924,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentReferral whereInvestorId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentReferral whereInvestorReferrorId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentReferral whereLastReferralCommissionReleasedDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentReferral wherePaymentTermsId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentReferral whereReferralCommissionAmount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentReferral whereReferralCommissionFrequencyId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentReferral whereReferralCommissionPendingAmount($value)
@@ -2420,9 +2423,19 @@ namespace App\Models{
 
 namespace App\Models{
 /**
+ * @property int $id
+ * @property string $term_name
+ * @property int $status 1-Acive, 0-Inactive
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @method static \Illuminate\Database\Eloquent\Builder|PaymentTerms newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|PaymentTerms newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|PaymentTerms query()
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentTerms whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentTerms whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentTerms whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentTerms whereTermName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentTerms whereUpdatedAt($value)
  */
 	class PaymentTerms extends \Eloquent {}
 }

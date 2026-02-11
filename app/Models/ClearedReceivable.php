@@ -22,6 +22,7 @@ class ClearedReceivable extends Model
         'paid_cheque_number',
         'payment_remarks',
         'paid_by',
+        'paid_company_id'
     ];
 
 
@@ -46,5 +47,9 @@ class ClearedReceivable extends Model
     public function paidBy()
     {
         return $this->belongsTo(User::class, 'paid_by');
+    }
+    public function paidCompany()
+    {
+        return $this->belongsTo(Company::class, 'paid_company_id', 'id');
     }
 }

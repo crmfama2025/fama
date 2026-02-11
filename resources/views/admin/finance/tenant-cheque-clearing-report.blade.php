@@ -112,6 +112,7 @@
                                                     <th>Due Date</th>
                                                     <th>Cleared Date</th>
                                                     <th>Payment Mode</th>
+                                                    <th>Company Name</th>
                                                     <th>Amount paid</th>
                                                     <th>Pending</th>
                                                     <th>Composition</th>
@@ -208,7 +209,13 @@
                     },
                     {
                         data: 'payment_mode_name',
-                        name: 'agreementPaymentDetail.paymentMode.payment_mode_name'
+                        // name: 'agreementPaymentDetail.paymentMode.payment_mode_name'
+                        name: 'paidMode.payment_mode_name'
+
+                    },
+                    {
+                        data: 'company_name',
+                        name: 'paidCompany.company_name'
                     },
                     {
                         data: 'paid_amount',
