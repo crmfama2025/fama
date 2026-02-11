@@ -386,12 +386,27 @@
                                                         <div class="form-group">
                                                             <label class="asterisk">Referral Commission Frequency</label>
                                                             <select class="form-control select2"
-                                                                name="referral_commission_frequency_id">
+                                                                name="referral_commission_frequency_id"
+                                                                id="referral_commission_frequency_id">
                                                                 <option value="">Select Frequency</option>
                                                                 @foreach ($data['frequency'] as $freq)
                                                                     <option value="{{ $freq->id }}"
                                                                         {{ old('referral_commission_frequency_id', isset($investment->investmentReferral->referral_commission_frequency_id) ? $investment->investmentReferral->referral_commission_frequency_id : '') == $freq->id ? 'selected' : '' }}>
                                                                         {{ $freq->commission_frequency_name }}</option>
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <div class="form-group">
+                                                            <label class="asterisk">Payment Terms</label>
+                                                            <select class="form-control select2" name="payment_terms_id"
+                                                                id="payment_terms_id">
+                                                                <option value="">Select Payment Term</option>
+                                                                @foreach ($data['paymentTerms'] as $term)
+                                                                    <option value="{{ $term->id }}"
+                                                                        {{ old('payment_terms_id', isset($investment->investmentReferral->payment_terms_id) ? $investment->investmentReferral->payment_terms_id : '') == $term->id ? 'selected' : '' }}>
+                                                                        {{ $term->term_name }}</option>
                                                                 @endforeach
                                                             </select>
                                                         </div>
@@ -455,11 +470,25 @@
                                                         <div class="form-group">
                                                             <label class="asterisk">Referral Commission Frequency</label>
                                                             <select class="form-control select2"
-                                                                name="referral_commission_frequency_id">
+                                                                name="referral_commission_frequency_id"
+                                                                id="referral_commission_frequency_id">
                                                                 <option value="">Select Frequency</option>
                                                                 @foreach ($data['frequency'] as $freq)
                                                                     <option value="{{ $freq->id }}">
                                                                         {{ $freq->commission_frequency_name }}</option>
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <div class="form-group">
+                                                            <label class="asterisk">Payment Terms</label>
+                                                            <select class="form-control select2" name="payment_terms_id"
+                                                                id="payment_terms_id">
+                                                                <option value="">Select Payment Term</option>
+                                                                @foreach ($data['paymentTerms'] as $term)
+                                                                    <option value="{{ $term->id }}">
+                                                                        {{ $term->term_name }} </option>
                                                                 @endforeach
                                                             </select>
                                                         </div>
@@ -776,6 +805,11 @@
         $('#investmentdate').on('change.datetimepicker', function() {
             calculateMaturityDate();
             calculateFirstProfitReleaseDate();
+            let term = $('#payment_terms_id').val();
+            if (term) {
+                calculateFirstReferralCommissionReleaseDate();
+
+            }
         });
 
         function calculateReferralCommission() {
@@ -918,7 +952,7 @@
 
 
             $('#first_profit_release_date').val(`${d}-${m}-${y}`);
-            $('#first_referral_commission_release_date').val(`${d}-${m}-${y}`);
+            // $('#first_referral_commission_release_date').val(`${d}-${m}-${y}`);
         }
 
 
@@ -1080,15 +1114,15 @@
         });
     </script>
     <script>
-        $('#firstprofitreleasedate').on('change.datetimepicker', function(e) {
-            // e.date is a moment object
-            let fp_date = e.date ? e.date.format('DD-MM-YYYY') : '';
-            let $commission = $('#first_referral_commission_release_date');
+        // $('#firstprofitreleasedate').on('change.datetimepicker', function(e) {
+        //     // e.date is a moment object
+        //     let fp_date = e.date ? e.date.format('DD-MM-YYYY') : '';
+        //     let $commission = $('#first_referral_commission_release_date');
 
-            if (!$commission.val()) {
-                $commission.val(fp_date);
-            }
-        });
+        //     if (!$commission.val()) {
+        //         $commission.val(fp_date);
+        //     }
+        // });
     </script>
     <script>
         function validateFormFields(form) {
@@ -1124,6 +1158,62 @@
             });
 
             return isValid;
+        }
+    </script>
+    <script>
+        $('#referral_commission_frequency_id, #payment_terms_id').on('change keyup', function() {
+            calculateFirstReferralCommissionReleaseDate();
+        });
+
+        function calculateFirstReferralCommissionReleaseDate() {
+            let freq = $('#referral_commission_frequency_id').val();
+            let term = $('#payment_terms_id').val();
+            let inv_date = $('#investment_date').val();
+            let gp = parseInt($('#grace_period').val(), 10);
+
+            console.log('in,gp', inv_date, gp);
+
+            // Parse DD-MM-YYYY from datepicker
+            let parts = inv_date.split('-'); // ["10", "02", "2026"]
+            let investmentDate = new Date(parts[2], parts[1] - 1, parts[0]);
+
+            let releaseDate = new Date(investmentDate);
+            let formattedDate = '';
+
+            // Decide how many days to add based on term
+            let daysToAdd = 0;
+
+            switch (term) {
+                case '1': // end of year
+                    daysToAdd = gp + 365;
+                    break;
+                case '2': // monthly
+                case '3': // on contract date
+                case '5': // twice in a year
+                    daysToAdd = gp;
+                    break;
+                case '4': // every two months
+                    // daysToAdd = gp + 60; // example logic
+                    daysToAdd = gp;
+                    break;
+                default:
+                    daysToAdd = gp;
+            }
+
+            // Add the total days
+            releaseDate.setDate(releaseDate.getDate() + daysToAdd);
+
+            // Format as DD-MM-YYYY
+            let day = String(releaseDate.getDate()).padStart(2, '0');
+            let month = String(releaseDate.getMonth() + 1).padStart(2, '0');
+            let year = releaseDate.getFullYear();
+
+            formattedDate = `${day}-${month}-${year}`;
+
+            console.log('Final formatted date:', formattedDate);
+
+            // Set the input value
+            $('#first_referral_commission_release_date').val(formattedDate);
         }
     </script>
 @endsection
