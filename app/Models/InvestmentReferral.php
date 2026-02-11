@@ -31,7 +31,8 @@ class InvestmentReferral extends Model
         'total_commission_pending',
         'total_commission_released',
         'current_month_commission_released',
-        'commission_released_perc'
+        'commission_released_perc',
+        'payment_terms_id'
     ];
 
     public function investor()
@@ -61,5 +62,9 @@ class InvestmentReferral extends Model
     public function investorPayouts()
     {
         return $this->hasMany(InvestorPayout::class, 'payout_reference_id', 'id');
+    }
+    public function paymentTerm()
+    {
+        return $this->belongsto(PaymentTerms::class, 'payment_terms_id', 'id');
     }
 }

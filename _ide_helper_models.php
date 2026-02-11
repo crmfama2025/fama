@@ -2420,6 +2420,15 @@ namespace App\Models{
 
 namespace App\Models{
 /**
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentTerms newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentTerms newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentTerms query()
+ */
+	class PaymentTerms extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
  * @property int $id
  * @property string $batch_name
  * @property int $status

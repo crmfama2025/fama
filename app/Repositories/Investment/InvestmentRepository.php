@@ -148,7 +148,7 @@ class InvestmentRepository
     }
     public function getReferralQuery(array $filters = []): Builder
     {
-        $query = InvestmentReferral::with('referrer', 'investment', 'investor', 'commissionFrequency', 'investment');
+        $query = InvestmentReferral::with('referrer', 'investment', 'investor', 'commissionFrequency', 'investment', 'paymentTerm');
 
         $result = $query->get();
         // dd($result);
@@ -164,6 +164,9 @@ class InvestmentRepository
                 })
                 ->orWhereHas('commissionFrequency', function ($q) use ($filters) {
                     $q->where('commission_frequency_name', 'like', '%' . $filters['search'] . '%');
+                })
+                ->orWhereHas('paymentTerm', function ($q) use ($filters) {
+                    $q->where('term_name', 'like', '%' . $filters['search'] . '%');
                 })
                 ->orWhereHas('investment', function ($q) use ($filters) {
 

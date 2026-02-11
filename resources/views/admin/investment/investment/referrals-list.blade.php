@@ -12,6 +12,24 @@
     <link rel="stylesheet" href="{{ asset('assets/datatables-responsive/css/responsive.bootstrap4.min.css') }}">
     <!-- DataTables -->
     <link rel="stylesheet" href="{{ asset('assets/datatables-buttons/css/buttons.bootstrap4.min.css') }}">
+    <style>
+        #referralsTable {
+            table-layout: fixed;
+        }
+
+        #referralsTable td {
+            max-width: 220px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        #referralsTable th {
+            white-space: nowrap;
+            font-weight: 600;
+            vertical-align: middle;
+        }
+    </style>
 @endsection
 @section('content')
     <!-- Content Wrapper. Contains page content -->
@@ -44,7 +62,9 @@
                             </div>
                             <!-- /.card-header -->
                             <div class="card-body table-responsive">
-                                <table id="referralsTable" class="table table-striped  nowrap"width="100%">
+                                <table id="referralsTable"
+                                    class="table table-striped table-bordered table-hover nowrap align-middle"
+                                    width="100%">
                                     <thead>
                                         <tr>
                                             <th>#</th>
@@ -55,7 +75,7 @@
                                             <th>Commission Amount</th>
                                             <th>Referral Status</th>
                                             <th>Frequency</th>
-                                            {{-- <th>Payment Terms</th> --}}
+                                            <th>Payment Terms</th>
                                             <th>Referred Investor Name</th>
                                             <th>Referred Investment Amount</th>
                                         </tr>
@@ -143,10 +163,10 @@
                         data: 'referral_commission_frequency',
                         name: 'commissionFrequency.commission_frequency_name'
                     },
-                    // {
-                    //     data: 'referral_commission_frequency',
-                    //     name: 'commissionFrequency.commission_frequency_name'
-                    // },
+                    {
+                        data: 'term_name',
+                        name: 'paymentTerm.term_name'
+                    },
                     {
                         data: 'referred_investor_name',
                         name: 'investor.investor_name'
@@ -172,7 +192,28 @@
                             encodeURIComponent(searchValue);
                         window.location.href = url;
                     }
-                }]
+                }],
+                columnDefs: [{
+                        targets: [0],
+                        className: 'text-center font-weight-bold'
+                    }, // #
+                    {
+                        targets: [1],
+                        className: 'text-center'
+                    }, // Action
+                    {
+                        targets: [2],
+                        className: 'text-nowrap text-center'
+                    }, // Date
+                    {
+                        targets: [4, 5, 10],
+                        className: 'text-right'
+                    }, // Numbers
+                    {
+                        targets: [6, 7, 8],
+                        className: 'text-center'
+                    }, // Status / Frequency / Terms
+                ],
             });
         });
     </script>

@@ -5,6 +5,7 @@ namespace App\Services\Investment;
 use App\Models\Company;
 use App\Models\InvestmentReferral;
 use App\Models\Investor;
+use App\Models\PaymentTerms;
 use App\Models\PayoutBatch;
 use App\Models\ProfitInterval;
 use App\Models\ReferralCommissionFrequency;
@@ -197,6 +198,7 @@ class InvestmentService
                     'referral_commission_status' => 0,
                     'total_commission_pending' => $data['referral_commission_amount'],
                     'added_by' => $userId,
+                    'payment_terms_id' => $data['payment_terms_id']
                 ];
                 // dd($investorReferraldata);
                 $this->investmentReferralService->create($investorReferraldata);
@@ -330,6 +332,7 @@ class InvestmentService
                     'referral_commission_status' => 0,
                     'updated_by' => $userId,
                     'total_commission_pending' => $data['referral_commission_amount'],
+                    'payment_terms_id' => $data['payment_terms_id']
                 ];
                 // dd($investorReferralData);
 
@@ -604,6 +607,7 @@ class InvestmentService
         $companyBanks = Company::with('banks')->get();
         $profitInterval = ProfitInterval::where('status', 1)->get();
         $referralFrequency = ReferralCommissionFrequency::where('status', 1)->get();
+        $paymentTerms = PaymentTerms::where('status', 1)->get();
         // dd($profitInterval);
         // dd($companyBanks);
         return [
@@ -611,7 +615,8 @@ class InvestmentService
             'payoutBatches' => $payoutBatches,
             'companyBanks' => $companyBanks,
             'profitInterval' => $profitInterval,
-            'frequency' => $referralFrequency
+            'frequency' => $referralFrequency,
+            'paymentTerms' => $paymentTerms
         ];
     }
     public function submitPending($data)
@@ -830,6 +835,7 @@ class InvestmentService
             ['data' => 'referral_commission_perc', 'name' => 'referral_commission_perc'],
             ['data' => 'referral_commission_amount', 'name' => 'referral_commission_amount'],
             ['data' => 'referral_commission_frequency', 'name' => 'commissionFrequency.commission_frequency_name'],
+            ['data' => 'term_name', 'name' => 'paymentTerm.term_name'],
             ['data' => 'action', 'name' => 'action', 'orderable' => false, 'searchable' => false],
         ];
 
@@ -862,6 +868,9 @@ class InvestmentService
             // referral commission frequency
             ->addColumn('referral_commission_frequency', function ($row) {
                 return $row->commissionFrequency->commission_frequency_name ?? '-';
+            })
+            ->addColumn('term_name', function ($row) {
+                return $row->PaymentTerm->term_name ?? '-';
             })
             ->addColumn('referral_status', function ($row) {
                 if (strtolower($row->referral_commission_frequency_id ?? '') === 1) {
@@ -921,7 +930,7 @@ class InvestmentService
                 return $action;
             })
 
-            ->rawColumns(['action', 'referral_status', 'investor_name', 'referred_investor_name', 'referred_investment_amount'])
+            ->rawColumns(['action', 'referral_status', 'investor_name', 'referred_investor_name', 'referred_investment_amount', 'term_name'])
             ->toJson();
     }
     public function getReferralDetails($id)

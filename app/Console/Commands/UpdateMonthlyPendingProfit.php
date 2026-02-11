@@ -132,16 +132,34 @@ class UpdateMonthlyPendingProfit extends Command
 
 
                         // Adjust based on frequency
-                        switch ($referral->referral_commission_frequency_id) {
+                        // switch ($referral->referral_commission_frequency_id) {
 
-                            case 1: // Full payout at once
-                                $amount = $amount / 1; // basically unchanged
+                        //     case 1: // Full payout at once
+                        //         $amount = $amount / 1; // basically unchanged
+                        //         break;
+                        //     case 2: // Twice
+                        //         $amount = $amount / 2;
+                        //         break;
+                        //     case 3: // Monthly
+                        //         $amount = $amount / 12;
+                        //         break;
+                        // }
+                        switch ($referral->payment_terms_id) {
+
+                            case 1: // end of year
+                                $amount = $amount / 1;
                                 break;
-                            case 2: // Twice
-                                $amount = $amount / 2;
-                                break;
-                            case 3: // Monthly
+                            case 2: // monthly
                                 $amount = $amount / 12;
+                                break;
+                            case 3: // on contract date
+                                $amount = $amount / 1;
+                                break;
+                            case 4: //every two months
+                                $amount = $amount / 6;
+                                break;
+                            case 5: // twice in an year
+                                $amount = $amount / 2;
                                 break;
                         }
                     }

@@ -26,7 +26,7 @@ class ReferralExport implements FromCollection, WithHeadings, ShouldAutoSize
     {
         //
 
-        $query = InvestmentReferral::with('referrer', 'investment', 'commissionFrequency', 'investor');
+        $query = InvestmentReferral::with('referrer', 'investment', 'commissionFrequency', 'investor', 'paymentTerm');
 
         // dd($result);
         // Global search
@@ -48,6 +48,9 @@ class ReferralExport implements FromCollection, WithHeadings, ShouldAutoSize
 
                     ->orWhereHas('commissionFrequency', function ($q) use ($search) {
                         $q->where('commission_frequency_name', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('paymentTerm', function ($q) use ($search) {
+                        $q->where('term_name', 'like', "%{$search}%");
                     })
                     ->orWhereHas('investment', function ($q) use ($search) {
 
@@ -74,8 +77,8 @@ class ReferralExport implements FromCollection, WithHeadings, ShouldAutoSize
                 'Date of Referral' => $row->investment->investment_date ? Carbon::parse($row->investment->investment_date)->format('d-m-Y') : '-',
                 'Commission Percentage' => $row->referral_commission_perc . ' % ' ?? '-',
                 'Referral Commission Amount' => $row->referral_commission_amount ?? '-',
-                'Frequency' => $row->commissionFrequency->commission_frequency_name,
-                // 'Investment Amount' => $row->investment_amount ?? '-',
+                'Frequency' => $row->commissionFrequency->commission_frequency_name ?? '-',
+                'Payment Terms' => $row->paymentTerm->term_name ?? '-',
                 'Referred Investor Name' => $row->investor->investor_name ?? '-',
                 'Referred Investment Amount' => $row->investment->investment_amount ?? '-',
 
@@ -91,6 +94,7 @@ class ReferralExport implements FromCollection, WithHeadings, ShouldAutoSize
             'Commission Percentage',
             'Referral Commission Amount',
             'Frequency',
+            'Payment Terms',
             'Referred Investor Name',
             'Referred Investment Amount',
 
