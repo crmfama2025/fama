@@ -849,7 +849,7 @@
 
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                @if ($agreement->agreement_status == 0 && paymentStatus($agreement->id))
+                                @if ($agreement->agreement_status == 0 && !paymentStatus($agreement->id))
                                     <button type="submit" class="btn btn-primary" id="saveRentBifurcation">Save</button>
                                 @endif
                             </div>

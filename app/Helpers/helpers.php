@@ -490,15 +490,19 @@ function getOccupiedUnits($id)
 // }
 function paymentStatus($agreementid)
 {
-    $payment = AgreementPaymentDetail::where('agreement_id', $agreementid)
+    // $payment = AgreementPaymentDetail::where('agreement_id', $agreementid)
+    //     ->where('terminate_status', 0)
+    //     ->first();
+
+    // if ($payment && in_array($payment->is_payment_received, [0])) {
+    //     return true;
+    // }
+
+    // return false;
+    return AgreementPaymentDetail::where('agreement_id', $agreementid)
         ->where('terminate_status', 0)
-        ->first();
-
-    if ($payment && in_array($payment->is_payment_received, [0])) {
-        return true;
-    }
-
-    return false;
+        ->whereIn('is_payment_received', [1, 2])
+        ->exists();
 }
 function makeContractAvailable($contract_id)
 {

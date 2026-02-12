@@ -847,18 +847,18 @@ class AgreementService
                     title="documents"><i class="fas fa-file"></i></a>';
                 }
 
-                if (Gate::allows('agreement.view')) {
+                if (Gate::allows('agreement.view') && ($row->contract->contract_type_id == 2)) {
                     $action .= '<a href="' . $printUrl . '" class="btn btn-primary btn-sm m-1"
                     title="Agreement"><i class="fas fa-handshake"></i></a>';
                 }
 
-                if (Gate::allows('agreement.edit') && $row->agreement_status == 0 && paymentStatus($row->id)) {
+                if (Gate::allows('agreement.edit') && $row->agreement_status == 0 && !paymentStatus($row->id)) {
 
                     $action .= '<a href="' . $editUrl . '" class="btn btn-info  btn-sm m-1" title="Edit agreement"><i
                         class="fas fa-pencil-alt"></i></a>';
                 }
 
-                if (Gate::allows('agreement.delete') && paymentStatus($row->id)) {
+                if (Gate::allows('agreement.delete') && !paymentStatus($row->id) && $row->agreement_status == 0) {
 
                     $action .= '<a class="btn btn-danger  btn-sm m-1" onclick="deleteConf(' . $row->id . ')" title="delete"><i
                         class="fas fa-trash"></i></a>';
