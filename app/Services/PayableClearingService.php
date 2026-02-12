@@ -21,10 +21,16 @@ class PayableClearingService
         protected PayableClearRepository $payableClearRepo,
     ) {}
 
+
+    public function getByCondition($contractPaymentDet)
+    {
+        return $this->payableClearRepo->getByCondition($contractPaymentDet);
+    }
+
+
     public function getDataTable(array $filters)
     {
         $query = $this->payableClearRepo->getPayables($filters);
-
 
         $columns = [
             ['data' => 'checkbox', 'name' => 'checkbox'],
@@ -41,7 +47,7 @@ class PayableClearingService
             ['data' => 'returned_reason', 'name' => 'returned_reason'],
             ['data' => 'action', 'name' => 'action', 'orderable' => true, 'searchable' => true],
         ];
-
+        // dd($query);
         return datatables()
             ->of($query)
             // ->addIndexColumn()
@@ -54,16 +60,16 @@ class PayableClearingService
                         </div>';
             })
             ->addColumn('project_number', function ($row) {
-                $number = 'P - ' . $row->contract->project_number ?? '-';
+                $number = 'P - ' . $row->contract?->project_number ?? '-';
                 $type = $row->contract->contract_type->contract_type ?? '-';
 
                 // return "<strong class=''>{$number}</strong><p class='mb-0'><span>{$type}</span></p>
                 // </p>";
                 $badgeClass = '';
 
-                if ($row->contract->contract_type_id == 1) {
+                if ($row->contract?->contract_type_id == 1) {
                     $badgeClass = 'badge badge-df';
-                } elseif ($row->contract->contract_type_id == 2) {
+                } elseif ($row->contract?->contract_type_id == 2) {
                     $badgeClass = 'badge badge-ff';
                 } else {
                     $badgeClass = 'badge badge-secondary';
@@ -74,10 +80,10 @@ class PayableClearingService
                 <span class='{$badgeClass}'>{$type}</span> 
             </p>";
             })
-            ->addColumn('company_name', fn($row) => $row->contract->company->company_name ?? '-')
-            ->addColumn('vendor_name', fn($row) => $row->contract->vendor->vendor_name ?? '-')
-            ->addColumn('property_name', fn($row) => $row->contract->property->property_name ?? '-')
-            ->addColumn('contract_type', fn($row) => $row->contract->contract_type->shortcode ?? '-')
+            ->addColumn('company_name', fn($row) => $row->contract?->company?->company_name ?? '-')
+            ->addColumn('vendor_name', fn($row) => $row->contract?->vendor?->vendor_name ?? '-')
+            ->addColumn('property_name', fn($row) => $row->contract?->property?->property_name ?? '-')
+            ->addColumn('contract_type', fn($row) => $row->contract?->contract_type?->shortcode ?? '-')
             ->addColumn('payment_date', fn($row) => $row->payment_date ?? '-')
             ->addColumn('payment_mode', function ($row) {
                 if ($row->payment_mode) {
@@ -263,16 +269,16 @@ class PayableClearingService
             })
             ->addColumn('project_number', function ($row) {
                 // dump($row);
-                $number = 'P - ' . $row->contractPaymentDetail->contract->project_number ?? '-';
-                $type = $row->contractPaymentDetail->contract->contract_type->contract_type ?? '-';
+                $number = 'P - ' . $row->contract->project_number ?? '-';
+                $type = $row->contract->contract_type->contract_type ?? '-';
 
                 // return "<strong class=''>{$number}</strong><p class='mb-0'><span>{$type}</span></p>
                 // </p>";
                 $badgeClass = '';
 
-                if ($row->contractPaymentDetail->contract->contract_type_id == 1) {
+                if ($row->contract->contract_type_id == 1) {
                     $badgeClass = 'badge badge-df';
-                } elseif ($row->contractPaymentDetail->contract->contract_type_id == 2) {
+                } elseif ($row->contract->contract_type_id == 2) {
                     $badgeClass = 'badge badge-ff';
                 } else {
                     $badgeClass = 'badge badge-secondary';
@@ -283,9 +289,9 @@ class PayableClearingService
                 <span class='{$badgeClass}'>{$type}</span> 
             </p>";
             })
-            ->addColumn('company_name', fn($row) => $row->contractPaymentDetail->contract->company->company_name ?? '-')
-            ->addColumn('vendor_name', fn($row) => $row->contractPaymentDetail->contract->vendor->vendor_name ?? '-')
-            ->addColumn('property_name', fn($row) => $row->contractPaymentDetail->contract->property->property_name ?? '-')
+            ->addColumn('company_name', fn($row) => $row->contract->company->company_name ?? '-')
+            ->addColumn('vendor_name', fn($row) => $row->contract->vendor->vendor_name ?? '-')
+            ->addColumn('property_name', fn($row) => $row->contract->property->property_name ?? '-')
             ->addColumn('paid_date', fn($row) => $row->paid_date ?? '-')
             ->addColumn('payment_mode', function ($row) {
 
@@ -302,12 +308,43 @@ class PayableClearingService
                 return $mode;
             })
             // ->addColumn('payment_mode', fn($row) => $row->cheque_no ?? '-')
-            ->addColumn('payment_amount', fn($row) => $row->paid_amount ?? '-')
+            ->addColumn('paid_amount', function ($row) {
+
+                if ($row->returned_status == 1) {
+                    // dump('-' . $row->paid_amount);
+                    return  '-' . $row->paid_amount;
+                } else {
+                    return $row->paid_amount ?? '-';
+                }
+            })
             ->addColumn('pending_amount', fn($row) => $row->pending_amount ?? '-')
-            ->addColumn('payment_date', fn($row) => Carbon::parse($row->contractPaymentDetail->payment_date)->format('d-m-Y') ?? '-')
-            ->addColumn('composition', fn($row) => getComposition($row->contractPaymentDetail->contract_id, $row->contract_payment_detail_id) ?? '-')
+            ->addColumn('payment_date', fn($row) => Carbon::parse($row->contractPaymentDetail?->payment_date)->format('d-m-Y') ?? '-')
+            ->addColumn('composition', fn($row) => getComposition($row->contract_id, $row->contract_payment_detail_id) ?? '-')
             ->rawColumns(['checkbox', 'project_number', 'action', 'status'])
             ->with(['columns' => $columns])
             ->toJson();
+    }
+
+
+    public function terminateContractPayables(array $data)
+    {
+        try {
+            $createData = [
+                'contract_id' => $data['contract_id'],
+                'contract_payment_detail_id' => 0,
+                'paid_date' => $data['terminated_date'],
+                'paid_amount' => $data['balance_amount'],
+                'paid_mode' => $data['paid_mode'], // Assuming 1 is for termination or a specific mode
+                'paid_bank' => $data['paid_bank'] ?? null,
+                'paid_cheque_number' => $data['paid_cheque_number'] ?? null,
+                'paid_by' => $data['user_id'] ?? auth()->user()->id,
+                'company_id' => $data['company_id'],
+                'returned_status' => 1,
+            ];
+            $this->payableClearRepo->create($createData);
+        } catch (\Exception $e) {
+            logger('Error terminating contract payables: ' . $e->getMessage(), ['exception' => $e]);
+            throw $e; // rethrow the exception after logging
+        }
     }
 }

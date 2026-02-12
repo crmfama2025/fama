@@ -56,4 +56,25 @@ class PaymentDetailRepository
         $pDet->save();
         return $pDet->delete();
     }
+
+    public function terminatePendingPayments($contractId, $terminateDate, $balanceAmount)
+    {
+        // logger('Terminating payments', [
+        //     'contract_id' => $contractId,
+        //     'date' => $terminateDate
+        // ]);
+
+        $details = ContractPaymentDetail::where('contract_id', $contractId)
+            ->where('paid_status', 0)
+            ->update([
+                'terminate_status'        => 1,
+                // 'terminated_at' => $terminateDate,
+                'updated_at'    => now()
+            ]);
+
+        // if ($balanceAmount) {
+        // }
+
+        return $details;
+    }
 }

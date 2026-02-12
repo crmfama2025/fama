@@ -246,6 +246,8 @@ Route::middleware(['auth'])->group(function () {
         return view('admin.emails.test-email', ['name' => 'Test User']);
     });
 
+    Route::post('/contracts/terminate', [ContractController::class, 'terminate']);
+
     Route::post('agreement/rent-bifurcation', [AgreementController::class, 'rentBifurcationStore'])->name('rent-bifurcation.store');
     Route::get('investments/referrals', [ReferralController::class, 'referrals'])->name('referrals.index');
     Route::get('investments/referrals-list', [ReferralController::class, 'getReferrals'])->name('referrals.list');

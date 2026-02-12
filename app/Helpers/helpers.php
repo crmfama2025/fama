@@ -5,6 +5,7 @@ use App\Models\AgreementPaymentDetail;
 use App\Models\AgreementSubunitRentBifurcation;
 use App\Models\ClearedReceivable;
 use App\Models\Contract;
+use App\Models\ContractPayableClear;
 use App\Models\ContractPaymentDetail;
 use App\Models\ContractSubunitDetail;
 use App\Models\ContractUnitDetail;
@@ -23,6 +24,7 @@ use App\Repositories\Investment\InvestmentReferralRepository;
 use App\Repositories\Investment\InvestmentRepository;
 use App\Repositories\Investment\InvestorRepository;
 use App\Services\Contracts\ContractService;
+use App\Services\TenantChequeService;
 use Carbon\Carbon;
 
 if (!function_exists('toNumeric')) {
@@ -614,6 +616,41 @@ function totalPaidPayable($payables)
     }
 
     return $paid;
+}
+
+
+function totalPaidPayablesByContract($contractId)
+{
+    $totalPaid = ContractPayableClear::where('contract_id', $contractId)
+        ->where('returned_status', 0)
+        ->sum('paid_amount');
+
+    $returned = ContractPayableClear::where('contract_id', $contractId)
+        ->where('returned_status', 1)
+        ->sum('paid_amount');
+
+    return [
+        'totalPaid' => $totalPaid,
+        'returned' => $returned,
+        'netPaid' => $totalPaid - $returned,
+    ];
+}
+
+function totalPaidReceivablesByContract($contractId)
+{
+    $totalPaid = ClearedReceivable::where('contract_id', $contractId)
+        ->where('returned_status', 0)
+        ->sum('paid_amount');
+
+    $returned = ClearedReceivable::where('contract_id', $contractId)
+        ->where('returned_status', 1)
+        ->sum('paid_amount');
+
+    return [
+        'totalPaid' => $totalPaid,
+        'returned' => $returned,
+        'netPaid' => $totalPaid - $returned,
+    ];
 }
 
 function getComposition($contractId, $detailId)

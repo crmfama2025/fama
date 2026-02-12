@@ -9,6 +9,7 @@ use App\Models\Contract;
 use App\Models\DocumentType;
 use App\Repositories\Agreement\AgreementRepository;
 use App\Services\AreaService;
+use App\Services\BankService;
 use App\Services\CompanyService;
 use App\Services\Contracts\ContractCommentService;
 use App\Services\Contracts\ContractService;
@@ -20,6 +21,8 @@ use App\Services\Contracts\UnitDetailService;
 use Illuminate\Http\Request;
 use App\Services\InstallmentService;
 use App\Services\LocalityService;
+use App\Services\PayableClearingService;
+use App\Services\PaymentModeService;
 use App\Services\PropertyService;
 use App\Services\PropertyTypeService;
 use App\Services\VendorService;
@@ -50,13 +53,19 @@ class ContractController extends Controller
         protected AgreementRepository $agreementRepo,
         protected UnitDetailService $unitdetServ,
         protected ContractCommentService $commentservice,
+        protected PaymentModeService $paymentModeService,
+        protected BankService $bankService,
+        protected PayableClearingService $payableServ,
     ) {}
 
     public function index()
     {
         $title = 'Contracts';
+        $paymentmodes = $this->paymentModeService->getAll();
+        $banks = $this->bankService->getAll();
+        $companies = $this->companyService->getAll();
 
-        return view("admin.projects.contract.contract", compact("title"));
+        return view("admin.projects.contract.contract", compact("title", "paymentmodes", "banks", "companies"));
     }
 
     public function create()
@@ -122,9 +131,10 @@ class ContractController extends Controller
     public function show(Contract $contract)
     {
         $contract = $this->contractService->getById($contract->id);
+        $returned = $this->payableServ->getByCondition(['returned_status' => 1, 'contract_id' => $contract->id]);
         $allChildren = $this->contractService->getAllChildren($contract->id);
         // dd($allChildren);
-        return view('admin.projects.contract.contract-view', compact('contract', 'allChildren'));
+        return view('admin.projects.contract.contract-view', compact('contract', 'allChildren', 'returned'));
     }
 
 
@@ -550,5 +560,17 @@ class ContractController extends Controller
         return redirect()->route('contracts.acknowledgement', $contractId)
             ->with('success', 'Acknowledgement released');
         // ->back()->with('success', 'Acknowledgement released');
+    }
+
+
+    public function terminate(Request $request)
+    {
+
+        $this->contractService->terminateContract($request->all());
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Contract terminated successfully'
+        ]);
     }
 }

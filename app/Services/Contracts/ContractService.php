@@ -23,6 +23,7 @@ use App\Services\AreaService;
 use App\Services\CompanyService;
 use App\Services\InstallmentService;
 use App\Services\LocalityService;
+use App\Services\PayableClearingService;
 use App\Services\PropertyService;
 use App\Services\PropertyTypeService;
 use App\Services\VendorService;
@@ -51,6 +52,7 @@ class ContractService
         protected VendorService $vendorServ,
 
         protected VendorContractSign $vendorSignServ,
+        protected PayableClearingService $payableServ,
     ) {}
 
     public function getAll()
@@ -152,7 +154,6 @@ class ContractService
 
     public function update($id, array $data)
     {
-        // dd($data);
         return DB::transaction(function () use ($id, $data) {
             $data['contract']['updated_by'] = auth()->user()->id;
             $this->validate($data['contract'], $data['contract']['id'] ?? null);
@@ -259,6 +260,10 @@ class ContractService
             })
             // ->addColumn('project_number', fn($row) => 'P - ' . ucfirst($row->project_number) ?? '-')
             ->addColumn('company_name', fn($row) => $row->company->company_name ?? '-')
+            ->addColumn('vendor_name', fn($row) => $row->vendor->vendor_name ?? '-')
+            ->addColumn('property_name', fn($row) => $row->property->property_name ?? '-')
+            ->addColumn('locality_name', fn($row) => $row->locality->locality_name ?? '-')
+            ->addColumn('area_name', fn($row) => $row->area->area_name ?? '-')
             ->addColumn('business_type', function ($row) {
                 if ($row->business_type == 1) {
                     $type = "B2B";
@@ -366,6 +371,13 @@ class ContractService
                                         data-target="#modal-upload">
                             <i class="fas fa-signature"></i>
                         </a>';   //href="' . route('sign.contract', $row->id) . '"
+                }
+
+                if ($row->contract_status == 7) {
+                    $action .= '<a class="btn btn-danger btn-sm"  title="Terminate" data-toggle="modal" data-id="' . $row->id . '"
+                                        data-target="#modal-terminate-contract">
+                            <i class="fas fa-window-close"></i>
+                        </a>';
                 }
 
                 return $action ?: '-';
@@ -516,4 +528,44 @@ class ContractService
     //     // Send email to vendor for contract signing
     //     // Implement email sending logic here
     // }
+
+
+    public function terminateContract(array $data)
+    {
+        $this->terminate_validate($data);
+        // dd($data);
+        DB::transaction(function () use ($data) {
+
+            $this->contractRepo->terminate($data);
+
+            $this->paymentdetServ->terminatePendingPayments(
+                $data['contract_id'],
+                $data['terminated_date'],
+                $data['balance_amount']
+            );
+
+            $this->payableServ->terminateContractPayables(
+                $data
+            );
+
+            // logger('Contract termination completed');
+        });
+    }
+
+
+    private function terminate_validate(array $data, $id = null)
+    {
+        $validator = Validator::make($data, [
+            'contract_id'     => 'required|integer',
+            'terminated_date'  => 'required|date',
+            'terminated_reason'          => 'required|string',
+            'balance_amount'  => 'nullable|numeric',
+            'received'        => 'nullable|boolean'
+        ]);
+
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+    }
 }

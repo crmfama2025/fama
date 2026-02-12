@@ -20,6 +20,11 @@ class PayableClearRepository
         return ContractPayableClear::findOrFail($id);
     }
 
+    public function getByCondition($contractPaymentDet)
+    {
+        return ContractPayableClear::where($contractPaymentDet)->first();
+    }
+
     public function create($data)
     {
         return ContractPayableClear::create($data);
@@ -204,11 +209,11 @@ class PayableClearRepository
         $query = ContractPayableClear::query()
             ->with([
                 'contractPaymentDetail',
-                'contractPaymentDetail.contract',
-                'contractPaymentDetail.contract.vendor',
-                'contractPaymentDetail.contract.property',
-                'contractPaymentDetail.contract.company',
-                'contractPaymentDetail.contract.contract_type',
+                'contract',
+                'contract.vendor',
+                'contract.property',
+                'contract.company',
+                'contract.contract_type',
                 'paidMode',
                 'paidBank'
             ]);
@@ -232,13 +237,12 @@ class PayableClearRepository
             $todate
         ]);
 
-        $query2 = DB::query()->fromSub($query, 'x');
-        // dd($filters);
+        // $query2 = DB::query()->fromSub($query, 'x');
+        // dump(!empty($filters['search']));
         if (!empty($filters['search'])) {
 
             $search = trim($filters['search']);
             $searchLike = str_replace('-', '%', $search);
-
 
             $query->where(function ($q) use ($search, $searchLike) {
                 // $q->orWhere('company_name', 'LIKE', "%{$search}%")
@@ -261,24 +265,25 @@ class PayableClearRepository
 
                 $q->whereHas('contractPaymentDetail', function ($q) use ($search) {
                     $q->where('payment_date', 'like', "%{$search}%");
+                    // dump('hiii');
                 })
-                    ->orWhereHas('contractPaymentDetail.contract', function ($q) use ($search) {
+                    ->orWhereHas('contract', function ($q) use ($search) {
                         $q->where('project_number', 'like', "%{$search}%")
                             ->orWhere('project_code', 'LIKE', "%{$search}%");
                     })
-                    ->orWhereHas('contractPaymentDetail.contract.company', function ($q) use ($search) {
+                    ->orWhereHas('contract.company', function ($q) use ($search) {
                         $q->where('company_name', 'like', "%{$search}%");
                     })
-                    ->orWhereHas('contractPaymentDetail.contract.vendor', function ($q) use ($search) {
+                    ->orWhereHas('contract.vendor', function ($q) use ($search) {
                         $q->where('vendor_name', 'like', "%{$search}%");
                     })
-                    ->orWhereHas('contractPaymentDetail.contract.contract_type', function ($q) use ($search) {
+                    ->orWhereHas('contract.contract_type', function ($q) use ($search) {
                         $q->where('contract_type', 'like', "%{$search}%");
                     })
-                    ->orWhereHas('contractPaymentDetail.contract.locality', function ($q) use ($search) {
+                    ->orWhereHas('contract.locality', function ($q) use ($search) {
                         $q->where('locality_name',  'like', "%{$search}%");
                     })
-                    ->orWhereHas('contractPaymentDetail.contract.property', function ($q) use ($search) {
+                    ->orWhereHas('contract.property', function ($q) use ($search) {
                         $q->where('property_name',  'like', "%{$search}%");
                     })
                     ->orWhereHas('paidMode', function ($q) use ($search) {
@@ -294,8 +299,7 @@ class PayableClearRepository
         // if (!empty($filters['company_id'])) {
         //     $query->Where('contracts.company_id', $filters['company_id']);
         // }
-
-
+        // dd($query);
         return $query;
     }
 }

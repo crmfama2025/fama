@@ -646,7 +646,7 @@ namespace App\Models{
  * @property int $property_id
  * @property int $is_vendor_contract_uploaded
  * @property int $is_scope_generated
- * @property int $contract_status 0-Pending, 1-Processing, 2-Approved, 3-Rejected, 4-Send for Approval, 5-Approval on Hold, 6-Sign Pending, 7- Signed, 8-Expired
+ * @property int $contract_status 0-Pending, 1-Processing, 2-Approved, 3-Rejected, 4-Send for Approval, 5-Approval on Hold, 6-Sign Pending, 7- Signed, 8-Expired, 9-Terminated
  * @property string|null $signed_at
  * @property int|null $signed_by
  * @property int $is_aknowledgement_uploaded
@@ -677,6 +677,11 @@ namespace App\Models{
  * @property string|null $approved_date
  * @property string|null $rejected_date
  * @property int $is_processing
+ * @property string|null $terminated_date
+ * @property string|null $terminated_reason
+ * @property int|null $terminated_by
+ * @property string|null $balance_amount
+ * @property int $balance_received
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Agreement> $agreements
  * @property-read int|null $agreements_count
  * @property-read \App\Models\Area|null $area
@@ -715,6 +720,8 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Contract whereApprovedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Contract whereApprovedDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Contract whereAreaId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Contract whereBalanceAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Contract whereBalanceReceived($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Contract whereCompanyId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Contract whereContactNumber($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Contract whereContactPerson($value)
@@ -750,6 +757,9 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Contract whereScopeGeneratedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Contract whereSignedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Contract whereSignedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Contract whereTerminatedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Contract whereTerminatedDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Contract whereTerminatedReason($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Contract whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Contract whereUpdatedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Contract whereVendorId($value)
@@ -930,6 +940,8 @@ namespace App\Models{
  * @property string|null $payment_remarks
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int|null $company_id
+ * @property int $returned_status 0-Normal Clear, 1-Returned
  * @property-read \App\Models\Contract|null $contract
  * @property-read \App\Models\ContractPaymentDetail|null $contractPaymentDetail
  * @property-read \App\Models\Bank|null $paidBank
@@ -938,6 +950,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPayableClear newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPayableClear newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPayableClear query()
+ * @method static \Illuminate\Database\Eloquent\Builder|ContractPayableClear whereCompanyId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPayableClear whereContractId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPayableClear whereContractPaymentDetailId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPayableClear whereCreatedAt($value)
@@ -950,6 +963,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPayableClear wherePaidMode($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPayableClear wherePaymentRemarks($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPayableClear wherePendingAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ContractPayableClear whereReturnedStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPayableClear whereUpdatedAt($value)
  */
 	class ContractPayableClear extends \Eloquent {}
@@ -1022,6 +1036,7 @@ namespace App\Models{
  * @property string|null $returned_date
  * @property string|null $returned_reason
  * @property int $returned_by
+ * @property int $terminate_status 0-Active, 1-Terminated
  * @property-read \App\Models\User|null $addedBy
  * @property-read \App\Models\Bank|null $bank
  * @property-read \App\Models\Contract $contract
@@ -1056,6 +1071,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPaymentDetail whereReturnedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPaymentDetail whereReturnedDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPaymentDetail whereReturnedReason($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ContractPaymentDetail whereTerminateStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPaymentDetail whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPaymentDetail whereUpdatedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPaymentDetail withTrashed()

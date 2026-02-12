@@ -1,4 +1,18 @@
 @extends('admin.layout.admin_master')
+
+@section('custom_css')
+    <style>
+        .receivableTable tbody tr {
+            background-color: #f6ffff;
+            text-align: center;
+        }
+
+        .receivableTable thead tr {
+            background-color: #D6EEEE;
+            text-align: center;
+        }
+    </style>
+@endsection
 @section('content')
     <!-- Content Wrapper. Contains page content -->
     <div class="content-wrapper">
@@ -31,6 +45,9 @@
 
                             <span class="price-badge badge badge-danger">
                                 {{ $contract->contract_type->contract_type }} Project
+                            </span>
+                            <span class="price-badge badge badge-info">
+                                {{ $contract->contract_unit->business_type == 1 ? 'B2B' : 'B2C' }}
                             </span>
                             <!-- title row -->
 
@@ -96,9 +113,10 @@
 
                             <!-- Table row -->
                             <div class="row card">
-                                <div class="card-header text-center py-3 shadow-sm rounded-top">
+                                <div class="card-header text-center py-3 shadow-sm rounded-top bg-gradient-secondary">
                                     <h4 class="mb-0 text-uppercase">Payment Details</h4>
                                 </div>
+
                                 <div class="col-12 table-responsive card-body">
                                     <table class="table table-striped">
                                         <thead>
@@ -142,33 +160,49 @@
                                                     <td>
                                                         {{ 'RENT ' . $loop->iteration . '/' . $contract->contract_payments->installment->installment_name }}
                                                     </td>
+                                                </tr>
+                                            @endforeach
+                                            @if ($returned)
+                                                <tr style="background-color: #dbffdb">
+                                                    <td>{{ $returned->paid_date }}</td>
+                                                    <td> {{ strtoupper($returned->paidMode->payment_mode_name) }}</td>
+                                                    <td>
+                                                        @if ($returned->paidMode->payment_mode_name == 'Cheque')
+                                                            {!! 'Cheque no -' . $returned->paid_cheque_number . ' , ' . strtoupper($returned->paidBank->bank_name) !!}
+                                                        @elseif($returned->paidMode->payment_mode_name == 'Bank Transfer')
+                                                            {{ strtoupper($returned->paidBank->bank_name) }}
+                                                        @else
+                                                            -
+                                                        @endif
+                                                    </td>
+                                                    <td>{{ '-' . $returned->paid_amount }}</td>
+                                                    <td>{{ strtoupper($returned->contract->company->company_name) }}</td>
+                                                    <td>{{ $returned->paid_date ?? ' - ' }}</td>
+                                                    <td>
+                                                        1
+                                                    </td>
 
 
                                                 </tr>
-                                            @endforeach
-
+                                            @endif
 
                                         </tbody>
                                     </table>
 
 
                                     @php
-                                        $total_paid = 0;
                                         $total_to_pay = 0;
 
                                         foreach ($contract->contract_payments->contractPaymentDetails as $details) {
-                                            // Clean the values to ensure they are numeric
-                                            // $payment_amount = (float) str_replace(',', '', $details->payment_amount ?? 0);
-                                            // $paid_amount = (float) str_replace(',', '', $details->paid_amount ?? 0);
+                                            if ($details->terminate_status == 1) {
+                                                continue;
+                                            }
                                             $payment_amount = toNumeric($details->payment_amount);
-                                            $paid_amount = toNumeric($details->paid_amount);
-
                                             $total_to_pay += $payment_amount;
-                                            $total_paid += $paid_amount;
-
-                                            // $total_to_pay += (float) ($details->payment_amount ?? 0);
-                                            // $total_paid += (float) ($details->paid_amount ?? 0);
                                         }
+
+                                        // NET PAID (returned deducted, terminate_status/returned_status = 0)
+                                        $total_paid = totalPaidPayablesByContract($contract->id)['totalPaid'];
 
                                         $remaining_amount = $total_to_pay - $total_paid;
                                     @endphp
@@ -179,7 +213,7 @@
                                     {{-- <p class="lead text-danger"><strong>Amount Due 2/22/2014</strong></p> --}}
                                     <div class="float-xl-right mt-1">
                                         <span> <strong>Total Paid :
-                                            </strong>{{ number_format($total_paid) }}</span><br>
+                                            </strong>{{ number_format(totalPaidPayablesByContract($contract->id)['netPaid']) }}</span><br>
                                         <span> <strong>Remaining :
                                             </strong>{{ number_format($remaining_amount) }}</span>
                                     </div>
@@ -193,9 +227,71 @@
                             </div>
                             <!-- /.row -->
 
+
                             <!-- Table row -->
                             <div class="row card">
-                                <div class="card-header text-center py-3 shadow-sm rounded-top">
+                                <div class="card-header text-center py-3 shadow-sm rounded-top bg-gradient-secondary">
+                                    <h4 class="mb-0 text-uppercase">Payment Receivable</h4>
+                                </div>
+
+                                <div class="col-12 table-responsive card-body">
+                                    <table class="table receivableTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Amount</th>
+                                                <th>Composition</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($contract->contract_payment_receivables as $receivable)
+                                                <tr>
+                                                    <td>{{ $receivable->receivable_date }}</td>
+                                                    <td> {{ strtoupper($receivable->receivable_amount) }}
+                                                    </td>
+                                                    <td>
+                                                        {{ 'RENT ' . $loop->iteration . '/' . $contract->contract_rentals->installment->installment_name }}
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+
+
+                                    {{-- @php
+                                        $total_to_pay = 0;
+
+                                        foreach ($contract->contract_payment_receivables as $receivable) {
+                                            // if ($receivable->terminate_status == 1) {
+                                            //     continue;
+                                            // }
+                                            $payment_amount = toNumeric($receivable->receivable_amount);
+                                            $total_to_pay += $payment_amount;
+                                        }
+
+                                        // NET PAID (returned deducted, terminate_status/returned_status = 0)
+                                        // $total_paid = totalPaidPayablesByContract($contract->id)['totalPaid'];
+
+                                        $remaining_amount = $total_to_pay;
+                                    @endphp --}}
+
+                                    <div class="float-xl-right mt-1">
+                                        <span> <strong>Total Installments :
+                                            </strong>{{ $contract->contract_rentals->installment->installment_name }}</span><br>
+                                        <span> <strong>Total Rent Receivable Per Annum :
+                                            </strong>{{ $contract->contract_rentals->rent_receivable_per_annum }}</span>
+
+                                    </div>
+                                    <!-- /.row -->
+
+                                </div>
+                                <!-- /.col -->
+                            </div>
+                            <!-- /.row -->
+
+                            <!-- Table row -->
+                            <div class="row card">
+                                <div class="card-header text-center py-3 shadow-sm rounded-top bg-gradient-secondary">
                                     <h4 class="mb-0 text-uppercase">Property Unit Details</h4>
                                 </div>
                                 <div class="col-12 table-responsive card-body">
@@ -283,7 +379,7 @@
 
                             @if ($allChildren->count() > 0)
                                 <div class="row card">
-                                    <div class="card-header text-center py-3 shadow-sm rounded-top">
+                                    <div class="card-header text-center py-3 shadow-sm rounded-top bg-gradient-secondary">
                                         <h4 class="mb-0 text-uppercase">Contract Renewal Details</h4>
                                     </div>
                                     {{-- <div class="col-12 table-responsive card-body">

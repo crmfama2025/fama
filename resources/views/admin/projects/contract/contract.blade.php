@@ -70,26 +70,26 @@
                                                     ->exists();
                                             @endphp
                                             @if ($permission)
-                                                <button class="btn btn-primary filter-btn" add-class="btn-primary"
+                                                <button class="btn my-1 btn-primary filter-btn" add-class="btn-primary"
                                                     data-filter="">All</button>
-                                                <button class="btn btn-outline-warning filter-btn pending"
+                                                <button class="btn my-1 btn-outline-warning filter-btn pending"
                                                     add-class="btn-warning" data-filter="0">Pending</button>
-                                                <button class="btn btn-outline-info filter-btn processing"
+                                                <button class="btn my-1 btn-outline-info filter-btn processing"
                                                     add-class="btn-info" data-filter="1">Processing</button>
                                             @endif
-                                            <button class="btn btn-outline-df filter-btn approvalPending" add-class="btn-df"
-                                                data-filter="4">Approval Pending</button>
-                                            <button class="btn btn-outline-secondary filter-btn approval_on_hold"
+                                            <button class="btn my-1 btn-outline-df filter-btn approvalPending"
+                                                add-class="btn-df" data-filter="4">Approval Pending</button>
+                                            <button class="btn my-1 btn-outline-secondary filter-btn approval_on_hold"
                                                 add-class="btn-secondary" data-filter="5">Approval On Hold</button>
-                                            <button class="btn btn-outline-success filter-btn approved"
+                                            <button class="btn my-1 btn-outline-success filter-btn approved"
                                                 add-class="btn-success" data-filter="2">Approved</button>
-                                            {{-- <button class="btn btn-outline-maroon filter-btn" add-class="btn-maroon"
+                                            {{-- <button class="btn my-1 btn-outline-maroon filter-btn" add-class="btn-maroon"
                                                 data-filter="6">Partially Signed</button> --}}
-                                            <button class="btn btn-outline-lightblue filter-btn signed"
+                                            <button class="btn my-1 btn-outline-lightblue filter-btn signed"
                                                 add-class="btn-lightblue" data-filter="7">Signed</button>
-                                            <button class="btn btn-outline-dark filter-btn expired" add-class="btn-dark"
-                                                data-filter="8">Expired</button>
-                                            <button class="btn btn-outline-danger filter-btn rejected"
+                                            <button class="btn my-1 btn-outline-dark filter-btn expired"
+                                                add-class="btn-dark" data-filter="8">Expired</button>
+                                            <button class="btn my-1 btn-outline-danger filter-btn rejected"
                                                 add-class="btn-danger" data-filter="3">Rejected</button>
                                         </div>
                                     </div>
@@ -109,7 +109,10 @@
                                                 <th>Profit</th>
                                                 <th>Start date</th>
                                                 <th>End date</th>
-
+                                                <th>Vendor Name</th>
+                                                <th>Property Name</th>
+                                                <th>Area</th>
+                                                <th>Locality</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -259,7 +262,123 @@
                     </div>
                     <!-- /.modal-content -->
                 </div>
+            </div>
 
+            <div class="modal fade" id="modal-terminate-contract">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">Terminate Contract</h4>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <form action="" id="ContractTerminateForm" method="POST" enctype="multipart/form-data">
+                            <input type="hidden" name="contract_id" id="terminating_contract_id">
+                            <input type="hidden" name="_token" id="terminate_token">
+                            <input type="hidden" name="user_id" value="{{ auth()->user()->id }}">
+                            <div class="modal-body">
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label for="exampleInputEmail1">Terminated Date</label>
+                                        <div class="input-group date" id="terminatedate" data-target-input="nearest">
+                                            <input type="text" class="form-control datetimepicker-input"
+                                                name="terminated_date" data-target="#terminatedate"
+                                                placeholder="dd-mm-YYYY" required />
+                                            <div class="input-group-append" data-target="#terminatedate"
+                                                data-toggle="datetimepicker">
+                                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="exampleInputEmail1">Reason</label>
+                                        <textarea name="terminated_reason" id="" cols="10" rows="5" class="form-control" required></textarea>
+                                    </div>
+                                    <div class="form-group clrngamnt">
+                                        <label for="exampleInputEmail1">Balance Amount</label>
+                                        <input type="number" class="form-control" name="balance_amount"
+                                            id="balance_amount" placeholder="Balance Amount" required min="0"
+                                            step="1">
+                                        {{-- </div>
+                                    <div class="form-group row"> --}}
+                                        <div class="icheck-primary">
+                                            <input type="checkbox" id="received" value="1"
+                                                name="balance_received">
+                                            <label for="received">Received</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row paymentModeChecks">
+                                        @foreach ($paymentmodes as $paymentmode)
+                                            <div
+                                                class="icheck-primary mx-2 {{ $paymentmode->id == 2 ? 'bank' : ($paymentmode->id == 3 ? 'chq' : '') }}">
+                                                <input type="checkbox" id="mode{{ $paymentmode->id }}"
+                                                    class="modeChange" value="{{ $paymentmode->id }}" name="paid_mode"
+                                                    required>
+                                                <label for="mode{{ $paymentmode->id }}">
+                                                    {{ $paymentmode->payment_mode_name }}
+                                                </label>
+                                            </div>
+                                        @endforeach
+                                        {{-- <div class="icheck-primary bank">
+                                            <input type="checkbox" id="bankcheque" class="modeChange"
+                                                value="{{ $paymentmodes->where('id', 2)->first()->id ?? '' }}"
+                                                name="paid_mode">
+                                            <label
+                                                for="bankcheque">{{ $paymentmodes->where('id', 2)->first()->payment_mode_name ?? '' }}
+                                            </label>
+                                        </div>
+
+                                        <div class="icheck-primary chq">
+                                            <input type="checkbox" id="radioPrimary2" class="modeChange"
+                                                value="{{ $paymentmodes->where('id', 3)->first()->id ?? '' }}"
+                                                name="paid_mode">
+                                            <label
+                                                for="radioPrimary2">{{ $paymentmodes->where('id', 3)->first()->payment_mode_name ?? '' }}
+                                            </label>
+                                        </div> --}}
+                                    </div>
+                                    <div class="form-group companyTerminate">
+                                        <label for="exampleInputEmail1">Company Name</label>
+                                        <select class="form-control select2" name="company_id" id="paid_company"
+                                            required>
+                                            <option value="">Select Company</option>
+                                            @foreach ($companies as $company)
+                                                <option value="{{ $company->id }}">{{ $company->company_name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="form-group bankTerminate">
+                                        <label for="exampleInputEmail1">Bank Name</label>
+                                        <select class="form-control select2 bank_name" name="paid_bank" id="bank_name"
+                                            required>
+                                            <option value="">Select Bank</option>
+
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group chequeTerminate">
+                                        <label for="exampleInputEmail1">Cheque No</label>
+                                        <input type="text" class="form-control cheque_no" id="cheque_no"
+                                            name="paid_cheque_number" placeholder="Cheque No" required>
+                                    </div>
+                                </div>
+                                <!-- /.card-body -->
+                            </div>
+                            <div class="modal-footer justify-content-between">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-info"
+                                    onclick="terminateContract()">Terminate</button>
+                            </div>
+                        </form>
+                    </div>
+                    <!-- /.modal-content -->
+                </div>
+                <!-- /.modal-dialog -->
+            </div>
+            <!-- /.modal -->
 
         </section>
         <!-- /.content -->
@@ -287,6 +406,11 @@
     <script src="{{ asset('assets/bs-stepper/js/bs-stepper.min.js') }}"></script>
 
     <script>
+        $('#terminatedate').datetimepicker({
+            format: 'DD-MM-YYYY',
+            allowInputToggle: true
+        });
+
         $(function() {
             let table = $('#contractTable').DataTable({
                 processing: true,
@@ -374,7 +498,22 @@
                         data: 'end_date',
                         name: 'contract_details.end_date',
                     },
-
+                    {
+                        data: 'vendor_name',
+                        name: 'vendors.vendor_name',
+                    },
+                    {
+                        data: 'property_name',
+                        name: 'properties.property_name',
+                    },
+                    {
+                        data: 'area_name',
+                        name: 'areas.area_name',
+                    },
+                    {
+                        data: 'locality_name',
+                        name: 'localities.locality_name',
+                    },
 
 
                 ],
@@ -602,6 +741,160 @@
             // set to modal fields
             $('#contract_id_upload').val(id);
         });
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            hidelemnetsonload();
+        });
+
+        $('#received').on('change', function() {
+            if ($(this).prop('checked')) {
+                $('.paymentModeChecks').show();
+            } else {
+                $('.paymentModeChecks').hide();
+                $('.bankTerminate').hide();
+                $('.chequeTerminate').hide();
+            }
+        });
+
+        $('.modeChange').on('change', function() {
+
+            $('.modeChange').not(this).prop('checked', false);
+
+            let mode = $('.modeChange:checked').val();
+
+            if (mode == 2 || mode == 3) {
+                $('.companyTerminate').show();
+                $('.bankTerminate').show();
+                if (mode == 3) {
+                    $('.chequeTerminate').show();
+                } else {
+                    $('.chequeTerminate').hide();
+                }
+            } else {
+                $('.companyTerminate').hide();
+                $('.bankTerminate').hide();
+                $('.chequeTerminate').hide();
+            }
+        });
+
+        function hidelemnetsonload() {
+            $('.paymentModeChecks, .companyTerminate, .bankTerminate, .chequeTerminate').hide();
+        }
+
+        let allBanks = @json($banks);
+
+        $(document).on('change', '#paid_company', function() {
+            CompanyChange($(this));
+        });
+
+        function CompanyChange(ele) {
+            const companyId = $(ele).val();
+            const companyName = $(ele).find('option:selected').text().trim();
+
+            let options = '<option value="">Select Bank</option>';
+            allBanks
+                .filter(b => b.company_id == companyId)
+                .forEach(b => {
+                    // const selected = (b.id == bendorVal) ? 'selected' : '';
+                    options +=
+                        `<option value="${b.id}">${b.bank_name}</option>`;
+                });
+            $('#bank_name').html(options).trigger('change');
+        }
+
+        $('#modal-terminate-contract').on('show.bs.modal', function(event) {
+            var button = event.relatedTarget;
+
+            // values from button
+            var id = button.getAttribute('data-id');
+
+            // set to modal fields
+            $('#terminating_contract_id').val(id);
+            $('#terminate_token').val($('meta[name="csrf-token"]').attr('content'));
+        });
+
+
+        function terminateContract() {
+
+            const form = document.getElementById("ContractTerminateForm");
+            var fdata = new FormData(form);
+
+            let isValid = true;
+            $(".error-text").remove(); // clear old errors
+            $(form).find("[required]:visible").each(function() {
+                const value = $(this).val()?.trim();
+
+                if (!value) {
+                    isValid = false;
+                    setInvalid(this);
+                } else {
+                    setValid(this);
+                }
+            });
+
+            // Validate Select2 fields
+            $(form).find('[required]select.select2').each(function() {
+                const value = $(this).val();
+                const container = $(this).next('.select2-container');
+
+                // Skip validation if hidden (either the select or its container)
+                if (!$(this).is(':visible') || container.css('display') === 'none') {
+                    container.removeClass('is-invalid is-valid');
+                    return; // skip hidden selects
+                }
+
+
+                if (!value || value.length === 0) {
+                    container.addClass('is-invalid').removeClass('is-valid');
+                    isValid = false;
+                } else {
+                    container.addClass('is-valid').removeClass('is-invalid');
+                }
+            });
+
+            // Validate payment mode (iCheck checkboxes)
+            if ($('.modeChange:checked').length === 0) {
+                isValid = false;
+                toastr.error('Please select at least one payment mode.');
+            }
+
+
+            if (!isValid) {
+                toastr.error('Please fill all required fields before submitting.');
+                return;
+            }
+
+            Swal.fire({
+                title: "Are you sure?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, Terminate!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '/contracts/terminate',
+                        type: 'POST',
+                        data: fdata,
+                        processData: false,
+                        contentType: false,
+                        success: function(res) {
+                            toastr.success(res.message);
+                            location.reload();
+                        },
+                        error: function(err) {
+                            toastr.error('Something went wrong');
+                        }
+                    });
+
+                } else {
+                    toastr.error(errors.responseJSON.message);
+                }
+            });
+        }
     </script>
     @include('admin.projects.contract.includes.contract_document_js')
 @endsection

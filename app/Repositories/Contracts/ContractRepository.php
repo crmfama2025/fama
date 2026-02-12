@@ -126,12 +126,18 @@ class ContractRepository
             ->join('contract_details', 'contract_details.contract_id', '=', 'contracts.id')
             ->join('properties', 'properties.id', '=', 'contracts.property_id')
             ->join('vendors', 'vendors.id', '=', 'contracts.vendor_id')
+            ->join('localities', 'localities.id', '=', 'contracts.locality_id')
+            ->join('areas', 'areas.id', '=', 'contracts.area_id')
             ->join('companies', 'companies.id', '=', 'contracts.company_id')
             ->join('contract_types', 'contract_types.id', '=', 'contracts.contract_type_id')
             ->leftJoin('contract_units', 'contract_units.contract_id', '=', 'contracts.id')
             ->leftJoin('contract_rentals', 'contract_rentals.contract_id', '=', 'contracts.id');
 
         if (!empty($filters['search'])) {
+
+            $search = trim($filters['search']);
+            $searchLike = str_replace('-', '%', $search);
+
             $query->orwhere('project_code', 'like', '%' . $filters['search'] . '%')
                 ->orWhere('project_number', 'like', '%' . $filters['search'] . '%')
 
@@ -144,6 +150,22 @@ class ContractRepository
                 ->orWhereHas('contract_type', function ($q) use ($filters) {
                     $q->where('contract_type', 'like', '%' . $filters['search'] . '%')
                         ->orWhere('shortcode', 'like', '%' . $filters['search'] . '%');
+                })
+                ->orWhereHas('contract_detail', function ($q) use ($filters, $searchLike) {
+                    $q->where('start_date', 'like', "%{$searchLike}%")
+                        ->orWhere('end_date', 'like', "%{$searchLike}%");
+                })
+                ->orWhereHas('contract_unit', function ($q) use ($filters) {
+                    $q->whereRaw("
+                    CASE
+                        WHEN business_type = 1 THEN 'B2B'
+                        WHEN business_type = 2 THEN 'B2C'
+                    END LIKE ?
+                ", ['%' . $filters['search'] . '%']);
+                })
+                ->orWhereHas('contract_rentals', function ($q) use ($filters) {
+                    $q->where('roi_perc', 'like', '%' . $filters['search'] . '%')
+                        ->orWhere('expected_profit', 'like', '%' . $filters['search'] . '%');
                 })
                 ->orWhereHas('locality', function ($q) use ($filters) {
                     $q->where('locality_name', 'like', '%' . $filters['search'] . '%');
@@ -159,6 +181,10 @@ class ContractRepository
                         WHEN contract_status = 3 THEN 'Rejected'
                         WHEN contract_status = 4 THEN 'Approval Pending'
                         WHEN contract_status = 5 THEN 'Approval on Hold'
+                        WHEN contract_status = 6 THEN 'Partially Signed'
+                        WHEN contract_status = 7 THEN 'Fully Signed'
+                        WHEN contract_status = 8 THEN 'Expired'
+                        WHEN contract_status = 9 THEN 'Terminated'
                     END LIKE ?
                 ", ['%' . $filters['search'] . '%'])
                 ->orWhereRaw("CAST(contracts.id AS CHAR) LIKE ?", ['%' . $filters['search'] . '%']);
@@ -326,5 +352,24 @@ class ContractRepository
         }
 
         return $renewals->unique('id')->values();
+    }
+
+    public function terminate(array $data)
+    {
+        $contractId = $data['contract_id'];
+        $data = [
+            'contract_status'           => 9,
+            'terminated_date'   => $data['terminated_date'],
+            'terminated_reason' => $data['terminated_reason'],
+            'terminated_by' => $data['user_id'],
+            'balance_amount'   => $data['balance_amount'],
+            'balance_received' => $data['balance_received'] ?? 0,
+            'updated_at'       => now()
+        ];
+
+
+        $contract = $this->find($contractId);
+        $contract->update($data);
+        return $contract;
     }
 }
