@@ -83,6 +83,8 @@ class InvestmentExport implements FromCollection, WithHeadings, ShouldAutoSize
                 'Referral Name' => $row->investmentReferral->referrer->investor_name ?? '-',
                 'Referral Commission Amount' => $row->investmentReferral->referral_commission_amount ?? '-',
                 'Referral Commission %' => $row->investmentReferral->referral_commission_perc ?? '-',
+                'Referral Commission Frequncy' => $row->investmentReferral->commissionFrequency->commission_frequency_name ?? '-',
+                'Payment Terms' => $row->investmentReferral->paymentTerm->term_name ?? '-',
 
             ];
         });
@@ -110,6 +112,8 @@ class InvestmentExport implements FromCollection, WithHeadings, ShouldAutoSize
             'Referral Name',
             'Referral Commission Amount',
             'Referral Commission %',
+            'Referral Commission Frequncy',
+            'Payment Terms'
         ];
     }
 }
