@@ -49,6 +49,31 @@ class AgreementExport implements FromCollection, WithHeadings
                             ->orWhere('tenant_email', 'like', "%{$search}%")
                             ->orWhere('tenant_mobile', 'like', "%{$search}%");
                     })
+                    ->orWhereHas('contract.property', function ($q) use ($search) {
+                        $q->where('property_name', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('contract.contract_unit', function ($q) use ($search) {
+                        $q->whereRaw("
+                    CASE
+                        WHEN business_type = 1 THEN 'B2B'
+                        WHEN business_type = 2 THEN 'B2C'
+                    END LIKE ?
+                ", ["%{$search}%"]);
+                    })
+                    ->orWhereRaw("
+                    CASE
+                        WHEN agreement_status = 0 THEN 'Active'
+                        WHEN agreement_status = 1 THEN 'Terminated'
+                        WHEN agreement_status = 2 THEN 'Expired'
+
+                    END LIKE ?
+                ", ["%{$search}%"])
+                    ->orWhereHas('contract.contract_unit_details', function ($q) use ($search) {
+                        $q->where('unit_number', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('contract.contract_subunit_details', function ($q) use ($search) {
+                        $q->where('subunit_no', 'like', "%{$search}%");
+                    })
                     ->orWhereRaw("CAST(agreements.id AS CHAR) LIKE ?", ["%{$search}%"]);
             });
         }
@@ -64,6 +89,10 @@ class AgreementExport implements FromCollection, WithHeadings
                     ->map(fn($au) => optional($au->contractUnitDetail)->unit_number)
                     ->filter()
                     ->implode(', ');
+                $sub = optional(
+                    $agreement->agreement_units->first()?->contractSubunitDetail
+                )->subunit_no;
+                $sub = $sub ?? " - ";
                 // $totalRevenue = $agreement->agreement_units
                 //     ->sum(fn($au) => optional($au->contractUnitDetail)->unit_revenue);
                 return [
@@ -75,11 +104,15 @@ class AgreementExport implements FromCollection, WithHeadings
                     'Start Date'  => $agreement->start_date,
                     'End Date'  => $agreement->end_date,
                     'Company Name' => $agreement->company->company_name,
+                    'Property' => $agreement->contract->property->property_name,
+                    'Area' => $agreement->contract->area->area_name,
+                    'Locality' => $agreement->contract->locality->locality_name,
                     'Tenant Name' => $agreement->tenant->tenant_name ?? '',
                     'Tenant Email' => $agreement->tenant->tenant_email ?? '',
-                    // 'Tenant Phone' => $agreement->tenant->tenant_mobile ?? '',
-                    'Tenant Mobile' => "'" . $agreement->tenant->tenant_mobile ?? '-',
+                    'Tenant Phone' => $agreement->tenant->tenant_mobile ?? '',
+                    // 'Tenant Mobile' => "'" . $agreement->tenant->tenant_mobile ?? '-',
                     'Unit Numbers' => $unitNumbers ?: '-',
+                    'Sub Unit'  => $sub,
                     'Total Rent Annum' => $agreement->agreement_payment->total_rent_annum ?? '',
                     'Created_at' => $agreement->created_at,
 
@@ -99,10 +132,14 @@ class AgreementExport implements FromCollection, WithHeadings
             'Start Date',
             'End Date',
             'Company Name',
+            'Property',
+            'Area',
+            'Locality',
             'Tenant Name',
             'Tenant Email',
             'Tenant Phone',
             'Unit Numbers',
+            'Sub Unit',
             'Total Rent Annum',
             'Created_at',
         ];

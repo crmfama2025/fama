@@ -723,6 +723,7 @@ class AgreementService
             ['data' => 'company_name', 'name' => 'company_name'],
             ['data' => 'project_number', 'name' => 'project_number'],
             ['data' => 'business_type', 'name' => 'business_type'],
+            ['data' => 'property_name', 'name' => 'property_name'],
             ['data' => 'tenant_details', 'name' => 'tenant_details'],
             ['data' => 'start_date', 'name' => 'start_date'],
             ['data' => 'end_date', 'name' => 'end_date'],
@@ -744,6 +745,7 @@ class AgreementService
                 $number = 'P - ' . $row->contract->project_number ?? '-';
                 $type = $row->contract_type ?? '-';
 
+
                 // return "<strong class=''>{$number}</strong><p class='mb-0'><span>{$type}</span></p>
                 // </p>";
                 $badgeClass = '';
@@ -756,9 +758,28 @@ class AgreementService
                 }
 
                 return "<strong>{$number}</strong>
-            <p class='mb-0'>
-                <span class='{$badgeClass}'>{$type}</span>
-            </p>";
+                    <p class='mb-0'>
+                        <span class='{$badgeClass}'>{$type}</span>
+                    </p>";
+            })
+            ->addColumn('property_name', function ($row) {
+                $unitNumbers = $row->agreement_units
+                    ->map(fn($au) => optional($au->contractUnitDetail)->unit_number)
+                    ->filter()
+                    ->implode(', ');
+                $sub = optional(
+                    $row->agreement_units->first()?->contractSubunitDetail
+                )->subunit_no;
+                $sub =  $sub ? 'SubUnit - ' . $sub : '-';
+                // ->implode(', ');
+                $pt = $row->contract->property->property_name ?? '-';
+                // $unit = $row->contract->property->property_name
+                return "{$pt} <p class='mb-0'>
+                    <span class='text-bold'>Unit(s) - {$unitNumbers}</span>
+                </p>
+                <p class='mb-0'>
+                    <span class='text-bold'>{$sub}</span>
+                </p>";
             })
             ->addColumn('tenant_details', function ($row) {
                 $name = $row->tenant_name ?? '-';
@@ -786,9 +807,9 @@ class AgreementService
                 }
 
                 return "<strong>{$number}</strong>
-            <p class='mb-0'>
-                <span class='{$badgeClass}'>{$type}</span>
-            </p>";
+                <p class='mb-0'>
+                    <span class='{$badgeClass}'>{$type}</span>
+                </p>";
             })
             ->addColumn('business_type', function ($row) {
                 if ($row->business_type == 1) {
@@ -801,8 +822,8 @@ class AgreementService
 
                 return "<strong class='text-uppercase'>{$type}</strong>";
             })
-            ->addColumn('start_date', fn($row) => $row->start_date ?? '-')
-            ->addColumn('end_date', fn($row) => $row->end_date ?? '-')
+            ->addColumn('start_date', fn($row) => getFormattedDate($row->start_date))
+            ->addColumn('end_date', fn($row) => getFormattedDate($row->end_date))
             ->addColumn('is_signed_agreement_uploaded', fn($row) => $row->is_signed_agreement_uploaded ?? '-')
             ->addColumn('agreement_status', fn($row) => $row->agreement_status ?? '-')
             ->addColumn('created_at', fn($row) => $row->created_at ?? '-')
@@ -857,7 +878,7 @@ class AgreementService
                 return $action ?: '-';
             })
 
-            ->rawColumns(['tenant_details', 'action', 'project_number', 'business_type'])
+            ->rawColumns(['tenant_details', 'action', 'project_number', 'business_type', 'start_date', 'end_date', 'property_name'])
             // ->rawColumns(['action'])
             ->with(['columns' => $columns])
             ->toJson();
@@ -967,13 +988,14 @@ class AgreementService
 
                 return "<strong class='text-uppercase'>{$type}</strong>";
             })
-            ->addColumn('start_date', fn($row) => $row->start_date ?? '-')
-            ->addColumn('end_date', fn($row) => $row->end_date ?? '-')
+            // ->addColumn('start_date', fn($row) => $row->start_date ?? '-')
+            // ->addColumn('end_date', fn($row) => $row->end_date ?? '-')
             ->addColumn('is_signed_agreement_uploaded', fn($row) => $row->is_signed_agreement_uploaded ?? '-')
             ->addColumn('agreement_status', fn($row) => $row->agreement_status ?? '-')
             ->addColumn('created_at', fn($row) => $row->created_at ?? '-')
 
-
+            ->addColumn('start_date', fn($row) => getFormattedDate($row->start_date))
+            ->addColumn('end_date', fn($row) => getFormattedDate($row->end_date))
             ->addColumn('action', function ($row) {
                 $renewUrl = route('agreement.renew', $row->id);
                 $action = '';
@@ -983,7 +1005,7 @@ class AgreementService
                 }
             })
 
-            ->rawColumns(['tenant_details', 'action', 'project_number', 'business_type'])
+            ->rawColumns(['tenant_details', 'action', 'project_number', 'business_type', 'start_date', 'end_date'])
             // ->rawColumns(['action'])
             ->with(['columns' => $columns])
             ->toJson();

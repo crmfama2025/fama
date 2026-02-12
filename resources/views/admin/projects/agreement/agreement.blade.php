@@ -91,6 +91,7 @@
                                             <th>Company Name</th>
                                             <th>Project Details</th>
                                             <th>Customer Type</th>
+                                            <th>Property Name</th>
                                             <th>Tenant Details</th>
                                             <th>Start Date</th>
                                             <th>End Date</th>
@@ -293,7 +294,7 @@
             table = $('#agreementTable').DataTable({
                 processing: true,
                 serverSide: true,
-                // responsive: true,
+                responsive: true,
 
                 ajax: {
                     url: "{{ route('agreement.list') }}",
@@ -303,7 +304,7 @@
                 },
                 columns: [{
                         data: 'DT_RowIndex',
-                        name: 'contracts.id',
+                        name: 'agreements.id',
                         orderable: true,
                         searchable: false
                     },
@@ -331,6 +332,11 @@
                         name: 'contract_units.business_type',
                     },
                     {
+                        data: 'property_name',
+                        name: 'properties.property_name',
+                    },
+
+                    {
                         data: 'tenant_details',
                         name: 'agreement_tenants.tenant_name',
                         render: function(data, type, row) {
@@ -342,11 +348,11 @@
 
                     {
                         data: 'start_date',
-                        name: 'agreements.start_date',
+                        name: 'start_date',
                     },
                     {
                         data: 'end_date',
-                        name: 'agreements.end_date',
+                        name: 'end_date',
                     },
                     {
                         data: 'agreement_status',
@@ -422,8 +428,8 @@
                 }],
                 // <-- ADD THESE OPTIONS
                 // scrollY: '400px',
-                scrollX: true, // height of the table container
-                scrollCollapse: true,
+                // scrollX: true, // height of the table container
+                // scrollCollapse: true,
                 paging: true, // keep pagination
                 fixedHeader: true // optional: fixes header while scrolling
             });
@@ -494,6 +500,9 @@
         });
         $('input[name="agreementFilter"]').on('change', function() {
             table.ajax.reload();
+            setTimeout(function() {
+                table.columns.adjust().responsive.recalc();
+            }, 200);
         });
     </script>
     <script>

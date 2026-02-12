@@ -104,7 +104,7 @@ class AgreementRepository
             ->join('companies', 'companies.id', '=', 'agreements.company_id')
             ->join('agreement_tenants', 'agreement_tenants.agreement_id', '=', 'agreements.id')
             ->join('contract_types', 'contract_types.id', '=', 'contracts.contract_type_id')
-            ->join('contract_units', 'contract_units.contract_id', '=', 'contracts.id');
+            ->leftJoin('contract_units', 'contract_units.contract_id', '=', 'contracts.id');
 
 
         // $get = $query->get();
@@ -120,8 +120,22 @@ class AgreementRepository
                 ->orWhereHas('contract.contract_type', function ($q) use ($filters) {
                     $q->where('contract_type', 'like', '%' . $filters['search'] . '%');
                 })
+                ->orWhereHas('contract.property', function ($q) use ($filters) {
+                    $q->where('property_name', 'like', '%' . $filters['search'] . '%');
+                })
+                ->orWhereHas('contract.contract_unit_details', function ($q) use ($filters) {
+                    $q->where('unit_number', 'like', '%' . $filters['search'] . '%');
+                })
+                ->orWhereHas('contract.contract_subunit_details', function ($q) use ($filters) {
+                    $q->where('subunit_no', 'like', '%' . $filters['search'] . '%');
+                })
                 ->orWhereHas('contract.contract_unit', function ($q) use ($filters) {
-                    $q->where('business_type', 'like', '%' . $filters['search'] . '%');
+                    $q->whereRaw("
+                    CASE
+                        WHEN business_type = 1 THEN 'B2B'
+                        WHEN business_type = 2 THEN 'B2C'
+                    END LIKE ?
+                ", ['%' . $filters['search'] . '%']);
                 })
                 ->orWhereHas('tenant', function ($q) use ($filters) {
                     $q->where('tenant_name', 'like', '%' . $filters['search'] . '%')
@@ -131,9 +145,24 @@ class AgreementRepository
                 // ->orWhereHas('contract_type', function ($q) use ($filters) {
                 //     $q->where('contract_type', 'like', '%' . $filters['search'] . '%');
                 // })
+                // 🔥 BUSINESS TYPE FIX
+                ->orWhereRaw("
+                    CASE
+                        WHEN agreement_status = 0 THEN 'Active'
+                        WHEN agreement_status = 1 THEN 'Terminated'
+                        WHEN agreement_status = 2 THEN 'Expired'
 
-                ->orWhereRaw("CAST(contracts.id AS CHAR) LIKE ?", ['%' . $filters['search'] . '%']);
+                    END LIKE ?
+                ", ['%' . $filters['search'] . '%'])
+
+                ->orWhereRaw("CAST(agreements.id AS CHAR) LIKE ?", ['%' . $filters['search'] . '%']);
+            $search = strtolower($filters['search']);
+            if ($search === 'b2b') $query->orWhere('contract_units.business_type', 1);
+            if ($search === 'b2c') $query->orWhere('contract_units.business_type', 2);
         }
+
+
+
 
 
         if (isset($filters['status']) && $filters['status'] !== 'all') {
