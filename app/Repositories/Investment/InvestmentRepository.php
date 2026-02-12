@@ -84,6 +84,7 @@ class InvestmentRepository
         if (!empty($filters['search'])) {
             $query->orWhere('investment_amount', 'like', '%' . $filters['search'] . '%')
                 ->orWhere('investment_date', 'like', '%' . $filters['search'] . '%')
+                ->orWhere('investment_code', 'like', '%' . $filters['search'] . '%')
                 ->orWhere('maturity_date', 'like', '%' . $filters['search'] . '%')
                 ->orWhere('profit_perc', 'like', '%' . $filters['search'] . '%')
                 ->orWhere('received_amount', 'like', '%' . $filters['search'] . '%')

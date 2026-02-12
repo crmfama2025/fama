@@ -15,6 +15,7 @@
                          <th class="text-center">Commission Amount</th>
                          <th class="text-center">Frequency</th>
                          <th class="text-center">Referrer Details</th>
+                         <th class="text-center">Payment Terms</th>
                          <th class="text-center">Status</th>
                      </tr>
                  </thead>
@@ -38,13 +39,25 @@
                                      {{ $referrer->investor_name }} ({{ $referrer->investor_email }})
                                  </a>
                              </td>
+                             <td class="text-info text-bold text-center">
+                                 {{ $referral->paymentTerm->term_name }}
+                             </td>
                              <td class="text-center">
-                                 @if ($referral->referral_commission_status == 1)
-                                     <span class="badge badge-success">Fully Released</span>
-                                 @elseif ($referral->referral_commission_status == 2)
-                                     <span class="badge badge-info bg-lightblue">Partially Released</span>
+                                 {{-- @dump($referral->investment) --}}
+                                 @if ($referral->investment->terminate_status == 2)
+                                     <span class="badge badge-secondary">Terminated</span>
                                  @else
-                                     <span class="badge badge-warning">Pending</span>
+                                     @if ($referral->referral_commission_status == 1)
+                                         <span class="badge badge-success">Fully Released</span>
+                                     @elseif ($referral->referral_commission_status == 2)
+                                         @if ($referral->referral_commission_frequency_id == 2)
+                                             <span class="badge badge-info bg-lightblue">Commission Ongoing</span>
+                                         @else
+                                             <span class="badge badge-info bg-lightblue">Partially Released</span>
+                                         @endif
+                                     @else
+                                         <span class="badge badge-warning">Pending</span>
+                                     @endif
                                  @endif
                              </td>
                          </tr>
@@ -78,6 +91,7 @@
                          <th class="text-center">Total Pending</th>
                          <th class="text-center">Last Released Date</th>
                          <th class="text-center">Current Month Released</th>
+                         <th class="text-center">Next Release Date</th>
                          <th class="text-center">Released %</th>
                      </tr>
                  </thead>
@@ -103,6 +117,12 @@
 
                              <td class="text-center text-bold text-info">
                                  {{ number_format($referral->current_month_released, 2) }}
+                             </td>
+                             <td class="text-center">
+                                 <span class="text-sm badge badge-light">
+                                     {{ getFormattedDate($referral->next_referral_commission_released_date) ?? '-' }}
+
+                                 </span>
                              </td>
 
                              <td class="text-center text-bold text-primary">

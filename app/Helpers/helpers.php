@@ -859,20 +859,24 @@ function calculateNextReferralReleaseDate($referral_commission_frequency_id, $la
 }
 function  next_referralcomm_date($referral, $last_released_date, $payment_terms_id, $payoutdata)
 {
+    // dd("test");
     $investmentDate = Carbon::parse($last_released_date);
+    // dd($investmentDate);
 
-    $nextProfitReleaseDate = null;
+    $nextRefComReleaseDate = null;
 
     if ($referral->referral_commission_frequency_id == 1) {
+        // dd("test");
+
         if ($payment_terms_id == 1) {
             if ($payoutdata->is_processed == 1) {
-                $nextProfitReleaseDate = null;
+                $nextRefComReleaseDate = null;
             }
         } elseif ($payment_terms_id == 2) {
             if ($payoutdata->is_processed == 1) {
-                $nextProfitReleaseDate = null;
+                $nextRefComReleaseDate = null;
             } elseif ($payoutdata->is_processed == 2) {
-                $nextProfitReleaseDate = $investmentDate->copy()->addMonth();
+                $nextRefComReleaseDate = $investmentDate->copy()->addMonth();
             }
         } elseif ($payment_terms_id == 3) {
             if ($payoutdata->is_processed == 1) {
@@ -880,34 +884,42 @@ function  next_referralcomm_date($referral, $last_released_date, $payment_terms_
             }
         } elseif ($payment_terms_id == 4) {
             if ($payoutdata->is_processed == 1) {
-                $nextProfitReleaseDate = null;
+                $nextRefComReleaseDate = null;
             } elseif ($payoutdata->is_processed == 2) {
-                $nextProfitReleaseDate = $investmentDate->copy()->addMonths(2);
+                $nextRefComReleaseDate = $investmentDate->copy()->addMonths(2);
             }
         } elseif ($payment_terms_id == 5) {
             if ($payoutdata->is_processed == 1) {
-                $nextProfitReleaseDate = null;
+                $nextRefComReleaseDate = null;
             } elseif ($payoutdata->is_processed == 2) {
-                $nextProfitReleaseDate = $investmentDate->copy()->addMonths(6);
+                $nextRefComReleaseDate = $investmentDate->copy()->addMonths(6);
             }
         }
     } elseif ($referral->referral_commission_frequency_id == 2) {
+        // dd("test");
+
         if ($payment_terms_id == 1) {
-            $nextProfitReleaseDate = $investmentDate->copy()->addMonths(12);
+            // dd("test");
+            $nextRefComReleaseDate = $investmentDate->copy()->addMonths(12);
         } elseif ($payment_terms_id == 2) {
-            $nextProfitReleaseDate = $investmentDate->copy()->addMonth();
+            // dd("test");
+            $nextRefComReleaseDate = $investmentDate->copy()->addMonth();
         } elseif ($payment_terms_id == 3) {
-            $nextProfitReleaseDate = $investmentDate->copy()->addMonths(12);
+            $nextRefComReleaseDate = $investmentDate->copy()->addMonths(12);
+            // dd("test");
         } elseif ($payment_terms_id == 4) {
-            $nextProfitReleaseDate = $investmentDate->copy()->addMonths(2);
+            // dd("test");
+            $nextRefComReleaseDate = $investmentDate->copy()->addMonths(2);
         } elseif ($payment_terms_id == 5) {
-            $nextProfitReleaseDate = $investmentDate->copy()->addMonths(6);
+            // dd("test");
+            $nextRefComReleaseDate = $investmentDate->copy()->addMonths(6);
         }
     }
-    if ($nextProfitReleaseDate) {
-        return $nextProfitReleaseDate->format('Y-m-d');
+    if ($nextRefComReleaseDate) {
+        // dd($nextRefComReleaseDate);
+        return $nextRefComReleaseDate->format('Y-m-d');
     } else {
-        return $nextProfitReleaseDate;
+        return $nextRefComReleaseDate;
     }
 }
 
@@ -915,6 +927,7 @@ function  next_referralcomm_date($referral, $last_released_date, $payment_terms_
 // payout distribution updates
 function  updateInvestmentOnDistribution($payoutData, $distributedData)
 {
+    // dd("test");
     $repository = app(InvestmentRepository::class);
     $investmentId = $payoutData->investment_id;
 
@@ -928,16 +941,24 @@ function  updateInvestmentOnDistribution($payoutData, $distributedData)
     $profitReleased = $principalReleased = 0;
 
     if ($payoutData->payout_type == 2) {
+        // dd("test2");
+
         // $nextCommDate = calculateNextReferralReleaseDate($investment->investmentReferral->referral_commission_frequency_id, $distributedData->paid_date);
         $nextCommDate = next_referralcomm_date($investment->investmentReferral, $distributedData->paid_date, $investment->investmentReferral->payment_terms_id, $payoutData);
     } elseif ($payoutData->payout_type == 3) {
+        // dd("test3");
         $principalReleased = toNumeric($distributedData->amount_paid);
     } else {
+        dd("test4");
         if ($payoutData->amount_pending != 0) {
+            // dd("test5");
             $nextProfitRelDate = calculateNextProfitReleaseDate(0, $investment->profit_interval_id, $distributedData->paid_date, $investment->payoutBatch->batch_name);
         }
+
         $lastProfitReleased = Carbon::parse($distributedData->paid_date)->format('Y-m-d');
         $profitReleased = toNumeric($distributedData->amount_paid);
+        $nextProfitRelDate = null;
+        $nextCommDate = null;
     }
 
     $investmentArr = array(

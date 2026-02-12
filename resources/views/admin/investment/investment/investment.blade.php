@@ -55,6 +55,7 @@
                                         <tr>
                                             <th>#</th>
                                             <th>Action</th>
+                                            <th>Investment Code</th>
                                             <th>Status</th>
                                             <th>Company Name</th>
                                             <th>Invested Company</th>
@@ -160,12 +161,21 @@
                                     <input type="number" name="investment_amount" id="investment_amount"
                                         class="form-control" disabled>
                                 </div>
-
-                                <div class="form-group">
-                                    <label class="asterisk">Outstanding Till Termination</label>
-                                    <input type="number" name="termination_outstanding" id="termination_outstanding"
-                                        class="form-control" step="0.01" min="-999999999" required>
+                                <div class="pending_div d-none">
+                                    <div class="form-group">
+                                        <label class="asterisk">Outstanding Till Termination</label>
+                                        <input type="number" name="termination_outstanding" id="termination_outstanding"
+                                            class="form-control" step="0.01" min="-999999999" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="asterisk">Commission Till Termination</label>
+                                        <input type="number" name="termination_referral_commission_outstanding"
+                                            id="termination_referral_commission_outstanding" class="form-control"
+                                            step="0.01" min="-999999999" required>
+                                    </div>
                                 </div>
+
+
 
 
 
@@ -295,6 +305,10 @@
                         name: 'action',
                         orderable: false,
                         searchable: false
+                    },
+                    {
+                        data: 'investment_code',
+                        name: 'investment_code'
                     },
                     {
                         data: 'investment_status',
@@ -534,6 +548,7 @@
             });
         }
         $(document).on('click', '.openTerminationModal', function() {
+
             $('#terminationForm')[0].reset();
             $('#existingFileContainer').html('');
             let investmentId = $(this).data('id');
@@ -546,7 +561,9 @@
             let invest_amount = $(this).data('principal');
             $('#investment_amount').val(invest_amount);
             let outstanding = $(this).data('outstanding');
+            let comm_outstanding = $(this).data('outstanding');
             $('#termination_outstanding').val(outstanding);
+            $('#termination_referral_commission_outstanding').val(comm_outstanding);
             // 👉 Outstanding profit
             let outstandingProfit = $(this).data('outstanding-profit');
 
@@ -565,32 +582,44 @@
 
 
 
-            if ($(this).data('status')) {
-                $status = $(this).data('status');
-                if ($status == 1) {
-                    let requestedDate = $(this).data('requested-date') || '';
-                    let duration = $(this).data('duration') || '';
-                    let terminationDate = $(this).data('termination-date') || '';
-                    let filePath = $(this).data('file-path');
+            // if ($(this).data('status')) {
+            $status = $(this).data('status');
+            if ($status == 1) {
+                // alert("test");
 
-                    console.log(filePath);
+                let requestedDate = $(this).data('requested-date') || '';
+                let duration = $(this).data('duration') || '';
+                let terminationDate = $(this).data('termination-date') || '';
+                let filePath = $(this).data('file-path');
+
+                console.log(filePath);
 
 
-                    $('#termination_investment_id').val(investmentId);
-                    $('#termination_requested_date').val(requestedDate);
-                    $('#termination_duration').val(duration);
-                    $('#termination_date').val(terminationDate);
+                $('#termination_investment_id').val(investmentId);
+                $('#termination_requested_date').val(requestedDate);
+                $('#termination_duration').val(duration);
+                $('#termination_date').val(terminationDate);
 
-                    if (filePath) {
-                        $('#existingFileContainer').html(
-                            '<a style="text-decoration:underline;" class="text-blue" href="' + filePath +
-                            '" target="_blank">Click here </a>to view Existing File'
-                        );
-                    } else {
-                        $('#existingFileContainer').html('');
-                    }
+                if (filePath) {
+                    $('#existingFileContainer').html(
+                        '<a style="text-decoration:underline;" class="text-blue" href="' + filePath +
+                        '" target="_blank">Click here </a>to view Existing File'
+                    );
+                } else {
+                    $('#existingFileContainer').html('');
                 }
+                $('.pending_div')
+                    .removeClass('d-none')
+            } else if ($status == 0) {
+
+                // alert("test");
+                $('#profit-div')
+                    .addClass('d-none')
+                    .html('');
+                $('.pending_div')
+                    .addClass('d-none')
             }
+            // }
 
             $('#terminationModal').modal('show');
         });
@@ -661,8 +690,8 @@
             });
         });
         $('#terminationModal').on('hidden.bs.modal', function() {
-            // Reset the form fields
             $('#terminationForm')[0].reset();
+
         });
     </script>
 @endsection

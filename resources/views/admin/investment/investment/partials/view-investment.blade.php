@@ -54,7 +54,7 @@
                              @if ($investment->investment_status == 1)
                                  <span class="badge badge-success">Active</span>
                              @else
-                                 <span class="badge badge-secondary">Closed</span>
+                                 <span class="badge badge-secondary">Terminated</span>
                              @endif
                          </td>
                      </tr>
@@ -79,6 +79,7 @@
                  <thead class="bg-light">
                      <tr>
                          {{-- <th>#</th> --}}
+                         <th>Last Profit Released on</th>
                          <th>Profit Release Due on</th>
                          <th>Outstanding Profit</th>
                          <th>Payout Batch</th>
@@ -91,7 +92,12 @@
                      <tr>
                          <td>
                              <span class="badge badge-light text-sm">
-                                 {{ getFormattedDate($investment->next_profit_release_date) }}
+                                 {{ getFormattedDate($investment->last_profit_released_date) }}
+                             </span>
+                         </td>
+                         <td>
+                             <span class="badge badge-light text-sm">
+                                 {{ getFormattedDate($investment->next_profit_release_date) ?? ' - ' }}
                              </span>
                          </td>
                          <td>

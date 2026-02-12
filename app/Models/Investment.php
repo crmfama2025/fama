@@ -81,7 +81,8 @@ class Investment extends Model
         'terminated_by',
         'termination_outstanding',
 
-        'invested_company_id'
+        'invested_company_id',
+        'termination_referral_commission_outstanding'
     ];
 
     public function investor()

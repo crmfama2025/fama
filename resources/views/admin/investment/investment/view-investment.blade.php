@@ -45,7 +45,8 @@
 
                     <div class="col-md-3 col-sm-6 col-12">
                         <div class="info-box">
-                            <span class="info-box-icon bg-info"><i class="fas fa-money-bill-wave"></i></span>
+                            <span class="info-box-icon bg-gradient-investments"><i
+                                    class="fas fa-money-bill-wave"></i></span>
                             <div class="info-box-content">
                                 <span class="info-box-text">Investment Amount</span>
                                 <span class="info-box-number">{{ number_format($investment->investment_amount, 2) }}</span>
@@ -55,28 +56,29 @@
 
                     <div class="col-md-3 col-sm-6 col-12">
                         <div class="info-box">
-                            <span class="info-box-icon bg-success"><i class="fas fa-check-circle"></i></span>
+                            <span class="info-box-icon bg-gradient-investors"><i class="fas fa-dollar-sign"></i></span>
                             <div class="info-box-content">
-                                <span class="info-box-text">Received</span>
+                                <span class="info-box-text">Total Profit Released</span>
                                 <span
-                                    class="info-box-number">{{ number_format($investment->total_received_amount, 2) }}</span>
+                                    class="info-box-number">{{ number_format($investment->total_profit_released, 2) }}</span>
                             </div>
                         </div>
                     </div>
 
                     <div class="col-md-3 col-sm-6 col-12">
                         <div class="info-box">
-                            <span class="info-box-icon bg-warning"><i class="fas fa-hourglass-half"></i></span>
+                            <span class="info-box-icon bg-gradient-projects"><i class="fas fa-percentage"></i></span>
                             <div class="info-box-content">
-                                <span class="info-box-text">Pending Amount</span>
-                                <span class="info-box-number">{{ number_format($investment->balance_amount, 2) }}</span>
+                                <span class="info-box-text">Total Commission Released</span>
+                                <span
+                                    class="info-box-number">{{ number_format($investment->investmentReferral->total_commission_released, 2) }}</span>
                             </div>
                         </div>
                     </div>
 
                     <div class="col-md-3 col-sm-6 col-12">
                         <div class="info-box">
-                            <span class="info-box-icon bg-danger"><i class="fas fa-chart-line"></i></span>
+                            <span class="info-box-icon bg-gradient-revenue"><i class="fas fa-chart-line"></i></span>
                             <div class="info-box-content">
                                 <span class="info-box-text">Profit</span>
                                 <span class="info-box-number">{{ number_format($investment->profit_amount, 2) }}</span>

@@ -572,6 +572,7 @@ class InvestmentService
                                    data-file-path="' . ($row->termination_document ? Storage::url($row->termination_document) : '') . '"
                                    data-principal="' . ($row->investment_amount) . '"
                                    data-outstanding="' . ($row->termination_outstanding) . '"
+                                   data-commission-outstanding="' . ($row->termination_referral_commission_outstanding) . '"
                                    data-outstanding-profit = "' . ($row->outstanding_profit) . '"
                                     title="Edit termination Details">
                                     <i class="fas fa-file-signature"></i>
@@ -584,7 +585,9 @@ class InvestmentService
                                 data-balance="' . $row->balance_amount . '"
                                 data-principal="' . ($row->investment_amount) . '"
                                 data-outstanding="' . ($row->termination_outstanding) . '"
+                                data-commission-outstanding="' . ($row->termination_referral_commission_outstanding) . '"
                                 data-outstanding-profit = "' . ($row->outstanding_profit) . '"
+                                data-status = "' . $row->terminate_status . '"
                                 title="Terminate Investment">
                                 <i class="fas fa-ban"></i>
                             </button>
@@ -738,9 +741,11 @@ class InvestmentService
         // dd($data);
         // Validate the request
         $this->validateTermination($data);
+        // dd($data);
 
         $investment = DB::transaction(function () use ($data) {
             $investment = $this->investmentRepository->getWithDetails($data['investment_id']);
+            // dd($investment);
 
             // Find the investment
 
@@ -751,8 +756,15 @@ class InvestmentService
                 'termination_date' => Carbon::createFromFormat('d-m-Y', $data['termination_date']),
                 'termination_duration' => $data['duration'],
                 'termination_requested_by' => auth()->id(),
-                'termination_outstanding' => $data['termination_outstanding']
             ];
+            if ($data['termination_outstanding']) {
+                $terminationData['termination_outstanding'] = $data['termination_outstanding'];
+            }
+            if ($data['termination_referral_commission_outstanding']) {
+                $terminationData['termination_referral_commission_outstanding'] = $data['termination_referral_commission_outstanding'];
+            }
+            // dd($terminationData);
+
 
             // Handle file upload if exists
             if (isset($data['termination_file'])) {
@@ -802,7 +814,9 @@ class InvestmentService
             'duration' => 'required|integer|min:1',
             'termination_date' => 'required|date|after:termination_requested_date',
             'termination_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png',
-            'termination_outstanding' => 'required|numeric'
+            'termination_outstanding' => 'nullable|numeric',
+            'termination_referral_commission_outstanding' => 'nullable|numeric'
+
         ], [
             'termination_requested_date.required' => 'Requested date is required.',
             'termination_requested_date.date' => 'Requested date must be a valid date.',
