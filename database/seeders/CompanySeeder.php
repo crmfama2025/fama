@@ -57,7 +57,7 @@ class CompanySeeder extends Seeder
         ]);
 
         Company::updateOrCreate([
-            'company_code' => 'CMP00005',
+            'company_code' => 'CMP00006',
             'company_name' => 'RFB',
             'company_short_code' => 'RFB',
             'added_by' => 1,
