@@ -40,7 +40,7 @@
                                  </a>
                              </td>
                              <td class="text-info text-bold text-center">
-                                 {{ $referral->paymentTerm->term_name }}
+                                 {{ $referral->paymentTerm->term_name ?? ' - ' }}
                              </td>
                              <td class="text-center">
                                  {{-- @dump($referral->investment) --}}
