@@ -44,94 +44,113 @@
 
         // Add CSRF
         fdata.append('_token', $('meta[name="csrf-token"]').attr('content'));
-        showLoader();
+        // ===== Add confirmation dialog here =====
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you want to submit this agreement?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, submit it!',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                showLoader();
 
-        $.ajax({
-            url: url,
-            type: method,
-            data: fdata,
-            processData: false,
-            contentType: false,
-            success: function(response) {
-                hideLoader();
-                // Swal.fire({
-                //     title: 'Success!',
-                //     text: response.message,
-                //     icon: 'success',
-                //     showConfirmButton: false,
-                //     timer: 1500
-                // }).then(() => {
-                //     window.location = "{{ route('agreement.index') }}"
-                // })
-                toastr.success(response.message);
-                window.location = "{{ route('agreement.index') }}"
-            },
-            error: function(xhr) {
-                hideLoader();
+                $.ajax({
+                    url: url,
+                    type: method,
+                    data: fdata,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        hideLoader();
+                        // Swal.fire({
+                        //     title: 'Success!',
+                        //     text: response.message,
+                        //     icon: 'success',
+                        //     showConfirmButton: false,
+                        //     timer: 1500
+                        // }).then(() => {
+                        //     window.location = "{{ route('agreement.index') }}"
+                        // })
+                        toastr.success(response.message);
+                        window.location = "{{ route('agreement.index') }}"
+                    },
+                    error: function(xhr) {
+                        hideLoader();
 
-                const response = xhr.responseJSON;
-                if (xhr.status === 422 && response?.errors) {
-                    $.each(response.errors, function(key, messages) {
-                        toastr.error(messages[0]);
-                        // alert(key);
-                        // if (key.includes('cheque_number')) {
-                        //     let match = key.match(
-                        //         /payment_detail\[(\d+)\]\[cheque_number\]/);
-                        //     if (match) {
-                        //         let index = match[1];
-                        //         console.log(index);
-                        //         $(`#cheque_no${index}`)
-                        //             .addClass('is-invalid')
-                        //             .after(
-                        //                 `<span class="invalid-feedback d-block">${messages[0]}</span>`
-                        //             );
-                        //     }
+                        const response = xhr.responseJSON;
+                        if (xhr.status === 422 && response?.errors) {
+                            $.each(response.errors, function(key, messages) {
+                                toastr.error(messages[0]);
+                                // alert(key);
+                                // if (key.includes('cheque_number')) {
+                                //     let match = key.match(
+                                //         /payment_detail\[(\d+)\]\[cheque_number\]/);
+                                //     if (match) {
+                                //         let index = match[1];
+                                //         console.log(index);
+                                //         $(`#cheque_no${index}`)
+                                //             .addClass('is-invalid')
+                                //             .after(
+                                //                 `<span class="invalid-feedback d-block">${messages[0]}</span>`
+                                //             );
+                                //     }
 
-                        //     // Optional: Also show a nice alert
-                        //     Swal.fire({
-                        //         icon: 'error',
-                        //         title: 'Cheque Validation Error',
-                        //         text: messages[0],
-                        //     });
-                        // }
-                    });
-                } else if (response.message) {
-                    console.log(response);
-                    toastr.error(response.message);
-                    const original = response?.error?.response?.original;
+                                //     // Optional: Also show a nice alert
+                                //     Swal.fire({
+                                //         icon: 'error',
+                                //         title: 'Cheque Validation Error',
+                                //         text: messages[0],
+                                //     });
+                                // }
+                            });
+                        } else if (response.message) {
+                            console.log(response);
+                            toastr.error(response.message);
+                            const original = response?.error?.response?.original;
 
-                    if (original && original.cheque_number && original.bank_id) {
-                        const chequeNumber = original.cheque_number;
-                        const bankId = original.bank_id;
+                            if (original && original.cheque_number && original.bank_id) {
+                                const chequeNumber = original.cheque_number;
+                                const bankId = original.bank_id;
 
-                        $('input[id^="cheque_no"]').each(function() {
-                            const chequeInput = $(this);
-                            const val = chequeInput.val()?.trim();
-                            const parent = chequeInput.closest('[id^="extra_fields_"]');
-                            const selectedBank = parent.find('select[id^="bank_name"]')
-                                .val();
-                            parent.find('input[id^="cheque_no"]').removeClass('is-invalid');
-                            parent.find('.invalid-feedback').remove();
+                                $('input[id^="cheque_no"]').each(function() {
+                                    const chequeInput = $(this);
+                                    const val = chequeInput.val()?.trim();
+                                    const parent = chequeInput.closest(
+                                        '[id^="extra_fields_"]');
+                                    const selectedBank = parent.find(
+                                            'select[id^="bank_name"]')
+                                        .val();
+                                    parent.find('input[id^="cheque_no"]')
+                                        .removeClass('is-invalid');
+                                    parent.find('.invalid-feedback').remove();
 
-                            if (val === chequeNumber && selectedBank === bankId) {
-                                // Remove old errors first
-                                chequeInput.removeClass('is-invalid').removeClass(
-                                    'is-valid');
-                                parent.find('.invalid-feedback')
-                                    .remove();
-                                chequeInput
-                                    .addClass('is-invalid')
-                                    .removeClass('is-valid')
-                                    .after(
-                                        `<span class="invalid-feedback d-block">${original.message}</span>`
-                                    );
+                                    if (val === chequeNumber && selectedBank ===
+                                        bankId) {
+                                        // Remove old errors first
+                                        chequeInput.removeClass('is-invalid')
+                                            .removeClass(
+                                                'is-valid');
+                                        parent.find('.invalid-feedback')
+                                            .remove();
+                                        chequeInput
+                                            .addClass('is-invalid')
+                                            .removeClass('is-valid')
+                                            .after(
+                                                `<span class="invalid-feedback d-block">${original.message}</span>`
+                                            );
+                                    }
+                                });
                             }
-                        });
+                        }
                     }
-                }
+                });
             }
+
         });
     });
+
 
     // function validateChequeNumber() {
     //     let isValid = true;
@@ -229,7 +248,9 @@
             }
 
             // Clear valid styling for correct cheques
-            if (!invalidCheques.includes(chequeInput) && !duplicateCheques.includes(chequeInput) && cheque) {
+            if (!invalidCheques.includes(chequeInput) && !duplicateCheques.includes(
+                    chequeInput) &&
+                cheque) {
                 chequeInput.addClass('is-valid').removeClass('is-invalid');
             }
         });
