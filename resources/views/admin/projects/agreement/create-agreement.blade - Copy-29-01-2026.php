@@ -598,7 +598,8 @@
                                                             Annum</label>
                                                         <input type="text" class="form-control" id="total_rent_annum"
                                                             name="total_rent_per_annum" placeholder=""
-                                                            value="{{ isset($agreement) ? $agreement->agreement_payment->total_rent_annum : '' }}">
+                                                            value="{{ isset($agreement) ? $agreement->agreement_payment->total_rent_annum : '' }}"
+                                                            readonly>
                                                     </div>
                                                 </div>
                                                 <hr>
@@ -658,7 +659,6 @@
     @include('admin.projects.agreement.stepper-validation-js')
     @include('admin.projects.agreement.form-submit')
     @include('admin.projects.agreement.edit-agreement')
-    @include('admin.projects.agreement.agreement-js-b2b')
 
 
     <script>
@@ -801,7 +801,6 @@
 
 
         function calculatepaymentamount(rent_per_month = 0, payment_count = 0) {
-            // alert("calculatepaymentamountcalled");
             // clearing the div
             const errorDiv = $('#paymentError');
             errorDiv.html('');
@@ -813,23 +812,9 @@
             for (let i = 0; i < payment_count; i++) {
                 $('#payment_amount_' + i).val((rentmonth));
             }
-            console.log("rentmonth" + rentmonth);
-            payment_count = getallowedcount(payment_count);
             let total_rent_per_annum = rentmonth * payment_count;
             $('#total_rent_per_annum').text(total_rent_per_annum);
             $('#total_rent_annum').val(total_rent_per_annum);
-            console.log("payment_count" + payment_count, "total_rent_per_annum" + total_rent_per_annum);
-            if ((
-                    selectedContract.contract_type_id === 1 && selectedContract?.contract_unit
-                    ?.business_type == 2)) {
-
-                dfB2cTotalrentChange();
-                $('#total_rent_annum').on('input', function() {
-                    // alert('test');
-                    dfB2cTotalrentChange();
-                });
-            }
-
         }
 
         function paymentModeChange(i) {
@@ -893,11 +878,9 @@
         let fullContracts = @json($fullContracts ?? []);
         window.allBanks = @json($banks);
         // console.log(fullContracts);
-        // console.log("contracts:" + JSON.stringify(allContracts));
 
         // let editedUnit = window.editedUnit || [];
-        // console.log("edited Unit :" + JSON.stringify(editedUnit))
-        // console.log("edited Contract :" + editedContract)
+        //console.log("edited Unit :" + JSON.stringify(editedUnit))
 
         $(document).on('change', '#company_id', function() {
             CompanyChange();
@@ -928,7 +911,7 @@
             if (editedContract && editedContract.company_id == companyId) {
                 options += `
             <option value="${editedContract.id}" selected>
-                ${editedContract.project_code} - ${editedContract.project_number} - ${editedContract.contract_type.shortcode}-${editedContract.contract_unit.business_type_text}
+                ${editedContract.project_code} - ${editedContract.project_number}
             </option>`;
                 $('#edited_contract').val(editedContract.id);
             }
@@ -938,7 +921,7 @@
                 .filter(c => c.company_id == companyId)
                 .forEach(c => {
                     options +=
-                        `<option value="${c.id}" ${(c.id == contractId) ? 'selected' : ''}>${c.project_code} - ${c.project_number} - ${c.contract_type.shortcode}-${c.contract_unit.business_type_text}</option>`;
+                        `<option value="${c.id}" ${(c.id == contractId) ? 'selected' : ''}>${c.project_code} - ${c.project_number}</option>`;
                 });
 
             $('#contract_id').html(options).trigger('change');
@@ -958,7 +941,7 @@
 
         function contractChange() {
             const contractId = $('#contract_id').val();
-            let renewalContractId = "{{ $renewalContractId ?? '' }}";
+
             // alert("called");
             if (editedUnit) {
                 // $(this).prop('readonly', true);
@@ -967,10 +950,7 @@
                 });
 
             } else {
-                if (!renewalContractId) {
-                    removeTenant();
-
-                }
+                removeTenant();
             }
 
 
@@ -1084,7 +1064,6 @@
                     const type = allunittypes?.find(t => t.id == u.unit_type_id)?.unit_type || 'Unknown';
                     const subunitCount = u.subunitcount_per_unit || 0;
                     const rent = parseFloat(u.total_rent_per_unit_per_month);
-                    const annum = parseFloat(u.rent_per_unit_per_annum);
 
 
                     html += `
@@ -1110,21 +1089,16 @@
 
                                                 </div>
 
-                                                <div class="col-md-2">
+                                                <div class="col-md-3">
                                                     <label class="form-label">Total Subunits</label>
                                                     <input type="text" class="form-control" name="total_subunits_${index}"
                                                         value="${subunitCount}" readonly>
                                                 </div>
 
-                                                <div class="col-md-2">
+                                                <div class="col-md-3">
                                                     <label class="form-label">Rent per month</label>
                                                     <input type="text" class="form-control" name="unit_detail[${index}][rent_per_month]"
                                                         value="${rent.toFixed(2)}" readonly>
-                                                </div>
-                                                <div class="col-md-2">
-                                                    <label class="form-label">Unit Revenue</label>
-                                                    <input type="text" class="form-control" name="unit_detail[${index}][rent_per_annum]"
-                                                        value="${annum.toFixed(2)}" readonly>
                                                 </div>
                                             </div>
                                         </div>
@@ -1186,8 +1160,6 @@
                 defaultStart = moment($('#start_date').val(), "DD-MM-YYYY");
                 defaultEnd = moment($('#end_date').val(), "DD-MM-YYYY");
                 defaultDuration = $("#duration_months").val();
-                // defaultDuration = payment_count;
-                console.log('Default values set:', defaultStart, defaultEnd, defaultDuration);
                 // console.log('Default values set:', defaultStart, defaultEnd, defaultDuration);
             }
 
@@ -1195,7 +1167,6 @@
             defaultStart = moment($('#start_date').val(), "DD-MM-YYYY");
             defaultEnd = moment($('#end_date').val(), "DD-MM-YYYY");
             defaultDuration = $("#duration_months").val();
-
 
             // 15/01/2026
             $('#start_date').prop('readonly', true);
@@ -1226,7 +1197,6 @@
                     const optionText = $(this).text().trim();
                     const countText = payment_count.toString().trim();
                     if (optionText === countText) {
-                        console.log('Selecting installment option:', countText);
                         $(this).prop('selected', true);
                         $('#no_of_installments').trigger('change');
                     }
@@ -1239,9 +1209,6 @@
                 (contract.contract_type_id === 1 && contract.contract_unit.business_type === 1)) {
                 // alert("test");
                 checkTerminatedAgreement(contractId);
-            }
-            if (contract.contract_type_id === 1 && contract.contract_unit.business_type === 1) {
-                $(".rent_per_month").prop('readonly', true);
             }
 
 
@@ -1433,12 +1400,10 @@
                     $('#sub_unit_type').prop('required', false);
 
                     $('#rent_per_month')
-                        // .val(selectedUnit.rent_per_room ?? '')
-                        .val(selectedUnit.rent_per_flat ?? '')
-
+                        .val(selectedUnit.rent_per_room ?? '')
                         .prop('required', true)
                         .prop('readonly', true);
-                    calculatepaymentamount(selectedUnit.rent_per_flat, count);
+                    calculatepaymentamount(selectedUnit.rent_per_room, count);
 
                     return;
                 }
@@ -1482,35 +1447,25 @@
                 contract = fullContracts.find(c => c.id == contractId);
             }
             let count = contract?.contract_payment_receivables_count || 0;
-
-            console.log("count", count);
             // console.log("contract in subunit change", contract);
 
             let unitId = row.find('.unit_no_select').val();
             if (!unitId) unitId = row.find('.unit_type0').val();
 
             let selectedUnit = contract.contract_unit.contract_unit_details.find(u => u.id == unitId);
-            console.log("selected", selectedUnit);
 
-            let selectedSubUnit = selectedUnit?.contract_sub_unit_details?.find(su => su.id == subunitId);
-            console.log("selectedSubUnit", selectedSubUnit);
-
-            if (selectedSubUnit) {
-                $('.rent_per_month')
-                    // .val(selectedUnit.rent_per_unit_per_month ?? '')
-                    .val(selectedSubUnit.subunit_rent ?? '')
-
-                    .prop('required', true)
-                    .data('count', count);
-                // .prop('readonly', true);
-                calculatepaymentamount(selectedSubUnit.subunit_rent, count);
-
-            }
+            let selectedSubUnit = selectedUnit?.contract_subunit_details?.find(su => su.id == subunitId);
+            // console.log("selectedSubUnit", selectedSubUnit);
 
 
+            $('.rent_per_month')
+                .val(selectedUnit.rent_per_unit_per_month ?? '')
+                .prop('required', true)
+                .data('count', count);
+            // .prop('readonly', true);
 
-            // calculatepaymentamount(selectedUnit.rent_per_unit_per_month, count);
 
+            calculatepaymentamount(selectedUnit.rent_per_unit_per_month, count);
 
             if (subunitId) {
                 checkTermination(subunitId, unitId, contractId);
@@ -1531,7 +1486,6 @@
 
     <script>
         $('#no_of_installments').on('change', function() {
-            // validateInstallmentsTotal();
             let editedPayment = @json($agreement->agreement_payment ?? null);
             let agreementPaymentDetails = editedPayment?.agreement_payment_details || [];
             let contractReceivables = selectedContract.contract_payment_receivables || [];
@@ -1546,11 +1500,10 @@
             $('.payment_details').show();
             $('.payment_details').removeClass('d-none');
             const installments = $(this).find('option:selected').text().trim();
-            console.log("installments", installments);
             let interval = $(this).find(':selected').data('interval');
             let totalRevenue = 0;
 
-            $('#interval').val(interval).prop('readonly', true);
+            $('#interval').val(interval);
             const containerPayment = document.getElementsByClassName('payment_details')[0];
             //console.log(containerPayment);
             const oldValues = [];
@@ -1598,7 +1551,6 @@
                 if (receivablesToUse &&
                     receivablesToUse.length > 0) {
                     // alert("createtable");
-                    console.log("Receivables to use", receivablesToUse);
 
                     let totalMonthlyRent = 0;
                     let selectedUnits = [];
@@ -1662,10 +1614,7 @@
                     `;
 
                 famaTable.innerHTML = tableHTML;
-                if (selectedContract.contract_type_id == 2) {
-                    containerPayment.appendChild(famaTable);
-
-                }
+                containerPayment.appendChild(famaTable);
                 //console.log(unit_details)
 
                 // ====== Unit-wise Accordion Section ======
@@ -1690,9 +1639,9 @@
                             const unitId = $(row).find('.unit_no_select').val();
                             const agunitId = $(row).find('.agreement_unit_id').val();
                             const unitObj = window.unit_details.find(u => u.id == unitId);
-                            console.log("Processing unitId:", unitId, unitObj);
-                            console.log("editedunit :", editedUnit);
-                            console.log("agunitId :", agunitId);
+                            // console.log("Processing unitId:", unitId, unitObj);
+                            // console.log("editedunit :", editedUnit);
+                            // console.log("agunitId :", agunitId);
                             let isEditedUnit = false;
                             if (remainingReceivables.length > 0) {
                                 b2b_per_month = parseFloat(unitObj.total_rent_per_unit_per_month)
@@ -1723,23 +1672,19 @@
                                         .toFixed(2);
                                 });
                             }
-                            console.log("isEditedUnit :", isEditedUnit);
-                            console.log("agreementPaymentDetails :", agreementPaymentDetails);
-                            console.log("agreementPaymentDetails :", unitPayments);
-                            console.log("receivables :", contractReceivables);
-                            console.log("deleted", deletedAgreementUnitIds);
-                            console.log("terminatedReceivables", remainingReceivables);
-                            console.log("editedPayment", editedPayment);
+                            // console.log("isEditedUnit :", isEditedUnit);
+                            // console.log("agreementPaymentDetails :", agreementPaymentDetails);
+                            // console.log("agreementPaymentDetails :", unitPayments);
+                            // console.log("receivables :", contractReceivables);
+                            // console.log("deleted", deletedAgreementUnitIds);
+                            // console.log("terminatedReceivables", remainingReceivables);
                             if (remainingReceivables.length > 0) {
                                 df_b2b_per_month = parseFloat(unitObj.total_rent_per_unit_per_month)
                                     .toFixed(
                                         2);
                                 // total_revenue += df_b2b_per_month * (remainingReceivables.length);
                             } else {
-                                // df_b2b_per_month = parseFloat(unitObj.unit_revenue / installments)
-                                //     .toFixed(
-                                //         2);
-                                df_b2b_per_month = parseFloat(unitObj.total_rent_per_unit_per_month)
+                                df_b2b_per_month = parseFloat(unitObj.unit_revenue / installments)
                                     .toFixed(
                                         2);
                             }
@@ -1818,23 +1763,7 @@
                         });
                         $('#total_rent_per_annum').text(total_revenue.toFixed(2));
                         $('#total_rent_annum').val(total_revenue.toFixed(2));
-                        // $('#total_rent_per_annum').text(parseFloat(editedPayment.total_rent_per_annum)
-                        //     .toFixed(
-                        //         2));
-                        // $('#total_rent_annum').text(parseFloat(editedPayment.total_rent_per_annum)
-                        //     .toFixed(
-                        //         2));
-                        dfB2bTotalrentChange();
-                        $('#total_rent_annum').on('input', function() {
-                            // alert('test');
-                            dfB2bTotalrentChange();
-                        });
-                        validateInstallmentsTotal();
                     } else if (selectedContract.contract_type_id == 2) {
-                        $('#no_of_installments').on('select2:opening select2:selecting', function(e) {
-                            e.preventDefault();
-                        });
-
                         // Loop through units
                         editedUnit.forEach((unitObj, unitIndex) => {
                             const unit = unitObj;
@@ -1873,9 +1802,8 @@
                                     '';
                                 installmentBlocks += `
                                     <div class="form-group row mb-2">
-                                        <div class="mb-2  font-weight-bold text-info">${payIndex + 1}.</div>
                                         <input type="hidden" name="payment_detail[${unit.id}][${payIndex}][detail_id]" value="${pay.id}">
-                                        <div class="col-md-3">
+                                        <div class="col-md-4">
                                             <select class="form-control " name="payment_detail[${unit.id}][${payIndex}][payment_mode_id]" id="payment_mode${uniqueId}">
                                                 <option value="">Select</option>
                                                 @foreach ($paymentmodes as $paymentmode)
@@ -1909,8 +1837,7 @@
                                     </div>
 
                                     <div class="form-group row extra-fields" id="extra_fields_${uniqueId}">
-                                        <div class="mb-2  font-weight-bold text-info"></div>
-                                        <div class="col-md-3 ml-3 bank" id="bank_${uniqueId}">
+                                        <div class="col-md-4 bank" id="bank_${uniqueId}">
                                             <label>Bank Name</label>
                                             <select class="form-control" name="payment_detail[${unit.id}][${payIndex}][bank_id]" id="bank_name_${uniqueId}">
                                                 <option value="" disabled>Select bank</option>
@@ -2024,11 +1951,6 @@
                                 paymentModeChangeFF(unit.id, i);
                             }
                         });
-                        initPaymentValidation(selectedContract.contract_type_id, selectedContract.contract_unit
-                            .business_type);
-                        $('input[name^="payment_detail"][name$="[payment_amount]"]').each(function() {
-                            $(this).trigger('input.paymentValidation');
-                        });
                     }
 
 
@@ -2037,11 +1959,11 @@
 
 
 
-                    // initPaymentValidation(selectedContract.contract_type_id, selectedContract.contract_unit
-                    //     .business_type);
-                    // $('input[name^="payment_detail"][name$="[payment_amount]"]').each(function() {
-                    //     $(this).trigger('input.paymentValidation');
-                    // });
+                    initPaymentValidation(selectedContract.contract_type_id, selectedContract.contract_unit
+                        .business_type);
+                    $('input[name^="payment_detail"][name$="[payment_amount]"]').each(function() {
+                        $(this).trigger('input.paymentValidation');
+                    });
                 } else {
                     const selectedUnits = $('.unit-row').map(function() {
                         return $(this).find('select.unit_type0').val();
@@ -2089,10 +2011,6 @@
                                 monthlyrent = parseFloat(unit.total_rent_per_unit_per_month || 0).toFixed(
                                     2);
                                 // monthlyrent = 100;
-                                $('#no_of_installments').on('select2:opening select2:selecting', function(
-                                    e) {
-                                    e.preventDefault();
-                                });
 
 
 
@@ -2139,8 +2057,7 @@
                                 }
                                 installmentBlocks += `
                                 <div class="form-group row mb-2">
-                                    <div class="mb-2  font-weight-bold text-info">${i + 1}.</div>
-                                    <div class="col-md-3">
+                                    <div class="col-md-4">
                                         <select class="form-control " name="payment_detail[${unit.id}][${i}][payment_mode_id]" id="payment_mode${uniqueId}" required>
                                             <option value="">Select</option>
                                             @foreach ($paymentmodes as $paymentmode)
@@ -2165,7 +2082,7 @@
                                     </div>
 
                                     <div class="col-md-4">
-                                        <input type="text" class="form-control b2b_monthly_rent"
+                                        <input type="text" class="form-control"
                                             id="payment_amount_${uniqueId}"
                                             name="payment_detail[${unit.id}][${i}][payment_amount]"
                                             value="${monthlyrent}"
@@ -2174,8 +2091,7 @@
                                 </div>
 
                                 <div class="form-group row extra-fields" id="extra_fields_${uniqueId}">
-                                    <div class="mb-2  font-weight-bold text-info"></div>
-                                    <div class="col-md-3 bank ml-3" id="bank_${uniqueId}">
+                                    <div class="col-md-4 bank" id="bank_${uniqueId}">
                                         <label>Bank Name</label>
                                         <select class="form-control is-invalid" name="payment_detail[${unit.id}][${i}][bank_id]" id="bank_name_${uniqueId}">
                                             <option value="" >Select bank</option>
@@ -2281,15 +2197,13 @@
                                 });
                             }
                         });
-                        if (selectedContract.contract_type_id == 2) {
-                            initPaymentValidation(selectedContract.contract_type_id, selectedContract.contract_unit
-                                .business_type);
-                            // After populating amounts dynamically, trigger validation for all inputs
-                            $('input[name^="payment_detail"][name$="[payment_amount]"]').each(function() {
-                                $(this).trigger('input.paymentValidation');
-                            });
-                        }
 
+                        initPaymentValidation(selectedContract.contract_type_id, selectedContract.contract_unit
+                            .business_type);
+                        // After populating amounts dynamically, trigger validation for all inputs
+                        $('input[name^="payment_detail"][name$="[payment_amount]"]').each(function() {
+                            $(this).trigger('input.paymentValidation');
+                        });
 
 
 
@@ -2303,15 +2217,8 @@
                     if (totalRevenue) {
 
                         $('#total_rent_per_annum').text(totalRevenue);
-                        $('#total_rent_annum').val(totalRevenue).prop('readonly', false).attr('max', totalRevenue);
-                        dfB2bTotalrentChange();
-                        $('#total_rent_annum').on('input', function() {
-                            dfB2bTotalrentChange();
-                        });
-                    };
-
-                    validateInstallmentsTotal();
-
+                        $('#total_rent_annum').val(totalRevenue);
+                    }
 
 
                 } else {
@@ -2358,9 +2265,8 @@
                     // Loop through installments and create/update payment blocks
                     for (let i = 0; i < newInstallments; i++) {
                         const pay = existingPayments[i] || {};
-                        const formattedDate = pay.payment_date ? moment(pay.payment_date, 'YYYY-MM-DD')
-                            .format(
-                                'DD-MM-YYYY') : '';
+                        const formattedDate = pay.payment_date ? moment(pay.payment_date, 'YYYY-MM-DD').format(
+                            'DD-MM-YYYY') : '';
 
                         let paymentBlock = containerPayment.querySelector(`#payment_block_${i}`);
                         if (!paymentBlock) {
@@ -2371,13 +2277,9 @@
                         }
 
                         paymentBlock.innerHTML = `
-
                             <input type="hidden" name="payment_detail[${i}][id]" value="${pay.id || ''}">
                             <div class="form-group row">
-                                 <div class="mb-2  font-weight-bold text-info">
-                            ${i + 1}.
-                        </div>
-                                <div class="col-md-3">
+                                <div class="col-md-4">
                                     <label class="asterisk">Payment Mode</label>
                                     <select class="form-control " name="payment_detail[${i}][payment_mode_id]" id="payment_mode${i}" required>
                                         <option value="">Select</option>
@@ -2407,8 +2309,7 @@
                                 </div>
                             </div>
                             <div class="form-group row" id="extra_fields_${i}">
-                                <div class="mb-2  font-weight-bold text-info"></div>
-                                <div class="col-md-3 bank ml-3" id="bank${i}">
+                                <div class="col-md-4 bank" id="bank${i}">
                                 <label>Bank Name</label>
                                 <select class="form-control" name="payment_detail[${i}][bank_id]" id="bank_name${i}">
                                     <option value="" >Select Bank Name</option>
@@ -2437,8 +2338,7 @@
                         // Initialize Select2 and Datepicker AFTER appending to DOM
                         $(paymentBlock).find('.select2').select2();
 
-                        initPaymentValidation(selectedContract.contract_type_id, selectedContract
-                            .contract_unit
+                        initPaymentValidation(selectedContract.contract_type_id, selectedContract.contract_unit
                             .business_type);
 
                         // Trigger validation immediately for loaded amounts
@@ -2509,13 +2409,10 @@
                         if (remainingReceivables) {
                             // console.log('remaining', remainingReceivables);
                             const rawDate = remainingReceivables[i]?.receivable_date;
-                            receivableDate = rawDate ? moment(rawDate, 'DD-MM-YYYY').format('DD-MM-YYYY') :
-                                '';
+                            receivableDate = rawDate ? moment(rawDate, 'DD-MM-YYYY').format('DD-MM-YYYY') : '';
                         } else {
-                            const rawDate = selectedContract.contract_payment_receivables?.[i]
-                                ?.receivable_date;
-                            receivableDate = rawDate ? moment(rawDate, 'DD-MM-YYYY').format('DD-MM-YYYY') :
-                                '';
+                            const rawDate = selectedContract.contract_payment_receivables?.[i]?.receivable_date;
+                            receivableDate = rawDate ? moment(rawDate, 'DD-MM-YYYY').format('DD-MM-YYYY') : '';
                         }
 
                         const existingValue = oldValues[i] || '';
@@ -2523,10 +2420,7 @@
                         paymentBlock.innerHTML = `
 
                                 <div class="form-group row">
-                               <div class="mb-2  font-weight-bold text-info">
-                                        ${i + 1}.
-                                    </div>
-                                    <div class="col-md-3">
+                                    <div class="col-md-4">
                                         <label class="asterisk">Payment Mode</label>
                                         <select class="form-control " name="payment_detail[${i}][payment_mode_id]" id="payment_mode${i}" required>
                                             <option value="">Select</option>
@@ -2553,8 +2447,7 @@
                                     </div>
                                 </div>
                                 <div class="form-group row" id="extra_fields_${i}">
-                                    <div class="mb-2  font-weight-bold text-info"></div>
-                                        <div class="col-md-3 bank ml-3" id="bank${i}">
+                                        <div class="col-md-4 bank" id="bank${i}">
                                             <label for="exampleInputEmail1">Bank Name</label>
                                             <select class="form-control select2 is-invalid" name="payment_detail[${i}][bank_id]" id="bank_name${i}">
                                                 <option value="" disabled>Select Bank Name</option>
@@ -2597,8 +2490,7 @@
 
                         // Append first
                         containerPayment.appendChild(paymentBlock);
-                        initPaymentValidation(selectedContract.contract_type_id, selectedContract
-                            .contract_unit
+                        initPaymentValidation(selectedContract.contract_type_id, selectedContract.contract_unit
                             .business_type);
                         // $('input[name^="payment_detail"][name$="[payment_amount]"]').each(function() {
                         //     $(this).trigger('input.paymentValidation');
@@ -2698,18 +2590,9 @@
                 errorDiv.addClass('d-none').removeClass('d-flex');
             } else {
                 $('#submitBtn').prop('disabled', true);
-                errorDiv.addClass('alert alert-default-danger fade show').attr('role', 'alert');
                 errorDiv.html(
                     `Total payment amount <span class="mx-1 text-dark">${totalPayment}</span> does not match total rent per annum <span class="mx-1 text-dark">${totalRent}</span>.`
                 );
-                // Using Bootstrap alert-danger
-                // errorDiv.html(`
-            //     <div class="alert alert-default-danger  fade show" role="alert">
-            //         Total payment amount <strong>${totalPayment}</strong> does not match total rent per annum <strong>${totalRent}</strong>.
-
-            //     </div>
-            // `);
-
                 errorDiv.removeClass('d-none').addClass('d-flex');
                 // errorDiv.focus();
                 // errorDiv[0].scrollIntoView({
@@ -2849,32 +2732,6 @@
         let deletedUnits = [];
 
         $("#add_more_unit").on("click", function() {
-            // Get the first unit row
-            const firstRow = document.querySelector('.unit-row');
-
-            // Get required fields inside the first row
-            const unitType = firstRow.querySelector('.unit_type_id');
-            const unitNo = firstRow.querySelector('[name*="contract_unit_details_id"]');
-            const rent = firstRow.querySelector('.rent_per_month');
-
-            // Check if fields are empty
-            if (
-                !unitType.value ||
-                !unitNo.value ||
-                !rent.value.trim()
-            ) {
-                // alert('Please fill the first unit details before adding another unit.');
-                Swal.fire({
-                    icon: 'warning',
-                    // title: 'Incomplete Step',
-                    text: 'Please fill the first unit details before adding another unit.',
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 2500
-                });
-                return; // Stop execution
-            }
             let addedUnits = getUnitCount();
             const totalUnitsAvailable = window.unit_details.length;
 
@@ -2922,7 +2779,7 @@
                             <div class="col-sm-2">
                                 <label class="form-label">Rent per Month</label>
                                 <input type="text" class="form-control rent_per_month"
-                                    name="unit_detail[${counter}][rent_per_month]" placeholder="Rent per month" readonly>
+                                    name="unit_detail[${counter}][rent_per_month]" placeholder="Rent per month">
                             </div>
                             <div class="col-sm-1 text-end">
                                 <button type="button" class="btn btn-danger delete-row"> <i class="fa fa-trash"></i></button>
@@ -3077,7 +2934,6 @@
             $('#contact_number').val('+971568856995');
             $('#contact_email').val('adil@faateh.ae');
             $('#tenant_address').val('Dubai');
-            $('#nationality_id').val('11').trigger('change');
 
         }
 
@@ -3089,7 +2945,6 @@
             $('#contact_number').val('');
             $('#contact_email').val('');
             $('#tenant_address').val('');
-            $('#nationality_id').val('');
         }
     </script>
     <script>
