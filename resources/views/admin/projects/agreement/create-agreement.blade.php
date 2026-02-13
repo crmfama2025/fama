@@ -1049,45 +1049,47 @@
 
             let contractTypes = @json($contractTypes);
             let selectedContractType = contractTypes.find(ct => ct.id === contract.contract_type_id);
-            if ((selectedContractType && selectedContractType.contract_type === 'Direct Fama')) {
+            // if ((selectedContractType && selectedContractType.contract_type === 'Direct Fama')) {
+            if (contract.contract_type_id == 1)
                 unitTypeChange(selectedUnitTypeId, editedUnit, row = null);
+            unitDetails = contract?.contract_unit?.contract_unit_details || [];
+            unit_details = unitDetails;
+        }
+        // if (
+        //     // (selectedContractType && selectedContractType.contract_type === 'Fama Faateh')
+        // )
+        if (contract.contract_type_id == 2) {
+            fillFFTenant();
+            let uniDetails = [];
+            // console.log('Agreemant :', agreement);
+            if (editedUnit && Array.isArray(editedUnit) && editedUnit.length > 0) {
+                unitDetails = editedUnit
+                    .filter(u => u.contract_unit_detail)
+                    .map(u => u.contract_unit_detail);
+            } else {
+                // alert('ff');
                 unitDetails = contract?.contract_unit?.contract_unit_details || [];
-                unit_details = unitDetails;
-            }
-            if (
-                (selectedContractType && selectedContractType.contract_type === 'Fama Faateh')
-            ) {
-                fillFFTenant();
-                let uniDetails = [];
-                // console.log('Agreemant :', agreement);
-                if (editedUnit && Array.isArray(editedUnit) && editedUnit.length > 0) {
-                    unitDetails = editedUnit
-                        .filter(u => u.contract_unit_detail)
-                        .map(u => u.contract_unit_detail);
-                } else {
-                    // alert('ff');
-                    unitDetails = contract?.contract_unit?.contract_unit_details || [];
-                    // console.log('unit', unitDetails);
+                // console.log('unit', unitDetails);
 
-                }
-                unit_details = unitDetails;
-                let html = `
+            }
+            unit_details = unitDetails;
+            let html = `
                                 <div class="card-body">
                                     <h5 class="mb-3">
                                         <i class="fas fa-door-open text-info"></i> Unit Details - ${selectedContractType.contract_type}
                                     </h5>
                             `;
-                // console.log('unitdetails', unitDetails);
-                // console.log("editedUnit", editedUnit);
+            // console.log('unitdetails', unitDetails);
+            // console.log("editedUnit", editedUnit);
 
-                unitDetails.forEach((u, index) => {
-                    const type = allunittypes?.find(t => t.id == u.unit_type_id)?.unit_type || 'Unknown';
-                    const subunitCount = u.subunitcount_per_unit || 0;
-                    const rent = parseFloat(u.total_rent_per_unit_per_month);
-                    const annum = parseFloat(u.rent_per_unit_per_annum);
+            unitDetails.forEach((u, index) => {
+                const type = allunittypes?.find(t => t.id == u.unit_type_id)?.unit_type || 'Unknown';
+                const subunitCount = u.subunitcount_per_unit || 0;
+                const rent = parseFloat(u.total_rent_per_unit_per_month);
+                const annum = parseFloat(u.rent_per_unit_per_annum);
 
 
-                    html += `
+                html += `
                                 <div class=" mb-3 ">
                                             <div class="row unit-row" data-row-index=${index}>
 
@@ -1129,120 +1131,122 @@
                                             </div>
                                         </div>
                             `;
-                });
+            });
 
-                html += `</div>`;
-                $('#unit_details_div_ff')
-                    .removeClass('d-none')
-                    .html(html);
+            html += `</div>`;
+            $('#unit_details_div_ff')
+                .removeClass('d-none')
+                .html(html);
 
-                $('#unit_details_div_df').addClass('d-none');
+            $('#unit_details_div_df').addClass('d-none');
 
 
 
-            } else if (selectedContractType && selectedContractType.contract_type === 'Direct Fama') {
-                if (agreement && agreement.agreement_units && agreement.agreement_units.length > 0) {
-                    // console.log('Agreemant :', agreement);
+        }
+        //  else if (selectedContractType && selectedContractType.contract_type === 'Direct Fama') {
+        else if (contract.contract_type_id == 1) {
+            if (agreement && agreement.agreement_units && agreement.agreement_units.length > 0) {
+                // console.log('Agreemant :', agreement);
 
-                    const agreementUnitId = agreement.agreement_units[0].id;
+                const agreementUnitId = agreement.agreement_units[0].id;
 
-                    $('#unit_id').val(agreementUnitId);
-                }
-                $('#unit_details_div_ff').addClass('d-none');
-                if (contract?.contract_unit
-                    ?.business_type == 1) {
-                    // alert('disabling subunit');
-                    $('.subunit_number_div select').prop('disabled', true);
-                } else {
-                    $('.subunit_number_div select').prop('disabled', false);
-                }
-                $('#unit_details_div_df').removeClass('d-none');
-
+                $('#unit_id').val(agreementUnitId);
             }
-
-
-
-            const contract_start = contract?.contract_detail?.start_date ?? '';
-            const contract_end = contract?.contract_detail?.end_date ?? '';
-            const ct_duration_months = contract?.contract_detail?.duration_in_months ?? 0;
-            if (!agreement) {
-                if (contract_start) {
-                    const startDateObj = parseDateCustom(contract_start);
-                    const formattedStart =
-                        `${String(startDateObj.getDate()).padStart(2, '0')}-${String(startDateObj.getMonth() + 1).padStart(2, '0')}-${startDateObj.getFullYear()}`;
-                    $('#start_date').val(formattedStart).prop('readonly', true);
-                } else {
-                    $('#start_date').val('');
-                }
-                if (contract_end) {
-                    const endDateObj = parseDateCustom(contract_end);
-                    const formattedEnd =
-                        `${String(endDateObj.getDate()).padStart(2, '0')}-${String(endDateObj.getMonth() + 1).padStart(2, '0')}-${endDateObj.getFullYear()}`;
-                    $('#end_date').val(formattedEnd).prop('readonly', true);
-                } else {
-                    $('#end_date').val('');
-                }
-                $('#duration_months').val(ct_duration_months).prop('readonly', true);
-                defaultStart = moment($('#start_date').val(), "DD-MM-YYYY");
-                defaultEnd = moment($('#end_date').val(), "DD-MM-YYYY");
-                defaultDuration = $("#duration_months").val();
-                // defaultDuration = payment_count;
-                console.log('Default values set:', defaultStart, defaultEnd, defaultDuration);
-                // console.log('Default values set:', defaultStart, defaultEnd, defaultDuration);
+            $('#unit_details_div_ff').addClass('d-none');
+            if (contract?.contract_unit
+                ?.business_type == 1) {
+                // alert('disabling subunit');
+                $('.subunit_number_div select').prop('disabled', true);
+            } else {
+                $('.subunit_number_div select').prop('disabled', false);
             }
+            $('#unit_details_div_df').removeClass('d-none');
+
+        }
 
 
+
+        const contract_start = contract?.contract_detail?.start_date ?? '';
+        const contract_end = contract?.contract_detail?.end_date ?? '';
+        const ct_duration_months = contract?.contract_detail?.duration_in_months ?? 0;
+        if (!agreement) {
+            if (contract_start) {
+                const startDateObj = parseDateCustom(contract_start);
+                const formattedStart =
+                    `${String(startDateObj.getDate()).padStart(2, '0')}-${String(startDateObj.getMonth() + 1).padStart(2, '0')}-${startDateObj.getFullYear()}`;
+                $('#start_date').val(formattedStart).prop('readonly', true);
+            } else {
+                $('#start_date').val('');
+            }
+            if (contract_end) {
+                const endDateObj = parseDateCustom(contract_end);
+                const formattedEnd =
+                    `${String(endDateObj.getDate()).padStart(2, '0')}-${String(endDateObj.getMonth() + 1).padStart(2, '0')}-${endDateObj.getFullYear()}`;
+                $('#end_date').val(formattedEnd).prop('readonly', true);
+            } else {
+                $('#end_date').val('');
+            }
+            $('#duration_months').val(ct_duration_months).prop('readonly', true);
             defaultStart = moment($('#start_date').val(), "DD-MM-YYYY");
             defaultEnd = moment($('#end_date').val(), "DD-MM-YYYY");
             defaultDuration = $("#duration_months").val();
-
-
-            // 15/01/2026
-            $('#start_date').prop('readonly', true);
-            $('#end_date').prop('readonly', true);
-
-
+            // defaultDuration = payment_count;
+            console.log('Default values set:', defaultStart, defaultEnd, defaultDuration);
             // console.log('Default values set:', defaultStart, defaultEnd, defaultDuration);
+        }
+
+
+        defaultStart = moment($('#start_date').val(), "DD-MM-YYYY");
+        defaultEnd = moment($('#end_date').val(), "DD-MM-YYYY");
+        defaultDuration = $("#duration_months").val();
+
+
+        // 15/01/2026
+        $('#start_date').prop('readonly', true);
+        $('#end_date').prop('readonly', true);
+
+
+        // console.log('Default values set:', defaultStart, defaultEnd, defaultDuration);
 
 
 
 
-            payment_count = contract?.contract_payment_receivables_count ?? 0;
-            if (agreement && agreement.agreement_payment) {
-                const installmentId = agreement.agreement_payment.installment_id;
-                $('#no_of_installments option').each(function() {
-                    const optionValue = $(this).val();
-                    if (parseInt(optionValue) === parseInt(installmentId)) {
-                        $(this).prop('selected', true);
-                        $(this).next('.select2-container')
-                            .find('.select2-selection')
-                            .addClass('readonly');
+        payment_count = contract?.contract_payment_receivables_count ?? 0;
+        if (agreement && agreement.agreement_payment) {
+            const installmentId = agreement.agreement_payment.installment_id;
+            $('#no_of_installments option').each(function() {
+                const optionValue = $(this).val();
+                if (parseInt(optionValue) === parseInt(installmentId)) {
+                    $(this).prop('selected', true);
+                    $(this).next('.select2-container')
+                        .find('.select2-selection')
+                        .addClass('readonly');
 
-                        $('#no_of_installments').trigger('change');
-                    }
-                });
-            } else {
-                $('#no_of_installments option').each(function() {
-                    const optionText = $(this).text().trim();
-                    const countText = payment_count.toString().trim();
-                    if (optionText === countText) {
-                        console.log('Selecting installment option:', countText);
-                        $(this).prop('selected', true);
-                        $('#no_of_installments').trigger('change');
-                    }
-                });
-            }
-            // console.log('contracttype', contract.contract_type_id);
-            // console.log('business_type', contract.contract_unit.business_type);
-            // console.log("contrat", contract);
-            if (contract.contract_type_id === 2 ||
-                (contract.contract_type_id === 1 && contract.contract_unit.business_type === 1)) {
-                // alert("test");
-                checkTerminatedAgreement(contractId);
-            }
-            if (contract.contract_type_id === 1 && contract.contract_unit.business_type === 1) {
-                $(".rent_per_month").prop('readonly', true);
-            }
+                    $('#no_of_installments').trigger('change');
+                }
+            });
+        } else {
+            $('#no_of_installments option').each(function() {
+                const optionText = $(this).text().trim();
+                const countText = payment_count.toString().trim();
+                if (optionText === countText) {
+                    console.log('Selecting installment option:', countText);
+                    $(this).prop('selected', true);
+                    $('#no_of_installments').trigger('change');
+                }
+            });
+        }
+        // console.log('contracttype', contract.contract_type_id);
+        // console.log('business_type', contract.contract_unit.business_type);
+        // console.log("contrat", contract);
+        if (contract.contract_type_id === 2 ||
+            (contract.contract_type_id === 1 && contract.contract_unit.business_type === 1)) {
+            // alert("test");
+            checkTerminatedAgreement(contractId);
+        }
+        if (contract.contract_type_id === 1 && contract.contract_unit.business_type === 1) {
+            $(".rent_per_month").prop('readonly', true);
+        }
 
 
 
