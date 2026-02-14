@@ -143,4 +143,24 @@ class User extends Authenticatable
         // Returns true if user has **any permission** in the range
         return $validPermissions->isNotEmpty();
     }
+
+
+    // checking if there is any permission for the user in the company 
+    public function hasAnyPermission(array $permissionNames, $companyId = null): bool
+    {
+        $query = \DB::table('user_permissions')
+            ->join('permissions', 'permissions.id', '=', 'user_permissions.permission_id')
+            ->where('user_permissions.user_id', $this->id)
+            ->whereIn('permissions.permission_name', $permissionNames);
+
+        // Only filter by company if a companyId is provided
+        if (!is_null($companyId)) {
+            $query->where(function ($q) use ($companyId) {
+                $q->where('user_permissions.company_id', $companyId)
+                    ->orWhereNull('user_permissions.company_id'); // include global permissions
+            });
+        }
+
+        return $query->exists();
+    }
 }
