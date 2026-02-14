@@ -74,6 +74,7 @@ class AgreementUnitService
             }
             makeUnitVacant($ct_unit_id, $contract_id);
             makeContractAvailable($contract_id);
+            deleteBifurcations($ct_unit_id);
 
             $deleteResult = $this->agreementUnitRepository->delete($unitId, $contract_id);
 
