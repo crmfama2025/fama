@@ -548,9 +548,11 @@ namespace App\Models{
  * @property int|null $paid_by
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int|null $paid_company_id
  * @property-read \App\Models\AgreementPaymentDetail|null $agreementPaymentDetail
  * @property-read \App\Models\Bank|null $paidBank
  * @property-read \App\Models\User|null $paidBy
+ * @property-read \App\Models\Company|null $paidCompany
  * @property-read \App\Models\PaymentMode|null $paidMode
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable newQuery()
@@ -563,6 +565,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable wherePaidBankId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable wherePaidBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable wherePaidChequeNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable wherePaidCompanyId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable wherePaidDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable wherePaidModeId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable wherePaymentRemarks($value)
@@ -942,6 +945,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property int|null $company_id
  * @property int $returned_status 0-Normal Clear, 1-Returned
+ * @property-read \App\Models\Company|null $company
  * @property-read \App\Models\Contract|null $contract
  * @property-read \App\Models\ContractPaymentDetail|null $contractPaymentDetail
  * @property-read \App\Models\Bank|null $paidBank
@@ -1736,6 +1740,7 @@ namespace App\Models{
  * @property int|null $termination_requested_by
  * @property int|null $terminated_by
  * @property string $termination_outstanding
+ * @property string $termination_referral_commission_outstanding
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Investment> $childInvestments
  * @property-read int|null $child_investments_count
  * @property-read \App\Models\Company|null $company
@@ -1805,6 +1810,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereTerminationDocument($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereTerminationDuration($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereTerminationOutstanding($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Investment whereTerminationReferralCommissionOutstanding($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereTerminationRequestedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereTerminationRequestedDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereTotalProfitReleased($value)

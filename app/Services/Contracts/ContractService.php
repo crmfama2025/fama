@@ -70,6 +70,11 @@ class ContractService
         return $this->contractRepo->getAllDataById($id);
     }
 
+    public function getindirect($id)
+    {
+        return $this->contractRepo->getindirect($id);
+    }
+
     public function getDropdownData(): array
     {
         return [
@@ -87,8 +92,10 @@ class ContractService
             'UnitTypes' => UnitType::all(),
             'UnitStatus' => UnitStatus::all(),
             'UnitSizeUnit' => UnitSizeUnit::all(),
+            'indirect' => $this->contractRepo->allNotIndirect(),
         ];
     }
+
 
     public function createOrRestore(array $data, $user_id = null)
     {
@@ -108,8 +115,23 @@ class ContractService
 
         return DB::transaction(function () use ($data, $contract_renewal_status) {
             $this->validate($data['contract'], (!isset($data['contract']['renewal'])) ? $data['contract']['id'] ?? null : 0);
+            if ($data['contract']['indirect_contract_id']) {
+                $data['contract']['indirect_status'] = 1;
+            } else {
+                $data['contract']['indirect_status'] = 0;
+                $data['contract']['indirect_contract_id'] = 0;
+                $data['contract']['indirect_company_id'] = 0;
+            }
+
 
             $contract = $this->contractRepo->create($data['contract']);
+            // dd($contract->indirect_status);
+            if ($contract->indirect_status == 1 && $contract->indirect_contract_id != 0) {
+                // dd("test");
+                $this->contractRepo->update($contract->indirect_contract_id, [
+                    'is_indirect_contract' => 1
+                ]);
+            }
             // Store related details
 
             if ($contract_renewal_status == 1) {
@@ -157,9 +179,31 @@ class ContractService
         return DB::transaction(function () use ($id, $data) {
             $data['contract']['updated_by'] = auth()->user()->id;
             $this->validate($data['contract'], $data['contract']['id'] ?? null);
+            // dd($data['contract']);
+            if ($data['contract']['indirect_contract_id']) {
+                $data['contract']['indirect_status'] = 1;
+            } else {
+                $data['contract']['indirect_status'] = 0;
+                $data['contract']['indirect_contract_id'] = 0;
+                $data['contract']['indirect_company_id'] = 0;
+            }
 
             $contract = $this->contractRepo->update($id, $data['contract']);
+            $ind_ct_id = $contract->indirect_contract_id;
+            // dd($ind_ct_id);
+            // dd($contract);
             // Store related details
+            if (
+                $contract->indirect_status == 1 &&
+                $contract->indirect_contract_id !== 0
+            ) {
+                $this->contractRepo->update(
+                    $ind_ct_id,
+                    [
+                        'is_indirect_contract' => 1,
+                    ]
+                );
+            }
 
 
             $this->detailServ->update($data['detail'] ?? []);
@@ -222,6 +266,7 @@ class ContractService
         $columns = [
             ['data' => 'DT_RowIndex', 'name' => 'id'],
             ['data' => 'project_number', 'name' => 'project_number'],
+            ['data' => 'indirect_project', 'name' => 'project_number'],
             ['data' => 'business_type', 'name' => 'business_type'],
             ['data' => 'company_name', 'name' => 'company_name'],
             ['data' => 'no_of_units', 'name' => 'no_of_units'],
@@ -240,6 +285,16 @@ class ContractService
 
                 $number = 'P - ' . $row->project_number ?? '-';
                 $type = $row->contract_type->contract_type ?? '-';
+                // Indirect badge ONLY if indirect_contract_id != 0
+                $indirectHtml = '';
+                if ((int) $row->indirect_contract_id !== 0) {
+                    $indirectHtml = "
+
+                <span class='badge badge-danger' title='Indirect'>
+                Indirect
+                </span>
+           ";
+                }
 
                 // return "<strong class=''>{$number}</strong><p class='mb-0'><span>{$type}</span></p>
                 // </p>";
@@ -256,7 +311,14 @@ class ContractService
                 return "<strong>{$number}</strong>
             <p class='mb-0'>
                 <span class='{$badgeClass}'>{$type}</span>
-            </p>";
+            </p>
+             {$indirectHtml}";
+            })
+            ->addColumn('indirect_project', function ($row) {
+                $number = $row->indirectContract?->project_number ? 'P - ' . $row->indirectContract->project_number : '-';
+                $company = $row->indirectCompany?->company_name ?? '-';
+
+                return "<strong>{$number}</strong><br><p>{$company}</p>";
             })
             // ->addColumn('project_number', fn($row) => 'P - ' . ucfirst($row->project_number) ?? '-')
             ->addColumn('company_name', fn($row) => $row->company->company_name ?? '-')
@@ -383,7 +445,7 @@ class ContractService
                 return $action ?: '-';
             })
 
-            ->rawColumns(['project_number', 'action', 'status', 'business_type'])
+            ->rawColumns(['project_number', 'action', 'status', 'business_type', 'indirect_project'])
             ->with(['columns' => $columns])
             ->toJson();
     }
@@ -567,5 +629,24 @@ class ContractService
         if ($validator->fails()) {
             throw new ValidationException($validator);
         }
+    }
+    public function updateIndirectContract($contract)
+    {
+        $ind_id = $contract->indirect_contract_id;
+        $this->contractRepo->update($ind_id, [
+            'is_indirect_contract' => 0
+        ]);
+    }
+    public function updateIndirectParent($contract)
+    {
+        $id = $contract->id;
+        $parent_contract = Contract::where('indirect_contract_id', $id)->first();
+        // dd($contract);
+        $update = [
+            'indirect_contract_id' =>  0,
+            'indirect_company_id' =>  0,
+            'indirect_status' =>  0,
+        ];
+        $this->contractRepo->update($parent_contract->id, $update);
     }
 }

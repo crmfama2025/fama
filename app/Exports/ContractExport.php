@@ -86,6 +86,12 @@ class ContractExport implements FromCollection, WithHeadings
                         WHEN contract_status = 9 THEN 'Terminated'
                     END LIKE ?
                 ", ['%' . $search . '%'])
+                    ->orWhereRaw("
+                    CASE
+                        WHEN indirect_status = 1 THEN 'indirect'
+
+                    END LIKE ?
+                ", ['%' . $search . '%'])
                     ->orWhereRaw("CAST(contracts.id AS CHAR) LIKE ?", ["%{$search}%"]);
             });
         }
@@ -95,10 +101,14 @@ class ContractExport implements FromCollection, WithHeadings
         }
         return $query->get()
             ->map(function ($contract) {
+                if ($contract->indirect_status == 1) {
+                    $indirect = "Indirect";
+                }
                 return [
                     'Project ID' => "P - " . $contract->project_number,
                     'Project CODE' => $contract->project_code,
                     'Contract Type' => $contract->contract_type->contract_type,
+                    'Direct/Indirect/Under Faateh' => $indirect ?? " - ",
                     'Business Type' => match ($contract->contract_unit->business_type) {
                         1 => "B2B",
                         2 => "B2C"
@@ -106,6 +116,9 @@ class ContractExport implements FromCollection, WithHeadings
                     'Start Date'  => $contract->contract_detail->start_date,
                     'End Date'  => $contract->contract_detail->end_date,
                     'Company Name' => $contract->company->company_name,
+                    'Indirect Company' => $contract->indirectCompany?->company_name
+                        ? $contract->indirectCompany->company_name . ' - Project ' . ($contract->indirectContract?->project_number ?? '')
+                        : ' - ',
                     'Vendor Name' => $contract->vendor->vendor_name,
                     'Buliding' => $contract->property->property_name,
                     'Locality' => $contract->locality->locality_name ?? '',
@@ -153,10 +166,12 @@ class ContractExport implements FromCollection, WithHeadings
             'ID',
             'Project CODE',
             'Contact Type',
+            'Direct/Indirect/Under Faateh',
             'Business Type',
             'Start Date',
             'End Date',
             'Company Name',
+            'Indirect Company',
             'Vendor Name',
             'Buliding',
             'Locality',

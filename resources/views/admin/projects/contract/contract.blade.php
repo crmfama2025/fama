@@ -101,6 +101,7 @@
                                                 <th style="width: 1%">#</th>
                                                 <th style="width:112px;">Actions</th>
                                                 <th>Project</th>
+                                                <th>Indirect Details</th>
                                                 <th>Business type</th>
                                                 <th>Status</th>
                                                 <th>Company Name</th>
@@ -442,6 +443,10 @@
                         name: 'contracts.project_number',
                     },
                     {
+                        data: 'indirect_project',
+                        name: 'indirect_project',
+
+                    }, {
                         data: 'business_type',
                         name: 'contract_units.business_type',
                     },
