@@ -23,6 +23,8 @@ class AgreementDocument extends Model
         'added_by',
         'updated_by',
         'deleted_by',
+        'issued_date',
+        'expiry_date'
     ];
 
     /**

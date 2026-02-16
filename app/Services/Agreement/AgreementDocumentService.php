@@ -83,6 +83,8 @@ class AgreementDocumentService
                 'original_document_path' => $path,
                 'original_document_name' => $doc['document_path']->getClientOriginalName(),
                 'added_by' => $addedBy,
+                'issued_date' => parseDate($doc['issued_date']) ?? null,
+                'expiry_date' => parseDate($doc['expiry_date']) ?? null,
             ];
 
             $createdDoc = $this->agreementDocRepository->create($doc_data);
@@ -152,6 +154,8 @@ class AgreementDocumentService
                         $existingDoc->original_document_name = $doc['document_path']->getClientOriginalName();
                         $existingDoc->updated_by = $updatedBy;
                     }
+                    $existingDoc->issued_date = parseDate($doc['issued_date']) ?? null;
+                    $existingDoc->expiry_date = parseDate($doc['expiry_date']) ?? null;
 
                     $existingDoc->save();
                     $this->updateAgreementFlags($agreement, $existingDoc->document_type);
@@ -204,7 +208,9 @@ class AgreementDocumentService
                 'original_document_path' => $path,
                 'original_document_name' => $doc['document_path']->getClientOriginalName(),
                 // 'updated_by' => $updatedBy,
-                'added_by' => $updatedBy
+                'added_by' => $updatedBy,
+                'issued_date' => parseDate($doc['issued_date']) ?? null,
+                'expiry_date' => parseDate($doc['expiry_date']) ?? null,
             ];
             // dd($doc_data);
 

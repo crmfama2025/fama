@@ -1,5 +1,10 @@
 @extends('admin.layout.admin_master')
 @section('custom_css')
+    <!-- daterange picker -->
+
+    <link rel="stylesheet" href="{{ asset('assets/daterangepicker/daterangepicker.css') }}">
+    <!-- Tempusdominus Bootstrap 4 -->
+    <link rel="stylesheet" href="{{ asset('assets/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css') }}">
     <style>
         .agreementTable tbody tr {
             background-color: #f6ffff;
@@ -54,6 +59,9 @@
                                             <th>#</th>
                                             <th>Document name</th>
                                             <th>Document Number</th>
+                                            <th>Issued Date</th>
+                                            <th>Expiry Date</th>
+                                            <th>Status</th>
                                             <th>view</th>
                                         </tr>
                                     </thead>
@@ -67,6 +75,15 @@
                                                         -
                                                     @else
                                                         {{ $doc->document_number }}
+                                                    @endif
+                                                </td>
+                                                <td>{{ getFormattedDate($doc->issued_date) ?? ' - ' }}</td>
+                                                <td>{{ getFormattedDate($doc->expiry_date) ?? ' - ' }}</td>
+                                                <td>
+                                                    @if ($doc->expiry_date && \Carbon\Carbon::parse($doc->expiry_date)->isPast())
+                                                        <span class="badge badge-danger">Expired</span>
+                                                    @else
+                                                        <span class="badge badge-success">Active</span>
                                                     @endif
                                                 </td>
                                                 <td>
@@ -100,7 +117,7 @@
             {{-- {{ dd($documents) }} --}}
 
             <div class="modal fade" id="modal-upload">
-                <div class="modal-dialog modal-lg">
+                <div class="modal-dialog modal-xl">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h4 class="modal-title">Upload Documents</h4>
@@ -134,7 +151,7 @@
                                             {{-- First Field --}}
                                             {{-- <input type="hidden" name="agreement_id" value="{{ $identity->id }}"> --}}
                                             @if ($identity->id !== 6)
-                                                <div class="form-group col-md-6">
+                                                <div class="form-group col-md-3">
                                                     <label for="document_number_{{ $index }}">
                                                         {{ $identity->first_field_label }}
                                                     </label>
@@ -151,7 +168,7 @@
                                                 value="{{ $identity->id }}">
 
                                             {{-- Second Field --}}
-                                            <div class="form-group col-md-6">
+                                            <div class="form-group col-md-3">
                                                 <label for="document_path_{{ $index }}">
                                                     {{ $identity->second_field_label }}
                                                 </label>
@@ -193,6 +210,48 @@
                                                     </div>
                                                 @endif
                                             </div>
+                                            <div class="form-group col-md-3">
+                                                <label class="asterisk">Issued Date</label>
+                                                <div class="input-group date" id="issuedDate_{{ $index }}"
+                                                    data-target-input="nearest">
+                                                    <input type="text"
+                                                        class="form-control datetimepicker-input startdate"
+                                                        name="documents[{{ $index }}][issued_date]"
+                                                        id="issued_date_{{ $index }}"
+                                                        data-target="#issuedDate_{{ $index }}"
+                                                        placeholder="dd-mm-YYYY"
+                                                        value="{{ $document && $document->issued_date ? \Carbon\Carbon::parse($document->issued_date)->format('d-m-Y') : '' }}" />
+                                                    <div class="input-group-append"
+                                                        data-target="#issuedDate_{{ $index }}"
+                                                        data-toggle="datetimepicker">
+                                                        <div class="input-group-text">
+                                                            <i class="fa fa-calendar"></i>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group col-md-3">
+                                                <label class="asterisk">Expiry Date</label>
+                                                <div class="input-group date" id="expiryDate_{{ $index }}"
+                                                    data-target-input="nearest">
+                                                    <input type="text"
+                                                        class="form-control datetimepicker-input startdate"
+                                                        name="documents[{{ $index }}][expiry_date]"
+                                                        id="expiry_date_{{ $index }}"
+                                                        data-target="#expiryDate_{{ $index }}"
+                                                        placeholder="dd-mm-YYYY"
+                                                        value="{{ $document && $document->expiry_date ? \Carbon\Carbon::parse($document->expiry_date)->format('d-m-Y') : '' }}" />
+                                                    <div class="input-group-append"
+                                                        data-target="#expiryDate_{{ $index }}"
+                                                        data-toggle="datetimepicker">
+                                                        <div class="input-group-text">
+                                                            <i class="fa fa-calendar"></i>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
 
                                         </div>
                                         <hr class=" d-block d-sm-none">
@@ -219,6 +278,18 @@
     <!-- /.content-wrapper -->
 @endsection
 @section('custom_js')
+    <script src="{{ asset('assets/moment/moment.min.js') }}"></script>
+    <!-- Tempusdominus Bootstrap 4 -->
+
+    <script src="{{ asset('assets/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js') }}"></script>
+    <!-- date-range-picker -->
+
+    <script src="{{ asset('assets/daterangepicker/daterangepicker.js') }}"></script>
+    <script>
+        $('.input-group.date').datetimepicker({
+            format: 'DD-MM-YYYY'
+        });
+    </script>
     <script>
         $('.importBtn').click(function(e) {
 
