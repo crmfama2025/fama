@@ -120,14 +120,15 @@ class ContractService
 
         return DB::transaction(function () use ($data, $contract_renewal_status) {
             $this->validate($data['contract'], (!isset($data['contract']['renewal'])) ? $data['contract']['id'] ?? null : 0);
-            if ($data['contract']['indirect_contract_id']) {
+            $indirectContractId = $data['contract']['indirect_contract_id'] ?? null;
+
+            if (!empty($indirectContractId)) {
                 $data['contract']['indirect_status'] = 1;
             } else {
                 $data['contract']['indirect_status'] = 0;
                 $data['contract']['indirect_contract_id'] = 0;
                 $data['contract']['indirect_company_id'] = 0;
             }
-
 
             $contract = $this->contractRepo->create($data['contract']);
             // dd($contract->indirect_status);
@@ -554,7 +555,7 @@ class ContractService
             'renew_reject_reason' => $data->renew_reject_reason,
             'renew_reject_status' => 1,
             'renew_rejected_by'   => auth()->user()->id,
-            'contract_status' => 10 // project dropped 
+            'contract_status' => 10 // project dropped
         ];
 
         return $this->contractRepo->updateRejectRenew($contract_id, $dataArr);
