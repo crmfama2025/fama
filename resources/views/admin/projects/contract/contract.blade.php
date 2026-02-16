@@ -101,7 +101,6 @@
                                                 <th style="width: 1%">#</th>
                                                 <th style="width:112px;">Actions</th>
                                                 <th>Project</th>
-                                                <th>Indirect Details</th>
                                                 <th>Business type</th>
                                                 <th>Status</th>
                                                 <th>Company Name</th>
@@ -114,6 +113,8 @@
                                                 <th>Property Name</th>
                                                 <th>Area</th>
                                                 <th>Locality</th>
+                                                <th>Indirect Details</th>
+
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -443,10 +444,6 @@
                         name: 'contracts.project_number',
                     },
                     {
-                        data: 'indirect_project',
-                        name: 'indirect_project',
-
-                    }, {
                         data: 'business_type',
                         name: 'contract_units.business_type',
                     },
@@ -518,6 +515,11 @@
                     {
                         data: 'locality_name',
                         name: 'localities.locality_name',
+                    },
+                    {
+                        data: 'indirect_project',
+                        name: 'indirect_project',
+
                     },
 
 
