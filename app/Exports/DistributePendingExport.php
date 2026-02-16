@@ -25,6 +25,8 @@ class DistributePendingExport implements FromCollection, WithHeadings
         $nextWeek = Carbon::today()->addDays(7);
         $filters = $this->filter;
 
+        $permittedCompanyIds = getUserPermittedCompanyIds(auth()->user()->id, 'finance.payout');
+
         $query = InvestorPayout::query()
             ->with([
                 'investment',
@@ -34,7 +36,8 @@ class DistributePendingExport implements FromCollection, WithHeadings
 
             ->whereColumn('investor_payouts.payout_amount', '>', 'investor_payouts.amount_paid')
             ->where('investor_payouts.is_processed', 0)
-            ->whereHas('investment', function ($q) use ($nextWeek, $filters) {
+            ->whereHas('investment', function ($q) use ($nextWeek, $filters, $permittedCompanyIds) {
+                $q->whereIn('company_id', $permittedCompanyIds);
                 $q->where('terminate_status', '!=', 2);
 
                 if (empty($filters)) {
@@ -111,7 +114,7 @@ class DistributePendingExport implements FromCollection, WithHeadings
 
                 return [
                     'Investor Name' => $investor->investor_name ?? '-',
-
+                    'Company Name' => $payout->investment?->company?->company_name ?? '-',
                     'Payout Date' => match ($payout->payout_type) {
                         1 => optional($payout->investment)->next_profit_release_date,
                         2 => optional($payout->investment)->next_referral_commission_release_date,
@@ -138,6 +141,7 @@ class DistributePendingExport implements FromCollection, WithHeadings
     {
         return [
             'Investor Name',
+            'Company Name',
             'Payout Date',
             'Payout Type',
             'Amount Pending',

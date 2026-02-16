@@ -64,12 +64,12 @@ class BankRepository
     public function getQuery(array $filters = []): Builder
     {
         // print_r($filters);
-        $query = Bank::query()
+        $query = Bank::query()->accessible('view')
             ->select('banks.*') //, 'companies.company_name'
             ->join('companies', 'companies.id', '=', 'banks.company_id');
 
         if (!empty($filters['search'])) {
-            $query->orwhere('bank_name', 'like', '%' . $filters['search'] . '%')
+            $query->where('bank_name', 'like', '%' . $filters['search'] . '%')
                 ->orWhere('bank_code', 'like', '%' . $filters['search'] . '%')
                 ->orWhere('bank_short_code', 'like', '%' . $filters['search'] . '%')
                 ->orWhereHas('company', function ($q) use ($filters) {

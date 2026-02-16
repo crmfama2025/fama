@@ -41,18 +41,18 @@
                             <div class="card-header">
                                 <!-- <h3 class="card-title">Contract Details</h3> -->
                                 <span class="float-right">
-                                    @can('contract.add')
+                                    @if (auth()->user()->hasAnyPermission(['contract.add']))
                                         <a href="{{ route('contract.create') }}" class="btn btn-info float-right m-1">
                                             Add Contract
                                         </a>
-                                    @endcan
+                                    @endif
 
-                                    @can('contract.renew')
+                                    @if (auth()->user()->hasAnyPermission(['contract.renew']))
                                         <a href="{{ route('contract.renewal_pending_list') }}"
                                             class="btn btn-secondary float-right m-1">
                                             Renew Contract
                                         </a>
-                                    @endcan
+                                    @endif
                                     {{-- <button class="btn btn-secondary float-right m-1" data-toggle="modal"
                                         data-target="#modal-import">Import</button> --}}
                                 </span>
@@ -625,6 +625,8 @@
             const form = document.getElementById("ContractCommentsForm");
             var fdata = new FormData(form);
 
+
+
             let isValid = true;
             $(".error-text").remove(); // clear old errors
             $(form).find("[required]:visible").each(function() {
@@ -653,6 +655,7 @@
                 confirmButtonText: "Yes, send!"
             }).then((result) => {
                 if (result.isConfirmed) {
+                    showLoader();
                     $.ajax({
                         type: "POST",
                         url: '/contract-send-for-approval',
@@ -666,6 +669,7 @@
                             $('#modal-send-approval').find('input, textarea, select').val('');
 
                             $('#contractTable').DataTable().ajax.reload();
+                            hideLoader();
                         }
                     });
                 }
@@ -759,6 +763,7 @@
             } else {
                 $('.paymentModeChecks').hide();
                 $('.bankTerminate').hide();
+                $('.companyTerminate').hide();
                 $('.chequeTerminate').hide();
             }
         });

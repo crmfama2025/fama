@@ -521,7 +521,7 @@ class InvestmentService
                 $action = '';
 
                 if (!empty($filters['investor_id'])) {
-                    if (Gate::allows('investment.view')) {
+                    if (auth()->user()->hasAnyPermission(['investment.view'], $row->company_id)) {
                         $action .= '<a href="' . route('investment.show', $row->id) . '"
                             class="btn btn-sm btn-primary m-1"
                             title="View Investment" target="_blank">
@@ -529,14 +529,14 @@ class InvestmentService
                         </a>';
                     }
                 } else {
-                    if (Gate::allows('investment.edit') && $row->is_profit_processed == 0) {
+                    if (auth()->user()->hasAnyPermission(['investment.edit'], $row->company_id) && $row->is_profit_processed == 0) {
                         $action .= '<a href="' . route('investment.edit', $row->id) . '"
                             class="btn btn-sm btn-info m-1 editInvestment"
                             title="Edit Investment">
                             <i class="fas fa-edit"></i>
                         </a>';
                     }
-                    if (Gate::allows('investment.view')) {
+                    if (auth()->user()->hasAnyPermission(['investment.view'], $row->company_id)) {
                         $action .= '<a href="' . route('investment.show', $row->id) . '"
                             class="btn btn-sm btn-primary m-1"
                             title="View Investment">
@@ -544,7 +544,7 @@ class InvestmentService
                         </a>';
                     }
 
-                    if (Gate::allows('investment.delete') && $row->is_profit_processed == 0 && $row->terminate_status == 0) {
+                    if (auth()->user()->hasAnyPermission(['investment.delete'], $row->company_id) && $row->is_profit_processed == 0 && $row->terminate_status == 0) {
                         $action .= '<button
                             class="btn btn-sm btn-danger m-1"
                             title="Delete Investment"
@@ -552,7 +552,7 @@ class InvestmentService
                             <i class="fas fa-trash-alt"></i>
                         </button>';
                     }
-                    if (!paymentFullyReceived($row->id) && Gate::allows('investment.submit_pending')) {
+                    if (!paymentFullyReceived($row->id) && auth()->user()->hasAnyPermission(['investment.submit_pending'], $row->company_id)) {
                         $action .= '
                             <button class="btn btn-sm btn-success m-1 openPendingModal"
                                 data-id="' . $row->id . '" data-balance="' . $row->balance_amount . '"
@@ -561,7 +561,7 @@ class InvestmentService
                             </button>
                         ';
                     }
-                    if (($row->terminate_status == 1) && Gate::allows('investment.terminate')) {
+                    if (($row->terminate_status == 1) && auth()->user()->hasAnyPermission(['investment.terminate'], $row->company_id)) {
                         $action .= '
                                 <button class="btn btn-sm btn-warning m-1 openTerminationModal"
                                 data-status = "' . $row->terminate_status . '"
@@ -578,7 +578,7 @@ class InvestmentService
                                     <i class="fas fa-file-signature"></i>
                                 </button>
                             ';
-                    } elseif (Gate::allows('investment.terminate') && ($row->terminate_status == 0) && ($row->is_profit_processed == 1)) {
+                    } elseif (auth()->user()->hasAnyPermission(['investment.terminate'], $row->company_id) && ($row->terminate_status == 0) && ($row->is_profit_processed == 1)) {
                         $action .= '
                             <button class="btn btn-sm btn-danger m-1 openTerminationModal"
                                 data-id="' . $row->id . '"
@@ -607,7 +607,11 @@ class InvestmentService
         $investors = $this->investorRepository->getInvestorsWithDetails();
         // dd($investors);
         $payoutBatches = PayoutBatch::where('status', 1)->get();
-        $companyBanks = Company::with('banks')->get();
+
+        $permittedCompanyIds = getUserPermittedCompanyIds(auth()->user()->id, 'investment');
+        $companyBanks = Company::with('banks')->whereIn('id', $permittedCompanyIds)->get();
+        $investedCompanyBanks = Company::with('banks')->get();
+
         $profitInterval = ProfitInterval::where('status', 1)->get();
         $referralFrequency = ReferralCommissionFrequency::where('status', 1)->get();
         $paymentTerms = PaymentTerms::where('status', 1)->get();
@@ -617,6 +621,7 @@ class InvestmentService
             'investors' => $investors,
             'payoutBatches' => $payoutBatches,
             'companyBanks' => $companyBanks,
+            'investedCompanyBanks' => $investedCompanyBanks,
             'profitInterval' => $profitInterval,
             'frequency' => $referralFrequency,
             'paymentTerms' => $paymentTerms
@@ -846,6 +851,7 @@ class InvestmentService
             ['data' => 'DT_RowIndex', 'name' => 'id'],
             ['data' => 'investment_date', 'name' => 'investment.investment_date'],
             ['data' => 'investor_name', 'name' => 'referrer.investor_name'],
+            ['data' => 'company_name', 'name' => 'referrer.investment.company.company_name'],
             ['data' => 'referral_commission_perc', 'name' => 'referral_commission_perc'],
             ['data' => 'referral_commission_amount', 'name' => 'referral_commission_amount'],
             ['data' => 'referral_commission_frequency', 'name' => 'commissionFrequency.commission_frequency_name'],
@@ -908,6 +914,17 @@ class InvestmentService
                     . e($row->referrer->investor_name) . ' - ' . e($row->referrer->investor_code) .
                     '</a>';
             })
+            ->addColumn('company_name', function ($row) {
+                if (!$row->referrer) {
+                    return '-';
+                }
+
+                $url = route('company.show', $row->investment?->company_id);
+
+                return '<a href="' . $url . '" class="text-primary fw-semibold text-decoration-none">'
+                    . e($row->investment?->company->company_name) .
+                    '</a>';
+            })
             ->addColumn('referred_investor_name', function ($row) {
                 if (!$row->investor) {
                     return '-';
@@ -944,7 +961,7 @@ class InvestmentService
                 return $action;
             })
 
-            ->rawColumns(['action', 'referral_status', 'investor_name', 'referred_investor_name', 'referred_investment_amount', 'term_name'])
+            ->rawColumns(['action', 'referral_status', 'investor_name', 'referred_investor_name', 'referred_investment_amount', 'term_name', 'company_name'])
             ->toJson();
     }
     public function getReferralDetails($id)

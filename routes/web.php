@@ -113,6 +113,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('export-user', [UserController::class, 'exportUsers'])->name('user.export');
     Route::get('user-profile', [UserController::class, 'userProfile'])->name('user.profile');
 
+
+
     Route::get('company-list', [CompanyController::class, 'getCompanies'])->name('company.list');
     Route::get('export-company', [CompanyController::class, 'exportCompany'])->name('company.export');
 
@@ -253,6 +255,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('investments/referrals-list', [ReferralController::class, 'getReferrals'])->name('referrals.list');
     Route::get('investments/referrals-view/{referral}', [ReferralController::class, 'show'])->name('referrals.show');
     Route::get('referrals/export-referral', [ReferralController::class, 'exportReferral'])->name('referral.export');
+
+    Route::get('user-managePermission/{id?}', [UserController::class, 'managePermission'])->name('user.managePermission');
+    Route::post('/user/company-permissions', [UserController::class, 'getCompanyPermissions'])
+        ->name('user.company.permissions');
+    Route::post(
+        '/user/company-permissions/store',
+        [UserController::class, 'storeCompanyPermissions']
+    )->name('user.company.permissions.store');
 });
 
 

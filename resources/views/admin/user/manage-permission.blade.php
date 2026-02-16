@@ -64,6 +64,53 @@
                         <div class="card">
                             <!-- /.card-header -->
                             <div class="card-body">
+                                <div class="d-flex justify-content-center row">
+                                    <div class="col-5">
+                                        <div class="card card-widget  shadow-sm">
+                                            <div class="bg-gradient-olive pl-4 py-2 widget-user-header">
+
+                                                <h5 class="widget-user-username"><i
+                                                        class="fa fa-solid mx-1 fa-user"></i>{{ $user->first_name }}
+                                                    {{ $user->last_name }}</h5>
+                                            </div>
+                                            <div class="card-footer p-0">
+                                                <div class="row">
+                                                    <div class="col-3">
+                                                        <img src="{{ asset('storage/' . $user->profile_path) }}"
+                                                            alt="Profile Photo" height="125">
+                                                    </div>
+                                                    <ul class="nav flex-column col-9">
+                                                        <li class="nav-item">
+                                                            <div class="nav-link">
+                                                                Email
+                                                                <span
+                                                                    class="float-right text-bold">{{ $user->email }}</span>
+                                                            </div>
+                                                        </li>
+                                                        <li class="nav-item">
+                                                            <div class="nav-link">
+                                                                Phone Number
+                                                                <span
+                                                                    class="float-right text-bold">{{ $user->phone }}</span>
+                                                            </div>
+                                                        </li>
+
+                                                        <li class="nav-item">
+                                                            <div class="nav-link">
+                                                                User Type <span
+                                                                    class="float-right text-bold text-capitalize ">{{ $user->user_type->user_type }}</span>
+                                                            </div>
+                                                        </li>
+
+
+                                                    </ul>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <form action="javascript:void(0)" id="UserForm" enctype="multipart/form-data">
                                     @csrf
                                     <input type="hidden" name="id" id="user_id" value="{{ $user->id ?? '' }}">
@@ -89,7 +136,7 @@
                                         </div>
                                         <div class="bs-stepper-content card p-3"> --}}
                                     <!-- your steps content here -->
-                                    <div id="logins-part" class="content step-content" role="tabpanel"
+                                    {{-- <div id="logins-part" class="content step-content" role="tabpanel"
                                         aria-labelledby="logins-part-trigger">
                                         <div class="form-group row">
                                             <div class="col-md-4">
@@ -168,96 +215,122 @@
                                                     class="form-control" @if (!isset($user)) required @endif>
                                             </div>
                                         </div>
-                                        <span class="float-right">
-                                            <button type="submit" class="btn btn-info mr-2 ">Submit</button>
-                                        </span>
-                                        {{-- <button type="button" class="btn btn-info nextBtn">Next</button> --}}
-                                        {{-- </div>
-                                            <div id="information-part" class="content step-content" role="tabpanel"
-                                                aria-labelledby="information-part-trigger">
-                                                <div class="form-group row">
-                                                    <div class="table-responsive permission-table-wrapper"
-                                                        style="max-height: 400px; overflow-y: auto;">
-                                                        <table class="table table-bordered permission-table"
-                                                            style="position: sticky;">
-                                                            <thead style="width: 100%">
-                                                                <tr>
-                                                                    <th></th>
-                                                                    <th>All</th>
-                                                                    @foreach ($subModules as $sub)
-                                                                        <th>{{ ucfirst(str_replace('_', ' ', $sub)) }}</th>
-                                                                    @endforeach
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody style="width: 100%">
-                                                                @foreach ($permissions as $module)
-                                                                    <tr>
-                                                                        <td>{{ $module->permission_name }}</td>
-                                                                        <td>
-                                                                            <div class="icheck-success d-inline">
-                                                                                <input type="checkbox"
-                                                                                    id="{{ $module->permission_name }}"
-                                                                                    class="masterParent"
-                                                                                    name="permission_id[]"
-                                                                                    data-row="{{ $module->id }}"
-                                                                                    value="{{ $module->id }}"
-                                                                                    {{ in_array($module->id, $userPermissionIds) ? 'checked' : '' }}>
-                                                                                <label class="labelpermission"
-                                                                                    for="{{ $module->permission_name }}">
-                                                                                </label>
-                                                                            </div>
-                                                                        </td>
-                                                                        @foreach ($subModules as $sub)
-                                                                            <td>
-                                                                                @foreach ($module->children as $child)
-                                                                                    @if ($child->getSubmoduleName() == $sub)
-                                                                                        <div
-                                                                                            class="icheck-success d-inline">
-                                                                                            <input type="checkbox"
-                                                                                                id="{{ $module->permission_name }}{{ $child->getSubmoduleName() }}"
-                                                                                                class="masterChild{{ $module->id }}"
-                                                                                                name="permission_id[]"
-                                                                                                value="{{ $child->id }}"
-                                                                                                {{ in_array($child->id, $userPermissionIds) ? 'checked' : '' }}>
-                                                                                            <label class="labelpermission"
-                                                                                                for="{{ $module->permission_name }}{{ $child->getSubmoduleName() }}">
-
-                                                                                            </label>
-                                                                                        </div>
-                                                                                    @endif
-                                                                                @endforeach
-                                                                            </td>
-                                                                        @endforeach
-                                                                    </tr>
-                                                                @endforeach
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                </div>
-                                                <span class="float-right">
-                                                    <button type="button" class="btn btn-info"
-                                                        onclick="stepper.previous()">Previous</button>
-                                                    <button type="submit" class="btn btn-info mr-2">Submit</button>
-                                                </span>
+                                        <button type="button" class="btn btn-info nextBtn">Next</button>
+                                    </div> --}}
+                                    {{-- <div id="information-part" class="content step-content" role="tabpanel"
+                                        aria-labelledby="information-part-trigger"> --}}
 
 
-                                            </div>
-                                        </div> --}}
-                                    </div>
-                                </form>
+
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>Company</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($companies as $company)
+                                                @if (isset($companyPermissionCounts[$company->id]) && $companyPermissionCounts[$company->id] > 0)
+                                                    @php
+                                                        $permissionText = "<i class='fas fa-pencil-alt'></i>";
+                                                        $class = 'btn-info';
+                                                    @endphp
+                                                @else
+                                                    @php
+                                                        $permissionText = "<i class='fas fa-plus'></i>";
+                                                        $class = 'btn-primary';
+                                                    @endphp
+                                                @endif
+                                                <tr>
+                                                    <td>{{ $company->company_name }}</td>
+                                                    <td>
+                                                        <button class="btn btn-sm {{ $class }}"
+                                                            onclick="openPermissionModal({{ $company->id }})">
+                                                            {!! $permissionText !!}
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+
+
+                                    <span class="float-right">
+
+                                        <a href="{{ route('user.index') }}" class="btn btn-info mr-2">back</a>
+                                        {{-- <button type="submit" class="btn btn-info mr-2">Submit</button> --}}
+                                    </span>
+
+
+                                    {{-- </div> --}}
                             </div>
-                            <!-- /.card-body -->
                         </div>
-                        <!-- /.card -->
-                    </div>
-                    <!-- /.col -->
-                </div>
-                <!-- /.row -->
-            </div>
-            <!-- /.container-fluid -->
+                        </form>
 
-        </section>
-        <!-- /.content -->
+                    </div>
+                    <!-- /.card-body -->
+
+                </div>
+                <!-- /.card -->
+
+
+
+            </div>
+            <!-- /.col -->
+    </div>
+    <!-- /.row -->
+    </div>
+    <!-- /.container-fluid -->
+
+    {{-- <div class="modal fade" id="">
+        <div class="modal-dialog modal-xl">
+            <form id="PermissionForm">
+                @csrf
+                <input type="hidden" name="user_id" value="{{ $user->id }}">
+                <input type="hidden" name="company_id" id="modal_company_id">
+
+                <div class="modal-body">
+                    @include('admin.user.permission-table')
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-success">Save</button>
+                </div>
+            </form>
+        </div>
+    </div> --}}
+
+
+    <div class="modal fade" id="permissionModal">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Permission</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form action="" id="areaImportForm" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <input type="hidden" name="user_id" value="{{ $user->id }}">
+                    <input type="hidden" name="company_id" id="modal_company_id">
+                    <div class="modal-body">
+                        @include('admin.user.permission-table')
+                        <!-- /.card-body -->
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-info" onclick="submitPermissionForm()">Submit</button>
+                    </div>
+                </form>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    </section>
+    <!-- /.content -->
     </div>
     <!-- /.content-wrapper -->
 @endsection
@@ -270,40 +343,46 @@
     @include('admin.user.validation-js')
 
     <script>
-        // BS-Stepper Init
-        document.addEventListener('DOMContentLoaded', function() {
-            window.stepper = new Stepper(document.querySelector('.bs-stepper'))
-        })
-
-        $('#phone').on('blur', function() {
-            phoneValidation(this, 'phone');
+        $('.masterParent').on('change', function() {
+            const row = $(this).data('row');
+            $('.masterChild' + row).prop('checked', this.checked);
         });
 
-        $('#UserForm').submit(function(e) {
-            e.preventDefault();
-            $('#company_id').prop('disabled', false);
+        function openPermissionModal(companyId) {
+            showLoader();
+            $('#modal_company_id').val(companyId);
 
-            var form = document.getElementById('UserForm');
-            var fdata = new FormData(form);
+            // Clear all checkboxes first
+            $('input[name="permission_id[]"]').prop('checked', false);
 
-            $.ajax({
-                type: "POST",
-                url: "{{ route('user.store') }}",
-                data: fdata,
-                dataType: "json",
-                processData: false,
-                contentType: false,
-                success: function(response) {
-                    toastr.success(response.message);
-                    window.location.href = "{{ route('user.index') }}";
-                },
-                error: function(errors) {
-                    toastr.error(errors.responseJSON.message);
-                    if ($('#user_id').val()) {
-                        $('#company_id').prop('disabled', true);
-                    }
-                }
+            $.post("{{ route('user.company.permissions') }}", {
+                _token: "{{ csrf_token() }}",
+                user_id: "{{ $user->id }}",
+                company_id: companyId
+            }, function(res) {
+                res.permission_ids.forEach(function(id) {
+                    $('input[name="permission_id[]"][value="' + id + '"]')
+                        .prop('checked', true);
+                });
+
+                hideLoader();
+                $('#permissionModal').modal('show');
+
             });
-        });
+        }
+
+        function submitPermissionForm() {
+            showLoader();
+            $.post(
+                "{{ route('user.company.permissions.store') }}",
+                $('#areaImportForm').serialize(),
+                function(res) {
+                    toastr.success(res.message);
+                    $('#permissionModal').modal('hide');
+                    window.location.reload();
+                    hideLoader();
+                }
+            );
+        }
     </script>
 @endsection

@@ -23,6 +23,9 @@ class PayablePendingExport implements FromCollection, WithHeadings
 
     public function collection()
     {
+        // Get company IDs where user has finance.payable permission
+        $permittedCompanyIds = getUserPermittedCompanyIds(auth()->id(), 'finance.payable_cheque_clearing');
+
         $query = ContractPaymentDetail::query()
             ->with([
                 'contract',
@@ -34,8 +37,9 @@ class PayablePendingExport implements FromCollection, WithHeadings
                 'payment_mode',
             ]);
 
-        $query->whereHas('contract', function ($q) {
-            $q->where('contract_status', 7);
+        $query->whereHas('contract', function ($q) use ($permittedCompanyIds) {
+            $q->where('contract_status', 7)
+                ->whereIn('company_id', $permittedCompanyIds);
         })
             ->where('paid_status', '!=', 1);
 
@@ -80,6 +84,8 @@ class PayablePendingExport implements FromCollection, WithHeadings
                     'Locality' => $payable->contract->locality->locality_name ?? '',
                     'Payment Due' => $payable->payment_date,
                     'Payment Amount' => $payable->payment_amount,
+                    'Paid Amount' => totalPaidPayable($payable->payables),
+                    'Balance' => (toNumeric($payable->payment_amount) - totalPaidPayable($payable->payables)),
                     'Paid Status' => match ($payable->paid_status) {
                         0 => 'Not Paid',
                         1 => 'Fully Paid',
@@ -116,6 +122,8 @@ class PayablePendingExport implements FromCollection, WithHeadings
             'Locality',
             'Payment Due',
             'Payment Amount',
+            'Paid Amount',
+            'Balance',
             'Paid Status',
             'Cheque Returned',
             'Cheque Returned Date',

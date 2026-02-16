@@ -25,6 +25,9 @@ class receivableReportExport implements FromCollection, WithHeadings, ShouldAuto
         $filters = $this->filters;
         // dd($filters);
 
+        // Get company IDs where user has finance.payable permission
+        $permittedCompanyIds = getUserPermittedCompanyIds(auth()->id(), 'finance.receivable_cheque_clearing');
+
         $query = ClearedReceivable::query()
             ->with([
                 'agreementPaymentDetail',
@@ -46,6 +49,10 @@ class receivableReportExport implements FromCollection, WithHeadings, ShouldAuto
                     ->where('terminate_status', 0);
                 // ->whereDate('payment_date', '>=', Carbon::today());
             });
+
+        $query->whereHas('agreementPaymentDetail.agreement.company', function ($q) use ($permittedCompanyIds) {
+            $q->whereIn('company_id', $permittedCompanyIds);
+        });
 
 
         if (!empty($filters['search'])) {
@@ -106,12 +113,13 @@ class receivableReportExport implements FromCollection, WithHeadings, ShouldAuto
             $detail = $row->agreementPaymentDetail;
 
             return [
-                'ID' => $row->id,
-                'Agreement ID' => $detail->agreement->agreement_code ?? '-',
+                // 'ID' => $row->id,
+                // 'Agreement ID' => $detail->agreement->agreement_code ?? '-',
                 'Tenant Name' => $detail->agreement->tenant->tenant_name ?? '-',
                 'Tenant Email' => $detail->agreement->tenant->tenant_email ?? '-',
-                'Tenant Mobile' => "'" . $detail->agreement->tenant->tenant_mobile ?? '-',
+                'Tenant Mobile' => $detail->agreement->tenant->tenant_mobile ?? '-',
                 'Project Number' => $detail->agreement->contract->project_number ?? '-',
+                'Company Name' => $detail->agreement->contract->company->company_name ?? '-',
                 'Contract Type' => $detail->agreement->contract->contract_type->contract_type ?? '-',
                 'Business Type' => $detail->agreement->contract->contract_unit->business_type() ?? '-',
                 'Property' => $detail->agreement->contract->property->property_name ?? '-',
@@ -145,12 +153,13 @@ class receivableReportExport implements FromCollection, WithHeadings, ShouldAuto
     public function headings(): array
     {
         return [
-            'ID',
-            'Agreement ID',
+            // 'ID',
+            // 'Agreement ID',
             'Tenant Name',
             'Tenant Email',
             'Tenant Mobile',
             'Project Number',
+            'Company Name',
             'Contract Type',
             'business Type',
             'Property',

@@ -259,7 +259,9 @@
                                                         <th>Subunit Type</th>
                                                         @if ($type == 1 && $contract_type == 1)
                                                             <th>Rent per Month</th>
-                                                            <th>Split Rent</th>
+                                                            @if (auth()->user()->hasAnyPermission(['agreement.rent_split'], $agreement->company_id))
+                                                                <th>Split Rent</th>
+                                                            @endif
                                                         @endif
                                                     </tr>
                                                 </thead>
@@ -320,20 +322,22 @@
                                                                     $hasBifurcation = $unit->agreementSubunitRentBifurcation->isNotEmpty();
                                                                 @endphp
 
-                                                                <td>
-                                                                    <button type="button"
-                                                                        class="btn btn-sm {{ $hasBifurcation ? 'btn-warning' : 'btn-primary' }} ms-2 openRentModal"
-                                                                        data-unit-id="{{ $unit->id }}"
-                                                                        data-subunit-count="{{ $unit->contractUnitDetail->subunitcount_per_unit }}"
-                                                                        data-subunits='@json($unit->contractUnitDetail->contractSubUnitDetails)'
-                                                                        data-units='@json($unit->contractUnitDetail)'
-                                                                        data-agreement-id="{{ $agreement->id }}"
-                                                                        title="{{ $hasBifurcation ? 'Edit Rent Bifurcation' : 'Split Rent' }}">
+                                                                @if (auth()->user()->hasAnyPermission(['agreement.rent_split'], $agreement->company_id))
+                                                                    <td>
+                                                                        <button type="button"
+                                                                            class="btn btn-sm {{ $hasBifurcation ? 'btn-warning' : 'btn-primary' }} ms-2 openRentModal"
+                                                                            data-unit-id="{{ $unit->id }}"
+                                                                            data-subunit-count="{{ $unit->contractUnitDetail->subunitcount_per_unit }}"
+                                                                            data-subunits='@json($unit->contractUnitDetail->contractSubUnitDetails)'
+                                                                            data-units='@json($unit->contractUnitDetail)'
+                                                                            data-agreement-id="{{ $agreement->id }}"
+                                                                            title="{{ $hasBifurcation ? 'Edit Rent Bifurcation' : 'Split Rent' }}">
 
-                                                                        <i
-                                                                            class="fa {{ $hasBifurcation ? 'fa-edit' : 'fa-sitemap' }}"></i>
-                                                                    </button>
-                                                                </td>
+                                                                            <i
+                                                                                class="fa {{ $hasBifurcation ? 'fa-edit' : 'fa-sitemap' }}"></i>
+                                                                        </button>
+                                                                    </td>
+                                                                @endif
                                                             @endif
                                                         </tr>
                                                     @endforeach
@@ -506,9 +510,9 @@
                                                                     <td
                                                                         style="background-color: {{ $bgColor }} !important;">
                                                                         RENT
-                                                                        {{ $loop->iteration }}/{{ $agreement->agreement_payment->installment->installment_name }}
+                                                                        {{ $loop->iteration }}/{{ $agreement->agreement_payment->installment?->installment_name }}
                                                                     </td>
-                                                                    @can('agreement.invoice_upload')
+                                                                    @if (auth()->user()->hasAnyPermission(['agreement.invoice_upload'], $agreement->company_id))
                                                                         <td>
                                                                             <button type="button"
                                                                                 class="btn btn-success btn-sm open-invoice-modal"
@@ -517,10 +521,10 @@
                                                                                 data-agreementId="{{ $agreement->id }}"
                                                                                 @if ($detail->invoice) data-invoiceid="{{ $detail->invoice->id }}" @endif
                                                                                 {{ $detail->terminate_status != 0 ? 'disabled' : '' }}><i
-                                                                                    class="fas fa-file-upload"></i></a>
+                                                                                    class="fas fa-file-upload"></i></button>
 
                                                                         </td>
-                                                                    @endcan
+                                                                    @endif
                                                                     <td>
                                                                         @if ($detail->invoice)
                                                                             @php

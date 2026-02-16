@@ -25,7 +25,8 @@ class InvestorPaymentDistribution extends Model
         'paid_date',
         'updated_by',
         'deleted_by',
-        'investment_id'
+        'investment_id',
+        'paid_company_id'
     ];
 
     public function investor()

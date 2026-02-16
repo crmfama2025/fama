@@ -91,6 +91,7 @@
                                                 <tr>
                                                     <th>#</th>
                                                     <th>Investor Name</th>
+                                                    <th>Company Name</th>
                                                     {{-- <th style="width: 5%">Investment Amount</th> --}}
                                                     <th>Payout Date</th>
                                                     <th>Payout Type</th>
@@ -263,6 +264,10 @@
                     {
                         data: 'investor_name',
                         name: 'investor_name',
+                    },
+                    {
+                        data: 'company_name',
+                        name: 'company_name',
                     },
                     {
                         data: 'paid_date',

@@ -53,7 +53,7 @@ class AgreementPaymentDetail extends Model
 
     public function agreement()
     {
-        return $this->belongsTo(Agreement::class);
+        return $this->belongsTo(Agreement::class)->withoutGlobalScopes();
     }
 
     public function agreementPayment()

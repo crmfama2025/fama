@@ -75,7 +75,7 @@ class ContractController extends Controller
         $renew = 0;
         $edit = 0;
         // dropdown values
-        $dropdowns = $this->contractService->getDropdownData();
+        $dropdowns = $this->contractService->getDropdownData('add');
         // dd($dropdowns);
 
         return view("admin.projects.contract.contract-create", compact("title", 'contract', 'renew', 'edit') + $dropdowns);
@@ -88,7 +88,7 @@ class ContractController extends Controller
         $renew = 0;
         $edit = 1;
         // dd($contract->contract_detail);
-        $dropdowns = $this->contractService->getDropdownData();
+        $dropdowns = $this->contractService->getDropdownData('edit');
 
         $indirectct = $this->contractService->getindirect($id);
         $indirectCollection = collect($dropdowns['indirect']);
@@ -291,7 +291,7 @@ class ContractController extends Controller
         $edit = 0;
         $contract = $this->contractService->getAllDataById($contract_id);
         $title = 'Renew Contract P-' . $contract->project_number;
-        $dropdowns = $this->contractService->getDropdownData();
+        $dropdowns = $this->contractService->getDropdownData('renew');
 
         return view('admin.projects.contract.contract-create', compact('contract', 'renew', 'title', 'edit') + $dropdowns);
     }

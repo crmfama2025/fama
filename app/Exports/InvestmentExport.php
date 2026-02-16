@@ -24,8 +24,15 @@ class InvestmentExport implements FromCollection, WithHeadings, ShouldAutoSize
      */
     public function collection()
     {
+        $permittedCompanyIds = getUserPermittedCompanyIds(auth()->user()->id, 'investment');
+
         //
         $query = Investment::with('investor', 'payoutBatch', 'profitInterval', 'company', 'investmentReferral');
+
+        $query->whereHas('company', function ($q) use ($permittedCompanyIds) {
+            $q->whereIn('company_id', $permittedCompanyIds);
+        });
+
         if (!empty($filters['investor_id'])) {
             $query->where('investor_id', $filters['investor_id']);
         }

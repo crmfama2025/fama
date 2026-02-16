@@ -990,7 +990,7 @@ function  updateInvestmentOnDistribution($payoutData, $distributedData)
         // dd("test3");
         $principalReleased = toNumeric($distributedData->amount_paid);
     } else {
-        dd("test4");
+        // dd("test4");
         if ($payoutData->amount_pending != 0) {
             // dd("test5");
             $nextProfitRelDate = calculateNextProfitReleaseDate(0, $investment->profit_interval_id, $distributedData->paid_date, $investment->payoutBatch->batch_name);
@@ -1222,6 +1222,7 @@ function deleteBifurcations($contract_unit_details_id)
         $bifurcation->delete();
     }
 }
+
 function updateContractUnitReceivablePayback($contract_unit_details_id, $paid_amount)
 {
     // dd($paid_amount);
@@ -1238,4 +1239,116 @@ function updateContractUnitReceivablePayback($contract_unit_details_id, $paid_am
     $contract_unit_detail->save();
 
     return $contract_unit_detail;
+}
+
+function hasPermission($userId, $permissionNames, $companyId = null)
+{
+    // Ensure $permissionNames is an array
+    if (!is_array($permissionNames)) {
+        $permissionNames = [$permissionNames];
+    }
+
+    // Get permission records
+    $permissions = \DB::table('permissions')
+        ->whereIn('permission_name', $permissionNames)
+        ->whereNull('parent_id')
+        ->get();
+
+    if ($permissions->isEmpty()) {
+        return false;
+    }
+
+    // Extract permission IDs
+    $permissionIds = $permissions->pluck('id')->toArray();
+
+    return \DB::table('user_permissions as up')
+        ->join('permissions as p', 'p.id', '=', 'up.permission_id')
+        ->where('up.user_id', $userId)
+        ->where(function ($query) use ($permissionIds) {
+            // Exact permission match (any of the permissions)
+            $query->whereIn('p.id', $permissionIds);
+
+            // OR any permission under same parent(s)
+            $query->orWhereIn('p.parent_id', $permissionIds);
+        })
+        // ->where(function ($q) use ($companyId) {
+        //     if ($companyId) {
+        //         $q->where('up.company_id', $companyId)
+        //             ->orWhereNull('up.company_id');
+        //     } else {
+        //         $q->whereNull('up.company_id');
+        //     }
+        // })
+        ->exists();
+}
+
+function getUserPermittedCompanyIds($userId, $permissionNames)
+{
+    if (!is_array($permissionNames)) {
+        $permissionNames = [$permissionNames];
+    }
+
+    return \DB::table('user_permissions as up')
+        ->join('permissions as p', 'p.id', '=', 'up.permission_id')
+        ->where('up.user_id', $userId)
+        ->where(function ($q) use ($permissionNames) {
+            foreach ($permissionNames as $permission) {
+                $q->orWhere('p.permission_name', $permission)
+                    ->orWhere('p.permission_name', 'LIKE', $permission . '.%');
+            }
+        })
+        ->pluck('up.company_id')
+        ->unique()
+        ->toArray();
+}
+
+
+// seeder helper functions
+function getModuleArray()
+{
+    return [
+        'area',
+        'locality',
+        'property_type',
+        'property',
+        'vendor',
+        'bank',
+        'installments',
+        'payment_mode',
+        'nationality',
+        'company',
+        'user',
+        'contract',
+        'agreement',
+        'investor',
+        'investment',
+        'finance',
+        'report',
+    ];
+}
+
+function getSubModuleArray()
+{
+    return [
+        'add',
+        'view',
+        'edit',
+        'delete',
+        'approve',
+        'reject',
+        'document_upload',
+        'renew',
+        'send_for_approval',
+        'sign_after_approval',
+        'terminate',
+        'invoice_upload',
+        'agreement_view',
+        'payout',
+        'payable_cheque_clearing',
+        'receivable_cheque_clearing',
+        'submit_pending',
+        'soa',
+        'referrals',
+        'rent_split'
+    ];
 }

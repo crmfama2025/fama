@@ -192,9 +192,9 @@
 
     <script>
         // BS-Stepper Init
-        document.addEventListener('DOMContentLoaded', function() {
-            window.stepper = new Stepper(document.querySelector('.bs-stepper'))
-        })
+        // document.addEventListener('DOMContentLoaded', function() {
+        //     window.stepper = new Stepper(document.querySelector('.bs-stepper'))
+        // })
 
         if ($('#user_id').val()) {
             $('#company_id').prop('disabled', true);

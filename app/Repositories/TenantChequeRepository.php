@@ -117,6 +117,10 @@ class TenantChequeRepository
     {
         $twoWeeksBeforeEnd = Carbon::today()->addMonths(1)->subWeeks(2)->format('Y-m-d');
         // dd($twoWeeksBeforeEnd);
+
+        // Get company IDs where user has finance.payable permission
+        $permittedCompanyIds = getUserPermittedCompanyIds(auth()->id(), 'finance.receivable_cheque_clearing');
+
         $query = AgreementPaymentDetail::query()
             ->with(
                 'agreementPayment.installment',
@@ -140,6 +144,9 @@ class TenantChequeRepository
             // ->whereDate('payment_date', '>=', Carbon::today())
             ->whereDate('payment_date', '<=', Carbon::today()->addWeeks(2));
 
+        $query->whereHas('agreement.company', function ($q) use ($permittedCompanyIds) {
+            $q->whereIn('company_id', $permittedCompanyIds);
+        });
 
         // Get the results
         $results = $query->get();
@@ -312,6 +319,10 @@ class TenantChequeRepository
         $twoWeeksBeforeEnd = Carbon::today()->addMonths(1)->subWeeks(2)->format('Y-m-d');
         // dd($twoWeeksBeforeEnd);
 
+        // Get company IDs where user has finance.payable permission
+        $permittedCompanyIds = getUserPermittedCompanyIds(auth()->id(), 'finance.receivable_cheque_clearing');
+
+
 
         $query = ClearedReceivable::query()
             ->with([
@@ -337,6 +348,10 @@ class TenantChequeRepository
                 $q->whereIn('is_payment_received', [1, 2])
                     ->where('terminate_status', 0);
             });
+
+        $query->whereHas('agreementPaymentDetail.agreement.company', function ($q) use ($permittedCompanyIds) {
+            $q->whereIn('company_id', $permittedCompanyIds);
+        });
 
 
         if (!empty($filters['search'])) {

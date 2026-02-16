@@ -21,13 +21,15 @@ class AgreementExport implements FromCollection, WithHeadings
 
     public function collection()
     {
-        $query = Agreement::with(
-            'company',
-            'contract',
-            'tenant',
-            'agreement_units.contractUnitDetail',
-            'contract.contract_type'
-        );
+        $query = Agreement::query();
+
+        // with(
+        //     'company',
+        //     'contract',
+        //     'tenant',
+        //     'agreement_units.contractUnitDetail',
+        //     'contract.contract_type'
+        // );
 
         if ($this->search) {
             $search = $this->search;
@@ -77,7 +79,7 @@ class AgreementExport implements FromCollection, WithHeadings
                     ->orWhereRaw("CAST(agreements.id AS CHAR) LIKE ?", ["%{$search}%"]);
             });
         }
-
+        // dd($this->filter);
         if ($this->filter) {
             $query->where('agreements.id', $this->filter);
         }

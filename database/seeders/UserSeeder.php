@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Company;
 use App\Models\Permission;
 use App\Models\User;
 use App\Models\UserPermission;
@@ -26,71 +27,6 @@ class UserSeeder extends Seeder
             );
         }
 
-        $modules = [
-            'area',
-            'locality',
-            'property_type',
-            'property',
-            'vendor',
-            'bank',
-            'installments',
-            'payment_mode',
-            'nationality',
-            'company',
-            'user',
-            'contract',
-            'agreement',
-            'investor',
-            'investment',
-            'finance',
-            'report',
-        ];
-
-        foreach ($modules as $module) {
-            $parent = Permission::updateOrCreate([
-                'permission_name' => ucfirst($module),
-                'parent_id' => null
-            ]);
-
-            if ($module == 'finance') {
-                $subModule = ['payout', 'payable_cheque_clearing', 'receivable_cheque_clearing'];
-            } elseif ($module == 'report') {
-                $subModule = ['view'];
-            } else {
-                $subModule = ['add', 'view', 'edit', 'delete'];
-                if (in_array($module, ['contract'])) {
-                    $subModule[] = 'approve';
-                    $subModule[] = 'reject';
-                    $subModule[] = 'document_upload';
-                    $subModule[] = 'renew';
-                    $subModule[] = 'send_for_approval';
-                    $subModule[] = 'sign_after_approval';
-                }
-
-                if (in_array($module, ['agreement'])) {
-                    $subModule[] = 'terminate';
-                    $subModule[] = 'invoice_upload';
-                    $subModule[] = 'document_upload';
-                    $subModule[] = 'manage_installments';
-                    $subModule[] = 'renew';
-                    $subModule[] = 'rent_split';
-                }
-                if (in_array($module, ['investment'])) {
-                    $subModule[] = 'terminate';
-                    $subModule[] = 'submit_pending';
-                    $subModule[] = 'referrals';
-                    $subModule[] = 'soa';
-                }
-            }
-
-            foreach ($subModule as $action) {
-                Permission::updateOrCreate([
-                    'permission_name' => "{$module}.{$action}",
-                    'parent_id' => $parent->id
-                ]);
-            }
-        }
-
         $user_id = User::updateOrCreate(
             ['email' => 'superadmin@demo.com'],
             [
@@ -105,10 +41,13 @@ class UserSeeder extends Seeder
         )->id;
 
         foreach (Permission::all() as $permissions) {
-            UserPermission::updateOrCreate([
-                'user_id' => $user_id,
-                'permission_id' => $permissions->id,
-            ]);
+            foreach (Company::all() as $company) {
+                UserPermission::updateOrCreate([
+                    'user_id' => $user_id,
+                    'permission_id' => $permissions->id,
+                    'company_id' => $company->id,
+                ]);
+            }
         }
     }
 }

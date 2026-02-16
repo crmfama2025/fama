@@ -40,8 +40,10 @@
                                 <div class="card-header">
                                     <!-- <h3 class="card-title">Bank Details</h3> -->
                                     <span class="float-right">
-                                        <button class="btn btn-info float-right m-1" data-toggle="modal"
-                                            data-target="#modal-bank">Add Bank</button>
+                                        @if (auth()->user()->hasAnyPermission(['bank.add']))
+                                            <button class="btn btn-info float-right m-1" data-toggle="modal"
+                                                data-target="#modal-bank">Add Bank</button>
+                                        @endif
                                         <button class="btn btn-secondary float-right m-1" data-toggle="modal"
                                             data-target="#modal-import">Import</button>
                                     </span>

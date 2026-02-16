@@ -157,6 +157,7 @@ class PayableClearingService
 
             $payable[] = array(
                 'contract_id' => $paymentdetails->contract_id,
+                'company_id' => $data['company_id'],
                 'contract_payment_detail_id' => $paymentDetId,
                 'paid_date' => $data['paid_date'],
                 'paid_amount' => $data['paid_amount'] ?? toNumeric($paymentdetails->payment_amount),
@@ -175,6 +176,8 @@ class PayableClearingService
 
         return DB::transaction(function () use ($paymentdet, $payable) {
             // DB::enableQueryLog();
+            // dump($payable);
+            // dd($paymentdet);
             $paidIds = $this->paymentDetRepo->updateMany($paymentdet);
 
             $payableIds = $this->payableClearRepo->createMany($payable);

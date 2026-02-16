@@ -34,6 +34,7 @@ class PayableClearRepository
     {
         $detId = [];
         foreach ($dataArray as $data) {
+            // dd($data);
             $detId[] = ContractPayableClear::create($data);
         }
         return  $detId;
@@ -62,6 +63,11 @@ class PayableClearRepository
     public function getPayables(array $filters = []): Builder
     {
         $twoWeeksLater = now()->addDays(14)->toDateString();
+        $userId = auth()->id();
+
+        // Get company IDs where user has finance.payable permission
+        $permittedCompanyIds = getUserPermittedCompanyIds($userId, 'finance.payable_cheque_clearing');
+        // dd($permittedCompanyIds);
 
         $query = ContractPaymentDetail::query()
             ->with([
@@ -91,8 +97,9 @@ class PayableClearRepository
         // ->join('payment_modes', 'payment_modes.id', '=', 'contract_payment_details.payment_mode_id')
         // ->join('companies', 'companies.id', '=', 'contracts.company_id')
         // ->join('contract_types', 'contract_types.id', '=', 'contracts.contract_type_id')
-        $query->whereHas('contract', function ($q) {
-            $q->where('contract_status', 7);
+        $query->whereHas('contract', function ($q) use ($permittedCompanyIds) {
+            $q->where('contract_status', 7)
+                ->whereIn('company_id', $permittedCompanyIds);
         })
             ->where('paid_status', '!=', 1);
 
@@ -206,6 +213,9 @@ class PayableClearRepository
         $fromDate = now()->startOfMonth()->toDateString();
         $todate = now()->toDateString();
 
+        // Get company IDs where user has finance.payable permission
+        $permittedCompanyIds = getUserPermittedCompanyIds(auth()->id(), 'finance.payable_cheque_clearing');
+
         $query = ContractPayableClear::query()
             ->with([
                 'contractPaymentDetail',
@@ -217,6 +227,10 @@ class PayableClearRepository
                 'paidMode',
                 'paidBank'
             ]);
+
+        $query->whereHas('contract.company', function ($q) use ($permittedCompanyIds) {
+            $q->whereIn('company_id', $permittedCompanyIds);
+        });
 
 
         if (!empty($filters['filter'])) {

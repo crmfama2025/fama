@@ -21,6 +21,8 @@ class DistributeReportExport implements FromCollection, WithHeadings
 
     public function collection()
     {
+        $permittedCompanyIds = getUserPermittedCompanyIds(auth()->user()->id, 'finance.payout');
+
         $query = InvestorPaymentDistribution::query()
             ->with([
                 'investorPayout',
@@ -31,6 +33,9 @@ class DistributeReportExport implements FromCollection, WithHeadings
                 'paidBank'
             ]);
 
+        $query->whereHas('investment', function ($q) use ($permittedCompanyIds) {
+            $q->whereIn('company_id', $permittedCompanyIds);
+        });
 
         if (!empty($this->filter)) {
             $filter = $this->filter;
@@ -102,6 +107,7 @@ class DistributeReportExport implements FromCollection, WithHeadings
 
                 return [
                     'Investor Name' => $row->investor->investor_name,
+                    'Company Name' => $row->investment?->company?->company_name ?? '-',
                     'Paid Date' => $row->paid_date,
                     'Payout Type' => match ($row->investorPayout->payout_type) {
                         1 => 'Profit',
@@ -119,6 +125,7 @@ class DistributeReportExport implements FromCollection, WithHeadings
     {
         return [
             'Investor Name',
+            'Company Name',
             'Paid Date',
             'Payout Type',
             'Amount Paid',

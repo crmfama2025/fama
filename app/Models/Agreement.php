@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Traits\HasActivityLog;
+use App\Models\Traits\HasCompanyAccess;
 use App\Models\Traits\HasDeletedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,7 +12,7 @@ use Illuminate\Support\Carbon;
 
 class Agreement extends Model
 {
-    use HasFactory, SoftDeletes, HasActivityLog, HasDeletedBy;
+    use HasFactory, SoftDeletes, HasActivityLog, HasDeletedBy, HasCompanyAccess;
 
     /**
      * The table associated with the model.
@@ -59,7 +60,7 @@ class Agreement extends Model
      */
     public function contract()
     {
-        return $this->belongsTo(Contract::class, 'contract_id');
+        return $this->belongsTo(Contract::class, 'contract_id')->withoutGlobalScopes();
     }
 
     public function company()

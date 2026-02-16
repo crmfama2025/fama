@@ -837,28 +837,28 @@ class AgreementService
                 $action = '';
 
 
-                if (Gate::allows('agreement.manage_installments')) {
+                if (auth()->user()->hasAnyPermission(['agreement.view'], $row->company_id)) {
                     $action .= '<a href="' . $viewUrl . '" class="btn btn-primary btn-sm m-1"
                     title="View Installments"><i class="fas fa-eye"></i></a>';
                 }
 
-                if (Gate::allows('agreement.document_upload')) {
+                if (auth()->user()->hasAnyPermission(['agreement.document_upload'], $row->company_id)) {
                     $action .= '<a href="' . $docUrl . '" class="btn btn-warning btn-sm m-1"
                     title="documents"><i class="fas fa-file"></i></a>';
                 }
 
-                if (Gate::allows('agreement.view') && ($row->contract->contract_type_id == 2)) {
+                if (auth()->user()->hasAnyPermission(['agreement.agreement_view'], $row->company_id) && ($row->contract->contract_type_id == 2)) {
                     $action .= '<a href="' . $printUrl . '" class="btn btn-primary btn-sm m-1"
                     title="Agreement"><i class="fas fa-handshake"></i></a>';
                 }
 
-                if (Gate::allows('agreement.edit') && $row->agreement_status == 0 && !paymentStatus($row->id)) {
+                if (auth()->user()->hasAnyPermission(['agreement.edit'], $row->company_id) && $row->agreement_status == 0 && !paymentStatus($row->id)) {
 
                     $action .= '<a href="' . $editUrl . '" class="btn btn-info  btn-sm m-1" title="Edit agreement"><i
                         class="fas fa-pencil-alt"></i></a>';
                 }
 
-                if (Gate::allows('agreement.delete') && !paymentStatus($row->id) && $row->agreement_status == 0) {
+                if (auth()->user()->hasAnyPermission(['agreement.delete'], $row->company_id) && !paymentStatus($row->id) && $row->agreement_status == 0) {
 
                     $action .= '<a class="btn btn-danger  btn-sm m-1" onclick="deleteConf(' . $row->id . ')" title="delete"><i
                         class="fas fa-trash"></i></a>';
@@ -867,7 +867,7 @@ class AgreementService
                 // $action .= '<a href="#" class="btn btn-danger btn-sm m-1 open-terminate-modal" title="Terminate" id="openTerminatemodal"
                 //      data-id="' . $row->id . '" ><i class="fas fa-file-signature"></i></a>
                 // ';
-                if (Gate::allows('agreement.terminate') && ($row->agreement_status == 0)) {
+                if (auth()->user()->hasAnyPermission(['agreement.terminate'], $row->company_id) && ($row->agreement_status == 0)) {
                     $action .= '<a href="#" class="btn btn-danger btn-sm m-1 open-terminate-modal" title="Terminate" data-id="' . $row->id . '" data-company-id="' . $row->contract->company_id . '">
                         <i class="fas fa-file-signature"></i>
                     </a>';
@@ -999,7 +999,7 @@ class AgreementService
             ->addColumn('action', function ($row) {
                 $renewUrl = route('agreement.renew', $row->id);
                 $action = '';
-                if (Gate::allows('agreement.renew')) {
+                if (auth()->user()->hasAnyPermission(['agreement.renew'], $row->company_id)) {
                     $action .= '<a href="' . $renewUrl . '" class="btn btn-info  btn-sm m-1" title="Renew agreement"><i class="fas fa-sync-alt"></i></a>';
                     return $action ?: '-';
                 }

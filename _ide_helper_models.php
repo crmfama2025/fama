@@ -51,7 +51,7 @@ namespace App\Models{
  * @property int $is_visa_uploaded
  * @property int $is_signed_agreement_uploaded
  * @property int $is_trade_license_uploaded
- * @property int $agreement_status 0-Pending, 1-terminated
+ * @property int $agreement_status 0-Pending, 1-Processing, 2-Approved, 3-Rejected
  * @property string|null $terminated_date
  * @property string|null $terminated_reason
  * @property int|null $terminated_by
@@ -510,6 +510,7 @@ namespace App\Models{
  * @property-read \App\Models\Company|null $company
  * @property-read \App\Models\User|null $deletedBy
  * @property-read \App\Models\User|null $updatedBy
+ * @method static \Illuminate\Database\Eloquent\Builder|Bank accessible($action = null)
  * @method static \Database\Factories\BankFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Bank newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Bank newQuery()
@@ -578,36 +579,50 @@ namespace App\Models{
 namespace App\Models{
 /**
  * @property int $id
+ * @property int $industry_id
  * @property string $company_code
  * @property string $company_name
- * @property string|null $industry
+ * @property string $company_short_code
  * @property string|null $address
  * @property string|null $phone
  * @property string|null $email
  * @property string|null $website
  * @property int $added_by
  * @property int|null $updated_by
+ * @property int|null $deleted_by
  * @property int $status
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read \App\Models\User|null $addedBy
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Area> $areas
  * @property-read int|null $areas_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Bank> $banks
+ * @property-read int|null $banks_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Contract> $contracts
+ * @property-read int|null $contracts_count
+ * @property-read \App\Models\User|null $deletedBy
+ * @property-read \App\Models\Industry $industry
  * @property-write mixed $added_date
  * @property-write mixed $updated_date
+ * @property-read \App\Models\User|null $updatedBy
+ * @method static \Database\Factories\CompanyFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Company newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Company newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Company onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Company permittedForModule($module, $submodule = null)
  * @method static \Illuminate\Database\Eloquent\Builder|Company query()
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereAddedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereAddress($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereCompanyCode($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereCompanyName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Company whereCompanyShortCode($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Company whereDeletedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereEmail($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereIndustry($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Company whereIndustryId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company wherePhone($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereUpdatedAt($value)
@@ -615,21 +630,6 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereWebsite($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|Company withoutTrashed()
- * @method static \Database\Factories\CompanyFactory factory($count = null, $state = [])
- * @mixin \Eloquent
- * @property int $industry_id
- * @property string $company_short_code
- * @property int|null $deleted_by
- * @property-read \App\Models\User|null $addedBy
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Bank> $banks
- * @property-read int|null $banks_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Contract> $contracts
- * @property-read int|null $contracts_count
- * @property-read \App\Models\User|null $deletedBy
- * @property-read \App\Models\User|null $updatedBy
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereCompanyShortCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereDeletedBy($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereIndustryId($value)
  */
 	class Company extends \Eloquent {}
 }
@@ -1907,8 +1907,6 @@ namespace App\Models{
  * @property int $investor_referror_id
  * @property string $referral_commission_perc
  * @property string $referral_commission_amount
- * @property string $referral_commission_released_amount
- * @property string $referral_commission_pending_amount
  * @property int $referral_commission_frequency_id
  * @property int $referral_commission_status 0-not released,1-released,2-partially released
  * @property string|null $last_referral_commission_released_date
@@ -1949,9 +1947,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentReferral wherePaymentTermsId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentReferral whereReferralCommissionAmount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentReferral whereReferralCommissionFrequencyId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvestmentReferral whereReferralCommissionPendingAmount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentReferral whereReferralCommissionPerc($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvestmentReferral whereReferralCommissionReleasedAmount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentReferral whereReferralCommissionStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentReferral whereTotalCommissionPending($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentReferral whereTotalCommissionReleased($value)
@@ -2145,33 +2141,9 @@ namespace App\Models{
 
 namespace App\Models{
 /**
- * @property int $id
- * @property int $message_setting_id
- * @property int $investor_id
- * @property int|null $investment_id
- * @property string $investor_mobile
- * @property string $investor_message_body
- * @property int $send_status
- * @property string $api_return
- * @property int $send_by
- * @property string $send_at
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorMessage newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorMessage newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorMessage query()
- * @method static \Illuminate\Database\Eloquent\Builder|InvestorMessage whereApiReturn($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvestorMessage whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvestorMessage whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvestorMessage whereInvestmentId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvestorMessage whereInvestorId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvestorMessage whereInvestorMessageBody($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvestorMessage whereInvestorMobile($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvestorMessage whereMessageSettingId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvestorMessage whereSendAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvestorMessage whereSendBy($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvestorMessage whereSendStatus($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvestorMessage whereUpdatedAt($value)
  */
 	class InvestorMessage extends \Eloquent {}
 }
@@ -2342,21 +2314,9 @@ namespace App\Models{
 
 namespace App\Models{
 /**
- * @property int $id
- * @property int $message_type 1-invitation, 2- profit release
- * @property string $message_body
- * @property int $status
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
  * @method static \Illuminate\Database\Eloquent\Builder|MessageSetting newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|MessageSetting newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|MessageSetting query()
- * @method static \Illuminate\Database\Eloquent\Builder|MessageSetting whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|MessageSetting whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|MessageSetting whereMessageBody($value)
- * @method static \Illuminate\Database\Eloquent\Builder|MessageSetting whereMessageType($value)
- * @method static \Illuminate\Database\Eloquent\Builder|MessageSetting whereStatus($value)
- * @method static \Illuminate\Database\Eloquent\Builder|MessageSetting whereUpdatedAt($value)
  */
 	class MessageSetting extends \Eloquent {}
 }
@@ -2871,6 +2831,7 @@ namespace App\Models{
  * @property int $id
  * @property int $user_id
  * @property int $permission_id
+ * @property int|null $company_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
@@ -2878,6 +2839,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|UserPermission newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|UserPermission onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|UserPermission query()
+ * @method static \Illuminate\Database\Eloquent\Builder|UserPermission whereCompanyId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|UserPermission whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|UserPermission whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|UserPermission whereId($value)

@@ -325,14 +325,25 @@
                                             </label>
                                         </div>
                                     </div>
+                                    <div class="form-group companyTerminate">
+                                        <label for="exampleInputEmail1">Company Name</label>
+                                        <select class="form-control select2" name="company_id" id="paid_company"
+                                            required>
+                                            <option value="">Select Company</option>
+                                            @foreach ($companies as $company)
+                                                <option value="{{ $company->id }}">{{ $company->company_name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
                                     <div class="form-group banksingle">
                                         <label for="exampleInputEmail1">Bank Name</label>
                                         <select class="form-control select2 bank_name" name="paid_bank" id="bank_name"
                                             required>
                                             <option value="">Select Bank</option>
-                                            @foreach ($banks as $bank)
+                                            {{-- @foreach ($banks as $bank)
                                                 <option value="{{ $bank->id }}">{{ $bank->bank_name }} </option>
-                                            @endforeach
+                                            @endforeach --}}
                                         </select>
                                     </div>
 
@@ -464,7 +475,7 @@
         });
 
         function hidelemnetsonload() {
-            $('.banksingle, .cheque, .modechange').hide();
+            $('.banksingle, .cheque, .modechange, .companyTerminate').hide();
         }
 
         function toggleAllCheckboxes() {
@@ -490,6 +501,7 @@
 
             if ($(this).prop('checked')) {
                 $('.banksingle').show();
+                $('.companyTerminate').show();
                 $('.modechange').show();
                 if ($(this).val() == 2) {
                     $('.cheque').hide();
@@ -498,6 +510,7 @@
                 }
             } else {
                 $('.banksingle').hide();
+                $('.companyTerminate').hide();
                 $('.cheque').hide();
                 $('.modechange').hide();
             }
@@ -506,10 +519,33 @@
         $('#bankBulk').click(function() {
             if ($(this).prop('checked')) {
                 $('.banksingle').show();
+                $('.companyTerminate').show();
             } else {
                 $('.banksingle').hide();
+                $('.companyTerminate').hide();
             }
         });
+
+        let allBanks = @json($banks);
+
+        $(document).on('change', '#paid_company', function() {
+            CompanyChange($(this));
+        });
+
+        function CompanyChange(ele) {
+            const companyId = $(ele).val();
+            const companyName = $(ele).find('option:selected').text().trim();
+
+            let options = '<option value="">Select Bank</option>';
+            allBanks
+                .filter(b => b.company_id == companyId)
+                .forEach(b => {
+                    // const selected = (b.id == bendorVal) ? 'selected' : '';
+                    options +=
+                        `<option value="${b.id}">${b.bank_name}</option>`;
+                });
+            $('#bank_name').html(options).trigger('change');
+        }
 
         $('.bulktriggerbtn').click(function(e) {
             e.preventDefault();

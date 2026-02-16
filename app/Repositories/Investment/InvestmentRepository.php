@@ -75,7 +75,14 @@ class InvestmentRepository
 
     public function getQuery(array $filters = []): Builder
     {
+        $permittedCompanyIds = getUserPermittedCompanyIds(auth()->user()->id, 'investment');
+
         $query = Investment::with('investor', 'payoutBatch', 'profitInterval', 'company', 'investmentReferral', 'investedCompany');
+
+        $query->whereHas('company', function ($q) use ($permittedCompanyIds) {
+            $q->whereIn('company_id', $permittedCompanyIds);
+        });
+
         if (!empty($filters['investor_id'])) {
             $query->where('investor_id', $filters['investor_id']);
         }
@@ -149,7 +156,14 @@ class InvestmentRepository
     }
     public function getReferralQuery(array $filters = []): Builder
     {
-        $query = InvestmentReferral::with('referrer', 'investment', 'investor', 'commissionFrequency', 'investment', 'paymentTerm');
+        $permittedCompanyIds = getUserPermittedCompanyIds(auth()->user()->id, 'investment');
+
+        $query = InvestmentReferral::with('referrer', 'investment', 'investor', 'commissionFrequency', 'paymentTerm');
+
+
+        $query->whereHas('investment.company', function ($q) use ($permittedCompanyIds) {
+            $q->whereIn('company_id', $permittedCompanyIds);
+        });
 
         $result = $query->get();
         // dd($result);

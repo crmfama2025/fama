@@ -93,7 +93,7 @@
                                         <!-- <h3 class="card-title">Property Details</h3> -->
                                         <span class="float-right">
                                             <!-- <button class="btn btn-info float-right m-1" data-toggle="modal"
-                                                                                                            data-target="#modal-Property">Add Investor Payout</button> -->
+                                                                                                                                                                                                    data-target="#modal-Property">Add Investor Payout</button> -->
 
                                             <button class="btn btn-success float-right m-1 bulktriggerbtn"
                                                 data-toggle="modal" data-target="#modal-payout"
@@ -117,6 +117,7 @@
                                                         </div>
                                                     </th>
                                                     <th>Investor Name</th>
+                                                    <th>Company Name</th>
                                                     <th>Investment Code</th>
                                                     <th>Payout Date</th>
                                                     <th>Payout Type</th>
@@ -217,14 +218,25 @@
                                             </div>
                                         @endforeach
                                     </div>
+                                    <div class="form-group companySingle">
+                                        <label for="exampleInputEmail1">Company Name</label>
+                                        <select class="form-control select2" name="paid_company_id" id="paid_company"
+                                            required>
+                                            <option value="">Select Company</option>
+                                            @foreach ($companies as $company)
+                                                <option value="{{ $company->id }}">{{ $company->company_name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
                                     <div class="form-group banksingle">
                                         <label for="exampleInputEmail1">Bank Name</label>
                                         <select class="form-control select2 bank_name" name="paid_bank" id="bank_name"
                                             required>
                                             <option value="">Select Bank</option>
-                                            @foreach ($banks as $bank)
+                                            {{-- @foreach ($banks as $bank)
                                                 <option value="{{ $bank->id }}">{{ $bank->bank_name }} </option>
-                                            @endforeach
+                                            @endforeach --}}
                                         </select>
                                     </div>
 
@@ -304,13 +316,34 @@
             });
         }
 
+        let allBanks = @json($banks);
+
+        $(document).on('change', '#paid_company', function() {
+            CompanyChange($(this));
+        });
+
+        function CompanyChange(ele) {
+            const companyId = $(ele).val();
+            const companyName = $(ele).find('option:selected').text().trim();
+
+            let options = '<option value="">Select Bank</option>';
+            allBanks
+                .filter(b => b.company_id == companyId)
+                .forEach(b => {
+                    // const selected = (b.id == bendorVal) ? 'selected' : '';
+                    options +=
+                        `<option value="${b.id}">${b.bank_name}</option>`;
+                });
+            $('#bank_name').html(options).trigger('change');
+        }
+
         $(document).ready(function() {
             // $('#PayableList').DataTable();
             hidelemnetsonload();
         });
 
         function hidelemnetsonload() {
-            $('.banksingle, .cheque, .modechange').hide();
+            $('.banksingle, .companySingle, .cheque, .modechange').hide();
         }
 
         $('.singleClear').on('change', function() {
@@ -321,16 +354,20 @@
                 $('.modechange').show();
                 if ($(this).val() == 2) {
                     $('.banksingle').show();
+                    $('.companySingle').show();
                     $('.cheque').hide();
                 } else if ($(this).val() == 3) {
                     $('.banksingle').hide();
+                    $('.companySingle').hide();
                     $('.cheque').show();
                 } else {
                     $('.banksingle').hide();
+                    $('.companySingle').hide();
                     $('.cheque').hide();
                 }
             } else {
                 $('.banksingle').hide();
+                $('.companySingle').hide();
                 $('.cheque').hide();
                 $('.modechange').hide();
             }
@@ -431,6 +468,10 @@
                     {
                         data: 'investor_name',
                         name: 'investor_name',
+                    },
+                    {
+                        data: 'company_name',
+                        name: 'company_name',
                     },
                     {
                         data: 'investment_code',

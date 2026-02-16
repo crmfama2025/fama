@@ -57,14 +57,17 @@ class InvestorPaymentDistributionRepository
     {
         $nextWeek = Carbon::today()->addDays(7);
 
+        $permittedCompanyIds = getUserPermittedCompanyIds(auth()->user()->id, 'finance.payout');
+
         $query = InvestorPayout::query()
             ->with([
                 'investor:id,investor_code,investor_name,investor_mobile,payment_mode_id',
-                'investment:id,investment_code,next_profit_release_date,next_referral_commission_release_date,terminate_status,termination_date'
+                'investment:id,investment_code,next_profit_release_date,next_referral_commission_release_date,terminate_status,termination_date,company_id'
             ])
             ->whereColumn('investor_payouts.payout_amount', '>', 'investor_payouts.amount_paid')
             ->where('investor_payouts.is_processed', 0)
-            ->whereHas('investment', function ($q) use ($nextWeek, $filters) {
+            ->whereHas('investment', function ($q) use ($nextWeek, $filters, $permittedCompanyIds) {
+                $q->whereIn('company_id', $permittedCompanyIds);
                 // $q->where('terminate_status', '!=', 2);
 
                 if (empty($filters['filter'])) {
@@ -132,6 +135,7 @@ class InvestorPaymentDistributionRepository
         $fromDate = now()->startOfMonth()->toDateString();
         $todate = now()->toDateString();
 
+        $permittedCompanyIds = getUserPermittedCompanyIds(auth()->user()->id, 'finance.payout');
 
         $query = InvestorPaymentDistribution::query()
             ->with([
@@ -142,6 +146,10 @@ class InvestorPaymentDistributionRepository
                 'paymentMode',
                 'paidBank'
             ]);
+
+        $query->whereHas('investment', function ($q) use ($permittedCompanyIds) {
+            $q->whereIn('company_id', $permittedCompanyIds);
+        });
 
 
         if (!empty($filters['filter'])) {

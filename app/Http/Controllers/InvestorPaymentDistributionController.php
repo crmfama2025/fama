@@ -7,6 +7,7 @@ use App\Exports\DistributeReportExport;
 use App\Models\InvestorPaymentDistribution;
 use App\Models\PayoutBatch;
 use App\Services\BankService;
+use App\Services\CompanyService;
 use App\Services\Investment\InvestorPaymentDistributionService;
 use App\Services\Investment\InvestorService;
 use App\Services\PaymentModeService;
@@ -21,6 +22,7 @@ class InvestorPaymentDistributionController extends Controller
         protected PaymentModeService $paymentModeService,
         protected BankService $bankService,
         protected InvestorService $investorService,
+        protected CompanyService $companyService,
     ) {}
 
     public function index()
@@ -28,11 +30,12 @@ class InvestorPaymentDistributionController extends Controller
         $title = 'Investor Payout';
 
         $banks = $this->bankService->getAll();
+        $companies = $this->companyService->getAll('finance', 'payout');
         $paymentmodes = $this->paymentModeService->getAll()->where('id', '!=', 4);
         $payoutbatches = PayoutBatch::where('status', 1)->get();
         $investors = $this->investorService->getAllActive();
 
-        return view("admin.investment.investor-payment-distribution", compact("title", "paymentmodes", "banks", "payoutbatches", "investors"));
+        return view("admin.investment.investor-payment-distribution", compact("title", "paymentmodes", "banks", "payoutbatches", "investors", "companies"));
     }
 
     public function getPayouts(Request $request)

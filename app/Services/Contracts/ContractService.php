@@ -75,10 +75,13 @@ class ContractService
         return $this->contractRepo->getindirect($id);
     }
 
-    public function getDropdownData(): array
+    public function getDropdownData($subModule): array
     {
+        $companies = $this->companyService->getAll('contract', $subModule);
+        $companyIds = $companies->pluck('id');
+
         return [
-            'companies' => $this->companyService->getAll(),
+            'companies' => $companies,
             'localities' => $this->localityService->getAll(),
             'areas' => $this->areaService->getAll(),
             'property_types' => $this->propertyTypeServ->getAll(),
@@ -87,7 +90,9 @@ class ContractService
             'vendors' => $this->vendorServ->getAll(),
             'installments' => Installment::all(),
             'paymentmodes' => PaymentMode::all(),
-            'banks' => Bank::where('status', 1)->get(),
+            'banks' => Bank::withoutGlobalScopes()->where('status', 1)
+                ->whereIn('company_id', $companyIds)
+                ->get(),
             'contractTypes' => ContractType::all(),
             'UnitTypes' => UnitType::all(),
             'UnitStatus' => UnitStatus::all(),
@@ -355,13 +360,13 @@ class ContractService
             ->addColumn('action', function ($row) {
                 $action = '';
 
-                if (Gate::allows('contract.view')) {
+                if (auth()->user()->hasAnyPermission(['contract.view'], $row->company_id)) {
                     $action .= '<a class="btn btn-primary btn-sm" href="' . route('contract.show', $row->id) . '" title="View Contract">
                             <i class="fas fa-eye"></i>
                         </a> ';
                 }
 
-                if (Gate::allows('contract.edit') && $row->has_agreement == 0 && $row->contract_status != 3) {
+                if (auth()->user()->hasAnyPermission(['contract.edit'], $row->company_id) && $row->has_agreement == 0 && $row->contract_status != 3) {
                     $action .= '<a class="btn btn-info btn-sm" href="' . route('contract.edit', $row->id) . '" title="Edit Contract">
                             <i class="fas fa-pencil-alt"></i>
                         </a> ';
@@ -375,7 +380,7 @@ class ContractService
                     //     </a> ';
                     // }
 
-                    if (Gate::allows('contract.delete')) {
+                    if (auth()->user()->hasAnyPermission(['contract.delete'], $row->company_id)) {
                         $action .= '<button class="btn btn-danger btn-sm" onclick="deleteConf(' . $row->id . ')" title="Delete Contract">
                             <i class="fas fa-trash"></i>
                         </button>';
@@ -404,17 +409,15 @@ class ContractService
                     // }
                 }
 
-
-
                 if ($row->contract_status >= 1 && $row->contract_status != 3) {
-                    if (Gate::allows('contract.document_upload')) {
+                    if (auth()->user()->hasAnyPermission(['contract.document_upload'], $row->company_id)) {
                         $action .= '<a href="' . route('contract.documents', $row->id) . '" class="btn btn-warning btn-sm" title="Upload Documents">
                             <i class="fas fa-file"></i>
                         </a> ';
                     }
 
 
-                    if (Gate::allows('contract.send_for_approval') && in_array($row->contract_status,  [1, 5])) {
+                    if (auth()->user()->hasAnyPermission(['contract.send_for_approval'], $row->company_id) && in_array($row->contract_status,  [1, 5])) {
                         $action .= '<button class="btn btn-success btn-sm" data-toggle="modal" data-id="' . $row->id . '"
                                         data-target="#modal-send-approval" title="Send for Approval">
                             <i class="fas fa-paper-plane"></i>
@@ -422,13 +425,13 @@ class ContractService
                     }
                 }
 
-                if (Gate::allows('contract.approve') && $row->contract_status == 4) {
+                if (auth()->user()->hasAnyPermission(['contract.approve'], $row->company_id) && $row->contract_status == 4) {
                     $action .= '<a class="btn btn-info btn-sm" href="' . route('contract.approve', $row->id) . '" title="Approve Contract">
                             <i class="fas fa-thumbs-up"></i>
                         </a>';
                 }
 
-                if (Gate::allows('contract.sign_after_approval') && $row->contract_status == 2) {
+                if (auth()->user()->hasAnyPermission(['contract.sign_after_approval'], $row->company_id) && $row->contract_status == 2) {
                     $action .= '<a class="btn btn-info btn-sm"  title="Sign Vendor Contract" data-toggle="modal" data-id="' . $row->id . '"
                                         data-target="#modal-upload">
                             <i class="fas fa-signature"></i>
@@ -517,7 +520,7 @@ class ContractService
             ->addColumn('action', function ($row) {
                 $action = '';
 
-                if (Gate::allows('contract.renew')) {
+                if (auth()->user()->hasAnyPermission(['contract.renew'], $row->company_id)) {
                     $action .= '<a class="btn btn-primary btn-sm" href="' . route('contract.renew', $row->id) . '" title="Renew COntract">
                             <i class="fas fa-sync-alt"></i>
                         </a> ';
@@ -551,6 +554,7 @@ class ContractService
             'renew_reject_reason' => $data->renew_reject_reason,
             'renew_reject_status' => 1,
             'renew_rejected_by'   => auth()->user()->id,
+            'contract_status' => 10 // project dropped 
         ];
 
         return $this->contractRepo->updateRejectRenew($contract_id, $dataArr);

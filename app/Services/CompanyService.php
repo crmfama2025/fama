@@ -18,9 +18,9 @@ class CompanyService
         $this->companyRepository = $companyRepository;
     }
 
-    public function getAll()
+    public function getAll($module = null, $submodule = null)
     {
-        return $this->companyRepository->all();
+        return $this->companyRepository->all($module, $submodule);
     }
 
     public function getById($id)
@@ -165,8 +165,8 @@ class CompanyService
             ->with(['columns' => $columns]) // send columns too
             ->toJson();
     }
-    public function getWithIndustry()
+    public function getWithIndustry($module = null, $submodule = null)
     {
-        return $this->companyRepository->getWithIndustry();
+        return $this->companyRepository->getWithIndustry($module, $submodule);
     }
 }

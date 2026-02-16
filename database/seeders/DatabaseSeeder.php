@@ -21,9 +21,10 @@ class DatabaseSeeder extends Seeder
         // ]);
 
         $this->call([
-            UserSeeder::class,
+            PermissionSeeder::class,
             IndustrySeeder::class,
             CompanySeeder::class,
+            UserSeeder::class,
             LookupTablesSeeder::class,
             PaymentModeSeeder::class,
             PropertyTypeSeeder::class,

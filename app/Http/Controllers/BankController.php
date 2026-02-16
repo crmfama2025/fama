@@ -20,7 +20,8 @@ class BankController extends Controller
     public function index()
     {
         $title = 'Banks';
-        $companies = $this->companyService->getAll();
+        $companies = $this->companyService->getAll('bank');
+        // Company::permittedForModule('bank')->get();
 
         return view("admin.master.bank", compact("title", "companies"));
     }

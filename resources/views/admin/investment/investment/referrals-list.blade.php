@@ -71,6 +71,7 @@
                                             <th>Action</th>
                                             <th>Date of Referral</th>
                                             <th>Name</th>
+                                            <th>Company Name</th>
                                             <th>Rate</th>
                                             <th>Commission Amount</th>
                                             <th>Referral Status</th>
@@ -147,6 +148,9 @@
                     }, {
                         data: 'investor_name',
                         name: 'referrer.investor_name'
+                    }, {
+                        data: 'company_name',
+                        name: 'referrer.investment.company.company_name'
                     },
                     {
                         data: 'referral_commission_perc',

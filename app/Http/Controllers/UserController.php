@@ -9,6 +9,7 @@ use App\Models\UserType;
 use App\Services\CompanyService;
 use App\Services\UserService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -36,28 +37,7 @@ class UserController extends Controller
             ->whereNull('parent_id')
             ->get();
 
-        $subModules = [
-            'add',
-            'view',
-            'edit',
-            'delete',
-            'approve',
-            'reject',
-            'document_upload',
-            'renew',
-            'send_for_approval',
-            'sign_after_approval',
-            'terminate',
-            'invoice_upload',
-            'manage_installments',
-            'payout',
-            'payable_cheque_clearing',
-            'receivable_cheque_clearing',
-            'submit_pending',
-            'soa',
-            'referrals',
-            'rent_split'
-        ];
+        $subModules = getSubModuleArray();
 
         if ($id) {
             // Edit mode
@@ -125,5 +105,86 @@ class UserController extends Controller
         $user = User::with('permissions')->findOrFail(auth()->user()->id);
 
         return view("admin.user.user-profile", compact("title", "companies", "user_types", "user"));
+    }
+
+    public function managePermission($userId)
+    {
+        $title = "Manage Permission";
+        $permissions = Permission::with('children')
+            ->whereNull('parent_id')
+            ->get();
+        $companies = $this->companyService->getAll();
+
+        $subModules = getSubModuleArray();
+
+        // Edit mode
+        $user = User::with('permissions')->findOrFail($userId);
+
+        $userPermissionIds = $user->permissions->pluck('id')->toArray();
+
+        // Get company permission counts for this user
+        $companyPermissionCounts = DB::table('user_permissions')
+            ->where('user_id', $userId)
+            ->whereNotNull('company_id')
+            ->select('company_id', DB::raw('count(*) as count'))
+            ->groupBy('company_id')
+            ->pluck('count', 'company_id');
+
+
+        return view("admin.user.manage-permission", compact("title", "permissions", "userPermissionIds", "subModules", "user", "companies", "companyPermissionCounts"));
+    }
+
+    public function getCompanyPermissions(Request $request)
+    {
+        $userId = $request->user_id;
+        $companyId = $request->company_id;
+
+        $permissionIds = \DB::table('user_permissions')
+            ->where('user_id', $userId)
+            ->where('company_id', $companyId)
+            ->pluck('permission_id');
+
+        return response()->json([
+            'permission_ids' => $permissionIds
+        ]);
+    }
+
+    public function storeCompanyPermissions(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required',
+            'company_id' => 'required',
+            'permission_id' => 'array'
+        ]);
+
+        $userId = $request->user_id;
+        $companyId = $request->company_id;
+        $permissionIds = $request->permission_id ?? [];
+
+        // STEP 1: Remove old permissions (EDIT logic)
+        \DB::table('user_permissions')
+            ->where('user_id', $userId)
+            ->where('company_id', $companyId)
+            ->delete();
+
+        // STEP 2: Insert new permissions
+        $insertData = [];
+        foreach ($permissionIds as $pid) {
+            $insertData[] = [
+                'user_id' => $userId,
+                'company_id' => $companyId,
+                'permission_id' => $pid,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        }
+
+        if (!empty($insertData)) {
+            \DB::table('user_permissions')->insert($insertData);
+        }
+
+        return response()->json([
+            'message' => 'Permissions updated successfully'
+        ]);
     }
 }

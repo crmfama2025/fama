@@ -306,8 +306,9 @@
                             </li>
                         @endif
 
-                        @if (auth()->user()->hasPermissionInRange(56, 77) ||
-                                Gate::any(['contract.send_for_approval', 'contract.sign_after_approval']))
+                        @if (hasPermission(auth()->id(), ['contract', 'agreement'], $companyId = null))
+                            {{-- auth()->user()->hasPermissionInRange(56, 77) ||
+                                Gate::any(['contract.send_for_approval', 'contract.sign_after_approval'])) --}}
                             <li class="nav-item {{ $project ? 'menu-open' : '' }}">
                                 <a href="#"
                                     class="nav-link {{ $project ? 'active bg-gradient-projects' : '' }}">
@@ -318,21 +319,19 @@
                                     </p>
                                 </a>
                                 <ul class="nav nav-treeview">
-                                    @if (auth()->user()->hasPermissionInRange(56, 66) ||
-                                            Gate::any(['contract.send_for_approval', 'contract.sign_after_approval']))
+                                    @if (hasPermission(auth()->id(), ['contract'], $companyId = null))
                                         <li class="nav-item">
                                             <a href="{{ route('contract.index') }}"
-                                                class="nav-link {{ request()->is('contract') ? 'active' : '' }}">
+                                                class="nav-link {{ request()->is('contract*') ? 'active' : '' }}">
                                                 <i class="far fa-circle nav-icon"></i>
                                                 <p>Contract</p>
                                             </a>
                                         </li>
                                     @endif
-                                    @if (auth()->user()->hasPermissionInRange(67, 77) ||
-                                            Gate::any(['agreement.terminate', 'agreement.invoice_upload', 'agreement.manage_installments']))
+                                    @if (hasPermission(auth()->id(), ['agreement'], $companyId = null))
                                         <li class="nav-item">
                                             <a href="{{ route('agreement.index') }}"
-                                                class="nav-link {{ request()->is('agreement') ? 'active' : '' }}">
+                                                class="nav-link {{ request()->is('agreement*') ? 'active' : '' }}">
                                                 <i class="far fa-circle nav-icon"></i>
                                                 <p>Agreement</p>
                                             </a>
@@ -342,7 +341,7 @@
                             </li>
                         @endif
 
-                        @if (auth()->user()->hasPermissionInRange(94, 95))
+                        @if (hasPermission(auth()->id(), ['finance'], $companyId = null))
                             <li class="nav-item {{ $finance ? 'menu-open' : '' }}">
                                 <a href="#"
                                     class="nav-link {{ $finance ? 'active bg-gradient-projects' : '' }}">
@@ -353,7 +352,7 @@
                                     </p>
                                 </a>
                                 <ul class="nav nav-treeview">
-                                    @if (Gate::any(['finance.payable_cheque_clearing']))
+                                    @if (auth()->user()->hasAnyPermission(['finance.payable_cheque_clearing']))
                                         <li class="nav-item">
                                             <a href="{{ route('finance.payable.clearing') }}"
                                                 class="nav-link {{ request()->is('finance/payable*') ? 'active' : '' }}">
@@ -362,7 +361,7 @@
                                             </a>
                                         </li>
                                     @endif
-                                    @if (Gate::any(['finance.receivable_cheque_clearing']))
+                                    @if (auth()->user()->hasAnyPermission(['finance.receivable_cheque_clearing']))
                                         <li class="nav-item">
                                             <a href="{{ route('tenant.cheque.clearing') }}"
                                                 class="nav-link {{ request()->is('finance/receivable*') ? 'active' : '' }}">
@@ -375,7 +374,7 @@
                             </li>
                         @endif
 
-                        @if (auth()->user()->hasPermissionInRange(78, 93))
+                        @if (hasPermission(auth()->id(), ['investor', 'investment', 'finance'], $companyId = null))
                             <li class="nav-item {{ $invest ? 'menu-open' : '' }}">
                                 <a href="#"
                                     class="nav-link {{ $invest ? 'active bg-gradient-projects' : '' }}">
@@ -386,32 +385,33 @@
                                     </p>
                                 </a>
                                 <ul class="nav nav-treeview">
-                                    @if (auth()->user()->hasPermissionInRange(78, 82))
+                                    @if (hasPermission(auth()->id(), ['investor'], $companyId = null))
                                         <li class="nav-item ">
                                             <a href="{{ route('investor.index') }}"
-                                                class="nav-link {{ request()->is('investor') ? 'active' : '' }}">
+                                                class="nav-link {{ request()->is('investor*') && !request()->is('investorPayout*') ? 'active' : '' }}">
                                                 <i class="far fa-circle nav-icon"></i>
                                                 <p>Investors</p>
                                             </a>
                                         </li>
                                     @endif
-                                    @if (auth()->user()->hasPermissionInRange(83, 91))
+
+                                    @if (hasPermission(auth()->id(), ['investment'], $companyId = null))
                                         <li class="nav-item">
                                             <a href="{{ route('investment.index') }}"
-                                                class="nav-link {{ request()->is('investment') ? 'active' : '' }}">
+                                                class="nav-link {{ request()->is('investment*') && !request()->is('investments/referrals*') ? 'active' : '' }}">
                                                 <i class="far fa-circle nav-icon"></i>
                                                 <p>Investments</p>
                                             </a>
                                         </li>
                                         <li class="nav-item">
                                             <a href="{{ route('referrals.index') }}"
-                                                class="nav-link {{ request()->is('investments/referrals') ? 'active' : '' }}">
+                                                class="nav-link {{ request()->is('investments/referrals*') ? 'active' : '' }}">
                                                 <i class="far fa-circle nav-icon"></i>
                                                 <p>Referrals</p>
                                             </a>
                                         </li>
                                     @endif
-                                    @if (Gate::any(['finance.payout']))
+                                    @if (auth()->user()->hasAnyPermission(['finance.payout']))
                                         <li class="nav-item">
                                             <a href="{{ route('investorPayout.index') }}"
                                                 class="nav-link {{ request()->is('investorPayout*') || request()->is('payout/*') ? 'active' : '' }}">
@@ -420,7 +420,7 @@
                                             </a>
                                         </li>
                                     @endif
-                                    @if (Gate::any(['investment.soa']))
+                                    @if (auth()->user()->hasAnyPermission(['investment.soa']))
                                         <li class="nav-item">
                                             <a href="{{ route('investment-soa.list') }}"
                                                 class="nav-link  {{ request()->is('investments/investment-soa') ? 'active' : '' }}">
@@ -433,10 +433,10 @@
                             </li>
                         @endif
 
-                        @if (Gate::any(['User', 'user.add', 'user.view', 'user.edit', 'user.delete']))
+                        @if (auth()->user()->hasAnyPermission(['User', 'user.add', 'user.view', 'user.edit', 'user.delete']))
                             <li class="nav-item {{ request()->is('user') ? 'menu-open' : '' }}">
                                 <a href="{{ route('user.index') }}"
-                                    class="nav-link {{ request()->is('user') ? 'active bg-gradient-projects' : '' }}">
+                                    class="nav-link {{ request()->is('user*') ? 'active bg-gradient-projects' : '' }}">
                                     <i class="nav-icon fas fa-user"></i>
                                     <p>
                                         Users
@@ -444,10 +444,10 @@
                                 </a>
                             </li>
                         @endif
-                        @if (Gate::any(['Company', 'company.add', 'company.view', 'company.edit', 'company.delete']))
+                        @if (auth()->user()->hasAnyPermission(['Company', 'company.add', 'company.view', 'company.edit', 'company.delete']))
                             <li class="nav-item {{ request()->is('company') ? 'menu-open' : '' }}">
                                 <a href="{{ route('company.index') }}"
-                                    class="nav-link {{ request()->is('coimpany') ? 'active bg-gradient-projects' : '' }}">
+                                    class="nav-link {{ request()->is('company*') ? 'active bg-gradient-projects' : '' }}">
                                     <i class="nav-icon fas fa-building"></i>
                                     <p>
                                         Company

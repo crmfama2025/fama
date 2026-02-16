@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Traits\HasActivityLog;
+use App\Models\Traits\HasCompanyAccess;
 use App\Models\Traits\HasDeletedBy;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -14,7 +15,7 @@ class Contract extends Model
 
     protected $table = 'contracts';
 
-    use HasFactory, SoftDeletes, HasActivityLog, HasDeletedBy;
+    use HasFactory, SoftDeletes, HasActivityLog, HasDeletedBy, HasCompanyAccess;
 
 
     protected $fillable = [

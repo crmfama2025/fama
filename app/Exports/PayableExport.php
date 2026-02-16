@@ -22,6 +22,10 @@ class PayableExport implements FromCollection, WithHeadings
 
     public function collection()
     {
+
+        // Get company IDs where user has finance.payable permission
+        $permittedCompanyIds = getUserPermittedCompanyIds(auth()->id(), 'finance.payable_cheque_clearing');
+
         $query = ContractPayableClear::query()
             ->with([
                 'contractPaymentDetail',
@@ -34,6 +38,10 @@ class PayableExport implements FromCollection, WithHeadings
                 'paidMode',
                 'paidBank'
             ]);
+
+        $query->whereHas('company', function ($q) use ($permittedCompanyIds) {
+            $q->whereIn('company_id', $permittedCompanyIds);
+        });
 
         if ($this->search) {
             $search = trim($this->search);

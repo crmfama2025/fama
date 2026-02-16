@@ -182,30 +182,29 @@ class TenantChequeService
             ->of($query)
             ->addIndexColumn()
             ->addColumn('checkbox', function ($row) {
-
                 return '
-        <div class="icheck-primary d-inline">
-            <input type="checkbox"
-                   class="groupCheckbox"
-                   name="installment_id[]"
-                   id="ichek' . $row->id . '"
-                   value="' . $row->id . '">
-            <label for="ichek' . $row->id . '"></label>
-        </div>';
+                <div class="icheck-primary d-inline">
+                    <input type="checkbox"
+                        class="groupCheckbox"
+                        name="installment_id[]"
+                        id="ichek' . $row->id . '"
+                        value="' . $row->id . '">
+                    <label for="ichek' . $row->id . '"></label>
+                </div>';
             })
             ->addColumn('project_number', function ($row) {
                 // dd($row);
-                $number = 'P - ' . $row->agreement->contract->project_number ?? '-';
-                $type = $row->agreement->contract->contract_type->contract_type ?? '-';
-                $b_type_id = $row->agreement->contract->contract_unit->business_type;
-                $b_type = $row->agreement->contract->contract_unit->business_type();
+                $number = 'P - ' . $row->agreement?->contract?->project_number ?? '-';
+                $type = $row->agreement?->contract?->contract_type->contract_type ?? '-';
+                $b_type_id = $row->agreement?->contract?->contract_unit->business_type;
+                $b_type = $row->agreement?->contract?->contract_unit->business_type();
 
                 // return "<strong class=''>{$number}</strong><p class='mb-0'><span>{$type}</span></p>
                 // </p>";
                 $badgeClass = '';
-                if ($row->agreement->contract->contract_type_id == 1) {
+                if ($row->agreement?->contract?->contract_type_id == 1) {
                     $badgeClass = 'badge badge-df text-dark';
-                } elseif ($row->agreement->contract->contract_type_id == 2) {
+                } elseif ($row->agreement?->contract?->contract_type_id == 2) {
                     $badgeClass = 'badge badge-ff text-dark';
                 } else {
                     $badgeClass = 'badge badge-secondary';
@@ -221,21 +220,21 @@ class TenantChequeService
             {$b_type}
         </strong>";
             })
-            ->addColumn('company_name', fn($row) => $row->agreement->contract->company->company_name ?? '-')
+            ->addColumn('company_name', fn($row) => $row->agreement?->contract?->company->company_name ?? '-')
             ->addColumn('tenant_name', function ($row) {
 
-                $name = $row->agreement->tenant->tenant_name ?? '-';
-                $email = $row->agreement->tenant->tenant_email ?? '-';
-                $phone = $row->agreement->tenant->tenant_mobile ?? '-';
+                $name = $row->agreement?->tenant->tenant_name ?? '-';
+                $email = $row->agreement?->tenant->tenant_email ?? '-';
+                $phone = $row->agreement?->tenant->tenant_mobile ?? '-';
 
                 return "<strong class='text-capitalize'>{$name}</strong><p class='mb-0 text-primary'>{$email}</p><p class='text-muted small'>
                     <i class='fa fa-phone-alt text-danger'></i> <span class='font-weight-bold'>{$phone}</span>
                 </p>";
             })
-            ->addColumn('property_name', fn($row) => $row->agreement->contract->property->property_name ?? '-')
+            ->addColumn('property_name', fn($row) => $row->agreement?->contract?->property->property_name ?? '-')
             ->addColumn('unit_number', function ($row) {
                 // Find the agreement unit that matches this payment detail
-                $unit = $row->agreement->agreement_units->firstWhere('id', $row->agreement_unit_id);
+                $unit = $row->agreement?->agreement_units->firstWhere('id', $row->agreement_unit_id);
 
                 return $unit && $unit->contractUnitDetail
                     ? $unit->contractUnitDetail->unit_number
@@ -243,7 +242,7 @@ class TenantChequeService
             })
             ->addColumn('subunit_no', function ($row) {
                 // Find the agreement unit that matches this payment detail
-                $unit = $row->agreement->agreement_units->firstWhere('id', $row->agreement_unit_id);
+                $unit = $row->agreement?->agreement_units->firstWhere('id', $row->agreement_unit_id);
 
                 return $unit && $unit->contractSubunitDetail
                     ? $unit->contractSubunitDetail->subunit_no

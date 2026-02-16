@@ -60,6 +60,7 @@ class InvestorPaymentDistributionService
         $columns = [
             ['data' => 'checkbox', 'name' => 'checkbox'],
             ['data' => 'investor_name', 'name' => 'investor.investor_name'],
+            ['data' => 'company_name', 'name' => 'investment.company.company_name'],
             ['data' => 'investment_code', 'name' => 'investment.investment_code'],
             ['data' => 'payout_date', 'name' => 'payout_date'],
             ['data' => 'payout_type', 'name' => 'payout_type'],
@@ -95,6 +96,7 @@ class InvestorPaymentDistributionService
             </a>
         ";
             })
+            ->addColumn('company_name', fn($row) => ($row->investment->company->company_name) ? "<a href='" . route('company.show', $row->investment->company->id) . "' target='_blank'>" . $row->investment->company->company_name . "</a>" : '-')
 
             ->addColumn('investment_code', fn($row) => ($row->investment->investment_code) ? "<a href='" . route('investment.show', $row->investment->id) . "' target='_blank'>" . $row->investment->investment_code . "</a>" : '-')
             ->addColumn('payout_date', function ($row) {
@@ -145,7 +147,7 @@ class InvestorPaymentDistributionService
                                 <i class="fas fa-redo"></i></a>';
             })
 
-            ->rawColumns(['investor_name', 'payout_type', 'action', 'checkbox', 'investment_code'])
+            ->rawColumns(['investor_name', 'payout_type', 'action', 'checkbox', 'investment_code', 'company_name'])
             ->with(['columns' => $columns])
             ->toJson();
     }
@@ -176,6 +178,7 @@ class InvestorPaymentDistributionService
                 'investor_id' => $payoutDetails->investor_id,
                 'amount_paid' => $data['paid_amount'] ?? toNumeric($payoutDetails->amount_pending),
                 'investment_id' => $payoutDetails->investment_id,
+                'paid_company_id' => $data['paid_company_id'] ?? null,
                 // 'is_processed' => $pendingAmt == 0 ? 1 : 0,
                 'paid_date' => $data['paid_date'],
                 'paid_mode_id' => $data['paid_mode'] ?? 0,
@@ -323,6 +326,7 @@ class InvestorPaymentDistributionService
 
         $columns = [
             ['data' => 'investor_name', 'name' => 'investor_name'],
+            ['data' => 'company_name', 'name' => 'company_name'],
             ['data' => 'paid_date', 'name' => 'paid_date'],
             ['data' => 'payout_type', 'name' => 'payout_type'],
             ['data' => 'amount_paid', 'name' => 'amount_paid'],
@@ -348,6 +352,7 @@ class InvestorPaymentDistributionService
         ";
             })
 
+            ->addColumn('company_name', fn($row) => $row->investment?->company?->company_name ?? '-')
             ->addColumn('paid_date', fn($row) => $row->paid_date ?? '-')
             ->addColumn('payout_type', function ($row) {
                 return match ($row->investorPayout->payout_type) {

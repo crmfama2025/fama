@@ -52,7 +52,7 @@ class AgreementController extends Controller
     }
     public function create()
     {
-        $companies = $this->companyService->getAll();
+        $companies = $this->companyService->getAll('agreement');
         // $contracts = $this->contractService->getAllwithUnits();
         $contracts = $this->contractService->getAllwithUnits()->map(function ($contract) {
             $contract->contract_unit->business_type_text = $contract->contract_unit->business_type();
@@ -109,7 +109,7 @@ class AgreementController extends Controller
     {
         $search = request('search');
         $filters = auth()->user()->company_id ? [
-            'company_id' => auth()->user()->company_id,
+            // 'company_id' => auth()->user()->company_id,
         ] : null;
         return Excel::download(new AgreementExport($search, $filters), 'agreements.xlsx');
     }

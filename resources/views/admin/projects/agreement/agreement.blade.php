@@ -44,16 +44,15 @@
                             <div class="card-header">
                                 <!-- <h3 class="card-title">Agreement Details</h3> -->
                                 <span class="float-right">
-
-                                    @can('agreement.add')
+                                    @if (auth()->user()->hasAnyPermission(['agreement.add']))
                                         <a href="{{ route('agreement.create') }}" class="btn btn-info float-right m-1">Add
                                             Agreement</a>
-                                    @endcan
-                                    @can('agreement.renew')
+                                    @endif
+                                    @if (auth()->user()->hasAnyPermission(['agreement.renew']))
                                         <a href="{{ route('agreement.expiring-list') }}"
                                             class="btn btn-secondary float-right m-1">Renewal List
                                         </a>
-                                    @endcan
+                                    @endif
                                     {{-- <button class="btn btn-secondary float-right m-1" data-toggle="modal"
                                         data-target="#modal-import">Import</button> --}}
                                 </span>

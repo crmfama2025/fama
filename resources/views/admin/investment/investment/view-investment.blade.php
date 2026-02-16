@@ -71,7 +71,7 @@
                             <div class="info-box-content">
                                 <span class="info-box-text">Total Commission Released</span>
                                 <span
-                                    class="info-box-number">{{ number_format($investment->investmentReferral->total_commission_released, 2) }}</span>
+                                    class="info-box-number">{{ number_format($investment->investmentReferral?->total_commission_released, 2) }}</span>
                             </div>
                         </div>
                     </div>

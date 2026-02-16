@@ -3,55 +3,16 @@
 namespace App\Models;
 
 use App\Models\Traits\HasActivityLog;
+// use App\Models\Traits\HasCompanyAccess;
 use App\Models\Traits\HasDeletedBy;
 use App\Services\CodeGeneratorService;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 
-/**
- * @property int $id
- * @property string $company_code
- * @property string $company_name
- * @property string|null $industry
- * @property string|null $address
- * @property string|null $phone
- * @property string|null $email
- * @property string|null $website
- * @property int $added_by
- * @property int|null $updated_by
- * @property int $status
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Area> $areas
- * @property-read int|null $areas_count
- * @property-write mixed $added_date
- * @property-write mixed $updated_date
- * @method static \Illuminate\Database\Eloquent\Builder|Company newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Company newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Company onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Company query()
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereAddedBy($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereAddress($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereCompanyCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereCompanyName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereEmail($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereIndustry($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company wherePhone($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereStatus($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereUpdatedBy($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company whereWebsite($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Company withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Company withoutTrashed()
- * @method static \Database\Factories\CompanyFactory factory($count = null, $state = [])
- * @mixin \Eloquent
- */
 class Company extends Model
 {
     protected $table = 'companies';
@@ -113,5 +74,25 @@ class Company extends Model
     public function contracts()
     {
         return $this->hasMany(Contract::class);
+    }
+
+    // is that company has any permission in that module
+    public function scopePermittedForModule(Builder $query, $module, $submodule = null)
+    {
+        if (!Auth::check()) {
+            return $query->whereRaw('1 = 0'); // no user → no data
+        }
+
+        return $query->whereIn('companies.id', function ($q) use ($module, $submodule) {
+            $q->select('up.company_id')
+                ->from('user_permissions as up')
+                ->join('permissions as p', 'p.id', '=', 'up.permission_id')
+                ->where('up.user_id', Auth::id());
+            $q->where('p.permission_name', 'like', $module . '.%');
+            if ($submodule) {
+                $q->where('p.permission_name', 'like', $module . '.' . $submodule . '%');
+            }
+            $q->whereNotNull('up.company_id');
+        });
     }
 }

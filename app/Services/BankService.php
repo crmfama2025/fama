@@ -109,15 +109,15 @@ class BankService
             ->addColumn('status', fn($row) => $row->status ?? '-')
             ->addColumn('action', function ($row) {
                 $action = '<div class="d-flex flex-column flex-md-row ">';
-                if (Gate::allows('bank.edit')) {
+                if (auth()->user()->hasAnyPermission(['bank.edit'], $row->company_id)) {
                     $action .= '<button class="btn btn-info mb-1 mr-md-1" data-toggle="modal"
                                                         data-target="#modal-bank"
                                                         data-row=\'' .  json_encode($row)  . '\'>Edit</button>';
                 }
-                if (Gate::allows('bank.view')) {
+                if (auth()->user()->hasAnyPermission(['bank.view'], $row->company_id)) {
                     $action .= '<a href="' . route('bank.show', $row->id) . '" class="btn btn-warning mb-1 mr-md-1">View</a>';
                 }
-                if (Gate::allows('bank.delete')) {
+                if (auth()->user()->hasAnyPermission(['bank.delete'], $row->company_id)) {
                     $action .= '<button class="btn btn-danger mb-1" onclick="deleteConf(' . $row->id . ')" type="submit">Delete</button>';
                 }
                 $action .= '</div>';

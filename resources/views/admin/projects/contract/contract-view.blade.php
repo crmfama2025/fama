@@ -147,9 +147,9 @@
                                                     <td> {{ strtoupper($details->payment_mode->payment_mode_name) }}</td>
                                                     <td>
                                                         @if ($details->payment_mode->payment_mode_name == 'Cheque')
-                                                            {!! 'Cheque no -' . $details->cheque_no . ' , ' . strtoupper($details->bank->bank_name) !!}
+                                                            {!! 'Cheque no -' . $details->cheque_no . ' , ' . strtoupper($details->bank?->bank_name) !!}
                                                         @elseif($details->payment_mode->payment_mode_name == 'Bank Transfer')
-                                                            {{ strtoupper($details->bank->bank_name) }}
+                                                            {{ strtoupper($details->bank?->bank_name) }}
                                                         @else
                                                             -
                                                         @endif
@@ -158,7 +158,7 @@
                                                     <td>{{ strtoupper($contract->contract_payments->beneficiary) }}</td>
                                                     <td>{{ $details->paid_date ?? ' - ' }}</td>
                                                     <td>
-                                                        {{ 'RENT ' . $loop->iteration . '/' . $contract->contract_payments->installment->installment_name }}
+                                                        {{ 'RENT ' . $loop->iteration . '/' . $contract->contract_payments->installment?->installment_name }}
                                                     </td>
                                                 </tr>
                                             @endforeach
@@ -250,7 +250,7 @@
                                                     <td> {{ strtoupper($receivable->receivable_amount) }}
                                                     </td>
                                                     <td>
-                                                        {{ 'RENT ' . $loop->iteration . '/' . $contract->contract_rentals->installment->installment_name }}
+                                                        {{ 'RENT ' . $loop->iteration . '/' . $contract->contract_rentals->installment?->installment_name }}
                                                     </td>
                                                 </tr>
                                             @endforeach
@@ -277,7 +277,7 @@
 
                                     <div class="float-xl-right mt-1">
                                         <span> <strong>Total Installments :
-                                            </strong>{{ $contract->contract_rentals->installment->installment_name }}</span><br>
+                                            </strong>{{ $contract->contract_rentals->installment?->installment_name }}</span><br>
                                         <span> <strong>Total Rent Receivable Per Annum :
                                             </strong>{{ $contract->contract_rentals->rent_receivable_per_annum }}</span>
 
@@ -435,7 +435,7 @@
                                                     <td>{{ $renewal->contract_rentals->deposit }}</td>
                                                     <td>{{ $renewal->contract_rentals->commission }}</td>
                                                     <td>{{ $renewal->contract_rentals->expected_profit }}</td>
-                                                    <td>{{ $renewal->contract_rentals->installment->installment_name }}
+                                                    <td>{{ $renewal->contract_rentals->installment?->installment_name }}
                                                     </td>
                                                     <td>{{ $renewal->contract_rentals->rent_receivable_per_annum }}</td>
                                                     <td>{{ $renewal->contract_rentals->rent_receivable_per_month }}</td>
@@ -459,24 +459,30 @@
 
 
                                         @if ($contract->contract_status != 3)
-                                            @if (Gate::allows('contract.edit') && $contract->has_agreement == 0)
+                                            @if (auth()->user()->hasAnyPermission(['contract.edit'], $contract->company_id) && $contract->has_agreement == 0)
                                                 <a class="btn btn-secondary"
                                                     href="{{ route('contract.edit', $contract->id) }}">Edit</a>
                                             @endif
 
 
-                                            @if ($contract->is_scope_generated == 0)
+                                            @if (
+                                                $contract->is_scope_generated == 0 &&
+                                                    auth()->user()->hasAnyPermission(['contract.add'], $contract->company_id))
                                                 <button class="btn btn-primary"
                                                     onclick="generateScope({{ $contract->id }})">
                                                     <i class="fas fa-envelope-open-text"></i> Generate Scope</button>
-                                            @elseif ($contract->is_vendor_contract_uploaded == 0)
+                                            @elseif (
+                                                $contract->is_vendor_contract_uploaded == 0 &&
+                                                    auth()->user()->hasAnyPermission(['contract.add', 'contract.edit'], $contract->company_id))
                                                 {{-- <button type="button" class="btn btn-warning "><i class="fas fa-upload"></i>
                                                 Upload Contract </button> --}}
                                                 <button class="btn btn-primary"
                                                     onclick="generateScope({{ $contract->id }})">
                                                     <i class="fas fa-download"></i> Update Scope
                                                 </button>
-                                            @elseif($contract->contract_status == 2)
+                                            @elseif(
+                                                $contract->contract_status == 2 &&
+                                                    auth()->user()->hasAnyPermission(['contract.document_upload'], $contract->company_id))
                                                 <a href="{{ route('contract.documents', $contract->id) }}"
                                                     class="btn btn-warning" title="Upload Documents">
                                                     Documents
@@ -488,7 +494,7 @@
                                         @endif
 
                                         @if ($contract->contract_status != 0)
-                                            @if (Gate::allows('contract.document_upload'))
+                                            @if (auth()->user()->hasAnyPermission(['contract.document_upload'], $contract->company_id))
                                                 <a href="{{ route('contract.documents', $contract->id) }}"
                                                     class="btn btn-warning" title="Upload Documents"> <i
                                                         class="fas fa-upload"></i>

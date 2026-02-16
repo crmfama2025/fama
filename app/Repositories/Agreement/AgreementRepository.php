@@ -95,9 +95,8 @@ class AgreementRepository
                 'contract_types.contract_type',
                 // \DB::raw('SUM(agreement_payment_details.paid_amount) as paid_amount')
                 'contract_units.business_type as business_type'
-
-
             ])
+
             ->join('contracts', 'contracts.id', '=', 'agreements.contract_id')
             ->join('properties', 'properties.id', '=', 'contracts.property_id')
             // ->join('vendors', 'vendors.id', '=', 'contracts.vendor_id')

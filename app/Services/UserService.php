@@ -72,14 +72,14 @@ class UserService
         }
 
         $this->validate($data, $user_id);
-        $permissionIds = $data['permission_id'] ?? null;
+        // $permissionIds = $data['permission_id'] ?? null;
         if (!empty($userData['password'])) {
             $userData['password'] =  bcrypt($userData['password']);
         } else {
             unset($userData['password']);
         }
 
-        return DB::transaction(function () use ($userData, $permissionIds, $user_id) {
+        return DB::transaction(function () use ($userData, $user_id) { // $permissionIds,
             // Step 1: Create User
 
             if ($user_id == null) {
@@ -98,9 +98,9 @@ class UserService
 
 
             // Step 2: Assign Permissions
-            if (!empty($permissionIds)) {
-                $this->permissionRepository->assignToUser($user, $permissionIds);
-            }
+            // if (!empty($permissionIds)) {
+            //     $this->permissionRepository->assignToUser($user, $permissionIds);
+            // }
 
             return $user;
         });
@@ -167,16 +167,16 @@ class UserService
 
                     ),
             ],
-            'permission_id' => $data['profile'] ? '' : 'required|array|min:1',
+            // 'permission_id' => $data['profile'] ? '' : 'required|array|min:1',
             'password' => $id ? 'nullable|string|min:6' : 'required|string|min:6',
-            // 'permission_id.*' => 'integer|exists:permissions,id',
+            // // 'permission_id.*' => 'integer|exists:permissions,id',
 
         ], [
             'email.unique' => 'This email already exists for this company.',
             'username.unique' => 'This username already exists for this company.',
             'company_id.required' => 'Please select Company.',
             'user_type_id.required' => 'Please select a User Type.',
-            'permission_id.required' => 'Please provide at least one permission.',
+            // 'permission_id.required' => 'Please provide at least one permission.',
         ]);
 
         if ($validator->fails()) {
@@ -227,6 +227,10 @@ class UserService
                 }
                 if (Gate::allows('user.delete')) {
                     $action .= '<button class="btn btn-danger mb-1" onclick="deleteConf(' . $row->id . ')" type="submit">Delete</button>';
+                }
+
+                if (Gate::allows('user.edit') || Gate::allows('user.add')) {
+                    $action .= '<a class="btn btn-secondary mb-1 mt-1 mt-md-0 ml-md-1" href="' . route('user.managePermission', $row->id) . '">Permission</a>';
                 }
                 $action .= '</div>';
 

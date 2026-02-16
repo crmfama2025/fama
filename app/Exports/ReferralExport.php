@@ -25,8 +25,13 @@ class ReferralExport implements FromCollection, WithHeadings, ShouldAutoSize
     public function collection()
     {
         //
+        $permittedCompanyIds = getUserPermittedCompanyIds(auth()->user()->id, 'investment');
 
         $query = InvestmentReferral::with('referrer', 'investment', 'commissionFrequency', 'investor', 'paymentTerm');
+
+        $query->whereHas('investment.company', function ($q) use ($permittedCompanyIds) {
+            $q->whereIn('company_id', $permittedCompanyIds);
+        });
 
         // dd($result);
         // Global search
@@ -74,6 +79,7 @@ class ReferralExport implements FromCollection, WithHeadings, ShouldAutoSize
             return [
                 'ID' => $row->id,
                 'Referrer Name' => $row->referrer->investor_name ?? '-',
+                'Company Name' => $row->investment->company->company_name ?? '-',
                 'Date of Referral' => $row->investment->investment_date ? Carbon::parse($row->investment->investment_date)->format('d-m-Y') : '-',
                 'Commission Percentage' => $row->referral_commission_perc . ' % ' ?? '-',
                 'Referral Commission Amount' => $row->referral_commission_amount ?? '-',
@@ -90,6 +96,7 @@ class ReferralExport implements FromCollection, WithHeadings, ShouldAutoSize
         return [
             'ID',
             'Referrer Name',
+            'Company Name',
             'Date of Referral',
             'Commission Percentage',
             'Referral Commission Amount',

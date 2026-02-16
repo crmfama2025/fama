@@ -8,10 +8,14 @@ use Illuminate\Support\Facades\DB;
 
 class CompanyRepository
 {
-    public function all()
+    public function all($module = null, $submodule = null)
     {
         // return Company::all();
-        return Company::where('status', 1)->get();
+        $query = Company::where('status', 1);
+        if ($module) {
+            $query->permittedForModule($module, $submodule);
+        }
+        return $query->get();
     }
 
     public function find($id)
@@ -87,8 +91,13 @@ class CompanyRepository
 
         return $query;
     }
-    public function getWithIndustry()
+    public function getWithIndustry($module = null, $submodule = null)
     {
-        return Company::where('industry_id', 1)->get();
+        $query = Company::where('industry_id', 1);
+        if ($module) {
+            $query->permittedForModule($module, $submodule);
+        }
+
+        return $query->get();
     }
 }

@@ -606,7 +606,7 @@
                                                         <select class="form-control select2" name="invested_company_id"
                                                             id="invested_company_id" required>
                                                             <option value="">Select Company</option>
-                                                            @foreach ($data['companyBanks'] as $company)
+                                                            @foreach ($data['investedCompanyBanks'] as $company)
                                                                 <option value="{{ $company->id }}"
                                                                     data-banks='@json($company->banks)'
                                                                     {{ old('invested_company_id', isset($investment->invested_company_id) ? $investment->invested_company_id : '') == $company->id ? 'selected' : '' }}>

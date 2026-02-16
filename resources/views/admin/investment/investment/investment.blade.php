@@ -41,12 +41,14 @@
                         <div class="card">
                             <div class="card-header">
                                 <!-- <h3 class="card-title">Property Details</h3> -->
-                                <span class="float-right">
-                                    <a class="btn btn-info float-right m-1" href="{{ route('investment.create') }}">Add
-                                        Investment</a>
-                                    {{-- <button class="btn btn-secondary float-right m-1" data-toggle="modal"
+                                @if (auth()->user()->hasAnyPermission(['investment.add']))
+                                    <span class="float-right">
+                                        <a class="btn btn-info float-right m-1" href="{{ route('investment.create') }}">Add
+                                            Investment</a>
+                                        {{-- <button class="btn btn-secondary float-right m-1" data-toggle="modal"
                                         data-target="#modal-import">Import</button> --}}
-                                </span>
+                                    </span>
+                                @endif
                             </div>
                             <!-- /.card-header -->
                             <div class="card-body table-responsive">

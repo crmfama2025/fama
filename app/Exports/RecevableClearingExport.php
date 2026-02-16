@@ -25,6 +25,9 @@ class RecevableClearingExport implements FromCollection, WithHeadings, ShouldAut
      */
     public function collection()
     {
+        // Get company IDs where user has finance.payable permission
+        $permittedCompanyIds = getUserPermittedCompanyIds(auth()->id(), 'finance.receivable_cheque_clearing');
+
         $query = AgreementPaymentDetail::query()
             ->with([
                 'agreementPayment.installment',
@@ -42,6 +45,9 @@ class RecevableClearingExport implements FromCollection, WithHeadings, ShouldAut
             ->where('terminate_status', 0);
         // ->whereDate('payment_date', '>=', Carbon::today())
 
+        $query->whereHas('agreement.company', function ($q) use ($permittedCompanyIds) {
+            $q->whereIn('company_id', $permittedCompanyIds);
+        });
         // Apply filters
         $filters = $this->filters;
         // dd($filters);
@@ -101,12 +107,13 @@ class RecevableClearingExport implements FromCollection, WithHeadings, ShouldAut
         // Map the results for export
         return $results->map(function ($row) {
             return [
-                'ID' => $row->id,
-                'Agreement ID' => $row->agreement_id ?? '-',
+                // 'ID' => $row->id,
+                // 'Agreement ID' => $row->agreement_id ?? '-',
                 'Tenant Name' => $row->agreement->tenant->tenant_name ?? '-',
                 'Tenant Email' => $row->agreement->tenant->tenant_email ?? '-',
                 'Tenant Mobile' => "'" . ($row->agreement->tenant->tenant_mobile ?? '-'),
                 'Project Number' => $row->agreement->contract->project_number ?? '-',
+                'Company name' => $row->agreement->company->company_name ?? '-',
                 'Contract Type' => $row->agreement->contract->contract_type->contract_type ?? '-',
                 'Business Type' => $row->agreement->contract->contract_unit->business_type() ?? '-',
                 'Property' => $row->agreement->contract->property->property_name ?? '-',
@@ -139,12 +146,13 @@ class RecevableClearingExport implements FromCollection, WithHeadings, ShouldAut
     public function headings(): array
     {
         return [
-            'ID',
-            'Agreement ID',
+            // 'ID',
+            // 'Agreement ID',
             'Tenant Name',
             'Tenant Email',
             'Tenant Mobile',
             'Project Number',
+            'Company name',
             'Contract Type',
             'Business Type',
             'Property',

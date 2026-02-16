@@ -958,7 +958,12 @@
         // $('.payment_details').hide();
 
         $('#no_of_installments').change(function() {
-            $('.payment_details').show();
+            if ($(this).val()) {
+                $('.payment_details').show();
+            } else {
+                $('.payment_details').hide();
+            }
+
             let interval = $(this).find(':selected').data('interval');
             let noofinstallments = $(this).find(':selected').text();
 
@@ -1142,6 +1147,9 @@
 
                 for (let j = start; j < noofinstallments; j++) {
 
+                    let bankVal = $('#bank_name' + j).val();
+                    let optionBank = bankOptionByCompany(bankVal);
+
                     let i = j + highestPayIndex;
 
                     const paymentBlock = document.createElement('div');
@@ -1187,11 +1195,7 @@
                                     
                                     <select class="form-control select2 bank_name" name="payment_detail[bank_id][]" id="bank_name${i}" required>
                                         <option value="">Select Bank</option>
-                                        @foreach ($banks as $bank)
-                                            <option value="{{ $bank->id }}">
-                                                {{ $bank->bank_name }} </option>
-                                        @endforeach
-
+                                        ${optionBank}
 
                                     </select>
                                     
@@ -1285,6 +1289,34 @@
 
     });
 
+
+    function bankOptionByCompany(bankVal = '') {
+        let allBanks = @json($banks);
+
+        let companyId = $('#vc_company_id').val();
+
+        let optionBank = '<option value="">Select Bank</option>';
+        console.log('companyId', companyId);
+
+
+        if (companyId) {
+            filteredBanks = allBanks.filter(b => b.company_id == companyId);
+        } else {
+            filteredBanks = allBanks;
+        }
+
+        filteredBanks.forEach(bank => {
+            optionBank += `<option value="${bank.id}">${bank.bank_name}</option>`;
+        });
+
+        if (bankVal == '') {
+            $('.bank_name').html(optionBank);
+        }
+
+        return optionBank;
+
+    }
+
     let currentSelectModeId = null;
 
     $(document).on('click', '.addPaymentModeBtn', function() {
@@ -1308,32 +1340,43 @@
 
     function hidePayments() {
         $('.payment_mode').each(function() {
+
             if ($(this).val() == '') {
-                $('.bank').hide();
-                $('.chq').hide();
+                // Don't hide all - only hide specific ones
+                var parentDiv = $(this).closest('.payment_mode_div');
+                parentDiv.find('.bank').hide();
+                parentDiv.find('.chq').hide();
             } else {
                 var payment_mode = $(this).val();
-                var bankdiv = $(this).parent().parent().next().find('.bank');
-                var chqdiv = $(this).parent().parent().next().find('.chq');
+
+                // Find within the same payment_mode_div container
+                var parentDiv = $(this).closest('.payment_mode_div');
+                var bankdiv = parentDiv.find('.bank');
+                var chqdiv = parentDiv.find('.chq');
 
                 if (payment_mode == '3') {
-                    $(bankdiv).show();
-                    $(chqdiv).show();
+                    bankdiv.show();
+                    chqdiv.show();
                 } else if (payment_mode == '2') {
-                    $(bankdiv).show();
-                    $(chqdiv).hide();
+                    bankdiv.show();
+
+                    // Only hide if not already visible
+                    if (!chqdiv.is(':visible')) {
+                        chqdiv.hide();
+                    }
                 } else {
-                    $(bankdiv).hide();
-                    $(chqdiv).hide();
+                    // Only hide if not already visible
+                    if (!bankdiv.is(':visible')) {
+                        bankdiv.hide();
+                    }
+                    if (!chqdiv.is(':visible')) {
+                        chqdiv.hide();
+                    }
                 }
             }
         });
-        // $('.chqot').hide();
-        // $('.part0').hide();
-        // $('.bs0').hide();
-        // $('.chqiss').hide();
-        // $('.chqotiss').hide();
     }
+
 
     $('#no_of_installments, #interval').on('input change', function() {
         calculatePaymentDates();
