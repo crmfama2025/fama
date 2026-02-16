@@ -16,7 +16,8 @@ use App\Repositories\Investment\InvestmentSoaRepository;
 use App\Repositories\Investment\InvestorRepository;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Support\Carbon;
-
+use Illuminate\Support\Facades\DB;
+use phpDocumentor\Reflection\Types\Null_;
 
 class DashboardService
 {
@@ -28,13 +29,27 @@ class DashboardService
 
     ) {}
 
-    public function investmentChart()
+    public function investmentChart($companyId = null)
     {
         // Get last 2 months of investments
-        $monthlyData = Investment::selectRaw('YEAR(created_at) as year, MONTH(created_at) as month, SUM(investment_amount) as total_amount, COUNT(*) as total_count')
-            // ->where('created_at', '>=', now()->subMonths(2))
-            ->where('created_at', '<', now())
-            ->groupBy('year', 'month')
+        // $monthlyData = Investment::selectRaw('YEAR(created_at) as year, MONTH(created_at) as month, SUM(investment_amount) as total_amount, COUNT(*) as total_count')
+        //     // ->where('created_at', '>=', now()->subMonths(2))
+        //     ->where('created_at', '<', now())
+        //     ->where('company_id', $companyId)
+
+        //     ->groupBy('year', 'month')
+        //     ->orderBy('year')
+        //     ->orderBy('month')
+        //     ->get();
+        $query = Investment::selectRaw('YEAR(created_at) as year, MONTH(created_at) as month, SUM(investment_amount) as total_amount, COUNT(*) as total_count')
+            ->where('created_at', '>=', now()->subMonths(2))
+            ->where('created_at', '<=', now());
+
+        if ($companyId) {
+            $query->where('company_id', $companyId);
+        }
+
+        $monthlyData = $query->groupBy('year', 'month')
             ->orderBy('year')
             ->orderBy('month')
             ->get();
@@ -50,8 +65,16 @@ class DashboardService
         //     $counts[] = (int) $data->count;
         // }
 
-        $totalInvestment = Investment::sum('investment_amount');
-        $totalCount = Investment::count();
+        $totalInvestmentQuery = Investment::query();
+        $totalCountQuery = Investment::query();
+
+        if ($companyId) {
+            $totalInvestmentQuery->where('company_id', $companyId);
+            $totalCountQuery->where('company_id', $companyId);
+        }
+
+        $totalInvestment = $totalInvestmentQuery->sum('investment_amount');
+        $totalCount = $totalCountQuery->count();
 
         $percentageChange = 0;
         $arrowUp = true;
@@ -81,19 +104,73 @@ class DashboardService
 
         // return compact('labels', 'amounts', 'counts', 'totalInvestment', 'totalCount', 'percentageChange', 'arrowUp');
     }
-    public function widgetsData()
+
+    // public function widgetsData()
+    // {
+    //     $wid_totalContracts = Contract::where('contract_renewal_status', 0)->count();
+    //     $wid_totalRenewals = Contract::where('contract_renewal_status', 1)->count();
+    //     $wid_totalInvestors = Investor::count();
+    //     $wid_totalInvestments = Investment::count();
+    //     $wid_revenue = ContractRental::sum('rent_receivable_per_annum');
+    //     $wid_tenants = AgreementTenant::count();
+    //     // $wid_tenants = 23456778;
+    //     // $wid_totalContracts = 5000;
+    //     // $wid_totalInvestors = 6000;
+    //     // $wid_totalInvestments = 3000;
+    //     return compact('wid_totalContracts', 'wid_totalInvestors', 'wid_totalInvestments', 'wid_revenue', 'wid_tenants', 'wid_totalRenewals');
+    // }
+    public function widgetsData($companyId = null)
     {
-        $wid_totalContracts = Contract::count();
-        $wid_totalInvestors = Investor::count();
-        $wid_totalInvestments = Investment::count();
-        $wid_revenue = ContractRental::sum('rent_receivable_per_annum');
-        $wid_tenants = AgreementTenant::count();
-        // $wid_tenants = 23456778;
-        // $wid_totalContracts = 5000;
-        // $wid_totalInvestors = 6000;
-        // $wid_totalInvestments = 3000;
-        return compact('wid_totalContracts', 'wid_totalInvestors', 'wid_totalInvestments', 'wid_revenue', 'wid_tenants');
+        $contracts = Contract::query();
+
+        if ($companyId) {
+            $contracts->where('company_id', $companyId);
+        }
+
+        $wid_totalContracts = (clone $contracts)
+            ->where('contract_renewal_status', 0)
+            ->count();
+
+        $wid_totalRenewals = (clone $contracts)
+            ->where('contract_renewal_status', 1)
+            ->count();
+
+        $wid_totalInvestors = Investor::when($companyId, function ($q) use ($companyId) {
+            $q->whereHas('investments', function ($inv) use ($companyId) {
+                $inv->where('company_id', $companyId);
+            });
+        })->count();
+
+        $wid_totalInvestments = Investment::when($companyId, function ($q) use ($companyId) {
+            $q->where('company_id', $companyId);
+        })->count();
+
+        $wid_revenue = ContractRental::when($companyId, function ($q) use ($companyId) {
+            $q->whereHas('contract', function ($c) use ($companyId) {
+                $c->where('company_id', $companyId);
+            });
+        })->sum('rent_receivable_per_annum');
+
+        $wid_tenants = AgreementTenant::when($companyId, function ($q) use ($companyId) {
+            $q->whereHas('agreement', function ($q2) use ($companyId) {
+                $q2->whereHas('contract', function ($c) use ($companyId) {
+                    $c->where('company_id', $companyId);
+                });
+            });
+        })->count();
+
+        // dd($wid_tenants);
+
+        return compact(
+            'wid_totalContracts',
+            'wid_totalRenewals',
+            'wid_totalInvestors',
+            'wid_totalInvestments',
+            'wid_revenue',
+            'wid_tenants'
+        );
     }
+
     // public function inventoryChart()
     // {
 
@@ -123,10 +200,15 @@ class DashboardService
     // }
 
 
-    public function inventoryChart()
+    public function inventoryChart($companyId = null)
     {
 
-        $companies = Company::with(['contracts.contract_unit'])->get();
+        $companiesQuery = Company::with(['contracts.contract_unit']);
+        if ($companyId) {
+            $companiesQuery->where('id', $companyId);
+        }
+
+        $companies = $companiesQuery->get();
 
         $companyNames = [];
         $dfUnits = [];
@@ -175,6 +257,7 @@ class DashboardService
         }
 
         $grandTotal = array_sum($totalUnits);
+        // dd($grandTotal);
 
         $difference = $thisMonthUnits - $lastMonthUnits;
 
@@ -199,11 +282,24 @@ class DashboardService
             'arrow'
         );
     }
-    public function toIinvestorChart()
+    public function toIinvestorChart($companyId = null)
     {
-        $topInvestors = Investor::select('investor_name', 'total_no_of_investments')
+        // $topInvestors = Investor::select('investor_name', 'total_no_of_investments')
+        //     ->orderByDesc('total_no_of_investments')
+        //     ->where('total_no_of_investments', '>', 0)
+        //     ->limit(10)
+        //     ->get();
+        $topInvestors = Investor::select(
+            'investors.investor_name',
+            DB::raw('COUNT(investments.id) as total_no_of_investments')
+        )
+            ->join('investments', 'investors.id', '=', 'investments.investor_id')
+            ->when($companyId, function ($q) use ($companyId) {
+                $q->where('investments.company_id', $companyId);
+            })
+            ->groupBy('investors.id', 'investors.investor_name')
+            ->having('total_no_of_investments', '>', 0)
             ->orderByDesc('total_no_of_investments')
-            ->where('total_no_of_investments', '>', 0)
             ->limit(10)
             ->get();
 

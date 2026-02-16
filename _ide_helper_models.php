@@ -685,6 +685,10 @@ namespace App\Models{
  * @property int|null $terminated_by
  * @property string|null $balance_amount
  * @property int $balance_received
+ * @property int $indirect_company_id
+ * @property int $indirect_contract_id
+ * @property int $indirect_status 0-direct 1-indirect
+ * @property int $is_indirect_contract 0-no 1-yes
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Agreement> $agreements
  * @property-read int|null $agreements_count
  * @property-read \App\Models\Area|null $area
@@ -709,6 +713,8 @@ namespace App\Models{
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ContractUnitDetail> $contract_unit_details
  * @property-read int|null $contract_unit_details_count
  * @property-read \App\Models\User|null $deletedBy
+ * @property-read \App\Models\Company|null $indirectCompany
+ * @property-read Contract|null $indirectContract
  * @property-read \App\Models\Locality|null $locality
  * @property-read Contract|null $parent
  * @property-read \App\Models\Property|null $property
@@ -737,10 +743,14 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Contract whereDeletedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Contract whereHasAgreement($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Contract whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Contract whereIndirectCompanyId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Contract whereIndirectContractId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Contract whereIndirectStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Contract whereIsAcknowledgementReleased($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Contract whereIsAgreementAdded($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Contract whereIsAknowledgementUploaded($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Contract whereIsChequeCopyUploaded($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Contract whereIsIndirectContract($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Contract whereIsProcessing($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Contract whereIsScopeGenerated($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Contract whereIsVendorContractUploaded($value)
@@ -2002,6 +2012,8 @@ namespace App\Models{
  * @property-read \App\Models\Nationality|null $country
  * @property-read \App\Models\Nationality|null $countryOfResidence
  * @property-read \App\Models\User|null $deletedBy
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Investment> $investments
+ * @property-read int|null $investments_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvestorBank> $investorBanks
  * @property-read int|null $investor_banks_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvestorDocument> $investorDocuments

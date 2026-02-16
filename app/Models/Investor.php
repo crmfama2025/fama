@@ -167,4 +167,8 @@ class Investor extends Model
             }
         });
     }
+    public function investments()
+    {
+        return $this->hasmany(Investment::class, 'investor_id');
+    }
 }

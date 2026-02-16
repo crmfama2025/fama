@@ -263,6 +263,8 @@ Route::middleware(['auth'])->group(function () {
         '/user/company-permissions/store',
         [UserController::class, 'storeCompanyPermissions']
     )->name('user.company.permissions.store');
+    Route::get('/dashboard/filter', [DashboardController::class, 'show'])
+        ->name('dashboard.filter');
 });
 
 
