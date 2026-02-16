@@ -83,6 +83,17 @@ class ContractRepository
     public function update($id, array $data)
     {
         $contract = $this->find($id);
+        if (
+            array_key_exists('indirect_contract_id', $data) &&
+            (int) $contract->indirect_contract_id !== (int) $data['indirect_contract_id']
+        ) {
+            if ((int) $contract->indirect_contract_id > 0) {
+                $indirect = $this->find($contract->indirect_contract_id);
+                $indirect->update([
+                    'is_indirect_contract' => 0
+                ]);
+            }
+        }
         $contract->update($data);
         return $contract;
     }
@@ -144,6 +155,9 @@ class ContractRepository
                 ->orWhereHas('company', function ($q) use ($filters) {
                     $q->where('company_name', 'like', '%' . $filters['search'] . '%');
                 })
+                // ->orWhereHas('indirectCompany', function ($q) use ($filters) {
+                //     $q->where('company_name', 'like', '%' . $filters['search'] . '%');
+                // })
                 ->orWhereHas('vendor', function ($q) use ($filters) {
                     $q->where('vendor_name', 'like', '%' . $filters['search'] . '%');
                 })
@@ -185,6 +199,12 @@ class ContractRepository
                         WHEN contract_status = 7 THEN 'Fully Signed'
                         WHEN contract_status = 8 THEN 'Expired'
                         WHEN contract_status = 9 THEN 'Terminated'
+                    END LIKE ?
+                ", ['%' . $filters['search'] . '%'])
+                ->orWhereRaw("
+                    CASE
+                        WHEN indirect_status = 1 THEN 'indirect'
+
                     END LIKE ?
                 ", ['%' . $filters['search'] . '%'])
                 ->orWhereRaw("CAST(contracts.id AS CHAR) LIKE ?", ['%' . $filters['search'] . '%']);
@@ -371,5 +391,15 @@ class ContractRepository
         $contract = $this->find($contractId);
         $contract->update($data);
         return $contract;
+    }
+    public function allNotIndirect()
+    {
+        return Contract::where('is_indirect_contract', 0)->get();
+    }
+    public function getindirect($id)
+    {
+        $contract = $this->find($id);
+        $indirect = Contract::find($contract->indirect_contract_id);
+        return $indirect;
     }
 }

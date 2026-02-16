@@ -90,7 +90,21 @@ class ContractController extends Controller
         // dd($contract->contract_detail);
         $dropdowns = $this->contractService->getDropdownData();
 
-        return view('admin.projects.contract.contract-create', compact('title', 'contract', 'renew', 'edit') + $dropdowns);
+        $indirectct = $this->contractService->getindirect($id);
+        $indirectCollection = collect($dropdowns['indirect']);
+
+        if ($indirectct && !$indirectCollection->contains('id', $indirectct->id)) {
+            $indirectCollection->push($indirectct);
+        }
+
+        $indirectCollection = $indirectCollection->unique('id');
+
+        $dropdowns['indirect'] = $indirectCollection;
+
+        // dd($indirectct);
+
+
+        return view('admin.projects.contract.contract-create', compact('title', 'contract', 'renew', 'edit', 'indirectct') + $dropdowns);
     }
 
     public function store(Request $request)
@@ -152,6 +166,13 @@ class ContractController extends Controller
 
     public function destroy(Contract $contract)
     {
+        if ($contract->indirect_status == 1) {
+            $this->contractService->updateIndirectContract($contract);
+        }
+        if ($contract->is_indirect_contract == 1) {
+            $this->contractService->updateIndirectParent($contract);
+        }
+
         $this->contractService->delete($contract->id);
         return response()->json(['success' => true, 'message' => 'Contract deleted successfully']);
     }
@@ -573,4 +594,5 @@ class ContractController extends Controller
             'message' => 'Contract terminated successfully'
         ]);
     }
+    public function updateIndirectData($contract) {}
 }

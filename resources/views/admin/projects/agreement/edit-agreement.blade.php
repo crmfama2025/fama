@@ -14,6 +14,7 @@
         $('#add_more_unit_edit').on('click', function() {
             let addedUnits = getUnitCount();
             const totalUnitsAvailable = window.unit_details.length;
+            const firstDataCount = $('.unit-container .unit-row:first .rent_per_month').data('count');
 
             if (addedUnits >= totalUnitsAvailable) {
                 $("#add_more_unit_edit")
@@ -27,11 +28,11 @@
                 });
                 return;
             }
-            addUnitRow(unitIndex);
+            addUnitRow(unitIndex, firstDataCount);
             unitIndex++;
         });
 
-        function addUnitRow(index) {
+        function addUnitRow(index, firstDataCount) {
             let unitTypeOptions = `<option value="">Select Unit Type</option>`;
 
             // Add normal unit types
@@ -78,7 +79,7 @@
                         <!-- Rent per Month -->
                         <div class="col-md-2">
                             <label class="form-label asterisk">Rent per Month</label>
-                            <input type="text" class="form-control rent_per_month" name="unit_detail[${index}][rent_per_month]" readonly>
+                            <input type="text" class="form-control rent_per_month" name="unit_detail[${index}][rent_per_month]" data-count="${firstDataCount}" readonly>
                         </div>
 
                         <!-- Delete Button -->
@@ -205,16 +206,30 @@
         // } else {
         unitName = unit.unit_number;
         // }
+        let loopSource = [];
+        const installments = $('#no_of_installments').find('option:selected').text().trim();
+        console.log("Installments count", installments)
+
+        if (payments.length === installments) {
+            loopSource = payments;
+        } else {
+            // Create empty objects based on installments count
+            loopSource = Array.from({
+                length: installments
+            }, (_, i) => payments[i] || {});
+        }
+
 
         let installmentBlocks = `
-        <div class="row font-weight-bold mb-2">
-            <div class="col-md-4 asterisk">Payment Mode</div>
-            <div class="col-md-4 asterisk">Payment Date</div>
-            <div class="col-md-4 asterisk">Payment Amount</div>
-        </div>
-    `;
+            <div class="row font-weight-bold mb-2">
+                <div class="col-md-4 asterisk">Payment Mode</div>
+                <div class="col-md-4 asterisk">Payment Date</div>
+                <div class="col-md-4 asterisk">Payment Amount</div>
+            </div>
+        `;
 
-        payments.forEach((pay, payIndex) => {
+        // payments.forEach((pay, payIndex) => {
+        loopSource.forEach((pay, payIndex) => {
             const uniqueId = `${unit.id}_${payIndex}`;
             let formattedDate = '';
             let showDelete = false;
@@ -236,8 +251,11 @@
 
             installmentBlocks += `
             <div class="form-group row mb-2">
+                <div class="mb-2  font-weight-bold text-info">
+                            ${payIndex + 1}.
+                        </div>
                 <input type="hidden" name="payment_detail[${unit.id}][${payIndex}][detail_id]" value="${pay.id ?? ''}">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <select class="form-control" name="payment_detail[${unit.id}][${payIndex}][payment_mode_id]" id="payment_mode${uniqueId}">
                         <option value="">Select</option>
                         @foreach ($paymentmodes as $paymentmode)
@@ -260,7 +278,7 @@
                     </div>
                 </div>
                 <div class="col-md-4">
-                <input type="text" class="form-control"
+                <input type="text" class="form-control b2b_monthly_rent"
                     id="payment_amount_${uniqueId}"
                     name="payment_detail[${unit.id}][${payIndex}][payment_amount]"
                     value="${pay.payment_amount ?? ''}"
@@ -268,7 +286,8 @@
                 </div>
             </div>
              <div class="form-group row extra-fields" id="extra_fields_${uniqueId}">
-                    <div class="col-md-4 bank" id="bank_${uniqueId}">
+                <div class="mb-2  font-weight-bold text-info"></div>
+                    <div class="col-md-3 bank ml-3" id="bank_${uniqueId}">
                         <label>Bank Name</label>
                         <select class="form-control " name="payment_detail[${unit.id}][${payIndex}][bank_id]" id="bank_name_${uniqueId}">
                             <option value="">Select bank</option>
@@ -299,21 +318,21 @@
         });
 
         const accordionHTML = `
-        <div class="card card-info accordion-for-unit mb-3" data-unit-id="${unit.id}">
-            <div class="card-header d-flex justify-content-between">
-                <div class="card-title">
-                    <a class="w-100 text-white" data-toggle="collapse" href="#${collapseId}" aria-expanded="true">
-                        Unit No : ${unitName}
-                    </a>
+                <div class="card card-info accordion-for-unit mb-3" data-unit-id="${unit.id}">
+                    <div class="card-header d-flex justify-content-between">
+                        <div class="card-title">
+                            <a class="w-100 text-white" data-toggle="collapse" href="#${collapseId}" aria-expanded="true">
+                                Unit No : ${unitName}
+                            </a>
+                        </div>
+                    </div>
+                    <div id="${collapseId}" class="collapse show" data-parent="#accordion">
+                        <div class="card-body bg-light">
+                            ${installmentBlocks}
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div id="${collapseId}" class="collapse show" data-parent="#accordion">
-                <div class="card-body bg-light">
-                    ${installmentBlocks}
-                </div>
-            </div>
-        </div>
-    `;
+            `;
 
         let accordion = document.querySelector('#accordion');
         if (!accordion) {
@@ -322,7 +341,9 @@
             containerPayment.appendChild(accordion);
         }
 
-        accordion.innerHTML += accordionHTML;
+        // accordion.innerHTML += accordionHTML;
+        accordion.insertAdjacentHTML('beforeend', accordionHTML);
+
         // console.log('termDATE', termDate);
 
         // Initialize datetimepickers, event listeners

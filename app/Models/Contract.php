@@ -59,7 +59,11 @@ class Contract extends Model
         'terminated_reason',
         'terminated_by',
         'balance_amount',
-        'balance_received'
+        'balance_received',
+        'indirect_company_id',
+        'indirect_contract_id',
+        'indirect_status',
+        'is_indirect_contract'
     ];
 
     public function property()
@@ -70,6 +74,15 @@ class Contract extends Model
     public function company()
     {
         return $this->belongsTo(Company::class);
+    }
+    public function indirectCompany()
+    {
+        return $this->belongsTo(Company::class, 'indirect_company_id', 'id');
+    }
+
+    public function indirectContract()
+    {
+        return $this->belongsTo(Contract::class, 'indirect_contract_id', 'id');
     }
 
     public function vendor()

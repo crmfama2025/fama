@@ -29,8 +29,8 @@ class LookupTablesSeeder extends Seeder
         DB::table('contract_types')->upsert(
             [
                 [
-                    'contract_type' => 'Direct Fama',
-                    'shortcode'     => 'DF',
+                    'contract_type' => 'Direct',
+                    'shortcode'     => 'Direct',
                     'created_at'    => $now,
                     'updated_at'    => $now,
                 ],
