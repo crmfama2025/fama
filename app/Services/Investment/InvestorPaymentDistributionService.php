@@ -224,77 +224,17 @@ class InvestorPaymentDistributionService
 
                 // investor update
                 $investor = investorUpdateOnDistribution($payoutData, $distributionData);
-                // dd($investor);
-
-                // $date = Carbon::createFromFormat('Y-m', $payoutData->payout_release_month);
-
-                // $year  = $date->year;
-                // $month = $date->format('F');
-                // $profit = $distributionData->amount_paid;
-
-                // // dd($year, $month);
-
-                // $templateId = '291926';
-                // $templateId_ar = '291930';
-
-                // $phone = $investor->investor_mobile ?? null;
-                // $phone = preg_replace('/[^0-9]/', '', $phone);
-                // // dd($phone);
-                // $variables = [
-                //     'investor_name' => $investor->investor_name ?? 'Investor',
-                //     'profit' => $profit,
-                //     'month' => $month,
-                //     'year' => $year
-                // ];
-
-
-                // $templates = [
-                //     'en' => $templateId,
-                //     'ar' => $templateId_ar,
-                // ];
-
-                // foreach ($templates as $lang => $tid) {
-
-                //     $payload = [
-                //         'apiToken' => env('WHATCHIMP_API_KEY'),
-                //         'phone_number_id' => env('WHATSAPP_NUMBER_ID'),
-                //         'template_id' => $tid,
-                //         'phone_number' => $phone,
-                //         // Whatchimp variable syntax: templateVariable-<name>-1
-                //         'templateVariable-invesor-1' => $variables['investor_name'],
-                //         'templateVariable-profit-2' => $variables['profit'],
-                //         'templateVariable-month-3' => $variables['month'],
-                //         'templateVariable-year-4' => $variables['year']
-                //     ];
-
-
-                //     $response = $this->whatsApp->sendTemplateById($payload);
-
-                //     $status = isset($response['status']) && $response['status'] == '1' ? 1 : 0;
-
-                //     WhatsappMessage::create([
-                //         'investor_id' => $investor->id,
-                //         'phone'       => $phone,
-                //         'template_id' => $tid,
-                //         'variables'   => json_encode($variables),
-                //         'payload'     => json_encode($payload),
-                //         'response'    => json_encode($response),
-                //         'status'      => $status,
-                //     ]);
-
-                //     \Log::info("WhatsApp {$lang} response", ['response' => $response]);
-                // }
             }
 
 
             return $distributionDatas;
         });
 
-        if ($data['reinvest'] != 1) {
-            foreach ($distr_data as $distributionData) {
-                $this->sendDistributionMessages($distributionData);
-            }
-        }
+        // if ($data['reinvest'] != 1) {
+        //     foreach ($distr_data as $distributionData) {
+        //         $this->sendDistributionMessages($distributionData);
+        //     }
+        // }
 
         return $distr_data;
     }
