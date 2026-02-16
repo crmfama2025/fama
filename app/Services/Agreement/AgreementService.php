@@ -948,6 +948,7 @@ class AgreementService
             </p>";
             })
             ->addColumn('tenant_details', function ($row) {
+                // dump($row->contract);
                 $name = $row->tenant_name ?? '-';
                 $email = $row->tenant_email ?? '-';
                 $phone = $row->tenant_mobile ?? '-';
@@ -996,14 +997,44 @@ class AgreementService
 
             ->addColumn('start_date', fn($row) => getFormattedDate($row->start_date))
             ->addColumn('end_date', fn($row) => getFormattedDate($row->end_date))
+            // ->addColumn('action', function ($row) {
+            //     $renewUrl = route('agreement.renew', $row->id);
+            //     $action = '';
+            //     if (Gate::allows('agreement.renew') && iscontractRenewed($row->contract->id)) {
+            //         $action .= '<a href="' . $renewUrl . '" class="btn btn-info  btn-sm m-1" title="Renew agreement"><i class="fas fa-sync-alt"></i></a>';
+            //         return $action ?: '-';
+            //     }
+            // })
             ->addColumn('action', function ($row) {
                 $renewUrl = route('agreement.renew', $row->id);
-                $action = '';
-                if (auth()->user()->hasAnyPermission(['agreement.renew'], $row->company_id)) {
-                    $action .= '<a href="' . $renewUrl . '" class="btn btn-info  btn-sm m-1" title="Renew agreement"><i class="fas fa-sync-alt"></i></a>';
-                    return $action ?: '-';
+                // $action = '';
+
+                // $action .= '<a href="' . $renewUrl . '" class="btn btn-info  btn-sm m-1" title="Renew agreement"><i class="fas fa-sync-alt"></i></a>';
+                // return $action ?: '-';
+
+                if (!auth()->user()->hasAnyPermission(['agreement.renew'], $row->company_id)) {
+                    return '-';
                 }
+
+                $contract = $row->contract;
+
+                $hasValidRenewal =
+                    $contract &&
+                    $contract->children->isNotEmpty() &&
+                    $contract->children->contains('contract_status', 7);
+
+                if (iscontractRenewed($contract->id) && $hasValidRenewal) {
+                    $renewUrl = route('agreement.renew', $row->id);
+
+                    return '<a href="' . $renewUrl . '" class="btn btn-info btn-sm m-1"
+                title="Renew agreement">
+                <i class="fas fa-sync-alt"></i>
+            </a>';
+                }
+
+                return '-';
             })
+
 
             ->rawColumns(['tenant_details', 'action', 'project_number', 'business_type', 'start_date', 'end_date'])
             // ->rawColumns(['action'])

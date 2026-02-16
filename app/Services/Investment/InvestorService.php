@@ -67,52 +67,54 @@ class InvestorService
             //     "first_purchase_thank_you",
             //     ['Rasmiya']
             // );
-            $templateId = '291843';
-            $templateId_ar = '291927';
 
-            $phone = $investor->investor_mobile ?? null;
-            $phone = preg_replace('/[^0-9]/', '', $phone);
+            // whatsapp messages commended for data entry
+            // $templateId = '291843';
+            // $templateId_ar = '291927';
 
-            $variables = [
-                'investor_name' => $investor->investor_name ?? 'Investor',
-            ];
+            // $phone = $investor->investor_mobile ?? null;
+            // $phone = preg_replace('/[^0-9]/', '', $phone);
 
-            $templates = [
-                'en' => $templateId,
-                'ar' => $templateId_ar,
-            ];
+            // $variables = [
+            //     'investor_name' => $investor->investor_name ?? 'Investor',
+            // ];
 
-            foreach ($templates as $lang => $tid) {
+            // $templates = [
+            //     'en' => $templateId,
+            //     'ar' => $templateId_ar,
+            // ];
 
-                $payload = [
-                    'apiToken' => env('WHATCHIMP_API_KEY'),
-                    'phone_number_id' => env('WHATSAPP_NUMBER_ID'),
-                    'template_id' => $tid,
-                    'phone_number' => $phone,
-                    // Whatchimp variable syntax: templateVariable-<name>-1
-                    'templateVariable-invesor-1' => $variables['investor_name']
-                ];
-                $response = $this->whatsApp->sendTemplateById($payload);
+            // foreach ($templates as $lang => $tid) {
 
-                $status = isset($response['status']) && $response['status'] == '1' ? 1 : 0;
+            //     $payload = [
+            //         'apiToken' => env('WHATCHIMP_API_KEY'),
+            //         'phone_number_id' => env('WHATSAPP_NUMBER_ID'),
+            //         'template_id' => $tid,
+            //         'phone_number' => $phone,
+            //         // Whatchimp variable syntax: templateVariable-<name>-1
+            //         'templateVariable-invesor-1' => $variables['investor_name']
+            //     ];
+            //     $response = $this->whatsApp->sendTemplateById($payload);
 
-                WhatsappMessage::create([
-                    'investor_id' => $investor->id,
-                    'phone'       => $phone,
-                    'template_id' => $tid,
-                    'variables'   => json_encode($variables),
-                    'payload'     => json_encode($payload),
-                    'response'    => json_encode($response),
-                    'status'      => $status,
-                ]);
+            //     $status = isset($response['status']) && $response['status'] == '1' ? 1 : 0;
 
-                \Log::info("WhatsApp {$lang} response", ['response' => $response]);
-            }
+            //     WhatsappMessage::create([
+            //         'investor_id' => $investor->id,
+            //         'phone'       => $phone,
+            //         'template_id' => $tid,
+            //         'variables'   => json_encode($variables),
+            //         'payload'     => json_encode($payload),
+            //         'response'    => json_encode($response),
+            //         'status'      => $status,
+            //     ]);
+
+            //     \Log::info("WhatsApp {$lang} response", ['response' => $response]);
+            // }
 
 
             return response()->json([
                 'status'   => 'success',
-                'whatsapp' => $response,
+                // 'whatsapp' => $response,
             ]);
         });
     }

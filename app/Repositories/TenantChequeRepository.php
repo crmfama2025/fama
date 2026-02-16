@@ -129,6 +129,7 @@ class TenantChequeRepository
                 'agreement',
                 'agreement.tenant',
                 'agreement.contract',
+                'agreement.contract.company',
                 'agreement.contract.contract_type',
                 'agreement.contract.contract_unit',
                 'agreement.contract.contract_unit_details',

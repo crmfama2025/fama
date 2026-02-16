@@ -1351,4 +1351,12 @@ function getSubModuleArray()
         'referrals',
         'rent_split'
     ];
+function iscontractRenewed($contractId)
+{
+    $contract = Contract::find($contractId);
+    if ($contract->contract_renewal_status == 1) {
+        return true;
+    } else {
+        return false;
+    }
 }
