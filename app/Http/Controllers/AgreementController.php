@@ -292,6 +292,12 @@ class AgreementController extends Controller
         $company_id = $agreement->company_id;
         $contract = $this->contractService->getById($agreement->contract_id);
         // dd($contract);
+        // if (!$contract || $contract->children->isEmpty()) {
+        //     return redirect()
+        //         ->back()
+        //         ->with('error', 'No renewal contract found for this agreement.');
+        // }
+
         $renewalContractId = $contract->children[0]->id;
         $emirates = Emirate::all();
         // dd($renewalContractId);

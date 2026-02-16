@@ -948,6 +948,7 @@ class AgreementService
             </p>";
             })
             ->addColumn('tenant_details', function ($row) {
+                // dump($row->contract);
                 $name = $row->tenant_name ?? '-';
                 $email = $row->tenant_email ?? '-';
                 $phone = $row->tenant_mobile ?? '-';
@@ -999,7 +1000,7 @@ class AgreementService
             ->addColumn('action', function ($row) {
                 $renewUrl = route('agreement.renew', $row->id);
                 $action = '';
-                if (Gate::allows('agreement.renew')) {
+                if (Gate::allows('agreement.renew') && iscontractRenewed($row->contract->id)) {
                     $action .= '<a href="' . $renewUrl . '" class="btn btn-info  btn-sm m-1" title="Renew agreement"><i class="fas fa-sync-alt"></i></a>';
                     return $action ?: '-';
                 }
