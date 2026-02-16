@@ -198,6 +198,8 @@
                                                                 </div>
                                                             </th>
                                                             <th>#</th>
+                                                            <th>Action</th>
+
                                                             <th>Project</th>
                                                             <th>Company</th>
                                                             <th>Tenant</th>
@@ -209,7 +211,6 @@
                                                             <th>Amount</th>
                                                             <th>Composition</th>
                                                             <th>Status</th>
-                                                            <th>Action</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
@@ -696,6 +697,12 @@
                         searchable: false
                     },
                     {
+                        data: 'action',
+                        name: 'action',
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
                         data: 'project_number',
                         name: 'agreement.contract.project_number',
                         render: function(data, type, row) {
@@ -781,12 +788,7 @@
 
 
 
-                    {
-                        data: 'action',
-                        name: 'action',
-                        orderable: false,
-                        searchable: false
-                    },
+
                 ],
                 rowCallback: function(row, data, index) {
                     if (data.is_payment_received == 0 && data.has_bounced == 1) {
