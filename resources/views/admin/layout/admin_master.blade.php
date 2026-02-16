@@ -398,7 +398,7 @@
                                     @if (hasPermission(auth()->id(), ['investment'], $companyId = null))
                                         <li class="nav-item">
                                             <a href="{{ route('investment.index') }}"
-                                                class="nav-link {{ request()->is('investment*') && !request()->is('investments/referrals*') ? 'active' : '' }}">
+                                                class="nav-link {{ request()->is('investment*') && !request()->is('investments/referrals*') && !request()->is('investments/investment-soa') ? 'active' : '' }}">
                                                 <i class="far fa-circle nav-icon"></i>
                                                 <p>Investments</p>
                                             </a>
