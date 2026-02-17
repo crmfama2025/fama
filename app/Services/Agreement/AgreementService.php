@@ -1046,4 +1046,82 @@ class AgreementService
     {
         return $this->agreementRepository->rentBifurcationStore($data);
     }
+    public function getDataTableDocuments(array $filters = [])
+    {
+        $query = $this->agreementDocRepository->getDocumentsQuery($filters);
+        // dd($query);
+
+        $columns = [
+            ['data' => 'DT_RowIndex', 'name' => 'id'],
+            ['data' => 'document_type',   'name' => 'document_type'],
+            ['data' => 'document_number', 'name' => 'document_number'],
+            ['data' => 'issued_date',     'name' => 'issued_date'],
+            ['data' => 'expiry_date',     'name' => 'expiry_date'],
+            ['data' => 'tenant_name',     'name' => 'tenant_name'],
+            ['data' => 'action', 'name' => 'action', 'orderable' => true, 'searchable' => true],
+        ];
+
+        return datatables()
+
+            ->of($query)
+            ->addIndexColumn()
+            ->addColumn('document_type', function ($row) {
+                $label = $row->TenantIdentity->identity_type ?? '-';
+                return "<span class='badge badge-primary'>{$label}</span>";
+            })
+            ->addColumn('document_number', fn($row) => $row->document_number ?? '-')
+            ->addColumn(
+                'issued_date',
+                fn($row) => $row->issued_date
+                    ? getFormattedDate($row->issued_date)
+                    : '-'
+            )
+            ->addColumn('expiry_date', function ($row) {
+                if (!$row->expiry_date) return '-';
+
+                $date   = getFormattedDate($row->expiry_date);
+                $expiry = \Carbon\Carbon::parse($row->expiry_date);
+
+                if ($expiry->isPast()) {
+                    return "<span class='badge badge-danger'>Expired · {$date}</span>";
+                } elseif ($expiry->diffInDays(now()) <= 30) {
+                    return "<span class='badge badge-warning'>Expiring Soon · {$date}</span>";
+                }
+
+                return "<span class='badge badge-success'>{$date}</span>";
+            })
+            ->addColumn('tenant_name', function ($row) {
+                $name  = $row->agreement->tenant->tenant_name  ?? '-';
+                $email = $row->agreement->tenant->tenant_email ?? '-';
+                $phone = $row->agreement->tenant->tenant_mobile ?? '-';
+
+                return "
+        <strong class='text-capitalize'>{$name}</strong>
+        <p class='mb-0 text-primary'>{$email}</p>
+        <p class='mb-0 text-muted small'>
+            <i class='fa fa-phone-alt text-danger'></i>
+            <span class='font-weight-bold'>{$phone}</span>
+        </p>
+    ";
+            })
+            ->addColumn('action', function ($row) {
+                $viewUrl = route('agreement.documents', $row->agreement_id);
+
+                $action = '';
+
+                $action .= '
+        <a href="' . $viewUrl . '" class="btn btn-primary btn-sm m-1" target="_blank" title="View">
+            <i class="fas fa-eye"></i>
+        </a>';
+
+                return $action;
+            })
+            ->rawColumns([
+                'action',
+                'document_type',
+                'expiry_date',
+                'tenant_name',
+            ])
+            ->toJson();
+    }
 }

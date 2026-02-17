@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Agreement;
+use App\Models\AgreementDocument;
 use App\Models\AgreementPaymentDetail;
 use App\Models\AgreementSubunitRentBifurcation;
 use App\Models\ClearedReceivable;
@@ -1361,4 +1362,14 @@ function iscontractRenewed($contractId)
     } else {
         return false;
     }
+}
+function getAgreementDocumentExpiringCounts()
+{
+    $today = Carbon::today();
+    $nextMonth = Carbon::today()->addMonth();
+
+    return AgreementDocument::whereNotNull('expiry_date')
+        // ->whereBetween('expiry_date', [$today, $nextMonth])
+        ->where('expiry_date', '<=', $nextMonth)
+        ->count();
 }
