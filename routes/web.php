@@ -121,6 +121,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('contract-list', [ContractController::class, 'getContracts'])->name('contract.list');
     Route::get('contract-documents/{id}', [ContractController::class, 'contract_documents'])->name('contract.documents');
     Route::post('contract-documents/contract-document-upload', [ContractController::class, 'document_upload'])->name('contract.document_upload');
+    Route::get('contract-allocated/{id}', [ContractController::class, 'allocatedDetails'])->name('contract.allocated');
     Route::get('export-contract', [ContractController::class, 'exportContract'])->name('contract.export');
 
     Route::delete('contracts/unit-detail/{id}', [ContractController::class, 'deleteUnitDetail'])
