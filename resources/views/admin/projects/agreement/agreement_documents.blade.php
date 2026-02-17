@@ -210,47 +210,49 @@
                                                     </div>
                                                 @endif
                                             </div>
-                                            <div class="form-group col-md-3">
-                                                <label class="asterisk">Issued Date</label>
-                                                <div class="input-group date" id="issuedDate_{{ $index }}"
-                                                    data-target-input="nearest">
-                                                    <input type="text"
-                                                        class="form-control datetimepicker-input startdate"
-                                                        name="documents[{{ $index }}][issued_date]"
-                                                        id="issued_date_{{ $index }}"
-                                                        data-target="#issuedDate_{{ $index }}"
-                                                        placeholder="dd-mm-YYYY"
-                                                        value="{{ $document && $document->issued_date ? \Carbon\Carbon::parse($document->issued_date)->format('d-m-Y') : '' }}" />
-                                                    <div class="input-group-append"
-                                                        data-target="#issuedDate_{{ $index }}"
-                                                        data-toggle="datetimepicker">
-                                                        <div class="input-group-text">
-                                                            <i class="fa fa-calendar"></i>
+                                            @if ($identity->id != 6)
+                                                <div class="form-group col-md-3">
+                                                    <label class="">Issued Date</label>
+                                                    <div class="input-group date" id="issuedDate_{{ $index }}"
+                                                        data-target-input="nearest">
+                                                        <input type="text"
+                                                            class="form-control datetimepicker-input startdate"
+                                                            name="documents[{{ $index }}][issued_date]"
+                                                            id="issued_date_{{ $index }}"
+                                                            data-target="#issuedDate_{{ $index }}"
+                                                            placeholder="dd-mm-YYYY"
+                                                            value="{{ $document && $document->issued_date ? \Carbon\Carbon::parse($document->issued_date)->format('d-m-Y') : '' }}" />
+                                                        <div class="input-group-append"
+                                                            data-target="#issuedDate_{{ $index }}"
+                                                            data-toggle="datetimepicker">
+                                                            <div class="input-group-text">
+                                                                <i class="fa fa-calendar"></i>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
 
-                                            <div class="form-group col-md-3">
-                                                <label class="asterisk">Expiry Date</label>
-                                                <div class="input-group date" id="expiryDate_{{ $index }}"
-                                                    data-target-input="nearest">
-                                                    <input type="text"
-                                                        class="form-control datetimepicker-input startdate"
-                                                        name="documents[{{ $index }}][expiry_date]"
-                                                        id="expiry_date_{{ $index }}"
-                                                        data-target="#expiryDate_{{ $index }}"
-                                                        placeholder="dd-mm-YYYY"
-                                                        value="{{ $document && $document->expiry_date ? \Carbon\Carbon::parse($document->expiry_date)->format('d-m-Y') : '' }}" />
-                                                    <div class="input-group-append"
-                                                        data-target="#expiryDate_{{ $index }}"
-                                                        data-toggle="datetimepicker">
-                                                        <div class="input-group-text">
-                                                            <i class="fa fa-calendar"></i>
+                                                <div class="form-group col-md-3">
+                                                    <label class="">Expiry Date</label>
+                                                    <div class="input-group date" id="expiryDate_{{ $index }}"
+                                                        data-target-input="nearest">
+                                                        <input type="text"
+                                                            class="form-control datetimepicker-input startdate"
+                                                            name="documents[{{ $index }}][expiry_date]"
+                                                            id="expiry_date_{{ $index }}"
+                                                            data-target="#expiryDate_{{ $index }}"
+                                                            placeholder="dd-mm-YYYY"
+                                                            value="{{ $document && $document->expiry_date ? \Carbon\Carbon::parse($document->expiry_date)->format('d-m-Y') : '' }}" />
+                                                        <div class="input-group-append"
+                                                            data-target="#expiryDate_{{ $index }}"
+                                                            data-toggle="datetimepicker">
+                                                            <div class="input-group-text">
+                                                                <i class="fa fa-calendar"></i>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            @endif
 
 
                                         </div>
