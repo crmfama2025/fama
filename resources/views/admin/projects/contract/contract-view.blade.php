@@ -477,11 +477,12 @@
                                                 <button class="btn btn-primary"
                                                     onclick="generateScope({{ $contract->id }})">
                                                     <i class="fas fa-envelope-open-text"></i> Generate Scope</button>
-                                            @elseif (
+                                                {{-- @elseif (
                                                 $contract->is_vendor_contract_uploaded == 0 &&
-                                                    auth()->user()->hasAnyPermission(['contract.add', 'contract.edit'], $contract->company_id))
-                                                {{-- <button type="button" class="btn btn-warning "><i class="fas fa-upload"></i>
-                                                Upload Contract </button> --}}
+                                                    auth()->user()->hasAnyPermission(['contract.add', 'contract.edit'], $contract->company_id)) --}}
+                                            @elseif(auth()->user()->hasAnyPermission(['contract.add'], $contract->company_id) &&
+                                                    $contract->has_agreement == 0 &&
+                                                    $contract->contract_status != 3)
                                                 <button class="btn btn-primary"
                                                     onclick="generateScope({{ $contract->id }})">
                                                     <i class="fas fa-download"></i> Update Scope
