@@ -27,4 +27,13 @@ class Installment extends Model
     {
         return $this->belongsTo(Company::class);
     }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::addGlobalScope('sorted', function ($query) {
+            $query->orderByRaw('CAST(installment_name AS UNSIGNED) asc');
+        });
+    }
 }
