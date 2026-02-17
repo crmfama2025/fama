@@ -388,7 +388,7 @@
                                                             {{-- Existing File Preview --}}
 
                                                             <div class="form-group col-md-3">
-                                                                <label class="asterisk">Issued Date</label>
+                                                                <label class="">Issued Date</label>
                                                                 <div class="input-group date issuedDate"
                                                                     id="issuedDate_{{ $index }}"
                                                                     data-target-input="nearest">
@@ -410,7 +410,7 @@
                                                             </div>
 
                                                             <div class="form-group col-md-3">
-                                                                <label class="asterisk">Expiry Date</label>
+                                                                <label class="">Expiry Date</label>
                                                                 <div class="input-group date expiryDate"
                                                                     id="expiryDate_{{ $index }}"
                                                                     data-target-input="nearest">
