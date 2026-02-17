@@ -39,7 +39,8 @@ class DocumentService
         $result = Arr::except($data, ['contract_id', '_token']);
 
         $hasFile = !empty(array_filter($result, function ($item) {
-            return isset($item['file']) && !empty($item['file']);
+            return (isset($item['file']) && !empty($item['file'])) ||
+                (isset($item['signed_contract']) && !empty($item['signed_contract']));
         }));
 
         if (!$hasFile) {
@@ -49,37 +50,47 @@ class DocumentService
             ]);
         }
 
-
+        // dd($result);
         foreach ($result as $key => $value) {
-            if (!empty($value['file'])) {
+            if (!empty($value['file']) || !empty($value['signed_contract'])) {
                 // dd($value["file"]);
                 $cDocument = $this->documentRepo->findByDocumentType($contractId, $value['document_type']);
-                // dd(!$cDocument->isEmpty());
+                // dd($cDocument);
                 // dump($value['document_type']);
                 // dump('Before IF:', $value['file'], !empty($value['file']));
 
 
                 $documentData = [];
                 $contract = $this->contractRepo->find($contractId);
-                // dump($key);
+                // dd($value['status_change']);
                 // dump(!$cDocument);
                 if ($contract->{$value['status_change']} == 1 && $cDocument) {
                     if (
                         $cDocument->original_document_name && Storage::disk('public')->exists($cDocument->original_document_path) ||
                         $cDocument->signed_document_name && Storage::disk('public')->exists($cDocument->signed_document_path)
                     ) {
-                        Storage::disk('public')->delete($cDocument->original_document_path);
+
+                        if (!empty($value['file'])) {
+                            Storage::disk('public')->delete($cDocument->original_document_path);
+                        }
+
+                        if (!empty($value['signed_contract'])) {
+                            Storage::disk('public')->delete($cDocument->signed_document_path);
+                        }
                     }
                 }
 
-                $filename = time() . '_' . $value["file"]->getClientOriginalName();
-                $path = $value["file"]->storeAs('projects/' . $contract->project_code . '/contract_documents', $filename, 'public');
+
+                $file = !empty($value['file']) ? $value['file'] : $value['signed_contract'];
+
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $path = $file->storeAs('projects/' . $contract->project_code . '/contract_documents', $filename, 'public');
 
                 $documentData['document_type_id'] = $value['document_type'];
                 $documentData['contract_id'] = $contractId;
 
 
-                if (isset($value['signed_contract'])) {
+                if (isset($value['signed_contract']) || !empty($value['signed_contract'])) {
                     $documentData['signed_document_name'] = $filename;
                     $documentData['signed_document_path'] = $path;
                     $documentData['signed_status'] = 2;

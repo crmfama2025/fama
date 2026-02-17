@@ -51,73 +51,6 @@
                             </div>
                             <!-- /.card-header -->
                             <div class="card-body">
-                                @php
-                                    $occupied = $vacant = $paymentReceived = $payamentPending = 0;
-                                @endphp
-                                @foreach ($contractUnitdetails as $contractUnitdetail)
-                                    @php
-                                        $occupied += $contractUnitdetail->subunit_occupied_count;
-                                        $vacant += $contractUnitdetail->subunit_vacant_count;
-                                        $paymentReceived += $contractUnitdetail->total_payment_received;
-                                        $payamentPending += $contractUnitdetail->total_payment_pending;
-                                    @endphp
-                                @endforeach
-                                <div class="row">
-                                    <div class="col-md-3 col-sm-6 col-12">
-                                        <div class="info-box">
-                                            <span class="info-box-icon bg-info"><i class="fas fa-lock"></i></span>
-
-                                            <div class="info-box-content">
-                                                <span class="info-box-text">Occupied</span>
-                                                <span class="info-box-number">{{ $occupied }}</span>
-                                            </div>
-                                            <!-- /.info-box-content -->
-                                        </div>
-                                        <!-- /.info-box -->
-                                    </div>
-                                    <!-- /.col -->
-                                    <div class="col-md-3 col-sm-6 col-12">
-                                        <div class="info-box">
-                                            <span class="info-box-icon bg-success"><i class="fas fa-unlock"></i></span>
-
-                                            <div class="info-box-content">
-                                                <span class="info-box-text">Vacant</span>
-                                                <span class="info-box-number">{{ $vacant }}</span>
-                                            </div>
-                                            <!-- /.info-box-content -->
-                                        </div>
-                                        <!-- /.info-box -->
-                                    </div>
-                                    <!-- /.col -->
-                                    <div class="col-md-3 col-sm-6 col-12">
-                                        <div class="info-box">
-                                            <span class="info-box-icon bg-warning"><i
-                                                    class="fas fa-hand-holding-usd"></i></span>
-
-                                            <div class="info-box-content">
-                                                <span class="info-box-text">Payment Received</span>
-                                                <span class="info-box-number">{{ $paymentReceived }}</span>
-                                            </div>
-                                            <!-- /.info-box-content -->
-                                        </div>
-                                        <!-- /.info-box -->
-                                    </div>
-                                    <!-- /.col -->
-                                    <div class="col-md-3 col-sm-6 col-12">
-                                        <div class="info-box">
-                                            <span class="info-box-icon bg-danger"><i
-                                                    class="fas fa-funnel-dollar"></i></span>
-
-                                            <div class="info-box-content">
-                                                <span class="info-box-text">Payment Pending</span>
-                                                <span class="info-box-number">{{ $payamentPending }}</span>
-                                            </div>
-                                            <!-- /.info-box-content -->
-                                        </div>
-                                        <!-- /.info-box -->
-                                    </div>
-                                    <!-- /.col -->
-                                </div>
                                 <div class="card-body">
                                     {{-- <h4 class="text-bold">Contract Document List</h4> --}}
                                     <div>
@@ -167,107 +100,15 @@
                                                                 <a href="{{ route('contracts.release', $contract->id) }}"
                                                                     class="btn btn-info">Release</a>
                                                             @endif
-
                                                         </td>
                                                     </tr>
                                                 @endif
-
                                             </tbody>
                                         </table>
                                     </div>
                                 </div>
-
-
                                 <br>
-                                <!-- we are adding the accordion ID so Bootstrap's collapse plugin detects it -->
-                                <div id="accordion">
-                                    @php
-                                        $unitdet = [];
-                                    @endphp
-                                    @foreach ($contractUnitdetails as $key => $contractUnitdetail)
-                                        @if ($contractUnitdetail->contract->contract_type_id != 2)
-                                            @include('admin.projects.contract.contract-agreement-view', [
-                                                'unitNumbers' => $contractUnitdetail->unit_number,
-                                                'agreementUnits' => $contractUnitdetail->agreementUnits,
-                                                'unitdetail' => $contractUnitdetail,
-                                            ])
-                                        @else
-                                            @include('admin.projects.contract.contract-agreement-view', [
-                                                'unitNumbers' => $contractUnitdetail->unit_number,
-                                                'agreementUnits' => $contractUnitdetail->agreementUnits,
-                                                'unitdetail' => $contractUnitdetail,
-                                            ])
-                                            {{-- <div class="card card-secondary">
-                                                <div class="card-header">
-                                                    <h4 class="card-title w-100 row">
-                                                        <a class="d-block w-100" data-toggle="collapse"
-                                                            href="#collapse{{ $key }}">
-                                                            Unit
-                                                            {{ $contractUnitdetail->contract_unit->unit_numbers }}
 
-
-                                                            <span class="badge badge-light float-lg-right"> Total Agreements
-                                                                :
-                                                                {{ count($contractUnitdetail->agreementUnits) }}</span>
-                                                        </a>
-                                                    </h4>
-                                                </div>
-                                                <div id="collapse{{ $key }}" class="collapse"
-                                                    data-parent="#accordion">
-                                                    <div class="card-body">
-                                                        <div class="col-12 table-responsive card-body">
-                                                            <div class="d-flex justify-content-center row">
-                                                                @foreach ($contractUnitdetail->agreementUnits as $agreementUnit)
-                                                                    <div class="col-6">
-                                                                        <div class="card">
-                                                                            <div class="card-header bg-gradient-olive">
-                                                                                <h4 class="card-title w-100">
-                                                                                    {{ $agreementUnit->agreement->agreement_code }}
-                                                                                    -
-                                                                                    {{ $agreementUnit->agreement->tenant->tenant_name }}
-                                                                                </h4>
-                                                                            </div>
-                                                                            <div class="card-body">
-                                                                                <table class="table">
-                                                                                    <tr>
-                                                                                        <th>#</th>
-                                                                                        <th>Document name</th>
-                                                                                        <th>view</th>
-                                                                                    </tr>
-
-                                                                                    @foreach ($agreementUnit->agreement->agreement_documents as $agreement_document)
-                                                                                        @php
-                                                                                            // dd($agreement_document);
-                                                                                        @endphp
-                                                                                        <tr>
-                                                                                            <td>{{ $loop->iteration }}</td>
-                                                                                            <td>{{ $agreement_document->TenantIdentity->identity_type }}
-                                                                                            </td>
-                                                                                            <td><a href="{{ asset('storage/' . $agreement_document->original_document_path) }}"
-                                                                                                    target="_blank"
-                                                                                                    class="btn btn-sm btn-outline-info"
-                                                                                                    title="Click to View">
-                                                                                                    <i
-                                                                                                        class="fas fa-eye"></i>
-                                                                                                </a></td>
-                                                                                        </tr>
-                                                                                    @endforeach
-
-                                                                                </table>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                @endforeach
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div> --}}
-                                            {{-- @break --}}
-                                        @endif
-                                    @endforeach
-
-                                </div>
                             </div>
                             <!-- /.card-body -->
                         </div>
@@ -297,37 +138,31 @@
                                         @endif --}}
 
                                         <div class="form-group row">
-                                            @if ($documentType->id == 1)
-                                                <div class="col-9 pr-1">
-                                            @endif
+
                                             <input type="hidden" name="{{ $key }}[document_type]"
                                                 value="{{ $documentType->id }}">
                                             <input type="hidden" name="{{ $key }}[status_change]"
                                                 value="{{ $documentType->status_change_value }}">
                                             <label for="inputEmail3"
                                                 class="col-form-label">{{ $documentType->label_name }}</label>
-                                            <input type="{{ $documentType->field_type }}"
-                                                name="{{ $key }}[file]" class="form-control"
-                                                accept="{{ $documentType->accept_types }}">
-                                            @if ($documentType->id == 1)
+                                            <input type="{{ $documentType->field_type }}" name="{{ $key }}[file]"
+                                                class="form-control" accept="{{ $documentType->accept_types }}">
+
                                         </div>
-                                        <div class="col-3">
-                                            <span class="float-right mt-31">
-                                                <div class="icheck-success d-inline">
-                                                    <input type="checkbox" id="signed"
-                                                        name="{{ $key }}[signed_contract]"
-                                                        class="signedContract" value="1">
-                                                    <label class="labelpermission" for="signed"> Signed </label>
-                                                </div>
-                                            </span>
-                                        </div>
-                                    @endif
+                                        @if ($documentType->id == 1)
+                                            <div class="form-group row">
+                                                <label for="inputEmail3" class="col-form-label">Signed
+                                                    {{ $documentType->label_name }}</label>
+                                                <input type="file" id="signed"
+                                                    name="{{ $key }}[signed_contract]" class="form-control">
+                                                {{-- <label class="labelpermission" for="signed"> Signed </label> --}}
+                                            </div>
+                                        @endif
+                                    @endforeach
                                 </div>
-                                @endforeach
-                            </div>
 
 
-                            {{-- <div class="card-body">
+                                {{-- <div class="card-body">
                                     <div class="form-group row">
                                         <label for="inputEmail3" class="col-form-label">Vendor Contract</label>
                                         <input type="file" name="file" class="form-control">
@@ -340,22 +175,22 @@
                                         <input type="file" name="file" class="form-control">
                                     </div>
                                 </div> --}}
-                            <!-- /.card-body -->
+                                <!-- /.card-body -->
+                                {{-- </div> --}}
+                                <div class="modal-footer justify-content-between">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                    <button type="submit" id="importBtn" class="btn btn-info">Upload</button>
+                                </div>
+                        </form>
                     </div>
-                    <div class="modal-footer justify-content-between">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        <button type="submit" id="importBtn" class="btn btn-info">Upload</button>
-                    </div>
-                    </form>
+                    <!-- /.modal-content -->
                 </div>
-                <!-- /.modal-content -->
+                <!-- /.modal-dialog -->
             </div>
-            <!-- /.modal-dialog -->
-    </div>
-    <!-- /.modal -->
+            <!-- /.modal -->
 
-    </section>
-    <!-- /.content -->
+        </section>
+        <!-- /.content -->
     </div>
     <!-- /.content-wrapper -->
 @endsection

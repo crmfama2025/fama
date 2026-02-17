@@ -60,7 +60,7 @@ class ContractController extends Controller
 
     public function index()
     {
-        $title = 'Contracts';
+        $title = 'Vendor Contracts';
         $paymentmodes = $this->paymentModeService->getAll();
         $banks = $this->bankService->getAll();
         $companies = $this->companyService->getAll();
@@ -70,7 +70,7 @@ class ContractController extends Controller
 
     public function create()
     {
-        $title = 'Create Contract';
+        $title = 'Create Vendor Contract';
         $contract = null;
         $renew = 0;
         $edit = 0;
@@ -83,7 +83,7 @@ class ContractController extends Controller
 
     public function edit($id)
     {
-        $title = 'Edit Contract';
+        $title = 'Edit Vendor Contract';
         $contract = $this->contractService->getAllDataById($id);
         $renew = 0;
         $edit = 1;
@@ -135,7 +135,7 @@ class ContractController extends Controller
             }
 
 
-            return response()->json(['success' => true, 'data' => $contract, 'message' => 'Contract updated successfully'], 200);
+            return response()->json(['success' => true, 'data' => $contract, 'message' => 'Vendor Contract updated successfully'], 200);
         } catch (\Exception $e) {
 
             return response()->json(['success' => false, 'message' => $e->getMessage(), 'error'   => $e], 500);
@@ -174,7 +174,7 @@ class ContractController extends Controller
         }
 
         $this->contractService->delete($contract->id);
-        return response()->json(['success' => true, 'message' => 'Contract deleted successfully']);
+        return response()->json(['success' => true, 'message' => 'Vendor Contract deleted successfully']);
     }
 
     public function contract_documents($contractId)
@@ -188,6 +188,19 @@ class ContractController extends Controller
         // dd($agreements);
         return view("admin.projects.contract.contract-documents", compact("title", 'contract', 'documentTypes', 'contractDocuments', 'contractUnitdetails'));
     }
+
+    public function allocatedDetails($contractId)
+    {
+        $title = 'Contract Allocated Details';
+        $contract = $this->contractService->getById($contractId);
+        // $documentTypes = DocumentType::where('status', 1)->get();
+        // $contractDocuments = $this->documentService->getByContractId($contractId);
+        $contractUnitdetails = $this->unitdetServ->getByContractId($contractId);
+
+        // dd($agreements);
+        return view("admin.projects.contract.contract-allocated-details", compact("title", 'contract', 'contractUnitdetails')); //'documentTypes', 'contractDocuments', 
+    }
+
 
     public function document_upload(Request $request)
     {
@@ -524,7 +537,7 @@ class ContractController extends Controller
             // $contract->contract_status = $request->status;
             // $contract->save();
 
-            return response()->json(['success' => true, 'message' => 'Contract send for Approval.'], 200);
+            return response()->json(['success' => true, 'message' => 'Vendor Contract send for Approval.'], 200);
         } catch (\Illuminate\Validation\ValidationException $e) {
             // dd($e->errors());
             // Return error to view
@@ -540,7 +553,7 @@ class ContractController extends Controller
             // $contract->contract_status = $request->status;
             // $contract->save();
 
-            return response()->json(['success' => true, 'message' => 'Contract send for Approval.'], 200);
+            return response()->json(['success' => true, 'message' => 'Vendor Contract send for Approval.'], 200);
         } catch (\Illuminate\Validation\ValidationException $e) {
             // dd($e->errors());
             // Return error to view
@@ -591,7 +604,7 @@ class ContractController extends Controller
 
         return response()->json([
             'status' => true,
-            'message' => 'Contract terminated successfully'
+            'message' => 'Vendor Contract terminated successfully'
         ]);
     }
     public function updateIndirectData($contract) {}

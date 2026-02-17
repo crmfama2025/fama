@@ -39,6 +39,11 @@
                     <div class="col-12">
                         <!-- Main content -->
                         <div class="invoice p-3 mb-3">
+                            <span class="float-right">
+                                <a class="btn btn-df" href="{{ route('contract.allocated', $contract->id) }}"
+                                    target="_blank">View
+                                    Allocated Details</a>
+                            </span>
                             {{-- <div class="text-uppercase text-bold text-info">
                                 {{ $contract->contract_type->contract_type }} Project
                             </div> --}}
@@ -52,7 +57,7 @@
                             <!-- title row -->
 
                             <!-- info row -->
-                            <div class="row invoice-info p-2">
+                            <div class="row invoice-info p-2 mt-5">
                                 <div class="col-sm-6">
                                     <h5 class="fw-bold text-primary mb-2">Vendor Details</h5>
                                     <address>
@@ -79,6 +84,7 @@
                                         </br>
                                     </address>
                                 </div>
+
                                 <!-- /.col -->
                                 <div class="col-sm-6 float-xl-right">
                                     <span class="float-xl-right ">

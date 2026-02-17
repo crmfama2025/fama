@@ -328,7 +328,7 @@
                                             <a href="{{ route('contract.index') }}"
                                                 class="nav-link {{ request()->is('contract*') ? 'active' : '' }}">
                                                 <i class="far fa-circle nav-icon"></i>
-                                                <p>Contract</p>
+                                                <p>Vendor Contract</p>
                                             </a>
                                         </li>
                                     @endif
@@ -337,7 +337,7 @@
                                             <a href="{{ route('agreement.index') }}"
                                                 class="nav-link {{ request()->is('agreement*') ? 'active' : '' }}">
                                                 <i class="far fa-circle nav-icon"></i>
-                                                <p>Agreement</p>
+                                                <p>Tenant Agreement</p>
                                             </a>
                                         </li>
                                     @endif
