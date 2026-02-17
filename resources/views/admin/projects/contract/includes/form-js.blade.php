@@ -1310,7 +1310,11 @@
         });
 
         if (bankVal == '') {
-            $('.bank_name').html(optionBank);
+            $('.bank_name').each(function() {
+                if ($(this).val() == '' || $(this).val() == null) {
+                    $(this).html(optionBank);
+                }
+            });
         }
 
         return optionBank;
