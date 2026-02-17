@@ -316,7 +316,7 @@
 
                                                         <div class="form-row">
                                                             {{-- First Field --}}
-                                                            <div class="form-group col-md-6">
+                                                            <div class="form-group col-md-3">
                                                                 <label for="document_number_{{ $index }}">
                                                                     {{ $identity->first_field_label }}
                                                                 </label>
@@ -332,7 +332,7 @@
                                                             </div>
 
                                                             {{-- Second Field --}}
-                                                            <div class="form-group col-md-6">
+                                                            <div class="form-group col-md-3">
                                                                 <label for="document_path_{{ $index }}">
                                                                     {{ $identity->second_field_label }}
                                                                 </label>
@@ -386,6 +386,50 @@
                                                                 @endif
                                                             </div>
                                                             {{-- Existing File Preview --}}
+
+                                                            <div class="form-group col-md-3">
+                                                                <label class="">Issued Date</label>
+                                                                <div class="input-group date issuedDate"
+                                                                    id="issuedDate_{{ $index }}"
+                                                                    data-target-input="nearest">
+                                                                    <input type="text"
+                                                                        class="form-control datetimepicker-input startdate"
+                                                                        name="documents[{{ $index }}][issued_date]"
+                                                                        id="issued_date_{{ $index }}"
+                                                                        data-target="#issuedDate_{{ $index }}"
+                                                                        placeholder="dd-mm-YYYY"
+                                                                        value="{{ $document && $document->issued_date ? \Carbon\Carbon::parse($document->issued_date)->format('d-m-Y') : '' }}" />
+                                                                    <div class="input-group-append"
+                                                                        data-target="#issuedDate_{{ $index }}"
+                                                                        data-toggle="datetimepicker">
+                                                                        <div class="input-group-text">
+                                                                            <i class="fa fa-calendar"></i>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="form-group col-md-3">
+                                                                <label class="">Expiry Date</label>
+                                                                <div class="input-group date expiryDate"
+                                                                    id="expiryDate_{{ $index }}"
+                                                                    data-target-input="nearest">
+                                                                    <input type="text"
+                                                                        class="form-control datetimepicker-input startdate"
+                                                                        name="documents[{{ $index }}][expiry_date]"
+                                                                        id="expiry_date_{{ $index }}"
+                                                                        data-target="#expiryDate_{{ $index }}"
+                                                                        placeholder="dd-mm-YYYY"
+                                                                        value="{{ $document && $document->expiry_date ? \Carbon\Carbon::parse($document->expiry_date)->format('d-m-Y') : '' }}" />
+                                                                    <div class="input-group-append"
+                                                                        data-target="#expiryDate_{{ $index }}"
+                                                                        data-toggle="datetimepicker">
+                                                                        <div class="input-group-text">
+                                                                            <i class="fa fa-calendar"></i>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
 
                                                         </div>
                                                     @endforeach
@@ -678,6 +722,17 @@
         document.addEventListener('DOMContentLoaded', function() {
             window.stepper = new Stepper(document.querySelector('.bs-stepper'))
         })
+    </script>
+    <script>
+        // $('.input-group.date').datetimepicker({
+        //     format: 'DD-MM-YYYY'
+        // });
+        $('.expiryDate').datetimepicker({
+            format: 'DD-MM-YYYY'
+        });
+        $('.issuedDate').datetimepicker({
+            format: 'DD-MM-YYYY'
+        });
     </script>
 
     <!-- end date calc from start date -->

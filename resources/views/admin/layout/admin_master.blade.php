@@ -99,11 +99,11 @@
                     <a class="nav-link" data-toggle="dropdown" href="#">
                         <i class="far fa-bell"></i>
                         <span
-                            class="badge badge-warning navbar-badge">{{ renewalCount() + statusCount(4) + getAgreementExpiringCounts() }}</span>
+                            class="badge badge-warning navbar-badge">{{ renewalCount() + statusCount(4) + getAgreementExpiringCounts() + getAgreementDocumentExpiringCounts() }}</span>
                     </a>
                     <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
                         <span
-                            class="dropdown-item dropdown-header">{{ renewalCount() + statusCount(4) + getAgreementExpiringCounts() }}
+                            class="dropdown-item dropdown-header">{{ renewalCount() + statusCount(4) + getAgreementExpiringCounts() + getAgreementDocumentExpiringCounts() }}
                             Notifications</span>
                         <div class="dropdown-divider"></div>
                         <a href="{{ route('contract.renewal_pending_list') }}" class="dropdown-item">
@@ -128,6 +128,10 @@
                         <div class="dropdown-divider"></div>
                         <a href="{{ route('agreement.expiring-list') }}" class="dropdown-item">
                             <i class="fas fa-sync-alt mr-2"></i>{{ getAgreementExpiringCounts() }} Agreement Expiry
+                        </a>
+                        <a href="{{ route('tenantDocument.expiringList') }}" class="dropdown-item">
+                            <i class="fas fa-sync-alt mr-2"></i>{{ getAgreementDocumentExpiringCounts() }} Tenant Docs
+                            Expiring
                         </a>
                     </div>
                 </li>

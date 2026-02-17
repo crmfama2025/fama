@@ -62,23 +62,18 @@
                             </div>
                             <!-- /.card-header -->
                             <div class="card-body table-responsive">
-                                <table id="referralsTable"
+                                <table id="expiringDocumentsTable"
                                     class="table table-striped table-bordered table-hover nowrap align-middle"
                                     width="100%">
                                     <thead>
                                         <tr>
                                             <th>#</th>
+                                            <th>Document Type</th>
+                                            <th>Document Number</th>
+                                            <th>Issued Date</th>
+                                            <th>Expiry Date</th>
+                                            <th>Tenant</th>
                                             <th>Action</th>
-                                            <th>Date of Referral</th>
-                                            <th>Name</th>
-                                            <th>Company Name</th>
-                                            <th>Rate</th>
-                                            <th>Commission Amount</th>
-                                            <th>Referral Status</th>
-                                            <th>Frequency</th>
-                                            <th>Payment Terms</th>
-                                            <th>Referred Investor Name</th>
-                                            <th>Referred Investment Amount</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -122,19 +117,42 @@
     <script>
         let table = '';
         $(function() {
-            table = $('#referralsTable').DataTable({
+            table = $('#expiringDocumentsTable').DataTable({
                 processing: true,
                 serverSide: true,
-                // responsive: true,
                 pageLength: 5,
 
                 ajax: {
-                    url: "{{ route('referrals.list') }}"
+                    url: "{{ route('tenantDocument.expiringListdata') }}"
                 },
 
                 columns: [{
                         data: 'DT_RowIndex',
-                        name: 'id'
+                        name: 'id',
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: 'document_type',
+                        name: 'document_type'
+                    },
+                    {
+                        data: 'document_number',
+                        name: 'document_number'
+                    },
+                    {
+                        data: 'issued_date',
+                        name: 'issued_date'
+                    },
+                    {
+                        data: 'expiry_date',
+                        name: 'expiry_date'
+                    },
+                    {
+                        data: 'tenant_name',
+                        name: 'tenant_name',
+                        orderable: false,
+                        searchable: false
                     },
                     {
                         data: 'action',
@@ -142,82 +160,63 @@
                         orderable: false,
                         searchable: false
                     },
-                    {
-                        data: 'investment_date',
-                        name: 'investment.investment_date'
-                    }, {
-                        data: 'investor_name',
-                        name: 'referrer.investor_name'
-                    }, {
-                        data: 'company_name',
-                        name: 'investment.company.company_name'
-                    },
-                    {
-                        data: 'referral_commission_perc',
-                        name: 'referral_commission_perc'
-                    },
-                    {
-                        data: 'referral_commission_amount',
-                        name: 'referral_commission_amount'
-                    },
-                    {
-                        data: 'referral_status',
-                        name: 'referral_status'
-                    }, {
-                        data: 'referral_commission_frequency',
-                        name: 'commissionFrequency.commission_frequency_name'
-                    },
-                    {
-                        data: 'term_name',
-                        name: 'paymentTerm.term_name'
-                    },
-                    {
-                        data: 'referred_investor_name',
-                        name: 'investor.investor_name'
-                    },
-                    {
-                        data: 'referred_investment_amount',
-                        name: 'investment.investment_amount'
-                    },
-
                 ],
 
                 order: [
-                    [0, 'desc']
+                    [0, 'asc']
+                ],
+
+                dom: 'Bfrtip',
+                buttons: [{
+                    extend: 'excelHtml5',
+                    text: 'Export Excel',
+                    title: 'Agreement Documents',
+                    action: function(e, dt, node, config) {
+                        let searchValue = dt.search();
+                        let url = "{{ route('tenantDocument.expiringListdata') }}" +
+                            "?search=" +
+                            encodeURIComponent(searchValue);
+                        window.location.href = url;
+                    }
+                }],
+
+                columnDefs: [{
+                        targets: [0],
+                        className: 'text-center font-weight-bold' // #
+                    },
+                    {
+                        targets: [1],
+                        className: 'text-center' // Document Type (badge)
+                    },
+                    {
+                        targets: [2],
+                        className: 'text-center' // Document Number
+                    },
+                    {
+                        targets: [3, 4],
+                        className: 'text-nowrap text-center' // Issued / Expiry Date
+                    },
+                    {
+                        targets: [5],
+                        className: 'text-left' // Tenant Details
+                    },
+                    {
+                        targets: [6],
+                        className: 'text-center' // Action
+                    },
                 ],
                 dom: 'Bfrtip',
                 buttons: [{
                     extend: 'excelHtml5',
                     text: 'Export Excel',
-                    title: 'Investments Data',
+                    title: 'Documents Data',
                     action: function(e, dt, node, config) {
                         let searchValue = dt.search();
-                        let url = "{{ route('referral.export') }}" + "?search=" +
+                        let url = "{{ route('documentexpiry.export') }}" + "?search=" +
                             encodeURIComponent(searchValue);
                         window.location.href = url;
                     }
-                }],
-                columnDefs: [{
-                        targets: [0],
-                        className: 'text-center font-weight-bold'
-                    }, // #
-                    {
-                        targets: [1],
-                        className: 'text-center'
-                    }, // Action
-                    {
-                        targets: [2],
-                        className: 'text-nowrap text-center'
-                    }, // Date
-                    {
-                        targets: [4, 5, 10],
-                        className: 'text-right'
-                    }, // Numbers
-                    {
-                        targets: [6, 7, 8],
-                        className: 'text-center'
-                    }, // Status / Frequency / Terms
-                ],
+                }]
             });
         });
     </script>

@@ -266,6 +266,10 @@ Route::middleware(['auth'])->group(function () {
     )->name('user.company.permissions.store');
     Route::get('/dashboard/filter', [DashboardController::class, 'show'])
         ->name('dashboard.filter');
+
+    Route::get('/expiring_tenant_documents', [AgreementController::class, 'getInvestmentExpiredDocuments'])->name('tenantDocument.expiringList');
+    Route::get('/expiring_tenant_documentsData', [AgreementController::class, 'getInvestmentExpiredDocumentslist'])->name('tenantDocument.expiringListdata');
+    Route::get('/documentExpiry/export', [AgreementController::class, 'exportDocumentExpiry'])->name('documentexpiry.export');
 });
 
 
