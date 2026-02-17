@@ -186,7 +186,9 @@ class ContractService
             $data['contract']['updated_by'] = auth()->user()->id;
             $this->validate($data['contract'], $data['contract']['id'] ?? null);
             // dd($data['contract']);
-            if ($data['contract']['indirect_contract_id']) {
+            $indirectContractId = $data['contract']['indirect_contract_id'] ?? null;
+
+            if (!empty($indirectContractId)) {
                 $data['contract']['indirect_status'] = 1;
             } else {
                 $data['contract']['indirect_status'] = 0;
