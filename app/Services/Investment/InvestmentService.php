@@ -851,7 +851,7 @@ class InvestmentService
             ['data' => 'DT_RowIndex', 'name' => 'id'],
             ['data' => 'investment_date', 'name' => 'investment.investment_date'],
             ['data' => 'investor_name', 'name' => 'referrer.investor_name'],
-            ['data' => 'company_name', 'name' => 'referrer.investment.company.company_name'],
+            ['data' => 'company_name', 'name' => 'investment.company.company_name'],
             ['data' => 'referral_commission_perc', 'name' => 'referral_commission_perc'],
             ['data' => 'referral_commission_amount', 'name' => 'referral_commission_amount'],
             ['data' => 'referral_commission_frequency', 'name' => 'commissionFrequency.commission_frequency_name'],
@@ -915,9 +915,6 @@ class InvestmentService
                     '</a>';
             })
             ->addColumn('company_name', function ($row) {
-                if (!$row->referrer) {
-                    return '-';
-                }
 
                 $url = route('company.show', $row->investment?->company_id);
 

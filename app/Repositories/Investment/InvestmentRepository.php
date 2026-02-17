@@ -165,10 +165,11 @@ class InvestmentRepository
             $q->whereIn('company_id', $permittedCompanyIds);
         });
 
-        $result = $query->get();
+        // $result = $query->get();
         // dd($result);
         if (!empty($filters['search'])) {
-            $query->orWhere('referral_commission_perc', 'like', '%' . $filters['search'] . '%')
+            // dd($filters['search']);
+            $query->where('referral_commission_perc', 'like', '%' . $filters['search'] . '%')
                 ->orWhere('referral_commission_amount', 'like', '%' . $filters['search'] . '%')
 
                 ->orWhereHas('investor', function ($q) use ($filters) {
@@ -178,6 +179,7 @@ class InvestmentRepository
                     $q->where('investor_name', 'like', '%' . $filters['search'] . '%');
                 })
                 ->orWhereHas('commissionFrequency', function ($q) use ($filters) {
+                    // dd($filters['search']);
                     $q->where('commission_frequency_name', 'like', '%' . $filters['search'] . '%');
                 })
                 ->orWhereHas('paymentTerm', function ($q) use ($filters) {
@@ -189,10 +191,11 @@ class InvestmentRepository
 
                     try {
                         $date = \Carbon\Carbon::createFromFormat('d-m-Y', $search)->format('Y-m-d');
+                        // dd($date);
 
                         $q->whereDate('investment_date', $date);
                     } catch (\Exception $e) {
-                        $q->where('investment_date', 'like', '%' . $search . '%');
+                        $q->orWhere('investment_date', 'like', '%' . $search . '%');
                     }
                 })
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\AgreementDocumentExport;
 use App\Exports\AgreementExport;
 use App\Models\Agreement;
 use App\Models\Bank;
@@ -323,5 +324,31 @@ class AgreementController extends Controller
                 'error'   => $e->getTraceAsString()
             ], 500);
         }
+    }
+    public function getInvestmentExpiredDocuments()
+    {
+        // dd("test");
+        $title = 'Expiring Tenant Documents';
+        // $paymentmodes = $this->paymentModeService->getAll();
+        // $banks = $this->bankService->getAll();
+        return view("admin.projects.agreement.tenant-documents-expiring", compact("title"));
+    }
+    public function getInvestmentExpiredDocumentslist(Request $request)
+    {
+        if ($request->ajax()) {
+            $filters = [
+                'search' => $request->search['value'] ?? null,
+            ];
+            return $this->agreementService->getDataTableDocuments($filters);
+        }
+    }
+    public function exportDocumentExpiry(Request $request)
+    {
+        $search = $request->get('search');
+
+        return Excel::download(
+            new AgreementDocumentExport($search),
+            'expiring-documents.xlsx'
+        );
     }
 }
