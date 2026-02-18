@@ -225,7 +225,7 @@ function getPartitionValue($dataArr, $key, $receivable_installments)
         $total_rent_per_unit_per_month  = $dataArr['rent_per_flat'];
     }
 
-    // dump($bedspace);
+    // dump($subunittype);
     // dump($room);
     $rent_per_flat = $dataArr['rent_per_flat'];
     $installment = Installment::find($receivable_installments);
@@ -318,7 +318,7 @@ function subunittypeCount($unitDetails)
 }
 
 
-// need to change
+// need to changex
 function getAccommodationDetails($unitDetails)
 {
     // // dd($unitDetails);
@@ -1372,4 +1372,29 @@ function getAgreementDocumentExpiringCounts()
         // ->whereBetween('expiry_date', [$today, $nextMonth])
         ->where('expiry_date', '<=', $nextMonth)
         ->count();
+}
+
+function unitDetailCount($payment_details, $type, $stage = null)
+{
+    $occupied = $vacant = $paymentReceived = $payamentPending = 0;
+    foreach ($payment_details as $detail) {
+        if ($stage == 2) {
+            $occupied += $detail->contractUnitDetail->subunit_occupied_count;
+            $vacant += $detail->contractUnitDetail->subunit_vacant_count;
+            $paymentReceived += $detail->contractUnitDetail->total_payment_received;
+            $payamentPending += $detail->contractUnitDetail->total_payment_pending;
+        } else {
+            $occupied += $detail->subunit_occupied_count;
+            $vacant += $detail->subunit_vacant_count;
+            $paymentReceived += $detail->total_payment_received;
+            $payamentPending += $detail->total_payment_pending;
+        }
+    }
+
+    return [
+        'occupied' => $occupied,
+        'vacant' => $vacant,
+        'paymentReceived' => $paymentReceived,
+        'paymentPending' => $payamentPending
+    ];
 }
