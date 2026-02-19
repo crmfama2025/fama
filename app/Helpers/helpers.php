@@ -1398,3 +1398,49 @@ function unitDetailCount($payment_details, $type, $stage = null)
         'paymentPending' => $payamentPending
     ];
 }
+
+
+if (! function_exists('transliterateToArabic')) {
+    function transliterateToArabic(string $name): string
+    {
+        // Basic English → Arabic phonetic map
+        $map = [
+            'a' => 'ا',
+            'b' => 'ب',
+            'c' => 'ك',
+            'd' => 'د',
+            'e' => 'ي',
+            'f' => 'ف',
+            'g' => 'ج',
+            'h' => 'ه',
+            'i' => 'ي',
+            'j' => 'ج',
+            'k' => 'ك',
+            'l' => 'ل',
+            'm' => 'م',
+            'n' => 'ن',
+            'o' => 'و',
+            'p' => 'ب',
+            'q' => 'ق',
+            'r' => 'ر',
+            's' => 'س',
+            't' => 'ت',
+            'u' => 'و',
+            'v' => 'ف',
+            'w' => 'و',
+            'x' => 'كس',
+            'y' => 'ي',
+            'z' => 'ز',
+            ' ' => ' ',
+            '-' => '-',
+            '\'' => '',
+        ];
+
+        $arabic = '';
+        foreach (mb_str_split(mb_strtolower($name)) as $char) {
+            $arabic .= $map[$char] ?? $char;
+        }
+
+        return $arabic;
+    }
+}

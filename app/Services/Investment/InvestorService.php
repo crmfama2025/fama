@@ -75,8 +75,12 @@ class InvestorService
             // $phone = $investor->investor_mobile ?? null;
             // $phone = preg_replace('/[^0-9]/', '', $phone);
 
+            // // $variables = [
+            // //     'investor_name' => $investor->investor_name ?? 'Investor',
+            // // ];
             // $variables = [
-            //     'investor_name' => $investor->investor_name ?? 'Investor',
+            //     'investor_name_en' => $investor->investor_name ?? 'Investor',
+            //     'investor_name_ar' => transliterateToArabic($investor->investor_name ?? 'Investor'),
             // ];
 
             // $templates = [
@@ -92,7 +96,10 @@ class InvestorService
             //         'template_id' => $tid,
             //         'phone_number' => $phone,
             //         // Whatchimp variable syntax: templateVariable-<name>-1
-            //         'templateVariable-invesor-1' => $variables['investor_name']
+            //         // 'templateVariable-invesor-1' => $variables['investor_name']
+            //         'templateVariable-investor-1' => $lang === 'ar'
+            //             ? $variables['investor_name_ar']
+            //             : $variables['investor_name_en'],
             //     ];
             //     $response = $this->whatsApp->sendTemplateById($payload);
 

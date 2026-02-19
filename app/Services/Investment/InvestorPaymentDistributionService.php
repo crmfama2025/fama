@@ -331,12 +331,29 @@ class InvestorPaymentDistributionService
         $investor = $distributionData->investor;
         $phone = preg_replace('/[^0-9]/', '', $investor->investor_mobile ?? '');
         $date = Carbon::createFromFormat('Y-m', $distributionData->payout->payout_release_month ?? now()->format('Y-m'));
+        $monthsArabic = [
+            'January'   => 'يناير',
+            'February'  => 'فبراير',
+            'March'     => 'مارس',
+            'April'     => 'أبريل',
+            'May'       => 'مايو',
+            'June'      => 'يونيو',
+            'July'      => 'يوليو',
+            'August'    => 'أغسطس',
+            'September' => 'سبتمبر',
+            'October'   => 'أكتوبر',
+            'November'  => 'نوفمبر',
+            'December'  => 'ديسمبر',
+        ];
 
         $variables = [
             'investor_name' => $investor->investor_name ?? 'Investor',
             'profit' => $distributionData->amount_paid,
             'month' => $date->format('F'),
-            'year' => $date->year
+            'year' => $date->year,
+            'investor_name_ar' => transliterateToArabic($investor->investor_name ?? 'Investor'),
+            'month_ar'         => $monthsArabic[$date->format('F')] ?? $date->format('F'),
+            // 'month_ar' => transliterateToArabic($date->format('F'))
         ];
 
         $templates = [
@@ -350,9 +367,9 @@ class InvestorPaymentDistributionService
                 'phone_number_id' => env('WHATSAPP_NUMBER_ID'),
                 'template_id' => $templateId,
                 'phone_number' => $phone,
-                'templateVariable-invesor-1' => $variables['investor_name'],
+                'templateVariable-invesor-1' => $lang === 'ar' ? $variables['investor_name_ar'] : $variables['investor_name'],
                 'templateVariable-profit-2' => $variables['profit'],
-                'templateVariable-month-3' => $variables['month'],
+                'templateVariable-month-3' => $lang === 'ar' ? $variables['month_ar'] : $variables['month'],
                 'templateVariable-year-4' => $variables['year']
             ];
 
