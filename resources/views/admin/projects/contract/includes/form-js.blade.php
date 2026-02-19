@@ -1701,7 +1701,7 @@
 
 
             $('#roi').val(Math.round(roi * 100));
-            $('#expected_profit').val(Math.round(expProfit));
+            $('#expected_profit').val(customRound(expProfit));
             $('#profit').val(customRound(profit * 100));
         }
     }
