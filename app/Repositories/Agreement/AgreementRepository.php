@@ -128,6 +128,9 @@ class AgreementRepository
                 ->orWhereHas('contract.contract_subunit_details', function ($q) use ($filters) {
                     $q->where('subunit_no', 'like', '%' . $filters['search'] . '%');
                 })
+                ->orWhereHas('agreement_documents', function ($q) use ($filters) {
+                    $q->where('document_number', 'like', '%' . $filters['search'] . '%');
+                })
                 ->orWhereHas('contract.contract_unit', function ($q) use ($filters) {
                     $q->whereRaw("
                     CASE

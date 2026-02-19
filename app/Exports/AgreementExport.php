@@ -54,6 +54,9 @@ class AgreementExport implements FromCollection, WithHeadings
                     ->orWhereHas('contract.property', function ($q) use ($search) {
                         $q->where('property_name', 'like', "%{$search}%");
                     })
+                    ->orWhereHas('agreement_documents', function ($q) use ($search) {
+                        $q->where('document_number', 'like', "%{$search}%");
+                    })
                     ->orWhereHas('contract.contract_unit', function ($q) use ($search) {
                         $q->whereRaw("
                     CASE
@@ -112,7 +115,12 @@ class AgreementExport implements FromCollection, WithHeadings
                     'Tenant Name' => $agreement->tenant->tenant_name ?? '',
                     'Tenant Email' => $agreement->tenant->tenant_email ?? '',
                     'Tenant Phone' => $agreement->tenant->tenant_mobile ?? '',
-                    // 'Tenant Mobile' => "'" . $agreement->tenant->tenant_mobile ?? '-',
+                    'Passport Number' =>  optional(
+                        $agreement->agreement_documents->where('document_type', 1)->first()
+                    )->document_number,
+                    'Emirates ID Number' => optional(
+                        $agreement->agreement_documents->where('document_type', 2)->first()
+                    )->document_number,
                     'Unit Numbers' => $unitNumbers ?: '-',
                     'Sub Unit'  => $sub,
                     'Total Rent Annum' => $agreement->agreement_payment->total_rent_annum ?? '',
@@ -140,6 +148,8 @@ class AgreementExport implements FromCollection, WithHeadings
             'Tenant Name',
             'Tenant Email',
             'Tenant Phone',
+            'Passport Number',
+            'Emirates ID Number',
             'Unit Numbers',
             'Sub Unit',
             'Total Rent Annum',
