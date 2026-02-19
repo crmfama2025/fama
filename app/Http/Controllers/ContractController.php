@@ -331,6 +331,9 @@ class ContractController extends Controller
         $contract = $this->contractService->getAllDataById($id);
         $file_name = "Project " . $contract->project_number . (($contract->contract_type_id == 1) ? '_Direct' : '') . (($contract->parent_contract_id) ? '_Renewal' : '') . '_' . $contract->property->property_name . ' Building Summary.xlsx';
 
+        $file_name = preg_replace('/[^a-z0-9.]+/', '_', $file_name); // replace unwanted chars with _
+        $file_name = trim($file_name, '_');
+
 
         // Generate temporary signed URL valid for a few seconds
         if ($stage != null) {
