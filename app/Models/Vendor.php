@@ -61,7 +61,31 @@ class Vendor extends Model
 {
     use HasFactory, SoftDeletes, HasActivityLog, HasDeletedBy;
 
-    protected $fillable = ['company_id', 'vendor_code', 'vendor_name', 'vendor_phone', 'vendor_email', 'vendor_address', 'accountant_name', 'accountant_phone', 'accountant_email', 'contact_person', 'contact_person_phone', 'contact_person_email', 'added_by', 'updated_by', 'deleted_by', 'status', 'contract_template_id', 'location', 'landline_number', 'remarks'];
+    protected $fillable = [
+        'company_id',
+        'vendor_code',
+        'vendor_name',
+        'vendor_phone',
+        'vendor_email',
+        'vendor_address',
+        'accountant_name',
+        'accountant_phone',
+        'accountant_email',
+        'contact_person',
+        'contact_person_phone',
+        'contact_person_email',
+        'added_by',
+        'updated_by',
+        'deleted_by',
+        'status',
+        'contract_template_id',
+        'location',
+        'landline_number',
+        'remarks',
+        'trade_license_number',
+        'trade_license',
+        'trade_license_expiry',
+    ];
 
     public function company()
     {

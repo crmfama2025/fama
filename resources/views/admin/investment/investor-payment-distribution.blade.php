@@ -93,7 +93,7 @@
                                         <!-- <h3 class="card-title">Property Details</h3> -->
                                         <span class="float-right">
                                             <!-- <button class="btn btn-info float-right m-1" data-toggle="modal"
-                                                                                                                                                                                                    data-target="#modal-Property">Add Investor Payout</button> -->
+                                                                                                                                                                                                                                                    data-target="#modal-Property">Add Investor Payout</button> -->
 
                                             <button class="btn btn-success float-right m-1 bulktriggerbtn"
                                                 data-toggle="modal" data-target="#modal-payout"
@@ -419,9 +419,22 @@
                     $('#submitBtn').text('Re-Invest');
                     $('#paid_amount').val(totalAmount).attr('readonly', true);
                 } else {
-                    document.getElementById('paid_amount').addEventListener('input', function() {
+                    // document.getElementById('paid_amount').addEventListener('input', function() {
+                    //     let paid = parseFloat(this.value) || 0;
+                    //     // Prevent entering more than total amount
+                    //     if (paid > totalAmount) {
+                    //         paid = totalAmount;
+                    //         this.value = totalAmount;
+                    //     }
+
+                    //     let remaining = totalAmount - paid;
+
+                    //     document.getElementById('amountPending').innerText =
+                    //         'Remaining Amount: ' + remaining;
+                    // });
+                    $('#paid_amount').off('input.payoutModal').on('input.payoutModal', function() {
                         let paid = parseFloat(this.value) || 0;
-                        // Prevent entering more than total amount
+                        console.log('paid', paid);
                         if (paid > totalAmount) {
                             paid = totalAmount;
                             this.value = totalAmount;
@@ -429,8 +442,7 @@
 
                         let remaining = totalAmount - paid;
 
-                        document.getElementById('amountPending').innerText =
-                            'Remaining Amount: ' + remaining;
+                        $('#amountPending').text('Remaining Amount: ' + remaining.toFixed(2));
                     });
 
                     $('#submitBtn').text('Submit');
