@@ -44,7 +44,10 @@ class UpdateMonthlyPendingProfit extends Command
                     // ----------------------------
                     if ($investment->profitInterval && $investment->next_profit_release_date) {
                         $nextProfitRelease = Carbon::parse($investment->next_profit_release_date);
-                        $termDate = Carbon::parse($investment->termination_date);
+                        $termDate = $investment->termination_date
+                            ? Carbon::parse($investment->termination_date)
+                            : null;
+                        // dd($investment);
                         // $monthsGap = 12 / $investment->profitInterval->no_of_installments;
                         // $monthsDiff = $nextProfitRelease->diffInMonths($currentMonth);
 
@@ -65,6 +68,7 @@ class UpdateMonthlyPendingProfit extends Command
                             } else {
                                 $payout = $this->createInvestorpayout(1, $currentMonthStart, $investment);
                             }
+
                             // dd($payout);
                         }
                         if ($payout) {
