@@ -232,10 +232,14 @@ class InvestorPaymentDistributionService
 
             return $distributionDatas;
         });
+        // dd($distr_data);
 
         // if ($data['reinvest'] != 1) {
         //     foreach ($distr_data as $distributionData) {
-        //         $this->sendDistributionMessages($distributionData);
+        //         $payout_type = $distributionData->investorPayout?->payout_type;
+        //         if ($payout_type == 1) {
+        //             $this->sendDistributionMessages($distributionData);
+        //         }
         //     }
         // }
 
