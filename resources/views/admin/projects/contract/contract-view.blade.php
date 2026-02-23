@@ -507,10 +507,6 @@
                                             @endif
                                         @endif
 
-                                        <button class="btn btn-primary" onclick="generateScope({{ $contract->id }})">
-                                            <i class="fas fa-download"></i> Update Scope
-                                        </button>
-
                                         @if ($contract->contract_status != 0)
                                             @if (auth()->user()->hasAnyPermission(['contract.document_upload'], $contract->company_id))
                                                 <a href="{{ route('contract.documents', $contract->id) }}"
