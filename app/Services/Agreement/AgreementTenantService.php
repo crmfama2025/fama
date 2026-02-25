@@ -325,9 +325,10 @@ class AgreementTenantService
 
             // 3️⃣ Main documents (owner_index = null)
             if (!empty($data['documents'])) {
+                // dd($data['documents']);
                 foreach ($data['documents'] as $docType => $doc) {
-                    $docNumber    = $doc['passport_number'] ?? $doc['emirates_id'] ?? null;
-                    $uploadedFile = $doc['passport_file'] ?? $doc['emirates_file'] ?? null;
+                    $docNumber    = $doc['number'] ?? null;
+                    $uploadedFile = $doc['file'] ??  null;
 
                     // ✅ Skip if nothing provided
                     if (empty($docNumber) && empty($uploadedFile)) {
