@@ -30,6 +30,7 @@
     function ContractFormSubmit(e) {
         e.preventDefault();
 
+
         if ($('.contractFormSubmit').prop('disabled') == false) {
             Swal.fire({
                 title: "Are you sure?",
@@ -41,6 +42,7 @@
                 confirmButtonText: "Yes, submit!"
             }).then((result) => {
                 if (result.isConfirmed) {
+                    showLoader();
                     // $('#company_id').prop('disabled', false);
                     // const contractForm = $(this);
                     // $(':input').not(':focusable').prop('disabled', true);
@@ -71,6 +73,7 @@
                             window.location.href = "{{ route('contract.index') }}";
                         },
                         error: function(errors) {
+                            hideLoader();
                             toastr.error(errors.responseJSON.message);
                         }
                     });

@@ -130,6 +130,11 @@
                                      <option value="0">Inactive</option>
                                  </select>
                              </div>
+                             <div class="col-sm-3">
+                                 <label>Trade License Number</label>
+                                 <input type="text" name="trade_license_number" id="trade_license_number"
+                                     class="form-control" placeholder="Trade License Number">
+                             </div>
                          </div>
 
                      </div>

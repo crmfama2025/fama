@@ -150,7 +150,7 @@
         <!-- /.navbar -->
 
         <!-- Main Sidebar Container -->
-        <aside class="main-sidebar sidebar-dark-primary elevation-4 position-fixed">
+        <aside class="main-sidebar sidebar-dark-primary elevation-4 position-fixed sidebar-newColor">
             <!-- Brand Logo -->
             <a href="{{ route('dashboard.index') }}" class="brand-link">
                 <img src="{{ asset('images/fg.png') }}" class="brand-image">

@@ -81,6 +81,11 @@
                                         <span>{{ $contract->contract_detail->end_date }}</span><br>
 
                                         <span>{{ strtoupper($contract->contract_unit->unit_type_count) }}</span>
+                                        @if ($contract->contract_unit->watchman_room == 1)
+                                            -
+                                            <span>{{ $contract->contract_unit->watchman_room == 1 ? 'Watchman Room' : '' }}</span>
+                                        @endif
+
                                         </br>
                                     </address>
                                 </div>
@@ -306,6 +311,7 @@
                                             <tr>
                                                 <th>Unit Number</th>
                                                 <th>Unit Type</th>
+                                                <th>Maid Room</th>
                                                 <th>Property type</th>
                                                 <th>Floor Number</th>
                                                 <th>Unit Status</th>
@@ -324,6 +330,7 @@
                                                 <tr>
                                                     <td>{{ strtoupper($unitDetails->unit_number) }}</td>
                                                     <td>{{ strtoupper($unitDetails->unit_type->unit_type) }}</td>
+                                                    <td>{{ $unitDetails->maid_room ? 'Yes' : 'No' }}</td>
                                                     <td>{{ strtoupper($unitDetails->property_type->property_type) }}
                                                     <td>{{ strtoupper($unitDetails->floor_no) }}</td>
                                                     <td>{{ strtoupper($unitDetails->unit_status->unit_status) }}</td>

@@ -132,8 +132,14 @@ function renderUnitDetails($sheet, $contract)
 
         foreach ($subunits as $sub) {
 
+            $unitType = $unitdetail->unit_type->unit_type ?? '';
+
+            if ($unitdetail->maid_room == 1) {
+                $unitType .= ' + M';
+            }
+
             $unitDetaiArr[] = [
-                $isFirstRow ? ($unitdetail->unit_type->unit_type ?? '') : '',
+                $isFirstRow ? $unitType : '',
                 $isFirstRow ? ($unitdetail->unit_number ?? '') : '',
                 $isFirstRow ? (tonumeric($unitdetail->unit_rent_per_annum) ?? 0) : null,
                 $sub['type'],
@@ -984,9 +990,17 @@ function renderUnitDetailsFF($sheet, $contract)
 
 
         $commonHead = ['Flat No', 'Unit Type', 'Rent Amount',];
+
+        $unitType = $unitdetail->unit_type->unit_type ?? '';
+
+        if ($unitdetail->maid_room == 1) {
+            $unitType .= ' + M';
+        }
+
+
         $commonData =  [
             $unitdetail->unit_number ?? '',
-            $unitdetail->unit_type->unit_type ?? '',
+            $unitType ?? '',
             toNumeric($unitdetail->unit_rent_per_annum) ?? 0,
         ];
 

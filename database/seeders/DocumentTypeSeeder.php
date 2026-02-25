@@ -53,7 +53,7 @@ class DocumentTypeSeeder extends Seeder
             ],
             [
                 // 'document_type' => 3,
-                'label_name' => 'Passport Copy',
+                'label_name' => 'Passport',
                 'field_type' => 'file',
                 'field_name' => 'passport_copy',
                 'status_change_value' => 'is_passport_uploaded',

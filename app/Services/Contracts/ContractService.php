@@ -369,7 +369,7 @@ class ContractService
                         </a> ';
                 }
 
-                if (auth()->user()->hasAnyPermission(['contract.edit'], $row->company_id) && $row->has_agreement == 0 && $row->contract_status != 3) {
+                if (auth()->user()->hasAnyPermission(['contract.edit'], $row->company_id) && $row->has_agreement == 0 && !in_array($row->contract_status, [3, 9, 10])) {
                     $action .= '<a class="btn btn-info btn-sm" href="' . route('contract.edit', $row->id) . '" title="Edit Contract">
                             <i class="fas fa-pencil-alt"></i>
                         </a> ';
