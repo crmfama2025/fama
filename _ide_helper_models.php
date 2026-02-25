@@ -653,7 +653,7 @@ namespace App\Models{
  * @property int $property_id
  * @property int $is_vendor_contract_uploaded
  * @property int $is_scope_generated
- * @property int $contract_status 0-Pending, 1-Processing, 2-Approved, 3-Rejected, 4-Send for Approval, 5-Approval on Hold, 6-Sign Pending, 7- Signed, 8-Expired, 9-Terminated, 10-Dropped
+ * @property int $contract_status 0-Pending, 1-Processing, 2-Approved, 3-Rejected, 4-Send for Approval, 5-Approval on Hold, 6-Sign Pending, 7- Signed, 8-Expired, 9-Terminated
  * @property string|null $signed_at
  * @property int|null $signed_by
  * @property int $is_aknowledgement_uploaded
@@ -2695,6 +2695,15 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|ReferralCommissionFrequency whereUpdatedAt($value)
  */
 	class ReferralCommissionFrequency extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @method static \Illuminate\Database\Eloquent\Builder|TenantDocument newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|TenantDocument newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|TenantDocument query()
+ */
+	class TenantDocument extends \Eloquent {}
 }
 
 namespace App\Models{

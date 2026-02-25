@@ -270,6 +270,13 @@
                                             </a>
                                         </li>
                                     @endif
+                                    <li class="nav-item">
+                                        <a href="{{ route('tenant.index') }}"
+                                            class="nav-link {{ request()->is('tenant') ? 'active' : '' }}">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>Tenant</p>
+                                        </a>
+                                    </li>
                                     @if (Gate::any(['Bank', 'bank.add', 'bank.view', 'bank.edit', 'bank.delete']))
                                         <li class="nav-item">
                                             <a href="{{ route('bank.index') }}"

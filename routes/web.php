@@ -22,6 +22,7 @@ use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\PropertyTypeController;
 use App\Http\Controllers\ReceivablesClearingController;
 use App\Http\Controllers\ReferralController;
+use App\Http\Controllers\TenantController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VendorController;
 use App\Services\BrevoService;
@@ -66,6 +67,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('investment', InvestmentController::class);
     Route::resource('investor', InvestorController::class);
     Route::resource('investorPayout', InvestorPaymentDistributionController::class);
+    Route::resource('tenant', TenantController::class);
 
 
 
@@ -270,6 +272,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/expiring_tenant_documents', [AgreementController::class, 'getInvestmentExpiredDocuments'])->name('tenantDocument.expiringList');
     Route::get('/expiring_tenant_documentsData', [AgreementController::class, 'getInvestmentExpiredDocumentslist'])->name('tenantDocument.expiringListdata');
     Route::get('/documentExpiry/export', [AgreementController::class, 'exportDocumentExpiry'])->name('documentexpiry.export');
+
+
+    Route::get('tenants/list', [TenantController::class, 'list'])->name('tenant.list');
+    Route::get('tenants/edit/{id}', [TenantController::class, 'edit'])->name('tenant.edit');
+    Route::post('/tenant/remove-owner-documents', [TenantController::class, 'removeOwnerDocuments'])->name('tenant.remove.owner.documents');
+    Route::get('export-tenant', [TenantController::class, 'export'])->name('tenant.export');
 });
 
 

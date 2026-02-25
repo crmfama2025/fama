@@ -1,11 +1,6 @@
 @extends('admin.layout.admin_master')
 
 @section('custom_css')
-    <!-- daterange picker -->
-
-    <link rel="stylesheet" href="{{ asset('assets/daterangepicker/daterangepicker.css') }}">
-    <!-- Tempusdominus Bootstrap 4 -->
-    <link rel="stylesheet" href="{{ asset('assets/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/datatables-bs4/css/dataTables.bootstrap4.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/datatables-responsive/css/responsive.bootstrap4.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/datatables-buttons/css/buttons.bootstrap4.min.css') }}">
@@ -120,7 +115,7 @@
                                             <input type="email" name="tenant_email"
                                                 class="form-control @error('tenant_email') is-invalid @enderror"
                                                 value="{{ old('tenant_email', $tenant->tenant_email ?? '') }}"
-                                                placeholder="Enter email address" required>
+                                                placeholder="Enter email address">
                                             @error('tenant_email')
                                                 <span class="invalid-feedback">{{ $message }}</span>
                                             @enderror
@@ -133,7 +128,7 @@
                                             <input type="text" name="tenant_mobile"
                                                 class="form-control @error('tenant_mobile') is-invalid @enderror"
                                                 value="{{ old('tenant_mobile', $tenant->tenant_mobile ?? '') }}"
-                                                placeholder="Enter mobile number" required>
+                                                placeholder="Enter mobile number">
                                             @error('tenant_mobile')
                                                 <span class="invalid-feedback">{{ $message }}</span>
                                             @enderror
@@ -141,10 +136,9 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label class="asterisk">Nationality</label>
+                                            <label>Nationality</label>
                                             <select name="nationality_id" id="nationality"
-                                                class="form-control select2 @error('nationality_id') is-invalid @enderror"
-                                                required>
+                                                class="form-control select2 @error('nationality_id') is-invalid @enderror">
                                                 <option value="">-- Select Nationality --</option>
                                                 @foreach ($formData['nationalities'] as $nationality)
                                                     <option value="{{ $nationality->id }}"
@@ -340,11 +334,10 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label>Trade License Number</label>
-                                            <input type="text" name="documents[3][number]" id="trade_license_no"
+                                            <input type="text" name="documents[3][number]"
                                                 class="form-control @error('documents.trade_license.number') is-invalid @enderror"
                                                 value="{{ old('documents.trade_license.number', $tradeLicense->document_number ?? '') }}"
-                                                pattern="[A-Za-z0-9\/-]{5,20}"
-                                                title="5–20 characters. Letters, numbers, / or - only">
+                                                placeholder="Enter trade license number">
                                             @error('documents.trade_license.number')
                                                 <span class="invalid-feedback">{{ $message }}</span>
                                             @enderror
@@ -379,21 +372,11 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label>Trade License Issued Date</label>
-                                            <div class="input-group date" id="tradeLicenseIssuedDate"
-                                                data-target-input="nearest">
-                                                <input type="text" class="form-control datetimepicker-input"
-                                                    name="documents[3][issued]" id="trade_license_issued"
-                                                    data-target="#tradeLicenseIssuedDate" placeholder="dd-mm-YYYY"
-                                                    value="{{ isset($tradeLicense) && $tradeLicense->issued_date ? \Carbon\Carbon::parse($tradeLicense->issued_date)->format('d-m-Y') : '' }}">
-                                                <div class="input-group-append" data-target="#tradeLicenseIssuedDate"
-                                                    data-toggle="datetimepicker">
-                                                    <div class="input-group-text">
-                                                        <i class="fa fa-calendar"></i>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            <input type="date" name="documents[3][issued]"
+                                                class="form-control @error('documents.trade_license.issued') is-invalid @enderror"
+                                                value="{{ old('documents.trade_license.issued', isset($tradeLicense) && $tradeLicense->issued_date ? \Illuminate\Support\Carbon::parse($tradeLicense->issued_date)->format('Y-m-d') : '') }}">
                                             @error('documents.trade_license.issued')
-                                                <span class="text-danger">{{ $message }}</span>
+                                                <span class="invalid-feedback">{{ $message }}</span>
                                             @enderror
                                         </div>
                                     </div>
@@ -402,21 +385,11 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label>Trade License Expiry Date</label>
-                                            <div class="input-group date" id="tradeLicenseExpiryDate"
-                                                data-target-input="nearest">
-                                                <input type="text" class="form-control datetimepicker-input"
-                                                    name="documents[3][expiry]" id="trade_license_expiry"
-                                                    data-target="#tradeLicenseExpiryDate" placeholder="dd-mm-YYYY"
-                                                    value="{{ isset($tradeLicense) && $tradeLicense->expiry_date ? \Carbon\Carbon::parse($tradeLicense->expiry_date)->format('d-m-Y') : '' }}">
-                                                <div class="input-group-append" data-target="#tradeLicenseExpiryDate"
-                                                    data-toggle="datetimepicker">
-                                                    <div class="input-group-text">
-                                                        <i class="fa fa-calendar"></i>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            <input type="date" name="documents[3][expiry]"
+                                                class="form-control @error('documents.trade_license.expiry') is-invalid @enderror"
+                                                value="{{ old('documents.trade_license.expiry', isset($tradeLicense) && $tradeLicense->expiry_date ? \Illuminate\Support\Carbon::parse($tradeLicense->expiry_date)->format('Y-m-d') : '') }}">
                                             @error('documents.trade_license.expiry')
-                                                <span class="text-danger">{{ $message }}</span>
+                                                <span class="invalid-feedback">{{ $message }}</span>
                                             @enderror
                                         </div>
                                     </div>
@@ -431,12 +404,12 @@
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             @php
-                                                $selectedOwners = old('no_of_owners', $tenant->no_of_owners ?? 0);
+                                                $selectedOwners = old('no_of_owners', $tenant->no_of_owners ?? 1);
                                             @endphp
 
                                             <label>No. of Owners <span class="text-danger">*</span></label>
                                             <select name="no_of_owners" id="owners_count" class="form-control">
-                                                @for ($i = 0; $i <= 5; $i++)
+                                                @for ($i = 1; $i <= 5; $i++)
                                                     <option value="{{ $i }}"
                                                         {{ $selectedOwners == $i ? 'selected' : '' }}>
                                                         {{ $i }}
@@ -455,7 +428,7 @@
                                 <a href="{{ route('tenant.index') }}" class="btn btn-secondary">
                                     <i class="fas fa-arrow-left mr-1"></i> Back
                                 </a>
-                                <button type="submit" class="btn btn-info px-4" id="submitBtn">
+                                <button type="submit" class="btn btn-info px-4">
                                     <i class="fas fa-save mr-1"></i> Save Tenant
                                 </button>
                             </div>
@@ -473,14 +446,6 @@
 
 @section('custom_js')
     <script src="{{ asset('assets/datatables/jquery.dataTables.min.js') }}"></script>
-    <script src="{{ asset('assets/moment/moment.min.js') }}"></script>
-    <!-- Tempusdominus Bootstrap 4 -->
-
-    <script src="{{ asset('assets/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js') }}"></script>
-    <!-- date-range-picker -->
-
-    <script src="{{ asset('assets/daterangepicker/daterangepicker.js') }}"></script>
-
     <script src="{{ asset('assets/datatables-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
     <script src="{{ asset('assets/datatables-responsive/js/dataTables.responsive.min.js') }}"></script>
     <script src="{{ asset('assets/datatables-responsive/js/responsive.bootstrap4.min.js') }}"></script>
@@ -493,174 +458,87 @@
     <script src="{{ asset('assets/datatables-buttons/js/buttons.print.min.js') }}"></script>
     <script src="{{ asset('assets/datatables-buttons/js/buttons.colVis.min.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.5/dist/sweetalert2.all.min.js"></script>
-    <script>
-        $('#tradeLicenseIssuedDate').datetimepicker({
-            format: 'DD-MM-YYYY'
-        });
-
-        $('#tradeLicenseExpiryDate').datetimepicker({
-            format: 'DD-MM-YYYY'
-        });
-    </script>
 
     <script>
         let existingOwners = @json($owners ?? []);
-        let existingOwnerKeys = Object.keys(existingOwners).map(Number);
-        const existingOwnerCount = existingOwnerKeys.length;
+        console.log('Existing Owners Data:', existingOwners);
 
         function generateOwners(count) {
             let container = document.getElementById('owners_section');
             container.innerHTML = '';
 
-            let ownerSlots = [];
-
-            if (existingOwnerKeys.length > 0) {
-                // EDIT MODE: use real DB indices
-                ownerSlots = existingOwnerKeys.slice(0, count);
-
-                // If user increased count beyond existing owners, add new slots
-                if (count > existingOwnerKeys.length) {
-                    let maxKey = Math.max(...existingOwnerKeys);
-                    for (let j = 1; j <= count - existingOwnerKeys.length; j++) {
-                        ownerSlots.push(maxKey + j);
-                    }
-                }
-            } else {
-                // CREATE MODE: just use 1, 2, 3...
-                for (let j = 1; j <= count; j++) {
-                    ownerSlots.push(j);
-                }
-            }
-
-            ownerSlots.forEach(function(ownerIndex, displayIndex) {
-                let ownerData = existingOwners[ownerIndex] || {};
+            for (let i = 1; i <= count; i++) {
+                // alert(i);
+                let ownerData = existingOwners[i] || {};
                 let passport = ownerData[1] || {};
                 let emirates = ownerData[2] || {};
-                let displayNumber = displayIndex + 1;
-
-                let emiratesIssued = emirates.issued ? moment(emirates.issued, 'YYYY-MM-DD').format('DD-MM-YYYY') :
-                    '';
-                let emiratesExpiry = emirates.expiry ? moment(emirates.expiry, 'YYYY-MM-DD').format('DD-MM-YYYY') :
-                    '';
-                let passportIssued = passport.issued ? moment(passport.issued, 'YYYY-MM-DD').format('DD-MM-YYYY') :
-                    '';
-                let passportExpiry = passport.expiry ? moment(passport.expiry, 'YYYY-MM-DD').format('DD-MM-YYYY') :
-                    '';
 
                 container.innerHTML += `
-                    <div class="card card-outline card-info owner-card mb-3" id="owner_${ownerIndex}" data-owner-index="${ownerIndex}">
+                    <div class="card card-outline card-info owner-card mb-3" id="owner_${i}" data-owner-index="${i}">
                         <div class="card-header">
-                            <i class="fas fa-user mr-1"></i> Owner ${displayNumber} Documents
+                            <i class="fas fa-user mr-1"></i> Owner ${i} Documents
                         </div>
                         <div class="card-body">
                             <div class="row">
-                                <input type="hidden" name="owners[${ownerIndex}][2][id]" value="${emirates.id ?? ''}">
-
+                             <input type="hidden" name="owners[${i}][2][id]" value="${emirates.id ?? ''}">
                                 <!-- Emirates ID -->
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Emirates ID Number</label>
-                                        <input type="text" name="owners[${ownerIndex}][2][emirates_id]" class="form-control emirates-id"
+                                        <input type="text" name="owners[${i}][2][emirates_id]" class="form-control"
                                             value="${emirates.number ?? ''}">
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Emirates ID Upload</label>
-                                        <input type="file" name="owners[${ownerIndex}][2][emirates_file]" class="form-control">
+                                        <input type="file" name="owners[${i}][2][emirates_file]" class="form-control">
                                         ${emirates.file ? `<a href="${emirates.file}" target="_blank">View File</a>` : ''}
                                     </div>
                                 </div>
-
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Emirates ID Issued Date</label>
-                                        <div class="input-group date" id="emiratesIssued_${ownerIndex}" data-target-input="nearest">
-                                            <input type="text"
-                                                class="form-control datetimepicker-input"
-                                                name="owners[${ownerIndex}][2][emirates_issued]"
-                                                data-target="#emiratesIssued_${ownerIndex}"
-                                                placeholder="dd-mm-YYYY"
-                                                value="${emiratesIssued ?? ''}">
-                                            <div class="input-group-append" data-target="#emiratesIssued_${ownerIndex}" data-toggle="datetimepicker">
-                                                <div class="input-group-text">
-                                                    <i class="fa fa-calendar"></i>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        <input type="date" name="owners[${i}][2][emirates_issued]" class="form-control"
+                                            value="${emirates.issued ?? ''}">
                                     </div>
                                 </div>
-
-                                <!-- Emirates ID Expiry Date -->
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Emirates ID Expiry Date</label>
-                                        <div class="input-group date" id="emiratesExpiry_${ownerIndex}" data-target-input="nearest">
-                                            <input type="text"
-                                                class="form-control datetimepicker-input"
-                                                name="owners[${ownerIndex}][2][emirates_expiry]"
-                                                data-target="#emiratesExpiry_${ownerIndex}"
-                                                placeholder="dd-mm-YYYY"
-                                                value="${emiratesExpiry ?? ''}">
-                                            <div class="input-group-append" data-target="#emiratesExpiry_${ownerIndex}" data-toggle="datetimepicker">
-                                                <div class="input-group-text">
-                                                    <i class="fa fa-calendar"></i>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        <input type="date" name="owners[${i}][2][emirates_expiry]" class="form-control"
+                                            value="${emirates.expiry ?? ''}">
                                     </div>
                                 </div>
 
                                 <!-- Passport -->
-                                <input type="hidden" name="owners[${ownerIndex}][1][id]" value="${passport.id ?? ''}">
+                                <input type="hidden" name="owners[${i}][1][id]" value="${passport.id ?? ''}">
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Passport Number</label>
-                                        <input type="text" name="owners[${ownerIndex}][1][passport_number]" class="form-control passport-number"
+                                        <input type="text" name="owners[${i}][1][passport_number]" class="form-control"
                                             value="${passport.number ?? ''}">
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Passport Upload</label>
-                                        <input type="file" name="owners[${ownerIndex}][1][passport_file]" class="form-control">
+                                        <input type="file" name="owners[${i}][1][passport_file]" class="form-control">
                                         ${passport.file ? `<a href="${passport.file}" target="_blank">View File</a>` : ''}
                                     </div>
                                 </div>
-                            <div class="col-md-6">
+                                <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Passport Issued Date</label>
-                                        <div class="input-group date" id="passportIssued_${ownerIndex}" data-target-input="nearest">
-                                            <input type="text"
-                                                class="form-control datetimepicker-input"
-                                                name="owners[${ownerIndex}][1][passport_issued]"
-                                                data-target="#passportIssued_${ownerIndex}"
-                                                placeholder="dd-mm-YYYY"
-                                                value="${passportIssued ?? ''}">
-                                            <div class="input-group-append" data-target="#passportIssued_${ownerIndex}" data-toggle="datetimepicker">
-                                                <div class="input-group-text">
-                                                    <i class="fa fa-calendar"></i>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        <input type="date" name="owners[${i}][1][passport_issued]" class="form-control"
+                                            value="${passport.issued ?? ''}">
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Passport Expiry Date</label>
-                                        <div class="input-group date" id="passportExpiry_${ownerIndex}" data-target-input="nearest">
-                                            <input type="text"
-                                                class="form-control datetimepicker-input"
-                                                name="owners[${ownerIndex}][1][passport_expiry]"
-                                                data-target="#passportExpiry_${ownerIndex}"
-                                                placeholder="dd-mm-YYYY"
-                                                value="${passportExpiry ?? ''}">
-                                            <div class="input-group-append" data-target="#passportExpiry_${ownerIndex}" data-toggle="datetimepicker">
-                                                <div class="input-group-text">
-                                                    <i class="fa fa-calendar"></i>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        <input type="date" name="owners[${i}][1][passport_expiry]" class="form-control"
+                                            value="${passport.expiry ?? ''}">
                                     </div>
                                 </div>
 
@@ -668,331 +546,220 @@
                         </div>
                     </div>
                 `;
-
-            });
-            ownerSlots.forEach(function(ownerIndex) {
-                initOwnerDatePickers(ownerIndex);
-            });
-            validateAll();
+            }
         }
-
+        const existingOwnerCount = {{ count($owners ?? []) }};
         // Trigger on dropdown change
         document.getElementById('owners_count').addEventListener('change', function() {
+
             let newCount = parseInt(this.value);
             let tenantId = document.getElementById('tenantForm').dataset.tenantId;
 
-            if (tenantId && newCount < existingOwnerCount) {
-                // EDIT MODE + reducing count: show remove buttons instead of wiping blocks
-                generateOwners(existingOwnerCount); // keep all existing blocks visible
+            if (newCount < existingOwnerCount) {
 
-                for (let i = newCount; i < existingOwnerCount; i++) {
-                    let ownerIndex = existingOwnerKeys[i];
-                    let ownerBlock = document.getElementById('owner_' + ownerIndex);
+                for (let i = newCount; i <= existingOwnerCount; i++) {
+
+                    let ownerBlock = document.getElementById('owner_' + i);
 
                     if (ownerBlock && !ownerBlock.querySelector('.remove-owner-btn')) {
+
                         let wrapper = document.createElement('div');
                         wrapper.className = 'remove-owner-wrapper text-right mt-2';
+                        // text-end = right align (Bootstrap 5)
+                        // use 'text-right' if Bootstrap 4
 
+                        // 🔹 Create button
                         let button = document.createElement('button');
                         button.type = 'button';
-                        button.dataset.owner = ownerIndex;
+                        button.dataset.owner = i;
                         button.dataset.tenantId = tenantId;
                         button.className = 'btn btn-outline-danger btn-sm remove-owner-btn';
                         button.innerText = 'Remove Owner';
 
+                        // 🔹 Append button inside wrapper
                         wrapper.appendChild(button);
+
+                        // 🔹 Append wrapper inside card-body
                         ownerBlock.querySelector('.card-body').appendChild(wrapper);
                     }
                 }
+
             } else {
-                // CREATE MODE or increasing count
                 generateOwners(newCount);
             }
+
         });
 
-        // Generate on page load
+        // Generate on page load with default or old() value
         window.onload = function() {
             generateOwners(document.getElementById('owners_count').value);
         };
     </script>
     <script>
-        function initOwnerDatePickers(ownerIndex) {
-            $('#emiratesIssued_' + ownerIndex).datetimepicker({
-                format: 'DD-MM-YYYY'
-            });
-            $('#emiratesExpiry_' + ownerIndex).datetimepicker({
-                format: 'DD-MM-YYYY'
-            });
-            $('#passportIssued_' + ownerIndex).datetimepicker({
-                format: 'DD-MM-YYYY'
-            });
-            $('#passportExpiry_' + ownerIndex).datetimepicker({
-                format: 'DD-MM-YYYY'
-            });
-        }
-    </script>
-    @include('admin.master.tenants.form-submit-js')
-    {{-- <script>
-        $(document).on('input', '#trade_license_no', function() {
-
-            // Convert to uppercase
-            this.value = this.value.toUpperCase();
-
-            let value = this.value;
-            let regex = /^[A-Z0-9\/-]{0,20}$/;
-
-            if (!regex.test(value)) {
-                this.value = value.slice(0, -1);
-            }
-
-            validateTradeLicense();
-        });
-
-        function validateTradeLicense() {
-            // alert("test");
-
-            let input = $('#trade_license_no');
-            let value = input.val();
-            let fullRegex = /^[A-Z0-9\/-]{5,20}$/;
-            let submitBtn = $('#submitBtn');
-
-            // Remove existing error
-            input.removeClass('is-invalid');
-            $('#tradeLicenseError').remove();
-
-            if (value.length === 0) {
-                showError(input, "Trade License Number is required");
-                submitBtn.prop('disabled', true);
-                return false;
-            }
-
-            if (!fullRegex.test(value)) {
-                showError(input, "Trade License must be 5–20 characters (letters, numbers, / or - only)");
-                submitBtn.prop('disabled', true);
-                return false;
-            }
-
-            submitBtn.prop('disabled', false);
-            return true;
-        }
-
-        function showError(input, message) {
-            input.addClass('is-invalid');
-            input.after('<div id="tradeLicenseError" class="invalid-feedback">' + message + '</div>');
-        }
-    </script>
-    <script>
-        $(document).on('input', '.emirates-id', function() {
-
-            // Allow only numbers and dash
-            this.value = this.value.replace(/[^0-9-]/g, '');
-
-            validateEmiratesID($(this));
-        });
-
-        function validateEmiratesID(input) {
-            alert("test");
-
-            let value = input.val();
-            let regex = /^\d{3}-\d{4}-\d{7}-\d{1}$/;
-
-            input.removeClass('is-invalid');
-            input.next('.invalid-feedback').remove();
-
-            if (value.length === 0) {
-                showError(input, "Emirates ID is required");
-                return false;
-            }
-
-            if (!regex.test(value)) {
-                showError(input, "Emirates ID must be in format: 784-XXXX-XXXXXXX-X");
-                return false;
-            }
-
-            return true;
-        }
-    </script>
-    <script>
-        $(document).on('input', '.passport-number', function() {
-
-            // Convert to uppercase
-            this.value = this.value.toUpperCase();
-
-            // Remove special characters
-            this.value = this.value.replace(/[^A-Z0-9]/g, '');
-
-            validatePassport($(this));
-        });
-
-        function validatePassport(input) {
-
-            let value = input.val();
-            let regex = /^[A-Z0-9]{6,9}$/;
-
-            input.removeClass('is-invalid');
-            input.next('.invalid-feedback').remove();
-
-            if (value.length === 0) {
-                showError(input, "Passport Number is required");
-                return false;
-            }
-
-            if (!regex.test(value)) {
-                showError(input, "Passport must be 6–9 characters (letters & numbers only)");
-                return false;
-            }
-
-            return true;
-        }
-    </script>
-    <script>
         $(document).ready(function() {
 
-            // Validate all Emirates IDs on load
-            $('.emirates-id').each(function() {
-                // alert("test");
-                if ($(this).val().length > 0) {
-                    validateEmiratesID($(this));
-                }
-            });
+            $('#tenantForm').on('submit', function(e) {
+                e.preventDefault(); // prevent normal form submission
 
-            // Validate all Passport numbers on load
-            $('.passport-number').each(function() {
-                if ($(this).val().length > 0) {
-                    validatePassport($(this));
-                }
+                let form = this;
+                let formData = new FormData(form);
+
+                // Clear previous errors
+                $(form).find('.is-invalid').removeClass('is-invalid');
+                $(form).find('.invalid-feedback').remove();
+
+                // Detect if this is update (tenant ID present)
+                let tenantId = $(form).data(
+                    'tenant-id');
+                alert(tenantId); // make sure your form has data-tenant-id="{{ $tenant->id ?? '' }}"
+                let url = tenantId ?
+                    `/tenants/update/${tenantId}` // RESTful route for update
+                    :
+                    "{{ route('tenant.store') }}";
+
+                let method = tenantId ? 'POST' : 'POST';
+                // // For Laravel, you still send POST but add _method=PUT for update
+                // if (tenantId) {
+                //     formData.append('_method', 'PUT'); // tells Laravel it's an update
+                // }
+
+                $.ajax({
+                    url: url,
+                    method: method,
+                    data: formData,
+                    processData: false, // required for FormData
+                    contentType: false, // required for FormData
+                    headers: {
+                        'X-CSRF-TOKEN': $('input[name="_token"]').val()
+                    },
+                    beforeSend: function() {
+                        $(form).find('button[type="submit"]').prop('disabled', true);
+                    },
+                    success: function(response) {
+                        toastr.success('Tenant saved successfully!', 'Success');
+                        // Redirect to tenant list or any other page
+                        window.location.href = "{{ route('tenant.index') }}";
+                        form.reset();
+                    },
+                    error: function(xhr) {
+                        if (xhr.status === 422) {
+                            // Validation errors
+                            let errors = xhr.responseJSON.errors;
+                            $.each(errors, function(key, messages) {
+                                let input = $(form).find(`[name="${key}"]`);
+                                if (input.length === 0) {
+                                    input = $(form).find(
+                                        `[name="${key.replace(/\./g, '_')}"]`);
+                                }
+                                input.addClass('is-invalid');
+                                input.after('<span class="invalid-feedback">' +
+                                    messages[0] + '</span>');
+                            });
+                            toastr.error('Please fix the errors in the form.',
+                                'Validation Error');
+                        } else {
+                            toastr.error('Something went wrong. Please try again.', 'Error');
+                        }
+                    },
+                    complete: function() {
+                        $(form).find('button[type="submit"]').prop('disabled', false);
+                    }
+                });
+
             });
-            let tradeInput = $('#trade_license_no');
-            if (tradeInput.length && tradeInput.val().length > 0) {
-                validateTradeLicense();
-            }
 
         });
-    </script> --}}
-    <script>
-        function validateAll() {
-            // alert("test");
-            let submitBtn = $('#submitBtn'); // your submit button ID
-
-            let allValid = true;
-
-            // Validate Trade License
-            let tradeInput = $('#trade_license_no');
-            if (tradeInput.length) {
-                let val = tradeInput.val();
-                let regex = /^[A-Z0-9\/-]{5,20}$/;
-                tradeInput.removeClass('is-invalid');
-                $('#tradeLicenseError').remove();
-
-                if (val.length != 0 && !regex.test(val)) {
-                    showError(tradeInput,
-                        "Trade License must be 5–20 characters (letters, numbers, / or - only)");
-                    allValid = false;
-                }
-            }
-            // alert("test");
-            // Validate all Passports
-            $('.passport-number').each(function() {
-                // alert("test");
-
-                let val = $(this).val();
-                // alert(val.length);
-                let regex = /^[A-Z0-9]{6,9}$/;
-                $(this).removeClass('is-invalid');
-                $(this).next('.invalid-feedback').remove();
-
-                if (val.length != 0 && !regex.test(val)) {
-                    showError($(this), "Passport must be 6–9 characters (letters & numbers only)");
-                    allValid = false;
-                }
-            });
-
-            // Validate all Emirates IDs
-            $('.emirates-id').each(function() {
-                let val = $(this).val();
-                let regex = /^\d{3}-\d{4}-\d{7}-\d{1}$/;
-                $(this).removeClass('is-invalid');
-                $(this).next('.invalid-feedback').remove();
-
-                if (val.length != 0 && !regex.test(val)) {
-                    showError($(this), "Emirates ID must be in format: 784-XXXX-XXXXXXX-X");
-                    allValid = false;
-                }
-            });
-
-            if (!validatePhoneUAE($('input[name="tenant_mobile"]'))) {
-                allValid = false;
-            }
-
-            if (!validatePhoneUAE($('input[name="contact_number"]'))) {
-                allValid = false;
-            }
-
-            // Enable/disable submit button
-            submitBtn.prop('disabled', !allValid);
-            return allValid;
-        }
-
-        function validatePhoneUAE(input) {
-            // alert('test');
-            let val = input.val().replace(/[^0-9]/g, ''); // remove non-digits
-
-            // Mobile: 971 + 9 digits → 12 total
-            // Landline: 971 + area code (1 digit) + 7 digits → 11 total
-            let regex = /^(9715[0-9]{8}|971[2-9][0-9]{7})$/;
-
-            input.removeClass('is-invalid');
-            input.next('.invalid-feedback').remove();
-
-            if (val.length != 0 && !regex.test(val)) {
-                showError(input, "Enter valid UAE mobile or landline (e.g. 971501234567 or 97141234567)");
-                return false;
-            }
-
-            return true;
-        }
-
-
-
-        function showError(input, message) {
-            input.addClass('is-invalid');
-            if (!input.next('.invalid-feedback').length) {
-                input.after('<div class="invalid-feedback">' + message + '</div>');
-            }
-        }
     </script>
     <script>
-        $(document).ready(function() {
+        document.addEventListener('click', function(e) {
+
+            if (e.target.classList.contains('remove-owner-btn')) {
+
+                let button = e.target;
+                let tenantId = button.dataset.tenantId;
+                let ownerIndex = button.dataset.owner;
+
+                let ownerBlock = document.getElementById('owner_' + ownerIndex);
+
+                if (!ownerBlock) return;
+
+                // 🔥 Collect all hidden document IDs inside this owner block
+                let hiddenInputs = ownerBlock.querySelectorAll('input[type="hidden"][name*="[id]"]');
+
+                let documentIds = [];
+
+                hiddenInputs.forEach(function(input) {
+                    if (input.value) {
+                        documentIds.push(input.value);
+                    }
+                });
 
 
-            // Run validation on page load
-            validateAll();
+                console.log("Tenant:", tenantId);
+                console.log("Document IDs:", documentIds);
 
-            // Event delegation for dynamic inputs
-            $(document).on('input', '#trade_license_no', function() {
-                this.value = this.value.toUpperCase();
-                validateAll();
-            });
+                if (documentIds.length === 0) {
+                    ownerBlock.remove();
+                    return;
+                }
 
-            $(document).on('input', '.passport-number', function() {
-                this.value = this.value.toUpperCase();
-                this.value = this.value.replace(/[^A-Z0-9]/g, ''); // remove invalid chars
-                validateAll();
-            });
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "This will permanently remove this owner and related documents.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Yes, remove it!',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
 
-            $(document).on('input', '.emirates-id', function() {
-                this.value = this.value.replace(/[^0-9-]/g, ''); // allow only digits and dash
-                validateAll();
-            });
+                    if (result.isConfirmed) {
 
-            $(document).on('input', 'input[name="tenant_mobile"], input[name="contact_number"]', function() {
-                // alert("test");
-                this.value = this.value.replace(/[^0-9]/g, ''); // only digits
-                // validatePhoneUAE($(this));
-                validateAll();
-            });
+                        fetch('/tenant/remove-owner-documents', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+                                },
+                                body: JSON.stringify({
+                                    tenant_id: tenantId,
+                                    document_ids: documentIds
+                                })
+                            })
+                            .then(response => {
 
+                                if (!response.ok) {
+                                    return response.json().then(err => {
+                                        throw new Error(err.message);
+                                    });
+                                }
 
+                                return response.json();
+                            })
+                            .then(data => {
+
+                                ownerBlock.remove();
+
+                                Swal.fire(
+                                    'Removed!',
+                                    data.message,
+                                    'success'
+                                );
+
+                            })
+                            .catch(error => {
+
+                                Swal.fire(
+                                    'Error!',
+                                    error.message,
+                                    'error'
+                                );
+
+                            });
+                    }
+                });
+            }
         });
     </script>
 @endsection

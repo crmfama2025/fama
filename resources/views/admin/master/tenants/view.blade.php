@@ -32,7 +32,7 @@
                     </h3>
                     <div class="card-tools">
                         <a href="{{ route('tenant.index') }}" class="btn signinbtn">
-                            <i class="fas fa-arrow-left m2-1"></i> Back
+                            <i class="fas fa-arrow-left mr-1"></i> Back
                         </a>
                     </div>
                 </div>
@@ -41,7 +41,7 @@
                 <div class="card-body">
                     <div class="row">
 
-                        {{-- LEFT SIDE --}}
+                        {{-- =================== LEFT SIDE =================== --}}
                         <div class="col-lg-8">
 
                             {{-- Info Boxes --}}
@@ -50,9 +50,7 @@
                                     <div class="info-box bg-light">
                                         <div class="info-box-content text-center">
                                             <span class="info-box-text text-muted">Tenant Code</span>
-                                            <span class="info-box-number">
-                                                {{ $tenant->tenant_code }}
-                                            </span>
+                                            <span class="info-box-number">{{ $tenant->tenant_code }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -76,10 +74,9 @@
                                         </div>
                                     </div>
                                 </div>
-
                             </div>
 
-                            {{-- Tenant Details --}}
+                            {{-- Tenant Information --}}
                             <div class="card mt-3">
                                 <div class="card-header signinbtn">
                                     <h3 class="card-title text-white">
@@ -181,19 +178,27 @@
                                         <tr>
                                             <th>Issued Date</th>
                                             <td>
-                                                {{ isset($tradeLicense->issued_date) ? \Carbon\Carbon::parse($tradeLicense->issued_date)->format('d M Y') : '-' }}
+                                                {{ $tradeLicense?->issued_date ? \Carbon\Carbon::parse($tradeLicense->issued_date)->format('d M Y') : '-' }}
                                             </td>
                                         </tr>
                                         <tr>
                                             <th>Expiry Date</th>
                                             <td>
-                                                {{ isset($tradeLicense->expiry_date) ? \Carbon\Carbon::parse($tradeLicense->expiry_date)->format('d M Y') : '-' }}
+                                                @if ($tradeLicense?->expiry_date)
+                                                    @php $expired = \Carbon\Carbon::parse($tradeLicense->expiry_date)->isPast(); @endphp
+                                                    <span class="badge badge-{{ $expired ? 'danger' : 'success' }} mr-1">
+                                                        {{ $expired ? 'Expired' : 'Valid' }}
+                                                    </span>
+                                                    {{ \Carbon\Carbon::parse($tradeLicense->expiry_date)->format('d M Y') }}
+                                                @else
+                                                    -
+                                                @endif
                                             </td>
                                         </tr>
                                         <tr>
                                             <th>Document</th>
                                             <td>
-                                                @if (isset($tradeLicense) && $tradeLicense->original_document_path)
+                                                @if ($tradeLicense?->original_document_path)
                                                     <a href="{{ asset('storage/' . $tradeLicense->original_document_path) }}"
                                                         target="_blank" class="btn btn-sm btn-outline-info">
                                                         <i class="fas fa-eye mr-1"></i> View File
@@ -242,19 +247,28 @@
                                                         <tr>
                                                             <th>Issued Date</th>
                                                             <td>
-                                                                {{ isset($emirates->issued_date) ? \Carbon\Carbon::parse($emirates->issued_date)->format('d M Y') : '-' }}
+                                                                {{ $emirates?->issued_date ? \Carbon\Carbon::parse($emirates->issued_date)->format('d M Y') : '-' }}
                                                             </td>
                                                         </tr>
                                                         <tr>
                                                             <th>Expiry Date</th>
                                                             <td>
-                                                                {{ isset($emirates->expiry_date) ? \Carbon\Carbon::parse($emirates->expiry_date)->format('d M Y') : '-' }}
+                                                                @if ($emirates?->expiry_date)
+                                                                    @php $expired = \Carbon\Carbon::parse($emirates->expiry_date)->isPast(); @endphp
+                                                                    <span
+                                                                        class="badge badge-{{ $expired ? 'danger' : 'success' }} mr-1">
+                                                                        {{ $expired ? 'Expired' : 'Valid' }}
+                                                                    </span>
+                                                                    {{ \Carbon\Carbon::parse($emirates->expiry_date)->format('d M Y') }}
+                                                                @else
+                                                                    -
+                                                                @endif
                                                             </td>
                                                         </tr>
                                                         <tr>
                                                             <th>File</th>
                                                             <td>
-                                                                @if (isset($emirates) && $emirates->original_document_path)
+                                                                @if ($emirates?->original_document_path)
                                                                     <a href="{{ asset('storage/' . $emirates->original_document_path) }}"
                                                                         target="_blank" class="btn btn-sm btn-outline-info">
                                                                         <i class="fas fa-eye mr-1"></i> View
@@ -280,19 +294,28 @@
                                                         <tr>
                                                             <th>Issued Date</th>
                                                             <td>
-                                                                {{ isset($passport->issued_date) ? \Carbon\Carbon::parse($passport->issued_date)->format('d M Y') : '-' }}
+                                                                {{ $passport?->issued_date ? \Carbon\Carbon::parse($passport->issued_date)->format('d M Y') : '-' }}
                                                             </td>
                                                         </tr>
                                                         <tr>
                                                             <th>Expiry Date</th>
                                                             <td>
-                                                                {{ isset($passport->expiry_date) ? \Carbon\Carbon::parse($passport->expiry_date)->format('d M Y') : '-' }}
+                                                                @if ($passport?->expiry_date)
+                                                                    @php $expired = \Carbon\Carbon::parse($passport->expiry_date)->isPast(); @endphp
+                                                                    <span
+                                                                        class="badge badge-{{ $expired ? 'danger' : 'success' }} mr-1">
+                                                                        {{ $expired ? 'Expired' : 'Valid' }}
+                                                                    </span>
+                                                                    {{ \Carbon\Carbon::parse($passport->expiry_date)->format('d M Y') }}
+                                                                @else
+                                                                    -
+                                                                @endif
                                                             </td>
                                                         </tr>
                                                         <tr>
                                                             <th>File</th>
                                                             <td>
-                                                                @if (isset($passport) && $passport->original_document_path)
+                                                                @if ($passport?->original_document_path)
                                                                     <a href="{{ asset('storage/' . $passport->original_document_path) }}"
                                                                         target="_blank" class="btn btn-sm btn-outline-info">
                                                                         <i class="fas fa-eye mr-1"></i> View
@@ -318,48 +341,113 @@
                         </div>
                         {{-- END LEFT SIDE --}}
 
-                        {{-- RIGHT SIDE --}}
+                        {{-- =================== RIGHT SIDE =================== --}}
                         <div class="col-lg-4">
 
-                            <h4 class="text-primary">
-                                <i class="fas fa-info-circle"></i> Meta Details
-                            </h4>
-                            <div class="text-muted">
-                                <p class="text-sm">
-                                    Added By
-                                    <b class="d-block">{{ $tenant->addedBy->first_name ?? '-' }}
-                                        {{ $tenant->addedBy->last_name ?? '' }}</b>
-                                </p>
-                                <p class="text-sm">
-                                    Updated By
-                                    <b class="d-block">{{ $tenant->updatedBy->first_name ?? '-' }}
-                                        {{ $tenant->updatedBy->last_name ?? '' }}</b>
-                                </p>
-                                <p class="text-sm">
-                                    Created On
-                                    <b class="d-block">
-                                        {{ \Carbon\Carbon::parse($tenant->created_at)->format('d M Y') }}
-                                    </b>
-                                </p>
-                                <p class="text-sm">
-                                    Updated On
-                                    <b class="d-block">
-                                        {{ \Carbon\Carbon::parse($tenant->updated_at)->format('d M Y') }}
-                                    </b>
-                                </p>
+                            {{-- Meta Details --}}
+                            <div class="card">
+                                <div class="card-header bg-light">
+                                    <h3 class="card-title">
+                                        <i class="fas fa-info-circle mr-1 text-info"></i> Meta Details
+                                    </h3>
+                                </div>
+                                <div class="card-body">
+                                    <p class="text-sm">
+                                        Added By
+                                        <b class="d-block">
+                                            {{ $tenant->addedBy->first_name ?? '-' }}
+                                            {{ $tenant->addedBy->last_name ?? '' }}
+                                        </b>
+                                    </p>
+                                    <p class="text-sm">
+                                        Updated By
+                                        <b class="d-block">
+                                            {{ $tenant->updatedBy->first_name ?? '-' }}
+                                            {{ $tenant->updatedBy->last_name ?? '' }}
+                                        </b>
+                                    </p>
+                                    <p class="text-sm">
+                                        Created On
+                                        <b class="d-block">
+                                            {{ \Carbon\Carbon::parse($tenant->created_at)->format('d M Y') }}
+                                        </b>
+                                    </p>
+                                    <p class="text-sm mb-0">
+                                        Updated On
+                                        <b class="d-block">
+                                            {{ \Carbon\Carbon::parse($tenant->updated_at)->format('d M Y') }}
+                                        </b>
+                                    </p>
+                                </div>
+                            </div>
+
+                            {{-- Document Summary --}}
+                            <div class="card mt-3">
+                                <div class="card-header bg-light">
+                                    <h3 class="card-title">
+                                        <i class="fas fa-file-alt mr-1 text-info"></i> Document Summary
+                                    </h3>
+                                </div>
+                                <div class="card-body p-0">
+                                    <table class="table table-sm mb-0">
+                                        <tr>
+                                            <th>Trade License</th>
+                                            <td>
+                                                <span class="badge badge-{{ $tradeLicense ? 'success' : 'secondary' }}">
+                                                    {{ $tradeLicense ? 'Uploaded' : 'Missing' }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>No. of Owners</th>
+                                            <td>
+                                                <span class="badge badge-info">
+                                                    {{ $ownerDocs->count() }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        @foreach ($ownerDocs as $ownerIndex => $docs)
+                                            @php
+                                                $p = $docs->firstWhere('document_type', 1);
+                                                $e = $docs->firstWhere('document_type', 2);
+                                            @endphp
+                                            <tr>
+                                                <th>Owner {{ $loop->iteration }} Passport</th>
+                                                <td>
+                                                    <span class="badge badge-{{ $p ? 'success' : 'secondary' }}">
+                                                        {{ $p ? 'Uploaded' : 'Missing' }}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th>Owner {{ $loop->iteration }} Emirates ID</th>
+                                                <td>
+                                                    <span class="badge badge-{{ $e ? 'success' : 'secondary' }}">
+                                                        {{ $e ? 'Uploaded' : 'Missing' }}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </table>
+                                </div>
                             </div>
 
                             {{-- Quick Actions --}}
-                            <div class="mt-4">
-                                <h4 class="text-primary">
-                                    <i class="fas fa-bolt"></i> Quick Actions
-                                </h4>
-                                <a href="{{ route('tenant.edit', $tenant->id) }}" class="btn signinbtn btn-block mb-2">
-                                    <i class="fas fa-edit mr-1"></i> Edit Tenant
-                                </a>
-                                {{-- <a href="{{ route('tenant.index') }}" class="btn btn-secondary btn-block">
-                                    <i class="fas fa-list mr-1"></i> All Tenants
-                                </a> --}}
+                            <div class="card mt-3">
+                                <div class="card-header bg-light">
+                                    <h3 class="card-title">
+                                        <i class="fas fa-bolt mr-1 text-info"></i> Quick Actions
+                                    </h3>
+                                </div>
+                                <div class="card-body">
+                                    <a href="{{ route('tenant.edit', $tenant->id) }}"
+                                        class="btn signinbtn btn-block mb-2">
+                                        <i class="fas fa-edit mr-1"></i> Edit Tenant
+                                    </a>
+                                    <a href="{{ route('tenant.index') }}" class="btn btn-secondary btn-block">
+                                        <i class="fas fa-list mr-1"></i> All Tenants
+                                    </a>
+                                </div>
                             </div>
 
                         </div>
