@@ -86,6 +86,18 @@
                                 <div class="card-body p-0">
                                     <table class="table table-striped mb-0">
                                         <tr>
+                                            <th width="35%">Tenant Type</th>
+                                            <td>
+                                                {{ isset($tenant->tenant_type)
+                                                    ? ($tenant->tenant_type == 1
+                                                        ? 'B2B'
+                                                        : ($tenant->tenant_type == 2
+                                                            ? 'B2C'
+                                                            : '-'))
+                                                    : '-' }}
+                                            </td>
+                                        </tr>
+                                        <tr>
                                             <th width="35%">Tenant Name</th>
                                             <td>{{ $tenant->tenant_name ?? '-' }}</td>
                                         </tr>
