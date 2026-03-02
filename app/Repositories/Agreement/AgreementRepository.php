@@ -101,7 +101,9 @@ class AgreementRepository
             ->join('properties', 'properties.id', '=', 'contracts.property_id')
             // ->join('vendors', 'vendors.id', '=', 'contracts.vendor_id')
             ->join('companies', 'companies.id', '=', 'agreements.company_id')
-            ->join('agreement_tenants', 'agreement_tenants.agreement_id', '=', 'agreements.id')
+            // ->join('agreement_tenants', 'agreement_tenants.agreement_id', '=', 'agreements.id')
+            ->join('agreement_tenants', 'agreement_tenants.id', '=', 'agreements.tenant_id')
+
             ->join('contract_types', 'contract_types.id', '=', 'contracts.contract_type_id')
             ->leftJoin('contract_units', 'contract_units.contract_id', '=', 'contracts.id');
 
@@ -397,7 +399,8 @@ class AgreementRepository
             ->join('properties', 'properties.id', '=', 'contracts.property_id')
             // ->join('vendors', 'vendors.id', '=', 'contracts.vendor_id')
             ->join('companies', 'companies.id', '=', 'agreements.company_id')
-            ->join('agreement_tenants', 'agreement_tenants.agreement_id', '=', 'agreements.id')
+            // ->join('agreement_tenants', 'agreement_tenants.agreement_id', '=', 'agreements.id')
+            ->join('agreement_tenants', 'agreement_tenants.id', '=', 'agreements.tenant_id')
             ->join('contract_types', 'contract_types.id', '=', 'contracts.contract_type_id')
             ->join('contract_units', 'contract_units.contract_id', '=', 'contracts.id')
             // ->where('agreement_status', "=", 0)

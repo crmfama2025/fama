@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Models\AgreementDocument;
+use App\Models\TenantDocument;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -23,10 +24,13 @@ class AgreementDocumentExport implements FromCollection, WithHeadings, WithMappi
     {
         $oneMonthLater = Carbon::today()->addMonth();
 
-        $query = AgreementDocument::with([
-            'agreement.tenant',
-            'TenantIdentity',
-        ])
+        // $query = AgreementDocument::with([
+        //     'agreement.tenant',
+        //     'TenantIdentity',
+        // ])
+        // ->where('expiry_date', '<=', $oneMonthLater);
+        $query = TenantDocument::with(['tenant', 'tenant.agreement', 'TenantIdentity',])
+            // ->whereBetween('expiry_date', [$today, $oneMonthLater]);
             ->where('expiry_date', '<=', $oneMonthLater);
 
         // ✅ Use $this->search, not $filters['search']
@@ -47,13 +51,19 @@ class AgreementDocumentExport implements FromCollection, WithHeadings, WithMappi
                         $q->where('identity_type', 'like', '%' . $search . '%');
                     })
 
-                    ->orWhereHas('agreement.tenant', function ($q) use ($search) {
+                    ->orWhereHas('tenant', function ($q) use ($search) {
                         $q->where('tenant_name', 'like', '%' . $search . '%')
                             ->orWhere('tenant_email', 'like', '%' . $search . '%')
-                            ->orWhere('tenant_mobile', 'like', '%' . $search . '%');
+                            ->orWhere('tenant_mobile', 'like', '%' . $search . '%')
+                            ->orWhereRaw("
+                            CASE
+                                WHEN tenant_type = 1 THEN 'B2B'
+                                WHEN tenant_type = 2 THEN 'B2C'
+                            END LIKE ?
+                        ", ["%{$search}%"]);
                     })
 
-                    ->orWhereHas('agreement', function ($q) use ($search) {
+                    ->orWhereHas('tenant.agreement', function ($q) use ($search) {
                         $q->where('agreement_code', 'like', '%' . $search . '%');
                     })
 
@@ -77,7 +87,7 @@ class AgreementDocumentExport implements FromCollection, WithHeadings, WithMappi
             });
         }
 
-        $query->orderBy('agreement_documents.id', 'desc');
+        $query->orderBy('tenant_documents.id', 'desc');
 
         return $query->get();
     }
@@ -93,7 +103,8 @@ class AgreementDocumentExport implements FromCollection, WithHeadings, WithMappi
             'Tenant Name',
             'Tenant Email',
             'Tenant Mobile',
-            'Agreement Code',
+            'Tenant Code',
+            'Tenant Type',
         ];
     }
 
@@ -105,10 +116,11 @@ class AgreementDocumentExport implements FromCollection, WithHeadings, WithMappi
             $row->document_number ?? '-',
             $row->issued_date ? Carbon::parse($row->issued_date)->format('d-m-Y') : '-',
             $row->expiry_date ? Carbon::parse($row->expiry_date)->format('d-m-Y') : '-',
-            $row->agreement->tenant->tenant_name ?? '-',
-            $row->agreement->tenant->tenant_email ?? '-',
-            $row->agreement->tenant->tenant_mobile ?? '-',
-            $row->agreement->agreement_code ?? '-',
+            $row->tenant->tenant_name ?? '-',
+            $row->tenant->tenant_email ?? '-',
+            $row->tenant->tenant_mobile ?? '-',
+            $row->tenant->tenant_code ?? '-',
+            $row->tenant->tenant_type == 1 ? 'B2B' : ($row->tenant->tenant_type == 2 ? 'B2C' : '-'),
         ];
     }
 }

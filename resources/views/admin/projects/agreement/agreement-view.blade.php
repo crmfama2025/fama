@@ -95,8 +95,12 @@
                                             <span class="text-danger">{{ $business_type }}</span>
                                         </h5>
                                         <address>
-                                            <span
-                                                class="vendor_name">{{ strtoupper($agreement->tenant->tenant_name) }}</span></br>
+                                            <a href="{{ route('tenant.show', $agreement->tenant->id) }}" class="linkhover"
+                                                target="_blank">
+                                                <span
+                                                    class="vendor_name">{{ strtoupper($agreement->tenant->tenant_name) }}</span>
+                                            </a>
+                                            </br>
                                             <span class="mobile">{{ $agreement->tenant->tenant_mobile }}</span></br>
                                             <span class="email">{{ $agreement->tenant->tenant_email }}</span></br>
                                             {{-- <span
@@ -185,6 +189,13 @@
                                                         Contact Email <span
                                                             class="float-right text-bold">{{ $agreement->tenant->contact_email }}</span>
                                                     </div>
+                                                </li>
+                                                <li class="nav-item px-3 py-2">
+                                                    <a href="{{ route('tenant.show', $agreement->tenant->id) }}"
+                                                        class="btn btn-sm btn-info" type="button" target="_blank"
+                                                        aria-expanded="false">
+                                                        <i class="fa fa-eye"></i> View More
+                                                    </a>
                                                 </li>
 
                                             </ul>

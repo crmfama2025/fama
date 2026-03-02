@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::table('agreements', function (Blueprint $table) {
             //
+            $table->unsignedBigInteger('tenant_id')->after('id');
         });
     }
 
@@ -23,6 +24,7 @@ return new class extends Migration
     {
         Schema::table('agreements', function (Blueprint $table) {
             //
+            $table->dropColumn('tenant_id');
         });
     }
 };

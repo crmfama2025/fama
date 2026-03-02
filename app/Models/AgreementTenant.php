@@ -60,9 +60,13 @@ class AgreementTenant extends Model
     /**
      * Relationship: belongs to Agreement
      */
+    // public function agreement()
+    // {
+    //     return $this->belongsTo(Agreement::class, 'agreement_id');
+    // }
     public function agreement()
     {
-        return $this->belongsTo(Agreement::class, 'agreement_id');
+        return $this->hasMany(Agreement::class, 'tenant_id', 'id');
     }
 
     public function nationality()

@@ -46,6 +46,7 @@ class Agreement extends Model
         'added_by',
         'updated_by',
         'deleted_by',
+        'tenant_id'
     ];
 
     /**
@@ -69,7 +70,8 @@ class Agreement extends Model
     }
     public function tenant()
     {
-        return $this->hasOne(AgreementTenant::class, 'agreement_id');
+        // return $this->hasOne(AgreementTenant::class, 'agreement_id');
+        return $this->belongsTo(AgreementTenant::class, 'tenant_id', 'id');
     }
     public function agreement_documents()
     {
@@ -102,10 +104,16 @@ class Agreement extends Model
 
             // hasOne relations
             $hasOneRelations = [
-                'tenant',
+                // 'tenant',
                 'agreement_payment',
 
             ];
+            // dd($agreement->contract->contract_type_id);
+            // Conditionally add tenant
+            if ($agreement->contract->contract_unit->business_type == 2) { // assuming 1 = B2B
+                $hasOneRelations[] = 'tenant';
+            }
+            // dd($hasOneRelations);
 
             // hasMany relations
             $hasManyRelations = [

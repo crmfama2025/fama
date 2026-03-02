@@ -26,4 +26,13 @@ class TenantDocument extends Model
         'issued_date',
         'expiry_date'
     ];
+
+    public function TenantIdentity()
+    {
+        return $this->belongsTo(TenantIdentity::class, 'document_type', 'id');
+    }
+    public function tenant()
+    {
+        return $this->belongsTo(AgreementTenant::class, 'tenant_id', 'id');
+    }
 }

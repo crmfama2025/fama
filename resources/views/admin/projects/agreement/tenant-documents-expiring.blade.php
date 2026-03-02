@@ -73,6 +73,7 @@
                                             <th>Issued Date</th>
                                             <th>Expiry Date</th>
                                             <th>Tenant</th>
+                                            <th>Tenant Type</th>
                                             <th>Action</th>
                                         </tr>
                                     </thead>
@@ -151,8 +152,14 @@
                     {
                         data: 'tenant_name',
                         name: 'tenant_name',
-                        orderable: false,
-                        searchable: false
+                        // orderable: false,
+                        // searchable: false
+                    },
+                    {
+                        data: 'tenant_type',
+                        name: 'tenant_type',
+                        // orderable: false,
+                        // searchable: false
                     },
                     {
                         data: 'action',

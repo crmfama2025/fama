@@ -18,11 +18,46 @@
                 }
                 if (e.target.matches('.nextBtn')) {
                     const stepIndex = window.stepper._currentIndex;
+                    // if (stepIndex === 1) {
+                    //     // alert('validating documents');
+                    //     let hasError = false;
+
+                    //     $('.document_number').each(function() {
+                    //         let rowIndex = this.id.split('_').pop();
+                    //         validateDocumentRow(rowIndex);
+
+
+                    //         if ($('#error_' + rowIndex).text() !== '' ||
+                    //             $('#issued_date_' + rowIndex).hasClass('is-invalid') ||
+                    //             $('#expiry_date_' + rowIndex).hasClass('is-invalid')) {
+                    //             hasError = true;
+                    //         }
+                    //     });
+
+                    //     if (hasError) {
+                    //         Swal.fire({
+                    //             icon: 'warning',
+                    //             title: 'Incomplete Step',
+                    //             text: 'Please correct the errors in the document fields.',
+                    //             toast: true,
+                    //             position: 'top-end',
+                    //             showConfirmButton: false,
+                    //             timer: 2500,
+                    //         });
+                    //         return;
+                    //     }
+
+                    // }
+
                     if (validateStep(stepIndex)) {
                         window.stepper.next();
-                        if (window.stepper._currentIndex === 3) {
+                        // if (window.stepper._currentIndex === 3) {
+                        //     $('#no_of_installments').trigger('change');
+                        // }
+                        if (window.stepper._currentIndex === 2) {
                             $('#no_of_installments').trigger('change');
                         }
+
                     } else {
                         Swal.fire({
                             icon: 'warning',

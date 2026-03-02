@@ -5,6 +5,7 @@ namespace App\Repositories\Agreement;
 use App\Models\Agreement;
 use App\Models\AgreementDocument;
 use App\Models\Contract;
+use App\Models\TenantDocument;
 use Carbon\Carbon;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
@@ -32,12 +33,15 @@ class AgreementDocRepository
         $today = Carbon::today();
         $oneMonthLater = Carbon::today()->addMonth();
 
-        $query = AgreementDocument::with(['agreement', 'agreement.tenant', 'TenantIdentity',])
+        // $query = AgreementDocument::with(['agreement', 'agreement.tenant', 'TenantIdentity',])
+        //     // ->whereBetween('expiry_date', [$today, $oneMonthLater]);
+        //     ->where('expiry_date', '<=', $oneMonthLater);
+        $query = TenantDocument::with(['tenant', 'tenant.agreement', 'TenantIdentity',])
             // ->whereBetween('expiry_date', [$today, $oneMonthLater]);
             ->where('expiry_date', '<=', $oneMonthLater);
         // ->get();
 
-        // $get = $query->get();
+        $get = $query->get();
         // dd($get);
         // Parse date once outside — reuse inside
         $search = $filters['search'];
@@ -56,13 +60,19 @@ class AgreementDocRepository
                     $q->where('identity_type', 'like', '%' . $search . '%');
                 })
 
-                ->orWhereHas('agreement.tenant', function ($q) use ($search) {
+                ->orWhereHas('tenant', function ($q) use ($search) {
                     $q->where('tenant_name', 'like', '%' . $search . '%')
                         ->orWhere('tenant_email', 'like', '%' . $search . '%')
-                        ->orWhere('tenant_mobile', 'like', '%' . $search . '%');
+                        ->orWhere('tenant_mobile', 'like', '%' . $search . '%')
+                        ->orWhereRaw("
+                            CASE
+                                WHEN tenant_type = 1 THEN 'B2B'
+                                WHEN tenant_type = 2 THEN 'B2C'
+                            END LIKE ?
+                        ", ["%{$search}%"]);
                 })
 
-                ->orWhereHas('agreement', function ($q) use ($search) {
+                ->orWhereHas('tenant.agreement', function ($q) use ($search) {
                     $q->where('agreement_code', 'like', '%' . $search . '%');
                 })
 
@@ -87,7 +97,7 @@ class AgreementDocRepository
                 });
         });
 
-        $query->orderBy('agreement_documents.id', 'desc');
+        $query->orderBy('tenant_documents.id', 'desc');
         // $result = $query->get();
         // dd($result);
 
