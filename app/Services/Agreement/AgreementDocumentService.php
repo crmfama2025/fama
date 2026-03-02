@@ -29,9 +29,11 @@ class AgreementDocumentService
     public function storeDocuments($agreement, array $documents, $addedBy)
     {
         // dd($agreement);
+        // dd($documents);
         if (empty($documents)) {
             return;
         }
+        $ct_type = $agreement->contract->contract_type_id;
 
         foreach ($documents as $doc) {
             // $validator = Validator::make($doc, [
@@ -60,7 +62,7 @@ class AgreementDocumentService
             // if ($validator->fails()) {
             //     throw new ValidationException($validator);
             // }
-            $this->validate($doc);
+            $this->validate($doc, $ct_type);
             if (
                 empty($doc['document_number']) ||
                 empty($doc['document_path']) ||
@@ -118,8 +120,10 @@ class AgreementDocumentService
         if (empty($documents)) {
             return;
         }
+        // dd($documents);
         $code = $agreement->agreement_code;
         $project_code = $agreement->contract->project_code;
+        $ct_type = $agreement->contract->contract_type_id;
 
 
         // $existingIds = array_filter(array_column($documents, 'id') ?? []);
@@ -132,90 +136,121 @@ class AgreementDocumentService
         //         Storage::disk('public')->delete($doc->original_document_path);
         //         $doc->delete();
         //     });
+        DB::beginTransaction();
+        try {
+            foreach ($documents as $doc) {
+                $this->validate($doc, $ct_type);
+                // dd($doc);
 
-        foreach ($documents as $doc) {
-            $this->validate($doc);
-
-            if (!empty($doc['id'])) {
-                $existingDoc = $agreement->agreement_documents()->find($doc['id']);
-                // dd($existingDoc);
-                if ($existingDoc) {
-                    $existingDoc->document_number = $doc['document_number'] ?? $existingDoc->document_number;
-
-                    if (!empty($doc['document_path']) && $doc['document_path'] instanceof UploadedFile) {
-                        Storage::disk('public')->delete($existingDoc->original_document_path);
-
-                        // $path = $doc['document_path']->store('agreements/documents/' . $code . '/', 'public');
-
-                        $filename = uniqid()  . '_' . $doc['document_path']->getClientOriginalName();
-                        $path = $doc['document_path']->storeAs("projects/{$project_code}/agreements/{$code}/documents", $filename, 'public');
-
-                        $existingDoc->original_document_path = $path;
-                        $existingDoc->original_document_name = $doc['document_path']->getClientOriginalName();
-                        $existingDoc->updated_by = $updatedBy;
+                if (!empty($doc['id'])) {
+                    if ($doc['document_type'] == 1 || $doc['document_type'] == 2) {
+                        $existingDoc = $agreement->tenant->tenantDocuments()->find($doc['id']);
+                    } else {
+                        $existingDoc = $agreement->agreement_documents()->find($doc['id']);
                     }
-                    $existingDoc->issued_date = parseDate($doc['issued_date']) ?? null;
-                    $existingDoc->expiry_date = parseDate($doc['expiry_date']) ?? null;
+                    // dd($existingDoc);
+                    if ($existingDoc) {
+                        $existingDoc->document_number = $doc['document_number'] ?? $existingDoc->document_number;
 
-                    $existingDoc->save();
-                    $this->updateAgreementFlags($agreement, $existingDoc->document_type);
-                }
-                continue;
-            }
-            // dd("test");
-            if ($doc['document_type'] != 6) {
-                if (
-                    empty($doc['document_number']) ||
-                    empty($doc['document_path']) ||
-                    !($doc['document_path'] instanceof UploadedFile)
-                ) {
+                        if (!empty($doc['document_path']) && $doc['document_path'] instanceof UploadedFile) {
+                            // dd($doc['document_path']);
+                            Storage::disk('public')->delete($existingDoc->original_document_path);
+
+                            // $path = $doc['document_path']->store('agreements/documents/' . $code . '/', 'public');
+
+                            $filename = uniqid()  . '_' . $doc['document_path']->getClientOriginalName();
+                            $path = $doc['document_path']->storeAs("projects/{$project_code}/agreements/{$code}/documents", $filename, 'public');
+
+                            $existingDoc->original_document_path = $path;
+                            // dd($existingDoc->original_document_path);
+                            $existingDoc->original_document_name = $doc['document_path']->getClientOriginalName();
+                            $existingDoc->updated_by = $updatedBy;
+                        }
+                        $existingDoc->issued_date = parseDate($doc['issued_date'] ?? null);
+                        $existingDoc->expiry_date = parseDate($doc['expiry_date'] ?? null);
+
+                        $existingDoc->save();
+                        // dd($existingDoc);
+                        $this->updateAgreementFlags($agreement, $existingDoc->document_type);
+                        $result[] = $existingDoc;
+                    }
                     continue;
                 }
-            } else {
-                if (
-                    empty($doc['document_path']) ||
-                    !($doc['document_path'] instanceof UploadedFile)
-                ) {
-                    continue;
-                    // $errors["documents.document_path"] = 'Document file is required.';
+                // dd("test");
+                if ($doc['document_type'] != 6 && $doc['document_type'] != 5) {
+                    if (
+                        empty($doc['document_number']) ||
+                        empty($doc['document_path']) ||
+                        !($doc['document_path'] instanceof UploadedFile)
+                    ) {
+                        continue;
+                    }
+                } else {
+                    if (
+                        empty($doc['document_path']) ||
+                        !($doc['document_path'] instanceof UploadedFile)
+                    ) {
+                        continue;
+                        // $errors["documents.document_path"] = 'Document file is required.';
+                    }
+                    $doc['document_number'] = 0;
                 }
-                $doc['document_number'] = 0;
+                // dd($doc);
+                // if (!empty($errors)) {
+                //     return response()->json([
+                //         'success' => false,
+                //         'message' => 'Please fix the errors below.',
+                //         'errors' => $errors,
+                //     ], 422);
+                // }
+
+
+
+                // dd("test");
+                // dd($doc['document_path']);
+
+
+
+                // $path = $doc['document_path']->store('agreements/documents/' . $code . '/', 'public');
+
+                $filename = uniqid() .  '_' . $doc['document_path']->getClientOriginalName();
+                $path = $doc['document_path']->storeAs("projects/{$project_code}/agreements/{$code}/documents", $filename, 'public');
+                // dd("test");
+                // dd($doc);
+                $doc_data = [
+                    'agreement_id' => $agreement->id,
+                    'document_type' => $doc['document_type'] ?? null,
+                    'document_number' => $doc['document_number'] ?? null,
+                    'original_document_path' => $path,
+                    'original_document_name' => $doc['document_path']->getClientOriginalName(),
+                    // 'updated_by' => $updatedBy,
+                    'added_by' => $updatedBy,
+                    'issued_date' => parseDate($doc['issued_date'] ?? null),
+                    'expiry_date' => parseDate($doc['expiry_date'] ?? null),
+                ];
+                // dd($doc_data);
+                if ($doc['document_type'] == 1 || $doc['document_type'] == 2) {
+                    // dd("test");
+                    $doc_data['tenant_id'] = $agreement->tenant->id;
+                    $createdDoc = $agreement->tenant->tenantDocuments()->create($doc_data);
+                    // dd($createdDoc);
+                    $this->updateAgreementFlags($agreement, $createdDoc->document_type);
+                    $result[] = $createdDoc;
+                    continue;
+                } else {
+                    $createdDoc = $agreement->agreement_documents()->create($doc_data);
+                    // dd($createdDoc);
+                    $this->updateAgreementFlags($agreement, $createdDoc->document_type);
+                    $result[] = $createdDoc;
+                }
             }
-            // if (!empty($errors)) {
-            //     return response()->json([
-            //         'success' => false,
-            //         'message' => 'Please fix the errors below.',
-            //         'errors' => $errors,
-            //     ], 422);
-            // }
+            DB::commit(); // ✅ VERY IMPORTANT
 
-
-
-            // dd("test");
-            // dd($doc['document_path']);
-
-
-
-            // $path = $doc['document_path']->store('agreements/documents/' . $code . '/', 'public');
-
-            $filename = uniqid() .  '_' . $doc['document_path']->getClientOriginalName();
-            $path = $doc['document_path']->storeAs("projects/{$project_code}/agreements/{$code}/documents", $filename, 'public');
-
-            $doc_data = [
-                'agreement_id' => $agreement->id,
-                'document_type' => $doc['document_type'] ?? null,
-                'document_number' => $doc['document_number'] ?? null,
-                'original_document_path' => $path,
-                'original_document_name' => $doc['document_path']->getClientOriginalName(),
-                // 'updated_by' => $updatedBy,
-                'added_by' => $updatedBy,
-                'issued_date' => parseDate($doc['issued_date']) ?? null,
-                'expiry_date' => parseDate($doc['expiry_date']) ?? null,
-            ];
-            // dd($doc_data);
-
-            $createdDoc = $this->agreementDocRepository->create($doc_data);
-            $this->updateAgreementFlags($agreement, $createdDoc->document_type);
+            // return $createdDocs;
+            return $result;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
         }
     }
     public function getDocuments($id)
@@ -223,12 +258,57 @@ class AgreementDocumentService
         return $this->agreementDocRepository->getDocuments($id);
     }
 
-    public function validate($data)
+    // public function validate($data)
+    // {
+    //     $validator = Validator::make(
+    //         $data,
+    //         [
+    //             'document_type' => 'nullable|string|max:255',
+    //             'document_number' => 'nullable|string|max:255',
+    //             'document_path' => [
+    //                 'nullable',
+    //                 function ($attribute, $value, $fail) {
+    //                     if (!empty($value) && !$value instanceof \Illuminate\Http\UploadedFile) {
+    //                         $fail('The document must be a valid uploaded file.');
+    //                         return;
+    //                     }
+
+    //                     if ($value instanceof \Illuminate\Http\UploadedFile) {
+    //                         $allowed = ['pdf', 'jpg', 'jpeg', 'png'];
+    //                         $ext = strtolower($value->getClientOriginalExtension());
+
+    //                         if (!in_array($ext, $allowed)) {
+    //                             $fail('The document must be a file of type: pdf, jpg, jpeg, png.');
+    //                         }
+    //                     }
+    //                 },
+    //             ],
+
+    //         ],
+    //         [
+    //             'document_number.required_with' => 'Document number is required when a file is uploaded.',
+    //             'document_path.required' => 'Document file is required when a new document number is provided.',
+    //         ]
+    //     );
+
+
+    //     if (empty($data['id']) && !empty($data['document_number'])) {
+    //         $validator->sometimes('document_path', 'required', function () use ($data) {
+    //             return !empty($data['document_number']);
+    //         });
+    //     }
+
+    //     if ($validator->fails()) {
+    //         throw new \Illuminate\Validation\ValidationException($validator);
+    //     }
+    // }
+    public function validate($data, $ct_type)
     {
-        $validator = Validator::make($data, [
-            'document_type' => 'nullable|string|max:255',
+        // dd($data);
+        $rules = [
+            'document_type'   => 'nullable|string|max:255',
             'document_number' => 'nullable|string|max:255',
-            'document_path' => [
+            'document_path'   => [
                 'nullable',
                 function ($attribute, $value, $fail) {
                     if (!empty($value) && !$value instanceof \Illuminate\Http\UploadedFile) {
@@ -246,17 +326,100 @@ class AgreementDocumentService
                     }
                 },
             ],
-        ], [
-            'document_number.required_with' => 'Document number is required when a file is uploaded.',
-            'document_path.required' => 'Document file is required when a new document number is provided.',
-        ]);
+        ];
 
 
+        if ((!empty($data['document_number']) && !empty($data['document_path']))) {
+
+            switch ($data['document_type']) {
+
+                case 2: // Emirates ID
+                    $rules['document_number'] = [
+                        'required',
+                        'regex:/^\d{3}-\d{4}-\d{7}-\d{1}$/',
+                    ];
+
+                    // Only apply unique check if contract type is NOT 2
+                    if ($ct_type != 2) {
+                        $rules['document_number'][] = Rule::unique('agreement_documents', 'document_number')
+                            ->ignore($data['id'] ?? null)
+                            ->where(function ($query) {
+                                return $query->where('document_type', 2);
+                            });
+                    }
+                    break;
+                case 1:
+                    $rules['document_number'] = [
+                        'required',
+                        'regex:/^[A-Z0-9]{6,9}$/'
+                    ];
+                    break;
+                case 4: // UID/UDB
+                    $rules['document_number'] = [
+                        'required',
+                        'regex:/^\d{9,15}$/',
+                    ];
+
+                    // Only add unique check if contract type is NOT 2
+                    if ($ct_type != 2) {
+                        $rules['document_number'][] = Rule::unique('agreement_documents', 'document_number')
+                            ->ignore($data['id'] ?? null)
+                            ->where(function ($query) {
+                                return $query->where('document_type', 4);
+                            });
+                    }
+                    break;
+                case 3: // Trade License
+                    $rules['document_number'] = [
+                        'required',
+                        'regex:/^[A-Z0-9\/-]{5,20}$/', // 5–20 chars letters/numbers / or -
+                    ];
+
+                    // Unique only if contract type is NOT 2
+                    if ($ct_type != 2) {
+                        $rules['document_number'][] = Rule::unique('agreement_documents', 'document_number')
+                            ->ignore($data['id'] ?? null)
+                            ->where(function ($query) {
+                                return $query->where('document_type', 3);
+                            });
+                    }
+                    break;
+            }
+        }
+
+        $messages = [
+            'document_number.required' => 'Document number is required.',
+            'document_number.regex'    => 'Invalid document number format.',
+            'document_path.required'   => 'Document file is required when a document number is provided.',
+        ];
+
+        if (!empty($data['document_type']) && $data['document_type'] == 2) {
+            $messages['document_number.unique'] = 'This Emirates ID number already exists in the system.';
+            $messages['document_number.regex']  = 'Invalid Emirates ID format. It must be like 784-XXXX-XXXXXXX-X.';
+        }
+        if (!empty($data['document_type']) && $data['document_type'] == 1) {
+            $messages['document_number.regex'] =
+                'Invalid Passport Number. It must be 6–9 characters using only uppercase letters and numbers.';
+        }
+        if (!empty($data['document_type']) && $data['document_type'] == 4) {
+            $messages['document_number.unique'] = 'This Visa UID number already exists in the system.';
+            $messages['document_number.regex'] =
+                'Invalid UID/UDB number format. It must be 9–15 digits.';
+        }
+        if (!empty($data['document_type']) && $data['document_type'] == 3) {
+            $messages['document_number.unique'] = 'This trade license number already exists in the system.';
+            $messages['document_number.regex']  = 'Trade License must be 5–20 characters.';
+        }
+
+        $validator = Validator::make($data, $rules, $messages);
+
+        // 🔹 Require file only for new records
         if (empty($data['id']) && !empty($data['document_number'])) {
             $validator->sometimes('document_path', 'required', function () use ($data) {
                 return !empty($data['document_number']);
             });
         }
+
 
         if ($validator->fails()) {
             throw new \Illuminate\Validation\ValidationException($validator);

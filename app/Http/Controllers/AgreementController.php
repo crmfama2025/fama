@@ -13,8 +13,10 @@ use App\Models\PaymentMode;
 use App\Models\TenantIdentity;
 use App\Models\UnitType;
 use App\Repositories\Agreement\AgreementRepository;
+use App\Repositories\Agreement\AgreementTenantRepository;
 use App\Services\Agreement\AgreementDocumentService;
 use App\Services\Agreement\AgreementService;
+use App\Services\Agreement\AgreementTenantService;
 use App\Services\Agreement\AgreementUnitService;
 use App\Services\Agreement\InvoiceService;
 use App\Services\BankService;
@@ -42,7 +44,8 @@ class AgreementController extends Controller
         protected AgreementDocumentService $agreementDocumentService,
         protected AgreementUnitService $agreementUnitService,
         protected InvoiceService $invoiceService,
-        protected AgreementRepository $agreementRepository
+        protected AgreementRepository $agreementRepository,
+        protected AgreementTenantService $tenantService
     ) {}
     public function index()
     {
@@ -54,6 +57,8 @@ class AgreementController extends Controller
     public function create()
     {
         $companies = $this->companyService->getAll('agreement');
+        $tenants = $this->tenantService->getTenantsForAgreement();
+        // dd($tenants);
         // $contracts = $this->contractService->getAllwithUnits();
         $contracts = $this->contractService->getAllwithUnits()->map(function ($contract) {
             $contract->contract_unit->business_type_text = $contract->contract_unit->business_type();
@@ -74,7 +79,7 @@ class AgreementController extends Controller
         // dd($contractTypes);
 
         // dd($contracts);
-        return view('admin.projects.agreement.create-agreement', compact('companies', 'contracts', 'installments', 'unitTypes', 'tenantIdentities', 'paymentmodes', 'banks', 'nationalities', 'contractTypes', 'emirates'));
+        return view('admin.projects.agreement.create-agreement', compact('companies', 'contracts', 'installments', 'unitTypes', 'tenantIdentities', 'paymentmodes', 'banks', 'nationalities', 'contractTypes', 'emirates', 'tenants'));
     }
     public function store(Request $request)
     {
@@ -134,7 +139,9 @@ class AgreementController extends Controller
         $unitTypeList = $agreement->getVacantunitTypes();
         $vacantData = $agreement->getVacantUnits();
         $tenant = $agreement->tenant;
+        // dd($tenant);
         $emirates = Emirate::all();
+        $tenants = $this->tenantService->getTenantsForAgreement();
         // dd($unitTypeList);
 
         return view('admin.projects.agreement.create-agreement', compact(
@@ -152,11 +159,13 @@ class AgreementController extends Controller
             'unitTypeList',
             'vacantData',
             'tenant',
-            'emirates'
+            'emirates',
+            'tenants'
         ));
     }
     public function update(Request $request, $id)
     {
+        // dd($request);
         try {
             $agreement = $this->agreementService->update($id, $request->all());
 
@@ -189,7 +198,9 @@ class AgreementController extends Controller
         $tenantIdentities = TenantIdentity::get();
         $agreementId = $id;
         $agreement = $this->agreementService->getDetails($id);
-        return view('admin.projects.agreement.agreement_documents', compact('documents', 'tenantIdentities', 'agreementId', 'agreement'));
+        $tenant_documents = $agreement->tenant->tenantDocuments ?? [];
+        // dd($tenant_documents);
+        return view('admin.projects.agreement.agreement_documents', compact('documents', 'tenantIdentities', 'agreementId', 'agreement', 'tenant_documents'));
     }
     public function documentUpload(Request $request, $id)
     {
@@ -202,6 +213,7 @@ class AgreementController extends Controller
                 $data['documents'] ?? [],
                 $data['added_by']
             );
+            // dd($documents);
 
             return response()->json(['success' => true, 'data' =>  $documents, 'message' => 'Documents added successfully'], 200);
         } catch (\Exception $e) {
@@ -290,6 +302,7 @@ class AgreementController extends Controller
         $contractTypes = ContractType::all();
         $agreement = $this->agreementService->getById($agreement_id);
         $tenant = $agreement->tenant;
+        // dd($tenant);
         $company_id = $agreement->company_id;
         $contract = $this->contractService->getById($agreement->contract_id);
         // dd($contract);

@@ -172,10 +172,17 @@
                                                     Pay Back
                                                 </label>
                                             </div>
+                                            {{-- <div class="form-check ml-2">
+                                                <input class="form-check-input" type="radio" name="transaction_type"
+                                                    id="pay_back" value="2">
+                                                <label class="form-check-label" for="pay_back">
+                                                    Run Away
+                                                </label>
+                                            </div> --}}
                                         </div>
                                     </div>
                                     <div class="form-group row">
-                                        <label class="col-form-label asterisk">Payment Mode</label>
+                                        <label class="col-form-label">Payment Mode</label>
 
                                         <select name="payment_mode_id" id="payment_mode_id" class="form-control select2"
                                             style="width: 100%;">

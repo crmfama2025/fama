@@ -56,14 +56,14 @@
                                             </button>
                                         </div>
                                         <div class="line"></div>
-                                        {{-- <div class="step" data-target="#document-step">
+                                        <div class="step" data-target="#document-step">
                                             <button type="button" class="step-trigger" role="tab"
                                                 aria-controls="document-step" id="documemnt-step-trigger">
                                                 <span class="bs-stepper-circle"><i class="fas fa-file-upload"></i></span>
                                                 <span class="bs-stepper-label">Documents</span>
                                             </button>
-                                        </div> --}}
-                                        {{-- <div class="line"></div> --}}
+                                        </div>
+                                        <div class="line"></div>
                                         <div class="step" data-target="#unit-step">
                                             <button type="button" class="step-trigger" role="tab"
                                                 aria-controls="unit-step" id="unit-step-trigger">
@@ -99,8 +99,7 @@
                                             {{-- Edit case --}}
                                             @isset($agreement)
                                                 <input type="hidden" name="agreement_id" value={{ $agreement->id }}>
-                                                {{-- @dump($tenant->id); --}}
-                                                <input type="hidden" name="ag_tenant_id" value={{ $tenant->id }}>
+                                                <input type="hidden" name="tenant_id" value={{ $tenant->id }}>
                                                 <input type="hidden" name="payment_id"
                                                     value={{ $agreement->agreement_payment->id }}>
                                             @endisset
@@ -155,180 +154,148 @@
                                                     @endisset
                                                     {{-- Edit case --}}
                                                     <input type="hidden" name="contract_type" id="selctedcontractType">
-                                                    <div class="col-md-4 d-none" id="tenant_select_div">
+
+
+                                                    <div class="col-md-4">
                                                         <label for="exampleInputEmail1 " class="asterisk">Tenant
-                                                        </label>
-                                                        <select class="form-control select2" name="tenant_id"
-                                                            id="tenant_id" required>
-                                                            <option value="">Select Tenant</option>
-                                                            @foreach ($tenants as $t)
-                                                                <option value="{{ $t->id }}"
-                                                                    {{ (isset($agreement) && $agreement->tenant_id == $t->id) || (isset($tenant_id) && $tenant_id == $t->id) ? 'selected' : '' }}>
-                                                                    {!! $t->tenant_code . ' - ' . $t->tenant_name !!}
-                                                                </option>
+                                                            Name</label>
+                                                        <input type="text" class="form-control" id="tenant_name"
+                                                            name="tenant_name" placeholder="Tenant Name"
+                                                            value="{{ old('tenant_name', $tenant->tenant_name ?? '') }}"
+                                                            required>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+
+
+                                                    <div class="col-md-4">
+                                                        <label for="exampleInputEmail1 " class="asterisk">Tenant mobile
+                                                            <small class="text-muted font-weight-lighter">(e.g.,
+                                                                +971501234567
+                                                                or 971501234567)</small></label>
+                                                        <input type="text" class="form-control" id="tenant_mobile"
+                                                            name="tenant_mobile" placeholder="Tenant mobile"
+                                                            value="{{ old('tenant_mobile', $tenant->tenant_mobile ?? '') }}"
+                                                            required pattern="^\+?[1-9]\d{9,14}$">
+                                                        <div class="invalid-feedback">
+                                                            Enter valid mobile with country code.
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <label for="exampleInputEmail1 " class="asterisk">Tenant
+                                                            email</label>
+                                                        <input type="email" class="form-control" id="tenant_email"
+                                                            name="tenant_email" placeholder="Tenant email"
+                                                            value="{{ old('tenant_email', $tenant->tenant_email ?? '') }}"
+                                                            required pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$">
+                                                        <div class="invalid-feedback">
+                                                            Please provide a valid email.
+                                                        </div>
+                                                    </div>
+                                                    {{-- @dump($tenant->nationality_id); --}}
+                                                    <div class="col-md-4">
+                                                        <label for="exampleInputEmail1"
+                                                            class="asterisk">Nationality</label>
+                                                        <select class="form-control select2" name="nationality_id"
+                                                            id="nationality_id" required>
+                                                            <option value="">Select Nationality</option>
+                                                            @foreach ($nationalities as $nationality)
+                                                                <option
+                                                                    value="{{ $nationality->id }}"{{ (isset($agreement) || isset($tenant)) && $tenant->nationality_id == $nationality->id ? 'selected' : '' }}>
+                                                                    {{ $nationality->nationality_name }} </option>
+                                                            @endforeach
+
+                                                        </select>
+
+                                                    </div>
+
+                                                </div>
+                                                <div class="form-group row">
+
+
+                                                    <div class="col-md-4">
+                                                        <label for="exampleInputEmail1 " class="asterisk">Contact
+                                                            person</label>
+                                                        <input type="text" class="form-control" id="contact_person"
+                                                            name="contact_person" placeholder="Contact Person"
+                                                            value="{{ old('contact_person', $tenant->contact_person ?? '') }}"
+                                                            required>
+
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <label for="exampleInputEmail1 " class="asterisk">Contact
+                                                            email</label>
+                                                        <input type="email" class="form-control " id="contact_email"
+                                                            name="contact_email" placeholder="Contact email"
+                                                            value="{{ old('contact_email', $tenant->contact_email ?? '') }}"
+                                                            required pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$">
+                                                        <div class="invalid-feedback">
+                                                            Please provide a valid email.
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <label for="exampleInputEmail1 " class="asterisk">Contact Number
+                                                            <small class="text-muted font-weight-lighter">(e.g.,
+                                                                +971501234567
+                                                                or 971501234567)</small> </label>
+                                                        <input type="text" class="form-control" id="contact_number"
+                                                            name="contact_number" placeholder="Contact number"
+                                                            value="{{ old('contact_number', $tenant->contact_number ?? '') }}"
+                                                            required pattern="^\+?[1-9]\d{9,14}$">
+                                                        <div class="invalid-feedback">
+                                                            Enter valid mobile with country code.
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                                <div class="form-group row">
+
+
+                                                    <div class="col-md-6">
+                                                        <label class="asterisk">Address Line 1<small
+                                                                class="text-muted font-weight-lighter">(Flat
+                                                                No,Building)</small></label>
+                                                        <input type="text" class="form-control" id="tenant_address"
+                                                            name="tenant_address" placeholder="Flat No,Building etc"
+                                                            value="{{ old('tenant_address', $tenant->tenant_address ?? '') }}"
+                                                            required>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label class="">Address Line 2<small
+                                                                class="text-muted font-weight-lighter">(Street)</small></label>
+                                                        <input type="text" class="form-control" id="tenant_street"
+                                                            name="tenant_street" placeholder="Street"
+                                                            value="{{ old('tenant_street', $tenant->tenant_street ?? '') }}">
+                                                    </div>
+
+
+                                                </div>
+                                                <div class="form-group row">
+                                                    <div class="col-md-4">
+                                                        <label for="exampleInputEmail1 ">City</label>
+                                                        <input type="text" class="form-control" id="tenant_city"
+                                                            name="tenant_city" placeholder="Enter City"
+                                                            value="{{ old('tenant_city', $tenant->tenant_city ?? '') }}">
+
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <label for="exampleInputEmail1">Emirate</label>
+                                                        <select class="form-control select2" name="emirate_id"
+                                                            id="emirate_id">
+                                                            <option value="">Select Emirate</option>
+                                                            @foreach ($emirates as $emirate)
+                                                                <option
+                                                                    value="{{ $emirate->id }}"{{ (isset($agreement) || isset($tenant)) && $tenant->emirate_id == $emirate->id ? 'selected' : '' }}>
+                                                                    {{ $emirate->name }} </option>
                                                             @endforeach
                                                         </select>
                                                     </div>
 
-
-
                                                 </div>
-                                                {{-- @dump($tenant) --}}
-                                                <div class="card p-4 shadow d-none" id="tenant_details_card">
-                                                    <div class="form-group row">
-                                                        <div class="col-md-4">
-                                                            <label for="exampleInputEmail1 " class="asterisk">Tenant
-                                                                Name</label>
-                                                            <input type="text" class="form-control" id="tenant_name"
-                                                                name="tenant_name" placeholder="Tenant Name"
-                                                                value="{{ old('tenant_name', $tenant->tenant_name ?? '') }}"
-                                                                required>
-                                                        </div>
-                                                        <div class="col-md-4">
-                                                            <label for="exampleInputEmail1 " class="asterisk">Tenant
-                                                                email</label>
-                                                            <input type="email" class="form-control" id="tenant_email"
-                                                                name="tenant_email" placeholder="Tenant email"
-                                                                value="{{ old('tenant_email', $tenant->tenant_email ?? '') }}"
-                                                                required pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$">
-                                                            <div class="invalid-feedback">
-                                                                Please provide a valid email.
-                                                            </div>
-                                                        </div>
-                                                        {{-- @dump($tenant->nationality_id); --}}
-                                                        <div class="col-md-4">
-                                                            <label for="exampleInputEmail1"
-                                                                class="asterisk">Nationality</label>
-                                                            <select class="form-control select2" name="nationality_id"
-                                                                id="nationality_id" required>
-                                                                <option value="">Select Nationality</option>
-                                                                @foreach ($nationalities as $nationality)
-                                                                    <option
-                                                                        value="{{ $nationality->id }}"{{ (isset($agreement) || isset($tenant)) && $tenant->nationality_id == $nationality->id ? 'selected' : '' }}>
-                                                                        {{ $nationality->nationality_name }} </option>
-                                                                @endforeach
-
-                                                            </select>
-
-                                                        </div>
-                                                    </div>
-                                                    <div class="form-group row">
-
-
-                                                        <div class="col-md-6">
-                                                            <label for="exampleInputEmail1 " class="asterisk">Tenant
-                                                                mobile
-                                                                <small class="text-muted font-weight-lighter">(e.g.,
-                                                                    +971501234567
-                                                                    or 971501234567)</small></label>
-                                                            <input type="text" class="form-control" id="tenant_mobile"
-                                                                name="tenant_mobile" placeholder="Tenant mobile"
-                                                                value="{{ old('tenant_mobile', $tenant->tenant_mobile ?? '') }}"
-                                                                required pattern="^\+?[1-9]\d{9,14}$">
-                                                            <div class="invalid-feedback">
-                                                                Enter valid mobile with country code.
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <label for="exampleInputEmail1 " class="asterisk">Emergency
-                                                                Contact
-                                                                person</label>
-                                                            <input type="text" class="form-control"
-                                                                id="contact_person" name="contact_person"
-                                                                placeholder="Contact Person"
-                                                                value="{{ old('contact_person', $tenant->contact_person ?? '') }}"
-                                                                required>
-
-                                                        </div>
-
-
-                                                    </div>
-                                                    <div class="form-group row">
-
-
-
-                                                        <div class="col-md-6">
-                                                            <label for="exampleInputEmail1 " class="asterisk">Emergency
-                                                                Contact
-                                                                email</label>
-                                                            <input type="email" class="form-control "
-                                                                id="contact_email" name="contact_email"
-                                                                placeholder="Contact email"
-                                                                value="{{ old('contact_email', $tenant->contact_email ?? '') }}"
-                                                                required pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$">
-                                                            <div class="invalid-feedback">
-                                                                Please provide a valid email.
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <label for="exampleInputEmail1 " class="asterisk">Emergency
-                                                                Contact
-                                                                Number
-                                                                <small class="text-muted font-weight-lighter">(e.g.,
-                                                                    +971501234567
-                                                                    or 971501234567)</small> </label>
-                                                            <input type="text" class="form-control"
-                                                                id="contact_number" name="contact_number"
-                                                                placeholder="Contact number"
-                                                                value="{{ old('contact_number', $tenant->contact_number ?? '') }}"
-                                                                required pattern="^\+?[1-9]\d{9,14}$">
-                                                            <div class="invalid-feedback">
-                                                                Enter valid mobile with country code.
-                                                            </div>
-                                                        </div>
-
-                                                    </div>
-                                                    <div class="form-group row">
-
-
-                                                        <div class="col-md-6">
-                                                            <label class="asterisk">Address Line 1<small
-                                                                    class="text-muted font-weight-lighter">(Flat
-                                                                    No,Building)</small></label>
-                                                            <input type="text" class="form-control"
-                                                                id="tenant_address" name="tenant_address"
-                                                                placeholder="Flat No,Building etc"
-                                                                value="{{ old('tenant_address', $tenant->tenant_address ?? '') }}"
-                                                                required>
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <label class="">Address Line 2<small
-                                                                    class="text-muted font-weight-lighter">(Street)</small></label>
-                                                            <input type="text" class="form-control" id="tenant_street"
-                                                                name="tenant_street" placeholder="Street"
-                                                                value="{{ old('tenant_street', $tenant->tenant_street ?? '') }}">
-                                                        </div>
-
-
-                                                    </div>
-                                                    <div class="form-group row">
-                                                        <div class="col-md-4">
-                                                            <label for="exampleInputEmail1 ">City</label>
-                                                            <input type="text" class="form-control" id="tenant_city"
-                                                                name="tenant_city" placeholder="Enter City"
-                                                                value="{{ old('tenant_city', $tenant->tenant_city ?? '') }}">
-
-                                                        </div>
-                                                        <div class="col-md-4">
-                                                            <label for="exampleInputEmail1">Emirate</label>
-                                                            <select class="form-control select2" name="emirate_id"
-                                                                id="emirate_id">
-                                                                <option value="">Select Emirate</option>
-                                                                @foreach ($emirates as $emirate)
-                                                                    <option
-                                                                        value="{{ $emirate->id }}"{{ (isset($agreement) || isset($tenant)) && $tenant->emirate_id == $emirate->id ? 'selected' : '' }}>
-                                                                        {{ $emirate->name }} </option>
-                                                                @endforeach
-                                                            </select>
-                                                        </div>
-
-                                                    </div>
-                                                </div>
-
 
                                                 <button type="button" class="btn btn-info nextBtn">Next</button>
                                             </div>
-                                            {{-- <div id="document-step" class="content step-content" role="tabpanel"
+                                            <div id="document-step" class="content step-content" role="tabpanel"
                                                 aria-labelledby="document-step-trigger" data-step="1">
                                                 <div class="form-group p-3">
                                                     @foreach ($tenantIdentities as $index => $identity)
@@ -345,8 +312,10 @@
                                                                 )
                                                                 : null;
                                                         @endphp
+                                                        {{-- {{ dd($document) }} --}}
 
                                                         <div class="form-row">
+                                                            {{-- First Field --}}
                                                             <div class="form-group col-md-3">
                                                                 <label for="document_number_{{ $index }}">
                                                                     {{ $identity->first_field_label }}
@@ -365,6 +334,7 @@
                                                                     value="{{ $identity->id }}">
                                                             </div>
 
+                                                            {{-- Second Field --}}
                                                             <div class="form-group col-md-3">
                                                                 <label for="document_path_{{ $index }}">
                                                                     {{ $identity->second_field_label }}
@@ -418,6 +388,7 @@
                                                                     </div>
                                                                 @endif
                                                             </div>
+                                                            {{-- Existing File Preview --}}
 
                                                             <div class="form-group col-md-3">
                                                                 <label class="">Issued Date</label>
@@ -476,7 +447,7 @@
 
                                                 <button class="btn btn-info prevBtn" type="button">Previous</button>
                                                 <button type="button" class="btn btn-info nextBtn">Next</button>
-                                            </div> --}}
+                                            </div>
                                             <div id="unit-step" class="content step-content" role="tabpanel"
                                                 aria-labelledby="unit-step-trigger" data-step="3">
                                                 {{-- {{ dd($agreement) }} --}}
@@ -830,10 +801,10 @@
     <script>
         $(document).ready(function() {
             // $('.payment_details').hide();
-            // $('.document_number').each(function() {
-            //     let rowIndex = this.id.split('_').pop();
-            //     validateDocumentRow(rowIndex);
-            // });
+            $('.document_number').each(function() {
+                let rowIndex = this.id.split('_').pop();
+                validateDocumentRow(rowIndex);
+            });
 
 
         });
@@ -1159,8 +1130,7 @@
             //     // (selectedContractType && selectedContractType.contract_type === 'Fama Faateh')
             // )
             if (contract.contract_type_id == 2) {
-                $('#tenant_details_card').addClass('d-none');
-                $('#tenant_select_div').removeClass('d-none');
+                fillFFTenant();
                 let uniDetails = [];
                 // console.log('Agreemant :', agreement);
                 if (editedUnit && Array.isArray(editedUnit) && editedUnit.length > 0) {
@@ -1246,18 +1216,6 @@
             }
             //  else if (selectedContractType && selectedContractType.contract_type === 'Direct Fama') {
             else if (contract.contract_type_id == 1) {
-                if (contract.contract_unit.business_type === 2) {
-                    $('#tenant_select_div').addClass('d-none');
-                    $('#tenant_details_card').removeClass('d-none');
-                    // $('#document-step').removeClass('d-none');
-                    // $('#documemnt-step-trigger').removeClass('d-none');
-                } else {
-                    $('#tenant_details_card').addClass('d-none');
-                    $('#tenant_select_div').removeClass('d-none');
-                    // $('#document-step').addClass('d-none');
-                    // $('#documemnt-step-trigger').addClass('d-none');
-                }
-
                 if (agreement && agreement.agreement_units && agreement.agreement_units.length > 0) {
                     // console.log('Agreemant :', agreement);
 

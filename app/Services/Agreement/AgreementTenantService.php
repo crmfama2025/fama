@@ -35,6 +35,8 @@ class AgreementTenantService
     public function create($data)
     {
         $this->validate($data);
+        $data['tenant_code'] = $this->setProjectCode();
+
         return $this->agreementTenantRepository->create($data);
     }
     public function getById($id)
@@ -65,6 +67,7 @@ class AgreementTenantService
         $id = $data['id'];
         $this->validate($data, $id);
         $data['updated_by'] = $user_id ? $user_id : auth()->user()->id;
+        // $data['tenant_code'] = $this->setProjectCode();
         return $this->agreementTenantRepository->update($id, $data);
     }
     public function gerFormData()
@@ -100,7 +103,7 @@ class AgreementTenantService
                 'added_by'                  => auth()->user()->id,
                 'tenant_code'               => $this->setProjectCode(),
                 // 'no_of_owners'             => $data['no_of_owners'],
-                'no_of_owners'             => $data['owners'] ? count($data['owners']) : 0,
+                'no_of_owners'             => isset($data['owners']) ? count($data['owners']) : 0,
             ];
             // dd($tenant_data);
 
@@ -596,5 +599,10 @@ class AgreementTenantService
         if ($validator->fails()) {
             throw new ValidationException($validator);
         }
+    }
+    public function getTenantsForAgreement()
+    {
+        $tenants = $this->agreementTenantRepository->getTenantsForAgreement();
+        return $tenants;
     }
 }

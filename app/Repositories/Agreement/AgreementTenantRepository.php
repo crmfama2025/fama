@@ -19,7 +19,9 @@ class AgreementTenantRepository
     }
     public function update($id, array $data)
     {
+        // dd($id, $data);
         $tenant = $this->find($id);
+
         // dd($tenant);
         $tenant->update($data);
         return $tenant;
@@ -87,5 +89,9 @@ class AgreementTenantRepository
             $tenant = $this->find($id);
             $tenant->delete();
         });
+    }
+    public function getTenantsForAgreement()
+    {
+        return AgreementTenant::where('tenant_type', 1)->get();
     }
 }
