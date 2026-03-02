@@ -13,7 +13,7 @@ return new class extends Migration
     {
         //
         Schema::table('agreement_tenants', function (Blueprint $table) {
-            $table->unsignedBigInteger('no_of_owners')->default(0)->change();
+            $table->integer('no_of_owners')->default(0)->change();
         });
     }
 
@@ -24,7 +24,7 @@ return new class extends Migration
     {
         //
         Schema::table('agreement_tenants', function (Blueprint $table) {
-            $table->unsignedBigInteger('no_of_owners')->default(1)->change();
+            $table->integer('no_of_owners')->default(1)->change();
         });
     }
 };
