@@ -20,7 +20,7 @@
                     <div class="col-sm-6">
                         <ol class="breadcrumb float-sm-right">
                             <li class="breadcrumb-item"><a href="{{ route('dashboard.index') }}">Home</a></li>
-                            <li class="breadcrumb-item active">"{{ $title }}</li>
+                            <li class="breadcrumb-item active">{{ $title }}</li>
                         </ol>
                     </div>
                 </div>
@@ -33,21 +33,20 @@
                 <div class="row">
                     <div class="col-12">
                         <div class="card">
-                            {{-- @can('area.add') --}}
-                            <div class="card-header">
-                                {{-- <h3 class="card-title">Area Details</h3> --}}
-                                <span class="float-right">
+                            @can('tenant.add')
+                                <div class="card-header">
+                                    {{-- <h3 class="card-title">Area Details</h3> --}}
+                                    <span class="float-right">
 
-                                    <a href="{{ route('tenant.create') }}" class="btn btn-info float-right m-1">
-                                        Add Tenant
-                                    </a>
+                                        <a href="{{ route('tenant.create') }}" class="btn btn-info float-right m-1">
+                                            Add Tenant
+                                        </a>
 
-                                    <button class="btn btn-secondary float-right m-1" data-toggle="modal"
-                                        data-target="#modal-import">Import</button>
 
-                                </span>
-                            </div>
-                            {{-- @endcan --}}
+
+                                    </span>
+                                </div>
+                            @endcan
                             <!-- /.card-header -->
                             <div class="card-body table-responsive">
                                 <table id="tenantsTable" class="table table-striped table-hover" style="width:100%">

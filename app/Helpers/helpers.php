@@ -1325,6 +1325,7 @@ function getModuleArray()
         'investment',
         'finance',
         'report',
+        'tenant'
     ];
 }
 
@@ -1444,8 +1445,8 @@ if (! function_exists('transliterateToArabic')) {
         return $arabic;
     }
 }
-// function tenentAgreement($tenantId)
-// {
-//     $agreements = Agreement::where('tenant_id', $tenantId)->get();
-//     return $agreements->count();
-// }
+function tenentAgreement($tenantId)
+{
+    $agreements = Agreement::where('tenant_id', $tenantId)->get();
+    return $agreements->count();
+}

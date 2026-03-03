@@ -258,23 +258,27 @@ class AgreementTenantService
                 $action = '<div class="d-flex flex-column flex-md-row">';
 
                 // Edit (pencil icon)
-                $action .= '<a href="' . route('tenant.edit', ['id' => $row->id]) . '"
+                if (Gate::allows('tenant.edit')) {
+                    $action .= '<a href="' . route('tenant.edit', ['id' => $row->id]) . '"
                 class="btn btn-info mb-1 mr-md-1" title="Edit">
                     <i class="fas fa-edit"></i>
                 </a>';
+                }
 
                 // View (eye icon)
-                $action .= '<a href="' . route('tenant.show', $row->id) . '"
+                if (Gate::allows('tenant.view')) {
+                    $action .= '<a href="' . route('tenant.show', $row->id) . '"
                     class="btn btn-warning mb-1 mr-md-1" title="View">
                     <i class="fas fa-eye"></i>
                 </a>';
+                }
 
                 // Delete (trash icon)
-                // if (tenentAgreement($row->id) == 0) {
-                $action .= '<button class="btn btn-danger mb-1" onclick="deleteConf(' . $row->id . ')" title="Delete">
+                if (tenentAgreement($row->id) == 0 && Gate::allows('tenant.delete')) {
+                    $action .= '<button class="btn btn-danger mb-1" onclick="deleteConf(' . $row->id . ')" title="Delete">
                         <i class="fas fa-trash"></i>
                     </button>';
-                // }
+                }
 
 
                 $action .= '</div>';
