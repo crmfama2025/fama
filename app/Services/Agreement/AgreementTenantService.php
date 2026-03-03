@@ -276,7 +276,7 @@ class AgreementTenantService
                 }
 
                 // Delete (trash icon)
-                if (tenentAgreement($row->id) == 0 && Gate::allows('tenant.delete')) {
+                if ($row->id != 1 && tenentAgreement($row->id) == 0 && Gate::allows('tenant.delete')) {
                     $action .= '<button class="btn btn-danger mb-1" onclick="deleteConf(' . $row->id . ')" title="Delete">
                         <i class="fas fa-trash"></i>
                     </button>';
