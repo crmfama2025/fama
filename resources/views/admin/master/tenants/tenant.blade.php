@@ -54,6 +54,7 @@
                                         <tr>
                                             <th>#</th>
                                             <th>Action</th>
+                                            <th>Tenant Code</th>
                                             <th>Tenant Name</th>
                                             <th>Email</th>
                                             <th>Mobile</th>
@@ -164,6 +165,10 @@
                         name: 'action',
                         orderable: false,
                         searchable: false
+                    },
+                    {
+                        data: 'tenant_code',
+                        name: 'agreement_tenants.tenant_code'
                     },
                     {
                         data: 'tenant_name',

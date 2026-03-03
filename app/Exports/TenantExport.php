@@ -25,6 +25,7 @@ class TenantExport implements FromCollection, WithHeadings
             $search = $this->search;
             $query->where(function ($q) use ($search) {
                 $q->where('tenant_name', 'like', "%{$search}%")
+                    ->orWhere('tenant_code', 'like', "%{$search}%")
                     ->orWhere('tenant_email', 'like', "%{$search}%")
                     ->orWhere('tenant_mobile', 'like', "%{$search}%")
                     ->orWhere('tenant_address', 'like', "%{$search}%")
@@ -56,6 +57,7 @@ class TenantExport implements FromCollection, WithHeadings
                 return [
 
                     // 'ID' => $tenant->id,
+                    'Tenant Code' => $tenant->tenant_code,
                     'Tenant Name' => $tenant->tenant_name,
                     // 'Company' => $tenant->company->company_name ?? '',
                     'Tenant Email' => $tenant->tenant_email,
@@ -84,6 +86,7 @@ class TenantExport implements FromCollection, WithHeadings
     public function headings(): array
     {
         return [
+            'Tenant Code',
             'Tenant Name',
             'Tenant Email',
             'Tenant Phone',

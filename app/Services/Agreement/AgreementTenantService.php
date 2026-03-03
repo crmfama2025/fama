@@ -218,6 +218,7 @@ class AgreementTenantService
 
         $columns = [
             ['data' => 'DT_RowIndex', 'name' => 'id'],
+            ['data' => 'tenant_code', 'name' => 'tenant_code'],
             ['data' => 'tenant_name', 'name' => 'tenant_name'],
             ['data' => 'tenant_email', 'name' => 'tenant_email'],
             ['data' => 'tenant_mobile', 'name' => 'tenant_mobile'],
@@ -239,6 +240,7 @@ class AgreementTenantService
         return datatables()
             ->of($query)
             ->addIndexColumn()
+            ->addColumn('tenant_code', fn($row) => $row->tenant_code ?? '-')
             ->addColumn('tenant_name', fn($row) => $row->tenant_name ?? '-')
             ->addColumn('tenant_email', fn($row) => $row->tenant_email ?? '-')
             ->addColumn('tenant_mobile', fn($row) => $row->tenant_mobile ?? '-')

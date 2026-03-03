@@ -41,6 +41,7 @@ class AgreementTenantRepository
 
         // List of searchable columns in the tenants table
         $searchable = [
+            'tenant_code',
             'tenant_name',
             'tenant_email',
             'tenant_mobile',
