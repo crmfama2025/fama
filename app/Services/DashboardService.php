@@ -151,7 +151,7 @@ class DashboardService
             });
         })->sum('rent_receivable_per_annum');
 
-        $wid_tenants = AgreementTenant::when($companyId, function ($q) use ($companyId) {
+        $wid_tenants = AgreementTenant::where('id', '!=', 1)->when($companyId, function ($q) use ($companyId) {
             $q->whereHas('agreement', function ($q2) use ($companyId) {
                 $q2->whereHas('contract', function ($c) use ($companyId) {
                     $c->where('company_id', $companyId);
