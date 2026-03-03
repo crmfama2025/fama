@@ -138,11 +138,13 @@ class receivableReportExport implements FromCollection, WithHeadings, ShouldAuto
                 'Receivable cleared By' => $row->paidBy->first_name . ' ' . $row->paidBy->last_name,
                 // 'Bounced Reason' => $detail->bounced_reason ?? '-',
                 // 'Bounced Date' => $detail->bounced_date ? Carbon::parse($detail->bounced_date)->format('d-m-Y') : '-',
-                'Transaction Type' => $detail->transaction_type == 1
+                'Transaction Type' => $row->transaction_type == 1
                     ? 'Termination Receivable'
                     : ($row->transaction_type == 2
                         ? 'Termination Payback'
-                        : 'Receivable'),
+                        : ($row->transaction_type == 3
+                            ? 'Run Away'
+                            : 'Receivable')),
             ];
         });
     }

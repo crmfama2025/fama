@@ -150,7 +150,7 @@
                                     </div>
 
                                     <div class="form-group row">
-                                        <label for="inputEmail3" class="col-form-label asterisk">Amount</label>
+                                        <label for="inputEmail3" class="col-form-label">Amount</label>
                                         <input type="number" name="amount" id="" class="form-control">
                                     </div>
                                     <div class="form-group row mt-2">
@@ -172,13 +172,13 @@
                                                     Pay Back
                                                 </label>
                                             </div>
-                                            {{-- <div class="form-check ml-2">
+                                            <div class="form-check ml-2">
                                                 <input class="form-check-input" type="radio" name="transaction_type"
-                                                    id="pay_back" value="2">
-                                                <label class="form-check-label" for="pay_back">
+                                                    id="run_away" value="3">
+                                                <label class="form-check-label" for="run_away">
                                                     Run Away
                                                 </label>
-                                            </div> --}}
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="form-group row">

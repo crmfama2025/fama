@@ -95,11 +95,18 @@
                                             <span class="text-danger">{{ $business_type }}</span>
                                         </h5>
                                         <address>
-                                            <a href="{{ route('tenant.show', $agreement->tenant->id) }}" class="linkhover"
-                                                target="_blank">
-                                                <span
-                                                    class="vendor_name">{{ strtoupper($agreement->tenant->tenant_name) }}</span>
-                                            </a>
+                                            @if ($agreement->tenant && $agreement->tenant->tenant_type === 1)
+                                                <a href="{{ route('tenant.show', $agreement->tenant->id) }}"
+                                                    class="linkhover" target="_blank">
+                                                    <span class="vendor_name">
+                                                        {{ strtoupper($agreement->tenant->tenant_name) }}
+                                                    </span>
+                                                </a>
+                                            @else
+                                                <span class="vendor_name">
+                                                    {{ strtoupper($agreement->tenant->tenant_name ?? '') }}
+                                                </span>
+                                            @endif
                                             </br>
                                             <span class="mobile">{{ $agreement->tenant->tenant_mobile }}</span></br>
                                             <span class="email">{{ $agreement->tenant->tenant_email }}</span></br>

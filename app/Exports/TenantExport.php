@@ -18,7 +18,8 @@ class TenantExport implements FromCollection, WithHeadings
     public function collection()
     {
         // $query = Vendor::with('company');
-        $query = AgreementTenant::query()->with(['nationality', 'paymentMode', 'paymentFrequency', 'tenantDocuments']);
+        $query = AgreementTenant::query()->with(['nationality', 'paymentMode', 'paymentFrequency', 'tenantDocuments'])
+            ->where('tenant_type', 1);
 
         if ($this->search) {
             $search = $this->search;
