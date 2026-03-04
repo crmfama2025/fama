@@ -39,7 +39,11 @@
     });
 
     $(document).ready(function() {
-        $('.error-text-installment').hide();
+        if (!$('.contractFormSubmit').prop('disabled') && !$('.error-text-installment').is(':visible')) {
+            $('.error-text-installment').hide();
+        }
+
+        // console.log('insta hide');
 
         $('input[type="number"]').attr('min', 0);
     });
@@ -1296,7 +1300,7 @@
         let companyId = $('#vc_company_id').val();
 
         let optionBank = '<option value="">Select Bank</option>';
-        console.log('companyId', companyId);
+        // console.log('companyId', companyId);
 
 
         if (companyId) {
@@ -1611,7 +1615,7 @@
         if ($('.bedcheck:checked').length > 0) {
             $('.rentBedspace').show();
         }
-        console.log($('.roomcheck:checked'));
+        // console.log($('.roomcheck:checked'));
         if ($('.roomcheck:checked').length > 0) {
             $('.rentRoom').show();
         }
@@ -1659,7 +1663,7 @@
 
 
     function calculateRoi() {
-        console.log('calculate roi');
+        // console.log('calculate roi');
         let contract_type = '{{ $contract ? $contract->contract_type_id : '' }}';
         if (contract_type == '2') {
             calculateRoiFF();
@@ -1678,7 +1682,7 @@
             calculateFlatcount();
 
             $('#subunit_count_per_contract').val(calculateSubAccommodations().totSubValue);
-            console.log($('#subunit_count_per_contract').val());
+            // console.log($('#subunit_count_per_contract').val());
             let total_flats = totalflatcount * rentPerFlat;
 
             let total_rent_rec = customRound(total_part + total_bs + total_room + total_flats);
@@ -1812,7 +1816,7 @@
                                         no_of_units) {
                                         remainingDeletes.forEach(div => div
                                             .remove());
-                                        console.log('after remove');
+                                        // console.log('after remove');
                                         $('.contractFormSubmit').prop('disabled', false);
                                     }
                                 } else {
@@ -1833,7 +1837,7 @@
                                 '.rentPerUnitFF')
                             .length <= no_of_units) {
                             remainingDeletes.forEach(div => div.remove());
-                            console.log('after remove else');
+                            // console.log('after remove else');
                             $('.contractFormSubmit').prop('disabled', false);
                         }
                     }
@@ -1986,7 +1990,7 @@
     });
 
     function installmentChangeRec(ele) {
-        console.log('installment rec change');
+        // console.log('installment rec change');
         $('.receivable_maindiv').show();
 
         let rec_inst = $('#rent_installments').find(':selected').text();
@@ -2005,7 +2009,7 @@
 
             // ✅ Add delete button only if more blocks than rec_inst
             if (prevffBlocks.length > rec_inst) {
-                console.log('if greater limit');
+                // console.log('if greater limit');
                 if (!existingBtn) {
                     console.log('if exist');
                     formGroup.insertAdjacentHTML('beforeend', `
@@ -2015,7 +2019,7 @@
                                 </button>
                             </div>
                         `);
-
+                    console.log('delete');
                     $('.contractFormSubmit').attr('disabled', true);
 
                     // ✅ Attach delete event
@@ -2254,7 +2258,7 @@
 
 
             $('#roi').val(Math.round(roi * 100));
-            $('#expected_profit').val(Math.round(expProfit));
+            $('#expected_profit').val(customRound(expProfit));
             $('#profit').val(customRound(profit * 100));
         }
 
@@ -2306,7 +2310,7 @@
 
 
     function valueTorentRec(action) {
-        console.log('value to rent rec');
+        // console.log('value to rent rec');
         let rent_per_flat = parseFloat($('#rent_per_flat').val()) || 0;
 
         let totRentperflat = 0;
@@ -2325,7 +2329,7 @@
     }
 
     function finalRecCal() {
-        console.log('final rec cal');
+        // console.log('final rec cal');
         let totPaymentRec = 0;
 
         $('.rec_payment_amount').each(function() {
@@ -2335,6 +2339,7 @@
         if ((totPaymentRec.toFixed(2) - $('.total_rental').val()) != 0) {
             $('.total_rental_inst').val(totPaymentRec.toFixed(2));
             $('.error-text-installment').show();
+            // console.log('val match');
             $('.contractFormSubmit').attr('disabled', true);
         } else {
             $('.error-text-installment').hide();
@@ -2381,7 +2386,7 @@
         $('#contract_type').on('select2:opening', function(e) {
             e.preventDefault();
         });
-        console.log($('#contract_type').prop('readonly'));
+        // console.log($('#contract_type').prop('readonly'));
         // $('#contract_type').trigger('change');
     }
 
