@@ -218,6 +218,7 @@ class AgreementTenantService
 
         $columns = [
             ['data' => 'DT_RowIndex', 'name' => 'id'],
+            ['data' => 'tenant_code', 'name' => 'tenant_code'],
             ['data' => 'tenant_name', 'name' => 'tenant_name'],
             ['data' => 'tenant_email', 'name' => 'tenant_email'],
             ['data' => 'tenant_mobile', 'name' => 'tenant_mobile'],
@@ -239,6 +240,7 @@ class AgreementTenantService
         return datatables()
             ->of($query)
             ->addIndexColumn()
+            ->addColumn('tenant_code', fn($row) => $row->tenant_code ?? '-')
             ->addColumn('tenant_name', fn($row) => $row->tenant_name ?? '-')
             ->addColumn('tenant_email', fn($row) => $row->tenant_email ?? '-')
             ->addColumn('tenant_mobile', fn($row) => $row->tenant_mobile ?? '-')
@@ -258,23 +260,27 @@ class AgreementTenantService
                 $action = '<div class="d-flex flex-column flex-md-row">';
 
                 // Edit (pencil icon)
-                $action .= '<a href="' . route('tenant.edit', ['id' => $row->id]) . '"
+                if (Gate::allows('tenant.edit')) {
+                    $action .= '<a href="' . route('tenant.edit', ['id' => $row->id]) . '"
                 class="btn btn-info mb-1 mr-md-1" title="Edit">
                     <i class="fas fa-edit"></i>
                 </a>';
+                }
 
                 // View (eye icon)
-                $action .= '<a href="' . route('tenant.show', $row->id) . '"
+                if (Gate::allows('tenant.view')) {
+                    $action .= '<a href="' . route('tenant.show', $row->id) . '"
                     class="btn btn-warning mb-1 mr-md-1" title="View">
                     <i class="fas fa-eye"></i>
                 </a>';
+                }
 
                 // Delete (trash icon)
-                // if (tenentAgreement($row->id) == 0) {
-                $action .= '<button class="btn btn-danger mb-1" onclick="deleteConf(' . $row->id . ')" title="Delete">
+                if ($row->id != 1 && tenentAgreement($row->id) == 0 && Gate::allows('tenant.delete')) {
+                    $action .= '<button class="btn btn-danger mb-1" onclick="deleteConf(' . $row->id . ')" title="Delete">
                         <i class="fas fa-trash"></i>
                     </button>';
-                // }
+                }
 
 
                 $action .= '</div>';

@@ -36,10 +36,12 @@ class AgreementTenantRepository
     public function getQuery(array $filters = []): Builder
     {
         $query = AgreementTenant::query()
-            ->with(['nationality', 'paymentMode', 'paymentFrequency']); // eager load relationships
+            ->with(['nationality', 'paymentMode', 'paymentFrequency'])
+            ->where('tenant_type', 1); // eager load relationships
 
         // List of searchable columns in the tenants table
         $searchable = [
+            'tenant_code',
             'tenant_name',
             'tenant_email',
             'tenant_mobile',

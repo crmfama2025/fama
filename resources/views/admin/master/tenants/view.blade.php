@@ -452,10 +452,12 @@
                                     </h3>
                                 </div>
                                 <div class="card-body">
-                                    <a href="{{ route('tenant.edit', $tenant->id) }}"
-                                        class="btn signinbtn btn-block mb-2">
-                                        <i class="fas fa-edit mr-1"></i> Edit Tenant
-                                    </a>
+                                    @can('tenant.edit')
+                                        <a href="{{ route('tenant.edit', $tenant->id) }}"
+                                            class="btn signinbtn btn-block mb-2">
+                                            <i class="fas fa-edit mr-1"></i> Edit Tenant
+                                        </a>
+                                    @endcan
                                     <a href="{{ route('tenant.index') }}" class="btn btn-secondary btn-block">
                                         <i class="fas fa-list mr-1"></i> All Tenants
                                     </a>

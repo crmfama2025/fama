@@ -75,45 +75,46 @@ class CreateAgreementsFromContracts extends Command
                         'end_date'   => dateFormatChange($ct->contract_detail->end_date, 'Y-m-d'),
                         'duration_in_months' => $ct->contract_detail->duration_in_months,
                         'added_by' => 1,
-                        'agreement_code' => $agreement_code
+                        'agreement_code' => $agreement_code,
+                        'tenant_id' => 1, // FF tenant id
                     ];
                     // dd($agreementData);
 
                     $agreement = Agreement::create($agreementData);
                     // dd($agreement);
                     // Tenant
-                    $tenantData = [
-                        'agreement_id' => $agreement->id,
-                        'tenant_name' => 'Faateh Real Estate',
-                        'tenant_mobile' => '+971568856995',
-                        'tenant_email' => 'adil@faateh.ae',
-                        'nationality_id' => 12,
-                        'tenant_address' => 'Dubai',
-                        'added_by' => 1,
-                        'contact_person' => 'Adil Faridi',
-                        'contact_number' => '+971568856995',
-                        'contact_email' => 'adil@faateh.ae',
-                        // 'tenant_street' => $data['tenant_street'],
-                        // 'tenant_city' => $data['tenant_city'],
-                        'emirate_id' => 2,
+                    // $tenantData = [
+                    //     'agreement_id' => $agreement->id,
+                    //     'tenant_name' => 'Faateh Real Estate',
+                    //     'tenant_mobile' => '+971568856995',
+                    //     'tenant_email' => 'adil@faateh.ae',
+                    //     'nationality_id' => 12,
+                    //     'tenant_address' => 'Dubai',
+                    //     'added_by' => 1,
+                    //     'contact_person' => 'Adil Faridi',
+                    //     'contact_number' => '+971568856995',
+                    //     'contact_email' => 'adil@faateh.ae',
+                    //     // 'tenant_street' => $data['tenant_street'],
+                    //     // 'tenant_city' => $data['tenant_city'],
+                    //     'emirate_id' => 2,
 
-                    ];
-                    // dd($tenantData);
-                    $tenant = AgreementTenant::create($tenantData);
+                    // ];
+                    // // dd($tenantData);
+                    // $tenant = AgreementTenant::create($tenantData);
                     // dd($tenant);
 
 
-                    $path = 'agreements/documents/TRADE_LICENSE/faateh_license.pdf';
+                    // $path = 'agreements/documents/TRADE_LICENSE/faateh_license.pdf';
 
-                    $agreementDocumentData = [
-                        'agreement_id' => $agreement->id,
-                        'document_type' => 3,
-                        'document_number' => 973851,
-                        'original_document_path' => $path,
-                        'original_document_name' => 'faateh_license.pdf',
-                        'added_by' => 1,
-                    ];
-                    $documents = AgreementDocument::create($agreementDocumentData);
+                    // $agreementDocumentData = [
+                    //     'agreement_id' => $agreement->id,
+                    //     'document_type' => 3,
+                    //     'document_number' => 973851,
+                    //     'original_document_path' => $path,
+                    //     'original_document_name' => 'faateh_license.pdf',
+                    //     'added_by' => 1,
+                    // ];
+                    // $documents = AgreementDocument::create($agreementDocumentData);
 
 
                     /** STEP 3: Payment **/

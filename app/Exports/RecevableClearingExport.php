@@ -135,7 +135,9 @@ class RecevableClearingExport implements FromCollection, WithHeadings, ShouldAut
                     ? 'Termination Receivable'
                     : ($row->transaction_type == 2
                         ? 'Termination Payback'
-                        : 'Receivable'),
+                        : ($row->transaction_type == 3
+                            ? 'Run Away'
+                            : 'Receivable')),
             ];
         });
     }

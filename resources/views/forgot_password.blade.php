@@ -3,8 +3,8 @@
 @section('content')
     <div class="login-box">
         <div class="card  login-card">
-            <div class="card-header text-center">
-                <img src="{{ asset('images/fama-dark.png') }}" height="100px">
+            <div class="card-header text-center" style="padding-left: 0px !important;">
+                <img src="{{ asset('images/fg.png') }}" height="100px">
             </div>
             <div class="card-body">
                 <p class="login-box-msg text-white">Forgot your password? </p>
