@@ -441,7 +441,7 @@ class ContractService
                         </a>';   //href="' . route('sign.contract', $row->id) . '"
                 }
 
-                if ($row->contract_status == 7) {
+                if (auth()->user()->hasAnyPermission(['contract.terminate'], $row->company_id) && $row->contract_status == 7) {
                     $action .= '<a class="btn btn-danger btn-sm"  title="Terminate" data-toggle="modal" data-id="' . $row->id . '"
                                         data-target="#modal-terminate-contract">
                             <i class="fas fa-window-close"></i>
