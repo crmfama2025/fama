@@ -34,7 +34,7 @@ class UpdateContractApprovalStatus extends Command
                 $query->where('document_type_id', 1)
                     ->where('signed_status', 2);
             })
-            // ->limit(5)
+            ->limit(5)
             ->get();
 
         $dataArr = array();
