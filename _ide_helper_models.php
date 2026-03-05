@@ -52,7 +52,7 @@ namespace App\Models{
  * @property int $is_visa_uploaded
  * @property int $is_signed_agreement_uploaded
  * @property int $is_trade_license_uploaded
- * @property int $agreement_status 0-Pending, 1-terminated
+ * @property int $agreement_status 0-Pending, 1-Processing, 2-Approved, 3-Rejected
  * @property string|null $terminated_date
  * @property string|null $terminated_reason
  * @property int|null $terminated_by
@@ -1180,7 +1180,6 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property string|null $paid_amount
  * @property-read \App\Models\Contract $contract
  * @property-read \App\Models\User|null $deletedBy
  * @property-read \App\Models\Installment|null $installment
@@ -1202,7 +1201,6 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|ContractRental whereFinalCost($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractRental whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractRental whereInitialInvestment($value)
- * @method static \Illuminate\Database\Eloquent\Builder|ContractRental wherePaidAmount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractRental whereProfitPercentage($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractRental whereReceivableInstallments($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractRental whereReceivableStartDate($value)
@@ -1436,6 +1434,7 @@ namespace App\Models{
  * @property string $contract_unit_code
  * @property int $contract_id
  * @property int $building_type 0-normal, 1-full building
+ * @property int $floor_type 0-normal, 1-full floor
  * @property int $business_type 1-b2b, 2-b2c
  * @property int $watchman_room
  * @property int $no_of_units
@@ -1469,6 +1468,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|ContractUnit whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractUnit whereDeletedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractUnit whereFloorNumbers($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ContractUnit whereFloorType($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractUnit whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractUnit whereNoOfFloors($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractUnit whereNoOfUnits($value)

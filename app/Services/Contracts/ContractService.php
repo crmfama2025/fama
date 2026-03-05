@@ -274,7 +274,7 @@ class ContractService
         $columns = [
             ['data' => 'DT_RowIndex', 'name' => 'id'],
             ['data' => 'project_number', 'name' => 'project_number'],
-            ['data' => 'indirect_project', 'name' => 'project_number'],
+            ['data' => 'indirect_project', 'name' => 'indirect_project'],
             ['data' => 'business_type', 'name' => 'business_type'],
             ['data' => 'company_name', 'name' => 'company_name'],
             ['data' => 'no_of_units', 'name' => 'no_of_units'],
@@ -296,10 +296,12 @@ class ContractService
                 // Indirect badge ONLY if indirect_contract_id != 0
                 $indirectHtml = '';
                 if ((int) $row->indirect_contract_id !== 0) {
+
+                    $indirectCompany = $row->indirectCompany->company_short_code;
                     $indirectHtml = "
 
                 <span class='badge badge-danger' title='Indirect'>
-                Indirect
+                Indirect - {$indirectCompany}
                 </span>
            ";
                 }
@@ -317,6 +319,7 @@ class ContractService
                 }
 
                 return "<strong>{$number}</strong>
+                <p class='mb-0'><small style='color: grey;font-weight: bold;'>{$row->project_code}</small></p>
             <p class='mb-0'>
                 <span class='{$badgeClass}'>{$type}</span>
             </p>

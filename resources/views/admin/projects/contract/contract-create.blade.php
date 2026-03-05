@@ -244,6 +244,7 @@
                                                     <div class="col-md-4">
                                                         <label for="exampleInputEmail1" class="">Indirect
                                                             Company</label>
+                                                        {{-- @dump($contract->indirect_company_id) --}}
                                                         <select class="form-control select2"
                                                             name="contract[indirect_company_id]" id="indirect_company_id">
                                                             {{-- <option value="">Select Company</option> --}}
@@ -409,7 +410,7 @@
                                                             value="{{ old('no_of_units', $contract->contract_unit->no_of_units ?? null) }}"
                                                             required>
                                                     </div>
-                                                    <div class="col-md-4 mt-4">
+                                                    <div class="col-md-6 mt-4">
                                                         <div class="icheck-success d-inline">
                                                             <input type="checkbox" id="fullBuilding"
                                                                 name="unit[building_type]" class="fullBuildCheck"
@@ -417,6 +418,15 @@
                                                                 {{ old('unit.building_type', $contract->contract_unit->building_type ?? '') == 1 ? 'checked' : '' }}>
                                                             <label class="labelpermission" for="fullBuilding"> Full
                                                                 Building
+                                                            </label>
+                                                        </div>
+
+                                                        <div class="icheck-success d-inline">
+                                                            <input type="checkbox" id="fullfloor" name="unit[floor_type]"
+                                                                class="fullFloorCheck" value="1"
+                                                                {{ old('unit.floor_type', $contract->contract_unit->floor_type ?? '') == 1 ? 'checked' : '' }}>
+                                                            <label class="labelpermission" for="fullfloor"> Full
+                                                                Floor
                                                             </label>
                                                         </div>
 
@@ -1006,7 +1016,9 @@
         function contractCompanyChange(companyId) {
             let options = '<option value="">Select Vendor</option>';
             let option1 = '<option value="">Select Area</option>';
-            filterIndirectCompany();
+
+            const IndCompanyId = "{{ $contract->indirect_company_id ?? '' }}";
+            filterIndirectCompany(IndCompanyId);
 
 
             bankOptionByCompany();
@@ -1089,7 +1101,7 @@
     </script>
     {{-- Indirect company filetr --}}
     <script>
-        function filterIndirectCompany() {
+        function filterIndirectCompany(IndCompanyId) {
             // alert("called");
             let ind_cts = @json($indirect);
             let com_id = $("#vc_company_id").val();
@@ -1107,7 +1119,7 @@
                 // ADD only once
                 $("#indirect_company_id")
                     .prepend('<option value="">Select Indirect Company</option>')
-                    .val('')
+                    .val(IndCompanyId)
                     .trigger('change');
 
                 fileterCompanies();

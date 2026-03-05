@@ -289,7 +289,7 @@
                             <div class="modal-body">
                                 <div class="card-body">
                                     <div class="form-group row">
-                                        <label for="exampleInputEmail1">Clearing Date</label>
+                                        <label for="exampleInputEmail1" class="asterisk">Clearing Date</label>
                                         <div class="input-group date" id="clearingdate" data-target-input="nearest">
                                             <input type="text" class="form-control datetimepicker-input"
                                                 name="paid_date" data-target="#clearingdate" placeholder="dd-mm-YYYY"
@@ -301,7 +301,7 @@
                                         </div>
                                     </div>
                                     <div class="form-group row clrngamnt">
-                                        <label for="exampleInputEmail1">Clearing Amount</label>
+                                        <label for="exampleInputEmail1" class="asterisk">Clearing Amount</label>
                                         <input type="number" class="form-control" name="paid_amount" id="paid_amount"
                                             placeholder="Clearing Amount" required min="0" step="1">
                                         <span id="amountPending" class="text-danger text-sm"></span>
@@ -326,7 +326,7 @@
                                         </div>
                                     </div>
                                     <div class="form-group companyTerminate">
-                                        <label for="exampleInputEmail1">Company Name</label>
+                                        <label for="exampleInputEmail1" class="asterisk">Company Name</label>
                                         <select class="form-control select2" name="company_id" id="paid_company"
                                             required>
                                             <option value="">Select Company</option>
@@ -337,7 +337,7 @@
                                         </select>
                                     </div>
                                     <div class="form-group banksingle">
-                                        <label for="exampleInputEmail1">Bank Name</label>
+                                        <label for="exampleInputEmail1" class="asterisk">Bank Name</label>
                                         <select class="form-control select2 bank_name" name="paid_bank" id="bank_name"
                                             required>
                                             <option value="">Select Bank</option>
@@ -348,7 +348,7 @@
                                     </div>
 
                                     <div class="form-group row cheque">
-                                        <label for="exampleInputEmail1">Cheque No</label>
+                                        <label for="exampleInputEmail1" class="asterisk">Cheque No</label>
                                         <input type="text" class="form-control cheque_no" id="cheque_no"
                                             name="paid_cheque_number" placeholder="Cheque No" required>
                                     </div>
