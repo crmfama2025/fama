@@ -64,7 +64,9 @@ class Contract extends Model
         'indirect_company_id',
         'indirect_contract_id',
         'indirect_status',
-        'is_indirect_contract'
+        'is_indirect_contract',
+        'signed_by',
+        'signed_at'
     ];
 
     public function property()

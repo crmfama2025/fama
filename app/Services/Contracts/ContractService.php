@@ -577,7 +577,7 @@ class ContractService
 
         if ($data['status'] == '2') {
             $dataArr['approved_by'] = auth()->user()->id;
-            $dataArr['approved_date'] = Carbon::now();;
+            $dataArr['approved_date'] = Carbon::now();
         } else {
             $dataArr['rejected_reason'] = $data['reason'];
             $dataArr['rejected_date'] = Carbon::now();
