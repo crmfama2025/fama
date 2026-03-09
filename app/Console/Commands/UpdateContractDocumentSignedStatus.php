@@ -31,7 +31,7 @@ class UpdateContractDocumentSignedStatus extends Command
     {
         $contractDocs = ContractDocument::where('signed_status', '!=', 2)
             ->where('document_type_id', 1)
-            ->limit(5)
+            // ->limit(5)
             ->get();
 
         $dataArr = $ids = array();
