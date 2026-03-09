@@ -37,7 +37,7 @@ class UpdateContractApprovalStatus extends Command
             // ->limit(5)
             ->get();
 
-        $dataArr = array();
+        $dataArr = $ids = array();
         foreach ($contracts as $contract) {
 
             $dataArr = [
@@ -56,9 +56,11 @@ class UpdateContractApprovalStatus extends Command
                 'changed_at'   => now(),
             ]);
 
+            $ids[] = $contract->id;
+
             $contract->update($dataArr);
         }
 
-        $this->info("Approved status updated:" . $contracts->count());
+        $this->info("Date : " . now() . ", updated id : " . json_encode($ids) . " Approved status updated:" . $contracts->count());
     }
 }
