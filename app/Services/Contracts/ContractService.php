@@ -360,7 +360,11 @@ class ContractService
                     if ($row->contract_status == 5) {
                         $comment = '<i class="far fa-comments loadComments" data-id="' . $row->id . '"></i>'; //data-toggle="modal" data-target="#modal-hold-comment"
                     }
-                    return '<span class="' . contractStatusClass($row->contract_status) . '">' . contractStatusName($row->contract_status) . '</span> ' . $comment ?? '-';
+
+                    $renewal = $row->parent_contract_id > 0 ? 'Renewal' : 'New';
+                    $badge = '<span class="' . contractStatusClass($row->contract_status) . '">' . contractStatusName($row->contract_status) . '</span> <p class="mb-0"><span class="badge bg-danger text-white">' . $renewal . '</span></p>';
+
+                    return $badge . $comment ?? '-';
                 }
             )
             ->addColumn('action', function ($row) {

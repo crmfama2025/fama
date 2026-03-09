@@ -207,6 +207,13 @@ class ContractRepository
 
                     END LIKE ?
                 ", ['%' . $filters['search'] . '%'])
+                ->orWhereRaw("
+                    CASE
+                        WHEN parent_contract_id IS NOT NULL THEN 'Renewal'
+                        ELSE 'New'
+                    END LIKE ?
+                ", ['%' . $filters['search'] . '%'])
+                ->orWhereRaw("CONCAT('P-', project_number) LIKE ?", ['%' . $filters['search'] . '%'])
                 ->orWhereRaw("CAST(contracts.id AS CHAR) LIKE ?", ['%' . $filters['search'] . '%']);
         }
 
