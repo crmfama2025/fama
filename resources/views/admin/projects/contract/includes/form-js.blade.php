@@ -2375,6 +2375,7 @@
         $('.otherPaymentDate').val('');
         $('.payment_mode_div.cheque_no').find('input').val('');
         $('.receivableaddmore.date').find('input').val('');
+        $('.receivable_date').val('');
 
         calculateEndDate();
         calculateRoi();
