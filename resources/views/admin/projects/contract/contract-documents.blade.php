@@ -72,7 +72,8 @@
                                                 @foreach ($contractDocuments as $document)
                                                     <tr>
                                                         <td>{{ $loop->iteration + 1 }}</td>
-                                                        <td>{{ $document->document_type->label_name }}</td>
+                                                        <td>{{ $document->document_type->label_name }}
+                                                            {{ $document->signed_status == 2 ? '(Signed)' : '' }}</td>
                                                         <td>
                                                             @if ($document->signed_document_path)
                                                                 <a href="{{ asset('storage/' . $document->signed_document_path) }}"
