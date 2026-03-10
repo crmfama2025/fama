@@ -65,16 +65,16 @@ class UpdateContractRenewal extends Command
             // 45 => [289, 684],
             // 41 => [290, 685],
             // 46 => [291, 686],
-            38 => [301, 713],
-            48 => [302, 714],
-            49 => [303, 715],
-            42 => [304, 716],
-            47 => [305, 720],
-            50 => [306, 721],
-            51 => [308, 722],
-            52 => [309, 723],
-            55 => [311, 724],
-            53 => [310, 725],
+            // 38 => [301, 713],
+            // 48 => [302, 714],
+            // 49 => [303, 715],
+            // 42 => [304, 716],
+            // 47 => [305, 720],
+            // 50 => [306, 721],
+            // 51 => [308, 722],
+            // 52 => [309, 723],
+            // 55 => [311, 724],
+            // 53 => [310, 725],
             54 => [322, 771],
             56 => [323, 773],
             62 => [326, 781],
@@ -343,7 +343,7 @@ class UpdateContractRenewal extends Command
             ->get()
             ->keyBy('project_number');
         // dd($contracts);
-        foreach (array_slice($projectNumbers, 0, 10, true) as $key => $renewals) {
+        foreach (array_slice($projectNumbers, 0, 20, true) as $key => $renewals) {
             // dd($renewals);
             $parent = $contracts->get($key);
 
