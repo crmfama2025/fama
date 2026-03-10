@@ -116,15 +116,17 @@
                             <div class="d-flex justify-content-center row">
                                 <div class="col-10">
                                     <div class="card card-widget  shadow-sm">
-                                        <div class="bg-gradient-olive pl-4 py-2 widget-user-header row">
+                                        <div class="bg-gradient-olive pl-4 py-2 widget-user-header">
+                                            <div class="row">
+                                                <h5 class="mb-0 text-uppercase">Project -
+                                                    {{ $contract->project_number }}</h5>
 
-                                            <h5 class="mb-0 text-uppercase">Project -
-                                                {{ $contract->project_number }}</h5>
+                                                <span class="float-right text-bold ml-auto mr-4">
+                                                    <span class="badge bg-danger text-white p-2">
+                                                        {{ $contract->parent_contract_id > 0 ? 'Renewal' : 'New' }} </span>
+                                                </span>
+                                            </div>
 
-                                            <span class="float-right text-bold ml-auto mr-4">
-                                                <span class="badge bg-danger text-white p-2">
-                                                    {{ $contract->parent_contract_id > 0 ? 'Renewal' : 'New' }} </span>
-                                            </span>
                                         </div>
                                         <div class="card-footer p-0">
                                             <div class="row m-0">
