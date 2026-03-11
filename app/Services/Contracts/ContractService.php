@@ -361,8 +361,19 @@ class ContractService
                         $comment = '<i class="far fa-comments loadComments" data-id="' . $row->id . '"></i>'; //data-toggle="modal" data-target="#modal-hold-comment"
                     }
 
-                    $renewal = $row->parent_contract_id > 0 ? 'Renewal' : 'New';
-                    $badge = '<span class="' . contractStatusClass($row->contract_status) . '">' . contractStatusName($row->contract_status) . '</span> <p class="mb-0"><span class="badge bg-danger text-white">' . $renewal . '</span></p>';
+                    if ($row->renew_reject_status == 1) {
+                        $class = 'bg-danger';
+                        $text = 'Rejected Renewal';
+                    } else if ($row->parent_contract_id > 0) {
+                        $class = 'bg-warning';
+                        $text = 'Renewal';
+                    } else {
+                        $class = 'bg-info';
+                        $text = 'New';
+                    }
+
+                    $renewal =  '</span> <p class="mb-0"><span class="badge ' . $class . ' text-white">' . $text . '</span>';
+                    $badge = '<span class="' . contractStatusClass($row->contract_status) . '">' . contractStatusName($row->contract_status) . $renewal . '</p>';
 
                     return $badge . $comment ?? '-';
                 }

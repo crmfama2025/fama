@@ -209,7 +209,8 @@ class ContractRepository
                 ", ['%' . $filters['search'] . '%'])
                 ->orWhereRaw("
                     CASE
-                        WHEN parent_contract_id IS NOT NULL THEN 'Renewal'
+                        WHEN renew_reject_status = 1 THEN 'Rejected Renewal'
+                        WHEN parent_contract_id > 0 THEN 'Renewal'
                         ELSE 'New'
                     END LIKE ?
                 ", ['%' . $filters['search'] . '%'])
