@@ -301,7 +301,7 @@ class UpdateContractRenewal extends Command
             ->get()
             ->keyBy('project_number');
         // dd($contracts);
-        foreach (array_slice($projectNumbers, 0, 10, true) as $key => $renewals) {
+        foreach (array_slice($projectNumbers, 0, 30, true) as $key => $renewals) {
             // dd($renewals);
             $parent = $contracts->get($key);
 
