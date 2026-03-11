@@ -2224,13 +2224,18 @@
 
 
 
-                $('.rec_payment_amount').on('input change', function() {
-                    finalRecCal();
-                });
+                // $('.rec_payment_amount').on('input change', function() {
+                //     finalRecCal();
+                // });
 
             }
         }
     }
+
+
+    $(document).on('input change', '.rec_payment_amount', function() {
+        finalRecCal();
+    });
 
     $(document).on('change.datetimepicker', '#receivable_date0', function() {
         calculatePaymentDatesRec();
