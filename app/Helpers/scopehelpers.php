@@ -1175,12 +1175,14 @@ function renderRenewDetailsFF($sheet, $contract)
         ['Old Rental to Vendor', formatNumber($contract['parent']->contract_rentals?->rent_per_annum_payable)],
         ['Ref Deposit', formatNumber($contract['parent']->contract_rentals?->deposit)],
         ['Commission', formatNumber($contract['parent']->contract_rentals?->commission)],
+        ['Total Payments', formatNumber($contract['parent']->contract_rentals?->total_payment_to_vendor)],
         ['Profit Percentage', $contract['parent']->contract_rentals?->profit_percentage . '%'],
         ['Total Profit earned', formatNumber($contract['parent']->contract_rentals?->expected_profit)],
         ['Total Rental Received( ' . $contract['parent']->contract_rentals?->installment->installment_name . ' Installements)', formatNumber($contract['parent']->contract_rentals?->rent_receivable_per_annum)],
         ['Old Monthly Rental', formatNumber($contract['parent']->contract_rentals?->rent_receivable_per_month)],
         ['', ''],
-        ['New Rental to Vendor', formatNumber($contract['total_payment_to_vendor'])],
+        ['New Rental to Vendor', formatNumber($contract['total_contract_amount'])],
+        ['Total Payments to Vendor', formatNumber($contract['total_payment_to_vendor'])],
         ['Profit Percentage', $contract['profit_percentage'] . '%'],
         ['Total Profit earned', formatNumber($contract['expected_profit'])],
         ['Total Rental Receivables( ' . $contract['number_of_months'] . ' Installments)', $contract['total_rental']],
@@ -1198,7 +1200,7 @@ function renderRenewDetailsFF($sheet, $contract)
     $sheet->getStyle('G' . ($cellnumber + 1) . ':G' . $lastSummRow)->applyFromArray(FFScopeStyles::renewalCenterSummaryFF());
 
 
-    $sheet->getStyle('F' . ($cellnumber + 6) . ':G' . ($cellnumber + 6))->applyFromArray(FFScopeStyles::clearstyleFF());
-    $sheet->getStyle('F' . ($cellnumber + 5) . ':G' . ($cellnumber + 5))->applyFromArray(FFScopeStyles::renewColorChange());
-    $sheet->getStyle('F' . ($cellnumber + 11) . ':G' . ($cellnumber + 11))->applyFromArray(FFScopeStyles::renewColorChange());
+    $sheet->getStyle('F' . ($cellnumber + 9) . ':G' . ($cellnumber + 9))->applyFromArray(FFScopeStyles::clearstyleFF());
+    $sheet->getStyle('F' . ($cellnumber + 8) . ':G' . ($cellnumber + 8))->applyFromArray(FFScopeStyles::renewColorChange());
+    $sheet->getStyle('F' . ($cellnumber + 15) . ':G' . ($cellnumber + 15))->applyFromArray(FFScopeStyles::renewColorChange());
 }
