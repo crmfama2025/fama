@@ -1261,9 +1261,12 @@
                         checkIssView(i);
                     });
 
-                    $('#otherPaymentDate1').on('input change', function() {
-                        calculatePaymentDates();
-                    });
+                    // $('#otherPaymentDate1').on('input change', function() {
+                    // console.log('old', $(this));
+                    //     calculatePaymentDates();
+                    // });
+
+
 
                     $('#otherPaymentDate0').datetimepicker('date', moment($('#closingdate').find(
                             'input')
@@ -1290,6 +1293,10 @@
             // containerPayment.querySelectorAll('.payment_mode_div').forEach(attachEventsPayment);
         });
 
+        $(document).on('change.datetimepicker', '#otherPaymentDate1', function() {
+            console.log('new', $(this));
+            calculatePaymentDates();
+        });
 
     });
 
@@ -2211,9 +2218,11 @@
                     allowInputToggle: true
                 });
 
-                $('#receivable_date0').on('input change', function() {
-                    calculatePaymentDatesRec();
-                });
+                // $('#receivable_date0').on('input change', function() {
+                //     calculatePaymentDatesRec();
+                // });
+
+
 
                 $('.rec_payment_amount').on('input change', function() {
                     finalRecCal();
@@ -2222,6 +2231,10 @@
             }
         }
     }
+
+    $(document).on('change.datetimepicker', '#receivable_date0', function() {
+        calculatePaymentDatesRec();
+    });
 
     function calculateRoiFF() {
         $('#subunit_count_per_contract').val(calculateSubAccommodations().totSubValue);
@@ -2369,13 +2382,20 @@
         $('#deposit_perc').val('0');
         $('#deposit').val('0');
         $('#duration_months').val('12');
-        $('#closingdate').find('input').val('');
-        $('#startdate').find('input').val('');
-        $('#enddate').find('input').val('');
-        $('.otherPaymentDate').val('');
-        $('.payment_mode_div.cheque_no').find('input').val('');
-        $('.receivableaddmore.date').find('input').val('');
-        $('.receivable_date').val('');
+        $('#closingdate').closest('.date').datetimepicker('clear');
+        $('#startdate').closest('.date').datetimepicker('clear');
+        $('#enddate').closest('.date').datetimepicker('clear');
+        // $('.otherPaymentDate').val('');
+        $('.payment_mode_div').find('.cheque_no').val('');
+        // $('.receivable_date').datetimepicker('clear');
+
+        $('.otherPaymentDate').each(function() {
+            $(this).closest('.date').datetimepicker('clear');
+        });
+
+        $('.receivable_date').each(function() {
+            $(this).closest('.date').datetimepicker('clear');
+        });
 
         calculateEndDate();
         calculateRoi();
