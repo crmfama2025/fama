@@ -1172,7 +1172,9 @@ function renderRenewDetailsFF($sheet, $contract)
     ]);
 
     $summaryArr = [
-        ['Old Rental to Vendor', formatNumber($contract['parent']->contract_rentals?->total_payment_to_vendor)],
+        ['Old Rental to Vendor', formatNumber($contract['parent']->contract_rentals?->rent_per_annum_payable)],
+        ['Ref Deposit', formatNumber($contract['parent']->contract_rentals?->deposit)],
+        ['Commission', formatNumber($contract['parent']->contract_rentals?->commission)],
         ['Profit Percentage', $contract['parent']->contract_rentals?->profit_percentage . '%'],
         ['Total Profit earned', formatNumber($contract['parent']->contract_rentals?->expected_profit)],
         ['Total Rental Received( ' . $contract['parent']->contract_rentals?->installment->installment_name . ' Installements)', formatNumber($contract['parent']->contract_rentals?->rent_receivable_per_annum)],
