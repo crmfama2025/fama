@@ -1294,7 +1294,7 @@
         });
 
         $(document).on('change.datetimepicker', '#otherPaymentDate1', function() {
-            console.log('new', $(this));
+            // console.log('new', $(this));
             calculatePaymentDates();
         });
 
@@ -1765,6 +1765,11 @@
 
         if ($('#contract_type').val() != '2') return;
 
+        // if ({{ $renew }}) {
+        //     updateProfitRevenueForUnits();
+        // }
+
+
         // $('.rentPerUnitFF').show();
         // $('.receivable_maindiv').hide();
         // $('.rentPartition, .rentBedspace, .rentRoom, .rentFlat').hide();
@@ -1774,7 +1779,7 @@
         $('.unit_no').each(function() {
             no_of_units++;
         });
-
+        // console.log('rentPerUnitFamaFaateh');
         let unit_no = $('.unit_noFF').map(function() {
             return $(this).val();
         }).get();
@@ -1920,6 +1925,32 @@
                     containerPayment.appendChild(ffblock);
 
 
+                    // Calculate profit/revenue immediately for this new block
+                    (function(ffblock) {
+                        const unitBlock = $(ffblock);
+                        let unit_rent = $(this).parent().siblings().find('.unit_rent_per_annum').val() || 0;
+                        let unit_comm = parseFloat(unit_rent * ($('#commission_perc').val() / 100)) || 0;
+                        let unit_depo = parseFloat(unit_rent * ($('#deposit_perc').val() / 100)) || 0;
+                        let unit_payable = parseFloat(unit_rent) + parseFloat(unit_comm) + parseFloat(
+                            unit_depo);
+
+                        unitBlock.find('input[name="unit_detail[unit_amount_payable][]"]').val(
+                            unit_payable);
+                        unitBlock.find('input[name^="unit_commission"]').val(unit_comm);
+                        unitBlock.find('input[name^="unit_deposit"]').val(unit_depo);
+
+                        const profitPercInput = unitBlock.find('.unit_profit_perc');
+                        const profitInput = unitBlock.find('.unit_profit');
+                        const revenueInput = unitBlock.find('.unit_revenue');
+                        const profitPerc = parseFloat(profitPercInput.val()) || 0;
+                        const profit = (unit_payable * profitPerc) / 100;
+                        const revenue = unit_payable + profit;
+
+                        profitInput.val(profit.toFixed(2));
+                        revenueInput.val(revenue.toFixed(2));
+                    })(ffblock);
+
+
 
                     $('#unit_profit_perc' + i).on('input change', function() {
                         // console.log('unit profit change inside');
@@ -1941,22 +1972,65 @@
 
     function profitHiddenValues() {
         let i = 0;
-        $('.unit_no').each(function() {
+        // $('.unit_no').each(function() {
 
-            let unit_rent = $(this).parent().siblings().find('.unit_rent_per_annum').val();
-            let unit_type = $(this).parent().siblings().find('.unit_type').find(':selected').text();
-            let unit_comm = parseFloat(unit_rent * ($('#commission_perc').val() / 100));
-            let unit_depo = parseFloat(unit_rent * ($('#deposit_perc').val() / 100));
-            let unit_payable = parseFloat(unit_rent) + parseFloat(unit_comm) + parseFloat(unit_depo);
+        //     let unit_rent = $(this).parent().siblings().find('.unit_rent_per_annum').val();
+        //     let unit_type = $(this).parent().siblings().find('.unit_type').find(':selected').text();
+        //     let unit_comm = parseFloat(unit_rent * ($('#commission_perc').val() / 100));
+        //     let unit_depo = parseFloat(unit_rent * ($('#deposit_perc').val() / 100));
+        //     let unit_payable = parseFloat(unit_rent) + parseFloat(unit_comm) + parseFloat(unit_depo);
 
 
-            $('#unit_amount_payable' + i).val(unit_payable);
-            $('#unit_commission' + i).val(unit_comm);
-            $('#unit_deposit' + i).val(unit_depo);
+        //     $('#unit_amount_payable' + i).val(unit_payable);
+        //     $('#unit_commission' + i).val(unit_comm);
+        //     $('#unit_deposit' + i).val(unit_depo);
 
-            calculateRevenueUnit($('#unit_profit_perc' + i), unit_payable);
-            i++;
+        //     calculateRevenueUnit($('#unit_profit_perc' + i), unit_payable);
+        //     i++;
+        // });
+
+        // Loop over all profit blocks
+        $('.rentPerUnitFFaddmore').each(function(index) {
+            const profitBlock = $(this);
+
+            // Find the corresponding unit row by index
+            const unitRow = $('.unit_no').eq(index).closest('.apdi');
+            if (!unitRow.length) return;
+
+            // Get current values from the unit row
+            const unit_number = unitRow.find('.unit_no').val() || '';
+            let unit_rent = parseFloat(unitRow.find('.unit_rent_per_annum').val()) || 0;
+            let unit_comm = parseFloat(unit_rent * ($('#commission_perc').val() / 100)) || 0;
+            let unit_depo = parseFloat(unit_rent * ($('#deposit_perc').val() / 100)) || 0;
+            let unit_payable = unit_rent + unit_comm + unit_depo;
+
+            // Update unit number (readonly) in profit block
+            const unitNoInput = profitBlock.find('.unit_noFF');
+            unitNoInput.val(unit_number);
+
+            // Update hidden fields in profit block
+            profitBlock.find('input[name="unit_detail[unit_amount_payable][]"]').val(unit_payable);
+            profitBlock.find('input[name^="unit_commission"]').val(unit_comm);
+            profitBlock.find('input[name^="unit_deposit"]').val(unit_depo);
+
+            // Calculate profit & revenue
+            const profitPercInput = profitBlock.find('.unit_profit_perc');
+            const profitInput = profitBlock.find('.unit_profit');
+            const revenueInput = profitBlock.find('.unit_revenue');
+            const profitPerc = parseFloat(profitPercInput.val()) || 0;
+            const profit = (unit_payable * profitPerc) / 100;
+            const revenue = unit_payable + profit;
+
+            profitInput.val(profit.toFixed(2));
+            revenueInput.val(revenue.toFixed(2));
         });
+
+        // Trigger other calculations
+        calculateRoiFF();
+        valueTorentRec('change');
+        finalRecCal();
+        installmentChangeRec();
+
     }
 
 
@@ -2018,7 +2092,7 @@
             if (prevffBlocks.length > rec_inst) {
                 // console.log('if greater limit');
                 if (!existingBtn) {
-                    console.log('if exist');
+                    // console.log('if exist');
                     formGroup.insertAdjacentHTML('beforeend', `
                             <div class="col-sm-1 btndelete">
                                 <button type="button" class="btn btn-danger btn-block dlt-divRec btndetdRec" title="Delete" data-toggle="tooltip">
@@ -2026,7 +2100,7 @@
                                 </button>
                             </div>
                         `);
-                    console.log('delete');
+                    // console.log('delete');
                     $('.contractFormSubmit').attr('disabled', true);
 
                     // ✅ Attach delete event
@@ -2381,7 +2455,7 @@
     let isEdit = {{ $edit }};
     let isRenew = {{ $renew }};
     if (isRenew) {
-        $('#project_no').val('');
+        $('#project_no').val(null);
         $('#commission_perc').val('0');
         $('#commission').val('0');
         $('#deposit_perc').val('0');

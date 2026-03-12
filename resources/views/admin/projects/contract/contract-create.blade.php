@@ -369,7 +369,7 @@
                                                         <input type="number" class="form-control"
                                                             name="detail[grace_period]" id="exampleInputEmail1"
                                                             placeholder="Grace period"
-                                                            value="{{ old('grace_period', $contract->contract_detail->grace_period ?? 1) }}"
+                                                            value="{{ $renew == 1 ? 0 : old('grace_period', $contract->contract_detail->grace_period ?? 30) }}"
                                                             required>
                                                     </div>
                                                     <div class="col-md-4">
