@@ -130,6 +130,8 @@ class ContractRepository
                 'companies.company_name',
                 'contract_units.no_of_units',
                 'contract_units.business_type',
+                'contract_units.building_type',
+                'contract_units.floor_type',
                 'contract_rentals.roi_perc',
                 'contract_rentals.expected_profit',
                 // $statusText
@@ -170,12 +172,22 @@ class ContractRepository
                         ->orWhere('end_date', 'like', "%{$searchLike}%");
                 })
                 ->orWhereHas('contract_unit', function ($q) use ($filters) {
-                    $q->whereRaw("
-                    CASE
-                        WHEN business_type = 1 THEN 'B2B'
-                        WHEN business_type = 2 THEN 'B2C'
-                    END LIKE ?
-                ", ['%' . $filters['search'] . '%']);
+                    $search = strtolower($filters['search']);
+
+                    $q->where(function ($query) use ($search) {
+                        if (str_contains('b2b', $search)) {
+                            $query->orWhere('business_type', 1);
+                        }
+                        if (str_contains('b2c', $search)) {
+                            $query->orWhere('business_type', 2);
+                        }
+                        if (str_contains('full building', $search)) {
+                            $query->orWhere('building_type', 1);
+                        }
+                        if (str_contains('full floor', $search)) {
+                            $query->orWhere('floor_type', 1);
+                        }
+                    });
                 })
                 ->orWhereHas('contract_rentals', function ($q) use ($filters) {
                     $q->where('roi_perc', 'like', '%' . $filters['search'] . '%')

@@ -283,6 +283,7 @@ class ContractService
             ['data' => 'start_date', 'name' => 'start_date'],
             ['data' => 'end_date', 'name' => 'end_date'],
             ['data' => 'contract_status', 'name' => 'contract_status'],
+            ['data' => 'building_type', 'name' => 'building_type'],
             ['data' => 'action', 'name' => 'action', 'orderable' => true, 'searchable' => true],
         ];
 
@@ -346,6 +347,17 @@ class ContractService
                     $type = "-";
                 }
                 return "<strong class='text-uppercase'>{$type}</strong>";
+            })
+            ->addColumn('building_type', function ($row) {
+
+                if ($row->building_type == 1) {
+                    $type = "Full Building";
+                } else if ($row->floor_type == 1) {
+                    $type = "Full Floor";
+                } else {
+                    $type = "";
+                }
+                return "<span class='text-uppercase'>{$type}</span>";
             })
             ->addColumn('no_of_units', fn($row) => $row->contract_unit->no_of_units ?? '-')
             ->addColumn('roi_perc', fn($row) => $row->contract_rentals->roi_perc . '%' ?? '-')
@@ -469,7 +481,7 @@ class ContractService
                 return $action ?: '-';
             })
 
-            ->rawColumns(['project_number', 'action', 'status', 'business_type', 'indirect_project'])
+            ->rawColumns(['project_number', 'action', 'status', 'business_type', 'indirect_project', 'building_type'])
             ->with(['columns' => $columns])
             ->toJson();
     }

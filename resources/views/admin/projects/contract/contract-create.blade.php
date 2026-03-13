@@ -1096,7 +1096,9 @@
         $('#vc_vendor_id').on('change', function() {
             let vendorName = $(this).find('option:selected').text().trim();
 
-            $('#beneficiary').val(vendorName);
+            let result = vendorName.split('-')[1].trim();
+
+            $('#beneficiary').val(result);
         });
     </script>
     {{-- Indirect company filetr --}}
