@@ -1765,6 +1765,8 @@
 
         if ($('#contract_type').val() != '2') return;
 
+        profitHiddenValues();
+
         // if ({{ $renew }}) {
         //     updateProfitRevenueForUnits();
         // }
@@ -2003,7 +2005,7 @@
             let unit_comm = parseFloat(unit_rent * ($('#commission_perc').val() / 100)) || 0;
             let unit_depo = parseFloat(unit_rent * ($('#deposit_perc').val() / 100)) || 0;
             let unit_payable = unit_rent + unit_comm + unit_depo;
-
+            console.log('unit_number', unit_number);
             // Update unit number (readonly) in profit block
             const unitNoInput = profitBlock.find('.unit_noFF');
             unitNoInput.val(unit_number);
