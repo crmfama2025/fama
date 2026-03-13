@@ -98,7 +98,7 @@ class PayableClearRepository
         // ->join('companies', 'companies.id', '=', 'contracts.company_id')
         // ->join('contract_types', 'contract_types.id', '=', 'contracts.contract_type_id')
         $query->whereHas('contract', function ($q) use ($permittedCompanyIds) {
-            $q->where('contract_status', 7)
+            $q->where('contract_status', 6)
                 ->whereIn('company_id', $permittedCompanyIds);
         })
             ->where('paid_status', '!=', 1);
