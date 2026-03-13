@@ -151,8 +151,8 @@ class ContractRepository
             $search = trim($filters['search']);
             $searchLike = str_replace('-', '%', $search);
 
-            $query->orwhere('project_code', 'like', '%' . $filters['search'] . '%')
-                ->orWhere('project_number', 'like', '%' . $filters['search'] . '%')
+            $query->where('project_code', 'like', '%' . $filters['search'] . '%')
+                ->orWhereRaw("CONCAT('P-', project_number) LIKE ?", ['%' . $filters['search'] . '%'])
 
                 ->orWhereHas('company', function ($q) use ($filters) {
                     $q->where('company_name', 'like', '%' . $filters['search'] . '%');
@@ -172,21 +172,12 @@ class ContractRepository
                         ->orWhere('end_date', 'like', "%{$searchLike}%");
                 })
                 ->orWhereHas('contract_unit', function ($q) use ($filters) {
-                    $search = strtolower($filters['search']);
+                    $search = '%' . $filters['search'] . '%';
 
                     $q->where(function ($query) use ($search) {
-                        if (str_contains('b2b', $search)) {
-                            $query->orWhere('business_type', 1);
-                        }
-                        if (str_contains('b2c', $search)) {
-                            $query->orWhere('business_type', 2);
-                        }
-                        if (str_contains('full building', $search)) {
-                            $query->orWhere('building_type', 1);
-                        }
-                        if (str_contains('full floor', $search)) {
-                            $query->orWhere('floor_type', 1);
-                        }
+                        $query->whereRaw("IF(business_type = 1, 'B2B', IF(business_type = 2, 'B2C', '')) LIKE ?", [$search])
+                            ->orWhereRaw("IF(building_type = 1, 'Full Building', '') LIKE ?", [$search])
+                            ->orWhereRaw("IF(floor_type = 1, 'Full Floor', '') LIKE ?", [$search]);
                     });
                 })
                 ->orWhereHas('contract_rentals', function ($q) use ($filters) {
@@ -226,7 +217,7 @@ class ContractRepository
                         ELSE 'New'
                     END LIKE ?
                 ", ['%' . $filters['search'] . '%'])
-                ->orWhereRaw("CONCAT('P-', project_number) LIKE ?", ['%' . $filters['search'] . '%'])
+
                 ->orWhereRaw("CAST(contracts.id AS CHAR) LIKE ?", ['%' . $filters['search'] . '%']);
         }
 
