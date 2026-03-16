@@ -129,10 +129,12 @@ class DashboardService
 
         $wid_totalContracts = (clone $contracts)
             ->where('contract_renewal_status', 0)
+            ->where('renew_reject_status', 0)
+            ->whereNotIn('contract_status', [3, 9, 10])
             ->count();
 
         $wid_totalRenewals = (clone $contracts)
-            ->where('contract_renewal_status', 1)
+            ->where('parent_contract_id', '>', 0)
             ->count();
 
         $wid_totalInvestors = Investor::when($companyId, function ($q) use ($companyId) {
@@ -203,7 +205,10 @@ class DashboardService
     public function inventoryChart($companyId = null)
     {
 
-        $companiesQuery = Company::with(['contracts.contract_unit']);
+        $companiesQuery = Company::with(['contracts.contract_unit'])
+            ->whereHas('contracts', function ($query) {
+                $query->whereNotIn('contract_status', [3, 9, 10]);
+            });
         if ($companyId) {
             $companiesQuery->where('id', $companyId);
         }
@@ -229,6 +234,10 @@ class DashboardService
             $ffTotal = 0;
 
             foreach ($company->contracts as $contract) {
+                if (in_array($contract->contract_status, [3, 9, 10])) {
+                    continue;
+                }
+
                 $units = $contract->contract_unit->no_of_units ?? 0;
 
                 if ($contract->contract_type_id === 1) {

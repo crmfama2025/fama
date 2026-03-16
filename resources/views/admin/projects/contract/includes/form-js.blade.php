@@ -39,7 +39,11 @@
     });
 
     $(document).ready(function() {
-        $('.error-text-installment').hide();
+        if (!$('.contractFormSubmit').prop('disabled') && !$('.error-text-installment').is(':visible')) {
+            $('.error-text-installment').hide();
+        }
+
+        // console.log('insta hide');
 
         $('input[type="number"]').attr('min', 0);
     });
@@ -1257,9 +1261,12 @@
                         checkIssView(i);
                     });
 
-                    $('#otherPaymentDate1').on('input change', function() {
-                        calculatePaymentDates();
-                    });
+                    // $('#otherPaymentDate1').on('input change', function() {
+                    // console.log('old', $(this));
+                    //     calculatePaymentDates();
+                    // });
+
+
 
                     $('#otherPaymentDate0').datetimepicker('date', moment($('#closingdate').find(
                             'input')
@@ -1286,6 +1293,10 @@
             // containerPayment.querySelectorAll('.payment_mode_div').forEach(attachEventsPayment);
         });
 
+        $(document).on('change.datetimepicker', '#otherPaymentDate1', function() {
+            // console.log('new', $(this));
+            calculatePaymentDates();
+        });
 
     });
 
@@ -1296,7 +1307,7 @@
         let companyId = $('#vc_company_id').val();
 
         let optionBank = '<option value="">Select Bank</option>';
-        console.log('companyId', companyId);
+        // console.log('companyId', companyId);
 
 
         if (companyId) {
@@ -1611,7 +1622,7 @@
         if ($('.bedcheck:checked').length > 0) {
             $('.rentBedspace').show();
         }
-        console.log($('.roomcheck:checked'));
+        // console.log($('.roomcheck:checked'));
         if ($('.roomcheck:checked').length > 0) {
             $('.rentRoom').show();
         }
@@ -1659,7 +1670,7 @@
 
 
     function calculateRoi() {
-        console.log('calculate roi');
+        // console.log('calculate roi');
         let contract_type = '{{ $contract ? $contract->contract_type_id : '' }}';
         if (contract_type == '2') {
             calculateRoiFF();
@@ -1678,7 +1689,7 @@
             calculateFlatcount();
 
             $('#subunit_count_per_contract').val(calculateSubAccommodations().totSubValue);
-            console.log($('#subunit_count_per_contract').val());
+            // console.log($('#subunit_count_per_contract').val());
             let total_flats = totalflatcount * rentPerFlat;
 
             let total_rent_rec = customRound(total_part + total_bs + total_room + total_flats);
@@ -1754,6 +1765,13 @@
 
         if ($('#contract_type').val() != '2') return;
 
+        profitHiddenValues();
+
+        // if ({{ $renew }}) {
+        //     updateProfitRevenueForUnits();
+        // }
+
+
         // $('.rentPerUnitFF').show();
         // $('.receivable_maindiv').hide();
         // $('.rentPartition, .rentBedspace, .rentRoom, .rentFlat').hide();
@@ -1763,7 +1781,7 @@
         $('.unit_no').each(function() {
             no_of_units++;
         });
-
+        // console.log('rentPerUnitFamaFaateh');
         let unit_no = $('.unit_noFF').map(function() {
             return $(this).val();
         }).get();
@@ -1812,7 +1830,7 @@
                                         no_of_units) {
                                         remainingDeletes.forEach(div => div
                                             .remove());
-                                        console.log('after remove');
+                                        // console.log('after remove');
                                         $('.contractFormSubmit').prop('disabled', false);
                                     }
                                 } else {
@@ -1833,7 +1851,7 @@
                                 '.rentPerUnitFF')
                             .length <= no_of_units) {
                             remainingDeletes.forEach(div => div.remove());
-                            console.log('after remove else');
+                            // console.log('after remove else');
                             $('.contractFormSubmit').prop('disabled', false);
                         }
                     }
@@ -1909,6 +1927,32 @@
                     containerPayment.appendChild(ffblock);
 
 
+                    // Calculate profit/revenue immediately for this new block
+                    (function(ffblock) {
+                        const unitBlock = $(ffblock);
+                        let unit_rent = $(this).parent().siblings().find('.unit_rent_per_annum').val() || 0;
+                        let unit_comm = parseFloat(unit_rent * ($('#commission_perc').val() / 100)) || 0;
+                        let unit_depo = parseFloat(unit_rent * ($('#deposit_perc').val() / 100)) || 0;
+                        let unit_payable = parseFloat(unit_rent) + parseFloat(unit_comm) + parseFloat(
+                            unit_depo);
+
+                        unitBlock.find('input[name="unit_detail[unit_amount_payable][]"]').val(
+                            unit_payable);
+                        unitBlock.find('input[name^="unit_commission"]').val(unit_comm);
+                        unitBlock.find('input[name^="unit_deposit"]').val(unit_depo);
+
+                        const profitPercInput = unitBlock.find('.unit_profit_perc');
+                        const profitInput = unitBlock.find('.unit_profit');
+                        const revenueInput = unitBlock.find('.unit_revenue');
+                        const profitPerc = parseFloat(profitPercInput.val()) || 0;
+                        const profit = (unit_payable * profitPerc) / 100;
+                        const revenue = unit_payable + profit;
+
+                        profitInput.val(profit.toFixed(2));
+                        revenueInput.val(revenue.toFixed(2));
+                    })(ffblock);
+
+
 
                     $('#unit_profit_perc' + i).on('input change', function() {
                         // console.log('unit profit change inside');
@@ -1930,22 +1974,65 @@
 
     function profitHiddenValues() {
         let i = 0;
-        $('.unit_no').each(function() {
+        // $('.unit_no').each(function() {
 
-            let unit_rent = $(this).parent().siblings().find('.unit_rent_per_annum').val();
-            let unit_type = $(this).parent().siblings().find('.unit_type').find(':selected').text();
-            let unit_comm = parseFloat(unit_rent * ($('#commission_perc').val() / 100));
-            let unit_depo = parseFloat(unit_rent * ($('#deposit_perc').val() / 100));
-            let unit_payable = parseFloat(unit_rent) + parseFloat(unit_comm) + parseFloat(unit_depo);
+        //     let unit_rent = $(this).parent().siblings().find('.unit_rent_per_annum').val();
+        //     let unit_type = $(this).parent().siblings().find('.unit_type').find(':selected').text();
+        //     let unit_comm = parseFloat(unit_rent * ($('#commission_perc').val() / 100));
+        //     let unit_depo = parseFloat(unit_rent * ($('#deposit_perc').val() / 100));
+        //     let unit_payable = parseFloat(unit_rent) + parseFloat(unit_comm) + parseFloat(unit_depo);
 
 
-            $('#unit_amount_payable' + i).val(unit_payable);
-            $('#unit_commission' + i).val(unit_comm);
-            $('#unit_deposit' + i).val(unit_depo);
+        //     $('#unit_amount_payable' + i).val(unit_payable);
+        //     $('#unit_commission' + i).val(unit_comm);
+        //     $('#unit_deposit' + i).val(unit_depo);
 
-            calculateRevenueUnit($('#unit_profit_perc' + i), unit_payable);
-            i++;
+        //     calculateRevenueUnit($('#unit_profit_perc' + i), unit_payable);
+        //     i++;
+        // });
+
+        // Loop over all profit blocks
+        $('.rentPerUnitFFaddmore').each(function(index) {
+            const profitBlock = $(this);
+
+            // Find the corresponding unit row by index
+            const unitRow = $('.unit_no').eq(index).closest('.apdi');
+            if (!unitRow.length) return;
+
+            // Get current values from the unit row
+            const unit_number = unitRow.find('.unit_no').val() || '';
+            let unit_rent = parseFloat(unitRow.find('.unit_rent_per_annum').val()) || 0;
+            let unit_comm = parseFloat(unit_rent * ($('#commission_perc').val() / 100)) || 0;
+            let unit_depo = parseFloat(unit_rent * ($('#deposit_perc').val() / 100)) || 0;
+            let unit_payable = unit_rent + unit_comm + unit_depo;
+            console.log('unit_number', unit_number);
+            // Update unit number (readonly) in profit block
+            const unitNoInput = profitBlock.find('.unit_noFF');
+            unitNoInput.val(unit_number);
+
+            // Update hidden fields in profit block
+            profitBlock.find('input[name="unit_detail[unit_amount_payable][]"]').val(unit_payable);
+            profitBlock.find('input[name^="unit_commission"]').val(unit_comm);
+            profitBlock.find('input[name^="unit_deposit"]').val(unit_depo);
+
+            // Calculate profit & revenue
+            const profitPercInput = profitBlock.find('.unit_profit_perc');
+            const profitInput = profitBlock.find('.unit_profit');
+            const revenueInput = profitBlock.find('.unit_revenue');
+            const profitPerc = parseFloat(profitPercInput.val()) || 0;
+            const profit = (unit_payable * profitPerc) / 100;
+            const revenue = unit_payable + profit;
+
+            profitInput.val(profit.toFixed(2));
+            revenueInput.val(revenue.toFixed(2));
         });
+
+        // Trigger other calculations
+        calculateRoiFF();
+        valueTorentRec('change');
+        finalRecCal();
+        installmentChangeRec();
+
     }
 
 
@@ -1986,7 +2073,7 @@
     });
 
     function installmentChangeRec(ele) {
-        console.log('installment rec change');
+        // console.log('installment rec change');
         $('.receivable_maindiv').show();
 
         let rec_inst = $('#rent_installments').find(':selected').text();
@@ -2005,9 +2092,9 @@
 
             // ✅ Add delete button only if more blocks than rec_inst
             if (prevffBlocks.length > rec_inst) {
-                console.log('if greater limit');
+                // console.log('if greater limit');
                 if (!existingBtn) {
-                    console.log('if exist');
+                    // console.log('if exist');
                     formGroup.insertAdjacentHTML('beforeend', `
                             <div class="col-sm-1 btndelete">
                                 <button type="button" class="btn btn-danger btn-block dlt-divRec btndetdRec" title="Delete" data-toggle="tooltip">
@@ -2015,7 +2102,7 @@
                                 </button>
                             </div>
                         `);
-
+                    // console.log('delete');
                     $('.contractFormSubmit').attr('disabled', true);
 
                     // ✅ Attach delete event
@@ -2207,17 +2294,28 @@
                     allowInputToggle: true
                 });
 
-                $('#receivable_date0').on('input change', function() {
-                    calculatePaymentDatesRec();
-                });
+                // $('#receivable_date0').on('input change', function() {
+                //     calculatePaymentDatesRec();
+                // });
 
-                $('.rec_payment_amount').on('input change', function() {
-                    finalRecCal();
-                });
+
+
+                // $('.rec_payment_amount').on('input change', function() {
+                //     finalRecCal();
+                // });
 
             }
         }
     }
+
+
+    $(document).on('input change', '.rec_payment_amount', function() {
+        finalRecCal();
+    });
+
+    $(document).on('change.datetimepicker', '#receivable_date0', function() {
+        calculatePaymentDatesRec();
+    });
 
     function calculateRoiFF() {
         $('#subunit_count_per_contract').val(calculateSubAccommodations().totSubValue);
@@ -2254,7 +2352,7 @@
 
 
             $('#roi').val(Math.round(roi * 100));
-            $('#expected_profit').val(Math.round(expProfit));
+            $('#expected_profit').val(customRound(expProfit));
             $('#profit').val(customRound(profit * 100));
         }
 
@@ -2306,7 +2404,7 @@
 
 
     function valueTorentRec(action) {
-        console.log('value to rent rec');
+        // console.log('value to rent rec');
         let rent_per_flat = parseFloat($('#rent_per_flat').val()) || 0;
 
         let totRentperflat = 0;
@@ -2325,7 +2423,7 @@
     }
 
     function finalRecCal() {
-        console.log('final rec cal');
+        // console.log('final rec cal');
         let totPaymentRec = 0;
 
         $('.rec_payment_amount').each(function() {
@@ -2335,6 +2433,7 @@
         if ((totPaymentRec.toFixed(2) - $('.total_rental').val()) != 0) {
             $('.total_rental_inst').val(totPaymentRec.toFixed(2));
             $('.error-text-installment').show();
+            // console.log('val match');
             $('.contractFormSubmit').attr('disabled', true);
         } else {
             $('.error-text-installment').hide();
@@ -2358,18 +2457,26 @@
     let isEdit = {{ $edit }};
     let isRenew = {{ $renew }};
     if (isRenew) {
-        $('#project_no').val('');
+        $('#project_no').val(null);
         $('#commission_perc').val('0');
         $('#commission').val('0');
         $('#deposit_perc').val('0');
         $('#deposit').val('0');
         $('#duration_months').val('12');
-        $('#closingdate').find('input').val('');
-        $('#startdate').find('input').val('');
-        $('#enddate').find('input').val('');
-        $('.otherPaymentDate').val('');
-        $('.payment_mode_div.cheque_no').find('input').val('');
-        $('.receivableaddmore.date').find('input').val('');
+        $('#closingdate').closest('.date').datetimepicker('clear');
+        $('#startdate').closest('.date').datetimepicker('clear');
+        $('#enddate').closest('.date').datetimepicker('clear');
+        // $('.otherPaymentDate').val('');
+        $('.payment_mode_div').find('.cheque_no').val('');
+        // $('.receivable_date').datetimepicker('clear');
+
+        $('.otherPaymentDate').each(function() {
+            $(this).closest('.date').datetimepicker('clear');
+        });
+
+        $('.receivable_date').each(function() {
+            $(this).closest('.date').datetimepicker('clear');
+        });
 
         calculateEndDate();
         calculateRoi();
@@ -2381,7 +2488,7 @@
         $('#contract_type').on('select2:opening', function(e) {
             e.preventDefault();
         });
-        console.log($('#contract_type').prop('readonly'));
+        // console.log($('#contract_type').prop('readonly'));
         // $('#contract_type').trigger('change');
     }
 

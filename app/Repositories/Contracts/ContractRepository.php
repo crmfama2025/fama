@@ -130,6 +130,8 @@ class ContractRepository
                 'companies.company_name',
                 'contract_units.no_of_units',
                 'contract_units.business_type',
+                'contract_units.building_type',
+                'contract_units.floor_type',
                 'contract_rentals.roi_perc',
                 'contract_rentals.expected_profit',
                 // $statusText
@@ -149,8 +151,8 @@ class ContractRepository
             $search = trim($filters['search']);
             $searchLike = str_replace('-', '%', $search);
 
-            $query->orwhere('project_code', 'like', '%' . $filters['search'] . '%')
-                ->orWhere('project_number', 'like', '%' . $filters['search'] . '%')
+            $query->where('project_code', 'like', '%' . $filters['search'] . '%')
+                ->orWhereRaw("CONCAT('P-', project_number) LIKE ?", ['%' . $filters['search'] . '%'])
 
                 ->orWhereHas('company', function ($q) use ($filters) {
                     $q->where('company_name', 'like', '%' . $filters['search'] . '%');
@@ -170,12 +172,13 @@ class ContractRepository
                         ->orWhere('end_date', 'like', "%{$searchLike}%");
                 })
                 ->orWhereHas('contract_unit', function ($q) use ($filters) {
-                    $q->whereRaw("
-                    CASE
-                        WHEN business_type = 1 THEN 'B2B'
-                        WHEN business_type = 2 THEN 'B2C'
-                    END LIKE ?
-                ", ['%' . $filters['search'] . '%']);
+                    $search = '%' . $filters['search'] . '%';
+
+                    $q->where(function ($query) use ($search) {
+                        $query->whereRaw("IF(business_type = 1, 'B2B', IF(business_type = 2, 'B2C', '')) LIKE ?", [$search])
+                            ->orWhereRaw("IF(building_type = 1, 'Full Building', '') LIKE ?", [$search])
+                            ->orWhereRaw("IF(floor_type = 1, 'Full Floor', '') LIKE ?", [$search]);
+                    });
                 })
                 ->orWhereHas('contract_rentals', function ($q) use ($filters) {
                     $q->where('roi_perc', 'like', '%' . $filters['search'] . '%')
@@ -207,6 +210,14 @@ class ContractRepository
 
                     END LIKE ?
                 ", ['%' . $filters['search'] . '%'])
+                ->orWhereRaw("
+                    CASE
+                        WHEN renew_reject_status = 1 THEN 'Rejected Renewal'
+                        WHEN parent_contract_id > 0 THEN 'Renewal'
+                        ELSE 'New'
+                    END LIKE ?
+                ", ['%' . $filters['search'] . '%'])
+
                 ->orWhereRaw("CAST(contracts.id AS CHAR) LIKE ?", ['%' . $filters['search'] . '%']);
         }
 
@@ -274,6 +285,8 @@ class ContractRepository
             ->join('vendors', 'vendors.id', '=', 'contracts.vendor_id')
             ->join('companies', 'companies.id', '=', 'contracts.company_id')
             ->join('contract_types', 'contract_types.id', '=', 'contracts.contract_type_id')
+            ->leftJoin('contract_units', 'contract_units.contract_id', '=', 'contracts.id')
+            ->leftJoin('contract_rentals', 'contract_rentals.contract_id', '=', 'contracts.id')
             ->where('contract_renewal_status', '!=', '1')
             ->where('renew_reject_status', '=', '0')
             ->where('contract_status', '>=', '7')
@@ -281,24 +294,44 @@ class ContractRepository
                 $q->where('end_date', '<=', $twoMonthsLater);
             });
 
-
+        // dd($filters);
 
         if (!empty($filters['search'])) {
-            $query->orwhere('project_code', 'like', '%' . $filters['search'] . '%')
+
+            $search = trim($filters['search']);
+            $searchLike = str_replace('-', '%', $search);
+
+            $query->where('project_code', 'like', '%' . $filters['search'] . '%')
                 ->orWhere('project_number', 'like', '%' . $filters['search'] . '%')
 
                 ->orWhereHas('company', function ($q) use ($filters) {
                     $q->where('company_name', 'like', '%' . $filters['search'] . '%');
                 })
+                // ->orWhereHas('indirectCompany', function ($q) use ($filters) {
+                //     $q->where('company_name', 'like', '%' . $filters['search'] . '%');
+                // })
+                ->orWhereHas('vendor', function ($q) use ($filters) {
+                    $q->where('vendor_name', 'like', '%' . $filters['search'] . '%');
+                })
+                ->orWhereHas('contract_type', function ($q) use ($filters) {
+                    $q->where('contract_type', 'like', '%' . $filters['search'] . '%')
+                        ->orWhere('shortcode', 'like', '%' . $filters['search'] . '%');
+                })
+                // ->orWhereHas('contract_detail', function ($q) use ($filters, $searchLike) {
+                //     $q->where('start_date', 'like', "%{$searchLike}%")
+                //         ->orWhere('end_date', 'like', "%{$searchLike}%");
+                // })
+                ->orWhereHas('contract_unit', function ($q) use ($filters) {
+                    $q->whereRaw("
+                    CASE
+                        WHEN business_type = 1 THEN 'B2B'
+                        WHEN business_type = 2 THEN 'B2C'
+                    END LIKE ?
+                ", ['%' . $filters['search'] . '%']);
+                })
                 ->orWhereHas('contract_rentals', function ($q) use ($filters) {
                     $q->where('roi_perc', 'like', '%' . $filters['search'] . '%')
                         ->orWhere('expected_profit', 'like', '%' . $filters['search'] . '%');
-                })
-                ->orWhereHas('contract_unit', function ($q) use ($filters) {
-                    $q->where('no_of_units', 'like', '%' . $filters['search'] . '%');
-                })
-                ->orWhereHas('contract_type', function ($q) use ($filters) {
-                    $q->where('contract_type', 'like', '%' . $filters['search'] . '%');
                 })
                 ->orWhereHas('locality', function ($q) use ($filters) {
                     $q->where('locality_name', 'like', '%' . $filters['search'] . '%');
@@ -306,6 +339,33 @@ class ContractRepository
                 ->orWhereHas('property', function ($q) use ($filters) {
                     $q->where('property_name', 'like', '%' . $filters['search'] . '%');
                 })
+                // ->orWhereRaw("
+                //     CASE
+                //         WHEN contract_status = 0 THEN 'Pending'
+                //         WHEN contract_status = 1 THEN 'Processing'
+                //         WHEN contract_status = 2 THEN 'Approved'
+                //         WHEN contract_status = 3 THEN 'Rejected'
+                //         WHEN contract_status = 4 THEN 'Approval Pending'
+                //         WHEN contract_status = 5 THEN 'Approval on Hold'
+                //         WHEN contract_status = 6 THEN 'Partially Signed'
+                //         WHEN contract_status = 7 THEN 'Fully Signed'
+                //         WHEN contract_status = 8 THEN 'Expired'
+                //         WHEN contract_status = 9 THEN 'Terminated'
+                //     END LIKE ?
+                // ", ['%' . $filters['search'] . '%'])
+                // ->orWhereRaw("
+                //     CASE
+                //         WHEN indirect_status = 1 THEN 'indirect'
+
+                //     END LIKE ?
+                // ", ['%' . $filters['search'] . '%'])
+                // ->orWhereRaw("
+                //     CASE
+                //         WHEN parent_contract_id IS NOT NULL THEN 'Renewal'
+                //         ELSE 'New'
+                //     END LIKE ?
+                // ", ['%' . $filters['search'] . '%'])
+                ->orWhereRaw("CONCAT('P-', project_number) LIKE ?", ['%' . $filters['search'] . '%'])
                 ->orWhereRaw("CAST(contracts.id AS CHAR) LIKE ?", ['%' . $filters['search'] . '%']);
         }
 
@@ -314,7 +374,7 @@ class ContractRepository
             $query->Where('contracts.company_id', $filters['company_id']);
         }
 
-        // dd($query);
+        // dd($query->tosql());
 
         return $query;
     }

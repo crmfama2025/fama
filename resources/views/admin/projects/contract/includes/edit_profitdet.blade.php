@@ -15,7 +15,7 @@
 
         $unit_payable = $unitDetail->unit_amount_payable ?? toNumeric($unit_rent + $unitComm + $unitDepo);
     @endphp
-    <div class="rentPerUnitFFaddmore profitDeletecls{{ $unitkey }}">
+    <div class="rentPerUnitFFaddmore profitDeletecls{{ $unitkey }}" data-index="{{ $unitkey }}">
         <div class="form-group row">
             <div class="col-md-2">
                 <label for="exampleInputEmail1">Unit No</label>

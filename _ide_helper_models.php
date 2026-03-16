@@ -52,7 +52,7 @@ namespace App\Models{
  * @property int $is_visa_uploaded
  * @property int $is_signed_agreement_uploaded
  * @property int $is_trade_license_uploaded
- * @property int $agreement_status 0-Pending, 1-terminated
+ * @property int $agreement_status 0-Pending, 1-Processing, 2-Approved, 3-Rejected
  * @property string|null $terminated_date
  * @property string|null $terminated_reason
  * @property int|null $terminated_by
@@ -674,7 +674,7 @@ namespace App\Models{
  * @property int $property_id
  * @property int $is_vendor_contract_uploaded
  * @property int $is_scope_generated
- * @property int $contract_status 0-Pending, 1-Processing, 2-Approved, 3-Rejected, 4-Send for Approval, 5-Approval on Hold, 6-Sign Pending, 7- Signed, 8-Expired, 9-Terminated
+ * @property int $contract_status 0-Pending, 1-Processing, 2-Approved, 3-Rejected, 4-Send for Approval, 5-Approval on Hold, 6-Sign Pending, 7- Signed, 8-Expired, 9-Terminated, 10-Dropped
  * @property string|null $signed_at
  * @property int|null $signed_by
  * @property int $is_aknowledgement_uploaded
@@ -1434,6 +1434,7 @@ namespace App\Models{
  * @property string $contract_unit_code
  * @property int $contract_id
  * @property int $building_type 0-normal, 1-full building
+ * @property int $floor_type 0-normal, 1-full floor
  * @property int $business_type 1-b2b, 2-b2c
  * @property int $watchman_room
  * @property int $no_of_units
@@ -1467,6 +1468,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|ContractUnit whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractUnit whereDeletedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractUnit whereFloorNumbers($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ContractUnit whereFloorType($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractUnit whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractUnit whereNoOfFloors($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractUnit whereNoOfUnits($value)
@@ -1532,6 +1534,7 @@ namespace App\Models{
  * @property int $subunit_vacant_count
  * @property string $total_payment_received
  * @property string $total_payment_pending
+ * @property string $discount
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\AgreementUnit> $agreementUnits
  * @property-read int|null $agreement_units_count
  * @property-read \App\Models\Contract $contract
@@ -1554,6 +1557,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|ContractUnitDetail whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractUnitDetail whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractUnitDetail whereDeletedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ContractUnitDetail whereDiscount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractUnitDetail whereFbUnitCount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractUnitDetail whereFloorNo($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractUnitDetail whereId($value)
@@ -1942,8 +1946,6 @@ namespace App\Models{
  * @property int $investor_referror_id
  * @property string $referral_commission_perc
  * @property string $referral_commission_amount
- * @property string $referral_commission_released_amount
- * @property string $referral_commission_pending_amount
  * @property int $referral_commission_frequency_id
  * @property int $referral_commission_status 0-not released,1-released,2-partially released
  * @property string|null $last_referral_commission_released_date
@@ -1984,9 +1986,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentReferral wherePaymentTermsId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentReferral whereReferralCommissionAmount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentReferral whereReferralCommissionFrequencyId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvestmentReferral whereReferralCommissionPendingAmount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentReferral whereReferralCommissionPerc($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvestmentReferral whereReferralCommissionReleasedAmount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentReferral whereReferralCommissionStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentReferral whereTotalCommissionPending($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentReferral whereTotalCommissionReleased($value)
@@ -2182,33 +2182,9 @@ namespace App\Models{
 
 namespace App\Models{
 /**
- * @property int $id
- * @property int $message_setting_id
- * @property int $investor_id
- * @property int|null $investment_id
- * @property string $investor_mobile
- * @property string $investor_message_body
- * @property int $send_status
- * @property string $api_return
- * @property int $send_by
- * @property string $send_at
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorMessage newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorMessage newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorMessage query()
- * @method static \Illuminate\Database\Eloquent\Builder|InvestorMessage whereApiReturn($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvestorMessage whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvestorMessage whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvestorMessage whereInvestmentId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvestorMessage whereInvestorId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvestorMessage whereInvestorMessageBody($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvestorMessage whereInvestorMobile($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvestorMessage whereMessageSettingId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvestorMessage whereSendAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvestorMessage whereSendBy($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvestorMessage whereSendStatus($value)
- * @method static \Illuminate\Database\Eloquent\Builder|InvestorMessage whereUpdatedAt($value)
  */
 	class InvestorMessage extends \Eloquent {}
 }
@@ -2381,21 +2357,9 @@ namespace App\Models{
 
 namespace App\Models{
 /**
- * @property int $id
- * @property int $message_type 1-invitation, 2- profit release
- * @property string $message_body
- * @property int $status
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
  * @method static \Illuminate\Database\Eloquent\Builder|MessageSetting newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|MessageSetting newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|MessageSetting query()
- * @method static \Illuminate\Database\Eloquent\Builder|MessageSetting whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|MessageSetting whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|MessageSetting whereMessageBody($value)
- * @method static \Illuminate\Database\Eloquent\Builder|MessageSetting whereMessageType($value)
- * @method static \Illuminate\Database\Eloquent\Builder|MessageSetting whereStatus($value)
- * @method static \Illuminate\Database\Eloquent\Builder|MessageSetting whereUpdatedAt($value)
  */
 	class MessageSetting extends \Eloquent {}
 }

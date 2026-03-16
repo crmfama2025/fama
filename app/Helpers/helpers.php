@@ -406,7 +406,7 @@ function getAccommodationDetails($unitDetails)
 
 function formatNumber($number)
 {
-    return number_format(toNumeric($number), 2, '.', ',');
+    return $number ? number_format(toNumeric($number), 2, '.', ',') : '-';
 }
 function getOccupiedDetails($unitId)
 {

@@ -101,19 +101,20 @@
                                                 <th style="width: 1%">#</th>
                                                 <th style="width:112px;">Actions</th>
                                                 <th>Project</th>
-                                                <th>Business type</th>
+                                                <th>Business Type</th>
                                                 <th>Status</th>
                                                 <th>Company Name</th>
                                                 <th>Total Units</th>
                                                 <th>ROI %</th>
                                                 <th>Profit</th>
-                                                <th>Start date</th>
-                                                <th>End date</th>
+                                                <th>Start Date</th>
+                                                <th>End Date</th>
                                                 <th>Vendor Name</th>
                                                 <th>Property Name</th>
                                                 <th>Area</th>
                                                 <th>Locality</th>
                                                 <th>Indirect Details</th>
+                                                <th>Full Building / Full Floor</th>
 
                                             </tr>
                                         </thead>
@@ -520,6 +521,10 @@
                         data: 'indirect_project',
                         name: 'indirect_project',
 
+                    },
+                    {
+                        data: 'building_type',
+                        name: 'building_type',
                     },
 
 

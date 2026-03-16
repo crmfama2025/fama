@@ -97,6 +97,7 @@
 
                     // OTHER STEPS → NEXT
                     if (validateStep(stepIndex)) {
+                        console.log('validation pass', validateStep(stepIndex));
                         window.stepper.next();
                         console.log(window.stepper._currentIndex);
 
@@ -253,6 +254,9 @@
             field => {
                 if (field.offsetParent === null) return;
 
+                // if (isValid == false) return;
+
+                // console.log('value check validation', !field.value.trim());
                 if (!field.value.trim()) {
                     field.classList.add('is-invalid');
                     field.classList.remove('is-valid');
@@ -266,7 +270,7 @@
                     field.classList.remove('is-invalid');
                 }
             });
-
+        // console.log('isValid after foreach', isValid);
         // ✅ Contact number validation (manual trigger)
         var contactInput = stepContainer.querySelector('#contact_no');
 
@@ -291,13 +295,16 @@
                 } else {
                     contactInput.classList.add('is-valid');
                     contactInput.classList.remove('is-invalid');
-                    isValid = true;
+                    if (isValid != false) {
+                        isValid = true;
+                    }
                     message = '';
                 }
             }
         }
 
 
+        // console.log('isValid after contact', isValid);
 
         // Validate Select2 fields
         $(stepContainer).find('[required]select.select2').each(function() {
@@ -321,10 +328,10 @@
                 container.addClass('is-valid').removeClass('is-invalid');
             }
         });
-
+        // console.log('isValid after select2', isValid);
         // Validate iCheck radios
         // if (!validateRadios(stepContainer)) isValid = false;
-
+        // console.log('isValid', isValid);
         return {
             isValid: isValid,
             message: message

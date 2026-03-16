@@ -274,7 +274,7 @@ class ContractService
         $columns = [
             ['data' => 'DT_RowIndex', 'name' => 'id'],
             ['data' => 'project_number', 'name' => 'project_number'],
-            ['data' => 'indirect_project', 'name' => 'project_number'],
+            ['data' => 'indirect_project', 'name' => 'indirect_project'],
             ['data' => 'business_type', 'name' => 'business_type'],
             ['data' => 'company_name', 'name' => 'company_name'],
             ['data' => 'no_of_units', 'name' => 'no_of_units'],
@@ -283,6 +283,7 @@ class ContractService
             ['data' => 'start_date', 'name' => 'start_date'],
             ['data' => 'end_date', 'name' => 'end_date'],
             ['data' => 'contract_status', 'name' => 'contract_status'],
+            ['data' => 'building_type', 'name' => 'building_type'],
             ['data' => 'action', 'name' => 'action', 'orderable' => true, 'searchable' => true],
         ];
 
@@ -296,10 +297,12 @@ class ContractService
                 // Indirect badge ONLY if indirect_contract_id != 0
                 $indirectHtml = '';
                 if ((int) $row->indirect_contract_id !== 0) {
+
+                    $indirectCompany = $row->indirectCompany->company_short_code;
                     $indirectHtml = "
 
                 <span class='badge badge-danger' title='Indirect'>
-                Indirect
+                Indirect - {$indirectCompany}
                 </span>
            ";
                 }
@@ -317,6 +320,7 @@ class ContractService
                 }
 
                 return "<strong>{$number}</strong>
+                <p class='mb-0'><small style='color: grey;font-weight: bold;'>{$row->project_code}</small></p>
             <p class='mb-0'>
                 <span class='{$badgeClass}'>{$type}</span>
             </p>
@@ -344,6 +348,17 @@ class ContractService
                 }
                 return "<strong class='text-uppercase'>{$type}</strong>";
             })
+            ->addColumn('building_type', function ($row) {
+
+                if ($row->building_type == 1) {
+                    $type = "Full Building";
+                } else if ($row->floor_type == 1) {
+                    $type = "Full Floor";
+                } else {
+                    $type = "";
+                }
+                return "<span class='text-uppercase'>{$type}</span>";
+            })
             ->addColumn('no_of_units', fn($row) => $row->contract_unit->no_of_units ?? '-')
             ->addColumn('roi_perc', fn($row) => $row->contract_rentals->roi_perc . '%' ?? '-')
             ->addColumn('expected_profit', fn($row) => $row->contract_rentals->expected_profit ?? '-')
@@ -357,7 +372,22 @@ class ContractService
                     if ($row->contract_status == 5) {
                         $comment = '<i class="far fa-comments loadComments" data-id="' . $row->id . '"></i>'; //data-toggle="modal" data-target="#modal-hold-comment"
                     }
-                    return '<span class="' . contractStatusClass($row->contract_status) . '">' . contractStatusName($row->contract_status) . '</span> ' . $comment ?? '-';
+
+                    if ($row->renew_reject_status == 1) {
+                        $class = 'bg-danger';
+                        $text = 'Rejected Renewal';
+                    } else if ($row->parent_contract_id > 0) {
+                        $class = 'bg-warning';
+                        $text = 'Renewal';
+                    } else {
+                        $class = 'bg-info';
+                        $text = 'New';
+                    }
+
+                    $renewal =  '</span> <p class="mb-0"><span class="badge ' . $class . ' text-white">' . $text . '</span>';
+                    $badge = '<span class="' . contractStatusClass($row->contract_status) . '">' . contractStatusName($row->contract_status) . $renewal . '</p>';
+
+                    return $badge . $comment ?? '-';
                 }
             )
             ->addColumn('action', function ($row) {
@@ -441,7 +471,7 @@ class ContractService
                         </a>';   //href="' . route('sign.contract', $row->id) . '"
                 }
 
-                if ($row->contract_status == 7) {
+                if (auth()->user()->hasAnyPermission(['contract.terminate'], $row->company_id) && $row->contract_status == 7) {
                     $action .= '<a class="btn btn-danger btn-sm"  title="Terminate" data-toggle="modal" data-id="' . $row->id . '"
                                         data-target="#modal-terminate-contract">
                             <i class="fas fa-window-close"></i>
@@ -451,7 +481,7 @@ class ContractService
                 return $action ?: '-';
             })
 
-            ->rawColumns(['project_number', 'action', 'status', 'business_type', 'indirect_project'])
+            ->rawColumns(['project_number', 'action', 'status', 'business_type', 'indirect_project', 'building_type'])
             ->with(['columns' => $columns])
             ->toJson();
     }
@@ -577,7 +607,7 @@ class ContractService
 
         if ($data['status'] == '2') {
             $dataArr['approved_by'] = auth()->user()->id;
-            $dataArr['approved_date'] = Carbon::now();;
+            $dataArr['approved_date'] = Carbon::now();
         } else {
             $dataArr['rejected_reason'] = $data['reason'];
             $dataArr['rejected_date'] = Carbon::now();

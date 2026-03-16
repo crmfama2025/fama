@@ -28,6 +28,7 @@ class ContractUnit extends Model
         'unit_property_type',
         'no_of_floors',
         'floor_numbers',
+        'floor_type'
     ];
 
     public function contract()

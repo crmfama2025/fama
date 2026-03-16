@@ -76,15 +76,6 @@
                                         </a><br>
                                         <span>{{ strtoupper($contract->area->area_name) }}</span>,
                                         <span>{{ strtoupper($contract->locality->locality_name) }}</span></br>
-                                        <span>{{ $contract->contract_detail->start_date }}</span>
-                                        -
-                                        <span>{{ $contract->contract_detail->end_date }}</span><br>
-
-                                        <span>{{ strtoupper($contract->contract_unit->unit_type_count) }}</span>
-                                        @if ($contract->contract_unit->watchman_room == 1)
-                                            -
-                                            <span>{{ $contract->contract_unit->watchman_room == 1 ? 'Watchman Room' : '' }}</span>
-                                        @endif
 
                                         </br>
                                     </address>
@@ -121,6 +112,119 @@
                                 </div>
                             </div>
                             <!-- /.row -->
+
+                            <div class="d-flex justify-content-center row">
+                                <div class="col-10">
+                                    <div class="card card-widget  shadow-sm">
+                                        <div class="bg-gradient-olive pl-4 py-2 widget-user-header">
+                                            <div class="row">
+                                                <h5 class="mb-0 text-uppercase">Project -
+                                                    {{ $contract->project_number }}</h5>
+
+                                                <span class="float-right text-bold ml-auto mr-4">
+                                                    <span class="badge bg-danger text-white p-2">
+                                                        {{ $contract->parent_contract_id > 0 ? 'Renewal' : 'New' }} </span>
+                                                </span>
+                                            </div>
+
+                                        </div>
+                                        <div class="card-footer p-0">
+                                            <div class="row m-0">
+                                                <ul class="nav flex-column col-6">
+                                                    <li class="nav-item">
+                                                        <div class="nav-link">
+                                                            Project code
+                                                            <span
+                                                                class="float-right text-bold">{{ $contract->project_code }}</span>
+                                                        </div>
+                                                    </li>
+                                                    <li class="nav-item">
+                                                        <div class="nav-link">
+                                                            Start Date
+                                                            <span
+                                                                class="float-right text-bold">{{ $contract->contract_detail->start_date }}</span>
+                                                        </div>
+                                                    </li>
+
+                                                    <li class="nav-item">
+                                                        <div class="nav-link">
+                                                            No Of Units
+                                                            <span
+                                                                class="float-right text-bold">{{ $contract->contract_unit->no_of_units }}</span>
+                                                        </div>
+                                                    </li>
+
+
+                                                    @if ($contract->contract_unit->building_type == 1)
+                                                        <li class="nav-item">
+                                                            <div class="nav-link">
+                                                                Building type
+                                                                <span class="float-right text-bold">Full Building</span>
+                                                            </div>
+                                                        </li>
+                                                    @endif
+
+                                                    @if ($contract->contract_unit->watchman_room == 1)
+                                                        <li class="nav-item">
+                                                            <div class="nav-link">
+                                                                Watchman Room
+                                                                <span class="float-right text-bold">Yes</span>
+                                                            </div>
+                                                        </li>
+                                                    @endif
+                                                </ul>
+                                                <ul class="nav flex-column col-6"
+                                                    style="border-left: 1px solid rgba(0, 0, 0, 0.125)">
+                                                    <li class="nav-item">
+                                                        <div class="nav-link">
+                                                            Status
+                                                            <span class="float-right text-bold">
+                                                                <span
+                                                                    class="{{ contractStatusClass($contract->contract_status) }}">{{ contractStatusName($contract->contract_status) }}</span>
+                                                            </span>
+                                                        </div>
+                                                    </li>
+
+                                                    <li class="nav-item">
+                                                        <div class="nav-link">
+                                                            End Date
+                                                            <span
+                                                                class="float-right text-bold">{{ $contract->contract_detail->end_date }}</span>
+                                                        </div>
+                                                    </li>
+
+                                                    <li class="nav-item">
+                                                        <div class="nav-link">
+                                                            Unit Type
+                                                            <span
+                                                                class="float-right text-bold">{{ $contract->contract_unit->unit_type_count }}</span>
+                                                        </div>
+                                                    </li>
+
+                                                    @if ($contract->contract_unit->floor_type == 1)
+                                                        <li class="nav-item">
+                                                            <div class="nav-link">
+                                                                Floor type
+                                                                <span class="float-right text-bold">Full Floor</span>
+                                                            </div>
+                                                        </li>
+                                                    @endif
+
+                                                    @if ($contract->contract_unit->watchman_room == 1)
+                                                        <li class="nav-item">
+                                                            <div class="nav-link">
+                                                                Watchman Room
+                                                                <span class="float-right text-bold">Yes</span>
+                                                            </div>
+                                                        </li>
+                                                    @endif
+                                                </ul>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
                             <!-- Table row -->
                             <div class="row card">
