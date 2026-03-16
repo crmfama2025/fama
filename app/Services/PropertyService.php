@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Exports\PropertyExport;
 use App\Imports\PropertyImport;
+use App\Models\Contract;
 use App\Repositories\PropertyRepository;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Support\Facades\DB;
@@ -373,5 +374,9 @@ class PropertyService
         }
 
         return $retId;
+    }
+    public function getProperties()
+    {
+        return $this->propertyRepository->getProperties();
     }
 }

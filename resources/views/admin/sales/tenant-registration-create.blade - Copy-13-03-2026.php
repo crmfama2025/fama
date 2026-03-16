@@ -1126,11 +1126,11 @@
                                         style="display:none;">
                                         <div class="form-group mb-0">
                                             <label style="font-size:13px; font-weight:600; color:#495057;">
-                                                <i class="fas fa-building mr-1 text-muted"></i> Select B2B Tenant
+                                                <i class="fas fa-building mr-1 text-muted"></i> Select Company
                                             </label>
                                             <select id="existingCustomerSelect" class="form-control select2"
                                                 onchange="onExistingCustomerSelected(this)" style="width:100%;">
-                                                <option value="">— Search or select a tenant —</option>
+                                                <option value="">— Search or select a company —</option>
                                                 {{-- Options populated via JS / Ajax --}}
                                             </select>
                                         </div>
@@ -1373,7 +1373,7 @@
                                     <div class="d-flex align-items-center gap-3 mb-3 p-3 bg-light rounded border">
                                         <i class="fas fa-users text-muted"></i>
                                         <label class="mb-0 font-weight-600" style="font-size:14px;font-weight:600;">
-                                            Number of Owners
+                                            Number of Owners / Authorised Signatories
                                         </label>
                                         <select id="ownerCountSelect" name="no_of_owners" class="form-control"
                                             style="width:90px;" onchange="buildOwnerDocBlocks()">
@@ -1482,171 +1482,11 @@
                                 </div>
 
                                 {{-- B2C Documents --}}
-                                {{-- <div id="b2cDocSection" style="display:none;">
+                                <div id="b2cDocSection" style="display:none;">
                                     <div id="docRowsB2C"></div>
                                     <button type="button" class="btn-add-doc" onclick="addDocRowB2C()">
                                         <i class="fas fa-plus"></i> Add Another Document
                                     </button>
-                                </div> --}}
-                                {{-- B2C Documents --}}
-                                <div id="b2cDocSection" style="display:none;">
-
-                                    {{-- ── Emirates ID Row ── --}}
-                                    <div class="doc-row" id="docRowEID">
-                                        <div class="doc-row-header">
-                                            <span class="doc-row-title">Emirates ID</span>
-                                        </div>
-                                        @php
-                                            $eidDoc = isset($existingB2CDocs)
-                                                ? collect($existingB2CDocs)->firstWhere('type', 2)
-                                                : null;
-                                        @endphp
-                                        <input type="hidden" name="docsB2C[1][id]" id="b2cDocId_1"
-                                            value="{{ $eidDoc['id'] ?? '' }}">
-                                        <input type="hidden" name="docsB2C[1][type]" value="2">
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label>Document Number</label>
-                                                    <input type="text" name="docsB2C[1][number]" id="b2cDocNumber_1"
-                                                        class="form-control" placeholder="784-XXXX-XXXXXXX-X"
-                                                        value="{{ $eidDoc['number'] ?? '' }}">
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label>Upload Emirates ID <small class="text-muted">(JPG, PNG,
-                                                            PDF)</small></label>
-                                                    <div class="file-upload-wrap">
-                                                        <input type="file" name="docsB2C[1][file]"
-                                                            accept="image/*,.pdf"
-                                                            onchange="onFileChange(this,'b2cDocFace_1','b2cDocLabel_1')">
-                                                        <div class="file-upload-face" id="b2cDocFace_1">
-                                                            <i class="fas fa-upload"></i>
-                                                            <span id="b2cDocLabel_1">Click to upload or drag &amp;
-                                                                drop</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label>Issued Date</label>
-                                                    <div class="input-group date" id="b2cIssued_1"
-                                                        data-target-input="nearest">
-                                                        <input type="text" class="form-control datetimepicker-input"
-                                                            name="docsB2C[1][issued_date]" data-target="#b2cIssued_1"
-                                                            placeholder="DD-MM-YYYY"
-                                                            value="{{ $eidDoc['issued_date'] ?? '' }}">
-                                                        <div class="input-group-append" data-target="#b2cIssued_1"
-                                                            data-toggle="datetimepicker">
-                                                            <div class="input-group-text"><i class="fa fa-calendar"></i>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label>Expiry Date</label>
-                                                    <div class="input-group date" id="b2cExpiry_1"
-                                                        data-target-input="nearest">
-                                                        <input type="text" class="form-control datetimepicker-input"
-                                                            name="docsB2C[1][expiry_date]" id="b2cDocExpiry_1"
-                                                            data-target="#b2cExpiry_1" placeholder="DD-MM-YYYY"
-                                                            onchange="checkExpiry('b2cDocExpiry_1','b2cDocWarn_1')"
-                                                            value="{{ $eidDoc['expiry_date'] ?? '' }}">
-                                                        <div class="input-group-append" data-target="#b2cExpiry_1"
-                                                            data-toggle="datetimepicker">
-                                                            <div class="input-group-text"><i class="fa fa-calendar"></i>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <span class="expiry-warn" id="b2cDocWarn_1"></span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {{-- ── Passport Row (Required) ── --}}
-                                    <div class="doc-row" id="docRowPassport">
-                                        <div class="doc-row-header">
-                                            <span class="doc-row-title">Passport <span
-                                                    class="badge-mandatory">Required</span></span>
-                                        </div>
-                                        @php
-                                            $passportDoc = isset($existingB2CDocs)
-                                                ? collect($existingB2CDocs)->firstWhere('type', 1)
-                                                : null;
-                                        @endphp
-                                        {{-- @dump($existingB2CDocs); --}}
-                                        <input type="hidden" name="docsB2C[2][id]" id="b2cDocId_2"
-                                            value="{{ $passportDoc['id'] ?? '' }}">
-                                        <input type="hidden" name="docsB2C[2][type]" value="1">
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label>Passport Number <span class="text-danger">*</span></label>
-                                                    <input type="text" name="docsB2C[2][number]" id="b2cDocNumber_2"
-                                                        class="form-control" placeholder="e.g. A12345678"
-                                                        value="{{ $passportDoc['number'] ?? '' }}">
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label>Upload Passport <span class="text-danger">*</span>
-                                                        <small class="text-muted">(JPG, PNG, PDF)</small></label>
-                                                    <div class="file-upload-wrap">
-                                                        <input type="file" name="docsB2C[2][file]" id="docFile_2"
-                                                            accept="image/*,.pdf"
-                                                            onchange="onFileChange(this,'b2cDocFace_2','b2cDocLabel_2')">
-                                                        <div class="file-upload-face" id="b2cDocFace_2">
-                                                            <i class="fas fa-upload"></i>
-                                                            <span id="b2cDocLabel_2">Click to upload or drag &amp;
-                                                                drop</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label>Issued Date</label>
-                                                    <div class="input-group date" id="b2cIssued_2"
-                                                        data-target-input="nearest">
-                                                        <input type="text" class="form-control datetimepicker-input"
-                                                            name="docsB2C[2][issued_date]" data-target="#b2cIssued_2"
-                                                            placeholder="DD-MM-YYYY" id="b2cDocissued_2"
-                                                            value="{{ $passportDoc['issued_date'] ?? '' }}">
-                                                        <div class="input-group-append" data-target="#b2cIssued_2"
-                                                            data-toggle="datetimepicker">
-                                                            <div class="input-group-text"><i class="fa fa-calendar"></i>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label>Expiry Date <span class="text-danger">*</span></label>
-                                                    <div class="input-group date" id="b2cExpiry_2"
-                                                        data-target-input="nearest">
-                                                        <input type="text" class="form-control datetimepicker-input"
-                                                            name="docsB2C[2][expiry_date]" id="b2cDocExpiry_2"
-                                                            data-target="#b2cExpiry_2" placeholder="DD-MM-YYYY"
-                                                            onchange="checkExpiry('b2cDocExpiry_2','b2cDocWarn_2')"
-                                                            value="{{ $passportDoc['expiry_date'] ?? '' }}">
-                                                        <div class="input-group-append" data-target="#b2cExpiry_2"
-                                                            data-toggle="datetimepicker">
-                                                            <div class="input-group-text"><i class="fa fa-calendar"></i>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <span class="expiry-warn" id="b2cDocWarn_2"></span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
                                 </div>
                             </div>
 
@@ -1819,40 +1659,6 @@
         $('#tradeLicenseExpiryDate').datetimepicker({
             format: 'DD-MM-YYYY'
         });
-        $('#b2cIssued_1').datetimepicker({
-            format: 'DD-MM-YYYY'
-        });
-        $('#b2cExpiry_1').datetimepicker({
-            format: 'DD-MM-YYYY'
-        });
-        $('#b2cIssued_2').datetimepicker({
-            format: 'DD-MM-YYYY'
-        });
-        $('#b2cExpiry_2').datetimepicker({
-            format: 'DD-MM-YYYY'
-        });
-        // Pre-fill uploaded file indicators for existing B2C docs
-        @if (isset($existingB2CDocs) && count($existingB2CDocs))
-            @foreach ($existingB2CDocs as $doc)
-                @php $idx = $doc['type'] == 2 ? 1 : 2; @endphp
-                @if (!empty($doc['view_url']))
-                    (function() {
-                        const face = document.getElementById('b2cDocFace_{{ $idx }}');
-                        const label = document.getElementById('b2cDocLabel_{{ $idx }}');
-                        if (face) {
-                            face.classList.add('has-file');
-                            face.style.backgroundImage = "url('{{ $doc['view_url'] }}')";
-                            face.style.backgroundSize = 'contain';
-                            face.style.backgroundRepeat = 'no-repeat';
-                            face.style.backgroundPosition = 'center';
-                        }
-                        if (label) label.textContent = '✓ Previously uploaded';
-                    })();
-                @endif
-            @endforeach
-            checkExpiry('b2cDocExpiry_1', 'b2cDocWarn_1');
-            checkExpiry('b2cDocExpiry_2', 'b2cDocWarn_2');
-        @endif
         // // ── Listen to datetimepicker change events ──
         // $('#tradeLicenseIssuedDate').on('change.datetimepicker', function() {
         //     checkExpiry('trade_license_issued', 'tlExpiryWarn');
@@ -1866,13 +1672,6 @@
         const existingOwnerDocsJson = @json($existingOwnerDocsJson ?? []);
         console.log('owner', ownerDocs);
         const b2cDocs = @json($existingB2CDocs ?? []);
-        const agreement = @json($agreement ?? []);
-        if (agreement) {
-            $('#makaniNumber').on('select2:opening select2:selecting', function(e) {
-                // alert("test");
-                e.preventDefault();
-            });
-        }
         @if (isset($agreement) && $agreement->business_type == 2)
             @php
                 $firstUnit = $agreement->agreementUnits->first();
@@ -1887,12 +1686,6 @@
                 subunit_number: "{{ $firstUnit->contractSubunitDetail->subunit_no ?? '' }}",
             };
             // console.log($firstUnit);
-            // $(document).ready(function() {
-            // $('#makaniNumber').on('select2:opening select2:selecting', function(e) {
-            //     alert("test");
-            //     e.preventDefault();
-            // });
-            // });
         @else
             let editData = null;
         @endif
@@ -2250,19 +2043,6 @@
             if (isB2C) {
                 document.getElementById('endDate').value = '';
                 document.getElementById('durationPill').style.display = 'none';
-
-                // ── B2C doc fields: add required ──
-                document.getElementById('b2cDocNumber_2').required = true;
-                document.getElementById('b2cDocExpiry_2').required = true;
-                document.getElementById('b2cDocissued_2').required = true;
-
-                // document.getElementById('docFile_2').required = true;
-
-            } else {
-                // ── B2C doc fields: remove required when switching away ──
-                document.getElementById('b2cDocNumber_2').required = false;
-                document.getElementById('b2cDocExpiry_2').required = false;
-                document.getElementById('b2cDocissued_2').required = false;
             }
 
             // Init docs
@@ -2270,22 +2050,22 @@
                 document.getElementById('ownerDocBlocks').innerHTML = '';
                 buildOwnerDocBlocks();
             }
-            // if (isB2C) {
-            //     document.getElementById('docRowsB2C').innerHTML = '';
-            //     docCountB2C = 0;
+            if (isB2C) {
+                document.getElementById('docRowsB2C').innerHTML = '';
+                docCountB2C = 0;
 
-            //     const docs = (typeof b2cDocs !== 'undefined' && b2cDocs && b2cDocs.length > 0) ?
-            //         b2cDocs : [null];
+                const docs = (typeof b2cDocs !== 'undefined' && b2cDocs && b2cDocs.length > 0) ?
+                    b2cDocs : [null];
 
-            //     docs.forEach(doc => addDocRowB2C(doc));
+                docs.forEach(doc => addDocRowB2C(doc));
 
-            // Always render Emirates ID and Passport rows
-            // const emiratesDoc = b2cDocs?.find(d => d.type == 2) ?? null;
-            // const passportDoc = b2cDocs?.find(d => d.type == 1) ?? null;
+                // Always render Emirates ID and Passport rows
+                // const emiratesDoc = b2cDocs?.find(d => d.type == 2) ?? null;
+                // const passportDoc = b2cDocs?.find(d => d.type == 1) ?? null;
 
-            // addDocRowB2C(emiratesDoc, 'Emirates ID', 2);
-            // addDocRowB2C(passportDoc, 'Passport', 1);
-            // }
+                // addDocRowB2C(emiratesDoc, 'Emirates ID', 2);
+                // addDocRowB2C(passportDoc, 'Passport', 1);
+            }
             if (isB2B) {
                 document.getElementById('endDate').required = true;
             } else {
@@ -2430,22 +2210,22 @@
                         ></td>
                     <td>${hasMulti
                         ? `<button type="button" class="btn-subunit" id="subBtn_${rowIdx}" onclick="toggleExpandRow(${rowIdx})">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <i class="fas fa-chevron-down" id="subBtnIcon_${rowIdx}"></i> Subunit Rents
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </button>`
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <i class="fas fa-chevron-down" id="subBtnIcon_${rowIdx}"></i> Subunit Rents
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </button>`
                         : '<span class="text-muted small">—</span>'}
                     </td>
                      <td>
                         ${isEdit
                             ? `<button type="button"
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                class="btn-delete-unit"
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                id="delBtn_${rowIdx}"
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                data-row="${rowIdx}"
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                data-unit-db-id=""
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                data-agreement-id="${agreementId}"
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                onclick="deleteAgreementUnit(this)"
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                style="display:none;">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <i class="fas fa-trash-alt"></i>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </button>`
+                                                                                                                                                                                                                                                                                                                                                                                                                                                        class="btn-delete-unit"
+                                                                                                                                                                                                                                                                                                                                                                                                                                                        id="delBtn_${rowIdx}"
+                                                                                                                                                                                                                                                                                                                                                                                                                                                        data-row="${rowIdx}"
+                                                                                                                                                                                                                                                                                                                                                                                                                                                        data-unit-db-id=""
+                                                                                                                                                                                                                                                                                                                                                                                                                                                        data-agreement-id="${agreementId}"
+                                                                                                                                                                                                                                                                                                                                                                                                                                                        onclick="deleteAgreementUnit(this)"
+                                                                                                                                                                                                                                                                                                                                                                                                                                                        style="display:none;">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="fas fa-trash-alt"></i>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                    </button>`
                             : '—'}
                     </td>`;
                         tbody.appendChild(tr);
@@ -2513,383 +2293,179 @@
         }
 
         // ─── Owner doc blocks ─────────────────────────────────────────────────────
-        // function buildOwnerDocBlocks() {
-        //     const count = parseInt(document.getElementById('ownerCountSelect').value) || 1;
-        //     const container = document.getElementById('ownerDocBlocks');
-        //     container.innerHTML = '';
-        //     for (let i = 1; i <= count; i++) {
-        //         const block = document.createElement('div');
-        //         block.className = 'owner-block';
-        //         block.innerHTML = `
-    //             <div class="owner-block-title">
-    //                 <span class="owner-num-badge">${i}</span>
-    //                 Owner ${i} Documents
-    //                 // <span class="badge-mandatory">Mandatory</span>
-    //             </div>
-    //             <div class="row">
-    //                 <div class="col-md-6">
-    //                     <div class="form-group">
-    //                         <label>Emirates ID Number</label>
-    //                         <input type="hidden" name="owners[${i}][2][id]" id="eidDocId_${i}" value="">
-    //                         <input type="text" name="owners[${i}][2][emirates_id]"
-    //                             class="form-control emirates-id" placeholder="784-XXXX-XXXXXXX-X" required>
-    //                     </div>
-    //                 </div>
-    //                 <div class="col-md-6">
-    //                     <div class="form-group">
-    //                         <label>Emirates ID Upload </label>
-    //                         <div class="file-upload-wrap">
-    //                             <input type="file" name="owners[${i}][2][emirates_file]" accept="image/*,.pdf"
-    //                                 onchange="onFileChange(this,'eidFace_${i}','eidLabel_${i}')">
-    //                             <div class="file-upload-face" id="eidFace_${i}">
-    //                                 <i class="fas fa-upload"></i>
-    //                                 <span id="eidLabel_${i}">Click to upload or drag &amp; drop</span>
-    //                             </div>
-    //                         </div>
-    //                     </div>
-    //                 </div>
-
-    //                 <!-- Emirates Issued -->
-    //                 <div class="col-md-6">
-    //                     <div class="form-group">
-    //                         <label>Emirates ID Issued Date</label>
-    //                         <div class="input-group date" id="emiratesIssued_${i}" data-target-input="nearest">
-    //                             <input type="text" class="form-control datetimepicker-input"
-    //                                 name="owners[${i}][2][emirates_issued]"
-    //                                 data-target="#emiratesIssued_${i}" placeholder="DD-MM-YYYY">
-    //                             <div class="input-group-append" data-target="#emiratesIssued_${i}" data-toggle="datetimepicker">
-    //                                 <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-    //                             </div>
-    //                         </div>
-    //                     </div>
-    //                 </div>
-
-    //                 <!-- Emirates Expiry -->
-    //                 <div class="col-md-6">
-    //                     <div class="form-group">
-    //                         <label>Emirates ID Expiry Date</label>
-    //                         <div class="input-group date" id="emiratesExpiry_${i}" data-target-input="nearest">
-    //                             <input type="text" class="form-control datetimepicker-input"
-    //                                 name="owners[${i}][2][emirates_expiry]"
-    //                                 id="eidExpiry_${i}"
-    //                                 data-target="#emiratesExpiry_${i}" placeholder="DD-MM-YYYY"
-    //                                 onchange="checkExpiry('eidExpiry_${i}','eidWarn_${i}')">
-    //                             <div class="input-group-append" data-target="#emiratesExpiry_${i}" data-toggle="datetimepicker">
-    //                                 <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-    //                             </div>
-    //                         </div>
-    //                         <span class="expiry-warn" id="eidWarn_${i}"></span>
-    //                     </div>
-    //                 </div>
-
-    //                 <div class="col-md-12"><hr class="my-2"></div>
-
-    //                 <div class="col-md-6">
-    //                     <div class="form-group">
-    //                         <label>Passport Number </label>
-    //                         <input type="hidden" name="owners[${i}][1][id]" id="ppDocId_${i}" value="">
-    //                         <input type="text" name="owners[${i}][1][passport_number]"
-    //                             class="form-control passport-number" placeholder="e.g. A12345678">
-    //                     </div>
-    //                 </div>
-    //                 <div class="col-md-6">
-    //                     <div class="form-group">
-    //                         <label>Passport Upload </label>
-    //                         <div class="file-upload-wrap">
-    //                             <input type="file" name="owners[${i}][1][passport_file]" accept="image/*,.pdf"
-    //                                 onchange="onFileChange(this,'ppFace_${i}','ppLabel_${i}')">
-    //                             <div class="file-upload-face" id="ppFace_${i}">
-    //                                 <i class="fas fa-upload"></i>
-    //                                 <span id="ppLabel_${i}">Click to upload or drag &amp; drop</span>
-    //                             </div>
-    //                         </div>
-    //                     </div>
-    //                 </div>
-
-    //                 <!-- Passport Issued -->
-    //                 <div class="col-md-6">
-    //                     <div class="form-group">
-    //                         <label>Passport Issued Date</label>
-    //                         <div class="input-group date" id="passportIssued_${i}" data-target-input="nearest">
-    //                             <input type="text" class="form-control datetimepicker-input"
-    //                                 name="owners[${i}][1][passport_issued]"
-    //                                 data-target="#passportIssued_${i}" placeholder="DD-MM-YYYY">
-    //                             <div class="input-group-append" data-target="#passportIssued_${i}" data-toggle="datetimepicker">
-    //                                 <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-    //                             </div>
-    //                         </div>
-    //                     </div>
-    //                 </div>
-
-    //                 <!-- Passport Expiry -->
-    //                 <div class="col-md-6">
-    //                     <div class="form-group">
-    //                         <label>Passport Expiry Date</label>
-    //                         <div class="input-group date" id="passportExpiry_${i}" data-target-input="nearest">
-    //                             <input type="text" class="form-control datetimepicker-input"
-    //                                 name="owners[${i}][1][passport_expiry]"
-    //                                 id="ppExpiry_${i}"
-    //                                 data-target="#passportExpiry_${i}" placeholder="DD-MM-YYYY"
-    //                                 onchange="checkExpiry('ppExpiry_${i}','ppWarn_${i}')">
-    //                             <div class="input-group-append" data-target="#passportExpiry_${i}" data-toggle="datetimepicker">
-    //                                 <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-    //                             </div>
-    //                         </div>
-    //                         <span class="expiry-warn" id="ppWarn_${i}"></span>
-    //                     </div>
-    //                 </div>
-
-    //             </div>`;
-
-        //         container.appendChild(block);
-
-        //         // ── Init date pickers after DOM is ready ──
-        //         initOwnerDatePickers(i);
-        //         // ── Pre-fill existing owner documents if any ──
-        //         console.log("testdrdrdtrd", existingOwnerDocsJson);
-        //         if (existingOwnerDocsJson[i]) {
-        //             existingOwnerDocsJson[i].forEach(doc => {
-        //                 console.log("doc", doc);
-        //                 const type = doc.document_type; // 1=Passport, 2=Emirates ID
-
-        //                 const docIdInput = document.getElementById(type === 2 ? `eidDocId_${i}` : `ppDocId_${i}`);
-        //                 if (docIdInput) docIdInput.value = doc.id ?? '';
-
-        //                 // Set document number
-        //                 const numberInput = document.querySelector(
-        //                     `input[name="owners[${i}][${type}][${type===2?'emirates_id':'passport_number'}]"]`);
-        //                 if (numberInput) numberInput.value = doc.document_number;
-
-        //                 // Set issued date
-        //                 const issuedInput = document.querySelector(
-        //                     `input[name="owners[${i}][${type}][${type===2?'emirates_issued':'passport_issued'}]"]`
-        //                 );
-        //                 if (issuedInput) issuedInput.value = doc.issued_date;
-
-        //                 // Set expiry date
-        //                 const expiryInput = document.getElementById(`${type===2?'eidExpiry':'ppExpiry'}_${i}`);
-        //                 if (expiryInput) {
-        //                     expiryInput.value = doc.expiry_date;
-        //                     checkExpiry(expiryInput.id, type === 2 ? `eidWarn_${i}` : `ppWarn_${i}`);
-        //                 }
-
-        //                 // Show file label as uploaded
-        //                 const fileLabel = document.getElementById(`${type===2?'eidLabel':'ppLabel'}_${i}`);
-        //                 if (fileLabel) fileLabel.textContent = 'File uploaded';
-
-        //                 // Optionally: show file thumbnail
-        //                 const fileFace = document.getElementById(`${type===2?'eidFace':'ppFace'}_${i}`);
-        //                 if (fileFace && doc.view_url) {
-        //                     fileFace.style.backgroundImage = `url('${doc.view_url}')`;
-        //                     fileFace.style.backgroundSize = 'contain';
-        //                     fileFace.style.backgroundRepeat = 'no-repeat';
-        //                     fileFace.style.backgroundPosition = 'center';
-        //                 }
-        //             });
-        //         }
-        //     }
-        // }
-        let existingOwnerKeys = [];
-
         function buildOwnerDocBlocks() {
             const count = parseInt(document.getElementById('ownerCountSelect').value) || 1;
             const container = document.getElementById('ownerDocBlocks');
             container.innerHTML = '';
-
-            // ── Build owner slots (same logic as generateOwners in page 2) ──
-            let ownerSlots = [];
-            console.log("b2bdocsJson", existingOwnerDocsJson);
-            existingOwnerKeys = Object.keys(existingOwnerDocsJson).map(Number); // [2, 3] etc.
-            let existingCount = existingOwnerKeys.length;
-
-            if (existingOwnerKeys.length > 0) {
-                if (count < existingCount) {
-                    // keep all owners visible when reducing
-                    ownerSlots = existingOwnerKeys;
-                } else {
-                    ownerSlots = existingOwnerKeys.slice(0, count);
-
-                    if (count > existingOwnerKeys.length) {
-                        let maxKey = Math.max(...existingOwnerKeys);
-                        for (let j = 1; j <= count - existingOwnerKeys.length; j++) {
-                            ownerSlots.push(maxKey + j);
-                        }
-                    }
-                }
-            } else {
-                // CREATE MODE: just use 1, 2, 3...
-                for (let j = 1; j <= count; j++) {
-                    ownerSlots.push(j);
-                }
-            }
-
-            ownerSlots.forEach(function(ownerIndex, displayIndex) {
-                const displayNumber = displayIndex + 1;
-                const ownerDocList = existingOwnerDocsJson[ownerIndex] || [];
-
-                // Find passport (type 1) and emirates (type 2) from the flat array
-                const emiratesDoc = ownerDocList.find(d => d.document_type === 2) || {};
-                const passportDoc = ownerDocList.find(d => d.document_type === 1) || {};
-
+            for (let i = 1; i <= count; i++) {
                 const block = document.createElement('div');
                 block.className = 'owner-block';
-                block.id = `owner_${ownerIndex}`;
                 block.innerHTML = `
-                    <div class="owner-block-title">
-                        <span class="owner-num-badge">${displayNumber}</span>
-                        Owner ${displayNumber} Documents
+                <div class="owner-block-title">
+                    <span class="owner-num-badge">${i}</span>
+                    Owner ${i} Documents
+                    <span class="badge-mandatory">Mandatory</span>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Emirates ID Number <span class="text-danger">*</span></label>
+                            <input type="hidden" name="owners[${i}][2][id]" id="eidDocId_${i}" value="">
+                            <input type="text" name="owners[${i}][2][emirates_id]"
+                                class="form-control emirates-id" placeholder="784-XXXX-XXXXXXX-X">
+                        </div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Emirates ID Number</label>
-                                <input type="hidden" name="owners[${ownerIndex}][2][id]" id="eidDocId_${ownerIndex}" value="${emiratesDoc.doc_id ?? ''}">
-                                <input type="text" name="owners[${ownerIndex}][2][emirates_id]"
-                                    class="form-control emirates-id" placeholder="784-XXXX-XXXXXXX-X"
-                                    value="${emiratesDoc.document_number ?? ''}">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Emirates ID Upload</label>
-                                <div class="file-upload-wrap">
-                                    <input type="file" name="owners[${ownerIndex}][2][emirates_file]" accept="image/*,.pdf"
-                                        onchange="onFileChange(this,'eidFace_${ownerIndex}','eidLabel_${ownerIndex}')">
-                                    <div class="file-upload-face ${emiratesDoc.view_url ? 'has-file' : ''}" id="eidFace_${ownerIndex}"
-                                        ${emiratesDoc.view_url ? `style="background-image:url('${emiratesDoc.view_url}');background-size:contain;background-repeat:no-repeat;background-position:center;"` : ''}>
-                                        <i class="fas fa-upload"></i>
-                                        <span id="eidLabel_${ownerIndex}">${emiratesDoc.view_url ? 'File uploaded' : 'Click to upload or drag &amp; drop'}</span>
-                                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Emirates ID Upload <span class="text-danger">*</span></label>
+                            <div class="file-upload-wrap">
+                                <input type="file" name="owners[${i}][2][emirates_file]" accept="image/*,.pdf"
+                                    onchange="onFileChange(this,'eidFace_${i}','eidLabel_${i}')">
+                                <div class="file-upload-face" id="eidFace_${i}">
+                                    <i class="fas fa-upload"></i>
+                                    <span id="eidLabel_${i}">Click to upload or drag &amp; drop</span>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Emirates ID Issued Date</label>
-                                <div class="input-group date" id="emiratesIssued_${ownerIndex}" data-target-input="nearest">
-                                    <input type="text" class="form-control datetimepicker-input"
-                                        name="owners[${ownerIndex}][2][emirates_issued]"
-                                        data-target="#emiratesIssued_${ownerIndex}" placeholder="DD-MM-YYYY"
-                                        value="${emiratesDoc.issued_date ?? ''}">
-                                    <div class="input-group-append" data-target="#emiratesIssued_${ownerIndex}" data-toggle="datetimepicker">
-                                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                                    </div>
+                    <!-- Emirates Issued -->
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Emirates ID Issued Date</label>
+                            <div class="input-group date" id="emiratesIssued_${i}" data-target-input="nearest">
+                                <input type="text" class="form-control datetimepicker-input"
+                                    name="owners[${i}][2][emirates_issued]"
+                                    data-target="#emiratesIssued_${i}" placeholder="DD-MM-YYYY">
+                                <div class="input-group-append" data-target="#emiratesIssued_${i}" data-toggle="datetimepicker">
+                                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Emirates ID Expiry Date</label>
-                                <div class="input-group date" id="emiratesExpiry_${ownerIndex}" data-target-input="nearest">
-                                    <input type="text" class="form-control datetimepicker-input"
-                                        name="owners[${ownerIndex}][2][emirates_expiry]"
-                                        id="eidExpiry_${ownerIndex}"
-                                        data-target="#emiratesExpiry_${ownerIndex}" placeholder="DD-MM-YYYY"
-                                        onchange="checkExpiry('eidExpiry_${ownerIndex}','eidWarn_${ownerIndex}')"
-                                        value="${emiratesDoc.expiry_date ?? ''}">
-                                    <div class="input-group-append" data-target="#emiratesExpiry_${ownerIndex}" data-toggle="datetimepicker">
-                                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                                    </div>
+                    <!-- Emirates Expiry -->
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Emirates ID Expiry Date</label>
+                            <div class="input-group date" id="emiratesExpiry_${i}" data-target-input="nearest">
+                                <input type="text" class="form-control datetimepicker-input"
+                                    name="owners[${i}][2][emirates_expiry]"
+                                    id="eidExpiry_${i}"
+                                    data-target="#emiratesExpiry_${i}" placeholder="DD-MM-YYYY"
+                                    onchange="checkExpiry('eidExpiry_${i}','eidWarn_${i}')">
+                                <div class="input-group-append" data-target="#emiratesExpiry_${i}" data-toggle="datetimepicker">
+                                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                                 </div>
-                                <span class="expiry-warn" id="eidWarn_${ownerIndex}"></span>
                             </div>
+                            <span class="expiry-warn" id="eidWarn_${i}"></span>
                         </div>
+                    </div>
 
-                        <div class="col-md-12"><hr class="my-2"></div>
+                    <div class="col-md-12"><hr class="my-2"></div>
 
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Passport Number</label>
-                                <input type="hidden" name="owners[${ownerIndex}][1][id]" id="ppDocId_${ownerIndex}" value="${passportDoc.doc_id ?? ''}">
-                                <input type="text" name="owners[${ownerIndex}][1][passport_number]"
-                                    class="form-control passport-number" placeholder="e.g. A12345678"
-                                    value="${passportDoc.document_number ?? ''}">
-                            </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Passport Number <span class="text-danger">*</span></label>
+                            <input type="hidden" name="owners[${i}][1][id]" id="ppDocId_${i}" value="">
+                            <input type="text" name="owners[${i}][1][passport_number]"
+                                class="form-control passport-number" placeholder="e.g. A12345678">
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Passport Upload</label>
-                                <div class="file-upload-wrap">
-                                    <input type="file" name="owners[${ownerIndex}][1][passport_file]" accept="image/*,.pdf"
-                                        onchange="onFileChange(this,'ppFace_${ownerIndex}','ppLabel_${ownerIndex}')">
-                                    <div class="file-upload-face ${passportDoc.view_url ? 'has-file' : ''}" id="ppFace_${ownerIndex}"
-                                        ${passportDoc.view_url ? `style="background-image:url('${passportDoc.view_url}');background-size:contain;background-repeat:no-repeat;background-position:center;"` : ''}>
-                                        <i class="fas fa-upload"></i>
-                                        <span id="ppLabel_${ownerIndex}">${passportDoc.view_url ? 'File uploaded' : 'Click to upload or drag &amp; drop'}</span>
-                                    </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Passport Upload <span class="text-danger">*</span></label>
+                            <div class="file-upload-wrap">
+                                <input type="file" name="owners[${i}][1][passport_file]" accept="image/*,.pdf"
+                                    onchange="onFileChange(this,'ppFace_${i}','ppLabel_${i}')">
+                                <div class="file-upload-face" id="ppFace_${i}">
+                                    <i class="fas fa-upload"></i>
+                                    <span id="ppLabel_${i}">Click to upload or drag &amp; drop</span>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Passport Issued Date</label>
-                                <div class="input-group date" id="passportIssued_${ownerIndex}" data-target-input="nearest">
-                                    <input type="text" class="form-control datetimepicker-input"
-                                        name="owners[${ownerIndex}][1][passport_issued]"
-                                        data-target="#passportIssued_${ownerIndex}" placeholder="DD-MM-YYYY"
-                                        value="${passportDoc.issued_date ?? ''}">
-                                    <div class="input-group-append" data-target="#passportIssued_${ownerIndex}" data-toggle="datetimepicker">
-                                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                                    </div>
+                    <!-- Passport Issued -->
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Passport Issued Date</label>
+                            <div class="input-group date" id="passportIssued_${i}" data-target-input="nearest">
+                                <input type="text" class="form-control datetimepicker-input"
+                                    name="owners[${i}][1][passport_issued]"
+                                    data-target="#passportIssued_${i}" placeholder="DD-MM-YYYY">
+                                <div class="input-group-append" data-target="#passportIssued_${i}" data-toggle="datetimepicker">
+                                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Passport Expiry Date</label>
-                                <div class="input-group date" id="passportExpiry_${ownerIndex}" data-target-input="nearest">
-                                    <input type="text" class="form-control datetimepicker-input"
-                                        name="owners[${ownerIndex}][1][passport_expiry]"
-                                        id="ppExpiry_${ownerIndex}"
-                                        data-target="#passportExpiry_${ownerIndex}" placeholder="DD-MM-YYYY"
-                                        onchange="checkExpiry('ppExpiry_${ownerIndex}','ppWarn_${ownerIndex}')"
-                                        value="${passportDoc.expiry_date ?? ''}">
-                                    <div class="input-group-append" data-target="#passportExpiry_${ownerIndex}" data-toggle="datetimepicker">
-                                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                                    </div>
+                    <!-- Passport Expiry -->
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Passport Expiry Date</label>
+                            <div class="input-group date" id="passportExpiry_${i}" data-target-input="nearest">
+                                <input type="text" class="form-control datetimepicker-input"
+                                    name="owners[${i}][1][passport_expiry]"
+                                    id="ppExpiry_${i}"
+                                    data-target="#passportExpiry_${i}" placeholder="DD-MM-YYYY"
+                                    onchange="checkExpiry('ppExpiry_${i}','ppWarn_${i}')">
+                                <div class="input-group-append" data-target="#passportExpiry_${i}" data-toggle="datetimepicker">
+                                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                                 </div>
-                                <span class="expiry-warn" id="ppWarn_${ownerIndex}"></span>
                             </div>
+                            <span class="expiry-warn" id="ppWarn_${i}"></span>
                         </div>
-                    </div>`;
+                    </div>
+
+                </div>`;
 
                 container.appendChild(block);
-                if (existingOwnerKeys.length > 0 && count < existingCount) {
-                    const tenantId = document.getElementById('agreement_tenant_id').value;
 
-                    const removeBtn = document.createElement('button');
-                    removeBtn.type = 'button';
-                    removeBtn.dataset.owner = ownerIndex;
-                    removeBtn.dataset.tenantId = tenantId;
-                    removeBtn.className = 'btn btn-outline-danger btn-sm remove-owner-btn mt-2';
-                    removeBtn.innerText = 'Remove Owner';
+                // ── Init date pickers after DOM is ready ──
+                initOwnerDatePickers(i);
+                // ── Pre-fill existing owner documents if any ──
+                if (existingOwnerDocsJson[i]) {
+                    existingOwnerDocsJson[i].forEach(doc => {
+                        const type = doc.document_type; // 1=Passport, 2=Emirates ID
 
-                    // removeBtn.onclick = function() {
+                        const docIdInput = document.getElementById(type === 2 ? `eidDocId_${i}` : `ppDocId_${i}`);
+                        if (docIdInput) docIdInput.value = doc.id ?? '';
 
-                    //     block.remove();
+                        // Set document number
+                        const numberInput = document.querySelector(
+                            `input[name="owners[${i}][${type}][${type===2?'emirates_id':'passport_number'}]"]`);
+                        if (numberInput) numberInput.value = doc.document_number;
 
-                    //     const remaining = document.querySelectorAll('#ownerDocBlocks .owner-block').length;
+                        // Set issued date
+                        const issuedInput = document.querySelector(
+                            `input[name="owners[${i}][${type}][${type===2?'emirates_issued':'passport_issued'}]"]`
+                        );
+                        if (issuedInput) issuedInput.value = doc.issued_date;
 
-                    //     if (remaining === count) {
-                    //         document.querySelectorAll('.remove-owner-btn').forEach(btn => btn.remove());
-                    //     }
+                        // Set expiry date
+                        const expiryInput = document.getElementById(`${type===2?'eidExpiry':'ppExpiry'}_${i}`);
+                        if (expiryInput) {
+                            expiryInput.value = doc.expiry_date;
+                            checkExpiry(expiryInput.id, type === 2 ? `eidWarn_${i}` : `ppWarn_${i}`);
+                        }
 
-                    // };
+                        // Show file label as uploaded
+                        const fileLabel = document.getElementById(`${type===2?'eidLabel':'ppLabel'}_${i}`);
+                        if (fileLabel) fileLabel.textContent = 'File uploaded';
 
-                    block.appendChild(removeBtn);
+                        // Optionally: show file thumbnail
+                        const fileFace = document.getElementById(`${type===2?'eidFace':'ppFace'}_${i}`);
+                        if (fileFace && doc.view_url) {
+                            fileFace.style.backgroundImage = `url('${doc.view_url}')`;
+                            fileFace.style.backgroundSize = 'contain';
+                            fileFace.style.backgroundRepeat = 'no-repeat';
+                            fileFace.style.backgroundPosition = 'center';
+                        }
+                    });
                 }
-
-                // ── Init date pickers ──
-                initOwnerDatePickers(ownerIndex);
-
-                // ── Trigger expiry checks if values exist ──
-                if (emiratesDoc.expiry_date) checkExpiry(`eidExpiry_${ownerIndex}`, `eidWarn_${ownerIndex}`);
-                if (passportDoc.expiry_date) checkExpiry(`ppExpiry_${ownerIndex}`, `ppWarn_${ownerIndex}`);
-            });
+            }
         }
 
         // ─── B2C doc rows ─────────────────────────────────────────────────────────
@@ -3022,77 +2598,77 @@
             row.id = `docRowB2C_${idx}`;
 
             row.innerHTML = `
-            <div class="doc-row-header">
-                <span class="doc-row-title">Document ${idx}</span>
-                <div id="docRowActions_${idx}">
-                ${idx > 1 ? `<button type="button" class="btn-remove-doc"
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    onclick="document.getElementById('docRowB2C_${idx}').remove(); refreshB2CDocDeleteButtons();">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <i class="fas fa-times"></i> Remove</button>` : ''}
-                                    </div>
+        <div class="doc-row-header">
+            <span class="doc-row-title">Document ${idx}</span>
+            <div id="docRowActions_${idx}">
+            ${idx > 1 ? `<button type="button" class="btn-remove-doc"
+                                                                                                                                                        onclick="document.getElementById('docRowB2C_${idx}').remove(); refreshB2CDocDeleteButtons();">
+                                                                                                                                                        <i class="fas fa-times"></i> Remove</button>` : ''}
+                                </div>
+        </div>
+        <input type="hidden" name="docsB2C[${idx}][id]" id="b2cDocId_${idx}" value="">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Document Type <span class="text-danger">*</span></label>
+                    <select name="docsB2C[${idx}][type]" class="form-control" required>
+                        ${docTypesB2C.map(d=>`<option value="${d.value}">${d.label}</option>`).join('')}
+                    </select>
+                </div>
             </div>
-            <input type="hidden" name="docsB2C[${idx}][id]" id="b2cDocId_${idx}" value="">
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label>Document Type <span class="text-danger">*</span></label>
-                        <select name="docsB2C[${idx}][type]" class="form-control" required>
-                            ${docTypesB2C.map(d=>`<option value="${d.value}">${d.label}</option>`).join('')}
-                        </select>
-                    </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Document Number</label>
+                    <input type="text" name="docsB2C[${idx}][number]" id="b2cDocNumber_${idx}" class="form-control" placeholder="e.g. reference number" required>
                 </div>
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label>Document Number</label>
-                        <input type="text" name="docsB2C[${idx}][number]" id="b2cDocNumber_${idx}" class="form-control" placeholder="e.g. reference number" required>
-                    </div>
-                </div>
+            </div>
 
-                <div class="col-md-12">
-                    <div class="form-group">
-                        <label>Upload Document <small class="text-muted font-weight-normal">(JPG, PNG, PDF)</small></label>
-                        <div class="file-upload-wrap">
-                            <input type="file" name="docsB2C[${idx}][file]" accept="image/*,.pdf"
-                                onchange="onFileChange(this,'b2cDocFace_${idx}','b2cDocLabel_${idx}')" >
-                            <div class="file-upload-face" id="b2cDocFace_${idx}">
-                                <i class="fas fa-upload"></i>
-                                <span id="b2cDocLabel_${idx}">Click to upload or drag & drop</span>
-                            </div>
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label>Upload Document <small class="text-muted font-weight-normal">(JPG, PNG, PDF)</small></label>
+                    <div class="file-upload-wrap">
+                        <input type="file" name="docsB2C[${idx}][file]" accept="image/*,.pdf"
+                            onchange="onFileChange(this,'b2cDocFace_${idx}','b2cDocLabel_${idx}')" >
+                        <div class="file-upload-face" id="b2cDocFace_${idx}">
+                            <i class="fas fa-upload"></i>
+                            <span id="b2cDocLabel_${idx}">Click to upload or drag & drop</span>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Issued Date -->
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label>Issued Date</label>
-                        <div class="input-group date" id="b2cIssued_${idx}" data-target-input="nearest">
-                            <input type="text" class="form-control datetimepicker-input"
-                                name="docsB2C[${idx}][issued_date]" data-target="#b2cIssued_${idx}" placeholder="DD-MM-YYYY" required>
-                            <div class="input-group-append" data-target="#b2cIssued_${idx}" data-toggle="datetimepicker">
-                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Expiry Date -->
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label>Expiry Date</label>
-                        <div class="input-group date" id="b2cExpiry_${idx}" data-target-input="nearest">
-                            <input type="text" class="form-control datetimepicker-input"
-                                name="docsB2C[${idx}][expiry_date]" id="b2cDocExpiry_${idx}"
-                                data-target="#b2cExpiry_${idx}" placeholder="DD-MM-YYYY"
-                                onchange="checkExpiry('b2cDocExpiry_${idx}','b2cDocWarn_${idx}')" required>
-                            <div class="input-group-append" data-target="#b2cExpiry_${idx}" data-toggle="datetimepicker">
-                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                            </div>
-                        </div>
-                        <span class="expiry-warn" id="b2cDocWarn_${idx}"></span>
                     </div>
                 </div>
             </div>
-            `;
+
+            <!-- Issued Date -->
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Issued Date</label>
+                    <div class="input-group date" id="b2cIssued_${idx}" data-target-input="nearest">
+                        <input type="text" class="form-control datetimepicker-input"
+                            name="docsB2C[${idx}][issued_date]" data-target="#b2cIssued_${idx}" placeholder="DD-MM-YYYY" required>
+                        <div class="input-group-append" data-target="#b2cIssued_${idx}" data-toggle="datetimepicker">
+                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Expiry Date -->
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Expiry Date</label>
+                    <div class="input-group date" id="b2cExpiry_${idx}" data-target-input="nearest">
+                        <input type="text" class="form-control datetimepicker-input"
+                            name="docsB2C[${idx}][expiry_date]" id="b2cDocExpiry_${idx}"
+                            data-target="#b2cExpiry_${idx}" placeholder="DD-MM-YYYY"
+                            onchange="checkExpiry('b2cDocExpiry_${idx}','b2cDocWarn_${idx}')" required>
+                        <div class="input-group-append" data-target="#b2cExpiry_${idx}" data-toggle="datetimepicker">
+                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                        </div>
+                    </div>
+                    <span class="expiry-warn" id="b2cDocWarn_${idx}"></span>
+                </div>
+            </div>
+        </div>
+         `;
 
             container.appendChild(row);
             // refreshB2CDocDeleteButtons();
@@ -3374,8 +2950,6 @@
 
         function populateExistingCustomerSelect() {
             const select = document.getElementById('existingCustomerSelect');
-            select.required = true;
-            $('#existingCustomerSelect').siblings('label').addClass('asterisk');
 
             // Only populate once
             if (select.options.length > 1) return;
@@ -3437,8 +3011,6 @@
             const select = document.getElementById('existingCustomerSelect');
             const newForm = document.getElementById('newCustomerForm');
             const clearWrap = document.getElementById('clearExistingWrap');
-            select.required = false;
-            $('#existingCustomerSelect').siblings('label').removeClass('asterisk');
 
             // Clear Select2 properly
             if (typeof $ !== 'undefined' && $.fn.select2) {
@@ -3744,7 +3316,6 @@
                 const rowCheckbox = document.getElementById(`selRow_${rowId}`);
                 if (rowCheckbox) {
                     rowCheckbox.checked = true;
-                    rowCheckbox.disabled = true;
                     onRowCheckboxChange(rowCheckbox, rowId);
                 }
 
@@ -3962,7 +3533,6 @@
         }
 
         function onRowCheckboxChange(checkbox, rowIdx) {
-            // alert("test");
             const isChecked = checkbox.checked;
 
             const annualInput = document.getElementById(`annual_${rowIdx}`);
@@ -3982,22 +3552,8 @@
                     input.required = false; // always false — never required
                 });
 
-                if (isChecked) {
-                    if (!expandInner.classList.contains('open')) {
-                        toggleExpandRow(rowIdx);
-                    }
-                } else {
-                    // ── Force close the expand row ──
-                    if (expandInner.classList.contains('open')) {
-                        expandInner.classList.remove('open'); // ← directly remove, no toggle
-                        const icon = document.getElementById(`subBtnIcon_${rowIdx}`);
-                        const btn = document.getElementById(`subBtn_${rowIdx}`);
-                        if (icon) icon.className = 'fas fa-chevron-down';
-                        if (btn) btn.classList.remove('active');
-                    }
-
-                    // if (annualInput) annualInput.value = '';
-                    // if (monthlyInput) monthlyInput.value = '';
+                if (isChecked && !expandInner.classList.contains('open')) {
+                    toggleExpandRow(rowIdx);
                 }
             }
         }
@@ -4063,298 +3619,6 @@
             });
         }
     </script>
-    <script>
-        function validateAll() {
-            let submitBtn = $('#submitBtn');
-            let allValid = true;
-
-            // ── Trade License ──
-            let tradeInput = $('#tlNumber');
-            if (tradeInput.length) {
-                let val = tradeInput.val();
-                let regex = /^[A-Z0-9\/-]{5,20}$/;
-                // tradeInput.removeClass('is-invalid');
-                tradeInput.removeClass('is-invalid');
-                tradeInput.next('.invalid-feedback').remove();
-                tradeInput.siblings('.invalid-feedback').remove();
-                if (val.length != 0 && !regex.test(val)) {
-                    showError(tradeInput, "Trade License must be 5–20 characters (letters, numbers, / or - only)");
-                    allValid = false;
-                }
-            }
-
-            // ── Passports (B2B owner blocks + B2C hardcoded) ──
-            $('.passport-number, #b2cDocNumber_2').each(function() {
-                let val = $(this).val().trim();
-                let regex = /^[A-Z0-9]{6,9}$/;
-                $(this).removeClass('is-invalid');
-                $(this).next('.invalid-feedback').remove();
-                if (val.length != 0 && !regex.test(val)) {
-                    showError($(this), "Passport must be 6–9 characters (letters & numbers only)");
-                    allValid = false;
-                }
-            });
-
-            // ── Emirates IDs (B2B owner blocks + B2C hardcoded) ──
-            $('.emirates-id, #b2cDocNumber_1').each(function() {
-                let val = $(this).val().trim();
-                let regex = /^\d{3}-\d{4}-\d{7}-\d{1}$/;
-                $(this).removeClass('is-invalid');
-                $(this).next('.invalid-feedback').remove();
-                if (val.length != 0 && !regex.test(val)) {
-                    showError($(this), "Emirates ID must be in format: 784-XXXX-XXXXXXX-X");
-                    allValid = false;
-                }
-            });
-
-            // ── Phone numbers ──
-            // ── Phone numbers — only validate visible, enabled fields ──
-            let mobileInput = $('input[name="tenant_mobile"]:visible:not(:disabled)');
-            let contactInput = $('input[name="contact_number"]:visible:not(:disabled)');
-
-            if (mobileInput.length) {
-                if (!validatePhoneUAE(mobileInput.first())) allValid = false;
-            }
-            if (contactInput.length) {
-                if (!validatePhoneUAE(contactInput.first())) allValid = false;
-            }
-
-
-            if ($('#typeB2C').is(':checked')) {
-
-                let eidNumber = $('#b2cDocNumber_1').val().trim();
-                let eidFile = $('input[name="docsB2C[1][file]"]')[0];
-                let eidDocId = $('#b2cDocId_1').val();
-                let eidFace = $('#b2cDocFace_1');
-                eidFace.siblings('.invalid-feedback').remove();
-
-                if (eidNumber.length > 0 && eidFile && !eidFile.files.length && !eidDocId) {
-                    eidFace.after(
-                        '<span class="invalid-feedback" style="display:block;">Emirates ID file is required.</span>');
-                    allValid = false;
-                }
-
-                let ppNumber = $('#b2cDocNumber_2').val().trim();
-                let ppFile = $('input[name="docsB2C[2][file]"]')[0];
-                let ppDocId = $('#b2cDocId_2').val();
-                let ppFace = $('#b2cDocFace_2');
-                ppFace.siblings('.invalid-feedback').remove();
-
-                if (ppNumber.length > 0 && ppFile && !ppFile.files.length && !ppDocId) {
-                    ppFace.after('<span class="invalid-feedback" style="display:block;">Passport file is required.</span>');
-                    allValid = false;
-                }
-            }
-            // ── B2B: at least one unit must be checked ──
-            if ($('#typeB2B').is(':checked')) {
-                const totalUnits = $('#b2bUnitsBody .row-checkbox').length;
-                const checkedUnits = $('#b2bUnitsBody .row-checkbox:checked').length;
-                const b2bUnitError = $('#b2bUnitError');
-
-                // ── Only validate if there are units in the table ──
-                if (totalUnits > 0) {
-                    if (checkedUnits === 0) {
-                        if (!b2bUnitError.length) {
-                            $('#b2bUnitsTable').after(
-                                '<div id="b2bUnitError" class="doc-error visible" style="display:flex;">' +
-                                '<i class="fas fa-exclamation-circle"></i>' +
-                                ' Please select at least one unit.' +
-                                '</div>'
-                            );
-                        }
-                        allValid = false;
-                    } else {
-                        b2bUnitError.remove();
-                    }
-                } else {
-                    // ── No units in table — remove error if it exists ──
-                    b2bUnitError.remove();
-                }
-            }
-
-            submitBtn.prop('disabled', !allValid);
-            return allValid;
-        }
-
-        function showError(input, message) {
-            input.addClass('is-invalid');
-
-            // Remove any existing error for this input
-            input.next('.invalid-feedback').remove();
-            input.siblings('.invalid-feedback').remove();
-
-            // Insert error message after the input
-            input.after(`<span class="invalid-feedback" style="display:block;">${message}</span>`);
-        }
-
-        function validatePhoneUAE(input) {
-            if (!input.length) return true;
-
-            let val = input.val().toString().replace(/[^0-9]/g, '');
-
-            // ── Always clean up first ──
-            input.removeClass('is-invalid');
-            input.next('.invalid-feedback').remove();
-            input.siblings('.invalid-feedback').remove(); // ← add this
-
-            if (val.length === 0) return true;
-
-            let withCode = /^(9715[0-9]{8}|971[2-9][0-9]{7})$/;
-            let withoutCode = /^(05[0-9]{8}|0[2-9][0-9]{7})$/;
-
-            if (!withCode.test(val) && !withoutCode.test(val)) {
-                showError(input, "Enter a valid UAE number (e.g. 971501234567 or 0501234567)");
-                return false;
-            }
-
-            return true;
-        }
-        $(document).ready(function() {
-            validateAll();
-
-            // existing listeners...
-            $(document).on('input', '#tlNumber', function() {
-                this.value = this.value.toUpperCase();
-                const tlFile = $('#tlFile')[0];
-                const tlDocId = $('input[name="tl_id"]').val();
-                const tlFace = $('#tlFileFace');
-
-                tlFace.siblings('.invalid-feedback').remove();
-
-                if ($(this).val().trim().length > 0 && tlFile && !tlFile.files.length && !tlDocId) {
-                    tlFace.after(
-                        '<span class="invalid-feedback" style="display:block;">Trade License file is required.</span>'
-                    );
-                }
-                validateAll();
-            });
-
-            $(document).on('input', '.passport-number', function() {
-                this.value = this.value.toUpperCase();
-                this.value = this.value.replace(/[^A-Z0-9]/g, '');
-
-                // Extract owner index from name attribute e.g. owners[1][1][passport_number]
-                const name = $(this).attr('name');
-                const match = name.match(/owners\[(\d+)\]/);
-                if (match) {
-                    const i = match[1];
-                    const ppFile = $(`input[name="owners[${i}][1][passport_file]"]`)[0];
-                    const ppDocId = $(`#ppDocId_${i}`).val();
-                    const ppFace = $(`#ppFace_${i}`);
-
-                    ppFace.siblings('.invalid-feedback').remove();
-
-                    if ($(this).val().trim().length > 0 && ppFile && !ppFile.files.length && !ppDocId) {
-                        ppFace.after(
-                            '<span class="invalid-feedback" style="display:block;">Passport file is required.</span>'
-                        );
-                    }
-                }
-
-
-                validateAll();
-            });
-
-            $(document).on('input', '.emirates-id', function() {
-                // alert("tesy");
-                this.value = this.value.replace(/[^0-9-]/g, '');
-                // Extract owner index from name attribute e.g. owners[1][2][emirates_id]
-                const name = $(this).attr('name');
-                const match = name.match(/owners\[(\d+)\]/);
-                if (match) {
-                    const i = match[1];
-                    const eidFile = $(`input[name="owners[${i}][2][emirates_file]"]`)[0];
-                    const eidDocId = $(`#eidDocId_${i}`).val();
-                    const eidFace = $(`#eidFace_${i}`);
-
-                    eidFace.siblings('.invalid-feedback').remove();
-
-                    if ($(this).val().trim().length > 0 && eidFile && !eidFile.files.length && !eidDocId) {
-                        eidFace.after(
-                            '<span class="invalid-feedback" style="display:block;">Emirates ID file is required.</span>'
-                        );
-                    }
-                }
-
-                validateAll();
-            });
-
-            // ── B2C hardcoded passport field ──
-            $(document).on('input', '#b2cDocNumber_2', function() {
-                this.value = this.value.toUpperCase();
-                this.value = this.value.replace(/[^A-Z0-9]/g, '');
-
-                let ppFile = $('input[name="docsB2C[2][file]"]')[0];
-                let ppDocId = $('#b2cDocId_2').val();
-                let ppFace = $('#b2cDocFace_2');
-
-                ppFace.siblings('.invalid-feedback').remove();
-
-                if ($(this).val().trim().length > 0 && ppFile && !ppFile.files.length && !ppDocId) {
-                    ppFace.after(
-                        '<span class="invalid-feedback" style="display:block;">Passport file is required.</span>'
-                    );
-                }
-
-                validateAll();
-            });
-
-            // ── B2C hardcoded Emirates ID field ──
-            $(document).on('input', '#b2cDocNumber_1', function() {
-                this.value = this.value.replace(/[^0-9-]/g, '');
-                let eidFile = $('input[name="docsB2C[1][file]"]')[0];
-                let eidDocId = $('#b2cDocId_1').val();
-                let eidFace = $('#b2cDocFace_1');
-                // alert(eidFile);
-
-                eidFace.siblings('.invalid-feedback').remove();
-
-                if ($(this).val().trim().length > 0 && !eidFile.files.length && !eidDocId) {
-                    eidFace.after(
-                        '<span class="invalid-feedback" style="display:block;">Emirates ID file is required.</span>'
-                    );
-                }
-                validateAll();
-            });
-
-            $(document).on('input', 'input[name="tenant_mobile"], input[name="contact_number"]', function() {
-                // alert("test");
-                this.value = this.value.replace(/[^0-9]/g, '');
-                validateAll();
-            });
-            // ── B2C file inputs — re-validate when file is chosen ──
-            $(document).on('change', 'input[name="docsB2C[1][file]"], input[name="docsB2C[2][file]"]', function() {
-                // Clear the file-required error when a file is selected
-                let idx = $(this).attr('name') === 'docsB2C[1][file]' ? '1' : '2';
-                let face = $('#b2cDocFace_' + idx);
-                face.siblings('.invalid-feedback').remove();
-
-                validateAll();
-            });
-
-            // ── B2B Owner: file chosen → clear error ──
-            $(document).on('change', 'input[name*="emirates_file"], input[name*="passport_file"]', function() {
-                const name = $(this).attr('name');
-                const match = name.match(/owners\[(\d+)\]\[(\d+)\]/);
-                if (match) {
-                    const i = match[1];
-                    const type = match[2]; // 1=passport, 2=emirates
-                    const face = type == 2 ? $(`#eidFace_${i}`) : $(`#ppFace_${i}`);
-                    face.siblings('.invalid-feedback').remove();
-                }
-                validateAll();
-            });
-            // ── B2B unit checkbox change ──
-            $(document).on('change', '.row-checkbox', function() {
-                validateAll();
-            });
-            $(document).on('change', '#tlFile', function() {
-                $('#tlFileFace').siblings('.invalid-feedback').remove();
-                validateAll();
-            });
-        });
-    </script>
 
     @include('admin.sales.form-submit-js');
-    @include('admin.master.tenants.form-submit-js')
 @endsection

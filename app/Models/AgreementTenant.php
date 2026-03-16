@@ -48,6 +48,8 @@ class AgreementTenant extends Model
         'security_cheque_status',
         'no_of_owners',
         'tenant_code',
+        // 'sales_tenant_agreement_id',
+        'tenant_source'
     ];
 
     /**

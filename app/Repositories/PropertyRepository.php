@@ -103,4 +103,25 @@ class PropertyRepository
             return $existing;
         }
     }
+    public function getProperties()
+    {
+        $properties = Property::with([
+            'contracts' => function ($q) {
+                $q->where('contract_status', 7);
+            },
+            'contracts.contract_unit.contractUnitDetails' => function ($q) {
+                $q->where('is_vacant', 0)
+                    ->orWhereHas('contractSubUnitDetails', function ($subQ) {
+                        $subQ->where('is_vacant', 0);
+                    })
+                    ->with(['contractSubUnitDetails' => function ($subQ) {
+                        $subQ->where('is_vacant', 0);
+                    }]);
+            }
+        ])
+            ->where('status', 1)
+            ->get();
+
+        return $properties;
+    }
 }

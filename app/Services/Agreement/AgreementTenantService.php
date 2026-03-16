@@ -611,4 +611,10 @@ class AgreementTenantService
         $tenants = $this->agreementTenantRepository->getTenantsForAgreement();
         return $tenants;
     }
+    public function getAgreementTenantsB2b()
+    {
+        $existingCustomers = $this->agreementTenantRepository->getAgreementTenantsB2b();
+        // dd($existingCustomers);
+        return $existingCustomers;
+    }
 }

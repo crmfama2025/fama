@@ -677,38 +677,99 @@
         }
 
         // Trigger on dropdown change
+        // document.getElementById('owners_count').addEventListener('change', function() {
+        //     let newCount = parseInt(this.value);
+        //     let tenantId = document.getElementById('tenantForm').dataset.tenantId;
+
+        //     if (tenantId && newCount < existingOwnerCount) {
+        //         // EDIT MODE + reducing count: show remove buttons instead of wiping blocks
+        //         generateOwners(existingOwnerCount); // keep all existing blocks visible
+
+        //         for (let i = newCount; i < existingOwnerCount; i++) {
+        //             let ownerIndex = existingOwnerKeys[i];
+        //             let ownerBlock = document.getElementById('owner_' + ownerIndex);
+
+        //             if (ownerBlock && !ownerBlock.querySelector('.remove-owner-btn')) {
+        //                 let wrapper = document.createElement('div');
+        //                 wrapper.className = 'remove-owner-wrapper text-right mt-2';
+
+        //                 let button = document.createElement('button');
+        //                 button.type = 'button';
+        //                 button.dataset.owner = ownerIndex;
+        //                 button.dataset.tenantId = tenantId;
+        //                 button.className = 'btn btn-outline-danger btn-sm remove-owner-btn';
+        //                 button.innerText = 'Remove Owner';
+
+        //                 wrapper.appendChild(button);
+        //                 ownerBlock.querySelector('.card-body').appendChild(wrapper);
+        //             }
+        //         }
+        //     } else {
+        //         // CREATE MODE or increasing count
+        //         generateOwners(newCount);
+        //     }
+        // });
         document.getElementById('owners_count').addEventListener('change', function() {
             let newCount = parseInt(this.value);
             let tenantId = document.getElementById('tenantForm').dataset.tenantId;
 
             if (tenantId && newCount < existingOwnerCount) {
-                // EDIT MODE + reducing count: show remove buttons instead of wiping blocks
-                generateOwners(existingOwnerCount); // keep all existing blocks visible
-
-                for (let i = newCount; i < existingOwnerCount; i++) {
-                    let ownerIndex = existingOwnerKeys[i];
-                    let ownerBlock = document.getElementById('owner_' + ownerIndex);
-
-                    if (ownerBlock && !ownerBlock.querySelector('.remove-owner-btn')) {
-                        let wrapper = document.createElement('div');
-                        wrapper.className = 'remove-owner-wrapper text-right mt-2';
-
-                        let button = document.createElement('button');
-                        button.type = 'button';
-                        button.dataset.owner = ownerIndex;
-                        button.dataset.tenantId = tenantId;
-                        button.className = 'btn btn-outline-danger btn-sm remove-owner-btn';
-                        button.innerText = 'Remove Owner';
-
-                        wrapper.appendChild(button);
-                        ownerBlock.querySelector('.card-body').appendChild(wrapper);
-                    }
-                }
+                // EDIT MODE + reducing count → keep all existing blocks
+                generateOwners(existingOwnerCount);
+                toggleRemoveButtons(newCount);
             } else {
                 // CREATE MODE or increasing count
                 generateOwners(newCount);
+                removeAllOwnerButtons();
             }
         });
+
+        function toggleRemoveButtons(targetCount) {
+
+            let tenantId = document.getElementById('tenantForm').dataset.tenantId;
+            let owners = document.querySelectorAll('.owner-card');
+
+            owners.forEach(function(ownerCard) {
+
+                let ownerIndex = ownerCard.dataset.ownerIndex;
+
+                if (!ownerCard.querySelector('.remove-owner-btn')) {
+
+                    let wrapper = document.createElement('div');
+                    wrapper.className = 'remove-owner-wrapper text-right mt-2';
+
+                    let button = document.createElement('button');
+                    button.type = 'button';
+                    button.dataset.owner = ownerIndex;
+                    button.dataset.tenantId = tenantId;
+                    button.className = 'btn btn-outline-danger btn-sm remove-owner-btn';
+                    button.innerText = 'Remove Owner';
+
+                    // button.onclick = function() {
+
+                    //     ownerCard.remove();
+
+                    //     let remaining = document.querySelectorAll('.owner-card').length;
+
+                    //     if (remaining === targetCount) {
+                    //         removeAllOwnerButtons();
+                    //     }
+
+                    // };
+
+                    wrapper.appendChild(button);
+                    ownerCard.querySelector('.card-body').appendChild(wrapper);
+
+                }
+
+            });
+
+        }
+
+        function removeAllOwnerButtons() {
+            document.querySelectorAll('.remove-owner-wrapper').forEach(el => el.remove());
+        }
+
 
         // Generate on page load
         window.onload = function() {

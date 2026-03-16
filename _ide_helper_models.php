@@ -39,6 +39,7 @@ namespace App\Models{
 namespace App\Models{
 /**
  * @property int $id
+ * @property int $tenant_id
  * @property string $agreement_code
  * @property int $contract_id
  * @property int $company_id
@@ -100,6 +101,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Agreement whereIsTradeLicenseUploaded($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Agreement whereIsVisaUploaded($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Agreement whereStartDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Agreement whereTenantId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Agreement whereTerminatedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Agreement whereTerminatedDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Agreement whereTerminatedReason($value)
@@ -227,7 +229,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int $terminate_status
- * @property int $transaction_type 1 = Receive, 2 = Pay Back
+ * @property int $transaction_type 1 = Receive, 2 = Pay Back, 3 = Run Away
  * @property-read \App\Models\Agreement $agreement
  * @property-read \App\Models\AgreementPayment|null $agreementPayment
  * @property-read \App\Models\AgreementUnit|null $agreementUnit
@@ -378,7 +380,8 @@ namespace App\Models{
  * @property int|null $payment_frequency_id
  * @property int $security_cheque_status 0-No, 1-Yes
  * @property int $no_of_owners
- * @property-read \App\Models\Agreement|null $agreement
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Agreement> $agreement
+ * @property-read int|null $agreement_count
  * @property-read \App\Models\User|null $deletedBy
  * @property-read \App\Models\Nationality|null $nationality
  * @property-read \App\Models\ProfitInterval|null $paymentFrequency
@@ -2719,6 +2722,85 @@ namespace App\Models{
 /**
  * @property int $id
  * @property int $tenant_id
+ * @property string $agreement_code
+ * @property int $contract_id
+ * @property int $company_id
+ * @property string $start_date
+ * @property string $end_date
+ * @property int $duration_in_months
+ * @property int|null $duration_in_days
+ * @property int $is_emirates_id_uploaded
+ * @property int $is_passport_uploaded
+ * @property int $is_visa_uploaded
+ * @property int $is_signed_agreement_uploaded
+ * @property int $is_trade_license_uploaded
+ * @property int $agreement_status 0-Pending, 1-terminated
+ * @property string|null $terminated_date
+ * @property string|null $terminated_reason
+ * @property int|null $terminated_by
+ * @property int $added_by
+ * @property int|null $updated_by
+ * @property int|null $deleted_by
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read \App\Models\User|null $deletedBy
+ * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement query()
+ * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement whereAddedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement whereAgreementCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement whereAgreementStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement whereCompanyId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement whereContractId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement whereDeletedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement whereDurationInDays($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement whereDurationInMonths($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement whereEndDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement whereIsEmiratesIdUploaded($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement whereIsPassportUploaded($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement whereIsSignedAgreementUploaded($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement whereIsTradeLicenseUploaded($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement whereIsVisaUploaded($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement whereStartDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement whereTenantId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement whereTerminatedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement whereTerminatedDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement whereTerminatedReason($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement whereUpdatedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement withoutTrashed()
+ */
+	class SalesTenantAgreement extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantSubunitRent newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantSubunitRent newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantSubunitRent query()
+ */
+	class SalesTenantSubunitRent extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantUnit newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantUnit newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantUnit query()
+ */
+	class SalesTenantUnit extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property int $id
+ * @property int $tenant_id
  * @property int|null $owner_index Index of owner for multiple owners
  * @property int $document_type 1-Passport, 2-Emirates ID, 3-Trade License
  * @property string $document_number
@@ -2732,7 +2814,9 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read \App\Models\TenantIdentity|null $TenantIdentity
  * @property-read \App\Models\User|null $deletedBy
+ * @property-read \App\Models\AgreementTenant $tenant
  * @method static \Illuminate\Database\Eloquent\Builder|TenantDocument newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|TenantDocument newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|TenantDocument onlyTrashed()
@@ -3037,6 +3121,9 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Vendor withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|Vendor withoutTrashed()
  * @mixin \Eloquent
+ * @property string|null $trade_license_number
+ * @property string|null $trade_license
+ * @property string|null $trade_license_expiry
  * @property string|null $landline_number
  * @property string|null $location
  * @property string|null $remarks
@@ -3054,6 +3141,9 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereLandlineNumber($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereLocation($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereRemarks($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereTradeLicense($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereTradeLicenseExpiry($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Vendor whereTradeLicenseNumber($value)
  */
 	class Vendor extends \Eloquent {}
 }

@@ -23,6 +23,7 @@ use App\Http\Controllers\PropertyTypeController;
 use App\Http\Controllers\ReceivablesClearingController;
 use App\Http\Controllers\ReferralController;
 use App\Http\Controllers\TenantController;
+use App\Http\Controllers\TenantregistrationController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VendorController;
 use App\Services\BrevoService;
@@ -68,6 +69,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('investor', InvestorController::class);
     Route::resource('investorPayout', InvestorPaymentDistributionController::class);
     Route::resource('tenant', TenantController::class);
+    Route::resource('tenant-registration', TenantregistrationController::class);
 
 
 
@@ -278,6 +280,16 @@ Route::middleware(['auth'])->group(function () {
     Route::get('tenants/edit/{id}', [TenantController::class, 'edit'])->name('tenant.edit');
     Route::post('/tenant/remove-owner-documents', [TenantController::class, 'removeOwnerDocuments'])->name('tenant.remove.owner.documents');
     Route::get('export-tenant', [TenantController::class, 'export'])->name('tenant.export');
+
+    Route::get('tenantRegistration/list', [TenantregistrationController::class, 'getList'])->name('tenant-registration.list');
+    Route::get('tenantRegistration/documents', [TenantregistrationController::class, 'documents'])->name('tenant-registration.documents');
+    Route::post('/tenantRegistration/approve/{id}', [TenantregistrationController::class, 'approve'])
+        ->name('tenant-registration.approve');
+    Route::post('tenantRegistration/reject/{id}', [TenantregistrationController::class, 'reject'])->name('tenant-registration.reject');
+    Route::delete('/agreements/{agreement}/unit/{unitId}', [TenantregistrationController::class, 'deleteAgreementUnit'])
+        ->name('salesAgreement.unit.delete');
+    Route::delete('/agreements/{agreementId}/document/{docId}', [TenantregistrationController::class, 'deleteAgreementDocumentB2c'])
+        ->name('agreement.document.delete');
 });
 
 

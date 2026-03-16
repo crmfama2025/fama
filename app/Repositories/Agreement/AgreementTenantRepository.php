@@ -96,4 +96,11 @@ class AgreementTenantRepository
     {
         return AgreementTenant::where('tenant_type', 1)->get();
     }
+    public function getAgreementTenantsB2b()
+    {
+        $existingCustomers = AgreementTenant::with('tenantDocuments')->where('tenant_type', 1)
+            ->where('id', '!=', 1)
+            ->get(['id', 'tenant_name', 'tenant_type', 'tenant_code']);
+        return $existingCustomers;
+    }
 }
