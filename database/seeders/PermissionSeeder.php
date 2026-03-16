@@ -53,6 +53,11 @@ class PermissionSeeder extends Seeder
                     $subModule[] = 'referrals';
                     $subModule[] = 'soa';
                 }
+                if (in_array($module, ['tenant-registration'])) {
+                    $subModule[] = 'approve';
+                    $subModule[] = 'reject';
+                    $subModule[] = 'make-agreement';
+                }
             }
 
             foreach ($subModule as $action) {

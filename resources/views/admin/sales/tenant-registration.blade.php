@@ -37,11 +37,12 @@
                             <div class="card-header">
                                 {{-- <h3 class="card-title">Area Details</h3> --}}
                                 <span class="float-right">
-
-                                    <a href="{{ route('tenant-registration.create') }}"
-                                        class="btn btn-info float-right m-1">
-                                        Add Tenant
-                                    </a>
+                                    @if (auth()->user()->hasAnyPermission(['tenant-registration.add']))
+                                        <a href="{{ route('tenant-registration.create') }}"
+                                            class="btn btn-info float-right m-1">
+                                            Add Tenant
+                                        </a>
+                                    @endif
 
 
 
@@ -50,7 +51,7 @@
                             {{-- @endcan --}}
                             <!-- /.card-header -->
                             <div class="card-body table-responsive">
-                                <table id="tenantsRegistraionTable" class="table table-striped table-hover"
+                                <table id="tenantsRegistraionTable" class="table table-striped table-hover display nowrap"
                                     style="width:100%">
                                     <thead>
                                         <tr>

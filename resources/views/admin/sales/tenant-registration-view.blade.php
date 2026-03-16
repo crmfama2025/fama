@@ -53,20 +53,26 @@
                             @endif
 
                             @if ($agreement->is_approved == 0)
-                                <a data-action="{{ route('tenant-registration.approve', $agreement->id) }}"
-                                    class="btn btn-success btn-sm mr-1 approval-btn">
-                                    <i class="fas fa-clipboard-check mr-1"></i> Approve
-                                </a>
-                                <a href="{{ route('tenant-registration.reject', $agreement->id) }}"
-                                    class="btn btn-danger btn-sm mr-1">
-                                    <i class="fas fa-times mr-1"></i> Reject
-                                </a>
+                                @if (auth()->user()->hasAnyPermission(['tenant-registration.approve']))
+                                    <a data-action="{{ route('tenant-registration.approve', $agreement->id) }}"
+                                        class="btn btn-success btn-sm mr-1 approval-btn">
+                                        <i class="fas fa-clipboard-check mr-1"></i> Approve
+                                    </a>
+                                @endif
+                                @if (auth()->user()->hasAnyPermission(['tenant-registration.reject']))
+                                    <a href="{{ route('tenant-registration.reject', $agreement->id) }}"
+                                        class="btn btn-danger btn-sm mr-1">
+                                        <i class="fas fa-times mr-1"></i> Reject
+                                    </a>
+                                @endif
                             @elseif ($agreement->is_approved == 2)
                                 {{-- Re-Approve button shown only when Rejected --}}
-                                <a data-action="{{ route('tenant-registration.approve', $agreement->id) }}"
-                                    class="btn btn-success btn-sm mr-1 approval-btn">
-                                    <i class="fas fa-clipboard-check mr-1"></i> Re-Approve
-                                </a>
+                                @if (auth()->user()->hasAnyPermission(['tenant-registration.approve']))
+                                    <a data-action="{{ route('tenant-registration.approve', $agreement->id) }}"
+                                        class="btn btn-success btn-sm mr-1 approval-btn">
+                                        <i class="fas fa-clipboard-check mr-1"></i> Re-Approve
+                                    </a>
+                                @endif
                             @endif
                             <a href="{{ route('tenant-registration.index') }}" class="btn btn-secondary btn-sm">
                                 <i class="fas fa-arrow-left mr-1"></i> Back
@@ -923,27 +929,34 @@
                             </div>
                             <div class="card-body">
                                 @if ($agreement->is_approved == 0)
-                                    <button type="button" class="btn btn-success btn-block mb-2 approval-btn"
-                                        data-action="{{ route('tenant-registration.approve', $agreement->id) }}"
-                                        data-status="approved">
-                                        <i class="fas fa-clipboard-check mr-1"></i> Approve
-                                    </button>
-
-                                    <button type="button" class="btn btn-danger btn-block mb-2 rejection-btn"
-                                        data-action="{{ route('tenant-registration.reject', $agreement->id) }}">
-                                        <i class="fas fa-times mr-1"></i> Reject
-                                    </button>
+                                    @if (auth()->user()->hasAnyPermission(['tenant-registration.approve']))
+                                        <button type="button" class="btn btn-success btn-block mb-2 approval-btn"
+                                            data-action="{{ route('tenant-registration.approve', $agreement->id) }}"
+                                            data-status="approved">
+                                            <i class="fas fa-clipboard-check mr-1"></i> Approve
+                                        </button>
+                                    @endif
+                                    @if (auth()->user()->hasAnyPermission(['tenant-registration.reject']))
+                                        <button type="button" class="btn btn-danger btn-block mb-2 rejection-btn"
+                                            data-action="{{ route('tenant-registration.reject', $agreement->id) }}">
+                                            <i class="fas fa-times mr-1"></i> Reject
+                                        </button>
+                                    @endif
                                 @elseif ($agreement->is_approved == 2)
-                                    {{-- Re-Approve button shown only when Rejected --}}
-                                    <button type="button" class="btn btn-success btn-block mb-2 approval-btn"
-                                        data-action="{{ route('tenant-registration.approve', $agreement->id) }}">
-                                        <i class="fas fa-redo mr-1"></i> Re-Approve
-                                    </button>
+                                    @if (auth()->user()->hasAnyPermission(['tenant-registration.approve']))
+                                        {{-- Re-Approve button shown only when Rejected --}}
+                                        <button type="button" class="btn btn-success btn-block mb-2 approval-btn"
+                                            data-action="{{ route('tenant-registration.approve', $agreement->id) }}">
+                                            <i class="fas fa-redo mr-1"></i> Re-Approve
+                                        </button>
+                                    @endif
                                 @endif
-                                <a href="{{ route('tenant-registration.edit', $agreement->id) }}"
-                                    class="btn btn-warning btn-block">
-                                    <i class="fas fa-edit mr-1"></i> Edit
-                                </a>
+                                @if (auth()->user()->hasAnyPermission(['tenant-registration.edit']))
+                                    <a href="{{ route('tenant-registration.edit', $agreement->id) }}"
+                                        class="btn btn-warning btn-block">
+                                        <i class="fas fa-edit mr-1"></i> Edit
+                                    </a>
+                                @endif
                                 <a href="{{ route('tenant-registration.index') }}" class="btn btn-secondary btn-block">
                                     <i class="fas fa-list mr-1"></i> All Registrations
                                 </a>

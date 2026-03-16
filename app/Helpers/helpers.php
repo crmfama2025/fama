@@ -1325,7 +1325,8 @@ function getModuleArray()
         'investment',
         'finance',
         'report',
-        'tenant'
+        'tenant',
+        'tenant-registration'
     ];
 }
 

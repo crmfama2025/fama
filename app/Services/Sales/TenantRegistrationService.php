@@ -414,27 +414,36 @@ class TenantRegistrationService
                 $editUrl = route('tenant-registration.edit', $row->id);
                 $docUrl  = route('tenant-registration.documents', $row->id);
                 $approveUrl = route('tenant-registration.approve', $row->id);
+                $makeAgreement = route('tenant-registration.make-agreement', $row->id);
                 $action  = '';
 
-                // if (auth()->user()->hasAnyPermission(['tenant.view'])) {
-                $action .= '<a href="' . $viewUrl . '" class="btn btn-primary btn-sm m-1" title="View">
+                if (auth()->user()->hasAnyPermission(['tenant-registration.view'])) {
+                    $action .= '<a href="' . $viewUrl . '" class="btn btn-primary btn-sm mr-1" title="View">
                                 <i class="fas fa-eye"></i></a>';
-                // }
-                // if (auth()->user()->hasAnyPermission(['tenant.edit'])) {
-                $action .= '<a href="' . $editUrl . '" class="btn btn-info btn-sm m-1" title="Edit">
+                }
+                if (auth()->user()->hasAnyPermission(['tenant-registration.edit'])) {
+                    $action .= '<a href="' . $editUrl . '" class="btn btn-info btn-sm mr-1" title="Edit">
                                 <i class="fas fa-pencil-alt"></i></a>';
-                // }
-                // if (auth()->user()->hasAnyPermission(['tenant.document_upload'])) {
-                $action .= '<button
-                class="btn btn-success btn-sm m-1 open-approval-modal"
-                data-url="' . $approveUrl . '"
-                title="Approve">
-                <i class="fas fa-clipboard-check"></i>
-            </button>';
-                // }
-                // if (auth()->user()->hasAnyPermission(['tenant.delete'])) {
-                $action .= '<a class="btn btn-danger btn-sm m-1" onclick="deleteConf(' . $row->id . ')" title="Delete">
+                }
+                if (auth()->user()->hasAnyPermission(['tenant-registration.approve'])) {
+                    $action .= '<button
+                                    class="btn btn-success btn-sm mr-1 open-approval-modal"
+                                    data-url="' . $approveUrl . '"
+                                    title="Approve">
+                                    <i class="fas fa-clipboard-check"></i>
+                                </button>';
+                }
+                if (auth()->user()->hasAnyPermission(['tenant-registration.delete'])) {
+                    $action .= '<a class="btn btn-danger btn-sm mr-1" onclick="deleteConf(' . $row->id . ')" title="Delete">
                                 <i class="fas fa-trash"></i></a>';
+                }
+                // if (auth()->user()->hasAnyPermission(['tenant-registration.make-agreement'])) {
+                //     $action .= '<button
+                //                     class="btn bg-gradient-gray btn-sm mr-1 open-approval-modal"
+                //                     data-url="' . $makeAgreement . '"
+                //                     title="Approve">
+                //                     <i class="fas fa-handshake"></i>
+                //                 </button>';
                 // }
 
                 return $action ?: '-';

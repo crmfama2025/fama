@@ -468,15 +468,26 @@
                                 </a>
                             </li>
                         @endif
-                        <li class="nav-item {{ request()->is('tenant-registration') ? 'menu-open' : '' }}">
-                            <a href="{{ route('tenant-registration.index') }}"
-                                class="nav-link {{ request()->is('tenant-registration*') ? 'active bg-gradient-projects' : '' }}">
-                                <i class="nav-icon fas fa-users"></i>
-                                <p>
-                                    Tenant Registration
-                                </p>
-                            </a>
-                        </li>
+                        @if (auth()->user()->hasAnyPermission([
+                                    'Tenant-registration',
+                                    'tenant-registration.add',
+                                    'tenant-registration.view',
+                                    'tenant-registration.edit',
+                                    'tenant-registration.delete',
+                                    'tenant-registration.approve',
+                                    'tenant-registration.reject',
+                                    'tenant-registration.make-agreement',
+                                ]))
+                            <li class="nav-item {{ request()->is('tenant-registration') ? 'menu-open' : '' }}">
+                                <a href="{{ route('tenant-registration.index') }}"
+                                    class="nav-link {{ request()->is('tenant-registration*') ? 'active bg-gradient-projects' : '' }}">
+                                    <i class="nav-icon fas fa-users"></i>
+                                    <p>
+                                        Tenant Registration
+                                    </p>
+                                </a>
+                            </li>
+                        @endif
                         {{-- onclick="signoutConf()" --}}
                         <li class="nav-item">
                             <a href="javascript:void(0)" onclick="signoutConf()" class="nav-link">

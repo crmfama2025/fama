@@ -290,6 +290,7 @@ Route::middleware(['auth'])->group(function () {
         ->name('salesAgreement.unit.delete');
     Route::delete('/agreements/{agreementId}/document/{docId}', [TenantregistrationController::class, 'deleteAgreementDocumentB2c'])
         ->name('agreement.document.delete');
+    Route::get('tenantRegistration/make-agreement/{id}', [TenantregistrationController::class, 'makeAgreement'])->name('tenant-registration.make-agreement');
 });
 
 
