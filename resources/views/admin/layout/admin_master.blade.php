@@ -477,6 +477,7 @@
                                     'tenant-registration.approve',
                                     'tenant-registration.reject',
                                     'tenant-registration.make-agreement',
+                                    'tenant-registration.send-for-approval',
                                 ]))
                             <li class="nav-item {{ request()->is('tenant-registration') ? 'menu-open' : '' }}">
                                 <a href="{{ route('tenant-registration.index') }}"

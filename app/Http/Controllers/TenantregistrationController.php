@@ -170,4 +170,13 @@ class TenantregistrationController extends Controller
         $this->tenantRegistrationService->delete($tenant_registration->id);
         return response()->json(['success' => true, 'message' => 'Agreement deleted successfully']);
     }
+    public function sendForApproval($id)
+    {
+        $this->tenantRegistrationService->sendForApproval($id);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Sent for approval successfully'
+        ]);
+    }
 }

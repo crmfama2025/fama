@@ -416,6 +416,7 @@ class TenantRegistrationService
                 $docUrl  = route('tenant-registration.documents', $row->id);
                 $approveUrl = route('tenant-registration.approve', $row->id);
                 $makeAgreement = route('tenant-registration.make-agreement', $row->id);
+                $sendForApproval = route('tenant-registration.send-for-approval', $row->id);
                 $action  = '';
 
                 if (auth()->user()->hasAnyPermission(['tenant-registration.view'])) {
@@ -426,7 +427,7 @@ class TenantRegistrationService
                     $action .= '<a href="' . $editUrl . '" class="btn btn-info btn-sm mr-1" title="Edit">
                                 <i class="fas fa-pencil-alt"></i></a>';
                 }
-                if (auth()->user()->hasAnyPermission(['tenant-registration.approve'])) {
+                if (auth()->user()->hasAnyPermission(['tenant-registration.approve']) && $row->is_approved == 0) {
                     $action .= '<button
                                     class="btn btn-success btn-sm mr-1 open-approval-modal"
                                     data-url="' . $approveUrl . '"
@@ -434,6 +435,15 @@ class TenantRegistrationService
                                     <i class="fas fa-clipboard-check"></i>
                                 </button>';
                 }
+                if (auth()->user()->hasAnyPermission(['tenant-registration.send-for-approval']) && $row->is_approved == 2) {
+                    $action .= '<button
+                                    class="btn btn-warning  btn-sm mr-1 send-for-approval"
+                                    data-url="' . $sendForApproval . '"
+                                    title="Send For Approval">
+                                    <i class="fas fa-share"></i>
+                                </button>';
+                }
+
                 if (auth()->user()->hasAnyPermission(['tenant-registration.delete'])) {
                     $action .= '<a class="btn btn-danger btn-sm mr-1" onclick="deleteConf(' . $row->id . ')" title="Delete">
                                 <i class="fas fa-trash"></i></a>';
@@ -1496,5 +1506,13 @@ class TenantRegistrationService
     {
         // dd($id);
         return $this->tenantRegistrationRepository->delete($id);
+    }
+    public function sendForApproval($id)
+    {
+        $agreement = $this->tenantRegistrationRepository->find($id);
+
+        return $agreement->update([
+            'is_approved' => 0,
+        ]);
     }
 }

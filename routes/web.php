@@ -292,6 +292,8 @@ Route::middleware(['auth'])->group(function () {
         ->name('agreement.document.delete');
     Route::get('tenantRegistration/make-agreement/{id}', [TenantregistrationController::class, 'makeAgreement'])->name('tenant-registration.make-agreement');
     Route::get('export-tenant-registration', [TenantregistrationController::class, 'export'])->name('tenant-registraion.export');
+    Route::post('/tenantRegistration/sendForApproval/{id}', [TenantregistrationController::class, 'sendForApproval'])
+        ->name('tenant-registration.send-for-approval');
 });
 
 

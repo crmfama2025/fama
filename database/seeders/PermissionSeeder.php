@@ -57,6 +57,7 @@ class PermissionSeeder extends Seeder
                     $subModule[] = 'approve';
                     $subModule[] = 'reject';
                     $subModule[] = 'make-agreement';
+                    $subModule[] = 'send-for-approval';
                 }
             }
 

@@ -355,6 +355,35 @@
             // OR using Toastr:
             // toastr.error('{{ session('error') }}');
         @endif
+        $(document).on('click', '.send-for-approval', function() {
+            let url = $(this).data('url');
+
+            Swal.fire({
+                title: "Send for approval?",
+                text: "This will resubmit the record for review.",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonText: "Yes, send it!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: "POST",
+                        url: url,
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(response) {
+                            toastr.success(response.message);
+                            $('#tenantsRegistraionTable').DataTable().ajax.reload();
+                        },
+                        error: function(xhr) {
+                            toastr.error(xhr.responseJSON.message);
+                        }
+                    });
+                }
+            });
+        });
     </script>
+
     {{-- @include('admin.sales.approval-js'); --}}
 @endsection
