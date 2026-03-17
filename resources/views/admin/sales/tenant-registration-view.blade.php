@@ -60,8 +60,8 @@
                                     </a>
                                 @endif
                                 @if (auth()->user()->hasAnyPermission(['tenant-registration.reject']))
-                                    <a href="{{ route('tenant-registration.reject', $agreement->id) }}"
-                                        class="btn btn-danger btn-sm mr-1">
+                                    <a data-action="{{ route('tenant-registration.reject', $agreement->id) }}"
+                                        class="btn btn-danger btn-sm mr-1 rejection-btn">
                                         <i class="fas fa-times mr-1"></i> Reject
                                     </a>
                                 @endif
@@ -910,8 +910,10 @@
                                         <tr>
                                             <th>Remarks</th>
                                             <td>
-                                                <div style="max-height: 100px; overflow-y: auto; word-break: break-word;">
-                                                    {{ $agreement->is_approved == 1 ? $agreement->approved_comments ?? '-' : $agreement->rejection_reason ?? '-' }}
+                                                <div style="max-height: 100px; overflow-y: auto; word-break: break-word;"
+                                                    data-toggle="tooltip" data-html="true"
+                                                    title="{{ $agreement->is_approved == 1 ? $agreement->approved_comments ?? '-' : $agreement->rejection_reason ?? '-' }}">
+                                                    {{ Str::limit($agreement->is_approved == 1 ? $agreement->approved_comments ?? '-' : $agreement->rejection_reason ?? '-', 100) }}
                                                 </div>
                                             </td>
                                         </tr>

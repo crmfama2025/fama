@@ -62,7 +62,7 @@
                                             <th>Tenant Details</th>
                                             <th>Business Type</th>
                                             <th>Property / Unit / SubUnit</th>
-                                            <th>Rent Details</th>
+                                            {{-- <th>Rent Details</th> --}}
                                             <th>Start Date</th>
                                             <th>End Date</th>
                                         </tr>
@@ -149,6 +149,29 @@
             </form>
         </div>
     </div>
+
+    <div class="modal fade" id="rejectionReasonModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-ban mr-2"></i> Rejection Reason
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div style="background:#fff5f5;  padding:12px 16px; border-radius:4px;">
+                        <p class="mb-0 text-secondary" id="rejectionReasonText"></p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 @section('custom_js')
     <!-- DataTables  & Plugins -->
@@ -214,7 +237,10 @@
                                 case 2:
                                     badgeClass = 'badge badge-danger text-white';
                                     text = 'Rejected';
-                                    break;
+                                    return '<span class="' + badgeClass + '">' + text + '</span>' +
+                                        '<br><small class=" view-rejection-reason" style="cursor:pointer;" data-reason="' +
+                                        (row.rejection_reason || 'No reason provided') + '">' +
+                                        '<i class="fas fa-info-circle"></i> View Reason</small>';
 
                             }
 
@@ -241,12 +267,12 @@
                         orderable: false,
                         searchable: false
                     },
-                    {
-                        data: 'rent_details',
-                        name: 'rent_details',
-                        orderable: false,
-                        searchable: false
-                    },
+                    // {
+                    //     data: 'rent_details',
+                    //     name: 'rent_details',
+                    //     orderable: false,
+                    //     searchable: false
+                    // },
                     {
                         data: 'start_date',
                         name: 'start_date'
@@ -326,6 +352,18 @@
             // open modal
             $('#approvalModal').modal('show');
 
+        });
+        $(document).on('click', '.view-rejection-reason', function() {
+            let reason = $(this).data('reason');
+
+            // Swal.fire({
+            //     title: 'Rejection Reason',
+            //     text: reason,
+            //     // icon: 'error',
+            //     confirmButtonText: 'Close'
+            // });
+            $('#rejectionReasonText').text(reason);
+            $('#rejectionReasonModal').modal('show');
         });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
