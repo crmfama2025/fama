@@ -54,7 +54,8 @@ class AgreementTenantService
             'tenant_address' =>  'required',
             'contact_person' => 'required',
             'contact_number' => ['required', 'regex:/^\+?[1-9]\d{9,14}$/'],
-            'contact_email' => 'required|email:rfc,dns',
+            // 'contact_email' => 'required|email:rfc,dns',
+            'contact_email' => 'required',
         ], []);
 
         if ($validator->fails()) {
@@ -507,14 +508,16 @@ class AgreementTenantService
             // Tenant core fields
             'tenant_name'               => 'required|string|max:255',
             'tenant_mobile'             => ['required', 'regex:/^\+?[1-9]\d{9,14}$/'],
-            'tenant_email'              => 'required|email:rfc,dns',
+            // 'tenant_email'              => 'required|email:rfc,dns',
+            'tenant_email'              => 'required',
             'nationality_id'            => 'required|integer|exists:nationalities,id',
             'tenant_address'            => 'required|string|max:500',
             'tenant_street'             => 'nullable|string|max:255',
             'tenant_city'               => 'nullable|string|max:255',
             'contact_person'            => 'required|string|max:255',
             'contact_number'            => ['required', 'regex:/^\+?[1-9]\d{9,14}$/'],
-            'contact_email'             => 'required|email:rfc,dns',
+            // 'contact_email'             => 'required|email:rfc,dns',
+            'contact_email'             => 'required',
             'contact_person_department' => 'nullable|string|max:255',
             'payment_mode_id'           => 'nullable|integer|exists:payment_modes,id',
             'payment_frequency_id'      => 'nullable|integer|exists:profit_intervals,id',
