@@ -65,14 +65,13 @@
                                         <i class="fas fa-times mr-1"></i> Reject
                                     </a>
                                 @endif
-                            @elseif ($agreement->is_approved == 2)
-                                {{-- Re-Approve button shown only when Rejected --}}
+                                {{-- @elseif ($agreement->is_approved == 2)
                                 @if (auth()->user()->hasAnyPermission(['tenant-registration.approve']))
                                     <a data-action="{{ route('tenant-registration.approve', $agreement->id) }}"
                                         class="btn btn-success btn-sm mr-1 approval-btn">
                                         <i class="fas fa-clipboard-check mr-1"></i> Re-Approve
                                     </a>
-                                @endif
+                                @endif --}}
                             @endif
                             <a href="{{ route('tenant-registration.index') }}" class="btn btn-secondary btn-sm">
                                 <i class="fas fa-arrow-left mr-1"></i> Back
@@ -944,14 +943,13 @@
                                             <i class="fas fa-times mr-1"></i> Reject
                                         </button>
                                     @endif
-                                @elseif ($agreement->is_approved == 2)
+                                    {{-- @elseif ($agreement->is_approved == 2)
                                     @if (auth()->user()->hasAnyPermission(['tenant-registration.approve']))
-                                        {{-- Re-Approve button shown only when Rejected --}}
                                         <button type="button" class="btn btn-success btn-block mb-2 approval-btn"
                                             data-action="{{ route('tenant-registration.approve', $agreement->id) }}">
                                             <i class="fas fa-redo mr-1"></i> Re-Approve
                                         </button>
-                                    @endif
+                                    @endif --}}
                                 @endif
                                 @if (auth()->user()->hasAnyPermission(['tenant-registration.edit']))
                                     <a href="{{ route('tenant-registration.edit', $agreement->id) }}"
