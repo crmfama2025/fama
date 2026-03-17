@@ -77,4 +77,56 @@ class SalesTenantAgreement extends Model
     {
         return $this->belongsTo(User::class, 'approved_by');
     }
+    public function salesTenantSubunitRents()
+    {
+        return $this->hasMany(SalesTenantSubunitRent::class, 'sales_tenant_unit_id');
+    }
+    protected static function booted()
+    {
+        // dd("test");
+        static::deleting(function ($salesTenantAgreement) {
+            // dd($salesTenantAgreement);
+            $userId = auth()->user()->id;
+            // dd($userId);
+            // Conditionally add tenant
+            if ($salesTenantAgreement->business_type == 2) { // for b2c
+                $hasOneRelations[] = 'tenant';
+            }
+            // dd($hasOneRelations);
+
+            // hasMany relations
+            $hasManyRelations = [
+                'agreementUnits',
+                'salesTenantSubunitRents',
+            ];
+
+            if (!$salesTenantAgreement->isForceDeleting()) {
+                // dd("test");
+                // dd($hasOneRelations);
+
+                // Soft delete hasOne
+                foreach ($hasOneRelations as $relation) {
+                    $related = $salesTenantAgreement->$relation;
+                    // dd($related);
+                    if ($related) {
+                        $related->update(['deleted_by' => $userId]);
+                        $related->delete();
+                    }
+                }
+
+                // Soft delete hasMany
+                foreach ($hasManyRelations as $relation) {
+                    foreach ($salesTenantAgreement->$relation as $related) {
+                        $related->update(['deleted_by' => $userId]);
+                        $related->delete();
+                    }
+                }
+            } else {
+                // Force delete
+                foreach (array_merge($hasOneRelations, $hasManyRelations) as $relation) {
+                    $salesTenantAgreement->$relation()->withTrashed()->forceDelete();
+                }
+            }
+        });
+    }
 }

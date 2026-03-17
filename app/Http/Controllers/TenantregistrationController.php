@@ -164,4 +164,10 @@ class TenantregistrationController extends Controller
 
         return Excel::download(new SalesTenantExport($search), 'TenantDetails.xlsx');
     }
+    public function destroy(SalesTenantAgreement $tenant_registration)
+    {
+        // dd($agreement);
+        $this->tenantRegistrationService->delete($tenant_registration->id);
+        return response()->json(['success' => true, 'message' => 'Agreement deleted successfully']);
+    }
 }

@@ -58,6 +58,6 @@ class SalesTenantUnit extends Model
     }
     public function salesTenantSubunitRents()
     {
-        return $this->hasMany(\App\Models\SalesTenantSubunitRent::class, 'sales_tenant_unit_id');
+        return $this->hasMany(SalesTenantSubunitRent::class, 'sales_tenant_unit_id');
     }
 }

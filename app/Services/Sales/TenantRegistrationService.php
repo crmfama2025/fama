@@ -1492,4 +1492,9 @@ class TenantRegistrationService
         $update = $this->tenantRegistrationRepository->approveOrReject($id, $approve);
         return $update;
     }
+    public function delete($id)
+    {
+        // dd($id);
+        return $this->tenantRegistrationRepository->delete($id);
+    }
 }
