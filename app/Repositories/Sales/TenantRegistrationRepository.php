@@ -131,15 +131,31 @@ class TenantRegistrationRepository
 
         if (!empty($filters['search'])) {
             $search = $filters['search'];
-            $query->where(function ($q) use ($search) {
+            $searchLower = strtolower($search);
+            $query->where(function ($q) use ($search, $searchLower) {
                 $q->where('sales_agreement_code', 'like', "%{$search}%")
-                    ->orWhereHas(
-                        'tenant',
-                        fn($t) => $t
-                            ->where('tenant_name',   'like', "%{$search}%")
-                            ->orWhere('tenant_email',  'like', "%{$search}%")
+                    ->orWhereHas('tenant', function ($t) use ($search) {
+                        $t->where('tenant_name', 'like', "%{$search}%")
+                            ->orWhere('tenant_email', 'like', "%{$search}%")
                             ->orWhere('tenant_mobile', 'like', "%{$search}%")
-                    );
+                            ->ORwhereRaw("
+                    CASE
+                        WHEN tenant_type = 1 THEN 'B2B'
+                        WHEN tenant_type = 2 THEN 'B2C'
+                    END LIKE ?
+                ", ["%{$search}%"]);
+                    })
+                    ->orWhereHas('property', function ($p) use ($search) {
+                        $p->where('property_name', 'like', "%{$search}%");
+                    })
+                    ->orWhereRaw("
+                    CASE
+                        WHEN is_approved = 0 THEN 'Pending'
+                        WHEN is_approved = 1 THEN 'Approved'
+                        WHEN is_approved = 2 THEN 'Rejected'
+
+                    END LIKE ?
+                ", ["%{$search}%"]);
             });
         }
 

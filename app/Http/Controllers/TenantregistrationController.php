@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\SalesTenantExport;
 use App\Models\SalesTenantAgreement;
 use App\Services\Sales\TenantRegistrationService;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class TenantregistrationController extends Controller
 {
@@ -155,5 +157,11 @@ class TenantregistrationController extends Controller
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 404);
         }
+    }
+    public function export()
+    {
+        $search = request('search');
+
+        return Excel::download(new SalesTenantExport($search), 'TenantDetails.xlsx');
     }
 }

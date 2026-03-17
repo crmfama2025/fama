@@ -291,6 +291,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/agreements/{agreementId}/document/{docId}', [TenantregistrationController::class, 'deleteAgreementDocumentB2c'])
         ->name('agreement.document.delete');
     Route::get('tenantRegistration/make-agreement/{id}', [TenantregistrationController::class, 'makeAgreement'])->name('tenant-registration.make-agreement');
+    Route::get('export-tenant-registration', [TenantregistrationController::class, 'export'])->name('tenant-registraion.export');
 });
 
 

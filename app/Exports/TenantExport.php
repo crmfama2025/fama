@@ -61,7 +61,7 @@ class TenantExport implements FromCollection, WithHeadings
                     'Tenant Name' => $tenant->tenant_name,
                     // 'Company' => $tenant->company->company_name ?? '',
                     'Tenant Email' => $tenant->tenant_email,
-                    'Tenant Phone' => $tenant->tenant_phone,
+                    'Tenant Phone' => $tenant->tenant_mobile,
                     'Tenant Address' => $tenant->tenant_address,
                     'Tenant Street' => $tenant->tenant_street,
                     'Tenant City' => $tenant->tenant_city,

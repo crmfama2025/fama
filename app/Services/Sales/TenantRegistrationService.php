@@ -349,6 +349,7 @@ class TenantRegistrationService
                 fn($row) =>
                 "<span class='font-weight-bold text-primary'>{$row->sales_agreement_code}</span>"
             )
+            ->addColumn('is_approved', fn($row) => $row->is_approved ?? '-')
 
             // Tenant Details
             ->addColumn('tenant_details', function ($row) {
@@ -456,6 +457,7 @@ class TenantRegistrationService
                 'property_details',
                 'rent_details',
                 'action',
+                'is_approved'
             ])
             ->with(['columns' => $columns])
             ->toJson();

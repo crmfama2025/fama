@@ -57,6 +57,7 @@
                                         <tr>
                                             <th>#</th>
                                             <th>Action</th>
+                                            <th>Status</th>
                                             <th>Agreement Code</th>
                                             <th>Tenant Details</th>
                                             <th>Business Type</th>
@@ -195,6 +196,32 @@
                         searchable: false
                     },
                     {
+                        data: 'is_approved',
+                        name: 'is_approved',
+                        render: function(data, type, row) {
+                            let badgeClass = '';
+                            let text = '';
+
+                            switch (data) {
+                                case 0:
+                                    badgeClass = 'badge badge-warning text-white';
+                                    text = 'Pending';
+                                    break;
+                                case 1:
+                                    badgeClass = 'badge badge-success text-black';
+                                    text = 'Approved';
+                                    break;
+                                case 2:
+                                    badgeClass = 'badge badge-danger text-white';
+                                    text = 'Rejected';
+                                    break;
+
+                            }
+
+                            return '<span class="' + badgeClass + '">' + text + '</span>';
+                        },
+                    },
+                    {
                         data: 'sales_agreement_code',
                         name: 'sales_agreement_code'
                     },
@@ -240,7 +267,7 @@
                     action: function(e, dt, node, config) {
                         // redirect to your Laravel export route
                         let searchValue = dt.search();
-                        let url = "{{ route('tenant.export') }}" + "?search=" +
+                        let url = "{{ route('tenant-registraion.export') }}" + "?search=" +
                             encodeURIComponent(searchValue);
                         window.location.href = url;
                     }
