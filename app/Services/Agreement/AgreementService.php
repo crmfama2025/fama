@@ -83,7 +83,7 @@ class AgreementService
                 ];
                 // Add only if present
                 if (!empty($data['renewal_status'])) {
-                    $agreementData['renewal_status'] = $data['renew_status'];
+                    $agreementData['renewal_status'] = $data['renewal_status'];
                 }
 
                 if (!empty($data['parent_agreement_id'])) {
