@@ -99,7 +99,7 @@
             // if (prevBlocks.length > unitCount) {
             prevBlocks.forEach(block => {
                 const formGroups = block.querySelectorAll('.form-group.row');
-
+                // console.log(formGroups.length);
                 if (formGroups.length > 0) {
                     // Get the last .form-group element
                     const lastFormGroup = formGroups[formGroups.length - 1];
@@ -143,9 +143,12 @@
 
             function unitRemoveFunc(prevBlocks, unitCount, block) {
                 if (prevBlocks.length > unitCount) {
-                    const detailId = $(block.querySelector(
-                        'input[name="unit_detail[id][]"]'
-                    )).val();
+                    const detailId = '';
+                    if ({{ $edit }}) {
+                        detailId = $(block.querySelector(
+                            'input[name="unit_detail[id][]"]'
+                        )).val();
+                    }
 
                     Swal.fire({
                         title: "Are you sure?",
@@ -967,7 +970,7 @@
             } else {
                 $('.payment_details').hide();
             }
-
+            // console.log('installment change');
             let interval = $(this).find(':selected').data('interval');
             let noofinstallments = $(this).find(':selected').text();
 
@@ -1033,8 +1036,13 @@
                         confirmButtonText: "Yes, delete it!"
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            const detailId = $(block.querySelector(
-                                'input[name="payment_detail[id][]"]')).val();
+
+                            const detailId = '';
+                            if ({{ $edit }}) {
+                                detailId = $(block.querySelector(
+                                    'input[name="payment_detail[id][]"]')).val();
+                            }
+
                             // console.log(detailId);
                             // var fdataUnit = new FormData();
 
@@ -2005,7 +2013,7 @@
             let unit_comm = parseFloat(unit_rent * ($('#commission_perc').val() / 100)) || 0;
             let unit_depo = parseFloat(unit_rent * ($('#deposit_perc').val() / 100)) || 0;
             let unit_payable = unit_rent + unit_comm + unit_depo;
-            console.log('unit_number', unit_number);
+            // console.log('unit_number', unit_number);
             // Update unit number (readonly) in profit block
             const unitNoInput = profitBlock.find('.unit_noFF');
             unitNoInput.val(unit_number);
