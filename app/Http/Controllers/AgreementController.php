@@ -74,12 +74,14 @@ class AgreementController extends Controller
         $nationalities = $this->nationalityService->getAll();
         $contractTypes = ContractType::all();
         $emirates = Emirate::all();
+        $parent_agreement_id = null;
+        $renew = 0;
 
 
         // dd($contractTypes);
 
         // dd($contracts);
-        return view('admin.projects.agreement.create-agreement', compact('companies', 'contracts', 'installments', 'unitTypes', 'tenantIdentities', 'paymentmodes', 'banks', 'nationalities', 'contractTypes', 'emirates', 'tenants'));
+        return view('admin.projects.agreement.create-agreement', compact('companies', 'contracts', 'installments', 'unitTypes', 'tenantIdentities', 'paymentmodes', 'banks', 'nationalities', 'contractTypes', 'emirates', 'tenants', 'renew', 'parent_agreement_id'));
     }
     public function store(Request $request)
     {
@@ -317,7 +319,9 @@ class AgreementController extends Controller
         // dd($renewalContractId);
         // $renewalContractId = 51;
         // dd($tenant);
-        return view('admin.projects.agreement.create-agreement', compact('companies', 'contracts', 'installments', 'unitTypes', 'tenantIdentities', 'paymentmodes', 'banks', 'nationalities', 'contractTypes', 'tenant', 'company_id', 'renewalContractId', 'emirates'));
+        $renew = 1;
+        $parent_agreement_id = $agreement_id;
+        return view('admin.projects.agreement.create-agreement', compact('companies', 'contracts', 'installments', 'unitTypes', 'tenantIdentities', 'paymentmodes', 'banks', 'nationalities', 'contractTypes', 'tenant', 'company_id', 'renewalContractId', 'emirates', 'renew', 'parent_agreement_id'));
     }
     public function rentBifurcationStore(Request $request)
     {

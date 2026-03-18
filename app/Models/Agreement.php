@@ -46,7 +46,10 @@ class Agreement extends Model
         'added_by',
         'updated_by',
         'deleted_by',
-        'tenant_id'
+        'tenant_id',
+        'renewal_status',
+        'parent_agreement_id',
+
     ];
 
     /**

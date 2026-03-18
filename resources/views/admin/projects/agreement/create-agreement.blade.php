@@ -104,6 +104,10 @@
                                                 <input type="hidden" name="payment_id"
                                                     value={{ $agreement->agreement_payment->id }}>
                                             @endisset
+
+                                            <input type="hidden" name="renewal_status" value="{{ $renew ?? 0 }}">
+                                            <input type="hidden" name="parent_agreement_id"
+                                                value="{{ $parent_agreement_id }}">
                                             {{-- Edit case --}}
                                             <!-- your steps content here -->
                                             <div id="tenant-step" class="content step-content" role="tabpanel"
