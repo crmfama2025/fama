@@ -81,6 +81,14 @@ class AgreementService
                     'agreement_code' => $data['agreement_code'],
                     'tenant_id' => $data['tenant_id'],
                 ];
+                // Add only if present
+                if (!empty($data['renew_status'])) {
+                    $agreementData['renewal_status'] = $data['renew_status'];
+                }
+
+                if (!empty($data['parent_agreement_id'])) {
+                    $agreementData['parent_agreement_id'] = $data['parent_agreement_id'];
+                }
                 $this->validate($agreementData);
 
                 // dd('test');
