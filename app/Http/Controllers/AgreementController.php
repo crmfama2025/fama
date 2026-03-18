@@ -304,6 +304,7 @@ class AgreementController extends Controller
         $contractTypes = ContractType::all();
         $agreement = $this->agreementService->getById($agreement_id);
         $tenant = $agreement->tenant;
+        $tenants = $this->tenantService->getTenantsForAgreement();
         // dd($tenant);
         $company_id = $agreement->company_id;
         $contract = $this->contractService->getById($agreement->contract_id);
@@ -321,7 +322,7 @@ class AgreementController extends Controller
         // dd($tenant);
         $renew = 1;
         $parent_agreement_id = $agreement_id;
-        return view('admin.projects.agreement.create-agreement', compact('companies', 'contracts', 'installments', 'unitTypes', 'tenantIdentities', 'paymentmodes', 'banks', 'nationalities', 'contractTypes', 'tenant', 'company_id', 'renewalContractId', 'emirates', 'renew', 'parent_agreement_id'));
+        return view('admin.projects.agreement.create-agreement', compact('companies', 'contracts', 'installments', 'unitTypes', 'tenantIdentities', 'paymentmodes', 'banks', 'nationalities', 'contractTypes', 'tenant', 'company_id', 'renewalContractId', 'emirates', 'renew', 'parent_agreement_id', 'tenants'));
     }
     public function rentBifurcationStore(Request $request)
     {
