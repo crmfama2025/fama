@@ -408,7 +408,12 @@ class AgreementRepository
             ->join('contract_units', 'contract_units.contract_id', '=', 'contracts.id')
             // ->where('agreement_status', "=", 0)
             ->whereIn('agreement_status', [0, 2])
-            ->where('end_date', '<=', $oneMonthsLater);
+            ->where('end_date', '<=', $oneMonthsLater)
+            ->whereNotIn('agreements.id', function ($q) {
+                $q->select('parent_agreement_id')
+                    ->from('agreements')
+                    ->whereNotNull('parent_agreement_id');
+            });
 
         // $get = $query->get();
         // dd($get);
