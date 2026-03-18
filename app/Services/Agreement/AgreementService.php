@@ -82,7 +82,7 @@ class AgreementService
                     'tenant_id' => $data['tenant_id'],
                 ];
                 // Add only if present
-                if (!empty($data['renew_status'])) {
+                if (!empty($data['renewal_status'])) {
                     $agreementData['renewal_status'] = $data['renew_status'];
                 }
 
