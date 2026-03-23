@@ -1262,6 +1262,7 @@ class AgreementService
             ->addColumn('end_date', fn($row) => getFormattedDate($row->end_date))
             ->addColumn('is_signed_agreement_uploaded', fn($row) => $row->is_signed_agreement_uploaded ?? '-')
             ->addColumn('agreement_status', fn($row) => $row->agreement_status ?? '-')
+            ->addColumn('renewal_status', fn($row) => $row->renewal_status ?? '-')
             ->addColumn('created_at', fn($row) => $row->created_at ?? '-')
 
 

@@ -383,7 +383,19 @@
 
                             }
 
-                            return '<span class="' + badgeClass + '">' + text + '</span>';
+                            let renewalText = row.renewal_status == 1 ? 'Renewal' : 'New';
+                            let renewalBadge = row.renewal_status == 1 ?
+                                'badge badge-info' :
+                                'badge badge-secondary';
+
+                            return `
+                                <span class="${badgeClass}">${text}</span>
+                                <p class="mb-0">
+                                    <span class="${renewalBadge}">${renewalText}</span>
+                                </p>
+                            `;
+
+                            // return '<span class="' + badgeClass + '">' + text + '</span>';
                         },
                     },
                     {
