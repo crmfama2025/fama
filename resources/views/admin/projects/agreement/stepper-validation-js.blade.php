@@ -55,7 +55,14 @@
                         //     $('#no_of_installments').trigger('change');
                         // }
                         if (window.stepper._currentIndex === 2) {
-                            $('#no_of_installments').trigger('change');
+                            // console.log('ct', selectedContract)
+
+                            if (!(selectedContract.contract_type_id === 1 &&
+                                    selectedContract.contract_unit.business_type === 2)) {
+                                $('#no_of_installments').trigger('change');
+
+                            }
+
                         }
 
                     } else {
