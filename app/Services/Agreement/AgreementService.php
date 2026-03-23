@@ -177,6 +177,14 @@ class AgreementService
                     'agreement_code' => $data['agreement_code'],
                     'tenant_id' => $data['tenant_id'],
                 ];
+                // Add only if present
+                if (!empty($data['renewal_status'])) {
+                    $agreementData['renewal_status'] = $data['renewal_status'];
+                }
+
+                if (!empty($data['parent_agreement_id'])) {
+                    $agreementData['parent_agreement_id'] = $data['parent_agreement_id'];
+                }
                 $this->validate($agreementData);
 
                 // dd('test');
@@ -291,6 +299,14 @@ class AgreementService
                     'tenant_id' => $tenant->id,
                 ];
                 // dd($agreementData);
+                // Add only if present
+                if (!empty($data['renewal_status'])) {
+                    $agreementData['renewal_status'] = $data['renewal_status'];
+                }
+
+                if (!empty($data['parent_agreement_id'])) {
+                    $agreementData['parent_agreement_id'] = $data['parent_agreement_id'];
+                }
                 $this->validate($agreementData);
 
                 // dd('test');
@@ -1441,7 +1457,8 @@ class AgreementService
                 $hasValidRenewal =
                     $contract &&
                     $contract->children->isNotEmpty() &&
-                    $contract->children->contains('contract_status', 7);
+                    // $contract->children->contains('contract_status', 7);
+                    $contract->children->whereIn('contract_status', [1, 7])->isNotEmpty();
 
                 if (iscontractRenewed($contract->id) && $hasValidRenewal) {
                     $renewUrl = route('agreement.renew', $row->id);
