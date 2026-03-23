@@ -73,6 +73,13 @@ class AgreementExport implements FromCollection, WithHeadings
 
                     END LIKE ?
                 ", ["%{$search}%"])
+                    ->orWhereRaw("
+                    CASE
+                        WHEN renewal_status = 0 THEN 'New'
+                        WHEN renewal_status = 1 THEN 'Renewal'
+
+                    END LIKE ?
+                ", ["%{$search}%"])
                     ->orWhereHas('contract.contract_unit_details', function ($q) use ($search) {
                         $q->where('unit_number', 'like', "%{$search}%");
                     })

@@ -159,6 +159,14 @@ class AgreementRepository
                     END LIKE ?
                 ", ['%' . $filters['search'] . '%'])
 
+                ->orWhereRaw("
+                    CASE
+                        WHEN renewal_status = 0 THEN 'New'
+                        WHEN renewal_status = 1 THEN 'Renewal'
+
+                    END LIKE ?
+                ", ['%' . $filters['search'] . '%'])
+
                 ->orWhereRaw("CAST(agreements.id AS CHAR) LIKE ?", ['%' . $filters['search'] . '%']);
             $search = strtolower($filters['search']);
             if ($search === 'b2b') $query->orWhere('contract_units.business_type', 1);
