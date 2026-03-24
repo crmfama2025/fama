@@ -244,7 +244,15 @@
 
                             }
 
-                            return '<span class="' + badgeClass + '">' + text + '</span>';
+                            let html = '<span class="' + badgeClass + '">' + text + '</span>';
+
+                            // ✅ Append agreement status if is_agreement_added = 1
+                            if (row.is_agreement_added == 1) {
+                                html +=
+                                    '<br><span class="badge bg-gradient-gray text-white">Agreement Added</span>';
+                            }
+
+                            return html;
                         },
                     },
                     {
