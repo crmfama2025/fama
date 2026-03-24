@@ -145,6 +145,8 @@ class AgreementController extends Controller
         $emirates = Emirate::all();
         $tenants = $this->tenantService->getTenantsForAgreement();
         // dd($unitTypeList);
+        $parent_agreement_id = null;
+        $renew = 0;
 
         return view('admin.projects.agreement.create-agreement', compact(
             'agreement',
@@ -162,7 +164,9 @@ class AgreementController extends Controller
             'vacantData',
             'tenant',
             'emirates',
-            'tenants'
+            'tenants',
+            'parent_agreement_id',
+            'renew'
         ));
     }
     public function update(Request $request, $id)
