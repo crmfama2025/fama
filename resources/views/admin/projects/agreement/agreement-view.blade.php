@@ -198,9 +198,15 @@
                                                     </div>
                                                 </li>
                                                 <li class="nav-item px-3 py-2">
-                                                    <a href="{{ route('tenant.show', $agreement->tenant->id) }}"
+                                                    {{-- <a href="{{ route('tenant.show', $agreement->tenant->id) }}"
                                                         class="btn btn-sm btn-info" type="button" target="_blank"
                                                         aria-expanded="false">
+                                                        <i class="fa fa-eye"></i> View More
+                                                    </a> --}}
+                                                    <a href="{{ $agreement->tenant->tenant_type == 2
+                                                        ? route('tenant-registration.show', $agreement->tenant->salesAgreement[0]->id)
+                                                        : route('tenant.show', $agreement->tenant->id) }}"
+                                                        class="btn btn-sm btn-info" target="_blank">
                                                         <i class="fa fa-eye"></i> View More
                                                     </a>
                                                 </li>

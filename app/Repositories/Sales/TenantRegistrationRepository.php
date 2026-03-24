@@ -6,6 +6,8 @@ use App\Models\Agreement;
 use App\Models\AgreementDocument;
 use App\Models\AgreementTenant;
 use App\Models\Contract;
+use App\Models\ContractSubunitDetail;
+use App\Models\ContractUnitDetail;
 use App\Models\SalesTenantAgreement;
 use App\Models\SalesTenantUnit;
 use Illuminate\Contracts\Database\Eloquent\Builder;
@@ -36,12 +38,56 @@ class TenantRegistrationRepository
     }
 
 
-
     public function delete($id)
     {
         return DB::transaction(function () use ($id) {
-            $tenant = $this->find($id);
-            $tenant->delete();
+
+            $agreement = $this->find($id);
+
+            // 🔴 Get all agreement units
+            $units = $agreement->agreementUnits;
+
+            foreach ($units as $unit) {
+
+                // ✅ B2C (single subunit)
+                if ($agreement->business_type == 2) {
+
+                    // 🔴 Unassign UNIT
+                    if (!empty($unit->contract_unit_details_id)) {
+                        ContractUnitDetail::where('id', $unit->contract_unit_details_id)
+                            ->update(['is_sales_agreement_added' => 0]);
+                    }
+
+                    // 🔴 Unassign SUBUNIT
+                    if (!empty($unit->contract_subunit_details_id)) {
+                        ContractSubunitDetail::where('id', $unit->contract_subunit_details_id)
+                            ->update(['is_sales_agreement_added' => 0]);
+                    }
+                } else {
+                    // ✅ B2B (multiple subunits)
+
+                    // 🔴 Unassign UNIT
+                    if (!empty($unit->contract_unit_details_id)) {
+                        ContractUnitDetail::where('id', $unit->contract_unit_details_id)
+                            ->update(['is_sales_agreement_added' => 0]);
+                    }
+
+                    // 🔴 Unassign SUBUNITS (JSON)
+                    if (!empty($unit->subunit_ids)) {
+                        $subunitIds = json_decode($unit->subunit_ids, true);
+
+                        if (!empty($subunitIds)) {
+                            ContractSubunitDetail::whereIn('id', $subunitIds)
+                                ->update(['is_sales_agreement_added' => 0]);
+                        }
+                    }
+                }
+            }
+
+            // 🗑 Now delete agreement (triggers your booted() also)
+            $agreement->delete();
+
+            return true;
         });
     }
     public function getTenantsForAgreement()
@@ -129,6 +175,7 @@ class TenantRegistrationRepository
             'agreementUnits.contractUnitDetail.contractSubUnitDetails',
             'agreementUnits.unitType',
             'agreementUnits.salesTenantSubunitRents.contractSubUnitDetail',
+            'agreementUnits.contract'
         ])->findOrFail($id);
         return $agreement;
     }
