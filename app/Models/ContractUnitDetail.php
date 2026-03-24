@@ -55,7 +55,8 @@ class ContractUnitDetail extends Model
         'subunit_vacant_count',
         'total_payment_received',
         'total_payment_pending',
-        'total_room'
+        'total_room',
+        'is_sales_agreement_added'
     ];
 
     public function contract()

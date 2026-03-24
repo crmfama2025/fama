@@ -23,7 +23,8 @@ class ContractSubunitDetail extends Model
         'added_by',
         'updated_by',
         'deleted_by',
-        'is_vacant'
+        'is_vacant',
+        'is_sales_agreement_added'
     ];
 
     public function contract()

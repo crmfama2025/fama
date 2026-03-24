@@ -59,6 +59,7 @@ class AgreementService
 
     public function createOrRestore(array $data, $user_id = null)
     {
+        // dd($data);
         // $this->validate($data);
         DB::beginTransaction();
 
@@ -286,7 +287,15 @@ class AgreementService
 
                 ];
 
-                $tenant = $this->agreementTenantService->create($tenantData);
+                if (!empty($data['sales_tenant_id'])) {
+                    // ✅ UPDATE existing tenant
+                    $tenantData['id'] = $data['sales_tenant_id'];
+                    $tenant = $this->agreementTenantService->update($tenantData, auth()->user()->id);
+                    UpdateSalesTenantAgreement($data['sales_tenant_id']);
+                } else {
+                    // ✅ CREATE new tenant
+                    $tenant = $this->agreementTenantService->create($tenantData);
+                }
                 // dd($tenant);
                 $agreementData = [
                     'company_id' => $data['company_id'],
@@ -298,6 +307,9 @@ class AgreementService
                     'agreement_code' => $data['agreement_code'],
                     'tenant_id' => $tenant->id,
                 ];
+                if (!empty($data['sales_agreement_id'])) {
+                    $agreementData['sales_tenant_agreement_id'] = $data['sales_agreement_id'];
+                }
                 // dd($agreementData);
                 // Add only if present
                 if (!empty($data['renewal_status'])) {

@@ -18,6 +18,7 @@ use App\Models\Investor;
 use App\Models\InvestorPayout;
 use App\Models\PaymentMode;
 use App\Models\Property;
+use App\Models\SalesTenantAgreement;
 use App\Models\Vendor;
 use App\Repositories\Agreement\AgreementRepository;
 use App\Repositories\Contracts\ContractRepository;
@@ -1450,4 +1451,14 @@ function tenentAgreement($tenantId)
 {
     $agreements = Agreement::where('tenant_id', $tenantId)->get();
     return $agreements->count();
+}
+function UpdateSalesTenantAgreement($sales_tenant_id)
+{
+    SalesTenantAgreement::where('tenant_id', $sales_tenant_id)
+        ->update(['is_agreement_added' => 1]);
+}
+function updateSalesTenantAgreementOnAgreementDelete($sales_tenant_agreement_id)
+{
+    SalesTenantAgreement::where('id', $sales_tenant_agreement_id)
+        ->update(['is_agreement_added' => 0]);
 }

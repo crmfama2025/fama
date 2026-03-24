@@ -62,6 +62,8 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property int $renewal_status 0-new 1-renewal
+ * @property int|null $parent_agreement_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\AgreementStatusLogs> $agreementStatusLogs
  * @property-read int|null $agreement_status_logs_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\AgreementSubunitRentBifurcation> $agreementSubunitRentBifurcations
@@ -100,6 +102,8 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Agreement whereIsSignedAgreementUploaded($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Agreement whereIsTradeLicenseUploaded($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Agreement whereIsVisaUploaded($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Agreement whereParentAgreementId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Agreement whereRenewalStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Agreement whereStartDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Agreement whereTenantId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Agreement whereTerminatedBy($value)
@@ -387,6 +391,8 @@ namespace App\Models{
  * @property-read \App\Models\Nationality|null $nationality
  * @property-read \App\Models\ProfitInterval|null $paymentFrequency
  * @property-read \App\Models\PaymentMode|null $paymentMode
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SalesTenantAgreement> $salesAgreement
+ * @property-read int|null $sales_agreement_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\TenantDocument> $tenantDocuments
  * @property-read int|null $tenant_documents_count
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementTenant newModelQuery()
@@ -2754,6 +2760,8 @@ namespace App\Models{
  * @property-read \App\Models\User|null $deletedBy
  * @property-read \App\Models\Locality|null $locality
  * @property-read \App\Models\Property|null $property
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SalesTenantSubunitRent> $salesTenantSubunitRents
+ * @property-read int|null $sales_tenant_subunit_rents_count
  * @property-read \App\Models\AgreementTenant|null $tenant
  * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement newQuery()
@@ -2839,6 +2847,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read \App\Models\Contract|null $contract
  * @property-read \App\Models\ContractSubunitDetail|null $contractSubunitDetail
  * @property-read \App\Models\ContractUnitDetail|null $contractUnitDetail
  * @property-read \App\Models\User|null $deletedBy

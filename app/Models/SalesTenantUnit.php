@@ -60,4 +60,8 @@ class SalesTenantUnit extends Model
     {
         return $this->hasMany(SalesTenantSubunitRent::class, 'sales_tenant_unit_id');
     }
+    public function contract()
+    {
+        return $this->belongsTo(Contract::class, 'contract_id');
+    }
 }

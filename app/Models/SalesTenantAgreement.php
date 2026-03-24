@@ -41,7 +41,8 @@ class SalesTenantAgreement extends Model
         'rejection_reason',
         'approved_by',
         'approved_date',
-        'approved_comments'
+        'approved_comments',
+        'is_agreement_added'
     ];
     public function tenant()
     {
@@ -89,6 +90,7 @@ class SalesTenantAgreement extends Model
             $userId = auth()->user()->id;
             // dd($userId);
             // Conditionally add tenant
+            $hasOneRelations = [];
             if ($salesTenantAgreement->business_type == 2) { // for b2c
                 $hasOneRelations[] = 'tenant';
             }

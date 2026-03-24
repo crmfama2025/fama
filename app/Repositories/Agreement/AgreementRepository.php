@@ -244,6 +244,7 @@ class AgreementRepository
                 }
             } else {
                 // dd($contract_unit_details);
+                // dd("test");
                 foreach ($contract_unit_details as $unit) {
                     $unitdetail = ContractUnitDetail::find($unit);
                     if ($unitdetail) {
@@ -270,6 +271,11 @@ class AgreementRepository
                         $unitdetail->subunit_occupied_count = $occupied;
                         $unitdetail->subunit_vacant_count = $vacant;
                         $unitdetail->save();
+                    }
+                }
+                if ($agreement->sales_tenant_agreement_id != null) {
+                    if ($business_type == 2) {
+                        updateSalesTenantAgreementOnAgreementDelete($agreement->sales_tenant_agreement_id);
                     }
                 }
             }

@@ -114,4 +114,8 @@ class AgreementTenant extends Model
             }
         });
     }
+    public function salesAgreement()
+    {
+        return $this->hasMany(SalesTenantAgreement::class, 'tenant_id', 'id');
+    }
 }

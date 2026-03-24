@@ -49,6 +49,7 @@ class Agreement extends Model
         'tenant_id',
         'renewal_status',
         'parent_agreement_id',
+        'sales_tenant_agreement_id'
 
     ];
 
@@ -113,9 +114,9 @@ class Agreement extends Model
             ];
             // dd($agreement->contract->contract_type_id);
             // Conditionally add tenant
-            if ($agreement->contract->contract_unit->business_type == 2) { // assuming 1 = B2B
-                $hasOneRelations[] = 'tenant';
-            }
+            // if ($agreement->contract->contract_unit->business_type == 2) { // assuming 1 = B2B
+            //     $hasOneRelations[] = 'tenant';
+            // }
             // dd($hasOneRelations);
 
             // hasMany relations
