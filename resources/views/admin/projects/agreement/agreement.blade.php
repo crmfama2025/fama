@@ -87,7 +87,7 @@
                                             <th style="width: 1%">#</th>
                                             <th>Actions</th>
                                             {{-- <th>Agreement Code</th> --}}
-                                            <th>Company Name</th>
+                                            <th>Signed Agreement Status</th>
                                             <th>Project Details</th>
                                             <th>Customer Type</th>
                                             <th>Property Name</th>
@@ -95,7 +95,8 @@
                                             <th>Start Date</th>
                                             <th>End Date</th>
                                             <th>Agreement Status</th>
-                                            <th>Signed Agreement Status</th>
+                                            <th>Company Name</th>
+                                            {{-- <th>Signed Agreement Status</th> --}}
                                             <th>Created At</th>
                                             <!-- <th>Status</th> -->
                                             {{-- <th></th> --}}
@@ -324,10 +325,32 @@
                     //     data: 'agreement_code',
                     //     name: 'agreements.agreement_code',
                     // },
-                    {
-                        data: 'company_name',
-                        name: 'companies.company_name',
+                    // {
+                    //     data: 'company_name',
+                    //     name: 'companies.company_name',
 
+                    // },
+                    {
+                        data: 'is_signed_agreement_uploaded',
+                        name: 'agreements.is_signed_agreement_uploaded',
+                        render: function(data, type, row) {
+                            let badgeClass = '';
+                            let text = '';
+
+                            switch (data) {
+                                case 0:
+                                    badgeClass = 'badge badge-warning';
+                                    text = 'Not Uploaded';
+                                    break;
+                                case 1:
+                                    badgeClass = 'badge badge-success text-white';
+                                    text = 'Uploaded';
+                                    break;
+
+                            }
+
+                            return '<span class="' + badgeClass + '">' + text + '</span>';
+                        },
                     },
                     {
                         data: 'project_number',
@@ -398,27 +421,32 @@
                             // return '<span class="' + badgeClass + '">' + text + '</span>';
                         },
                     },
+                    // {
+                    //  data: 'is_signed_agreement_uploaded',
+                    //      name: 'agreements.is_signed_agreement_uploaded',
+                    //    render: function(data, type, row) {
+                    //      let badgeClass = '';
+                    //    let text = '';
+                    //
+                    //                          switch (data) {
+                    //                            case 0:
+                    //                              badgeClass = 'badge badge-warning';
+                    //                            text = 'Not Uploaded';
+                    //                          break;
+                    //                    case 1:
+                    //                      badgeClass = 'badge badge-success text-white';
+                    //                    text = 'Uploaded';
+                    //                  break;
+
+                    //        }
+                    //
+                    //                          return '<span class="' + badgeClass + '">' + text + '</span>';
+                    //                    },
+                    //              },
                     {
-                        data: 'is_signed_agreement_uploaded',
-                        name: 'agreements.is_signed_agreement_uploaded',
-                        render: function(data, type, row) {
-                            let badgeClass = '';
-                            let text = '';
+                        data: 'company_name',
+                        name: 'companies.company_name',
 
-                            switch (data) {
-                                case 0:
-                                    badgeClass = 'badge badge-warning';
-                                    text = 'Not Uploaded';
-                                    break;
-                                case 1:
-                                    badgeClass = 'badge badge-success text-white';
-                                    text = 'Uploaded';
-                                    break;
-
-                            }
-
-                            return '<span class="' + badgeClass + '">' + text + '</span>';
-                        },
                     },
                     {
                         data: 'created_at',
