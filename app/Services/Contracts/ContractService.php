@@ -655,7 +655,7 @@ class ContractService
     {
         if (empty($tokens)) return;
 
-        $accessToken = getFcmAccessToken();
+        // $accessToken = getFcmAccessToken();
         // dd("test");
 
 
@@ -684,8 +684,12 @@ class ContractService
                 ]
             ];
 
+            // $response = Http::withHeaders([
+            //     'Authorization' => 'Bearer ' . $accessToken,
+            //     'Content-Type' => 'application/json',
+            // ])->post('https://fcm.googleapis.com/v1/projects/fama-10735/messages:send', $message);
             $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $accessToken,
+                'Authorization' => 'Bearer ' . $tokens,
                 'Content-Type' => 'application/json',
             ])->post('https://fcm.googleapis.com/v1/projects/fama-10735/messages:send', $message);
             // dd($response);
