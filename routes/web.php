@@ -51,7 +51,7 @@ Route::post('do-forgotpassword', [LoginController::class, 'doForgotPassword'])->
 Route::get('reset-password/{token}', [LoginController::class, 'resetPassword'])->name('reset.password');
 Route::post('do-reset-password', [LoginController::class, 'doResetPassword'])->name('do.reset.password');
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'update.fcm'])->group(function () {
     Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 
     Route::resource('areas', AreaController::class);

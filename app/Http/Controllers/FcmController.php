@@ -89,6 +89,7 @@ class FcmController extends Controller
             $fcmToken->user_agent = $userAgent;
             $fcmToken->deleted_at = null; // restore if soft-deleted
             $fcmToken->updated_at = now();
+            $fcmToken->last_active_at = now();
             $fcmToken->save();
         } else {
             // dd("test");
@@ -99,6 +100,7 @@ class FcmController extends Controller
                 'device_id' => $deviceId,
                 'device_name' => $request->device_name ?? 'unknown device',
                 'user_agent' => $userAgent,
+                'last_active_at' => now(), // track activity
             ]);
         }
 
