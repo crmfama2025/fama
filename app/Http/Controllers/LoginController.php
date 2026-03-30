@@ -105,6 +105,15 @@ class LoginController extends Controller
 
     public function logout(Request $request)
     {
+
+        $user = auth()->user();
+
+        if ($user) {
+            // Soft delete only the FCM token of the current device
+            \App\Models\FcmToken::where('user_id', $user->id)
+                ->where('device_id', session('device_id'))
+                ->delete();
+        }
         Auth::logout(); // logs out the current user using default guard
 
         $request->session()->invalidate();   // invalidate the session

@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class FcmToken extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     // Table name (optional, Laravel assumes 'fcm_tokens')
     protected $table = 'fcm_tokens';
@@ -17,6 +18,8 @@ class FcmToken extends Model
         'user_id',
         'token',
         'device_name',
+        'device_id',
+        'user_agent'
     ];
 
     // Relationships
