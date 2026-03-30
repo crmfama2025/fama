@@ -7,6 +7,7 @@ use App\Http\Controllers\PayableClearingController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\ContractController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\FcmController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\InstallmentController;
 use App\Http\Controllers\InvesmentSOAController;
@@ -303,32 +304,35 @@ Route::middleware(['auth'])->group(function () {
     )
         ->name('tenant-registration.make-agreement-b2b');
 
-    Route::post('/save-fcm-token', function (Request $request) {
-        $user = auth()->user(); // make sure user is logged in
+    // Route::post('/save-fcm-token', function (Request $request) {
+    //     $user = auth()->user(); // make sure user is logged in
+    //     // dd($user);
 
-        if (!$user) {
-            return response()->json(['error' => 'Unauthenticated'], 401);
-        }
+    //     if (!$user) {
+    //         return response()->json(['error' => 'Unauthenticated'], 401);
+    //     }
 
-        $request->validate([
-            'token' => 'required|string',
-            'device_name' => 'nullable|string',
-        ]);
+    //     $request->validate([
+    //         'token' => 'required|string',
+    //         'device_name' => 'nullable|string',
+    //     ]);
+    //     dd($request->all());
 
-        // Save or update token
-        FcmToken::updateOrCreate(
-            [
-                'user_id' => $user->id,
-                'token' => $request->token,
-            ],
-            [
-                'device_name' => $request->device_name ?? 'unknown device',
-                'updated_at' => now(),
-            ]
-        );
+    //     // Save or update token
+    //     FcmToken::updateOrCreate(
+    //         [
+    //             'user_id' => $user->id,
+    //             'token' => $request->token,
+    //         ],
+    //         [
+    //             'device_name' => $request->device_name ?? 'unknown device',
+    //             'updated_at' => now(),
+    //         ]
+    //     );
 
-        return response()->json(['success' => true]);
-    });
+    //     return response()->json(['success' => true]);
+    // });
+    Route::post('/save-fcm-token', [FcmController::class, 'saveToken'])->name('fcm.saveToken');
 });
 
 
