@@ -26,8 +26,10 @@ use App\Http\Controllers\TenantController;
 use App\Http\Controllers\TenantregistrationController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VendorController;
+use App\Models\FcmToken;
 use App\Services\BrevoService;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -294,6 +296,39 @@ Route::middleware(['auth'])->group(function () {
     Route::get('export-tenant-registration', [TenantregistrationController::class, 'export'])->name('tenant-registraion.export');
     Route::post('/tenantRegistration/sendForApproval/{id}', [TenantregistrationController::class, 'sendForApproval'])
         ->name('tenant-registration.send-for-approval');
+    Route::get('make-agreement/{id}', [TenantregistrationController::class, 'makeAgreement'])->name('tenant-registration.make-agreement');
+    Route::get(
+        'tenant-registration/{id}/make-agreement-b2b',
+        [TenantRegistrationController::class, 'makeAgreementB2B']
+    )
+        ->name('tenant-registration.make-agreement-b2b');
+
+    Route::post('/save-fcm-token', function (Request $request) {
+        $user = auth()->user(); // make sure user is logged in
+
+        if (!$user) {
+            return response()->json(['error' => 'Unauthenticated'], 401);
+        }
+
+        $request->validate([
+            'token' => 'required|string',
+            'device_name' => 'nullable|string',
+        ]);
+
+        // Save or update token
+        FcmToken::updateOrCreate(
+            [
+                'user_id' => $user->id,
+                'token' => $request->token,
+            ],
+            [
+                'device_name' => $request->device_name ?? 'unknown device',
+                'updated_at' => now(),
+            ]
+        );
+
+        return response()->json(['success' => true]);
+    });
 });
 
 

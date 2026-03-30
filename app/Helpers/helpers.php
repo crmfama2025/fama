@@ -1452,13 +1452,79 @@ function tenentAgreement($tenantId)
     $agreements = Agreement::where('tenant_id', $tenantId)->get();
     return $agreements->count();
 }
-function UpdateSalesTenantAgreement($sales_tenant_id)
+function UpdateSalesTenantAgreement($sales_agreement_id)
 {
-    SalesTenantAgreement::where('tenant_id', $sales_tenant_id)
+    SalesTenantAgreement::where('id', $sales_agreement_id)
         ->update(['is_agreement_added' => 1]);
 }
 function updateSalesTenantAgreementOnAgreementDelete($sales_tenant_agreement_id)
 {
     SalesTenantAgreement::where('id', $sales_tenant_agreement_id)
         ->update(['is_agreement_added' => 0]);
+}
+function UpdateSalesTenantAgreementB2B($sales_agreement_id)
+{
+    // $agreements = Agreement::with('agreement_units')->where('sales_tenant_agreement_id', $sales_agreement_id)->get();
+    // $salesAgreement = SalesTenantAgreement::with('agreementUnits')->where('id', $sales_agreement_id)->get();
+    // dd($agreements, $salesAgreement);
+    // ✅ Get all agreement unit contract IDs
+    $agreementUnitIds = \App\Models\AgreementUnit::whereHas('agreement', function ($q) use ($sales_agreement_id) {
+        $q->where('sales_tenant_agreement_id', $sales_agreement_id);
+    })
+        ->pluck('contract_unit_details_id')
+        ->toArray();
+
+    // ✅ Get all sales agreement unit contract IDs
+    $salesUnitIds = \App\Models\SalesTenantUnit::where('sales_tenant_agreement_id', $sales_agreement_id)
+        ->pluck('contract_unit_details_id')
+        ->toArray();
+    // dd($salesUnitIds, $agreementUnitIds);
+
+    // ✅ Check if ALL sales units are present in agreement units
+    $missingUnits = array_diff($salesUnitIds, $agreementUnitIds);
+    // dd($missingUnits);
+
+    if (empty($missingUnits)) {
+        // dd
+        SalesTenantAgreement::where('id', $sales_agreement_id)
+            ->update(['is_agreement_added' => 1]);
+    } else {
+        SalesTenantAgreement::where('id', $sales_agreement_id)
+            ->update(['is_agreement_added' => 0]);
+    }
+}
+
+
+function getFcmAccessToken()
+{
+    $jsonKey = json_decode(file_get_contents(storage_path('app/firebase-service-account.json')), true);
+
+    $header = json_encode(['alg' => 'RS256', 'typ' => 'JWT']);
+    $now = time();
+    $payload = json_encode([
+        'iss' => $jsonKey['client_email'],
+        'scope' => 'https://www.googleapis.com/auth/firebase.messaging',
+        'aud' => 'https://oauth2.googleapis.com/token',
+        'iat' => $now,
+        'exp' => $now + 3600
+    ]);
+
+    // Base64 URL encode
+    $base64UrlHeader = rtrim(strtr(base64_encode($header), '+/', '-_'), '=');
+    $base64UrlPayload = rtrim(strtr(base64_encode($payload), '+/', '-_'), '=');
+    $signatureInput = $base64UrlHeader . "." . $base64UrlPayload;
+
+    // Sign with private key
+    openssl_sign($signatureInput, $signature, $jsonKey['private_key'], OPENSSL_ALGO_SHA256);
+    $base64UrlSignature = rtrim(strtr(base64_encode($signature), '+/', '-_'), '=');
+
+    $jwt = $signatureInput . "." . $base64UrlSignature;
+
+    // Request OAuth token
+    $response = Http::asForm()->post('https://oauth2.googleapis.com/token', [
+        'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+        'assertion' => $jwt,
+    ]);
+
+    return $response['access_token'];
 }

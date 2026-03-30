@@ -15,9 +15,11 @@ use App\Models\{
     PaymentMode,
     Bank,
     ContractType,
+    FcmToken,
     UnitType,
     UnitStatus,
-    UnitSizeUnit
+    UnitSizeUnit,
+    User
 };
 use App\Services\AreaService;
 use App\Services\CompanyService;
@@ -29,6 +31,7 @@ use App\Services\PropertyTypeService;
 use App\Services\VendorService;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 
 class ContractService
@@ -604,21 +607,92 @@ class ContractService
             'contract_status' => $data['status'],
             'contract_id' => $data['contract_id'],
         ];
+        // Get the contract first to access project number
+        $contract = $this->contractRepo->find($data['contract_id']);
+
+        $projectNumber = $contract->project_number; // replace with actual column name
 
         if ($data['status'] == '2') {
             $dataArr['approved_by'] = auth()->user()->id;
             $dataArr['approved_date'] = Carbon::now();
+            $title = "Contract Approved";
+            $body = "The Project number {$projectNumber} has been approved.";
         } else {
             $dataArr['rejected_reason'] = $data['reason'];
             $dataArr['rejected_date'] = Carbon::now();
             $dataArr['contract_rejected_by'] = auth()->user()->id;
+            $title = "Contract Rejected";
+            $body = "The Project number {$projectNumber} has been rejected.";
         }
         // dd($dataArr);
 
         // dd($this->vendorSignServ->addImageToPdf($data['contract_id']));
-        return $this->contractRepo->update($data['contract_id'], $dataArr);
+        // return $this->contractRepo->update($data['contract_id'], $dataArr);
+
+        // Update contract
+        $contract = $this->contractRepo->update($data['contract_id'], $dataArr);
+
+        // 👉 Get user (example: contract owner)
+        $user = User::find($contract->added_by); // pass user_id in request
+        // dd($user);
+
+        if ($user) {
+            $tokens = FcmToken::where('user_id', $user->id)
+                ->pluck('token')
+                ->toArray();
+            // dd($tokens);
+
+            if (!empty($tokens)) {
+                $this->sendNotification($tokens, $title, $body, $data['contract_id']);
+            }
+        }
+
+        return $contract;
     }
 
+
+    public function sendNotification($tokens, $title, $body, $id)
+    {
+        if (empty($tokens)) return;
+
+        $accessToken = getFcmAccessToken();
+        // dd("test");
+
+
+        foreach ($tokens as $token) {
+            $message = [
+                "message" => [
+                    "token" => $token,
+                    "notification" => [
+                        "title" => $title,
+                        "body" => $body
+                    ],
+                    // 🔥 THIS IS THE MISSING PART
+                    "webpush" => [
+                        "notification" => [
+                            "title" => $title,
+                            "body" => $body,
+                            "icon" => url('/images/favicon.png'),
+                            "click_action" => route('contract.show', $id)
+                        ],
+                        "fcm_options" => [
+                            "link" => route('contract.show', $id) // open on click
+                        ]
+                    ],
+                    "android" => ["priority" => "high", "notification" => ["sound" => "default"]],
+                    "apns" => ["headers" => ["apns-priority" => "10"], "payload" => ["aps" => ["sound" => "default"]]]
+                ]
+            ];
+
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $accessToken,
+                'Content-Type' => 'application/json',
+            ])->post('https://fcm.googleapis.com/v1/projects/fama-10735/messages:send', $message);
+            // dd($response);
+
+            \Log::info('FCM Response: ' . $response->body());
+        }
+    }
     // public function vendorContractSign($contract_id)
     // {
     //     $contract = $this->contractRepo->find($contract_id);
