@@ -52,9 +52,10 @@ class Kernel extends ConsoleKernel
 
             $expiryMinutes = config('session.lifetime'); // e.g. 120
 
-            \App\Models\FcmToken::where('last_active_at', '<', now()->subMinutes($expiryMinutes))
+            $deleted = \App\Models\FcmToken::where('last_active_at', '<', now()->subMinutes($expiryMinutes))
                 ->delete();
-        })->hourly();
+            \Log::info("FCM cleanup ran at " . now() . ". Deleted $deleted tokens.");
+        })->everyFiveMinutes();
     }
 
     /**
