@@ -689,7 +689,7 @@ class ContractService
             //     'Content-Type' => 'application/json',
             // ])->post('https://fcm.googleapis.com/v1/projects/fama-10735/messages:send', $message);
             $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $tokens,
+                'Authorization' => 'Bearer ' . $token,
                 'Content-Type' => 'application/json',
             ])->post('https://fcm.googleapis.com/v1/projects/fama-10735/messages:send', $message);
             // dd($response);
