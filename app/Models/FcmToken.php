@@ -19,7 +19,8 @@ class FcmToken extends Model
         'token',
         'device_name',
         'device_id',
-        'user_agent'
+        'user_agent',
+        'last_active_at'
     ];
 
     // Relationships
