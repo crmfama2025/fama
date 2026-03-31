@@ -10,22 +10,35 @@ const firebaseConfig = {
     appId: "1:1014441330386:web:1e8c8da5343990e483cf0b",
 };
 
-// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 
-// 2️⃣ Register service worker
+// 2️⃣ Register SW, then wait for it to be fully ACTIVE before doing anything
 navigator.serviceWorker.register('/firebase-messaging-sw.js')
     .then((registration) => {
         console.log('Service Worker registered:', registration.scope);
-        requestPermissionAndSendToken();
+
+        // If already active, go straight to permission
+        if (registration.active) {
+            requestPermissionAndSendToken(registration);
+            return;
+        }
+
+        // Otherwise wait for the SW to finish installing → activating
+        const sw = registration.installing || registration.waiting;
+        sw.addEventListener('statechange', (e) => {
+            if (e.target.state === 'activated') {
+                requestPermissionAndSendToken(registration);
+            }
+        });
     })
     .catch((err) => {
         console.error('Service Worker registration failed:', err);
     });
 
 // 3️⃣ Request permission and get token
-async function requestPermissionAndSendToken() {
+// ✅ Accepts the registration and passes it explicitly to getToken()
+async function requestPermissionAndSendToken(swRegistration) {
     try {
         const permission = await Notification.requestPermission();
         if (permission !== 'granted') {
@@ -33,9 +46,12 @@ async function requestPermissionAndSendToken() {
             return;
         }
 
+        // ✅ Pass swRegistration so FCM uses the SW we KNOW is active
         const token = await messaging.getToken({
-            vapidKey: 'BO50uWHMmyJY-TaKTpprGOsMIQqRKrYRKOkikvshO99HYaYnxnRokDlPSMMGyoAGUfL-yXKdDfqMAlzeymLEdXw'
+            vapidKey: 'BO50uWHMmyJY-TaKTpprGOsMIQqRKrYRKOkikvshO99HYaYnxnRokDlPSMMGyoAGUfL-yXKdDfqMAlzeymLEdXw',
+            serviceWorkerRegistration: swRegistration,
         });
+
         console.log('FCM Token:', token);
 
         await fetch('/save-fcm-token', {
@@ -49,6 +65,7 @@ async function requestPermissionAndSendToken() {
                 device_name: navigator.userAgent,
             }),
         });
+
         console.log('Token sent to backend');
     } catch (err) {
         console.error('Error getting FCM token:', err);
@@ -56,19 +73,45 @@ async function requestPermissionAndSendToken() {
 }
 
 // 4️⃣ Foreground messages
+// messaging.onMessage((payload) => {
+//     console.log('Message received in foreground:', payload);
+//     navigator.serviceWorker.getRegistration().then((registration) => {
+//         if (registration) {
+//             registration.showNotification(payload.notification.title, {
+//                 body: payload.notification.body,
+//                 icon: '/images/favicon.png'
+//             });
+//         }
+//     });
+// });
+
 messaging.onMessage((payload) => {
     console.log('Message received in foreground:', payload);
-    // 🔥 SHOW NOTIFICATION MANUALLY
-    // new Notification(payload.notification.title, {
-    //     body: payload.notification.body,
-    //     icon: '/images/favicon.png' // optional
-    // });
-    navigator.serviceWorker.getRegistration().then(function(registration) {
-        if (registration) {
-            registration.showNotification(payload.notification.title, {
-                body: payload.notification.body,
-                icon: '/images/favicon.png'
-            });
-        }
-    });
+
+    // ✅ Guard: check permission first
+    if (Notification.permission !== 'granted') {
+        console.warn('Notification permission not granted, skipping.');
+        return;
+    }
+
+    const title = payload.notification?.title || 'New Notification';
+    const options = {
+        body: payload.notification?.body || '',
+        icon: '/images/favicon.png',
+        badge: '/images/favicon.png',
+        data: payload.data || {},
+    };
+
+    // ✅ Use navigator.serviceWorker.ready instead of getRegistration()
+    // .ready always resolves with the ACTIVE SW — getRegistration() can return undefined
+    navigator.serviceWorker.ready
+        .then((registration) => {
+            registration.showNotification(title, options);
+        })
+        .catch((err) => {
+            console.error('showNotification failed:', err);
+
+            // Fallback: use basic Notification API directly
+            new Notification(title, options);
+        });
 });
