@@ -547,7 +547,7 @@
     // });
 
     // function partAndBsChange(map, funName) {
-    //     // 🔹 Hide all sections on load 
+    //     // 🔹 Hide all sections on load
     //     $.each(map, function(_, div) {
     //         $(div).hide();
     //     });
@@ -1067,7 +1067,13 @@
 
                                 $.ajax({
                                     url: `/contracts/payment-detail/${detailId}`,
-                                    type: 'DELETE',
+                                    // type: 'DELETE',
+                                    type: 'POST', // ✅ change from DELETE
+                                    data: {
+                                        _method: 'DELETE', // ✅ spoof DELETE
+                                        _token: $('meta[name="csrf-token"]').attr(
+                                            'content')
+                                    },
                                     // data: fdataUnit,
                                     // processData: false,
                                     // contentType: false,
@@ -1182,14 +1188,14 @@
 
 
                                     </select>
-                                    
+
                             </div>
-                                
+
                             <div class="col-md-4">
                                 <label class="asterisk">Payment Date</label>
                                 <div class="input-group date" id="otherPaymentDate${i}" data-target-input="nearest">
-                                    <input type="text" class="form-control datetimepicker-input otherPaymentDate" 
-                                        name="payment_detail[payment_date][]" id="payment_date${i}" 
+                                    <input type="text" class="form-control datetimepicker-input otherPaymentDate"
+                                        name="payment_detail[payment_date][]" id="payment_date${i}"
                                         data-target="#otherPaymentDate${i}" placeholder="dd-mm-YYYY" required/>
                                     <div class="input-group-append" data-target="#otherPaymentDate${i}" data-toggle="datetimepicker">
                                         <div class="input-group-text"><i class="fa fa-calendar"></i></div>
@@ -1204,13 +1210,13 @@
                         <div class="form-group row">
                                 <div class="col-md-4 bank" id="bank${i}">
                                     <label for="exampleInputEmail1" class="asterisk">Bank Name</label>
-                                    
+
                                     <select class="form-control select2 bank_name" name="payment_detail[bank_id][]" id="bank_name${i}" required>
                                         <option value="">Select Bank</option>
                                         ${optionBank}
 
                                     </select>
-                                    
+
                                 </div>
 
                                 <div class="col-md-3 chq" id="chq${i}">
@@ -1218,7 +1224,7 @@
                                     <input type="text" class="form-control cheque_no" id="cheque_no${i}" name="payment_detail[cheque_no][]" placeholder="Cheque No" required>
                                 </div>
 
-                                
+
                             </div>
                         <hr>`;
 
@@ -2287,7 +2293,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-4">
-                                    
+
                                     <input type="number" class="form-control rec_payment_amount"
                                         id="rec_payment_amount${inst}"
                                         name="receivables[payment_amount][]"
