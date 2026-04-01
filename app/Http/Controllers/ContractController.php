@@ -269,7 +269,7 @@ class ContractController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Payment Payable deleted successfully.'
+                'message' => 'Payment Receivable deleted successfully.'
             ]);
         } catch (\Exception $e) {
             return response()->json([

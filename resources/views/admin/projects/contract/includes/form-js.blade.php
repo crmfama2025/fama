@@ -547,7 +547,7 @@
     // });
 
     // function partAndBsChange(map, funName) {
-    //     // 🔹 Hide all sections on load 
+    //     // ðŸ”¹ Hide all sections on load 
     //     $.each(map, function(_, div) {
     //         $(div).hide();
     //     });
@@ -601,7 +601,7 @@
     // }
 
     function partAndBsChange(map, funName) {
-        // 🔹 Hide all sections on load except the checked ones
+        // ðŸ”¹ Hide all sections on load except the checked ones
         $.each(map, function(check, div) {
             const $checkbox = $(check);
             const $div = $(div);
@@ -621,7 +621,7 @@
             $checkbox.off('change').on('change', function() {
                 const isChecked = $checkbox.prop('checked');
 
-                // // 🔹 Make checkboxes mutually exclusive
+                // // ðŸ”¹ Make checkboxes mutually exclusive
                 // $.each(map, function(otherCheck, otherDiv) {
                 //     if (otherCheck !== check) {
                 //         $(otherCheck).prop('checked', false);
@@ -640,7 +640,7 @@
                 //     }
                 // });
 
-                // 🔹 Show/hide this one
+                // ðŸ”¹ Show/hide this one
                 if (isChecked) {
                     $div.show();
                 } else {
@@ -654,11 +654,11 @@
                     });
                 }
 
-                // 🔹 Trigger the change event for any other scripts listening
+                // ðŸ”¹ Trigger the change event for any other scripts listening
                 $checkbox.trigger('change.customTrigger');
             });
 
-            // 🔹 Trigger change once on page load to initialize
+            // ðŸ”¹ Trigger change once on page load to initialize
             $checkbox.trigger('change.customTrigger');
         });
     }
@@ -1067,7 +1067,13 @@
 
                                 $.ajax({
                                     url: `/contracts/payment-detail/${detailId}`,
-                                    type: 'DELETE',
+                                    // type: 'DELETE',
+                                     type: 'POST', // ✅ change from DELETE
+                                    data: {
+                                        _method: 'DELETE', // ✅ spoof DELETE
+                                        _token: $('meta[name="csrf-token"]').attr(
+                                            'content')
+                                    },
                                     // data: fdataUnit,
                                     // processData: false,
                                     // contentType: false,
@@ -2091,14 +2097,14 @@
 
         prevffBlocks.forEach(block => {
             const formGroup = block.querySelector(
-                '.form-group.row'); // ✅ single form group per block
+                '.form-group.row'); // âœ… single form group per block
 
             if (!formGroup) return; // skip if none
 
             const existingBtn = formGroup.querySelector('.btndetdRec');
 
 
-            // ✅ Add delete button only if more blocks than rec_inst
+            // âœ… Add delete button only if more blocks than rec_inst
             if (prevffBlocks.length > rec_inst) {
                 // console.log('if greater limit');
                 if (!existingBtn) {
@@ -2113,7 +2119,7 @@
                     // console.log('delete');
                     $('.contractFormSubmit').attr('disabled', true);
 
-                    // ✅ Attach delete event
+                    // âœ… Attach delete event
                     const removeBtn = formGroup.querySelector('.dlt-divRec');
                     if (removeBtn) {
                         removeBtn.addEventListener('click', () => {
@@ -2123,7 +2129,7 @@
                     }
                 }
             }
-            // ✅ If count matches or below limit — remove delete buttons
+            // âœ… If count matches or below limit â€” remove delete buttons
             else {
 
                 if (existingBtn) {
@@ -2170,17 +2176,38 @@
                         });
 
                         if (detailId) {
-                            $.ajaxSetup({
-                                headers: {
-                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                                }
-                            });
-                            $.ajax({
-                                url: `/contracts/payment-receivable/${detailId}`,
-                                type: 'DELETE',
+                            // $.ajaxSetup({
+                            //     headers: {
+                            //         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            //     }
+                            // });
+                            // $.ajax({
+                            //     url: `/contracts/payment-receivable/${detailId}`,
+                            //     //type: 'DELETE',
+                            //      type: 'POST', // ✅ change from DELETE
+                            //         data: {
+                            //             _method: 'DELETE', // ✅ spoof DELETE
+                            //             _token: $('meta[name="csrf-token"]').attr(
+                            //                 'content')
+                            //         },
                                 // data: fdataUnit,
                                 // processData: false,
                                 // contentType: false,
+                               var fdata = new FormData();
+                                fdata.append('_method', 'DELETE');
+                                fdata.append('_token', '{{ csrf_token() }}');  // ✅ direct from Laravel session
+                                
+                                var url = "{{ route('contracts.payment-receivable.delete', ':id') }}".replace(':id', detailId);
+                                
+                                $.ajax({
+                                    url: url,
+                                    type: 'POST',
+                                    data: fdata,
+                                    processData: false,
+                                    contentType: false,
+                                    headers: {
+                                        'X-CSRF-TOKEN': '{{ csrf_token() }}'  // ✅ send in header too
+                                    }, 
                                 success: function(
                                     response) {
                                     block.remove();
@@ -2190,7 +2217,7 @@
                                     Swal.close();
 
 
-                                    // ✅ Recheck after removal
+                                    // âœ… Recheck after removal
                                     const remainingDeletes = containerPayment.querySelectorAll(
                                         '.btndelete');
                                     const remainingPayments = containerPayment.querySelectorAll(
@@ -2214,7 +2241,7 @@
                             block.remove();
                             Swal.close();
 
-                            // ✅ Recheck after removal
+                            // âœ… Recheck after removal
                             const remainingDeletes = containerPayment.querySelectorAll('.btndelete');
                             const remainingPayments = containerPayment.querySelectorAll('.receivableaddmore');
 
@@ -2447,7 +2474,7 @@
             $('.error-text-installment').hide();
             const btnDetdRec = $('.btndetdRec:visible');
             if (btnDetdRec.length == 0) {
-                // btndetdRec not visible / not present → enable submit
+                // btndetdRec not visible / not present â†’ enable submit
                 $('.contractFormSubmit').removeAttr('disabled');
             }
             // $('.contractFormSubmit').removeAttr('disabled');
