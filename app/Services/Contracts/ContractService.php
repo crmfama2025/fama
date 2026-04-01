@@ -642,7 +642,7 @@ class ContractService
                 ->where('last_active_at', '>=', now()->subMinutes($sessionMinutes))
                 ->pluck('token')
                 ->toArray();
-            // dd($tokens);
+            //dd($tokens);
 
             if (!empty($tokens)) {
                 $this->sendNotification($tokens, $title, $body, $data['contract_id']);
