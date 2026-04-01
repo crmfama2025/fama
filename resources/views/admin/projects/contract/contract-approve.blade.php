@@ -320,7 +320,7 @@
                         },
                         dataType: "json",
                         success: function(response) {
-                            // window.location.href = "{{ route('contract.index') }}";
+                            window.location.href = "{{ route('contract.index') }}";
                         }
                     });
                 }
