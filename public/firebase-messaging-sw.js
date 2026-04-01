@@ -14,14 +14,12 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-messaging.onBackgroundMessage(function(payload) {
-    console.log('[firebase-messaging-sw.js] Received background message ', payload);
 
-    const notificationTitle = payload.notification.title;
-    const notificationOptions = {
-        body: payload.notification.body,
-        icon: '/images/favicon.png'
-    };
-
-    self.registration.showNotification(notificationTitle, notificationOptions);
+// ✅ Handle notification click → open the link
+self.addEventListener('notificationclick', (event) => {
+    event.notification.close();
+    const link = event.notification.data?.link;
+    if (link) {
+        event.waitUntil(clients.openWindow(link));
+    }
 });

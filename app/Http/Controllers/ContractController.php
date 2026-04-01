@@ -198,7 +198,7 @@ class ContractController extends Controller
         $contractUnitdetails = $this->unitdetServ->getByContractId($contractId);
 
         // dd($agreements);
-        return view("admin.projects.contract.contract-allocated-details", compact("title", 'contract', 'contractUnitdetails')); //'documentTypes', 'contractDocuments', 
+        return view("admin.projects.contract.contract-allocated-details", compact("title", 'contract', 'contractUnitdetails')); //'documentTypes', 'contractDocuments',
     }
 
 
@@ -269,7 +269,7 @@ class ContractController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Payment Payable deleted successfully.'
+                'message' => 'Payment Receivable deleted successfully.'
             ]);
         } catch (\Exception $e) {
             return response()->json([

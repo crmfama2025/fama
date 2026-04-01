@@ -663,18 +663,15 @@ class ContractService
             $message = [
                 "message" => [
                     "token" => $token,
-                    "notification" => [
-                        "title" => $title,
-                        "body" => $body
-                    ],
-                    // 🔥 THIS IS THE MISSING PART
+
                     "webpush" => [
                         "notification" => [
                             "title" => $title,
                             "body" => $body,
-                            "icon" => url('/images/favicon.png'),
-                            "click_action" => route('contract.show', $id)
+                            "icon" => url('/images/fg.png'),
+                            // "click_action" => route('contract.show', $id)
                         ],
+                        "data" => ["link" => route('contract.show', $id)],
                         "fcm_options" => [
                             "link" => route('contract.show', $id) // open on click
                         ]

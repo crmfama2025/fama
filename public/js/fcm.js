@@ -14,7 +14,9 @@ firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 
 // 2️⃣ Register SW, then wait for it to be fully ACTIVE before doing anything
-navigator.serviceWorker.register('/firebase-messaging-sw.js')
+navigator.serviceWorker.register('/firebase-messaging-sw.js', {
+        scope: '/'
+    })
     .then((registration) => {
         console.log('Service Worker registered:', registration.scope);
 
@@ -52,6 +54,8 @@ async function requestPermissionAndSendToken(swRegistration) {
             serviceWorkerRegistration: swRegistration,
         });
 
+        console.log(token);
+
         console.log('FCM Token:', token);
 
         await fetch('/save-fcm-token', {
@@ -72,46 +76,35 @@ async function requestPermissionAndSendToken(swRegistration) {
     }
 }
 
-// 4️⃣ Foreground messages
-// messaging.onMessage((payload) => {
-//     console.log('Message received in foreground:', payload);
-//     navigator.serviceWorker.getRegistration().then((registration) => {
-//         if (registration) {
-//             registration.showNotification(payload.notification.title, {
-//                 body: payload.notification.body,
-//                 icon: '/images/favicon.png'
-//             });
-//         }
-//     });
-// });
+
 
 messaging.onMessage((payload) => {
     console.log('Message received in foreground:', payload);
 
     // ✅ Guard: check permission first
-    if (Notification.permission !== 'granted') {
-        console.warn('Notification permission not granted, skipping.');
-        return;
-    }
+    // if (Notification.permission !== 'granted') {
+    //     console.warn('Notification permission not granted, skipping.');
+    //     return;
+    // }
 
-    const title = payload.notification?.title || 'New Notification';
-    const options = {
-        body: payload.notification?.body || '',
-        icon: '/images/favicon.png',
-        badge: '/images/favicon.png',
-        data: payload.data || {},
-    };
+    // const title = payload.notification?.title || 'New Notification';
+    // const options = {
+    //     body: payload.notification?.body || '',
+    //     icon: '/images/fg.png',
+    //     badge: '/images/fg.png',
+    //     data: payload.data || {},
+    // };
 
-    // ✅ Use navigator.serviceWorker.ready instead of getRegistration()
-    // .ready always resolves with the ACTIVE SW — getRegistration() can return undefined
-    navigator.serviceWorker.ready
-        .then((registration) => {
-            registration.showNotification(title, options);
-        })
-        .catch((err) => {
-            console.error('showNotification failed:', err);
+    // // ✅ Use navigator.serviceWorker.ready instead of getRegistration()
+    // // .ready always resolves with the ACTIVE SW — getRegistration() can return undefined
+    // navigator.serviceWorker.ready
+    //     .then((registration) => {
+    //         registration.showNotification(title, options);
+    //     })
+    //     .catch((err) => {
+    //         console.error('showNotification failed:', err);
 
-            // Fallback: use basic Notification API directly
-            new Notification(title, options);
-        });
+    //         // Fallback: use basic Notification API directly
+    //         new Notification(title, options);
+    //     });
 });

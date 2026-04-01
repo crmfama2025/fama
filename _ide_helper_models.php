@@ -64,6 +64,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int $renewal_status 0-new 1-renewal
  * @property int|null $parent_agreement_id
+ * @property int|null $sales_tenant_agreement_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\AgreementStatusLogs> $agreementStatusLogs
  * @property-read int|null $agreement_status_logs_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\AgreementSubunitRentBifurcation> $agreementSubunitRentBifurcations
@@ -104,6 +105,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Agreement whereIsVisaUploaded($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Agreement whereParentAgreementId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Agreement whereRenewalStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Agreement whereSalesTenantAgreementId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Agreement whereStartDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Agreement whereTenantId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Agreement whereTerminatedBy($value)
@@ -1387,6 +1389,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int $is_vacant
+ * @property int $is_sales_agreement_added 0-Not Added,1-Added
  * @property string|null $subunit_rent
  * @property-read \App\Models\Contract $contract
  * @property-read \App\Models\ContractUnit $contract_unit
@@ -1404,6 +1407,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|ContractSubunitDetail whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractSubunitDetail whereDeletedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractSubunitDetail whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ContractSubunitDetail whereIsSalesAgreementAdded($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractSubunitDetail whereIsVacant($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractSubunitDetail whereSubunitCode($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractSubunitDetail whereSubunitNo($value)
@@ -1532,6 +1536,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int $is_vacant
+ * @property int $is_sales_agreement_added 0-Not Added,1-Added
  * @property string|null $unit_profit
  * @property string|null $unit_revenue
  * @property string|null $unit_amount_payable
@@ -1569,6 +1574,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|ContractUnitDetail whereFbUnitCount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractUnitDetail whereFloorNo($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractUnitDetail whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ContractUnitDetail whereIsSalesAgreementAdded($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractUnitDetail whereIsVacant($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractUnitDetail whereMaidRoom($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractUnitDetail wherePartition($value)
@@ -1674,6 +1680,39 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Emirate whereUpdatedAt($value)
  */
 	class Emirate extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property int $id
+ * @property int $user_id
+ * @property string $token
+ * @property string|null $device_name
+ * @property string|null $device_id
+ * @property string|null $user_agent
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property string|null $last_active_at
+ * @property-read \App\Models\User|null $user
+ * @method static \Illuminate\Database\Eloquent\Builder|FcmToken newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|FcmToken newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|FcmToken onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|FcmToken query()
+ * @method static \Illuminate\Database\Eloquent\Builder|FcmToken whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|FcmToken whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|FcmToken whereDeviceId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|FcmToken whereDeviceName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|FcmToken whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|FcmToken whereLastActiveAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|FcmToken whereToken($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|FcmToken whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|FcmToken whereUserAgent($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|FcmToken whereUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|FcmToken withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|FcmToken withoutTrashed()
+ */
+	class FcmToken extends \Eloquent {}
 }
 
 namespace App\Models{
@@ -2742,6 +2781,7 @@ namespace App\Models{
  * @property string $start_date
  * @property string|null $end_date
  * @property int $is_approved 0-Pending, 1-Approved, 2-Rejected
+ * @property int $is_agreement_added 0-Not Added,1-Added
  * @property string|null $rejection_reason
  * @property int|null $approved_by
  * @property string|null $approved_date
@@ -2778,6 +2818,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement whereDeletedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement whereEndDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement whereIsAgreementAdded($value)
  * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement whereIsApproved($value)
  * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement whereLocalityId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement wherePropertyId($value)

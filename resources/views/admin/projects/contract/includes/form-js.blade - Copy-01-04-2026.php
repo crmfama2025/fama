@@ -175,23 +175,15 @@
                             });
 
                             if (detailId) {
-                                // $.ajaxSetup({
-                                //     headers: {
-                                //         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr(
-                                //             'content')
-                                //     }
-                                // });
-                                // $.ajax({
-                                //     url: `/contracts/unit-detail/${detailId}`,
-                                //     type: 'DELETE',
+                                $.ajaxSetup({
+                                    headers: {
+                                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr(
+                                            'content')
+                                    }
+                                });
                                 $.ajax({
-                                    url: "{{ route('contracts.unit-detail.delete', ':id') }}"
-                                        .replace(':id', detailId),
-                                    type: 'POST',
-                                    data: {
-                                        _token: '{{ csrf_token() }}',
-                                        _method: 'DELETE'
-                                    },
+                                    url: `/contracts/unit-detail/${detailId}`,
+                                    type: 'DELETE',
                                     // data: fdataUnit,
                                     // processData: false,
                                     // contentType: false,
@@ -1066,29 +1058,21 @@
                                 }
                             });
                             if (detailId) {
-                                // $.ajaxSetup({
-                                //     headers: {
-                                //         'X-CSRF-TOKEN': $('meta[name="csrf-token"]')
-                                //             .attr('content')
-                                //     }
-                                // });
+                                $.ajaxSetup({
+                                    headers: {
+                                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]')
+                                            .attr('content')
+                                    }
+                                });
 
-                                // $.ajax({
-                                //     url: `/contracts/payment-detail/${detailId}`,
-                                //     // type: 'DELETE',
-                                //     type: 'POST', // ✅ change from DELETE
-                                //     data: {
-                                //         _method: 'DELETE', // ✅ spoof DELETE
-                                //         _token: $('meta[name="csrf-token"]').attr(
-                                //             'content')
-                                //     },
                                 $.ajax({
-                                    url: "{{ route('contracts.payment-detail.delete', ':id') }}"
-                                        .replace(':id', detailId),
-                                    type: 'POST',
+                                    url: `/contracts/payment-detail/${detailId}`,
+                                    // type: 'DELETE',
+                                    type: 'POST', // ✅ change from DELETE
                                     data: {
-                                        _method: 'DELETE',
-                                        _token: '{{ csrf_token() }}'
+                                        _method: 'DELETE', // ✅ spoof DELETE
+                                        _token: $('meta[name="csrf-token"]').attr(
+                                            'content')
                                     },
                                     // data: fdataUnit,
                                     // processData: false,
@@ -2208,20 +2192,23 @@
                             //     },
                             var fdata = new FormData();
                             fdata.append('_method', 'DELETE');
-                            fdata.append('_token', '{{ csrf_token() }}'); // ✅ direct from Laravel session
-
-                            var url = "{{ route('contracts.payment-receivable.delete', ':id') }}".replace(
-                                ':id',
-                                detailId);
 
                             $.ajax({
-                                url: url,
-                                type: 'POST',
+                                url: `/contracts/payment-receivable/${detailId}`,
+                                type: 'POST', // spoof DELETE
                                 data: fdata,
                                 processData: false,
                                 contentType: false,
+                                xhrFields: {
+                                    withCredentials: true
+                                },
                                 headers: {
-                                    'X-CSRF-TOKEN': '{{ csrf_token() }}' // ✅ send in header too
+                                    'X-XSRF-TOKEN': decodeURIComponent(
+                                        document.cookie
+                                        .split('; ')
+                                        .find(row => row.startsWith('XSRF-TOKEN='))
+                                        ?.split('=')[1]
+                                    )
                                 },
                                 // data: fdataUnit,
                                 // processData: false,

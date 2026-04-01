@@ -108,6 +108,8 @@ class LoginController extends Controller
 
         $user = auth()->user();
 
+        // dd($user->id, session('device_id'));
+
         if ($user) {
             // Soft delete only the FCM token of the current device
             \App\Models\FcmToken::where('user_id', $user->id)
