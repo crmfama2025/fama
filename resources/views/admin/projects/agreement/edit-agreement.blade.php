@@ -140,7 +140,9 @@
             if (result.isConfirmed) {
                 showLoader();
                 $.ajax({
-                    url: `/agreement-unit/delete/${unitId}`,
+                    // url: `/agreement-unit/delete/${unitId}`,
+                    url: "{{ route('agreement.deleteUnit', ':unitId') }}".replace(':unitId',
+                        unitId),
                     type: 'POST',
                     data: {
                         _token: $('meta[name="csrf-token"]').attr('content'),

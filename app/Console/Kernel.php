@@ -47,6 +47,15 @@ class Kernel extends ConsoleKernel
         $schedule->command('app:create-agreements-from-contracts')
             ->everyMinute()
             ->withoutOverlapping();
+
+        $schedule->call(function () {
+
+            $expiryMinutes = config('session.lifetime'); // e.g. 120
+
+            $deleted = \App\Models\FcmToken::where('last_active_at', '<', now()->subMinutes($expiryMinutes))
+                ->delete();
+            \Log::info("FCM cleanup ran at " . now() . ". Deleted $deleted tokens.");
+        })->everyFiveMinutes();
     }
 
     /**

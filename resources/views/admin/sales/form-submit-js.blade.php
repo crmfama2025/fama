@@ -1,4 +1,12 @@
 <script>
+    document.getElementById('tenancyForm').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            return false;
+        }
+    });
+</script>
+<script>
     // $('#tenancyForm').on('submit', function(e) {
     //     e.preventDefault();
 

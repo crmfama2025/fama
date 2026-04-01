@@ -198,7 +198,7 @@ class ContractController extends Controller
         $contractUnitdetails = $this->unitdetServ->getByContractId($contractId);
 
         // dd($agreements);
-        return view("admin.projects.contract.contract-allocated-details", compact("title", 'contract', 'contractUnitdetails')); //'documentTypes', 'contractDocuments', 
+        return view("admin.projects.contract.contract-allocated-details", compact("title", 'contract', 'contractUnitdetails')); //'documentTypes', 'contractDocuments',
     }
 
 

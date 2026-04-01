@@ -7,6 +7,7 @@ use App\Http\Controllers\PayableClearingController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\ContractController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\FcmController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\InstallmentController;
 use App\Http\Controllers\InvesmentSOAController;
@@ -26,8 +27,10 @@ use App\Http\Controllers\TenantController;
 use App\Http\Controllers\TenantregistrationController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VendorController;
+use App\Models\FcmToken;
 use App\Services\BrevoService;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -48,7 +51,7 @@ Route::post('do-forgotpassword', [LoginController::class, 'doForgotPassword'])->
 Route::get('reset-password/{token}', [LoginController::class, 'resetPassword'])->name('reset.password');
 Route::post('do-reset-password', [LoginController::class, 'doResetPassword'])->name('do.reset.password');
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'update.fcm'])->group(function () {
     Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 
     Route::resource('areas', AreaController::class);
@@ -166,7 +169,7 @@ Route::middleware(['auth'])->group(function () {
         '/contracts/{id}/terminated-agreement-details',
         [ContractController::class, 'getTerminatedAgreementDetails']
     );
-    Route::get('/contracts/{contract}/check-agreement', [ContractController::class, 'checkAgreement']);
+    Route::get('/contracts/{contract}/check-agreement', [ContractController::class, 'checkAgreement'])->name('contracts.check-agreement');
     Route::get('contract-approval/{id}', [ContractController::class, 'contractApproval'])->name('contract.approve');
     Route::post('contract-reject', [ContractController::class, 'rejectContract'])->name('contract.reject');
     Route::post('contract-sendcomment', [ContractController::class, 'sendComments'])->name('contract.sendComment');
@@ -294,6 +297,42 @@ Route::middleware(['auth'])->group(function () {
     Route::get('export-tenant-registration', [TenantregistrationController::class, 'export'])->name('tenant-registraion.export');
     Route::post('/tenantRegistration/sendForApproval/{id}', [TenantregistrationController::class, 'sendForApproval'])
         ->name('tenant-registration.send-for-approval');
+    Route::get('make-agreement/{id}', [TenantregistrationController::class, 'makeAgreement'])->name('tenant-registration.make-agreement');
+    Route::get(
+        'tenant-registration/{id}/make-agreement-b2b',
+        [TenantRegistrationController::class, 'makeAgreementB2B']
+    )
+        ->name('tenant-registration.make-agreement-b2b');
+
+    // Route::post('/save-fcm-token', function (Request $request) {
+    //     $user = auth()->user(); // make sure user is logged in
+    //     // dd($user);
+
+    //     if (!$user) {
+    //         return response()->json(['error' => 'Unauthenticated'], 401);
+    //     }
+
+    //     $request->validate([
+    //         'token' => 'required|string',
+    //         'device_name' => 'nullable|string',
+    //     ]);
+    //     dd($request->all());
+
+    //     // Save or update token
+    //     FcmToken::updateOrCreate(
+    //         [
+    //             'user_id' => $user->id,
+    //             'token' => $request->token,
+    //         ],
+    //         [
+    //             'device_name' => $request->device_name ?? 'unknown device',
+    //             'updated_at' => now(),
+    //         ]
+    //     );
+
+    //     return response()->json(['success' => true]);
+    // });
+    Route::post('/save-fcm-token', [FcmController::class, 'saveToken'])->name('fcm.saveToken');
 });
 
 

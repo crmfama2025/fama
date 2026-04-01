@@ -67,8 +67,10 @@
 
 
     function checkTermination(subunitId, unitId, contractId) {
+        var url = "{{ route('contracts.check-agreement', ':contract') }}".replace(':contract', contractId);
         $.ajax({
-            url: `/contracts/${contractId}/check-agreement`,
+            // url: `/contracts/${contractId}/check-agreement`,
+            url: url,
             type: 'GET',
             data: {
                 unit_id: unitId,

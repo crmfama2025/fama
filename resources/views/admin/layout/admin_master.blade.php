@@ -20,6 +20,10 @@
     <!-- Select2 -->
     <link rel="stylesheet" href="{{ asset('assets/select2/css/select2.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/select2-bootstrap4-theme/select2-bootstrap4.min.css') }}">
+
+    <!-- Firebase v9 compat version -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
     @yield('custom_css')
 
     <!-- Theme style -->
@@ -738,6 +742,7 @@
             }, 1000);
         });
     </script> --}}
+    <script src="{{ asset('/js/fcm.js') }}"></script>
 
 
 

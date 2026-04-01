@@ -4,6 +4,8 @@ namespace App\Services\Sales;
 
 
 use App\Imports\AreaImport;
+use App\Models\Agreement;
+use App\Models\Contract;
 use App\Models\ContractSubunitDetail;
 use App\Models\ContractUnitDetail;
 use App\Models\SalesTenantSubunitRent;
@@ -450,11 +452,60 @@ class TenantRegistrationService
                                 <i class="fas fa-trash"></i></a>';
                 }
                 if (auth()->user()->hasAnyPermission(['tenant-registration.make-agreement']) && $row->is_approved == 1 && $row->is_agreement_added == 0) {
-                    $action .= '<a href="' . $makeAgreement . '"
+                    if ($row->business_type == 2) {
+                        $action .= '<a href="' . $makeAgreement . '"
                                     class="btn bg-gradient-gray btn-sm mr-1 " target="_blank"
                                     title="Make Agreement">
                                     <i class="fas fa-handshake"></i>
                                 </a>';
+                    }
+
+
+                    // B2B: multiple units, multiple contracts
+                    if ($row->business_type == 1) {
+
+                        // Get all units under this sales agreement that are pending agreement
+                        $pendingUnits = $row->agreementUnits;
+
+                        // Group by contract_id
+                        $unitsByContract = $pendingUnits->groupBy('contract_id');
+                        // dd($unitsByContract);
+
+                        foreach ($unitsByContract as $contractId => $units) {
+                            // ✅ Get all sales unit IDs for this contract
+                            $salesUnitIds = $units->pluck('contract_unit_details_id')->toArray();
+
+                            // ✅ Get already created agreement unit IDs for this contract
+                            $agreementUnitIds = \App\Models\AgreementUnit::whereHas('agreement', function ($q) use ($row) {
+                                $q->where('sales_tenant_agreement_id', $row->id);
+                            })
+                                ->whereIn('contract_unit_details_id', $salesUnitIds)
+                                ->pluck('contract_unit_details_id')
+                                ->unique()
+                                ->toArray();
+
+                            // ✅ Check if ALL units already have agreement
+                            $missingUnits = array_diff($salesUnitIds, $agreementUnitIds);
+
+                            // ❌ If no missing units → skip button
+                            if (empty($missingUnits)) {
+                                continue;
+                            }
+                            $makeAgreementUrl = route('tenant-registration.make-agreement-b2b', [
+                                'id' => $row->id,
+                                'contract_id' => $contractId
+                            ]);
+
+                            $projectNumber = Contract::find($contractId)->project_number;
+                            // $contract_agreement = Agreement::
+                            $action .= '<a href="' . $makeAgreementUrl . '"
+                            class="btn bg-gradient-gray btn-sm mr-1"
+                            target="_blank"
+                            title="Make Agreement for Contract ' . $contractId . '">
+                            <i class="fas fa-handshake"></i> Contract ' . $projectNumber . '
+                        </a>';
+                        }
+                    }
                 }
 
                 return $action ?: '-';
@@ -903,6 +954,8 @@ class TenantRegistrationService
             $b2bFloorsMap = [];
 
             foreach ($property->contracts as $contract) {
+                // Skip contracts that are not of type 1
+                if ($contract->contract_type_id != 1) continue;
 
                 $contractUnit = $contract->contract_unit;
                 if (!$contractUnit) continue;
