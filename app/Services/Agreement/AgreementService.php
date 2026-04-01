@@ -1472,8 +1472,10 @@ class AgreementService
                     $contract->children->isNotEmpty() &&
                     // $contract->children->contains('contract_status', 7);
                     $contract->children->whereIn('contract_status', [1, 7])->isNotEmpty();
+                    $hasRenewal = Agreement::where('parent_agreement_id', $row->id)
+                    ->exists();
 
-                if (iscontractRenewed($contract->id) && $hasValidRenewal) {
+                if (iscontractRenewed($contract->id) && $hasValidRenewal && !$hasRenewal) {
                     $renewUrl = route('agreement.renew', $row->id);
 
                     return '<a href="' . $renewUrl . '" class="btn btn-info btn-sm m-1"
