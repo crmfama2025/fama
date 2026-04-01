@@ -637,7 +637,9 @@ class ContractService
         // dd($user);
 
         if ($user) {
+            $sessionMinutes = config('session.lifetime');
             $tokens = FcmToken::where('user_id', $user->id)
+                ->where('last_active_at', '>=', now()->subMinutes($sessionMinutes))
                 ->pluck('token')
                 ->toArray();
             // dd($tokens);
