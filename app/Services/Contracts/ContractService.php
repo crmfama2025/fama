@@ -670,7 +670,7 @@ class ContractService
                         "notification" => [
                             "title" => $title,
                             "body" => $body,
-                            "icon" => url('/images/fg.png'),
+                            "icon" => url('/images/favicon.png'),
                             // "click_action" => route('contract.show', $id)
                         ],
                         "data" => ["link" => route('contract.show', $id)],
