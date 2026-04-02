@@ -93,6 +93,7 @@
 
 
         function totalUnitValue() {
+            let contract_type = $('#contract_type').val();
             let unitCount = parseInt($('#no_of_units').val());
             const prevBlocks = container.querySelectorAll('.apdi');
 
@@ -297,6 +298,8 @@
                     // fullAddMore(i);
                 }
             }
+            // Unit status change on contract type change
+            $('[id^="unit_status"]').val(contract_type == '2' ? '2' : '1').trigger('change');
         }
 
         // Add new block dynamically
@@ -1533,6 +1536,7 @@
             $('#btob').prop('checked', true);
             $('#btoc').prop('checked', false);
             // console.log('contract change');
+
             rentPerUnitFamaFaateh();
             //         $('#client_name').val('Faateh');
             //         $('#client_phone').val('0568856995');
@@ -1548,6 +1552,9 @@
             //         $('#client_email').val('adil@faateh.ae');
             //         $('#contact_person').val('Adil');
         }
+        // Unit status change on contract type change
+        $('[id^="unit_status"]').val(contract_type == '2' ? '2' : '1').trigger('change');
+
         calculateOtc();
     });
 </script>
@@ -2219,25 +2226,26 @@
                             //         _token: $('meta[name="csrf-token"]').attr(
                             //             'content')
                             //     },
-                            
-                                // data: fdataUnit,
-                                // processData: false,
-                                // contentType: false,
-                               var fdata = new FormData();
-                                fdata.append('_method', 'DELETE');
-                                fdata.append('_token', '{{ csrf_token() }}');  // ✅ direct from Laravel session
-                                
-                                var url = "{{ route('contracts.payment-receivable.delete', ':id') }}".replace(':id', detailId);
-                                
-                                $.ajax({
-                                    url: url,
-                                    type: 'POST',
-                                    data: fdata,
-                                    processData: false,
-                                    contentType: false,
-                                    headers: {
-                                        'X-CSRF-TOKEN': '{{ csrf_token() }}'  // ✅ send in header too
-                                    }, 
+
+                            // data: fdataUnit,
+                            // processData: false,
+                            // contentType: false,
+                            var fdata = new FormData();
+                            fdata.append('_method', 'DELETE');
+                            fdata.append('_token', '{{ csrf_token() }}'); // ✅ direct from Laravel session
+
+                            var url = "{{ route('contracts.payment-receivable.delete', ':id') }}".replace(
+                                ':id', detailId);
+
+                            $.ajax({
+                                url: url,
+                                type: 'POST',
+                                data: fdata,
+                                processData: false,
+                                contentType: false,
+                                headers: {
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}' // ✅ send in header too
+                                },
                                 success: function(
                                     response) {
                                     block.remove();
