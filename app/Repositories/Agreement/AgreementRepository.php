@@ -123,7 +123,8 @@ class AgreementRepository
 
         if (!empty($filters['search'])) {
             $query->orwhere('agreement_code', 'like', '%' . $filters['search'] . '%')
-                ->orWhere('project_number', 'like', '%' . $filters['search'] . '%')
+                // ->orWhere('project_number', 'like', '%' . $filters['search'] . '%')
+                ->orWhereRaw("CONCAT('P-',project_number) LIKE ?", ['%' . $filters['search'] . '%'])
 
                 ->orWhereHas('company', function ($q) use ($filters) {
                     $q->where('company_name', 'like', '%' . $filters['search'] . '%');
@@ -468,11 +469,13 @@ class AgreementRepository
         //         ->orWhereRaw("CAST(agreements.id AS CHAR) LIKE ?", ['%' . $filters['search'] . '%']);
         // }
         $search = $filters['search'] ?? null;
+        // dd($search);
 
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
                 $q->where('agreements.agreement_code', 'like', "%{$search}%")
                     ->orWhere('contracts.project_number', 'like', "%{$search}%")
+
                     ->orWhere('companies.company_name', 'like', "%{$search}%")
                     ->orWhere('agreement_tenants.tenant_name', 'like', "%{$search}%")
                     ->orWhere('agreement_tenants.tenant_email', 'like', "%{$search}%")
