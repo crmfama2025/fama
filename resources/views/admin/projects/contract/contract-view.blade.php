@@ -76,6 +76,7 @@
                                         </a><br>
                                         <span>{{ strtoupper($contract->area->area_name) }}</span>,
                                         <span>{{ strtoupper($contract->locality->locality_name) }}</span></br>
+                                        <span>Closing Date - {{ $contract->contract_detail->closing_date }}</span></br>
 
                                         </br>
                                     </address>
