@@ -50,6 +50,9 @@
                                 class="{{ 'badge badge-danger ' . ($agreement->contract->contract_type_id == 1 ? 'price-badge-df ' : 'price-badge-ff') }}">
                                 {{ $agreement->contract->contract_type->contract_type }} Project
                             </span>
+                            <span class="badge badge-info ml-3">
+                                {{ $agreement->renewal_status == 1 ? 'Renewal' : 'New' }}
+                            </span>
 
                             <!-- title row -->
 
@@ -58,7 +61,10 @@
                                 <div class="col-sm-6">
                                     <h5 class="font-weight-bold text-primary mb-2">Vendor Details</h5>
                                     <address>
-                                        <span class="project_id">P - {{ $agreement->contract->project_number }}</span></br>
+                                        {{-- <span class="project_id">P - {{ $agreement->contract->project_number }}</span></br> --}}
+                                        <a href="{{ route('contract.show', $agreement->contract_id) }}"
+                                            class="linkhover text-bold" target="_blank">P -
+                                            {{ $agreement->contract->project_number }}</a></br>
                                         {{-- <span
                                             class="vendor_name">{{ strtoupper($agreement->contract->vendor->vendor_name) }}</span></br> --}}
                                         <a href="{{ route('vendors.show', $agreement->contract->vendor->id) }}"
@@ -69,7 +75,8 @@
                                         <span
                                             class="mobile">{{ strtoupper($agreement->contract->vendor->vendor_phone) }}</span></br>
                                         <span class="email">{{ $agreement->contract->vendor->vendor_email }}</span></br>
-                                        <span class="area">{{ strtoupper($agreement->contract->area->area_name) }}</span>,
+                                        <span
+                                            class="area">{{ strtoupper($agreement->contract->area->area_name) }}</span>,
                                         <span
                                             class="locality">{{ strtoupper($agreement->contract->locality->locality_name) }}</span>,
                                         <span class="building">
