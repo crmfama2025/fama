@@ -550,12 +550,25 @@ class ContractController extends Controller
     public function approveContract(Request $request)
     {
         try {
-            $this->contractService->approveContract($request->all());
+            $contract = $this->contractService->approveContract($request->all());
+            // dd($contract);
             // $contract = Contract::findOrFail($request->id);
             // $contract->contract_status = $request->status;
             // $contract->save();
 
-            return response()->json(['success' => true, 'message' => 'Vendor Contract send for Approval.'], 200);
+            // return response()->json(['success' => true, 'message' => 'Vendor Contract send for Approval.'], 200);
+            if ($contract->contract_status == 2) {
+                $message = "Project P - " . $contract->project_number . " has been approved.";
+            } elseif ($contract->contract_status == 3) {
+                $message = "Project P - " . $contract->project_number . " has been rejected.";
+            }
+
+
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'data' => $contract
+            ], 200);
         } catch (\Illuminate\Validation\ValidationException $e) {
             // dd($e->errors());
             // Return error to view

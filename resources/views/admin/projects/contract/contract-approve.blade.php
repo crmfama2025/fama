@@ -308,6 +308,7 @@
                 confirmButtonText: "Yes!"
             }).then((result) => {
                 if (result.isConfirmed) {
+                    showLoader();
 
                     $.ajax({
                         type: "POST",
@@ -320,7 +321,23 @@
                         },
                         dataType: "json",
                         success: function(response) {
-                            window.location.href = "{{ route('contract.index') }}";
+                            hideLoader();
+                            if (status == 3) {
+                                $('#modal-rejectreason').modal('hide');
+                            }
+                            if (response.success) {
+                                // Close modal if it's reject
+
+                                toastr.success(response.message);
+
+                                setTimeout(function() {
+                                    window.location.href = "{{ route('contract.index') }}";
+                                }, 1500);
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            hideLoader();
+                            toastr.error("An error occurred. Please try again.");
                         }
                     });
                 }
