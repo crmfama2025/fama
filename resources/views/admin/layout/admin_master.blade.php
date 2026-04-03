@@ -747,7 +747,7 @@
             saveFcmToken: "{{ route('fcm.saveToken') }}"
         };
     </script>
-    <script src="{{ asset('/js/fcm.js') }}"></script>
+    <script src="{{ asset('/js/fcm.js') }}?v=1"></script>
 
 
 
