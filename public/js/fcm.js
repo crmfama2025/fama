@@ -58,7 +58,7 @@ async function requestPermissionAndSendToken(swRegistration) {
 
         console.log('FCM Token:', token);
 
-        await fetch('/save-fcm-token', {
+        await fetch(window.routes.saveFcmToken, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

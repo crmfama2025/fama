@@ -742,6 +742,11 @@
             }, 1000);
         });
     </script> --}}
+    <script>
+        window.routes = {
+            saveFcmToken: "{{ route('fcm.saveToken') }}"
+        };
+    </script>
     <script src="{{ asset('/js/fcm.js') }}"></script>
 
 
