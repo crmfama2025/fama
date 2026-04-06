@@ -152,7 +152,8 @@ function renderUnitDetails($sheet, $contract)
             // $subUnitTotalCount += (int) $sub['count'];
         }
 
-        $rentAnnum[] = $unitdetail->unit_rent_per_annum;
+        // $rentAnnum[] = $unitdetail->unit_rent_per_annum;
+        $rentAnnum[] = (float) str_replace(',', '', $unitdetail->unit_rent_per_annum);
         $totalPerContract[] = $total;
     }
 
