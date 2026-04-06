@@ -274,9 +274,8 @@
                                             Unit Details
                                         </div>
 
-                                        <div class="table-responsive">
-                                            <table class="table table-bordered table-hover mb-0 table-responsive"
-                                                style="max-height:246px;">
+                                        <div class="table-responsive" style="max-height:246px;">
+                                            <table class="table table-bordered table-hover mb-0 ">
                                                 <thead style=" color:white;">
                                                     <tr class="text-center bg-cyan">
                                                         <th>Unit Number</th>
