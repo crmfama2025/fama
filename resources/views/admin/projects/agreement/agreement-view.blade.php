@@ -987,7 +987,7 @@
 @section('custom_js')
     <script>
         let agreement = @json($agreement);
-        console.log(agreement);
+        // console.log(agreement);
     </script>
     <script>
         $(document).on('click', '.open-invoice-modal', function(e) {
@@ -1074,12 +1074,14 @@
             const agreementId = $(this).data('agreement-id');
             const agreementUnits = agreement.agreement_units; // agreement must be defined globally
             const currentUnit = agreementUnits.find(u => u.id == agreementUnitId);
-            console.log("currentUnit:", agreementUnits, currentUnit);
+            // console.log("currentUnit:", agreementUnits, currentUnit);
             const savedRents = currentUnit?.agreement_subunit_rent_bifurcation || [];
-            console.log(savedRents);
-            console.log(unitRent);
-            console.log(subunits);
-            console.log(unit);
+            const SalesTenantSubunitRents = agreement.sales_tenant_agreement?.sales_tenant_subunit_rents || [];
+            // console.log("SalesTenantSubunitRents:", SalesTenantSubunitRents);
+            // console.log(savedRents);
+            // console.log(unitRent);
+            // console.log(subunits);
+            // console.log(unit);
 
             let rows = '';
             let runningTotal = 0;
@@ -1090,9 +1092,26 @@
                 // let value = unit.subunit_rent_per_unit;
                 const saved = savedRents.find(r => r.contract_subunit_details_id === subunit.id);
                 console.log("saved:", saved);
-                const value = saved ? Number(saved.rent_per_month) : Number(unit?.subunit_rent_per_unit);
-                console.log("value:", value);
-                const split_id = saved ? saved.id : null;
+
+                // const value = saved ? Number(saved.rent_per_month) : Number(unit?.subunit_rent_per_unit);
+                // console.log("value:", value);
+                // const split_id = saved ? saved.id : null;
+                const salesTenant = SalesTenantSubunitRents.find(
+                    r => r.contract_subunit_details_id === subunit.id
+                );
+
+                let value = 0;
+                let split_id = null;
+
+                if (saved) {
+                    value = Number(saved.rent_per_month);
+                    split_id = saved.id;
+                } else if (salesTenant) {
+                    value = Number(salesTenant.rent_per_month);
+                    // split_id = salesTenant.id;
+                } else {
+                    value = Number(unit?.subunit_rent_per_unit || 0);
+                }
 
                 runningTotal += value;
                 rows += `
@@ -1190,7 +1209,7 @@
                     bifurcationData[bifurcationData.length - 1].id = $(this).data('split-id');
                 }
             });
-            console.log(bifurcationData);
+            // console.log('bifdata:', bifurcationData);
 
             let formData = {
                 _token: $('input[name="_token"]').val(),

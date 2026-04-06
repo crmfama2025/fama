@@ -3,7 +3,23 @@
 namespace App\Http\Controllers;
 
 use App\Exports\SalesTenantExport;
+use App\Models\ContractType;
+use App\Models\Emirate;
 use App\Models\SalesTenantAgreement;
+use App\Models\TenantIdentity;
+use App\Models\UnitType;
+use App\Repositories\Agreement\AgreementRepository;
+use App\Services\Agreement\AgreementDocumentService;
+use App\Services\Agreement\AgreementService;
+use App\Services\Agreement\AgreementTenantService;
+use App\Services\Agreement\AgreementUnitService;
+use App\Services\Agreement\InvoiceService;
+use App\Services\BankService;
+use App\Services\CompanyService;
+use App\Services\Contracts\ContractService;
+use App\Services\InstallmentService;
+use App\Services\NationalityService;
+use App\Services\PaymentModeService;
 use App\Services\Sales\TenantRegistrationService;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
@@ -14,6 +30,18 @@ class TenantregistrationController extends Controller
     public function __construct(
 
         protected TenantRegistrationService $tenantRegistrationService,
+        protected ContractService $contractService,
+        protected CompanyService $companyService,
+        protected InstallmentService $installmentService,
+        protected NationalityService $nationalityService,
+        protected PaymentModeService $paymentModeService,
+        protected BankService $bankService,
+        protected AgreementService $agreementService,
+        protected AgreementDocumentService $agreementDocumentService,
+        protected AgreementUnitService $agreementUnitService,
+        protected InvoiceService $invoiceService,
+        protected AgreementRepository $agreementRepository,
+        protected AgreementTenantService $tenantService
 
     ) {}
     public function index()
@@ -90,6 +118,7 @@ class TenantregistrationController extends Controller
         // dd($agreement);
         // dd($existingOwnerDocsJson);
         // dd($tradeLicense);
+        // dd($tenant);
 
         return view(
             'admin.sales.tenant-registration-create',
@@ -178,5 +207,87 @@ class TenantregistrationController extends Controller
             'success' => true,
             'message' => 'Sent for approval successfully'
         ]);
+    }
+    public function makeAgreement($id)
+    {
+        // dd($id);
+        $salesagreement = $this->tenantRegistrationService->getAgeement($id);
+        // dd($salesagreement);
+        if ($salesagreement->business_type == 2) {
+            if ($salesagreement->agreementUnits->isNotEmpty()) {
+                // Get the contract of the first unit
+                $salesContract = $salesagreement->agreementUnits->first()->contract;
+                $salesCompany = $salesContract->company()->first();
+                // $salesUnit = $salesagreement->agreementUnits->first();
+                $salesUnit = $salesagreement->agreementUnits;
+                // dd($salesCompany);
+            }
+            $salesTenant = $salesagreement->tenant;
+            // dd($salesTenant);
+        }
+
+        $salesData = 1;
+        $companies = $this->companyService->getAll('agreement');
+        $tenants = $this->tenantService->getTenantsForAgreement();
+        // dd($tenants);
+        // $contracts = $this->contractService->getAllwithUnits();
+        $contracts = $this->contractService->getAllwithUnits()->map(function ($contract) {
+            $contract->contract_unit->business_type_text = $contract->contract_unit->business_type();
+            return $contract;
+        });
+        // dd($contracts);
+        $installments = $this->installmentService->getAll();
+        $tenantIdentities = TenantIdentity::where('show_status', true)->get();
+        $unitTypes = UnitType::all();
+        $paymentmodes = $this->paymentModeService->getAll();
+        $installments = $this->installmentService->getAll();
+        $banks = $this->bankService->getAll();
+        $nationalities = $this->nationalityService->getAll();
+        $contractTypes = ContractType::all();
+        $emirates = Emirate::all();
+        $parent_agreement_id = null;
+        $renew = 0;
+        return view('admin.projects.agreement.create-agreement', compact('salesTenant', 'salesCompany', 'companies', 'contracts', 'installments', 'salesagreement', 'salesContract', 'salesData', 'unitTypes', 'tenantIdentities', 'paymentmodes', 'banks', 'nationalities', 'contractTypes', 'emirates', 'tenants', 'parent_agreement_id', 'renew', 'salesUnit'));
+    }
+    public function makeAgreementB2B($id)
+    {
+        // dd($id);
+        $salesagreement = $this->tenantRegistrationService->getAgeement($id);
+        $contractId = request('contract_id');
+        // dd($salesagreement);
+        if ($salesagreement->business_type == 1) {
+            if ($salesagreement->agreementUnits->isNotEmpty()) {
+                // Get the contract of the first unit
+                $salesContract = $salesagreement->agreementUnits->first()->contract;
+                $salesCompany = $salesContract->company()->first();
+                $salesUnit = $salesagreement->agreementUnits;
+                // dd($salesCompany);
+            }
+            $salesTenant = $salesagreement->tenant;
+            // dd($salesTenant);
+        }
+
+        $salesData = 1;
+        $companies = $this->companyService->getAll('agreement');
+        $tenants = $this->tenantService->getTenantsForAgreement();
+        // dd($tenants);
+        // $contracts = $this->contractService->getAllwithUnits();
+        $contracts = $this->contractService->getAllwithUnits()->map(function ($contract) {
+            $contract->contract_unit->business_type_text = $contract->contract_unit->business_type();
+            return $contract;
+        });
+        // dd($contracts);
+        $installments = $this->installmentService->getAll();
+        $tenantIdentities = TenantIdentity::where('show_status', true)->get();
+        $unitTypes = UnitType::all();
+        $paymentmodes = $this->paymentModeService->getAll();
+        $installments = $this->installmentService->getAll();
+        $banks = $this->bankService->getAll();
+        $nationalities = $this->nationalityService->getAll();
+        $contractTypes = ContractType::all();
+        $emirates = Emirate::all();
+        $parent_agreement_id = null;
+        $renew = 0;
+        return view('admin.projects.agreement.create-agreement', compact('salesTenant', 'salesCompany', 'companies', 'contracts', 'installments', 'salesagreement', 'salesContract', 'salesData', 'unitTypes', 'tenantIdentities', 'paymentmodes', 'banks', 'nationalities', 'contractTypes', 'emirates', 'tenants', 'parent_agreement_id', 'renew', 'salesUnit'));
     }
 }

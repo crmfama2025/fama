@@ -51,7 +51,7 @@
 
     function getallowedcount(count) {
         let duration = $("#duration_months").val();
-        if (duration < count) {
+        if (duration > 0 && duration < count) {
             count = duration;
         }
         return count;

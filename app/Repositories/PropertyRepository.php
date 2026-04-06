@@ -107,7 +107,9 @@ class PropertyRepository
     {
         $properties = Property::with([
             'contracts' => function ($q) {
-                $q->where('contract_status', 7);
+                // $q->where('contract_status', 7);
+                $q->whereIn('contract_status', [1, 7])
+                    ->where('is_vendor_contract_uploaded', 1);
             },
             'contracts.contract_unit.contractUnitDetails' => function ($q) {
                 $q->where('is_vacant', 0)

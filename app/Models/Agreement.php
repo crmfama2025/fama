@@ -239,4 +239,8 @@ class Agreement extends Model
     {
         return $this->hasMany(AgreementSubunitRentBifurcation::class, 'agreement_id', 'id');
     }
+    public function salesTenantAgreement()
+    {
+        return $this->belongsTo(SalesTenantAgreement::class, 'sales_tenant_agreement_id');
+    }
 }

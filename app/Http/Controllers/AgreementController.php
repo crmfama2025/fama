@@ -278,6 +278,8 @@ class AgreementController extends Controller
     }
     public function getAgreementsExpiringTable(Request $request)
     {
+        // dd("test");
+        // dd($request->all());
         if ($request->ajax()) {
             $filters = [
                 'company_id' => auth()->user()->company_id,
