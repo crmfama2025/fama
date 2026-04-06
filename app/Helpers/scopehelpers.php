@@ -173,6 +173,8 @@ function renderUnitDetails($sheet, $contract)
         array_sum($totalPerContract), // Q (Total)
     ];
 
+    dd($rentAnnum);
+
     // QUARTER RENT
     $unitDetaiArr[] = [
         '',
@@ -1079,7 +1081,7 @@ function renderUnitDetailsFF($sheet, $contract)
     // Calculate the last row
     $lastRow = 5 + count($unitDetaiArr) - 1;
 
-    // Auto-detect last column 
+    // Auto-detect last column
     $lastColumn = $sheet->getHighestColumn();
     // $lastRow    = $sheet->getHighestRow();
 
