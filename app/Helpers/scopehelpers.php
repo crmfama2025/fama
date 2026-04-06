@@ -162,7 +162,7 @@ function renderUnitDetails($sheet, $contract)
     // ===============================
     $unitDetaiArr[] = []; // blank row
     $unitDetaiArr[] = []; // blank row
-    dd($rentAnnum);
+    // dd($rentAnnum);
 
     // TOTAL ROW
     $unitDetaiArr[] = [
