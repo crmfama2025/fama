@@ -275,7 +275,7 @@
                                         </div>
 
                                         <div class="table-responsive">
-                                            <table class="table table-bordered table-hover mb-0 ">
+                                            <table class="table table-bordered table-hover mb-0 " style="max-height:246px;">
                                                 <thead style=" color:white;">
                                                     <tr class="text-center bg-cyan">
                                                         <th>Unit Number</th>
