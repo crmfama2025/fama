@@ -175,7 +175,7 @@ function renderUnitDetails($sheet, $contract)
         array_sum($totalPerContract), // Q (Total)
     ];
 
-    dd($rentAnnum);
+    // dd($rentAnnum);
 
     // QUARTER RENT
     $unitDetaiArr[] = [

@@ -661,11 +661,11 @@
                         text: 'Please upload Vendor Contract and Proceed with Contract Approval.',
                         type: 'success'
                     }).then((result) => {
-                        console.log(response
-                            .redirect_url);
+                        // console.log(response
+                        //     .redirect_url);
                         // This code runs after the "OK" button is clicked
-                        // window.location.href = response
-                        //     .redirect_url; // Replace 'next_page.html' with your URL
+                        window.location.href = response
+                            .redirect_url; // Replace 'next_page.html' with your URL
                     });
 
 
