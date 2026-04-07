@@ -141,10 +141,9 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label class="asterisk">Nationality</label>
+                                            <label class="">Nationality</label>
                                             <select name="nationality_id" id="nationality"
-                                                class="form-control select2 @error('nationality_id') is-invalid @enderror"
-                                                required>
+                                                class="form-control select2 @error('nationality_id') is-invalid @enderror">
                                                 <option value="">-- Select Nationality --</option>
                                                 @foreach ($formData['nationalities'] as $nationality)
                                                     <option value="{{ $nationality->id }}"
