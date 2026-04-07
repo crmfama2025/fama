@@ -15,8 +15,9 @@
              let tenantId = $(form).data(
                  'tenant-id');
              // alert(tenantId); // make sure your form has data-tenant-id="{{ $tenant->id ?? '' }}"
+             let editUrlTemplate = "{{ route('tenant.edit', ':id') }}";
              let url = tenantId ?
-                 `/tenant/${tenantId}` // RESTful route for update
+                 editUrlTemplate.replace(':id', tenantId) // RESTful route for update
                  :
                  "{{ route('tenant.store') }}";
 
