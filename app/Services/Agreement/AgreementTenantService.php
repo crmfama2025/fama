@@ -50,7 +50,7 @@ class AgreementTenantService
             'tenant_name' => 'required',
             'tenant_mobile' => ['required', 'regex:/^\+?[1-9]\d{9,14}$/'],
             'tenant_email' => 'required|email:rfc,dns',
-            'nationality_id' =>  'required',
+            // 'nationality_id' =>  'required',
             'tenant_address' =>  'required',
             'contact_person' => 'required',
             'contact_number' => ['required', 'regex:/^\+?[1-9]\d{9,14}$/'],
