@@ -103,6 +103,8 @@
                                                 <th>Project</th>
                                                 <th>Business Type</th>
                                                 <th>Status</th>
+                                                <th>Agreement Status</th>
+
                                                 <th>Company Name</th>
                                                 <th>Total Units</th>
                                                 <th>ROI %</th>
@@ -478,6 +480,10 @@
                         // },
                     },
                     {
+                        data: 'agreement_status',
+                        name: 'agreement_status',
+                    },
+                    {
                         data: 'company_name',
                         name: 'companies.company_name',
                     },
@@ -526,6 +532,7 @@
                         data: 'building_type',
                         name: 'building_type',
                     },
+
 
 
                 ],

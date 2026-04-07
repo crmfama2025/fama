@@ -369,6 +369,11 @@ class ContractService
             ->addColumn('expected_profit', fn($row) => $row->contract_rentals->expected_profit ?? '-')
             ->addColumn('start_date', fn($row) => $row->contract_detail->start_date ?? '-')
             ->addColumn('end_date', fn($row) => $row->contract_detail->end_date ?? '-')
+            ->addColumn('agreement_status', function ($row) {
+                return $row->is_agreement_added
+                    ? '<span class="badge badge-success">Agreement Added</span>'
+                    : '<span class="badge badge-warning">Not Added</span>';
+            })
             ->addColumn(
                 'status',
                 function ($row) {
@@ -487,7 +492,7 @@ class ContractService
                 return $action ?: '-';
             })
 
-            ->rawColumns(['project_number', 'action', 'status', 'business_type', 'indirect_project', 'building_type'])
+            ->rawColumns(['project_number', 'action', 'status', 'business_type', 'indirect_project', 'building_type', 'agreement_status'])
             ->with(['columns' => $columns])
             ->toJson();
     }

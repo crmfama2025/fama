@@ -217,6 +217,13 @@ class ContractRepository
                         ELSE 'New'
                     END LIKE ?
                 ", ['%' . $filters['search'] . '%'])
+                ->orWhereRaw("
+                    CASE
+                        WHEN is_agreement_added = 0 THEN 'Not Added'
+                        WHEN is_agreement_added = 1 THEN 'Agreement Added'
+
+                    END LIKE ?
+                ", ['%' . $filters['search'] . '%'])
 
                 ->orWhereRaw("CAST(contracts.id AS CHAR) LIKE ?", ['%' . $filters['search'] . '%']);
         }
