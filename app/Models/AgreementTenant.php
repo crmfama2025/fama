@@ -118,4 +118,12 @@ class AgreementTenant extends Model
     {
         return $this->hasMany(SalesTenantAgreement::class, 'tenant_id', 'id');
     }
+    public function addedBy()
+    {
+        return $this->belongsTo(User::class, 'added_by');
+    }
+    public function updatedBy()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
 }

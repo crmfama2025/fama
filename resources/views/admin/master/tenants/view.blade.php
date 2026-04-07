@@ -367,6 +367,7 @@
                                     <p class="text-sm">
                                         Added By
                                         <b class="d-block">
+                                            {{-- {{ dd($tenant->addedBy) }} --}}
                                             {{ $tenant->addedBy->first_name ?? '-' }}
                                             {{ $tenant->addedBy->last_name ?? '' }}
                                         </b>
@@ -400,13 +401,15 @@
                                         <i class="fas fa-file-alt mr-1 text-info"></i> Document Summary
                                     </h3>
                                 </div>
+                                {{-- {{ dd($tradeLicense, $ownerDocs) }} --}}
                                 <div class="card-body p-0">
                                     <table class="table table-sm mb-0">
                                         <tr>
                                             <th>Trade License</th>
                                             <td>
-                                                <span class="badge badge-{{ $tradeLicense ? 'success' : 'secondary' }}">
-                                                    {{ $tradeLicense ? 'Uploaded' : 'Missing' }}
+                                                <span
+                                                    class="badge badge-{{ $tradeLicense->original_document_path ? 'success' : 'secondary' }}">
+                                                    {{ $tradeLicense->original_document_path ? 'Uploaded' : 'Missing' }}
                                                 </span>
                                             </td>
                                         </tr>

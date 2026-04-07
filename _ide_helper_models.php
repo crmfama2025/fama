@@ -388,6 +388,7 @@ namespace App\Models{
  * @property int $security_cheque_status 0-No, 1-Yes
  * @property int $no_of_owners
  * @property int $tenant_source 1=System, 2=Sales
+ * @property-read \App\Models\User|null $addedBy
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Agreement> $agreement
  * @property-read int|null $agreement_count
  * @property-read \App\Models\User|null $deletedBy
@@ -2892,8 +2893,8 @@ namespace App\Models{
  * @property int|null $owner_index Index of owner for multiple owners
  * @property int $document_type 1-Passport, 2-Emirates ID, 3-Trade License
  * @property string $document_number
- * @property string $original_document_path
- * @property string $original_document_name
+ * @property string|null $original_document_path
+ * @property string|null $original_document_name
  * @property int $added_by
  * @property string|null $issued_date
  * @property string|null $expiry_date
