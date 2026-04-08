@@ -951,7 +951,7 @@
                                         </button>
                                     @endif --}}
                                 @endif
-                                @if (auth()->user()->hasAnyPermission(['tenant-registration.edit']))
+                                @if (auth()->user()->hasAnyPermission(['tenant-registration.edit']) && $agreement->is_approved != 1)
                                     <a href="{{ route('tenant-registration.edit', $agreement->id) }}"
                                         class="btn btn-warning btn-block">
                                         <i class="fas fa-edit mr-1"></i> Edit
