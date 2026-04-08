@@ -31,14 +31,14 @@ class UnitDetailService
         return $this->unitdetRepo->getByContractId($contractId);
     }
 
-    public function create($contractData, array $dataArr, $receivable_installments, $unit_id, $user_id = null)
+    public function create($contractData, $ct_detail, array $dataArr, $receivable_installments, $unit_id, $user_id = null)
     {
         $data = [];
 
         foreach ($dataArr['unit_type_id'] as $key => $value) {
             // dd('test');
 
-            $data[] = $this->getDetailArray($contractData, $unit_id, $user_id, $dataArr, $key, $value, $receivable_installments, 1);
+            $data[] = $this->getDetailArray($contractData, $ct_detail, $unit_id, $user_id, $dataArr, $key, $value, $receivable_installments, 1);
             // dd($data);
             $this->validate($data);
         }
@@ -85,9 +85,10 @@ class UnitDetailService
         return;
     }
 
-    public function update($contractData, array $dataArr, $receivable_installments, $unit_id, $user_id = null)
+    public function update($contractData, $ct_detail, array $dataArr, $receivable_installments, $unit_id, $user_id = null)
     {
         // dd($dataArr);
+
         $data = [];
         $insertData = [];
         foreach ($dataArr['unit_type_id'] as $key => $value) {
@@ -132,7 +133,7 @@ class UnitDetailService
             // $rent_per_unit_per_annum = $partitionValue['rent_per_unit_per_annum'];
 
 
-            $dataArray[] = $this->getDetailArray($contractData, $unit_id, $user_id, $dataArr, $key, $value, $receivable_installments, 2);
+            $dataArray[] = $this->getDetailArray($contractData, $ct_detail, $unit_id, $user_id, $dataArr, $key, $value, $receivable_installments, 2);
 
             // $dataArray[] = array(
             //     'contract_id' => $contractData->id,
@@ -253,11 +254,12 @@ class UnitDetailService
         return $subUnitData;
     }
 
-    public function getDetailArray($contractData, $unit_id, $user_id, $dataArr, $key, $value, $receivable_installments, $action)
+    public function getDetailArray($contractData, $ct_detail, $unit_id, $user_id, $dataArr, $key, $value, $receivable_installments, $action)
     {
         // dd($dataArr);
+        // dd($contractData);
 
-        $partitionValue = getPartitionValue($dataArr, $key, $receivable_installments);
+        $partitionValue = getPartitionValue($dataArr, $ct_detail, $key, $receivable_installments);
         $partition = $partitionValue['partition'];
         $bedspace = $partitionValue['bedspace'];
         $room = $partitionValue['room'];

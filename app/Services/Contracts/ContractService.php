@@ -151,11 +151,11 @@ class ContractService
                 ));
             }
 
-            $this->detailServ->create($contract->id, $data['detail'] ?? []);
+            $ct_detail = $this->detailServ->create($contract->id, $data['detail'] ?? []);
 
             $unitData = $this->unitServ->create($contract->id, $data['unit'] ?? [], $data['unit_detail'] ?? []);
             // dd($unitData);
-            $this->unitDetServ->create($contract, $data['unit_detail'] ?? [], $data['rentals']['receivable_installments'], $unitData->id);
+            $this->unitDetServ->create($contract, $ct_detail, $data['unit_detail'] ?? [], $data['rentals']['receivable_installments'], $unitData->id);
             // dd($contract);
             $this->rentalServ->create($contract->id, $data['rentals'] ?? []);
             $this->otcServ->create($contract->id, $data['otc'] ?? []);
@@ -219,10 +219,10 @@ class ContractService
             }
 
 
-            $this->detailServ->update($data['detail'] ?? []);
+            $ct_detail = $this->detailServ->update($data['detail'] ?? []);
             $unitData = $this->unitServ->update($data['unit'] ?? [], $data['unit_detail'] ?? []);
             // dd($unitData);
-            $this->unitDetServ->update($contract, $data['unit_detail'] ?? [], $data['rentals']['receivable_installments'], $unitData->id);
+            $this->unitDetServ->update($contract, $ct_detail, $data['unit_detail'] ?? [], $data['rentals']['receivable_installments'], $unitData->id);
             // dd($unitData);
             $this->rentalServ->update($data['rentals'] ?? []);
             $this->otcServ->update($data['otc'] ?? []);

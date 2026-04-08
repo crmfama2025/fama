@@ -171,8 +171,9 @@ function subUnitType($subUnitData, $i)
     return $types; // [type => requiredCount]
 }
 
-function getPartitionValue($dataArr, $key, $receivable_installments)
+function getPartitionValue($dataArr, $ct_detail, $key, $receivable_installments)
 {
+    // dd($ct_detail);
     $partition = 0;
     $bedspace = 0;
     $room = 0;
@@ -230,16 +231,25 @@ function getPartitionValue($dataArr, $key, $receivable_installments)
     // dump($room);
     $rent_per_flat = $dataArr['rent_per_flat'];
     $installment = Installment::find($receivable_installments);
+    // dd($installment);
 
     if ($installment->installment_name == '14') {
         $installment = '13';
+        // dd($installment);
+    } else if ($installment->installment_name == '13' && $ct_detail->duration_in_months == 12) {
+        $installment = '12';
+        // dd($installment);
     } else {
         $installment = $installment->installment_name;
+        // dd($installment);
     }
+    // dd($installment);
 
     if (isset($dataArr['unit_profit'])) {
         // print('profit');
         $rent_per_flat = $dataArr['unit_revenue'][$key] / $installment;
+        // dd($dataArr['unit_revenue'][$key], $installment, $rent_per_flat);
+        // dd($rent_per_flat);
         $rent_per_unit_per_month = $rent_per_flat;
         $subunit_rent_per_unit = $rent_per_flat;
         $total_rent_per_unit_per_month  = $rent_per_flat;
@@ -250,6 +260,7 @@ function getPartitionValue($dataArr, $key, $receivable_installments)
     $rent_per_unit_per_annum = $rent_per_unit_per_month * $installment;
 
     $total_rent_per_unit_per_annum = $total_rent_per_unit_per_month * $installment;
+    // dd($installment, $rent_per_unit_per_month, $rent_per_unit_per_annum, $total_rent_per_unit_per_annum);
 
     $retData = array(
         'partition' => $partition,
