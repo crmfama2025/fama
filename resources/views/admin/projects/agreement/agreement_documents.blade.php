@@ -459,8 +459,9 @@
                 }
                 // 🏢 Trade License (example id = 6 — change if different)
                 if (docType == 3) {
-                    regex = /^[A-Z0-9\/-]{5,20}$/;
-                    message = "Trade License must be 5–20 characters (letters, numbers, / or - only)";
+                    // regex = /^[A-Z0-9\/-]{5,20}$/;
+                    regex = /^[A-Z0-9\/\-.]{4,20}$/;
+                    message = "Trade License must be 4–20 characters (letters, numbers, / or -,. only)";
                 }
                 if (docType == 4) {
                     regex = /^\d{9,15}$/;

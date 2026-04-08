@@ -940,13 +940,14 @@
             let tradeInput = $('#trade_license_no');
             if (tradeInput.length) {
                 let val = tradeInput.val();
-                let regex = /^[A-Z0-9\/-]{5,20}$/;
+                // let regex = /^[A-Z0-9\/-]{5,20}$/;
+                let regex = /^[A-Z0-9\/\-.]{4,20}$/;
                 tradeInput.removeClass('is-invalid');
                 $('#tradeLicenseError').remove();
 
                 if (val.length != 0 && !regex.test(val)) {
                     showError(tradeInput,
-                        "Trade License must be 5–20 characters (letters, numbers, / or - only)");
+                        "Trade License must be 4–20 characters (letters, numbers, / or -,. only)");
                     allValid = false;
                 }
             }
