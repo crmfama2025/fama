@@ -49,7 +49,8 @@ class AgreementTenantService
         $validator = Validator::make($data, [
             'tenant_name' => 'required',
             'tenant_mobile' => ['required', 'regex:/^\+?[1-9]\d{9,14}$/'],
-            'tenant_email' => 'required|email:rfc,dns',
+            // 'tenant_email' => 'required|email:rfc,dns',
+            'tenant_email' => 'required',
             // 'nationality_id' =>  'required',
             'tenant_address' =>  'required',
             'contact_person' => 'required',
