@@ -95,11 +95,13 @@ class AgreementController extends Controller
     public function show(Agreement $agreement)
     {
         $agreement = $this->agreementService->getDetails($agreement->id);
+        $chain = $agreement->getFullChain();
+        // dd($agreement);
         // dd($agreement);
         // dd($agreement->agreement_payment_details);
         // dd($agreement->agreement_units);
         // dd($agreement->agreement_payment->agreementPaymentDetails);
-        return view('admin.projects.agreement.agreement-view', compact('agreement'));
+        return view('admin.projects.agreement.agreement-view', compact('agreement', 'chain'));
     }
     public function getAgreements(Request $request)
     {

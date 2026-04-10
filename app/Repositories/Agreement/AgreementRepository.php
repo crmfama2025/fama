@@ -228,6 +228,8 @@ class AgreementRepository
             'agreement_units.agreementSubunitRentBifurcation',
             'salesTenantAgreement.salesTenantSubunitRents',
             'tenant.tenantDocuments',
+            'parent',                  // immediate parent
+            'childrenRecursive'  // all levels of renewals
         ])->findOrFail($id);
     }
 

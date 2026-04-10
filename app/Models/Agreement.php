@@ -243,4 +243,41 @@ class Agreement extends Model
     {
         return $this->belongsTo(SalesTenantAgreement::class, 'sales_tenant_agreement_id');
     }
+    public function parent()
+    {
+        return $this->belongsTo(Agreement::class, 'parent_agreement_id');
+    }
+
+    public function children()
+    {
+        return $this->hasMany(Agreement::class, 'parent_agreement_id');
+    }
+    public function childrenRecursive()
+    {
+        return $this->children()->with('childrenRecursive');
+    }
+    public function getFullChain()
+    {
+        // Get root parent
+        $root = $this;
+        while ($root->parent) {
+            $root = $root->parent;
+        }
+
+        // Now collect all in order
+        return $this->buildChain($root);
+    }
+
+    private function buildChain($agreement, &$result = [])
+    {
+        $result[] = $agreement;
+
+        if ($agreement->childrenRecursive->count()) {
+            foreach ($agreement->childrenRecursive as $child) {
+                $this->buildChain($child, $result);
+            }
+        }
+
+        return $result;
+    }
 }

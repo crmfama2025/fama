@@ -76,9 +76,12 @@ namespace App\Models{
  * @property-read int|null $agreement_payment_details_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\AgreementUnit> $agreement_units
  * @property-read int|null $agreement_units_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Agreement> $children
+ * @property-read int|null $children_count
  * @property-read \App\Models\Company|null $company
  * @property-read \App\Models\Contract|null $contract
  * @property-read \App\Models\User|null $deletedBy
+ * @property-read Agreement|null $parent
  * @property-read \App\Models\SalesTenantAgreement|null $salesTenantAgreement
  * @property-read \App\Models\AgreementTenant|null $tenant
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\AgreementUnit> $tenant_invoices
@@ -399,6 +402,7 @@ namespace App\Models{
  * @property-read int|null $sales_agreement_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\TenantDocument> $tenantDocuments
  * @property-read int|null $tenant_documents_count
+ * @property-read \App\Models\User|null $updatedBy
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementTenant newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementTenant newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementTenant onlyTrashed()

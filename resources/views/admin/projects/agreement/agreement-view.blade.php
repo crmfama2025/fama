@@ -165,14 +165,20 @@
 
                             <div class="row d-flex justify-content-center">
                                 <div class="col-md-6">
-                                    <div class="card card-widget  shadow-sm">
-                                        <div class="bg-gradient-olive pl-4 py-2 widget-user-header">
-
-                                            <h5 class="widget-user-username"><i
-                                                    class="fa fa-solid mx-1 fa-user"></i>{{ $agreement->tenant->tenant_name }}
-                                                </h3>
-                                                <h6 class="widget-user-desc"><i
+                                    <div class="card card-widget  shadow-sm ">
+                                        <div
+                                            class="bg-gradient-olive pl-4 pr-4 py-2 widget-user-header d-flex justify-content-between">
+                                            <div>
+                                                <h5 class="widget-user-username"><i
+                                                        class="fa fa-solid mx-1 fa-user"></i>{{ $agreement->tenant->tenant_name }}
+                                                </h5>
+                                                <h5 class="widget-user-desc"><i
                                                         class="fa  fa-solid fa-inbox mx-1"></i>{{ $agreement->tenant->tenant_email }}
+                                                </h5>
+                                            </div>
+
+                                            <h5><span class="badge badge-olive">{{ $agreement->agreement_code }}</span>
+
                                             </h5>
                                         </div>
                                         <div class="card-footer p-0">
@@ -704,6 +710,55 @@
                             <div class="float-lg-right">Total Agreement Amount:
                                 <span
                                     class="text-bold text-blue my-1">{{ number_format($agreement->agreement_payment->total_rent_annum, 2) }}</span>
+                            </div>
+                            <div class="card shadow-sm border-0 mt-5">
+                                <div class="card-header bg-gradient-lightblue text-white">
+                                    <h5 class="mb-0">Agreement Renewal Details</h5>
+                                </div>
+
+                                <div class="card-body p-0 table-responsive">
+                                    <table class="table table-bordered table-hover mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Type</th>
+                                                <th>Agreement Code</th>
+                                                <th>Project No</th>
+                                                <th>Start Date</th>
+                                                <th>End Date</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($chain as $index => $item)
+                                                <tr class="{{ $item->id == $agreement->id ? 'table-active' : '' }}">
+                                                    <td>
+                                                        @if ($index == 0)
+                                                            <span class="badge bg-dark">New</span>
+                                                        @else
+                                                            <span class="badge bg-info text-dark">Renewal
+                                                                {{ $index }}</span>
+                                                        @endif
+                                                    </td>
+
+                                                    <td>
+                                                        <a href="{{ route('agreement.show', $item->id) }}"
+                                                            target="_blank" rel="noopener noreferrer"
+                                                            class="{{ $item->id == $agreement->id ? 'text-success fw-bold' : '' }}">
+                                                            {{ $item->agreement_code }}
+                                                        </a>
+                                                    </td>
+                                                    <td><a href="{{ route('contract.show', $item->contract->id) }}"
+                                                            target="_blank" rel="noopener noreferrer">
+                                                            P - {{ $item->contract->project_number ?? 'N/A' }}
+                                                        </a></td>
+
+                                                    <td>{{ \Carbon\Carbon::parse($item->start_date)->format('d M Y') }}
+                                                    </td>
+                                                    <td>{{ \Carbon\Carbon::parse($item->end_date)->format('d M Y') }}</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
 
 
