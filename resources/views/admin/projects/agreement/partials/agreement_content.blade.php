@@ -244,7 +244,7 @@
                         <td>
                             <div align="center" class="text-sm text-sm">
                                 <strong>
-                                    @foreach ($agreement->agreement_documents as $document)
+                                    @foreach ($agreement->tenant->tenantDocuments as $document)
                                         @if ($document->document_type == 3)
                                             {{ $document->document_number ?? ' - ' }}
                                         @endif

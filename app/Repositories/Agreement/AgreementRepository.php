@@ -226,7 +226,8 @@ class AgreementRepository
             'agreement_units.contractUnitDetail.unit_type',
             'agreement_units.contractUnitDetail.contractSubUnitDetails',
             'agreement_units.agreementSubunitRentBifurcation',
-            'salesTenantAgreement.salesTenantSubunitRents'
+            'salesTenantAgreement.salesTenantSubunitRents',
+            'tenant.tenantDocuments',
         ])->findOrFail($id);
     }
 
