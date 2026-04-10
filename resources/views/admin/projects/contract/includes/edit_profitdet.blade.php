@@ -35,9 +35,9 @@
             </div>
             <div class="col-md-2">
                 <label for="exampleInputEmail1" class="asterisk">Profit %</label>
-                <input type="number" class="form-control unit_profit_perc" name="unit_detail[unit_profit_perc][]"
-                    id="unit_profit_perc{{ $unitkey }}" value="{{ $unitDetail->unit_profit_perc ?? '' }}"
-                    placeholder="Profit %" required>
+                <input type="number" class="form-control unit_profit_perc editafterapprove"
+                    name="unit_detail[unit_profit_perc][]" id="unit_profit_perc{{ $unitkey }}"
+                    value="{{ $unitDetail->unit_profit_perc ?? '' }}" placeholder="Profit %" required>
             </div>
             <div class="col-md-2">
                 <label for="exampleInputEmail1">Profit</label>

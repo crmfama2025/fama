@@ -16,9 +16,9 @@
                 </div>
             </div>
             <div class="col-md-4">
-                <input type="number" class="form-control rec_payment_amount" id="rec_payment_amount{{ $reckey }}"
-                    name="receivables[payment_amount][]" value="{{ $paymentReceivable->receivable_amount ?? '' }}"
-                    placeholder="Payment Amount" required>
+                <input type="number" class="form-control rec_payment_amount editafterapprove"
+                    id="rec_payment_amount{{ $reckey }}" name="receivables[payment_amount][]"
+                    value="{{ $paymentReceivable->receivable_amount ?? '' }}" placeholder="Payment Amount" required>
             </div>
         </div>
     </div>

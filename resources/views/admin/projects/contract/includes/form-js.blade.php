@@ -2591,6 +2591,20 @@
             // console.log('Faateh contract type on edit');
             calculateRoiFF();
         }
+
+        // Afetr approval edit restriction permissionwise
+        let ct_status = '{{ $contract ? $contract->contract_status : '' }}';
+        const canEditAferApprove = @json(auth()->user()->hasAnyPermission(['contract.edit_after_approval']));
+        // alert(canEditAferApprove);
+        if (ct_status >= '2' && !canEditAferApprove) {
+            $('.editafterapprove').each(function() {
+                $(this).attr('readonly', 'true');
+            });
+            $('.editafterapproveselect').on('select2:opening', function(e) {
+                e.preventDefault();
+            });
+        }
+        // End of approval edit restriction
     }
     // else {
     //     console.log('Creating mode');

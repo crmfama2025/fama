@@ -46,8 +46,8 @@
                 <div class="col-sm-2 add-morecol2">
                     <label class="control-label" class="asterisk"> Unit Rent Per Annum </label>
                     <input type="number" name="unit_detail[unit_rent_per_annum][]"
-                        class="form-control unit_rent_per_annum" placeholder="Unit Rent Per Annum" min="0"
-                        value="{{ toNumeric($unitDetail->unit_rent_per_annum) ?? '' }}" required>
+                        class="form-control unit_rent_per_annum editafterapprove" placeholder="Unit Rent Per Annum"
+                        min="0" value="{{ toNumeric($unitDetail->unit_rent_per_annum) ?? '' }}" required>
                 </div>
                 <div class="col-sm-3 add-morecol2">
                     <label class="control-label" class="asterisk">Unit Size</label>

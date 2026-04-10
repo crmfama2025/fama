@@ -1364,7 +1364,9 @@ function getSubModuleArray()
         'submit_pending',
         'soa',
         'referrals',
-        'rent_split'
+        'rent_split',
+        'edit_after_approval',
+        'make-agreement',
     ];
 }
 

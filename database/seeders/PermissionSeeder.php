@@ -36,6 +36,7 @@ class PermissionSeeder extends Seeder
                     $subModule[] = 'send_for_approval';
                     $subModule[] = 'sign_after_approval';
                     $subModule[] = 'terminate';
+                    $subModule[] = 'edit_after_approval';
                 }
 
                 if (in_array($module, ['agreement'])) {

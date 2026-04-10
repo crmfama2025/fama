@@ -488,15 +488,15 @@
                                                 <div class="form-group row">
                                                     <div class="col-md-2">
                                                         <label for="exampleInputEmail1">Contract fee</label>
-                                                        <input type="number" class="form-control"
+                                                        <input type="number" class="form-control editafterapprove"
                                                             name="detail[contract_fee]" id="contract_fee"
                                                             placeholder="Contract fee"
                                                             value="{{ old('contract_fee', $contract->contract_detail->contract_fee ?? '') }}">
                                                     </div>
                                                     <div class="col-md-2">
                                                         <label for="exampleInputEmail1">Ejari</label>
-                                                        <input type="number" class="form-control" id="ejari"
-                                                            name="detail[ejari]"
+                                                        <input type="number" class="form-control editafterapprove"
+                                                            id="ejari" name="detail[ejari]"
                                                             value="{{ old('deposit', $contract->contract_detail->ejari ?? '') }}"
                                                             placeholder="Ejari">
                                                     </div>
@@ -569,8 +569,8 @@
                                                     <div class="col-md-2">
                                                         <label for="exampleInputEmail1" class="asterisk">Commission
                                                             %</label>
-                                                        <input type="number" class="form-control" id="commission_perc"
-                                                            name="rentals[commission_percentage]"
+                                                        <input type="number" class="form-control editafterapprove"
+                                                            id="commission_perc" name="rentals[commission_percentage]"
                                                             placeholder="Commission %"
                                                             value="{{ old('commission_percentage', $contract->contract_rentals->commission_percentage ?? '5') }}"
                                                             required>
@@ -578,22 +578,24 @@
                                                     <div class="col-md-2">
                                                         <label for="exampleInputEmail1"
                                                             class="asterisk">Commission</label>
-                                                        <input type="number" class="form-control" id="commission"
-                                                            name="rentals[commission]" placeholder="Commission"
+                                                        <input type="number" class="form-control editafterapprove"
+                                                            id="commission" name="rentals[commission]"
+                                                            placeholder="Commission"
                                                             value="{{ old('commission', $contract->contract_rentals->commission ?? '') }}"
                                                             required>
                                                     </div>
                                                     <div class="col-md-2">
                                                         <label for="exampleInputEmail1" class="asterisk">Deposit %</label>
-                                                        <input type="number" class="form-control" id="deposit_perc"
-                                                            name="rentals[deposit_percentage]" placeholder="Deposit %"
+                                                        <input type="number" class="form-control editafterapprove"
+                                                            id="deposit_perc" name="rentals[deposit_percentage]"
+                                                            placeholder="Deposit %"
                                                             value="{{ old('deposit_percentage', $contract->contract_rentals->deposit_percentage ?? '5') }}"
                                                             required>
                                                     </div>
                                                     <div class="col-md-2">
                                                         <label for="exampleInputEmail1" class="asterisk">Deposit</label>
-                                                        <input type="number" class="form-control" id="deposit"
-                                                            name="rentals[deposit]" placeholder="Deposit"
+                                                        <input type="number" class="form-control editafterapprove"
+                                                            id="deposit" name="rentals[deposit]" placeholder="Deposit"
                                                             value="{{ old('deposit', $contract->contract_rentals->deposit ?? '') }}"
                                                             required>
                                                     </div>
@@ -606,29 +608,29 @@
                                                 <div class="form-group row">
                                                     <div class="col-md-3">
                                                         <label for="exampleInputEmail1">Cost of Development</label>
-                                                        <input type="number" class="form-control"
+                                                        <input type="number" class="form-control editafterapprove"
                                                             id="cost_of_development" name="otc[cost_of_development]"
                                                             value="{{ old('deposit', $contract->contract_otc->cost_of_development ?? '') }}"
                                                             placeholder="Cost of Development">
                                                     </div>
                                                     <div class="col-md-3">
                                                         <label for="exampleInputEmail1">Cost of Beds</label>
-                                                        <input type="number" class="form-control" id="cost_of_beds"
-                                                            name="otc[cost_of_bed]"
+                                                        <input type="number" class="form-control editafterapprove"
+                                                            id="cost_of_beds" name="otc[cost_of_bed]"
                                                             value="{{ old('deposit', $contract->contract_otc->cost_of_bed ?? '') }}"
                                                             placeholder="Cost of Beds">
                                                     </div>
                                                     <div class="col-md-3">
                                                         <label for="exampleInputEmail1">Cost of Mattress</label>
-                                                        <input type="number" class="form-control" id="cost_of_mattress"
-                                                            name="otc[cost_of_matress]"
+                                                        <input type="number" class="form-control editafterapprove"
+                                                            id="cost_of_mattress" name="otc[cost_of_matress]"
                                                             value="{{ old('deposit', $contract->contract_otc->cost_of_matress ?? '') }}"
                                                             placeholder="Cost of Mattress">
                                                     </div>
                                                     <div class="col-md-3">
                                                         <label for="exampleInputEmail1">Appliances</label>
-                                                        <input type="number" class="form-control" id="appliances"
-                                                            name="otc[appliances]"
+                                                        <input type="number" class="form-control editafterapprove"
+                                                            id="appliances" name="otc[appliances]"
                                                             value="{{ old('deposit', $contract->contract_otc->appliances ?? '') }}"
                                                             placeholder="Appliances">
                                                     </div>
@@ -636,23 +638,23 @@
                                                 <div class="form-group row">
                                                     <div class="col-md-3">
                                                         <label for="exampleInputEmail1">Decoration</label>
-                                                        <input type="number" class="form-control" id="decoration"
-                                                            name="otc[decoration]"
+                                                        <input type="number" class="form-control editafterapprove"
+                                                            id="decoration" name="otc[decoration]"
                                                             value="{{ old('deposit', $contract->contract_otc->decoration ?? '') }}"
                                                             placeholder="Decoration">
                                                     </div>
                                                     <div class="col-md-3">
                                                         <label for="exampleInputEmail1">Dewa Deposit</label>
-                                                        <input type="number" class="form-control" id="dewa_deposit"
-                                                            name="otc[dewa_deposit]"
+                                                        <input type="number" class="form-control editafterapprove"
+                                                            id="dewa_deposit" name="otc[dewa_deposit]"
                                                             value="{{ old('deposit', $contract->contract_otc->dewa_deposit ?? '') }}"
                                                             placeholder="Dewa Deposit">
                                                     </div>
 
                                                     <div class="col-md-3">
                                                         <label for="exampleInputEmail1">Cost of Cabinets</label>
-                                                        <input type="number" class="form-control" id="cost_of_cabinets"
-                                                            name="otc[cost_of_cabinets]"
+                                                        <input type="number" class="form-control editafterapprove"
+                                                            id="cost_of_cabinets" name="otc[cost_of_cabinets]"
                                                             value="{{ old('deposit', $contract->contract_otc->cost_of_cabinets ?? '') }}"
                                                             placeholder="Cost of Cabinets">
                                                     </div>
@@ -808,7 +810,7 @@
                                                         <label for="exampleInputEmail1" class="asterisk">Rent per
                                                             Partition</label>
                                                         {{-- @dd($contract); --}}
-                                                        <input type="number" class="form-control"
+                                                        <input type="number" class="form-control editafterapprove"
                                                             name="unit_detail[rent_per_partition]" id="rent_per_part"
                                                             placeholder="Rent per Partition"
                                                             value="{{ isset($contract) ? toNumeric($contract->totals['prj_rent_per_partition']) : '' }}"
@@ -817,7 +819,7 @@
                                                     <div class="col-md-2 rentBedspace">
                                                         <label for="exampleInputEmail1" class="asterisk">Rent per
                                                             Bedspace</label>
-                                                        <input type="number" class="form-control"
+                                                        <input type="number" class="form-control editafterapprove"
                                                             name="unit_detail[rent_per_bedspace]" id="rent_per_bs"
                                                             placeholder="Rent per Bedspace"
                                                             value="{{ isset($contract) ? toNumeric($contract->totals['prj_rent_per_bedspace']) : '' }}"
@@ -826,7 +828,7 @@
                                                     <div class="col-md-2 rentRoom">
                                                         <label for="exampleInputEmail1" class="asterisk">Rent per
                                                             Room</label>
-                                                        <input type="number" class="form-control"
+                                                        <input type="number" class="form-control editafterapprove"
                                                             name="unit_detail[rent_per_room]" id="rent_per_room"
                                                             placeholder="Rent per Room"
                                                             value="{{ isset($contract) ? toNumeric($contract->totals['prj_rent_per_room']) : '' }}"
@@ -835,7 +837,7 @@
                                                     <div class="col-md-2 rentFlat">
                                                         <label for="exampleInputEmail1" class="asterisk">Rent per
                                                             Flat</label>
-                                                        <input type="number" class="form-control"
+                                                        <input type="number" class="form-control editafterapprove"
                                                             name="unit_detail[rent_per_flat]" id="rent_per_flat"
                                                             placeholder="Rent per Flat"
                                                             value="{{ isset($contract) ? toNumeric($contract->totals['prj_rent_per_flat']) : '' }}"
@@ -862,7 +864,7 @@
                                                     <div class="col-md-2">
                                                         <label for="exampleInputEmail1" class="asterisk">Rent
                                                             installments</label>
-                                                        <select class="form-control select2"
+                                                        <select class="form-control select2 editafterapproveselect"
                                                             name="rentals[receivable_installments]" id="rent_installments"
                                                             required>
                                                             <option value="">Select</option>

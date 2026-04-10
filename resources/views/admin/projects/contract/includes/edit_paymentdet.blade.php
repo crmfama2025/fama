@@ -30,7 +30,7 @@
             </div>
             <div class="col-md-4">
                 <label class="asterisk">Payment Amount</label>
-                <input type="text" class="form-control" id="payment_amount{{ $paymentkey }}"
+                <input type="text" class="form-control editafterapprove" id="payment_amount{{ $paymentkey }}"
                     name="payment_detail[payment_amount][]" placeholder="Payment Amount"
                     value="{{ $paymentDetail->payment_amount ?? '' }}" required>
             </div>
