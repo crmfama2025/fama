@@ -80,32 +80,35 @@
                                     </div>
                                 </div>
 
+                                <div class="table-responsive">
+                                    <table id="agreementTable" class="table table-striped projects display nowrap">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 1%">#</th>
+                                                <th>Actions</th>
+                                                <th>Agreement Status</th>
 
-                                <table id="agreementTable" class="table table-striped projects display nowrap">
-                                    <thead>
-                                        <tr>
-                                            <th style="width: 1%">#</th>
-                                            <th>Actions</th>
-                                            {{-- <th>Agreement Code</th> --}}
-                                            <th>Signed Agreement Status</th>
-                                            <th>Project Details</th>
-                                            <th>Customer Type</th>
-                                            <th>Property Name</th>
-                                            <th>Tenant Details</th>
-                                            <th>Start Date</th>
-                                            <th>End Date</th>
-                                            <th>Agreement Status</th>
-                                            <th>Company Name</th>
-                                            {{-- <th>Signed Agreement Status</th> --}}
-                                            <th>Created At</th>
-                                            <!-- <th>Status</th> -->
-                                            {{-- <th></th> --}}
-                                        </tr>
-                                    </thead>
-                                    <tbody>
+                                                {{-- <th>Agreement Code</th> --}}
+                                                <th>Signed Agreement</th>
+                                                <th>Project Details</th>
+                                                <th>Customer Type</th>
+                                                <th>Property Name</th>
+                                                <th>Tenant Details</th>
+                                                <th>Start Date</th>
+                                                <th>End Date</th>
+                                                <th>Company Name</th>
+                                                {{-- <th>Signed Agreement Status</th> --}}
+                                                <th>Created At</th>
+                                                <!-- <th>Status</th> -->
+                                                {{-- <th></th> --}}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
 
-                                    </tbody>
-                                </table>
+                                        </tbody>
+                                    </table>
+                                </div>
+
                             </div>
                             <!-- /.card-body -->
                         </div>
@@ -321,6 +324,44 @@
                         orderable: false,
                         searchable: false
                     },
+                    {
+                        data: 'agreement_status',
+                        name: 'agreements.agreement_status',
+                        render: function(data, type, row) {
+                            let badgeClass = '';
+                            let text = '';
+
+                            switch (data) {
+                                case 0:
+                                    badgeClass = 'badge badge-success text-white';
+                                    text = 'Active';
+                                    break;
+                                case 1:
+                                    badgeClass = 'badge badge-warning text-black';
+                                    text = 'Terminated';
+                                    break;
+                                case 2:
+                                    badgeClass = 'badge badge-danger text-white';
+                                    text = 'Expired';
+                                    break;
+
+                            }
+
+                            let renewalText = row.renewal_status == 1 ? 'Renewal' : 'New';
+                            let renewalBadge = row.renewal_status == 1 ?
+                                'badge badge-info' :
+                                'badge badge-secondary';
+
+                            return `
+                                <span class="${badgeClass}">${text}</span>
+                                <p class="mb-0">
+                                    <span class="${renewalBadge}">${renewalText}</span>
+                                </p>
+                            `;
+
+                            // return '<span class="' + badgeClass + '">' + text + '</span>';
+                        },
+                    },
                     // {
                     //     data: 'agreement_code',
                     //     name: 'agreements.agreement_code',
@@ -383,44 +424,7 @@
                         data: 'end_date',
                         name: 'end_date',
                     },
-                    {
-                        data: 'agreement_status',
-                        name: 'agreements.agreement_status',
-                        render: function(data, type, row) {
-                            let badgeClass = '';
-                            let text = '';
 
-                            switch (data) {
-                                case 0:
-                                    badgeClass = 'badge badge-success text-white';
-                                    text = 'Active';
-                                    break;
-                                case 1:
-                                    badgeClass = 'badge badge-warning text-black';
-                                    text = 'Terminated';
-                                    break;
-                                case 2:
-                                    badgeClass = 'badge badge-danger text-white';
-                                    text = 'Expired';
-                                    break;
-
-                            }
-
-                            let renewalText = row.renewal_status == 1 ? 'Renewal' : 'New';
-                            let renewalBadge = row.renewal_status == 1 ?
-                                'badge badge-info' :
-                                'badge badge-secondary';
-
-                            return `
-                                <span class="${badgeClass}">${text}</span>
-                                <p class="mb-0">
-                                    <span class="${renewalBadge}">${renewalText}</span>
-                                </p>
-                            `;
-
-                            // return '<span class="' + badgeClass + '">' + text + '</span>';
-                        },
-                    },
                     // {
                     //  data: 'is_signed_agreement_uploaded',
                     //      name: 'agreements.is_signed_agreement_uploaded',
