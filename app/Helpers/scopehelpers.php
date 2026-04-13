@@ -31,6 +31,8 @@ function renderSummary($sheet, $contract, $title)
     $sheet->setCellValue('A1', $title);
     $sheet->mergeCells('A1:E1');
     $sheet->getStyle('A1')->getFont()->setBold(true);
+    $parent = $contract['parent'];
+    $renewalNumber = (is_object($parent)) ? $parent->project_number : null;
 
     $summaryArr = [
         ['Building Name', '', $contract['property_name'], '', '', '', 'OTC', '', 'Furniture', ''],
@@ -47,7 +49,7 @@ function renderSummary($sheet, $contract, $title)
         ['Final Cost', '', $contract['final_cost'], '', '', '', 'Total Rental', '', $contract['total_rental'], ''],
         ['Initial Investment', '', $contract['initial_investment'], '', '', '',  'Plot Number', '', $contract['plot_no'], ''],
         ['Expected Profit', '', $contract['expected_profit'], '', '', '',  'Renewal Status', '', $contract['renewal_status'], ''],
-        ['ROI', '', $contract['roi'] . '%', '', '', '', 'Renewal Number', '', $contract['parent']->project_number, ''],
+        ['ROI', '', $contract['roi'] . '%', '', '', '', 'Renewal Number', '', $renewalNumber, ''],
     ];
 
     // Write the array starting at row 2
@@ -892,6 +894,10 @@ function renderSummaryFF($sheet, $contract)
             'color' => ['rgb' => 'B4C6E7'], // background color (green)
         ],
     ]);
+    // dd($contract);
+    // dd($contract['parent']);
+    $parent = $contract['parent'];
+    $renewalNumber = (is_object($parent)) ? $parent->project_number : null;
 
     $summaryArr = [
         ['Building Name', $contract['property_name']],
@@ -899,7 +905,7 @@ function renderSummaryFF($sheet, $contract)
         ['Plot Number', $contract['plot_no']],
         ['Project Status', $contract['renewal_status']],
         // ['Renewal Number', $contract['renewal_number']],
-        ['Renewal Number', $contract['parent']->project_number],
+        ['Renewal Number', $renewalNumber],
         ['Flat No.', $contract['unit_numbers']],
         ['Number of Floors', $contract['no_of_floors']],
         ['Floor Number ', $contract['floor_numbers']],
