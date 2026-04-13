@@ -47,7 +47,7 @@ function renderSummary($sheet, $contract, $title)
         ['Final Cost', '', $contract['final_cost'], '', '', '', 'Total Rental', '', $contract['total_rental'], ''],
         ['Initial Investment', '', $contract['initial_investment'], '', '', '',  'Plot Number', '', $contract['plot_no'], ''],
         ['Expected Profit', '', $contract['expected_profit'], '', '', '',  'Renewal Status', '', $contract['renewal_status'], ''],
-        ['ROI', '', $contract['roi'] . '%', '', '', '', 'Renewal Number', '', $contract['renewal_number'], ''],
+        ['ROI', '', $contract['roi'] . '%', '', '', '', 'Renewal Number', '', $contract['parent']->project_number, ''],
     ];
 
     // Write the array starting at row 2
@@ -898,7 +898,8 @@ function renderSummaryFF($sheet, $contract)
         ['Property Type', $contract['unit_property_type']],
         ['Plot Number', $contract['plot_no']],
         ['Project Status', $contract['renewal_status']],
-        ['Renewal Number', $contract['renewal_number']],
+        // ['Renewal Number', $contract['renewal_number']],
+        ['Renewal Number', $contract['parent']->project_number],
         ['Flat No.', $contract['unit_numbers']],
         ['Number of Floors', $contract['no_of_floors']],
         ['Floor Number ', $contract['floor_numbers']],
