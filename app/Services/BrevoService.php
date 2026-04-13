@@ -16,7 +16,7 @@ class BrevoService
     public function __construct()
     {
         $this->apiKey = config('services.brevo.api_key');
-        $this->senderEmail = 'geethufama@gmail.com';
+        $this->senderEmail = 'noreply@famacrm.cloud';
         $this->senderName = 'Fama Real Estate';
 
         $this->client = new Client([
