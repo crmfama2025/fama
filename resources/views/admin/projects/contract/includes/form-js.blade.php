@@ -2489,9 +2489,29 @@
 
         let isEdit = {{ $edit }};
         if (!isEdit || action == 'change') {
+            // Commented because in edit last rent recevable value is changing , not showing as per the table if there is no change in rent values
+            //  $('.rec_payment_amount').each(function() {
+            //     $(this).val(totRentperflat);
+            // });
+            // End of comment
+
+            // Added by Geethu For the last receivable fix
+            let totalRental_lastsection = parseFloat($('.total_rental').val()) || 0;
+            let sum = 0;
+
             $('.rec_payment_amount').each(function() {
-                $(this).val(totRentperflat);
+                let rentinstallment_sum = parseFloat($(this).val()) || 0;
+                sum += rentinstallment_sum;
             });
+
+            // Check if sum is NOT equal to total rental
+            if (sum !== totalRental) {
+                $('.rec_payment_amount').each(function() {
+                    $(this).val(totRentperflat);
+                });
+            }
+            // End of addition
+
         }
     }
 
