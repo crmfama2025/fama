@@ -28,7 +28,7 @@ class PdfCompressionService
 
         // exec($command);
         exec($command, $output, $returnCode);
-        dd($command, $output, $returnCode);
+        // dd($command, $output, $returnCode);
 
         unlink($inputPath);
 
