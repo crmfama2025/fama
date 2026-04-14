@@ -17,13 +17,13 @@ class PdfCompressionService
             mkdir($finalDir, 0777, true);
         }
 
-        $gsPath  = 'gs'; // ✅ correct binary name on Linux
+        $gsPath = PHP_OS_FAMILY === 'Windows' ? 'gswin64c' : 'gs';
 
         $command = $gsPath . ' -sDEVICE=pdfwrite '
             . '-dCompatibilityLevel=1.4 '
             . '-dPDFSETTINGS=/ebook '
             . '-dNOPAUSE -dQUIET -dBATCH '
-            . '-sOutputFile=' . escapeshellarg($finalPath) . ' '  // ✅ handles spaces
+            . '-sOutputFile=' . escapeshellarg($finalPath) . ' '
             . escapeshellarg($inputPath);
 
         // exec($command);
