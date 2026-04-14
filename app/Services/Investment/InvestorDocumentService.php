@@ -5,6 +5,7 @@ namespace App\Services\Investment;
 use App\Repositories\Investment\InvestorBankRepository;
 use App\Repositories\Investment\InvestorDocumentRepository;
 use App\Repositories\Investment\InvestorRepository;
+use App\Services\PdfCompressionService;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -78,7 +79,23 @@ class InvestorDocumentService
 
             if (isset($value["file"])) {
                 $filename = time() . '_' . $value["file"]->getClientOriginalName();
-                $path = $value["file"]->storeAs('investments/' . $investor->investor_code . '/investor', $filename, 'public');
+                // $path = $value["file"]->storeAs('investments/' . $investor->investor_code . '/investor', $filename, 'public');
+
+                $pdfService = new PdfCompressionService();
+
+                if ($value["file"]->getClientOriginalExtension() === 'pdf') {
+                    $path = $pdfService->compress(
+                        $value["file"],
+                        'investments/' . $investor->investor_code . '/investor',
+                        $filename
+                    );
+                } else {
+                    $path = $value["file"]->storeAs(
+                        'investments/' . $investor->investor_code . '/investor',
+                        $filename,
+                        'public'
+                    );
+                }
 
                 $Arr = array(
                     'investor_id' => $investor->id,

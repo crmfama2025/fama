@@ -13,6 +13,7 @@ use App\Repositories\Investment\InvestmentDocumentRepository;
 use App\Repositories\Investment\InvestmentRepository;
 use App\Repositories\Investment\InvestorRepository;
 use App\Services\BrevoService;
+use App\Services\PdfCompressionService;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -165,11 +166,28 @@ class InvestmentService
 
                 $fileName = uniqid() . '_' . $file->getClientOriginalName();
 
-                $path = $file->storeAs(
-                    'investments/' . $investor->investor_code . '/investments/' . $investment_code,
-                    $fileName,
-                    'public'
-                );
+                // $path = $file->storeAs(
+                //     'investments/' . $investor->investor_code . '/investments/' . $investment_code,
+                //     $fileName,
+                //     'public'
+                // );
+
+                // file upload with pdf comporession
+                $pdfService = new PdfCompressionService();
+
+                if ($file->getClientOriginalExtension() === 'pdf') {
+                    $path = $pdfService->compress(
+                        $file,
+                        'investments/' . $investor->investor_code . '/investments/' . $investment_code,
+                        $fileName
+                    );
+                } else {
+                    $path = $file->storeAs(
+                        'investments/' . $investor->investor_code . '/investments/' . $investment_code,
+                        $fileName,
+                        'public'
+                    );
+                }
 
                 $investorDocData = [
                     'investment_id' => $investment->id,
