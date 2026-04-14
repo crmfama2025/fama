@@ -26,7 +26,9 @@ class PdfCompressionService
             . '-sOutputFile="' . $finalPath . '" '
             . '"' . $inputPath . '"';
 
-        exec($command);
+        // exec($command);
+        exec($command, $output, $returnCode);
+        dd($command, $output, $returnCode);
 
         unlink($inputPath);
 
