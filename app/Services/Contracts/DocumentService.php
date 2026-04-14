@@ -4,6 +4,7 @@ namespace App\Services\Contracts;
 
 use App\Repositories\Contracts\ContractRepository;
 use App\Repositories\Contracts\DocumentRepository;
+use App\Services\PdfCompressionService;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
@@ -84,7 +85,19 @@ class DocumentService
                 $file = !empty($value['file']) ? $value['file'] : $value['signed_contract'];
 
                 $filename = time() . '_' . $file->getClientOriginalName();
-                $path = $file->storeAs('projects/' . $contract->project_code . '/contract_documents', $filename, 'public');
+                // $path = $file->storeAs('projects/' . $contract->project_code . '/contract_documents', $filename, 'public');
+                $pdfservice = new PdfCompressionService();
+                if ($file->getClientOriginalExtension() == 'pdf') {
+
+                    $path = $pdfservice->compress(
+                        $file,
+                        'projects/' . $contract->project_code . '/contract_documents',
+                        $filename
+                    );
+                } else {
+                    $path = $file->storeAs('projects/' . $contract->project_code . '/contract_documents', $filename, 'public');
+                }
+                // dd($path);
 
                 $documentData['document_type_id'] = $value['document_type'];
                 $documentData['contract_id'] = $contractId;
