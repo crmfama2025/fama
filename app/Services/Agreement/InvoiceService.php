@@ -8,6 +8,7 @@ use App\Repositories\Agreement\AgreementDocRepository;
 use App\Repositories\Agreement\AgreementRepository;
 use App\Repositories\Agreement\AgreementUnitRepository;
 use App\Repositories\Agreement\InvoiceRepository;
+use App\Services\PdfCompressionService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
@@ -52,11 +53,26 @@ class InvoiceService
         $project_code = $agreement->contract->project_code;
 
         $filename = uniqid() . '_' . $data['invoice_path']->getClientOriginalName();
-        $path = $data['invoice_path']->storeAs(
-            "projects/{$project_code}/agreements/{$code}/tenant-invoices",
-            $filename,
-            'public'
-        );
+        // $path = $data['invoice_path']->storeAs(
+        //     "projects/{$project_code}/agreements/{$code}/tenant-invoices",
+        //     $filename,
+        //     'public'
+        // );
+
+
+        // Upload with file size compression
+        $pdfservice = new PdfCompressionService();
+        if ($data['invoice_path']->getClientOriginalExtension() == 'pdf') {
+            // dd("test");
+
+            $path = $pdfservice->compress(
+                $data['invoice_path'],
+                'projects/' . $project_code . '/agreements/' . $code . '/tenant-invoices',
+                $filename
+            );
+        } else {
+            $path = $data['invoice_path']->storeAs("projects/{$project_code}/agreements/{$code}/tenant-invoices", $filename, 'public');
+        }
 
         if (!empty($data['invoice_id'])) {
             $invoice = $this->invoiceRepository->find($data['invoice_id']);
