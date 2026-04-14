@@ -9,6 +9,7 @@ use App\Repositories\Agreement\AgreementPaymentRepository;
 use App\Repositories\Agreement\AgreementRepository;
 use App\Repositories\Agreement\AgreementTenantRepository;
 use App\Repositories\Agreement\AgreementUnitRepository;
+use App\Services\PdfCompressionService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -77,6 +78,7 @@ class AgreementDocumentService
 
             $filename = uniqid() .  '_' . $doc['document_path']->getClientOriginalName();
             $path = $doc['document_path']->storeAs('agreements/documents/' . $code . '/', $filename, 'public');
+            // dd($path);
 
             $doc_data = [
                 'agreement_id' => $agreement->id,
@@ -117,6 +119,8 @@ class AgreementDocumentService
     public function update($agreement, array $documents, $updatedBy)
     {
         // dd($documents);
+        $pdfservice = new PdfCompressionService();
+
         if (empty($documents)) {
             return;
         }
@@ -150,6 +154,7 @@ class AgreementDocumentService
                     }
                     // dd($existingDoc);
                     if ($existingDoc) {
+                        // dd("test");
                         $existingDoc->document_number = $doc['document_number'] ?? $existingDoc->document_number;
 
                         if (!empty($doc['document_path']) && $doc['document_path'] instanceof UploadedFile) {
@@ -159,7 +164,17 @@ class AgreementDocumentService
                             // $path = $doc['document_path']->store('agreements/documents/' . $code . '/', 'public');
 
                             $filename = uniqid()  . '_' . $doc['document_path']->getClientOriginalName();
-                            $path = $doc['document_path']->storeAs("projects/{$project_code}/agreements/{$code}/documents", $filename, 'public');
+                            // $path = $doc['document_path']->storeAs("projects/{$project_code}/agreements/{$code}/documents", $filename, 'public');
+                            if ($doc['document_path']->getClientOriginalExtension() == 'pdf') {
+
+                                $path = $pdfservice->compress(
+                                    $doc['document_path'],
+                                    'projects/' . $project_code . '/agreements/' . $code . '/documents',
+                                    $filename
+                                );
+                            } else {
+                                $path = $doc['document_path']->storeAs("projects/{$project_code}/agreements/{$code}/documents", $filename, 'public');
+                            }
 
                             $existingDoc->original_document_path = $path;
                             // dd($existingDoc->original_document_path);
@@ -174,6 +189,7 @@ class AgreementDocumentService
                         $this->updateAgreementFlags($agreement, $existingDoc->document_type);
                         $result[] = $existingDoc;
                     }
+                    // dd("test");
                     continue;
                 }
                 // dd("test");
@@ -214,9 +230,20 @@ class AgreementDocumentService
                 // $path = $doc['document_path']->store('agreements/documents/' . $code . '/', 'public');
 
                 $filename = uniqid() .  '_' . $doc['document_path']->getClientOriginalName();
-                $path = $doc['document_path']->storeAs("projects/{$project_code}/agreements/{$code}/documents", $filename, 'public');
+                // $path = $doc['document_path']->storeAs("projects/{$project_code}/agreements/{$code}/documents", $filename, 'public');s
                 // dd("test");
                 // dd($doc);
+
+                if ($doc['document_path']->getClientOriginalExtension() == 'pdf') {
+
+                    $path = $pdfservice->compress(
+                        $doc['document_path'],
+                        'projects/' . $project_code . '/agreements/' . $code . '/documents',
+                        $filename
+                    );
+                } else {
+                    $path = $doc['document_path']->storeAs("projects/{$project_code}/agreements/{$code}/documents", $filename, 'public');
+                }
                 $doc_data = [
                     'agreement_id' => $agreement->id,
                     'document_type' => $doc['document_type'] ?? null,
