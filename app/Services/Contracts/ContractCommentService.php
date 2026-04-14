@@ -48,7 +48,7 @@ class ContractCommentService
             if ($contract->contract_status == 4) {
                 $result = $this->brevoService->sendEmail(
                     [
-                        ['email' => 'geethufama@gmail.com', 'name' => 'Test User']
+                        ['email' => 'rahmathrasmiya@gmail.com', 'name' => 'Test User']
                     ],
                     'Kindly Review and Approve Contract',
                     'admin.emails.contract-approval-email',
