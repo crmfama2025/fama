@@ -1,4 +1,38 @@
 @extends('admin.layout.admin_master')
+@section('custom_css')
+    <style>
+        .project-widget.active .project-hover-box {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .project-widget {
+            position: relative;
+        }
+
+        .project-hover-box {
+            position: absolute;
+            left: 0;
+            top: 100%;
+            width: 100%;
+            background: #fff;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            padding: 10px;
+
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.25s ease;
+            z-index: 10;
+        }
+
+        /* 🔥 Hover effect */
+        .project-widget:hover .project-hover-box {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+@endsection
 
 
 @section('content')
@@ -38,20 +72,70 @@
             <div class="container-fluid">
                 <!-- Small boxes (Stat box) -->
                 <div class="row">
-                    <div class="col-lg-3">
+                    {{-- <div class="col-lg-3">
                         <div class="small-box bg-gradient-projects">
                             <div class="inner">
-                                <h3 class="mb-1" id="totalContracts">{{ format_k($wid_totalContracts) }}</h3>
+                                <h3 id="totalContracts">{{ format_k($wid_totalContracts) }}</h3>
 
-                                <p class="mb-0">New Projects</p>
-                                <small class="text-white">
-                                    Renewals: <strong id="totalRenewals">{{ format_k($wid_totalRenewals) }}</strong>
-                                </small>
+                                <p>Projects</p>
+
                             </div>
 
                             <div class="icon">
                                 <i class="ion ion-folder"></i>
                             </div>
+                        </div>
+                    </div> --}}
+
+                    <div class="col-lg-3">
+                        <div class="project-widget position-relative">
+
+                            <div class="small-box bg-gradient-projects">
+                                <div class="inner">
+                                    <h3 id="totalContracts">{{ format_k($wid_totalContracts) }}</h3>
+                                    <p>Projects</p>
+                                </div>
+
+                                <div class="icon">
+                                    <i class="ion ion-folder"></i>
+                                </div>
+                            </div>
+
+                            <!-- 🔥 Hover Panel -->
+                            <div class="project-hover-box">
+                                <div class="d-flex text-center">
+
+                                    <div class="flex-fill">
+                                        <div class="text-success font-weight-bold">
+                                            {{ format_k($wid_totalContracts_new) }}
+                                        </div>
+                                        <small>New</small>
+                                    </div>
+
+                                    <div class="flex-fill">
+                                        <div class="text-info font-weight-bold">
+                                            {{ format_k($wid_totalRenewals) }}
+                                        </div>
+                                        <small>Renew</small>
+                                    </div>
+
+                                    <div class="flex-fill">
+                                        <div class="text-warning font-weight-bold">
+                                            {{ format_k($wid_totalContracts_terminated) }}
+                                        </div>
+                                        <small>Terminated</small>
+                                    </div>
+
+                                    <div class="flex-fill">
+                                        <div class="text-danger font-weight-bold">
+                                            {{ format_k($wid_totalContracts_droped) }}
+                                        </div>
+                                        <small>Dropped</small>
+                                    </div>
+
+                                </div>
+                            </div>
+
                         </div>
                     </div>
 
@@ -121,8 +205,11 @@
                 </div>
                 <!-- /.row -->
 
+
+
                 <div class="row">
-                    <div class="col-lg-6 ">
+
+                    <div class="col-lg-6">
                         <div class="card">
                             <div class="card-header border-0">
                                 <div class="d-flex justify-content-between">
@@ -1011,6 +1098,32 @@
             }
             return num;
         }
+    </script>
+    <script>
+        document.querySelectorAll('.project-widget').forEach(function(el) {
+            el.addEventListener('click', function(e) {
+
+                // Prevent event bubbling issues
+                e.stopPropagation();
+
+                // Close all others
+                document.querySelectorAll('.project-widget').forEach(function(item) {
+                    if (item !== el) {
+                        item.classList.remove('active');
+                    }
+                });
+
+                // Toggle current
+                el.classList.toggle('active');
+            });
+        });
+
+        // Click anywhere outside → close all
+        document.addEventListener('click', function() {
+            document.querySelectorAll('.project-widget').forEach(function(item) {
+                item.classList.remove('active');
+            });
+        });
     </script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD46-CF9pTGIQpnKNkvc1eeZwBH2pQ70qQ&callback=initMap" async
         defer></script>

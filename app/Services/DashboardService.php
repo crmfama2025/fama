@@ -127,11 +127,27 @@ class DashboardService
             $contracts->where('company_id', $companyId);
         }
 
-        $wid_totalContracts = (clone $contracts)
+        $wid_totalContracts_new = (clone $contracts)
             ->where('contract_renewal_status', 0)
             ->where('renew_reject_status', 0)
-            ->whereNotIn('contract_status', [3, 9, 10])
+            ->whereNotIn('contract_status', [3])
             ->count();
+        $wid_totalContracts = (clone $contracts)
+            // ->where('contract_renewal_status', 0)
+            ->where('renew_reject_status', 0)
+            ->whereNotIn('contract_status', [3])
+            ->count();
+        $wid_totalContracts_droped = (clone $contracts)
+            // ->where('contract_renewal_status', 0)
+            // ->where('renew_reject_status', 0)
+            ->where('contract_status', 10)
+            ->count();
+        $wid_totalContracts_terminated = (clone $contracts)
+            // ->where('contract_renewal_status', 0)
+            // ->where('renew_reject_status', 0)
+            ->where('contract_status', 10)
+            ->count();
+
 
         $wid_totalRenewals = (clone $contracts)
             ->where('parent_contract_id', '>', 0)
@@ -169,7 +185,10 @@ class DashboardService
             'wid_totalInvestors',
             'wid_totalInvestments',
             'wid_revenue',
-            'wid_tenants'
+            'wid_tenants',
+            'wid_totalContracts_new',
+            'wid_totalContracts_droped',
+            'wid_totalContracts_terminated'
         );
     }
 
