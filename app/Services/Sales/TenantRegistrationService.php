@@ -15,6 +15,7 @@ use App\Repositories\AreaRepository;
 use App\Repositories\Sales\TenantRegistrationRepository;
 use App\Services\Agreement\AgreementTenantService;
 use App\Services\NationalityService;
+use App\Services\PdfCompressionService;
 use App\Services\PropertyService;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Support\Facades\DB;
@@ -528,6 +529,8 @@ class TenantRegistrationService
         // dd($data);
         return DB::transaction(function () use ($data) {
 
+            $pdfService = new PdfCompressionService();
+
             $userId = auth()->user()->id;
             $tenant = null;
 
@@ -584,10 +587,28 @@ class TenantRegistrationService
 
                                 if (!$fileKey || empty($docData[$fileKey])) continue;
 
-                                $path = $docData[$fileKey]->store(
-                                    "tenants/{$tenant->tenant_code}/owner_{$ownerIndex}",
-                                    'public'
-                                );
+                                // $path = $docData[$fileKey]->store(
+                                //     "tenants/{$tenant->tenant_code}/owner_{$ownerIndex}",
+                                //     'public'
+                                // );
+                                $filename = time() . '_' . str_replace(' ', '_', $docData[$fileKey]->getClientOriginalName());
+
+
+                                if ($docData[$fileKey]->getClientOriginalExtension() === 'pdf') {
+                                    // dd("test");
+                                    $path = $pdfService->compress(
+                                        $docData[$fileKey],
+                                        'tenants/' . $tenant->tenant_code . '/owner_' . $ownerIndex,
+                                        $filename
+                                    );
+                                } else {
+                                    $path = $docData[$fileKey]->storeAs(
+                                        'tenants/' . $tenant->tenant_code . '/owner_' . $ownerIndex,
+                                        $filename,
+                                        'public'
+                                    );
+                                }
+
                                 $doc_data = [
                                     'tenant_id'             => $tenant->id,
                                     'owner_index' => $ownerIndex,
@@ -610,7 +631,22 @@ class TenantRegistrationService
                     // ── Trade License ──
                     if ($tenant && !empty($data->file('tl_file'))) {
                         $tlFile = $data->file('tl_file');
-                        $path   = $tlFile->store("tenants/{$tenant->tenant_code}/trade_license", 'public');
+                        // $path   = $tlFile->store("tenants/{$tenant->tenant_code}/trade_license", 'public');
+
+                        if ($tlFile->getClientOriginalExtension() === 'pdf') {
+                            $path = $pdfService->compress(
+                                $tlFile,
+                                'tenants/' . $tenant->tenant_code . '/trade_license',
+                                time() . '_' . str_replace(' ', '_', $tlFile->getClientOriginalName())
+                            );
+                        } else {
+                            $path = $tlFile->storeAs(
+                                'tenants/' . $tenant->tenant_code . '/trade_license',
+                                time() . '_' . str_replace(' ', '_', $tlFile->getClientOriginalName()),
+                                'public'
+                            );
+                        }
+
                         $doc_data_tl = [
                             'tenant_id'              => $tenant->id,
                             'document_type'          => 3, // trade_license type ID
@@ -650,10 +686,30 @@ class TenantRegistrationService
                     foreach ($data->docsB2C as $doc) {
                         if (empty($doc['file'])) continue;
 
-                        $path = $doc['file']->store(
-                            "tenants/{$tenant->tenant_code}",
-                            'public'
-                        );
+                        // $path = $doc['file']->store(
+                        //     "tenants/{$tenant->tenant_code}",
+                        //     'public'
+                        // );
+
+                        $filename = time() . '_' . str_replace(' ', '_', $doc['file']->getClientOriginalName());
+
+                        // Only compress PDFs
+                        if ($doc['file']->getClientOriginalExtension() === 'pdf') {
+
+                            $path = $pdfService->compress(
+                                $doc['file'],
+                                "tenants/{$tenant->tenant_code}",
+                                $filename
+                            );
+                        } else {
+
+                            // Normal upload for non-PDF
+                            $path = $doc['file']->storeAs(
+                                "tenants/{$tenant->tenant_code}",
+                                $filename,
+                                'public'
+                            );
+                        }
                         $doc_data = [
                             'tenant_id'              => $tenant->id,
                             'document_type'          => $doc['type'] ?? null,
@@ -1083,6 +1139,9 @@ class TenantRegistrationService
         // dd($data);
         return DB::transaction(function () use ($data, $agreementId) {
 
+            $pdfService = new PdfCompressionService();
+
+
             $userId = auth()->user()->id;
             $isB2B  = $data->business_type == 1;
             $isB2C  = $data->business_type == 2;
@@ -1121,6 +1180,7 @@ class TenantRegistrationService
 
                     // ── Owner documents — update existing, skip if no new file ──
                     if (!empty($data->owners)) {
+                        // dd($data->owners);
                         foreach ($data->owners as $ownerIndex => $docTypes) {
                             foreach ($docTypes as $docTypeId => $docData) {
 
@@ -1148,10 +1208,29 @@ class TenantRegistrationService
 
                                 // Only update file if a new one was uploaded
                                 if (!empty($docData[$fileKey]) && $docData[$fileKey] instanceof \Illuminate\Http\UploadedFile) {
-                                    $path = $docData[$fileKey]->store(
-                                        "tenants/{$tenant->tenant_code}/owner_{$ownerIndex}",
-                                        'public'
-                                    );
+                                    // $path = $docData[$fileKey]->store(
+                                    //     "tenants/{$tenant->tenant_code}/owner_{$ownerIndex}",
+                                    //     'public'
+                                    // );
+                                    // dd($path);
+
+                                    $filename = time() . '_' . str_replace(' ', '_', $docData[$fileKey]->getClientOriginalName());
+
+                                    if ($docData[$fileKey]->getClientOriginalExtension() === 'pdf') {
+                                        // dd("test");
+                                        $path = $pdfService->compress(
+                                            $docData[$fileKey],
+                                            "tenants/{$tenant->tenant_code}/owner_{$ownerIndex}",
+                                            $filename
+                                        );
+                                    } else {
+                                        $path = $docData[$fileKey]->storeAs(
+                                            "tenants/{$tenant->tenant_code}/owner_{$ownerIndex}",
+                                            $filename,
+                                            'public'
+                                        );
+                                    }
+                                    // dd($path);
                                     $updatePayload['original_document_path'] = $path;
                                     $updatePayload['original_document_name'] = $docData[$fileKey]->getClientOriginalName();
                                 }
@@ -1160,15 +1239,41 @@ class TenantRegistrationService
                                     // ✅ Update by id directly — no query needed
                                     $existingDoc = $tenant->tenantDocuments()->find($docId);
                                     if ($existingDoc) {
+
+                                        // Delete old file ONLY if new file is coming
+                                        if (!empty($updatePayload['original_document_path'])) {
+
+                                            $oldPath = $existingDoc->original_document_path;
+
+                                            if ($oldPath && Storage::disk('public')->exists($oldPath)) {
+                                                Storage::disk('public')->delete($oldPath);
+                                            }
+                                        }
                                         $existingDoc->update($updatePayload);
                                     }
                                 } else {
                                     // ✅ New doc — must have file
                                     if (!empty($docData[$fileKey]) && $docData[$fileKey] instanceof \Illuminate\Http\UploadedFile) {
-                                        $path = $docData[$fileKey]->store(
-                                            "tenants/{$tenant->tenant_code}/owner_{$ownerIndex}",
-                                            'public'
-                                        );
+                                        // $path = $docData[$fileKey]->store(
+                                        //     "tenants/{$tenant->tenant_code}/owner_{$ownerIndex}",
+                                        //     'public'
+                                        // );
+                                        $filename = time() . '_' . str_replace(' ', '_', $docData[$fileKey]->getClientOriginalName());
+
+                                        if ($docData[$fileKey]->getClientOriginalExtension() === 'pdf') {
+                                            // dd("test");
+                                            $path = $pdfService->compress(
+                                                $docData[$fileKey],
+                                                "tenants/{$tenant->tenant_code}/owner_{$ownerIndex}",
+                                                $filename
+                                            );
+                                        } else {
+                                            $path = $docData[$fileKey]->storeAs(
+                                                "tenants/{$tenant->tenant_code}/owner_{$ownerIndex}",
+                                                $filename,
+                                                'public'
+                                            );
+                                        }
                                         $newDocPayload = array_merge($updatePayload, [
                                             'tenant_id'              => $tenant->id,
                                             'owner_index'            => $ownerIndex,
@@ -1197,7 +1302,21 @@ class TenantRegistrationService
 
                     // Only update file if a new one was uploaded
                     if (!empty($data->tl_file) && $data->tl_file instanceof \Illuminate\Http\UploadedFile) {
-                        $path = $data->tl_file->store("tenants/{$tenant->tenant_code}", 'public');
+                        // $path = $data->tl_file->store("tenants/{$tenant->tenant_code}", 'public');
+
+                        if ($data->tl_file->getClientOriginalExtension() === 'pdf') {
+                            $path = $pdfService->compress(
+                                $data->tl_file,
+                                "tenants/{$tenant->tenant_code}/trade_license",
+                                time() . '_' . str_replace(' ', '_', $data->tl_file->getClientOriginalName())
+                            );
+                        } else {
+                            $path = $data->tl_file->storeAs(
+                                "tenants/{$tenant->tenant_code}/trade_license",
+                                time() . '_' . str_replace(' ', '_', $data->tl_file->getClientOriginalName()),
+                                'public'
+                            );
+                        }
                         $tlPayload['original_document_path'] = $path;
                         $tlPayload['original_document_name'] = $data->tl_file->getClientOriginalName();
                     }
@@ -1206,6 +1325,17 @@ class TenantRegistrationService
                         // ✅ Update existing by id
                         $existingTl = $tenant->tenantDocuments()->find($tlId);
                         if ($existingTl) {
+
+                            // Delete old file ONLY if new file is uploaded
+                            if (!empty($tlPayload['original_document_path'])) {
+
+                                $oldPath = $existingTl->original_document_path;
+
+                                if ($oldPath && Storage::disk('public')->exists($oldPath)) {
+                                    Storage::disk('public')->delete($oldPath);
+                                }
+                            }
+
                             $this->validateTenantDocs(array_merge($tlPayload, [
                                 'document_type' => 3,
                             ]), $tlId);
@@ -1244,6 +1374,7 @@ class TenantRegistrationService
 
                 // ── B2C documents — update existing or create new ──
                 if (!empty($data->docsB2C)) {
+                    // dd($data->docsB2C);
                     foreach ($data->docsB2C as $doc) {
                         $docId = $doc['id'] ?? null;
 
@@ -1262,12 +1393,32 @@ class TenantRegistrationService
 
                             // Only update file if a new one was uploaded
                             if (!empty($doc['file'])) {
+                                // dd("test");
                                 // Delete old file
                                 if ($existingDoc->original_document_path) {
+                                    // dd("test");
                                     Storage::disk('public')->delete($existingDoc->original_document_path);
                                 }
 
-                                $path = $doc['file']->store("tenants/{$tenant->tenant_code}", 'public');
+                                // $path = $doc['file']->store("tenants/{$tenant->tenant_code}", 'public');
+                                $filename = time() . '_' . str_replace(' ', '_', $doc['file']->getClientOriginalName());
+                                $file = $doc['file'];
+
+                                if ($file->getClientOriginalExtension() === 'pdf') {
+
+                                    $path = $pdfService->compress(
+                                        $file,
+                                        "tenants/{$tenant->tenant_code}",
+                                        $filename
+                                    );
+                                } else {
+
+                                    $path = $file->storeAs(
+                                        "tenants/{$tenant->tenant_code}",
+                                        $filename,
+                                        'public'
+                                    );
+                                }
                                 $updateData['original_document_path'] = $path;
                                 $updateData['original_document_name'] = $doc['file']->getClientOriginalName();
                             }
@@ -1278,7 +1429,26 @@ class TenantRegistrationService
                             // ── New doc (no id) — must have file ──
                             if (empty($doc['file'])) continue;
 
-                            $path = $doc['file']->store("tenants/{$tenant->tenant_code}", 'public');
+                            // $path = $doc['file']->store("tenants/{$tenant->tenant_code}", 'public');
+
+                            $filename = time() . '_' . str_replace(' ', '_', $doc['file']->getClientOriginalName());
+                            $file = $doc['file'];
+
+                            if ($file->getClientOriginalExtension() === 'pdf') {
+
+                                $path = $pdfService->compress(
+                                    $file,
+                                    "tenants/{$tenant->tenant_code}",
+                                    $filename
+                                );
+                            } else {
+
+                                $path = $file->storeAs(
+                                    "tenants/{$tenant->tenant_code}",
+                                    $filename,
+                                    'public'
+                                );
+                            }
                             $doc_data = [
                                 'tenant_id'              => $tenant->id,
                                 'document_type'          => $doc['type']   ?? null,
@@ -1290,7 +1460,7 @@ class TenantRegistrationService
                                 'added_by'               => $userId,
                             ];
                             $this->validateTenantDocs($doc_data);
-                            $tenant->tenantDocuments()->create();
+                            $tenant->tenantDocuments()->create($doc_data);
                         }
                     }
                 }
