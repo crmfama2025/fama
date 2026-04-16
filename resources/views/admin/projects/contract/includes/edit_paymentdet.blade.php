@@ -30,9 +30,9 @@
             </div>
             <div class="col-md-4">
                 <label class="asterisk">Payment Amount</label>
-                <input type="text" class="form-control editafterapprove" id="payment_amount{{ $paymentkey }}"
-                    name="payment_detail[payment_amount][]" placeholder="Payment Amount"
-                    value="{{ $paymentDetail->payment_amount ?? '' }}" required>
+                <input type="text" class="form-control editafterapprove payment_installments"
+                    id="payment_amount{{ $paymentkey }}" name="payment_detail[payment_amount][]"
+                    placeholder="Payment Amount" value="{{ $paymentDetail->payment_amount ?? '' }}" required>
             </div>
         </div>
         <div class="form-group row">

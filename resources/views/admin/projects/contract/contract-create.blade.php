@@ -664,6 +664,8 @@
                                             </div>
                                             <div id="payment-step" class="content step-content" data-step="6"
                                                 role="tabpanel" aria-labelledby="payment-step-trigger">
+                                                <div class="text-right">Total Payable: <span id="totalPayable"
+                                                        class="text-dark font-weight-bold ">0.00</span></div>
                                                 <div class="form-group row">
                                                     <div class="col-md-4">
                                                         <label for="exampleInputEmail1" class="asterisk">No. of
@@ -715,6 +717,7 @@
                                                 </div>
                                                 <hr>
                                                 <div class="payment_details">
+                                                    <div id="payment_error" class="text-dark my-2"></div>
                                                     @if (isset($contract) && isset($contract->contract_payment_details))
                                                         @include(
                                                             'admin.projects.contract.includes.edit_paymentdet',
@@ -726,9 +729,11 @@
                                                             ]
                                                         )
                                                     @endif
+
                                                 </div>
                                                 <button class="btn btn-info prevBtn" type="button">Previous</button>
-                                                <button class="btn btn-info nextBtn" type="button">Next</button>
+                                                <button class="btn btn-info nextBtn payment_nextbtn"
+                                                    type="button">Next</button>
                                             </div>
                                             <div id="rentalreceivable-step" class="content step-content" data-step="7"
                                                 role="tabpanel" aria-labelledby="rentalreceivable-step-trigger">

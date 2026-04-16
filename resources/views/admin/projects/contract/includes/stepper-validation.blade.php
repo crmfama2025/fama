@@ -172,7 +172,12 @@
                         if (window.stepper._currentIndex === 6) { // adjust step index
                             rentPerUnitFamaFaateh();
                             CalculatePayables();
+                            matchPayables();
 
+
+                        }
+                        if (window.stepper._currentIndex === 4) {
+                            matchPayables();
                         }
 
                         if (window.stepper._currentIndex === window.stepper._steps.length - 1 &&

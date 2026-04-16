@@ -1227,7 +1227,7 @@
                             </div>
                             <div class="col-md-4">
                                 <label class="asterisk">Payment Amount</label>
-                                <input type="text" class="form-control" id="payment_amount${i}" name="payment_detail[payment_amount][]" placeholder="Payment Amount" required>
+                                <input type="text" class="form-control payment_installments" id="payment_amount${i}" name="payment_detail[payment_amount][]" placeholder="Payment Amount" required>
                             </div>
                         </div>
                         <div class="form-group row">
@@ -1327,15 +1327,54 @@
 
             CalculatePayables();
 
+            // MAtch Payables with the total payable
+            matchPayables();
+
             // containerPayment.querySelectorAll('.payment_mode_div').forEach(attachEventsPayment);
         });
 
+        $(document).on('input change', '.payment_installments', function() {
+            matchPayables();
+        });
         $(document).on('change.datetimepicker', '#otherPaymentDate1', function() {
             // console.log('new', $(this));
             calculatePaymentDates();
         });
 
     });
+
+    // Match total payable with sum of installments
+    function matchPayables() {
+        // alert('match');
+        let totRent = parseFloat($('#rent_per_annum').val()) || 0;
+        let totcomm = parseFloat($('#commission').val()) || 0;
+        let totdepo = parseFloat($('#deposit').val()) || 0;
+        let totalPayable = parseFloat(totRent + totcomm + totdepo).toFixed(2);
+        let sumPayments = 0;
+        // console.log(totRent, totcomm, totdepo, totalPayable);
+
+        $('#totalPayable').text(totalPayable);
+
+        $('.payment_details .payment_installments').each(function() {
+            let value = $(this).val().replace(/,/g, ''); // remove commas
+            sumPayments += parseFloat(value) || 0;
+        });
+
+
+        if (sumPayments != totalPayable) {
+            $('#payment_error')
+                .html(
+                    '<span class="text-danger">*</span> Total of payment amount <span class="text-danger font-weight-bold">' +
+                    totalPayable +
+                    '</span> does not match the sum of installments <span class="text-danger font-weight-bold">' +
+                    sumPayments + '</span>')
+                .show();
+            $('.payment_nextbtn').prop('disabled', true);
+        } else {
+            $('#payment_error').hide().html('');
+            $('.payment_nextbtn').prop('disabled', false);
+        }
+    }
 
 
     function bankOptionByCompany(bankVal = '') {
