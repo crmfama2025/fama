@@ -276,4 +276,8 @@ class Contract extends Model
     {
         $this->attributes['terminated_date'] = Carbon::parse($value)->format('Y-m-d');
     }
+    public function addedBy()
+    {
+        return $this->belongsTo(User::class, 'added_by');
+    }
 }

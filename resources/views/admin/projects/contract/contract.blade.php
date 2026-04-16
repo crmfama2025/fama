@@ -104,6 +104,7 @@
                                                 <th>Business Type</th>
                                                 <th>Status</th>
                                                 <th>Agreement Status</th>
+                                                <th>Added By</th>
 
                                                 <th>Company Name</th>
                                                 <th>Total Units</th>
@@ -482,6 +483,10 @@
                     {
                         data: 'agreement_status',
                         name: 'agreement_status',
+                    },
+                    {
+                        data: 'added_by',
+                        name: 'added_by',
                     },
                     {
                         data: 'company_name',

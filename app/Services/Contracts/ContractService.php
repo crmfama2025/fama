@@ -374,6 +374,24 @@ class ContractService
                     ? '<span class="badge badge-success">Agreement Added</span>'
                     : '<span class="badge badge-warning">Not Added</span>';
             })
+            ->addColumn('added_by', function ($row) {
+                if ($row->addedBy) {
+                    $name = $row->addedBy->first_name . ' ' . $row->addedBy->last_name;
+                    $image = $row->addedBy->profile_path
+                        ? asset('storage/' . $row->addedBy->profile_path)
+                        : asset('images/default-avatar.png');
+
+                    return '
+            <div style="display:flex; align-items:center; gap:8px;">
+                <img src="' . $image . '"
+                     style="width:30px; height:30px; border-radius:50%; object-fit:cover;">
+                <span>' . $name . '</span>
+            </div>
+        ';
+                }
+
+                return '-';
+            })
             ->addColumn(
                 'status',
                 function ($row) {
@@ -492,7 +510,7 @@ class ContractService
                 return $action ?: '-';
             })
 
-            ->rawColumns(['project_number', 'action', 'status', 'business_type', 'indirect_project', 'building_type', 'agreement_status'])
+            ->rawColumns(['project_number', 'added_by', 'action', 'status', 'business_type', 'indirect_project', 'building_type', 'agreement_status'])
             ->with(['columns' => $columns])
             ->toJson();
     }

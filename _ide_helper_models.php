@@ -730,6 +730,7 @@ namespace App\Models{
  * @property int $indirect_contract_id
  * @property int $indirect_status 0-direct 1-indirect
  * @property int $is_indirect_contract 0-no 1-yes
+ * @property-read \App\Models\User|null $addedBy
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Agreement> $agreements
  * @property-read int|null $agreements_count
  * @property-read \App\Models\Area|null $area

@@ -163,6 +163,10 @@ class ContractRepository
                 ->orWhereHas('vendor', function ($q) use ($filters) {
                     $q->where('vendor_name', 'like', '%' . $filters['search'] . '%');
                 })
+                ->orWhereHas('addedBy', function ($q) use ($filters) {
+                    $q->where('first_name', 'like', '%' . $filters['search'] . '%')
+                        ->orWhere('last_name', 'like', '%' . $filters['search'] . '%');
+                })
                 ->orWhereHas('contract_type', function ($q) use ($filters) {
                     $q->where('contract_type', 'like', '%' . $filters['search'] . '%')
                         ->orWhere('shortcode', 'like', '%' . $filters['search'] . '%');
