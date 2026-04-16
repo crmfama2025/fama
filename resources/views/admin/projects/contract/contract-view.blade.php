@@ -72,7 +72,7 @@
                                         {{-- <span>{{ strtoupper($contract->property->property_name) }}</span></br> --}}
                                         <a href="{{ route('property.show', $contract->property->id) }}" class="linkhover"
                                             target="_blank">
-                                            {{ strtoupper($contract->property->property_name) }}
+                                            {!! strtoupper($contract->property->property_name) . ' | ' . strtoupper($contract->property->plot_no) !!}
                                         </a><br>
                                         <span>{{ strtoupper($contract->area->area_name) }}</span>,
                                         <span>{{ strtoupper($contract->locality->locality_name) }}</span></br>
