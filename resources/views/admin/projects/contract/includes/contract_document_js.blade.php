@@ -27,6 +27,8 @@
                 let message = errors.responseJSON.message;
                 if (message.file) {
                     toastr.error(message.file[0]);
+                } else if (message.signed_contract) {
+                    toastr.error(message.signed_contract[0]);
                 } else {
                     toastr.error('Something went wrong.');
                 }

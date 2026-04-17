@@ -167,34 +167,29 @@ class DocumentService
     }
     private function validateContractDocuments(array $data)
     {
+        // dd($data);
         $validator = Validator::make($data, [
-            // 'document_type' => [
-            //     'required',
-            //     'integer',
-            // ],
+
 
             'file' => [
                 'nullable',
                 'file',
                 'mimes:pdf,jpg,jpeg,png',
-                'max:5120', // 5MB
+                'max:10240', // 10MB
             ],
 
-            // 'signed_contract' => [
-            //     'nullable',
-            //     'file',
-            //     'mimes:pdf,jpg,jpeg,png',
-            //     'max:5120',
-            // ],
+            'signed_contract' => [
+                'nullable',
+                'file',
+                'mimes:pdf,jpg,jpeg,png',
+                'max:10240',
+            ],
 
-            // 'status_change' => [
-            //     'required',
-            //     'string',
-            // ],
+
         ], [
             // 'document_type.required' => 'Document type is required.',
-            'file.max' => 'File size must not exceed 5MB.',
-            // 'signed_contract.max' => 'Signed contract must not exceed 5MB.',
+            'file.max' => 'File size must not exceed 10MB.',
+            'signed_contract.max' => 'Signed contract must not exceed 10MB.',
         ]);
 
 
