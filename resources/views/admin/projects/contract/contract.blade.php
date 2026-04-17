@@ -677,7 +677,7 @@
                     showLoader();
                     $.ajax({
                         type: "POST",
-                        url: "{{ route('contract.sendapprove'') }}",
+                        url: "{{ route('contract.sendapprove') }}",
                         data: fdata,
                         dataType: "json",
                         processData: false,
