@@ -181,7 +181,7 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
     Route::get('/signed-pdf/{id}', [PdfSignController::class, 'signedPdf'])->name('sign.contract');
 
     Route::post('/save-signed-pdf', [PdfSignController::class, 'saveSignedPdf']);
-    Route::get('/contracts/{id}/comments', [ContractController::class, 'getComments']);
+    Route::get('/contracts/{id}/comments', [ContractController::class, 'getComments'])->name('contracts.comments');
     Route::get('/contracts/{id}/acknowledgement', [ContractController::class, 'acknowledgement_view'])->name('contracts.acknowledgement');
     Route::get('/contracts/{id}/print-acknowledgement', [ContractController::class, 'acknowledgement_print'])->name('contracts.acknowledgement.print');
     Route::get('/contracts/{id}/release', [ContractController::class, 'release'])->name('contracts.release');
@@ -256,7 +256,7 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
         return view('admin.emails.test-email', ['name' => 'Test User']);
     });
 
-    Route::post('/contracts/terminate', [ContractController::class, 'terminate']);
+    Route::post('/contracts/terminate', [ContractController::class, 'terminate'])->name('contract.terminate');
 
     Route::post('agreement/rent-bifurcation', [AgreementController::class, 'rentBifurcationStore'])->name('rent-bifurcation.store');
     Route::get('investments/referrals', [ReferralController::class, 'referrals'])->name('referrals.index');

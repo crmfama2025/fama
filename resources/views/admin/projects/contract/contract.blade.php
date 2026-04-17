@@ -623,7 +623,8 @@
                 if (result.isConfirmed) {
                     $.ajax({
                         type: "DELETE",
-                        url: '/contract/' + id,
+                        // url: '/contract/' + id,
+                        url: "{{ route('contract.destroy', ':id') }}".replace(':id', id),
                         data: {
                             _token: $('meta[name="csrf-token"]').attr('content')
                         },
@@ -715,7 +716,8 @@
             let contractId = $(this).data('id');
             $('#commentsList').html('<li class="list-group-item">Loading...</li>');
 
-            $.get('/contracts/' + contractId + '/comments', function(response) {
+            // $.get('/contracts/' + contractId + '/comments', function(response) {
+            $.get("{{ route('contracts.comments', ':id') }}".replace(':id', contractId), function(response) {
 
                 $('#commentsList').empty();
 
@@ -905,7 +907,8 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
-                        url: '/contracts/terminate',
+                        // url: '/contracts/terminate',
+                        url: "{{ route('contract.terminate') }}",
                         type: 'POST',
                         data: fdata,
                         processData: false,
