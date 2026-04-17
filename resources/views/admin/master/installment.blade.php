@@ -250,7 +250,8 @@
                 if (result.isConfirmed) {
                     $.ajax({
                         type: "DELETE",
-                        url: '/installment/' + id,
+                        // url: '/installment/' + id,
+                        url: "{{ route('installment.destroy', ':id') }}".replace(':id', id),
                         data: {
                             _token: $('meta[name="csrf-token"]').attr('content')
                         },

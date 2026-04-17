@@ -299,7 +299,8 @@
                 if (result.isConfirmed) {
                     $.ajax({
                         type: "DELETE",
-                        url: '/locality/' + id,
+                        // url: '/locality/' + id,
+                        url: "{{ route('locality.destroy', ':id') }}".replace(':id', id),
                         data: {
                             _token: $('meta[name="csrf-token"]').attr('content')
                         },

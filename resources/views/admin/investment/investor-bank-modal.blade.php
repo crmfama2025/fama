@@ -128,8 +128,11 @@
          $('#approval_status').val(4);
 
          if (id) {
+             let url = "{{ route('investor.bank', ':id') }}";
+             url = url.replace(':id', id);
              $.ajax({
-                 url: '/investor/get-investor-bank/' + id, // Replace with your Laravel route
+                 //  url: '/investor/get-investor-bank/' + id, // Replace with your Laravel route
+                 url: url,
                  type: 'GET', // or 'POST' if needed
                  data: {
                      investor_id: investor_id,

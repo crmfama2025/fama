@@ -268,7 +268,8 @@
                 if (result.isConfirmed) {
                     $.ajax({
                         type: "DELETE",
-                        url: '/vendors/' + id,
+                        // url: '/vendors/' + id,
+                        url: "{{ route('vendors.destroy', ':id') }}".replace(':id', id),
                         data: {
                             _token: $('meta[name="csrf-token"]').attr('content')
                         },

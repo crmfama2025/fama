@@ -254,7 +254,8 @@
                 if (result.isConfirmed) {
                     $.ajax({
                         type: "DELETE",
-                        url: '/nationality/' + id,
+                        // url: '/nationality/' + id,
+                        url: "{{ route('nationality.destroy', ':id') }}".replace(':id', id),
                         data: {
                             _token: $('meta[name="csrf-token"]').attr('content')
                         },

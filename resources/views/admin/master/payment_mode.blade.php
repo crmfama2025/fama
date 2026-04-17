@@ -253,7 +253,8 @@
                 if (result.isConfirmed) {
                     $.ajax({
                         type: "DELETE",
-                        url: '/payment_mode/' + id,
+                        // url: '/payment_mode/' + id,
+                        url: "{{ route('payment_mode.destroy', ':id') }}".replace(':id', id),
                         data: {
                             _token: $('meta[name="csrf-token"]').attr('content')
                         },

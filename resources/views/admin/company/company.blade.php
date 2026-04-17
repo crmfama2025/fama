@@ -229,7 +229,9 @@
                 if (result.isConfirmed) {
                     $.ajax({
                         type: "DELETE",
-                        url: '/company/' + id,
+                        // url: '/company/' + id,
+
+                        url: "{{ route('company.destroy', ':id') }}".replace(':id', id),
                         data: {
                             _token: $('meta[name="csrf-token"]').attr('content')
                         },

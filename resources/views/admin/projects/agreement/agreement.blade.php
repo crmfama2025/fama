@@ -497,7 +497,8 @@
                 if (result.isConfirmed) {
                     $.ajax({
                         type: "DELETE",
-                        url: '/agreement/' + id,
+                        // url: '/agreement/' + id,
+                        url: "{{ route('agreement.destroy', ':id') }}".replace(':id', id),
                         data: {
                             _token: $('meta[name="csrf-token"]').attr('content')
                         },
