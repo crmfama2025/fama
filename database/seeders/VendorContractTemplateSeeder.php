@@ -30,10 +30,10 @@ class VendorContractTemplateSeeder extends Seeder
                 ['page_type' => 'even', 'x' => 125, 'y' => 205, 'width' => 25],
             ],
 
-            "Sample PDF" => [
-                ['page_type' => 'odd',  'x' => 135, 'y' => 230, 'width' => 40],
-                ['page_type' => 'even', 'x' => 135, 'y' => 230, 'width' => 40],
-            ]
+            // "Sample PDF" => [
+            //     ['page_type' => 'odd',  'x' => 135, 'y' => 230, 'width' => 40],
+            //     ['page_type' => 'even', 'x' => 135, 'y' => 230, 'width' => 40],
+            // ]
         ];
 
         foreach ($templateSets as $templateName => $dimensions) {

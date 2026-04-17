@@ -76,14 +76,21 @@
                                                             {{ $document->signed_status == 2 ? '(Signed)' : '' }}</td>
                                                         <td>
                                                             @if ($document->signed_document_path)
-                                                                <a href="{{ asset('storage/' . $document->signed_document_path) }}"
-                                                                    class="btn btn-info" target="_blank"
-                                                                    rel="noopener noreferrer"><i class="far fa-eye"></i></a>
-                                                                {{-- <a href="{{ $document->original_document_path }}">View</a> --}}
+                                                                @if (is_file_ready($document->signed_document_path))
+                                                                    <a href="{{ asset('storage/' . $document->signed_document_path) }}"
+                                                                        class="btn btn-info" target="_blank"
+                                                                        rel="noopener noreferrer"><i
+                                                                            class="far fa-eye"></i></a>
+                                                                    {{-- <a href="{{ $document->original_document_path }}">View</a> --}}
+                                                                @else
+                                                                    <span><i class="fas fa-spinner fa-spin"></i></span>
+                                                                @endif
                                                             @elseif($document->original_document_path)
-                                                                <a href="{{ asset('storage/' . $document->original_document_path) }}"
-                                                                    class="btn btn-info" target="_blank"><i
-                                                                        class="far fa-eye"></i></a></a>
+                                                                @if (is_file_ready($document->original_document_path))
+                                                                    <a href="{{ asset('storage/' . $document->original_document_path) }}"
+                                                                        class="btn btn-info" target="_blank"><i
+                                                                            class="far fa-eye"></i></a></a>
+                                                                @endif
                                                             @endif
                                                         </td>
                                                     </tr>

@@ -1541,3 +1541,11 @@ function getFcmAccessToken()
 
     return $response['access_token'];
 }
+
+// app/Helpers/FileHelper.php
+if (!function_exists('is_file_ready')) {
+    function is_file_ready(string $filePath): bool
+    {
+        return file_exists(storage_path('app/public/' . $filePath));
+    }
+}
