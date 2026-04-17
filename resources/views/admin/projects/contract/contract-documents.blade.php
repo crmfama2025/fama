@@ -133,7 +133,7 @@
                             <input type="hidden" name="contract_id" value="{{ $contract->id }}" id="contract_id_upload">
                             <div class="modal-body">
                                 <div class="card-body">
-                                    <small class="text-danger">* Max File size 5MB</small>
+                                    <small class="text-danger">* Max File size 10MB</small>
                                     @foreach ($documentTypes as $key => $documentType)
                                         {{-- @if (($documentType->id == 3 || $documentType->id == 2) && !$contract->is_acknowledgement_released)
                                             @continue
