@@ -105,7 +105,11 @@
              success: function(response) {
                  // console.log(response);
                  toastr.success(response.message);
-                 window.location.href = "/investor/" + $('#investor_id').val();
+                 let redirectUrl = "{{ route('investor.show', ':id') }}";
+                 redirectUrl = redirectUrl.replace(':id', $('#investor_id').val());
+
+                 window.location.href = redirectUrl;
+                 //  window.location.href = "/investor/" + $('#investor_id').val();
              },
              error: function(errors) {
                  toastr.error(errors.responseJSON.message);

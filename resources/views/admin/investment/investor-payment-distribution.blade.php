@@ -93,7 +93,7 @@
                                         <!-- <h3 class="card-title">Property Details</h3> -->
                                         <span class="float-right">
                                             <!-- <button class="btn btn-info float-right m-1" data-toggle="modal"
-                                                                                                                                                                                                                                                    data-target="#modal-Property">Add Investor Payout</button> -->
+                                                                                                                                                                                                                                                                        data-target="#modal-Property">Add Investor Payout</button> -->
 
                                             <button class="btn btn-success float-right m-1 bulktriggerbtn"
                                                 data-toggle="modal" data-target="#modal-payout"
@@ -739,7 +739,11 @@
                         // build query string
                         let queryString = $.param(params);
 
-                        window.location.href = "/investment/create?" + queryString;
+                        let url = "{{ route('invetsment.create') }}?" + queryString;
+                        window.location.href = url;
+                        // window.location.href = "/investment/create?" + queryString;
+
+
                     } else {
                         $('#payoutPendingTable').DataTable().ajax.reload();
                     }

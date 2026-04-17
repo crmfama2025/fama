@@ -125,7 +125,8 @@
                  cancelButtonText: 'Cancel'
              }).then((result) => {
                  if (result.isConfirmed) {
-                     fetch('/tenant/remove-owner-documents', {
+                     //  fetch('/tenant/remove-owner-documents', {
+                     fetch("{{ route('tenant.remove.owner.documents') }}", {
                              method: 'POST',
                              headers: {
                                  'Content-Type': 'application/json',

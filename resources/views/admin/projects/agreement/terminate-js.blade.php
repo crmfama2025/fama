@@ -5,7 +5,11 @@
 
     function checkTerminatedAgreement(contractId) {
         // alert("test");
-        $.get(`/contracts/${contractId}/terminated-agreement-details`, function(data) {
+        let url = "{{ route('contracts.terminatedAgreementDetails', ':id') }}";
+        url = url.replace(':id', contractId);
+
+        // $.get(`/contracts/${contractId}/terminated-agreement-details`, function(data) {
+        $.get(url, function(data) {
             if (!data) return;
             // alert("test");
 

@@ -168,7 +168,7 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
     Route::get(
         '/contracts/{id}/terminated-agreement-details',
         [ContractController::class, 'getTerminatedAgreementDetails']
-    );
+    )->name('contracts.terminatedAgreementDetails');
     Route::get('/contracts/{contract}/check-agreement', [ContractController::class, 'checkAgreement'])->name('contracts.check-agreement');
     Route::get('contract-approval/{id}', [ContractController::class, 'contractApproval'])->name('contract.approve');
     Route::post('contract-reject', [ContractController::class, 'rejectContract'])->name('contract.reject');
