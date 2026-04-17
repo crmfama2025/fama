@@ -76,21 +76,14 @@
                                                             {{ $document->signed_status == 2 ? '(Signed)' : '' }}</td>
                                                         <td>
                                                             @if ($document->signed_document_path)
-                                                                @if (is_file_ready($document->signed_document_path))
-                                                                    <a href="{{ asset('storage/' . $document->signed_document_path) }}"
-                                                                        class="btn btn-info" target="_blank"
-                                                                        rel="noopener noreferrer"><i
-                                                                            class="far fa-eye"></i></a>
-                                                                    {{-- <a href="{{ $document->original_document_path }}">View</a> --}}
-                                                                @else
-                                                                    <span><i class="fas fa-spinner fa-spin"></i></span>
-                                                                @endif
+                                                                <a href="{{ asset('storage/' . $document->signed_document_path) }}"
+                                                                    class="btn btn-info" target="_blank"
+                                                                    rel="noopener noreferrer"><i class="far fa-eye"></i></a>
+                                                                {{-- <a href="{{ $document->original_document_path }}">View</a> --}}
                                                             @elseif($document->original_document_path)
-                                                                @if (is_file_ready($document->original_document_path))
-                                                                    <a href="{{ asset('storage/' . $document->original_document_path) }}"
-                                                                        class="btn btn-info" target="_blank"><i
-                                                                            class="far fa-eye"></i></a></a>
-                                                                @endif
+                                                                <a href="{{ asset('storage/' . $document->original_document_path) }}"
+                                                                    class="btn btn-info" target="_blank"><i
+                                                                        class="far fa-eye"></i></a></a>
                                                             @endif
                                                         </td>
                                                     </tr>
@@ -140,6 +133,7 @@
                             <input type="hidden" name="contract_id" value="{{ $contract->id }}" id="contract_id_upload">
                             <div class="modal-body">
                                 <div class="card-body">
+                                    <small class="text-danger">* Max File size 5MB</small>
                                     @foreach ($documentTypes as $key => $documentType)
                                         {{-- @if (($documentType->id == 3 || $documentType->id == 2) && !$contract->is_acknowledgement_released)
                                             @continue
@@ -151,8 +145,8 @@
                                                 value="{{ $documentType->id }}">
                                             <input type="hidden" name="{{ $key }}[status_change]"
                                                 value="{{ $documentType->status_change_value }}">
-                                            <label for="inputEmail3"
-                                                class="col-form-label">{{ $documentType->label_name }}</label>
+                                            <label for="inputEmail3" class="col-form-label">{{ $documentType->label_name }}
+                                            </label>
                                             <input type="{{ $documentType->field_type }}" name="{{ $key }}[file]"
                                                 class="form-control" accept="{{ $documentType->accept_types }}">
 
@@ -160,7 +154,7 @@
                                         @if ($documentType->id == 1)
                                             <div class="form-group row">
                                                 <label for="inputEmail3" class="col-form-label">Signed
-                                                    {{ $documentType->label_name }}</label>
+                                                    {{ $documentType->label_name }} </label>
                                                 <input type="file" id="signed"
                                                     name="{{ $key }}[signed_contract]" class="form-control">
                                                 {{-- <label class="labelpermission" for="signed"> Signed </label> --}}
