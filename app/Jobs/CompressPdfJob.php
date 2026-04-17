@@ -22,7 +22,7 @@ class CompressPdfJob implements ShouldQueue
 
     public function handle(): void
     {
-        dd("test");
+        // dd("test");
         if (!file_exists($this->finalDir)) {
             mkdir($this->finalDir, 0777, true);
         }
