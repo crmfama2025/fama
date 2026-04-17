@@ -48,7 +48,7 @@ class PdfCompressionService
     // }
     public function compress($file, $path, $filename): string
     {
-        // dd("test");
+        dd("test");
         // Store to temp immediately — fast, no blocking
         $tempPath  = $file->storeAs('temp', $filename, 'public');
         $inputPath = storage_path('app/public/' . $tempPath);
