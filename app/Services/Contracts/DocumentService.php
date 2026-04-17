@@ -7,6 +7,7 @@ use App\Repositories\Contracts\DocumentRepository;
 use App\Services\PdfCompressionService;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
 class DocumentService
@@ -54,6 +55,8 @@ class DocumentService
         // dd($result);
         foreach ($result as $key => $value) {
             if (!empty($value['file']) || !empty($value['signed_contract'])) {
+
+                $this->validateContractDocuments($value);
                 // dd($value["file"]);
                 $cDocument = $this->documentRepo->findByDocumentType($contractId, $value['document_type']);
                 // dd($cDocument);
@@ -85,19 +88,19 @@ class DocumentService
                 $file = !empty($value['file']) ? $value['file'] : $value['signed_contract'];
 
                 $filename = time() . '_' . $file->getClientOriginalName();
-                $path = $file->storeAs('projects/' . $contract->project_code . '/contract_documents', $filename, 'public');
+                // $path = $file->storeAs('projects/' . $contract->project_code . '/contract_documents', $filename, 'public');
                 // dd($path);
-                // $pdfservice = new PdfCompressionService();
-                // if ($file->getClientOriginalExtension() == 'pdf') {
+                $pdfservice = new PdfCompressionService();
+                if ($file->getClientOriginalExtension() == 'pdf') {
 
-                //     $path = $pdfservice->compress(
-                //         $file,
-                //         'projects/' . $contract->project_code . '/contract_documents',
-                //         $filename
-                //     );
-                // } else {
-                //     $path = $file->storeAs('projects/' . $contract->project_code . '/contract_documents', $filename, 'public');
-                // }
+                    $path = $pdfservice->compress(
+                        $file,
+                        'projects/' . $contract->project_code . '/contract_documents',
+                        $filename
+                    );
+                } else {
+                    $path = $file->storeAs('projects/' . $contract->project_code . '/contract_documents', $filename, 'public');
+                }
                 // dd($path);
 
                 $documentData['document_type_id'] = $value['document_type'];
@@ -161,5 +164,42 @@ class DocumentService
         ];
 
         return $this->contractRepo->update($contractId, $data);
+    }
+    private function validateContractDocuments(array $data)
+    {
+        $validator = Validator::make($data, [
+            // 'document_type' => [
+            //     'required',
+            //     'integer',
+            // ],
+
+            'file' => [
+                'nullable',
+                'file',
+                'mimes:pdf,jpg,jpeg,png',
+                'max:5120', // 5MB
+            ],
+
+            // 'signed_contract' => [
+            //     'nullable',
+            //     'file',
+            //     'mimes:pdf,jpg,jpeg,png',
+            //     'max:5120',
+            // ],
+
+            // 'status_change' => [
+            //     'required',
+            //     'string',
+            // ],
+        ], [
+            // 'document_type.required' => 'Document type is required.',
+            'file.max' => 'File size must not exceed 5MB.',
+            // 'signed_contract.max' => 'Signed contract must not exceed 5MB.',
+        ]);
+
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
     }
 }
