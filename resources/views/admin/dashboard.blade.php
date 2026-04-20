@@ -93,12 +93,22 @@
                             <div class="small-box bg-gradient-projects">
                                 <div class="inner">
                                     <h3 id="totalContracts">{{ format_k($wid_totalContracts) }}</h3>
+
                                     <p>Projects</p>
+
+                                    <!-- Small original count -->
+                                    <small class="d-block">
+                                        {{ number_format($wid_totalContracts) }}
+                                    </small>
+
                                 </div>
 
                                 <div class="icon">
                                     <i class="ion ion-folder"></i>
                                 </div>
+
+
+
                             </div>
 
                             <!-- 🔥 Hover Panel -->
