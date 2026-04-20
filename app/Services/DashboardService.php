@@ -128,8 +128,9 @@ class DashboardService
         }
 
         $wid_totalContracts_new = (clone $contracts)
-            ->where('contract_renewal_status', 0)
-            ->where('renew_reject_status', 0)
+            ->where('parent_contract_id', 0)
+            ->orWhereNull('parent_contract_id')
+            // ->where('renew_reject_status', 0)
             ->whereNotIn('contract_status', [3])
             ->count();
         $wid_totalContracts = (clone $contracts)
