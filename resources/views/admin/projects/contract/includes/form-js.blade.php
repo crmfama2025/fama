@@ -1360,6 +1360,8 @@
             sumPayments += parseFloat(value) || 0;
         });
 
+        sumPayments = sumPayments.toFixed(2);
+
 
         if (sumPayments != totalPayable) {
             $('#payment_error')
