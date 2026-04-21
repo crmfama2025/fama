@@ -116,7 +116,7 @@
 
                                     <p class="mb-0">New Projects</p>
                                     <small class="text-white">
-                                        <strong id="totalRenewals">{{ format_k($wid_totalContracts) }}</strong>
+                                        <strong id="totalRenewals">{{ $wid_totalContracts }}</strong>
                                     </small>
                                 </div>
 
