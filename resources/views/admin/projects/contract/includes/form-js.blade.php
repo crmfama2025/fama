@@ -2225,10 +2225,15 @@
                     confirmButtonText: "Yes, delete it!"
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        const detailId = $(block
-                            .querySelector(
-                                'input[name="receivables[id][]"]'
-                            )).val();
+                        // const detailId = $(block
+                        //     .querySelector(
+                        //         'input[name="receivables[id][]"]'
+                        //     )).val();
+                        const detailId = '';
+                        if ({{ $edit }}) {
+                            detailId = $(block.querySelector(
+                                'input[name="receivables[id][]"]')).val();
+                        }
                         // var fdataUnit = new FormData();
 
                         // fdataUnit.append('_token', $('meta[name="csrf-token"]')
