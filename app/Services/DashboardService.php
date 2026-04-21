@@ -136,7 +136,7 @@ class DashboardService
             ->count();
         $wid_totalContracts = (clone $contracts)
             // ->where('contract_renewal_status', 0)
-            ->where('renew_reject_status', 0)
+            // ->where('renew_reject_status', 0)
             ->whereNotIn('contract_status', [3])
             ->count();
         $wid_totalContracts_droped = (clone $contracts)
