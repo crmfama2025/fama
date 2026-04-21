@@ -90,7 +90,7 @@
                     <div class="col-lg-3">
                         <div class="project-widget position-relative">
 
-                            <div class="small-box bg-gradient-projects">
+                            {{-- <div class="small-box bg-gradient-projects">
                                 <div class="inner">
                                     <h3 id="totalContracts">{{ format_k($wid_totalContracts) }}</h3>
 
@@ -109,6 +109,20 @@
 
 
 
+                            </div> --}}
+                            <div class="small-box bg-gradient-projects">
+                                <div class="inner">
+                                    <h3 class="mb-1" id="totalContracts">{{ format_k($wid_totalContracts) }}</h3>
+
+                                    <p class="mb-0">New Projects</p>
+                                    <small class="text-white">
+                                        <strong id="totalRenewals">{{ format_k($wid_totalContracts) }}</strong>
+                                    </small>
+                                </div>
+
+                                <div class="icon">
+                                    <i class="ion ion-folder"></i>
+                                </div>
                             </div>
 
                             <!-- 🔥 Hover Panel -->
