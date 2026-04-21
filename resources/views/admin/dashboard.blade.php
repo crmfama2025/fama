@@ -96,10 +96,10 @@
 
                                     <p>Projects</p>
 
-                                    {{-- <!-- Small original count -->
+                                    <!-- Small original count -->
                                     <small class="d-block">
                                         {{ number_format($wid_totalContracts) }}
-                                    </small> --}}
+                                    </small>
 
                                 </div>
 
