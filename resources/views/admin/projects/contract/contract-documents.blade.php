@@ -99,7 +99,7 @@
                                                                         class="far fa-eye"></i></a>
                                                             @else
                                                                 <a href="{{ route('contracts.release', $contract->id) }}"
-                                                                    class="btn btn-info">Release</a>
+                                                                    class="btn btn-info">Generate</a>
                                                             @endif
                                                         </td>
                                                     </tr>
