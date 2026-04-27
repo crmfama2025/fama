@@ -173,14 +173,12 @@ class DocumentService
 
             'file' => [
                 'nullable',
-                'file',
                 'mimes:pdf,jpg,jpeg,png',
                 'max:10240', // 10MB
             ],
 
             'signed_contract' => [
                 'nullable',
-                'file',
                 'mimes:pdf,jpg,jpeg,png',
                 'max:10240',
             ],
