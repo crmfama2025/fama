@@ -434,20 +434,20 @@ class ContractService
                         </a> ';
                 }
 
-                // if ($row->contract_status == 0) {
+                if ($row->contract_status == 0) {
 
-                // if (Gate::allows('contract.view')) {
-                //     $action .= '<a class="btn btn-primary btn-sm" href="' . route('contract.show', $row->id) . '" title="View Contract">
-                //         <i class="fas fa-eye"></i>
-                //     </a> ';
-                // }
+                    // if (Gate::allows('contract.view')) {
+                    //     $action .= '<a class="btn btn-primary btn-sm" href="' . route('contract.show', $row->id) . '" title="View Contract">
+                    //         <i class="fas fa-eye"></i>
+                    //     </a> ';
+                    // }
 
-                // if (auth()->user()->hasAnyPermission(['contract.delete'], $row->company_id)) {
-                $action .= '<button class="btn btn-danger btn-sm" onclick="deleteConf(' . $row->id . ')" title="Delete Contract">
+                    if (auth()->user()->hasAnyPermission(['contract.delete'], $row->company_id)) {
+                        $action .= '<button class="btn btn-danger btn-sm" onclick="deleteConf(' . $row->id . ')" title="Delete Contract">
                             <i class="fas fa-trash"></i>
                         </button>';
-                // }
-                // }
+                    }
+                }
                 // elseif ($row->contract_status == 1) {
 
                 // if (Gate::allows('contract.view')) {
@@ -462,7 +462,7 @@ class ContractService
                 //     </a>';
                 // }
                 // }
-                if ($row->contract_status == 3) {
+                elseif ($row->contract_status == 3) {
 
                     // if (Gate::allows('contract.view')) {
                     //     $action .= '<a class="btn btn-primary btn-sm" href="' . route('contract.show', $row->id) . '" title="View Contract">
