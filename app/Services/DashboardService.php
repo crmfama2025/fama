@@ -258,6 +258,10 @@ class DashboardService
                 if (in_array($contract->contract_status, [3, 9, 10])) {
                     continue;
                 }
+                // ✅ skip if renewal status is NOT 0
+                if ($contract->contract_renewal_status != 0) {
+                    continue;
+                }
 
                 $units = $contract->contract_unit->no_of_units ?? 0;
 
