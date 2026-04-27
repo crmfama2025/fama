@@ -2451,7 +2451,7 @@
         let total_profit_perc = 0;
         let profit_count = 0;
         $('.unit_profit_perc').each(function() {
-            totalprofperc += parseFloat($(this).val()) || 0;
+            total_profit_perc += parseFloat($(this).val()) || 0;
             profit_count++;
         });
 
@@ -2470,7 +2470,7 @@
             let expProfit = total_rental - parseFloat($('.final_cost').val());
             let roi = expProfit / parseFloat($('.initial_inv').val());
             // let profit = expProfit / parseFloat($('.final_cost').val());
-            let profit = totalprofperc / profit_count;
+            let profit = total_profit_perc / profit_count;
             // parseFloat($('.').val());
 
             $('.total_rent_receivable').val(total_rent_rec.toFixed(2));
