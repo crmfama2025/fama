@@ -155,6 +155,7 @@ class ReceivablesClearingController extends Controller
             ->with([
                 'agreementPayment.installment',
                 'agreementPayment.agreement.contract.property',
+                'agreement.contract',
                 'paymentMode',
                 'agreementUnit.contractUnitDetail',
                 'agreementUnit.contractSubunitDetail'
@@ -195,6 +196,7 @@ class ReceivablesClearingController extends Controller
                         ?->property_name ?? '-',
                     'unit_number' => $detail->agreementUnit->contractUnitDetail?->unit_number ?? '-',
                     'subunit_number' => $detail->agreementUnit->contractSubunitDetail?->subunit_no ?? '-',
+                    'project_number' => $detail->agreement->contract->project_number ?? '-',
                 ];
             });
         // dd($receivables);
