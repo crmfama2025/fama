@@ -255,7 +255,8 @@
                 <div class="card-body py-2 px-3">
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
-                              Unit - <strong style="font-size:13px;">${r.unit_number}</strong> |
+                            <strong style="font-size:13px;">P-${r.project_number}</strong> |
+                             <strong style="font-size:13px;"> Unit - ${r.unit_number}</strong> |
                             ${r.subunit_number && r.subunit_number !== '-'
                                 ? ` | Subunit - <strong style="font-size:13px;">${r.subunit_number}</strong>`
                                 : ''}
