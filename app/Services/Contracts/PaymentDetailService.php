@@ -106,7 +106,7 @@ class PaymentDetailService
         $requireIfPaymentMode = function ($attribute, $value, $fail) use ($data) {
             if (in_array($data[0]['payment_mode_id'], [2, 3]) && empty($value)) {
                 $field = str_replace('payment_detail.*.', '', $attribute); // clean field name
-                $fail("The {$field} is required because payment mode is not full building.");
+                $fail("The {$field} is required.");
             }
         };
 
