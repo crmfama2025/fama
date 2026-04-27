@@ -333,6 +333,12 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
     //     return response()->json(['success' => true]);
     // });
     Route::post('/save-fcm-token', [FcmController::class, 'saveToken'])->name('fcm.saveToken');
+
+
+    Route::get('/finance/tenant-pending-receivables', [ReceivablesClearingController::class, 'getTenantPendingReceivables'])
+        ->name('tenant.pending.receivables');
+    Route::get('/finance/pending-receivables', [ReceivablesClearingController::class, 'getAllPendingReceivables'])
+        ->name('tenant.pending.receivables.all');
 });
 
 

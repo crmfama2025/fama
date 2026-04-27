@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\RecevableClearingExport;
+use App\Models\AgreementPaymentDetail;
 use App\Models\AgreementTenant;
 use App\Models\Bank;
 use App\Models\PaymentMode;
@@ -11,6 +12,7 @@ use App\Services\Agreement\AgreementService;
 use App\Services\CompanyService;
 use App\Services\TenantChequeService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
 use ReceivablesExport;
 
@@ -35,6 +37,9 @@ class ReceivablesClearingController extends Controller
         $agreements = $this->agreementService->getAllAgreements();
         // dd($units);
         $units = getUnitshaveAgreement();
+        // $allReceivables = $this->tenantChequeService->getAllReceivables();
+        // dd($allReceivables);
+        // $allReceivables  = [];
         return view('admin.finance.tenant-cheque-clearing', compact('payment_modes', 'banks', 'companies', 'properties', 'agpaymentmodes', 'units', 'tenants', 'agreements'));
     }
     public function receivableChequeClearingList(Request $request)
@@ -61,7 +66,13 @@ class ReceivablesClearingController extends Controller
     {
         // dd($request->all());
         try {
-            $receivable = $this->tenantChequeService->clearReceivable($request->all());
+            // $receivable = $this->tenantChequeService->clearReceivable($request->all());
+            $data = $request->all();
+
+            // ── pass allocated amounts from allocation panel ──
+            $data['allocated_amounts'] = $request->input('allocated_amounts', []);
+
+            $receivable = $this->tenantChequeService->clearReceivable($data);
 
             return response()->json(['success' => true, 'data' => $receivable, 'message' => 'Payment cleared successfully and receivable updated.'], 200);
         } catch (\Exception $e) {
@@ -130,5 +141,77 @@ class ReceivablesClearingController extends Controller
         ];
         // dd($filters);
         return Excel::download(new \App\Exports\receivableReportExport($filters), 'clearedReceivables.xlsx');
+    }
+
+    public function getTenantPendingReceivables(Request $request)
+    {
+        $request->validate([
+            'tenant_id' => 'required|integer|exists:agreement_tenants,id',
+        ]);
+
+        $tenantId = $request->tenant_id;
+
+        $receivables = AgreementPaymentDetail::query()
+            ->with([
+                'agreementPayment.installment',
+                'agreementPayment.agreement.contract.property',
+                'paymentMode',
+                'agreementUnit.contractUnitDetail',
+                'agreementUnit.contractSubunitDetail'
+            ])
+            ->whereHas('agreementPayment.agreement', function ($q) use ($tenantId) {
+                $q->where('tenant_id', $tenantId);
+            })
+            ->withSum('clearedReceivables', 'paid_amount')
+            ->where('is_payment_received', '!=', 1)
+            ->where('terminate_status', 0)
+            ->where(function ($q) {
+                $q->where('has_bounced', 0)
+                    ->orWhereNull('has_bounced');  // handle null safely
+            })
+            ->whereDate('payment_date', '<=', Carbon::today()->addWeeks(2))
+            ->orderBy('payment_date', 'asc')    // oldest first
+            ->get()
+            ->map(function ($detail) {
+                // same calculation as getReceivableAmount() but no extra queries
+                $totalPaid       = (float) ($detail->cleared_receivables_sum_paid_amount ?? 0);
+                $originalAmount  = (float) $detail->payment_amount;
+                $remainingAmount = max(0, $originalAmount - $totalPaid);
+                return [
+                    'id'       => $detail->id,
+                    'date'     => $detail->payment_date
+                        ? \Carbon\Carbon::parse($detail->payment_date)
+                        ->format('d-m-Y')
+                        : '-',
+                    // 'amount'   => (float) $detail->payment_amount,
+                    'amount'   => $remainingAmount,
+                    'mode'     => $detail->paymentMode?->payment_mode_name ?? '-',
+                    'label' => $detail->agreementPayment?->installment?->installment_name
+                        ?? 'Due: ' . \Carbon\Carbon::parse($detail->payment_date)->format('M Y'),
+                    'property' => $detail->agreementPayment
+                        ?->agreement
+                        ?->contract
+                        ?->property
+                        ?->property_name ?? '-',
+                    'unit_number' => $detail->agreementUnit->contractUnitDetail?->unit_number ?? '-',
+                    'subunit_number' => $detail->agreementUnit->contractSubunitDetail?->subunit_no ?? '-',
+                ];
+            });
+        // dd($receivables);
+        // dd($receivables->count());
+
+        return response()->json([
+            'success' => true,
+            'data'    => $receivables,
+        ]);
+    }
+    public function getAllPendingReceivables(Request $request)
+    {
+        $allReceivables = $this->tenantChequeService->getAllReceivables();
+
+        return response()->json([
+            'success' => true,
+            'data'    => $allReceivables,
+        ]);
     }
 }

@@ -88,7 +88,7 @@ class AgreementPaymentDetail extends Model
     }
     public function clearedReceivables()
     {
-        return $this->belongsTo(ClearedReceivable::class, 'agreement_payment_detail_id', 'id');
+        return $this->hasMany(ClearedReceivable::class, 'agreement_payment_details_id', 'id');
     }
     public function bouncedBy()
     {

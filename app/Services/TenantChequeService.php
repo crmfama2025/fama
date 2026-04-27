@@ -445,6 +445,7 @@ class TenantChequeService
     }
     public function clearReceivable(array $data)
     {
+        // dd($data);
         DB::transaction(function () use ($data) {
 
             // Expecting $data['payment_detail_ids'] as array of checked IDs
@@ -468,7 +469,13 @@ class TenantChequeService
                 $paidModeId = $data['paid_mode_id'] ?? $payment->payment_mode_id;
                 $paidBankId = $data['paid_bank_id'] ?? $payment->bank_id;
                 $paidCheque = $data['paid_cheque_number'] ?? $payment->cheque_number;
-                $paidAmount = $data['paid_amount'] ?? $payment->payment_amount;
+
+                // $paidAmount = $data['paid_amount'] ?? $payment->payment_amount;
+                $allocatedAmounts = $data['allocated_amounts'] ?? [];
+                $paidAmount = isset($allocatedAmounts[$paymentId])
+                    ? (float) $allocatedAmounts[$paymentId]
+                    : (float) ($data['paid_amount'] ?? $payment->payment_amount);
+
                 $paidDate = $data['paid_date'];
                 $paidCompanyId = $data['paid_company_id'];
                 // dd($paidAmount);
@@ -731,5 +738,47 @@ class TenantChequeService
             ->rawColumns(['tenant_name',  'project_number', 'is_payment_received', 'installment_name', 'company_name'])
             ->with(['columns' => $columns])
             ->toJson();
+    }
+    public function getAllReceivables()
+    {
+        $allReceivables = AgreementPaymentDetail::with([
+            'agreementPayment.installment',
+            'agreementPayment.agreement.contract.property',
+            'agreementPayment.agreement',
+            'paymentMode',
+            // 'clearedReceivables'
+        ])
+            ->withSum('clearedReceivables', 'paid_amount')
+            ->where('is_payment_received', '!=', 1)
+            ->where('terminate_status', 0)
+
+            ->where(function ($q) {
+                $q->where('has_bounced', 0)->orWhereNull('has_bounced');
+            })
+            ->whereDate('payment_date', '<=', Carbon::today()->addWeeks(2))
+            ->orderBy('payment_date', 'asc')
+            ->get()
+            ->map(function ($detail) {
+                // same calculation as getReceivableAmount() but no extra queries
+                $totalPaid       = (float) ($detail->cleared_receivables_sum_paid_amount ?? 0);
+                $originalAmount  = (float) $detail->payment_amount;
+                $remainingAmount = max(0, $originalAmount - $totalPaid);
+
+                return [
+                    'id'        => $detail->id,
+                    'tenant_id' => $detail->agreementPayment?->agreement?->tenant_id,
+                    'date'      => $detail->payment_date
+                        ? \Carbon\Carbon::parse($detail->payment_date)->format('d-m-Y')
+                        : '-',
+                    // 'amount'    => (float) $detail->payment_amount,
+                    'amount'    => $remainingAmount,
+                    'mode'      => $detail->paymentMode?->payment_mode_name ?? '-',
+                    'label'     => $detail->agreementPayment?->installment?->installment_name
+                        ?? 'Due: ' . \Carbon\Carbon::parse($detail->payment_date)->format('M Y'),
+                    'property'  => $detail->agreementPayment?->agreement?->contract?->property?->property_name ?? '-',
+                ];
+            });
+        // dd($allReceivables->count());
+        return $allReceivables;
     }
 }
