@@ -2448,6 +2448,13 @@
             totalprof += parseFloat($(this).val()) || 0;
         });
 
+        let total_profit_perc = 0;
+        let profit_count = 0;
+        $('.unit_profit_perc').each(function() {
+            totalprofperc += parseFloat($(this).val()) || 0;
+            profit_count++;
+        });
+
 
         if (totalprof > 0 || totalrev > 0) {
             var count = $('.unit_profit').length;
@@ -2462,7 +2469,8 @@
             let total_rental = totalrev.toFixed(2);
             let expProfit = total_rental - parseFloat($('.final_cost').val());
             let roi = expProfit / parseFloat($('.initial_inv').val());
-            let profit = expProfit / parseFloat($('.final_cost').val());
+            // let profit = expProfit / parseFloat($('.final_cost').val());
+            let profit = totalprofperc / profit_count;
             // parseFloat($('.').val());
 
             $('.total_rent_receivable').val(total_rent_rec.toFixed(2));
@@ -2472,7 +2480,8 @@
 
             $('#roi').val(Math.round(roi * 100));
             $('#expected_profit').val(customRound(expProfit));
-            $('#profit').val(customRound(profit * 100));
+            // $('#profit').val(customRound(profit * 100));
+            $('#profit').val(profit.toFixed(2));
         }
 
     }
