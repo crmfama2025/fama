@@ -140,126 +140,6 @@
 
                                 <!-- /.card -->
 
-                                {{-- Search tenant for payment allocation    --}}
-                                <div class="card card-primary card-outline mt-3">
-                                    <div class="card-header">
-                                        <div class="card-header">
-                                            <h5 class="card-title mb-0">Payment Allocation</h5>
-                                            <div class="card-tools">
-                                                <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                                    <i class="fas fa-minus"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="form-group col-md-4 mb-0">
-                                            <label for="tenantSelectAllocation">Tenant</label>
-                                            <select class="form-control select2" id="tenantSelectAllocation"
-                                                name="tenant_id">
-                                                <option value="">Select Tenant</option>
-                                                @foreach ($tenants as $tenant)
-                                                    <option value="{{ $tenant->id }}">{{ $tenant->tenant_name }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                    <!-- Allocation card appears below tenant select inside same card -->
-                                    <div class="mx-2 " id="allocationCard" style="display:none;">
-                                        {{-- <div class="card-header">
-                                            <h5 class="card-title mb-0">Payment Allocation</h5>
-                                            <div class="card-tools">
-                                                <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                                    <i class="fas fa-minus"></i>
-                                                </button>
-                                            </div>
-                                        </div> --}}
-                                        <div class="card-body">
-
-                                            <!-- Tenant + Amount + Submit -->
-                                            <div class="form-row align-items-end mb-3">
-                                                <div class="form-group col-md-3">
-                                                    <label
-                                                        style="font-size:11px;text-transform:uppercase;
-                                  letter-spacing:.05em;color:#6c757d;">Tenant</label>
-                                                    <div id="ap_tenant_name"
-                                                        style="font-size:15px;font-weight:600;padding:7px 10px;
-                                border:1px solid #dee2e6;border-radius:4px;
-                                background:#f8f9fa;min-height:38px;">
-                                                        —
-                                                    </div>
-                                                </div>
-                                                <div class="form-group col-md-3">
-                                                    <label for="ap_amount_input">Clearing Amount (AED)</label>
-                                                    <input type="number" step="any" id="ap_amount_input"
-                                                        class="form-control" placeholder="Enter amount to clear">
-                                                </div>
-                                                <div class="form-group col-md-2">
-                                                    <button type="button" id="ap_submit_btn"
-                                                        class="btn btn-success btn-block" disabled>
-                                                        <i class="fa fa-check mr-1"></i> Submit Payment
-                                                    </button>
-                                                </div>
-                                            </div>
-
-                                            <!-- Summary strip -->
-                                            {{-- <div class="row no-gutters mb-3" id="ap_summary" style="display:none;">
-                                                <div class="col-4 pr-1">
-                                                    <div class="card shadow-none border text-center py-2">
-                                                        <div
-                                                            style="font-size:10px;color:#6c757d;
-                                                                 text-transform:uppercase;letter-spacing:.04em;">
-                                                            Total Outstanding
-                                                        </div>
-                                                        <div style="font-size:16px;font-weight:600;" id="ap_total">—
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-4 px-1">
-                                                    <div class="card shadow-none border text-center py-2">
-                                                        <div
-                                                            style="font-size:10px;color:#6c757d;
-                                                                            text-transform:uppercase;letter-spacing:.04em;">
-                                                            Allocated
-                                                        </div>
-                                                        <div style="font-size:16px;font-weight:600;color:#28a745;"
-                                                            id="ap_allocated">—</div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-4 pl-1">
-                                                    <div class="card shadow-none border text-center py-2">
-                                                        <div
-                                                            style="font-size:10px;color:#6c757d;
-                                                                text-transform:uppercase;letter-spacing:.04em;">
-                                                            Balance
-                                                        </div>
-                                                        <div style="font-size:16px;font-weight:600;" id="ap_balance">—
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div> --}}
-
-                                            <!-- Allocation rows -->
-                                            <div id="ap_rows"></div>
-
-                                            <!-- Banner -->
-                                            <div id="ap_banner" class="alert mt-2 py-2"
-                                                style="display:none;font-size:13px;"></div>
-
-                                        </div>
-                                    </div>
-
-                                </div>
-                                {{-- End of search panel --}}
-
-
-                                <!-- ===== AMOUNT INPUT + ALLOCATION PANEL ===== -->
-
-                                <!-- ===== END ALLOCATION PANEL ===== -->
-
-
                                 <div class="card searchCheque">
                                     <!-- /.card-header -->
                                     <div class="card-header">
@@ -268,7 +148,7 @@
                                             All</button>
                                         <button type="button" class="btn btn-danger float-right mx-1 cheque-bounce"
                                             title="bounced">Bounced</button>
-                                        <a href="{{ route('finance.receivables.report') }}" target="_blank"
+                                        <a href="{{ route('finance.receivables.report') }}"
                                             class="btn btn-outline-maroon float-right mx-1 btn-flat"
                                             title="View Report"><i class="fa fa-book mr-1"></i>View
                                             Report</a>
@@ -682,109 +562,6 @@
                     </button>
                 </div>
 
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="modal-ap-confirm" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title">Confirm Payment</h5>
-                    <button type="button" class="close text-white" data-dismiss="modal">
-                        <span>&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-
-                    <!-- Summary read-only -->
-                    <table class="table table-sm table-borderless mb-0">
-                        <tr>
-                            <td class="text-muted" style="width:40%">Tenant</td>
-                            <td><strong id="conf_tenant">—</strong></td>
-                        </tr>
-                        <tr>
-                            <td class="text-muted">Amount</td>
-                            <td><strong id="conf_amount">—</strong></td>
-                        </tr>
-                        <tr>
-                            <td class="text-muted">Receivables covered</td>
-                            <td><strong id="conf_count">—</strong></td>
-                        </tr>
-                    </table>
-
-                    <hr>
-
-                    <!-- Clearing date -->
-                    <div class="form-group">
-                        <label class="asterisk">Clearing Date</label>
-                        <div class="input-group date" id="ap_clearingDate" data-target-input="nearest">
-                            <input type="text" name="paid_date" class="form-control datetimepicker-input"
-                                id="ap_clearing_date_input" data-target="#ap_clearingDate" placeholder="dd-mm-YYYY"
-                                required />
-                            <div class="input-group-append" data-target="#ap_clearingDate" data-toggle="datetimepicker">
-                                <span class="input-group-text">
-                                    <i class="fa fa-calendar"></i>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Payment type -->
-                    <div class="form-group">
-                        <label><strong>Payment Type</strong></label>
-                        <div class="d-flex gap-3">
-                            <div class="form-check mr-4">
-                                <input type="checkbox" class="form-check-input ap_payment_mode" id="ap_cheque"
-                                    value="3">
-                                <label class="form-check-label" for="ap_cheque">Cheque</label>
-                            </div>
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input ap_payment_mode" id="ap_bank"
-                                    value="2">
-                                <label class="form-check-label" for="ap_bank">Bank Transfer</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Company + Bank (shown when payment type selected) -->
-                    <div id="ap_bank_div" style="display:none;">
-                        <div class="form-group">
-                            <label class="asterisk">Company</label>
-                            <select id="ap_company_id" class="form-control">
-                                <option value="">Select Company</option>
-                                @foreach ($companies as $com)
-                                    <option value="{{ $com->id }}">{{ $com->company_name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Bank</label>
-                            <select id="ap_bank_id" class="form-control">
-                                <option value="">Select Bank</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Cheque number -->
-                    <div class="form-group" id="ap_cheque_div" style="display:none;">
-                        <label>Cheque Number</label>
-                        <input type="text" id="ap_cheque_no" class="form-control" placeholder="Enter cheque number">
-                    </div>
-
-                    <!-- Remarks -->
-                    <div class="form-group">
-                        <label>Remarks</label>
-                        <textarea id="ap_remarks" class="form-control" rows="2" placeholder="Optional remarks"></textarea>
-                    </div>
-
-                </div>
-                <div class="modal-footer bg-light">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="button" id="ap_confirm_btn" class="btn btn-success">
-                        <i class="fa fa-check mr-1"></i> Confirm & Clear
-                    </button>
-                </div>
             </div>
         </div>
     </div>
@@ -1529,11 +1306,11 @@
                     toastr.success(response.message);
 
                     $('#modal-bounced-cheque').modal('hide');
-                    form.reset();
+                    form[0].reset();
 
 
                     // Optional: reload DataTable
-                    table.ajax.reload(null, false);
+                    $('#tenantChequeTable').DataTable().ajax.reload(null, false);
                 },
                 error: function(xhr) {
                     // console.log(xhr);
@@ -1606,5 +1383,4 @@
             });
         }
     </script>
-    @include('admin.finance.receivable-allocation-js');
 @endsection

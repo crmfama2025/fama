@@ -138,8 +138,10 @@ class TenantChequeRepository
                 'agreement.agreement_units.contractSubunitDetail',
                 'agreement.agreement_units',
                 'clearedReceivables'
+
             )
             // ->where('id', '>=', 12)
+            // ->withSum('clearedReceivables', 'paid_amount')
             ->where('is_payment_received', '!=', 1)
             ->where('terminate_status', 0)
             // ->whereDate('payment_date', '>=', Carbon::today())
@@ -150,7 +152,7 @@ class TenantChequeRepository
         });
 
         // Get the results
-        $results = $query->get();
+        // $results = $query->get();
         // dd($results);
 
 
@@ -162,10 +164,14 @@ class TenantChequeRepository
         if (!empty($filters['search'])) {
             $search = $filters['search'];
 
+
             $query->where(function ($q) use ($search) {
                 $q->orWhere('payment_amount', 'like', '%' . $search . '%')
+                    ->orWhere('payment_date', 'like', '%' . $search . '%')
                     ->orWhereHas('agreement.contract', function ($q2) use ($search) {
-                        $q2->where('project_number', 'like', "%$search%");
+                        $q2->whereRaw("CONCAT('P - ', project_number) LIKE ?", ["%{$search}%"])
+                            ->orWhereRaw("CONCAT('P-', project_number) LIKE ?", ["%{$search}%"])
+                            ->orWhereRaw("CAST(project_number AS CHAR) LIKE ?", ["%{$search}%"]);
                     })
                     ->orWhereHas('agreement.contract.contract_type', function ($q2) use ($search) {
                         $q2->where('contract_type', 'like', "%$search%");
@@ -203,6 +209,10 @@ class TenantChequeRepository
                     ->orWhereHas('agreement.contract.property', function ($q2) use ($search) {
                         $q2->where('property_name', 'like', "%$search%");
                     })
+                    // ->orWhereHas('agreement.contract', function ($q2) use ($search) {
+                    //     // $q2->where('project_number', 'like', "%$search%");
+                    //     $q2->whereRaw("CONCAT('P-',project_number) LIKE ?", "%$search%");
+                    // })
                     ->orWhereRaw("CAST(agreement_payment_details.id AS CHAR) LIKE ?", ["%$search%"]);
             });
         }
@@ -263,7 +273,12 @@ class TenantChequeRepository
 
         // $query->orderBy('agreement_payment_details.id', 'desc');
         // $results = $query->get();
-        // dd($results);
+        // dd($results->count());
+
+        // $count = (clone $query)->count();
+        // dd('2013 records found: ' . $count);
+
+
 
         return $query;
     }
@@ -326,6 +341,8 @@ class TenantChequeRepository
 
 
         $query = ClearedReceivable::query()
+
+
             ->with([
                 'agreementPaymentDetail',
                 'agreementPaymentDetail.agreementPayment.installment',
@@ -365,7 +382,9 @@ class TenantChequeRepository
                     // ->orwhere('paid_date', 'like', "%$search%")
 
                     ->orWhereHas('agreementPaymentDetail.agreement.contract', function ($q2) use ($search) {
-                        $q2->where('project_number', 'like', "%$search%");
+                        $q2->where('project_number', 'like', "%$search%")
+                            ->orWhereRaw("CONCAT('P - ', project_number) LIKE ?", ["%{$search}%"])
+                            ->orWhereRaw("CONCAT('P-', project_number) LIKE ?", ["%{$search}%"]);
                     })
                     ->orWhereHas('agreementPaymentDetail.agreement.contract.contract_type', function ($q2) use ($search) {
                         $q2->where('contract_type', 'like', "%$search%");
