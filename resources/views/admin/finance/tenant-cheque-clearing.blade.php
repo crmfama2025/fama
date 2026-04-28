@@ -44,101 +44,7 @@
                             <!-- /.card-header -->
                             <div class="card-body">
 
-                                <div class="card card-danger card-outline">
-                                    <div class="card-header shadow-sm">
-                                        <h5 class="card-title mb-0">Filter Cheques</h5>
-                                    </div>
-                                    <div class="d-flex justify-content-end mx-4">
-                                        <button type="button" class="btn btn-secondary reset">
-                                            <i class="fa fa-undo-alt"></i> Reset
-                                        </button>
-                                    </div>
 
-                                    <div class="card-body">
-                                        <form class="form-row align-items-end fileterform justify-content-end">
-                                            <!-- From Date -->
-                                            <div class="form-group col-md-2">
-                                                <label for="dateFrom" class="asterisk">From</label>
-                                                <div class="input-group date" id="dateFrom" data-target-input="nearest">
-                                                    <input type="text" class="form-control datetimepicker-input" required
-                                                        data-target="#dateFrom" placeholder="dd-mm-YYYY" />
-                                                    <div class="input-group-append" data-target="#dateFrom"
-                                                        data-toggle="datetimepicker">
-                                                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <!-- To Date -->
-                                            <div class="form-group col-md-2">
-                                                <label for="dateTo" class="asterisk">To</label>
-                                                <div class="input-group date" id="dateTo" data-target-input="nearest">
-                                                    <input type="text" class="form-control datetimepicker-input" required
-                                                        data-target="#dateTo" placeholder="dd-mm-YYYY" />
-                                                    <div class="input-group-append" data-target="#dateTo"
-                                                        data-toggle="datetimepicker">
-                                                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <!-- Property -->
-                                            <div class="form-group col-md-2">
-                                                <label for="propertySelect">Property</label>
-                                                <select class="form-control select2" id="propertySelect" name="property_id">
-                                                    <option value="">Select Property</option>
-                                                    @foreach ($properties as $property)
-                                                        <option value="{{ $property->id }}">{{ $property->property_name }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-
-                                            <!-- Unit -->
-                                            <div class="form-group col-md-2">
-                                                <label for="unitSelect">Unit</label>
-                                                <select class="form-control select2" id="unitSelect" name="unit_id">
-                                                    <option value="">Select Unit</option>
-                                                    {{-- @foreach ($units as $unit)
-                                                        <option value="{{ $unit->id }}">{{ $unit->unit_number }}
-                                                        </option>
-                                                    @endforeach --}}
-                                                </select>
-                                            </div>
-                                            <div class="form-group col-md-2">
-                                                <label for="unitSelect">Tenant</label>
-                                                <select class="form-control select2" id="tenantSelect" name="tenant_id">
-                                                    <option value="">Select Tenant</option>
-                                                    @foreach ($tenants as $tenant)
-                                                        <option value="{{ $tenant->id }}">{{ $tenant->tenant_name }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                            <!-- Unit -->
-                                            <div class="form-group col-md-2">
-                                                <label for="unitSelect">Payment Mode</label>
-                                                <select class="form-control select2" id="modeSelect" name="mode_id">
-                                                    <option value="">Select PaymentMode</option>
-                                                    @foreach ($agpaymentmodes as $mode)
-                                                        <option value="{{ $mode->id }}">{{ $mode->payment_mode_name }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-
-                                            <!-- Search Button -->
-                                            <div class="form-group col-md-2">
-                                                <button type="button" class="btn btn-primary btn-block searchbtnchq">
-                                                    <i class="fa fa-search"></i> Search
-                                                </button>
-                                            </div>
-
-                                        </form>
-                                    </div>
-                                </div>
-
-                                <!-- /.card -->
 
                                 {{-- Search tenant for payment allocation    --}}
                                 <div class="card card-primary card-outline mt-3">
@@ -183,11 +89,11 @@
                                                 <div class="form-group col-md-3">
                                                     <label
                                                         style="font-size:11px;text-transform:uppercase;
-                                  letter-spacing:.05em;color:#6c757d;">Tenant</label>
+                                                        letter-spacing:.05em;color:#6c757d;">Tenant</label>
                                                     <div id="ap_tenant_name"
                                                         style="font-size:15px;font-weight:600;padding:7px 10px;
-                                border:1px solid #dee2e6;border-radius:4px;
-                                background:#f8f9fa;min-height:38px;">
+                                                            border:1px solid #dee2e6;border-radius:4px;
+                                                        background:#f8f9fa;min-height:38px;">
                                                         —
                                                     </div>
                                                 </div>
@@ -253,6 +159,107 @@
 
                                 </div>
                                 {{-- End of search panel --}}
+
+                                <div class="card card-danger card-outline">
+                                    <div class="card-header shadow-sm">
+                                        <h5 class="card-title mb-0">Filter Receivables</h5>
+                                    </div>
+                                    <div class="d-flex justify-content-end mx-4">
+                                        <button type="button" class="btn btn-secondary reset">
+                                            <i class="fa fa-undo-alt"></i> Reset
+                                        </button>
+                                    </div>
+
+                                    <div class="card-body">
+                                        <form class="form-row align-items-end fileterform justify-content-end">
+                                            <!-- From Date -->
+                                            <div class="form-group col-md-2">
+                                                <label for="dateFrom" class="asterisk">From</label>
+                                                <div class="input-group date" id="dateFrom" data-target-input="nearest">
+                                                    <input type="text" class="form-control datetimepicker-input" required
+                                                        data-target="#dateFrom" placeholder="dd-mm-YYYY" />
+                                                    <div class="input-group-append" data-target="#dateFrom"
+                                                        data-toggle="datetimepicker">
+                                                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- To Date -->
+                                            <div class="form-group col-md-2">
+                                                <label for="dateTo" class="asterisk">To</label>
+                                                <div class="input-group date" id="dateTo" data-target-input="nearest">
+                                                    <input type="text" class="form-control datetimepicker-input"
+                                                        required data-target="#dateTo" placeholder="dd-mm-YYYY" />
+                                                    <div class="input-group-append" data-target="#dateTo"
+                                                        data-toggle="datetimepicker">
+                                                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Property -->
+                                            <div class="form-group col-md-2">
+                                                <label for="propertySelect">Property</label>
+                                                <select class="form-control select2" id="propertySelect"
+                                                    name="property_id">
+                                                    <option value="">Select Property</option>
+                                                    @foreach ($properties as $property)
+                                                        <option value="{{ $property->id }}">
+                                                            {{ $property->property_name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+
+                                            <!-- Unit -->
+                                            <div class="form-group col-md-2">
+                                                <label for="unitSelect">Unit</label>
+                                                <select class="form-control select2" id="unitSelect" name="unit_id">
+                                                    <option value="">Select Unit</option>
+                                                    {{-- @foreach ($units as $unit)
+                                                        <option value="{{ $unit->id }}">{{ $unit->unit_number }}
+                                                        </option>
+                                                    @endforeach --}}
+                                                </select>
+                                            </div>
+                                            <div class="form-group col-md-2">
+                                                <label for="unitSelect">Tenant</label>
+                                                <select class="form-control select2" id="tenantSelect" name="tenant_id">
+                                                    <option value="">Select Tenant</option>
+                                                    @foreach ($tenants as $tenant)
+                                                        <option value="{{ $tenant->id }}">{{ $tenant->tenant_name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <!-- Unit -->
+                                            <div class="form-group col-md-2">
+                                                <label for="unitSelect">Payment Mode</label>
+                                                <select class="form-control select2" id="modeSelect" name="mode_id">
+                                                    <option value="">Select PaymentMode</option>
+                                                    @foreach ($agpaymentmodes as $mode)
+                                                        <option value="{{ $mode->id }}">
+                                                            {{ $mode->payment_mode_name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+
+                                            <!-- Search Button -->
+                                            <div class="form-group col-md-2">
+                                                <button type="button" class="btn btn-primary btn-block searchbtnchq">
+                                                    <i class="fa fa-search"></i> Search
+                                                </button>
+                                            </div>
+
+                                        </form>
+                                    </div>
+                                </div>
+
+                                <!-- /.card -->
+
+
 
 
                                 <!-- ===== AMOUNT INPUT + ALLOCATION PANEL ===== -->

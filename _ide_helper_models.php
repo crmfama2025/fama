@@ -248,6 +248,7 @@ namespace App\Models{
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ClearedReceivable> $clearedReceivables
  * @property-read int|null $cleared_receivables_count
  * @property-read \App\Models\User|null $deletedBy
+ * @property-read mixed $label
  * @property-read \App\Models\TenantInvoice|null $invoice
  * @property-read \App\Models\PaymentMode|null $paymentMode
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ClearedReceivable> $receivedPayments
