@@ -172,33 +172,58 @@ class ReceivablesClearingController extends Controller
             })
             ->whereDate('payment_date', '<=', Carbon::today()->addWeeks(2))
             ->orderBy('payment_date', 'asc')    // oldest first
+            ->get();
+        //  Pre-load ALL installments for the unit IDs we already have — one query
+        $unitIds = $receivables->pluck('agreement_unit_id')->unique()->filter();
+
+        $installmentsByUnit = AgreementPaymentDetail::whereIn('agreement_unit_id', $unitIds)
+            ->orderBy('payment_date')
             ->get()
-            ->map(function ($detail) {
-                // same calculation as getReceivableAmount() but no extra queries
-                $totalPaid       = (float) ($detail->cleared_receivables_sum_paid_amount ?? 0);
-                $originalAmount  = (float) $detail->payment_amount;
-                $remainingAmount = max(0, $originalAmount - $totalPaid);
-                return [
-                    'id'       => $detail->id,
-                    'date'     => $detail->payment_date
-                        ? \Carbon\Carbon::parse($detail->payment_date)
-                        ->format('d-m-Y')
-                        : '-',
-                    // 'amount'   => (float) $detail->payment_amount,
-                    'amount'   => $remainingAmount,
-                    'mode'     => $detail->paymentMode?->payment_mode_name ?? '-',
-                    'label' => $detail->agreementPayment?->installment?->installment_name
-                        ?? 'Due: ' . \Carbon\Carbon::parse($detail->payment_date)->format('M Y'),
-                    'property' => $detail->agreementPayment
-                        ?->agreement
-                        ?->contract
-                        ?->property
-                        ?->property_name ?? '-',
-                    'unit_number' => $detail->agreementUnit->contractUnitDetail?->unit_number ?? '-',
-                    'subunit_number' => $detail->agreementUnit->contractSubunitDetail?->subunit_no ?? '-',
-                    'project_number' => $detail->agreement->contract->project_number ?? '-',
-                ];
-            });
+            ->groupBy('agreement_unit_id');
+        // dd($installmentsByUnit);
+
+        $receivables = $receivables->map(function ($detail)  use ($installmentsByUnit) {
+            // same calculation as getReceivableAmount() but no extra queries
+            $totalPaid       = (float) ($detail->cleared_receivables_sum_paid_amount ?? 0);
+            $originalAmount  = (float) $detail->payment_amount;
+            $remainingAmount = max(0, $originalAmount - $totalPaid);
+
+            //  Use pre-loaded collection — no DB hit
+            $installments = $installmentsByUnit->get($detail->agreement_unit_id, collect());
+            $total        = $installments->count();
+            $current      = 0;
+
+            foreach ($installments as $index => $inst) {
+                if ($inst->payment_date == $detail->payment_date) {
+                    $current = $index + 1;
+                    break;
+                }
+            }
+
+            $label = $total > 0 ? "{$current}/{$total}" : '-';
+
+            return [
+                'id'       => $detail->id,
+                'date'     => $detail->payment_date
+                    ? \Carbon\Carbon::parse($detail->payment_date)
+                    ->format('d-m-Y')
+                    : '-',
+                // 'amount'   => (float) $detail->payment_amount,
+                'amount'   => $remainingAmount,
+                'mode'     => $detail->paymentMode?->payment_mode_name ?? '-',
+                // 'label' => $detail->agreementPayment?->installment?->installment_name
+                //     ?? 'Due: ' . \Carbon\Carbon::parse($detail->payment_date)->format('M Y'),
+                'label' => $label,
+                'property' => $detail->agreementPayment
+                    ?->agreement
+                    ?->contract
+                    ?->property
+                    ?->property_name ?? '-',
+                'unit_number' => $detail->agreementUnit->contractUnitDetail?->unit_number ?? '-',
+                'subunit_number' => $detail->agreementUnit->contractSubunitDetail?->subunit_no ?? '-',
+                'project_number' => $detail->agreement->contract->project_number ?? '-',
+            ];
+        });
         // dd($receivables);
         // dd($receivables->count());
 
