@@ -189,6 +189,10 @@ class AgreementService
                 $this->validate($agreementData);
 
                 // dd('test');
+                if (!empty($data['sales_agreement_id'])) {
+                    $agreementData['sales_tenant_agreement_id'] = $data['sales_agreement_id'];
+                    UpdateSalesTenantAgreement($data['sales_agreement_id']);
+                }
 
                 $agreement = $this->agreementRepository->create($agreementData);
                 $payment_data = [
@@ -226,6 +230,7 @@ class AgreementService
 
                     $createdUnit = $this->agreementUnitService->create($unitdata);
                     $agreementUnitId = $createdUnit->id;
+
 
                     // Correct: now index matches correctly
                     $paymentDetailsForThisUnit = $data['payment_detail'][$index] ?? [];
@@ -267,6 +272,12 @@ class AgreementService
                     //     $payment->id,
                     //     $createdUnit['contract_unit_details_id']
                     // );
+                    // if (!empty($data['sales_agreement_id'])) {
+                    //     UpdateSalesTenantAgreement($data['sales_agreement_id']);
+                    // }
+                }
+                if (!empty($data['sales_agreement_id'])) {
+                    UpdateSalesTenantAgreementB2B($data['sales_agreement_id']);
                 }
             } else {
                 $tenantData = [
@@ -291,9 +302,10 @@ class AgreementService
                     // ✅ UPDATE existing tenant
                     $tenantData['id'] = $data['sales_tenant_id'];
                     $tenant = $this->agreementTenantService->update($tenantData, auth()->user()->id);
-                    UpdateSalesTenantAgreement($data['sales_tenant_id']);
+                    UpdateSalesTenantAgreement($data['sales_agreement_id']);
                 } else {
                     // ✅ CREATE new tenant
+                    // $tenantdata['tenant_source'] = 1;
                     $tenant = $this->agreementTenantService->create($tenantData);
                 }
                 // dd($tenant);
@@ -1287,29 +1299,29 @@ class AgreementService
 
 
                 if (auth()->user()->hasAnyPermission(['agreement.view'], $row->company_id)) {
-                    $action .= '<a href="' . $viewUrl . '" class="btn btn-primary btn-sm m-1"
+                    $action .= '<a href="' . $viewUrl . '" class="btn btn-primary btn-sm mr-1"
                     title="View Installments"><i class="fas fa-eye"></i></a>';
                 }
 
                 if (auth()->user()->hasAnyPermission(['agreement.document_upload'], $row->company_id)) {
-                    $action .= '<a href="' . $docUrl . '" class="btn btn-warning btn-sm m-1"
+                    $action .= '<a href="' . $docUrl . '" class="btn btn-warning btn-sm mr-1"
                     title="documents"><i class="fas fa-file"></i></a>';
                 }
 
                 if (auth()->user()->hasAnyPermission(['agreement.agreement_view'], $row->company_id) && ($row->contract->contract_type_id == 2)) {
-                    $action .= '<a href="' . $printUrl . '" class="btn btn-secondary btn-sm m-1"
+                    $action .= '<a href="' . $printUrl . '" class="btn btn-secondary btn-sm mr-1"
                     title="Agreement"><i class="fas fa-handshake"></i></a>';
                 }
 
                 if (auth()->user()->hasAnyPermission(['agreement.edit'], $row->company_id) && $row->agreement_status == 0 && !paymentStatus($row->id)) {
 
-                    $action .= '<a href="' . $editUrl . '" class="btn btn-info  btn-sm m-1" title="Edit agreement"><i
+                    $action .= '<a href="' . $editUrl . '" class="btn btn-info  btn-sm mr-1" title="Edit agreement"><i
                         class="fas fa-pencil-alt"></i></a>';
                 }
 
                 if (auth()->user()->hasAnyPermission(['agreement.delete'], $row->company_id) && !paymentStatus($row->id) && $row->agreement_status == 0) {
 
-                    $action .= '<a class="btn btn-danger  btn-sm m-1" onclick="deleteConf(' . $row->id . ')" title="delete"><i
+                    $action .= '<a class="btn btn-danger  btn-sm mr-1" onclick="deleteConf(' . $row->id . ')" title="delete"><i
                         class="fas fa-trash"></i></a>';
                 }
 
@@ -1317,7 +1329,7 @@ class AgreementService
                 //      data-id="' . $row->id . '" ><i class="fas fa-file-signature"></i></a>
                 // ';
                 if (auth()->user()->hasAnyPermission(['agreement.terminate'], $row->company_id) && ($row->agreement_status == 0)) {
-                    $action .= '<a href="#" class="btn bg-gradient-dark btn-sm m-1 open-terminate-modal" title="Terminate" data-id="' . $row->id . '" data-company-id="' . $row->contract->company_id . '">
+                    $action .= '<a href="#" class="btn bg-gradient-dark btn-sm mr-1 open-terminate-modal" title="Terminate" data-id="' . $row->id . '" data-company-id="' . $row->contract->company_id . '">
                         <i class="fas fa-file-signature"></i>
                     </a>';
                 }
@@ -1472,7 +1484,8 @@ class AgreementService
                     $contract->children->isNotEmpty() &&
                     // $contract->children->contains('contract_status', 7);
                     $contract->children->whereIn('contract_status', [1, 7])->isNotEmpty();
-                    $hasRenewal = Agreement::where('parent_agreement_id', $row->id)
+
+                $hasRenewal = Agreement::where('parent_agreement_id', $row->id)
                     ->exists();
 
                 if (iscontractRenewed($contract->id) && $hasValidRenewal && !$hasRenewal) {

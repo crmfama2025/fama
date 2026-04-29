@@ -265,6 +265,7 @@ class AgreementRepository
                     if ($unitdetail) {
                         // dd($unitdetail);
                         $unitdetail->is_vacant = 0;
+                        $unitdetail->is_sales_agreement_added = 0;
                         $unitdetail->save();
                     }
                 }
@@ -272,6 +273,7 @@ class AgreementRepository
                     $subunitdetail = ContractSubunitDetail::find($contract_subunit_id);
                     if ($subunitdetail) {
                         $subunitdetail->is_vacant = 0;
+                        $subunitdetail->is_sales_agreement_added = 0;
                         $subunitdetail->save();
                     }
                 }

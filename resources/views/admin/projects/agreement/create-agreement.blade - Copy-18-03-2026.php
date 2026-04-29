@@ -104,6 +104,7 @@
                                                 <input type="hidden" name="payment_id"
                                                     value={{ $agreement->agreement_payment->id }}>
                                             @endisset
+
                                             <input type="hidden" name="renewal_status" value="{{ $renew ?? 0 }}">
                                             <input type="hidden" name="parent_agreement_id"
                                                 value="{{ $parent_agreement_id }}">
@@ -119,19 +120,18 @@
                                                             <option value="">Select Company</option>
                                                             {{-- @foreach ($companies as $company)
                                                                 <option value="{{ $company->id }}">
-                                                        {{ $company->company_name }}
-                                                        </option>
-                                                        @endforeach --}}
+                                                                    {{ $company->company_name }}
+                                                                </option>
+                                                            @endforeach --}}
                                                             @foreach ($companies as $company)
                                                                 {{-- <option value="{{ $company->id }}"
-                                                        {{ isset($agreement) && $agreement->company_id == $company->id ? 'selected' : '' }}>
-                                                        {{ $company->company_name }}
-                                                        </option> --}}
+                                                                    {{ isset($agreement) && $agreement->company_id == $company->id ? 'selected' : '' }}>
+                                                                    {{ $company->company_name }}
+                                                                </option> --}}
                                                                 <option value="{{ $company->id }}"
                                                                     @if (
                                                                         (isset($agreement) && $agreement->company_id == $company->id) ||
-                                                                            (isset($company_id) && $company_id == $company->id) ||
-                                                                            (isset($salesCompany) && $salesCompany->id == $company->id)) selected @endif>
+                                                                            (isset($company_id) && $company_id == $company->id)) selected @endif>
                                                                     {{ $company->company_name }}
                                                                 </option>
                                                             @endforeach
@@ -152,7 +152,7 @@
                                                         <option value="1">Project 1</option> --}}
                                                         </select>
                                                     </div>
-                                                    {{-- Edit case --}}
+                                                    {{--  Edit case --}}
                                                     @isset($agreememnt)
                                                         <input type="hidden" name="contract_id" id="edited_contract"
                                                             value="">
@@ -167,7 +167,7 @@
                                                             <option value="">Select Tenant</option>
                                                             @foreach ($tenants as $t)
                                                                 <option value="{{ $t->id }}"
-                                                                    {{ (isset($agreement) && $agreement->tenant_id == $t->id) || (isset($tenant_id) && $tenant_id == $t->id) || (isset($salesTenant) && $salesTenant->id == $t->id) ? 'selected' : '' }}>
+                                                                    {{ (isset($agreement) && $agreement->tenant_id == $t->id) || (isset($tenant_id) && $tenant_id == $t->id) ? 'selected' : '' }}>
                                                                     {!! $t->tenant_code . ' - ' . $t->tenant_name !!}
                                                                 </option>
                                                             @endforeach
@@ -179,19 +179,13 @@
                                                 </div>
                                                 {{-- @dump($tenant) --}}
                                                 <div class="card p-4 shadow d-none" id="tenant_details_card">
-                                                    <input type="hidden" name="sales_tenant_id"
-                                                        value="{{ isset($salesTenant) ? $salesTenant->id : '' }}">
-                                                    <input type="hidden" name="sales_agreement_id"
-                                                        value="{{ isset($salesagreement) ? $salesagreement->id : '' }}">
                                                     <div class="form-group row">
                                                         <div class="col-md-4">
-                                                            {{-- @dd($salesTenant) --}}
-                                                            {{-- @dump($salesTenant->tenant_name); --}}
                                                             <label for="exampleInputEmail1 " class="asterisk">Tenant
                                                                 Name</label>
                                                             <input type="text" class="form-control" id="tenant_name"
                                                                 name="tenant_name" placeholder="Tenant Name"
-                                                                value="{{ old('tenant_name', $salesTenant->tenant_name ?? ($tenant->tenant_name ?? '')) }}"
+                                                                value="{{ old('tenant_name', $tenant->tenant_name ?? '') }}"
                                                                 required>
                                                         </div>
                                                         <div class="col-md-4">
@@ -199,8 +193,7 @@
                                                                 email</label>
                                                             <input type="email" class="form-control" id="tenant_email"
                                                                 name="tenant_email" placeholder="Tenant email"
-                                                                {{-- value="{{ old('tenant_email', $tenant->tenant_email ?? '') }}" --}}
-                                                                value="{{ old('tenant_email', $salesTenant->tenant_email ?? ($tenant->tenant_email ?? '')) }}"
+                                                                value="{{ old('tenant_email', $tenant->tenant_email ?? '') }}"
                                                                 required pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$">
                                                             <div class="invalid-feedback">
                                                                 Please provide a valid email.
@@ -214,13 +207,9 @@
                                                                 id="nationality_id" required>
                                                                 <option value="">Select Nationality</option>
                                                                 @foreach ($nationalities as $nationality)
-                                                                    <option value="{{ $nationality->id }}"
-                                                                        {{ ((isset($agreement) || isset($tenant)) && $tenant->nationality_id == $nationality->id) ||
-                                                                        (isset($salesTenant) && $salesTenant->nationality_id == $nationality->id)
-                                                                            ? 'selected'
-                                                                            : '' }}>
-                                                                        {{ $nationality->nationality_name }}
-                                                                    </option>
+                                                                    <option
+                                                                        value="{{ $nationality->id }}"{{ (isset($agreement) || isset($tenant)) && $tenant->nationality_id == $nationality->id ? 'selected' : '' }}>
+                                                                        {{ $nationality->nationality_name }} </option>
                                                                 @endforeach
 
                                                             </select>
@@ -238,8 +227,7 @@
                                                                     or 971501234567)</small></label>
                                                             <input type="text" class="form-control" id="tenant_mobile"
                                                                 name="tenant_mobile" placeholder="Tenant mobile"
-                                                                {{-- value="{{ old('tenant_mobile', $tenant->tenant_mobile ?? '') }}" --}}
-                                                                value="{{ old('tenant_mobile', $salesTenant->tenant_mobile ?? ($tenant->tenant_mobile ?? '')) }}"
+                                                                value="{{ old('tenant_mobile', $tenant->tenant_mobile ?? '') }}"
                                                                 required pattern="^\+?[1-9]\d{9,14}$">
                                                             <div class="invalid-feedback">
                                                                 Enter valid mobile with country code.
@@ -251,8 +239,8 @@
                                                                 person</label>
                                                             <input type="text" class="form-control"
                                                                 id="contact_person" name="contact_person"
-                                                                placeholder="Contact Person" {{-- value="{{ old('contact_person', $tenant->contact_person ?? '') }}" --}}
-                                                                value="{{ old('contact_person', $salesTenant->contact_person ?? ($tenant->contact_person ?? '')) }}"
+                                                                placeholder="Contact Person"
+                                                                value="{{ old('contact_person', $tenant->contact_person ?? '') }}"
                                                                 required>
 
                                                         </div>
@@ -269,8 +257,8 @@
                                                                 email</label>
                                                             <input type="email" class="form-control "
                                                                 id="contact_email" name="contact_email"
-                                                                placeholder="Contact email" {{-- value="{{ old('contact_email', $tenant->contact_email ?? '') }}" --}}
-                                                                value="{{ old('contact_email', $salesTenant->contact_email ?? ($tenant->contact_email ?? '')) }}"
+                                                                placeholder="Contact email"
+                                                                value="{{ old('contact_email', $tenant->contact_email ?? '') }}"
                                                                 required pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$">
                                                             <div class="invalid-feedback">
                                                                 Please provide a valid email.
@@ -283,11 +271,10 @@
                                                                 <small class="text-muted font-weight-lighter">(e.g.,
                                                                     +971501234567
                                                                     or 971501234567)</small> </label>
-                                                            {{-- @dump($salesTenant->contact_number) --}}
                                                             <input type="text" class="form-control"
                                                                 id="contact_number" name="contact_number"
-                                                                placeholder="Contact number" {{-- value="{{ old('contact_number', $tenant->contact_number ?? '') }}" --}}
-                                                                value="{{ old('contact_number', $tenant->contact_number ?? ($salesTenant->contact_number ?? '')) }}"
+                                                                placeholder="Contact number"
+                                                                value="{{ old('contact_number', $tenant->contact_number ?? '') }}"
                                                                 required pattern="^\+?[1-9]\d{9,14}$">
                                                             <div class="invalid-feedback">
                                                                 Enter valid mobile with country code.
@@ -304,8 +291,8 @@
                                                                     No,Building)</small></label>
                                                             <input type="text" class="form-control"
                                                                 id="tenant_address" name="tenant_address"
-                                                                placeholder="Flat No,Building etc" {{-- value="{{ old('tenant_address', $tenant->tenant_address ?? '') }}" --}}
-                                                                value="{{ old('tenant_address', $tenant->tenant_address ?? ($salesTenant->tenant_address ?? '')) }}"
+                                                                placeholder="Flat No,Building etc"
+                                                                value="{{ old('tenant_address', $tenant->tenant_address ?? '') }}"
                                                                 required>
                                                         </div>
                                                         <div class="col-md-6">
@@ -313,21 +300,17 @@
                                                                     class="text-muted font-weight-lighter">(Street)</small></label>
                                                             <input type="text" class="form-control" id="tenant_street"
                                                                 name="tenant_street" placeholder="Street"
-                                                                {{-- value="{{ old('tenant_street', $tenant->tenant_street ?? '') }}" --}}
-                                                                value="{{ old('tenant_street', $salesTenant->tenant_street ?? ($salesTenant->tenant_street ?? '')) }}">
+                                                                value="{{ old('tenant_street', $tenant->tenant_street ?? '') }}">
                                                         </div>
 
 
                                                     </div>
-                                                    <div
-                                                        class="form-group
-                                                                row">
+                                                    <div class="form-group row">
                                                         <div class="col-md-4">
                                                             <label for="exampleInputEmail1 ">City</label>
                                                             <input type="text" class="form-control" id="tenant_city"
                                                                 name="tenant_city" placeholder="Enter City"
-                                                                {{-- value="{{ old('tenant_city', $tenant->tenant_city ?? '') }}" --}}
-                                                                value="{{ old('tenant_city', $salesTenant->tenant_city ?? ($salesTenant->tenant_city ?? '')) }}">
+                                                                value="{{ old('tenant_city', $tenant->tenant_city ?? '') }}">
 
                                                         </div>
                                                         <div class="col-md-4">
@@ -336,10 +319,9 @@
                                                                 id="emirate_id">
                                                                 <option value="">Select Emirate</option>
                                                                 @foreach ($emirates as $emirate)
-                                                                    <option value="{{ $emirate->id }}"
-                                                                        {{ (isset($agreement) || isset($tenant)) && $tenant->emirate_id == $emirate->id ? 'selected' : '' }}>
-                                                                        {{ $emirate->name }}
-                                                                    </option>
+                                                                    <option
+                                                                        value="{{ $emirate->id }}"{{ (isset($agreement) || isset($tenant)) && $tenant->emirate_id == $emirate->id ? 'selected' : '' }}>
+                                                                        {{ $emirate->name }} </option>
                                                                 @endforeach
                                                             </select>
                                                         </div>
@@ -356,150 +338,149 @@
                                                     @foreach ($tenantIdentities as $index => $identity)
                                                         <h6 class="font-weight-bold text-cyan mb-3">
                                                             {{ $identity->identity_type }}
-                                        </h6>
+                                                        </h6>
 
-                                        @php
-                                        // Find matching document (if exists)
-                                        $document = isset($agreement)
-                                        ? $agreement->agreement_documents->firstWhere(
-                                        'document_type',
-                                        $identity->id,
-                                        )
-                                        : null;
-                                        @endphp
+                                                        @php
+                                                            // Find matching document (if exists)
+                                                            $document = isset($agreement)
+                                                                ? $agreement->agreement_documents->firstWhere(
+                                                                    'document_type',
+                                                                    $identity->id,
+                                                                )
+                                                                : null;
+                                                        @endphp
 
-                                        <div class="form-row">
-                                            <div class="form-group col-md-3">
-                                                <label for="document_number_{{ $index }}">
-                                                    {{ $identity->first_field_label }}
-                                                </label>
-                                                <input type="{{ $identity->first_field_type }}"
-                                                    name="documents[{{ $index }}][document_number]"
-                                                    id="document_number_{{ $index }}"
-                                                    value="{{ $document ? $document->document_number : '' }}"
-                                                    class="form-control document_number"
-                                                    data-document-type="{{ $identity->id }}"
-                                                    placeholder="{{ $identity->first_field_label }}">
-                                                <small class="text-danger error-msg"
-                                                    id="error_{{ $index }}"></small>
-                                                <input type="hidden"
-                                                    name="documents[{{ $index }}][document_type]"
-                                                    value="{{ $identity->id }}">
-                                            </div>
+                                                        <div class="form-row">
+                                                            <div class="form-group col-md-3">
+                                                                <label for="document_number_{{ $index }}">
+                                                                    {{ $identity->first_field_label }}
+                                                                </label>
+                                                                <input type="{{ $identity->first_field_type }}"
+                                                                    name="documents[{{ $index }}][document_number]"
+                                                                    id="document_number_{{ $index }}"
+                                                                    value="{{ $document ? $document->document_number : '' }}"
+                                                                    class="form-control document_number"
+                                                                    data-document-type="{{ $identity->id }}"
+                                                                    placeholder="{{ $identity->first_field_label }}">
+                                                                <small class="text-danger error-msg"
+                                                                    id="error_{{ $index }}"></small>
+                                                                <input type="hidden"
+                                                                    name="documents[{{ $index }}][document_type]"
+                                                                    value="{{ $identity->id }}">
+                                                            </div>
 
-                                            <div class="form-group col-md-3">
-                                                <label for="document_path_{{ $index }}">
-                                                    {{ $identity->second_field_label }}
-                                                </label>
-                                                <input type="{{ $identity->second_field_type }}"
-                                                    name="documents[{{ $index }}][document_path]"
-                                                    id="document_path_{{ $index }}"
-                                                    class="form-control"
-                                                    @if ($identity->second_field_type == 'file') accept="image/*,.pdf" @endif
-                                                placeholder="{{ $identity->second_field_label }}">
-                                                @if ($document && $document->original_document_path)
-                                                <input type="hidden"
-                                                    name="documents[{{ $index }}][id]"
-                                                    value="{{ $document->id }}">
-                                                <div class="mt-2">
-                                                    @php
-                                                    $filePath = asset(
-                                                    'storage/' .
-                                                    $document->original_document_path,
-                                                    );
-                                                    $isPdf = \Illuminate\Support\Str::endsWith(
-                                                    strtolower(
-                                                    $document->original_document_path,
-                                                    ),
-                                                    '.pdf',
-                                                    );
-                                                    @endphp
-                                                    @if ($document->document_type != 3)
-                                                    @if ($isPdf)
-                                                    <a href="{{ $filePath }}"
-                                                        target="_blank"
-                                                        class="btn btn-outline-primary btn-sm">
-                                                        <i class="fas fa-file-pdf"></i> View
-                                                        PDF
-                                                    </a>
-                                                    @else
-                                                    <a href="{{ $filePath }}"
-                                                        target="_blank">
-                                                        <img src="{{ $filePath }}"
-                                                            class="documentpreview"
-                                                            alt="Document">
-                                                    </a>
-                                                    @endif
-                                                    @endif
-
-
-                                                    <p class="small text-muted mt-1">
-                                                        {{ $document->original_document_name }}
-                                                    </p>
+                                                            <div class="form-group col-md-3">
+                                                                <label for="document_path_{{ $index }}">
+                                                                    {{ $identity->second_field_label }}
+                                                                </label>
+                                                                <input type="{{ $identity->second_field_type }}"
+                                                                    name="documents[{{ $index }}][document_path]"
+                                                                    id="document_path_{{ $index }}"
+                                                                    class="form-control"
+                                                                    @if ($identity->second_field_type == 'file') accept="image/*,.pdf" @endif
+                                                                    placeholder="{{ $identity->second_field_label }}">
+                                                                @if ($document && $document->original_document_path)
+                                                                    <input type="hidden"
+                                                                        name="documents[{{ $index }}][id]"
+                                                                        value="{{ $document->id }}">
+                                                                    <div class="mt-2">
+                                                                        @php
+                                                                            $filePath = asset(
+                                                                                'storage/' .
+                                                                                    $document->original_document_path,
+                                                                            );
+                                                                            $isPdf = \Illuminate\Support\Str::endsWith(
+                                                                                strtolower(
+                                                                                    $document->original_document_path,
+                                                                                ),
+                                                                                '.pdf',
+                                                                            );
+                                                                        @endphp
+                                                                        @if ($document->document_type != 3)
+                                                                            @if ($isPdf)
+                                                                                <a href="{{ $filePath }}"
+                                                                                    target="_blank"
+                                                                                    class="btn btn-outline-primary btn-sm">
+                                                                                    <i class="fas fa-file-pdf"></i> View
+                                                                                    PDF
+                                                                                </a>
+                                                                            @else
+                                                                                <a href="{{ $filePath }}"
+                                                                                    target="_blank">
+                                                                                    <img src="{{ $filePath }}"
+                                                                                        class="documentpreview"
+                                                                                        alt="Document">
+                                                                                </a>
+                                                                            @endif
+                                                                        @endif
 
 
-                                                </div>
-                                                @endif
-                                            </div>
+                                                                        <p class="small text-muted mt-1">
+                                                                            {{ $document->original_document_name }}</p>
 
-                                            <div class="form-group col-md-3">
-                                                <label class="">Issued Date</label>
-                                                <div class="input-group date issuedDate"
-                                                    id="issuedDate_{{ $index }}"
-                                                    data-target-input="nearest">
-                                                    <input type="text"
-                                                        class="form-control datetimepicker-input is_date"
-                                                        name="documents[{{ $index }}][issued_date]"
-                                                        id="issued_date_{{ $index }}"
-                                                        data-target="#issuedDate_{{ $index }}"
-                                                        placeholder="dd-mm-YYYY"
-                                                        value="{{ $document && $document->issued_date ? \Carbon\Carbon::parse($document->issued_date)->format('d-m-Y') : '' }}" />
-                                                    <div class="input-group-append"
-                                                        data-target="#issuedDate_{{ $index }}"
-                                                        data-toggle="datetimepicker">
-                                                        <div class="input-group-text">
-                                                            <i class="fa fa-calendar"></i>
+
+                                                                    </div>
+                                                                @endif
+                                                            </div>
+
+                                                            <div class="form-group col-md-3">
+                                                                <label class="">Issued Date</label>
+                                                                <div class="input-group date issuedDate"
+                                                                    id="issuedDate_{{ $index }}"
+                                                                    data-target-input="nearest">
+                                                                    <input type="text"
+                                                                        class="form-control datetimepicker-input is_date"
+                                                                        name="documents[{{ $index }}][issued_date]"
+                                                                        id="issued_date_{{ $index }}"
+                                                                        data-target="#issuedDate_{{ $index }}"
+                                                                        placeholder="dd-mm-YYYY"
+                                                                        value="{{ $document && $document->issued_date ? \Carbon\Carbon::parse($document->issued_date)->format('d-m-Y') : '' }}" />
+                                                                    <div class="input-group-append"
+                                                                        data-target="#issuedDate_{{ $index }}"
+                                                                        data-toggle="datetimepicker">
+                                                                        <div class="input-group-text">
+                                                                            <i class="fa fa-calendar"></i>
+                                                                        </div>
+                                                                    </div>
+                                                                    <span class="text-danger"
+                                                                        id="issued_error_{{ $index }}"
+                                                                        class="error"></span>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="form-group col-md-3">
+                                                                <label class="">Expiry Date</label>
+                                                                <div class="input-group date expiryDate"
+                                                                    id="expiryDate_{{ $index }}"
+                                                                    data-target-input="nearest">
+                                                                    <input type="text"
+                                                                        class="form-control datetimepicker-input exp_date"
+                                                                        name="documents[{{ $index }}][expiry_date]"
+                                                                        id="expiry_date_{{ $index }}"
+                                                                        data-target="#expiryDate_{{ $index }}"
+                                                                        placeholder="dd-mm-YYYY"
+                                                                        value="{{ $document && $document->expiry_date ? \Carbon\Carbon::parse($document->expiry_date)->format('d-m-Y') : '' }}" />
+                                                                    <div class="input-group-append"
+                                                                        data-target="#expiryDate_{{ $index }}"
+                                                                        data-toggle="datetimepicker">
+                                                                        <div class="input-group-text">
+                                                                            <i class="fa fa-calendar"></i>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <span class="text-danger"
+                                                                        id="expiry_error_{{ $index }}"
+                                                                        class="error"></span>
+                                                                </div>
+                                                            </div>
+
                                                         </div>
-                                                    </div>
-                                                    <span class="text-danger"
-                                                        id="issued_error_{{ $index }}"
-                                                        class="error"></span>
+                                                    @endforeach
                                                 </div>
-                                            </div>
 
-                                            <div class="form-group col-md-3">
-                                                <label class="">Expiry Date</label>
-                                                <div class="input-group date expiryDate"
-                                                    id="expiryDate_{{ $index }}"
-                                                    data-target-input="nearest">
-                                                    <input type="text"
-                                                        class="form-control datetimepicker-input exp_date"
-                                                        name="documents[{{ $index }}][expiry_date]"
-                                                        id="expiry_date_{{ $index }}"
-                                                        data-target="#expiryDate_{{ $index }}"
-                                                        placeholder="dd-mm-YYYY"
-                                                        value="{{ $document && $document->expiry_date ? \Carbon\Carbon::parse($document->expiry_date)->format('d-m-Y') : '' }}" />
-                                                    <div class="input-group-append"
-                                                        data-target="#expiryDate_{{ $index }}"
-                                                        data-toggle="datetimepicker">
-                                                        <div class="input-group-text">
-                                                            <i class="fa fa-calendar"></i>
-                                                        </div>
-                                                    </div>
-
-                                                    <span class="text-danger"
-                                                        id="expiry_error_{{ $index }}"
-                                                        class="error"></span>
-                                                </div>
-                                            </div>
-
-                                        </div>
-                                        @endforeach
-                                </div>
-
-                                <button class="btn btn-info prevBtn" type="button">Previous</button>
-                                <button type="button" class="btn btn-info nextBtn">Next</button>
-                            </div> --}}
+                                                <button class="btn btn-info prevBtn" type="button">Previous</button>
+                                                <button type="button" class="btn btn-info nextBtn">Next</button>
+                                            </div> --}}
                                             <div id="unit-step" class="content step-content" role="tabpanel"
                                                 aria-labelledby="unit-step-trigger" data-step="3">
                                                 {{-- {{ dd($agreement) }} --}}
@@ -512,19 +493,6 @@
                                                         'count' =>
                                                             $agreement->agreement_payment->installment->installment_name,
                                                     ])
-                                                @elseif(isset($salesagreement) && $salesagreement->business_type == 1)
-                                                    @include(
-                                                        'admin.projects.agreement.make-agreement-b2b',
-                                                        [
-                                                            // 'agreement_units' => $agreement->agreement_units ?? [],
-                                                            // 'contract_id' => $agreement->contract_id,
-                                                            // 'businessType' =>
-                                                            //     $agreement->contract->contract_unit->business_type,
-                                                            // 'count' =>
-                                                            //     $agreement->agreement_payment->installment->installment_name,
-                                                            'salesAgreement' => $salesagreement,
-                                                        ]
-                                                    )
                                                 @else
                                                     <div id="unit_details_container">
                                                         <div id="unit_details_div_df">
@@ -555,8 +523,7 @@
                                                                         </div>
 
                                                                         <div class="col-sm-3">
-                                                                            <label class="form-label asterisk">Select
-                                                                                Unit
+                                                                            <label class="form-label asterisk">Select Unit
                                                                                 No</label>
                                                                             <select class="form-control  unit_type0"
                                                                                 name="unit_detail[0][contract_unit_details_id]"
@@ -597,8 +564,7 @@
                                                             <div class="row">
                                                                 <div class="col-md-3">
                                                                     <strong>Unit Type:</strong>
-                                                                    <p id="unit_type_display" class="text-muted mb-0">
-                                                                        -
+                                                                    <p id="unit_type_display" class="text-muted mb-0">-
                                                                     </p>
                                                                 </div>
                                                                 <div class="col-md-3">
@@ -655,8 +621,7 @@
                                                             </div>
                                                         </div>
                                                         <div class="col-md-4">
-                                                            <label for="exampleInputEmail1" class="asterisk">Duration
-                                                                in
+                                                            <label for="exampleInputEmail1" class="asterisk">Duration in
                                                                 Months</label>
                                                             <input type="number" class="form-control"
                                                                 id="duration_months" name="duration_in_months"
@@ -697,8 +662,7 @@
                                                             @foreach ($installments as $installment)
                                                                 <option value="{{ $installment->id }}"
                                                                     data-interval="{{ $installment->interval }}">
-                                                                    {{ $installment->installment_name }}
-                                                                </option>
+                                                                    {{ $installment->installment_name }}</option>
                                                             @endforeach
 
                                                         </select>
@@ -717,8 +681,7 @@
                                                             name="beneficiary" placeholder="Beneficiary">
                                                     </div>
                                                     <div class="col-md-3">
-                                                        <label for="exampleInputEmail1" class="asterisk">Total Rent
-                                                            Per
+                                                        <label for="exampleInputEmail1" class="asterisk">Total Rent Per
                                                             Annum</label>
                                                         <input type="text" class="form-control" id="total_rent_annum"
                                                             name="total_rent_per_annum" placeholder=""
@@ -940,43 +903,21 @@
 
 
         function calculatepaymentamount(rent_per_month = 0, payment_count = 0) {
-            let salesTenantannualRent = 0;
-            @if (isset($salesUnit) && $salesUnit->isNotEmpty())
-                salesTenantannualRent = {{ $salesUnit->first()->annual_rent ?? 0 }};
-                // let salestenantSubUnitId = '{{ $salesUnit->first()->contract_subunit_details_id ?? '' }}';
-            @endif
-
-
-            // alert(payment_count);
             // alert("calculatepaymentamountcalled");
             // clearing the div
-            // // alert(
-            // payment_count);
-            // alert(rent_per_month);
-            console.log("rent per month", rent_per_month);
-            console.log("payment count", payment_count);
             const errorDiv = $('#paymentError');
             errorDiv.html('');
             errorDiv.addClass('d-none').removeClass('d-flex');
             $('#submitBtn').prop('disabled', false);
 
             var rentmonth = rent_per_month || 0;
-            // alert(rentmonth);
 
             for (let i = 0; i < payment_count; i++) {
                 $('#payment_amount_' + i).val((rentmonth));
             }
             console.log("rentmonth" + rentmonth);
             payment_count = getallowedcount(payment_count);
-            console.log("payment count", payment_count);
-            console.log('counttest', payment_count);
-            let total_rent_per_annum = 0;
-            if (salesTenantannualRent > 0) {
-                total_rent_per_annum = salesTenantannualRent;
-            } else {
-                total_rent_per_annum = rentmonth * payment_count;
-            }
-            // let total_rent_per_annum = rentmonth * payment_count;
+            let total_rent_per_annum = rentmonth * payment_count;
             $('#total_rent_per_annum').text(total_rent_per_annum);
             $('#total_rent_annum').val(total_rent_per_annum);
             console.log("payment_count" + payment_count, "total_rent_per_annum" + total_rent_per_annum);
@@ -1050,7 +991,6 @@
         let allunittypes = @json($unitTypes);
         let editedContract = @json($agreement->contract ?? null);
         let editedUnit = @json($agreement->agreement_units ?? null);
-        let salesUnit = @json($salesUnit ?? []);
 
         let fullContracts = @json($fullContracts ?? []);
         window.allBanks = @json($banks);
@@ -1068,17 +1008,11 @@
         function CompanyChange(contractId = null) {
             const companyId = $('#company_id').val();
             let renewalContractId = "{{ $renewalContractId ?? '' }}";
-            let salesContractId = "{{ $salesContract->id ?? '' }}"; // <-- added
             console.log('test', renewalContractId);
 
             if (renewalContractId) {
                 contractId = renewalContractId;
             }
-            // Use salesContractId if no other contractId
-            if (!contractId && salesContractId) {
-                contractId = salesContractId;
-            }
-
             if (editedUnit) {
                 $('#company_id').on('select2:opening', function(e) {
                     e.preventDefault();
@@ -1128,14 +1062,6 @@
         function contractChange() {
             const contractId = $('#contract_id').val();
             let renewalContractId = "{{ $renewalContractId ?? '' }}";
-            let salesTenantId = "{{ $salesTenant->id ?? '' }}";
-            let salesUnit = @json($salesUnit ?? []);
-
-            let salestenantUnitTypeId = salesUnit.length > 0 ? salesUnit[0].unit_type_id : '';
-
-            // alert(salestenantUnitTypeId);
-
-            // alert(salesContractId);
             console.log('test', renewalContractId);
             // alert("called");
             if (editedUnit) {
@@ -1145,7 +1071,7 @@
                 });
 
             } else {
-                if (!renewalContractId && !salesTenantId) {
+                if (!renewalContractId) {
                     removeTenant();
 
                 }
@@ -1206,48 +1132,22 @@
                 });
             }
             // console.log('Selected Unit Ids:', selectedUnitIds);
-            // console.log("unit type id", salestenantUnitTypeId);
-
-            console.log('unitTypeIds:', unitTypeIds);
 
 
             allunittypes
                 .filter(ut => unitTypeIds.includes(ut.id))
                 .forEach(ut => {
                     // const isSelected = selectedUnitIds.includes(ut.id) ? 'selected' : '';
-                    // const isSelected = (ut.id === salestenantUnitTypeId) ? 'selected' : '';
-                    // alert(isSelected);
-                    const isSelected = (String(ut.id) === String(salestenantUnitTypeId)) ? 'selected' : '';
                     options += `<option value="${ut.id}">${ut.unit_type}</option>`;
                 });
 
-            // if (salestenantUnitTypeId) {
-            //     alert('test');
-            //     $('.unit_type_id')
-            //         .html(options)
-            //         .val(salestenantUnitTypeId)
-            //         .trigger('change');
-            // } else {
+
             $('.unit_type_id').html(options);
-
-            if (salestenantUnitTypeId) {
-                $('.unit_type_id').on('mousedown', function(e) {
-                    e.preventDefault();
-                });
-            } else {
-                $('.unit_type_id').off('mousedown');
-            }
-
-            // }
             const selectedUnitTypeId = selectedUnitIds.length ? selectedUnitIds[0] : '';
             // console.log('Selected Unit Type ID:', selectedUnitTypeId);
             $('.unit_type_id')
-                // .val(selectedUnitIds.length ? selectedUnitIds[0] : '')
-                .val(salestenantUnitTypeId ? salestenantUnitTypeId : (selectedUnitIds.length ? selectedUnitIds[0] : ''))
+                .val(selectedUnitIds.length ? selectedUnitIds[0] : '')
                 .trigger('change.select2');
-            // if (salestenantUnitTypeId) {
-            //     prefillSalesData(salesUnit);
-            // }
             let agreement = @json($agreement ?? null);
 
 
@@ -1387,17 +1287,7 @@
             const contract_end = contract?.contract_detail?.end_date ?? '';
             const ct_duration_months = contract?.contract_detail?.duration_in_months ?? 0;
             if (!agreement) {
-                let salesAgreementStart = "{{ $salesagreement->start_date ?? '' }}";
-                let salesAgreementEnd = "{{ $salesagreement->end_date ?? '' }}";
-                if (salesAgreementStart) {
-                    const startDateObj = new Date(salesAgreementStart);
-
-                    const formattedStart =
-                        `${String(startDateObj.getDate()).padStart(2, '0')}-${String(startDateObj.getMonth() + 1).padStart(2, '0')}-${startDateObj.getFullYear()}`;
-
-                    $('#start_date').val(formattedStart).prop('readonly', true);
-
-                } else if (contract_start) {
+                if (contract_start) {
                     const startDateObj = parseDateCustom(contract_start);
                     const formattedStart =
                         `${String(startDateObj.getDate()).padStart(2, '0')}-${String(startDateObj.getMonth() + 1).padStart(2, '0')}-${startDateObj.getFullYear()}`;
@@ -1405,15 +1295,7 @@
                 } else {
                     $('#start_date').val('');
                 }
-                if (salesAgreementEnd) {
-                    const startDateObj = new Date(salesAgreementEnd);
-
-                    const formattedEnd =
-                        `${String(startDateObj.getDate()).padStart(2, '0')}-${String(startDateObj.getMonth() + 1).padStart(2, '0')}-${startDateObj.getFullYear()}`;
-
-                    $('#end_date').val(formattedEnd).prop('readonly', true);
-
-                } else if (contract_end) {
+                if (contract_end) {
                     const endDateObj = parseDateCustom(contract_end);
                     const formattedEnd =
                         `${String(endDateObj.getDate()).padStart(2, '0')}-${String(endDateObj.getMonth() + 1).padStart(2, '0')}-${endDateObj.getFullYear()}`;
@@ -1499,7 +1381,6 @@
             let options = '<option value="">Select Unit No</option>';
             let selectedUnitnumbers = [];
             let contractId = $('#contract_id').val();
-            let salestenantUnitId = salesUnit.length > 0 ? salesUnit[0].contract_unit_details_id : '';
             // console.log("contracts:", allContracts);
             let contract = allContracts.find(c => c.id == contractId);
 
@@ -1565,16 +1446,8 @@
 
             } else {
                 $('.unit-row:first .unit_type0').html(options)
-                    // .val(selectedUnitnumbers.length ? selectedUnitnumbers[0] : '')
-                    .val(salestenantUnitId || (selectedUnitnumbers.length ? selectedUnitnumbers[0] : ''))
-                    .trigger('change');
-            }
-            if (salestenantUnitId) {
-                $('.unit_type0').on('mousedown', function(e) {
-                    e.preventDefault();
-                });
-            } else {
-                $('.unit_type0').off('mousedown');
+                    .val(selectedUnitnumbers.length ? selectedUnitnumbers[0] : '')
+                    .trigger('change.select2');
             }
             // $('#unit_type0').html(options)
             //     .val(selectedUnitnumbers.length ? selectedUnitnumbers[0] : '')
@@ -1601,9 +1474,6 @@
             let contract = allContracts.find(c => c.id == contractId);
             let count = contract?.contract_payment_receivables_count || 0;
             let selectedUnit = contract?.contract_unit?.contract_unit_details?.find(u => u.id == unitId);
-            let salestenantSubUnitId = salesUnit.length > 0 ? salesUnit[0].contract_subunit_details_id : '';
-            let salestenantMonthlyRent = salesUnit.length > 0 ? salesUnit[0].monthly_rent : '';
-            // alert(salestenantSubUnitId);
 
             let selectedSubunit = [];
             let subunitId = 0;
@@ -1653,23 +1523,13 @@
 
             if (contract?.contract_unit
                 ?.business_type == 1) {
-                // alert("test");
                 // alert("directfama rentpermonth");
                 // alert(selectedUnit.total_rent_per_unit_per_month);
                 if (row) {
                     // console.log("selectedUnit", row);
-                    // console.log("selectedUnit", selectedUnit);
-                    let b2bUnitRent = selectedUnit?.total_rent_per_unit_per_month;
-
-                    if (salestenantMonthlyRent) {
-                        // alert("test");
-                        b2bUnitRent = salestenantMonthlyRent;
-                    }
 
 
-                    // row.find('.rent_per_month').val(selectedUnit.total_rent_per_unit_per_month);
-                    row.find('.rent_per_month').val(b2bUnitRent);
-
+                    row.find('.rent_per_month').val(selectedUnit.total_rent_per_unit_per_month);
 
                 }
                 // alert(selectedUnit.total_rent_per_unit_per_month);
@@ -1709,24 +1569,14 @@
                     // console.log("selectedUnit.subunits", subunits);
                     subunits.forEach(sub => {
                         if (!selectedSubunit.includes(sub.id)) {
-                            const isSelected = (String(sub.id) === String(salestenantSubUnitId)) ? 'selected' : '';
-
-                            options += `<option value="${sub.id}" ${isSelected}>${sub.subunit_no}</option>`;
+                            options += `<option value="${sub.id}">${sub.subunit_no}</option>`;
                         }
                     });
-                }
-                if (salestenantSubUnitId) {
-                    $('.sub_unit_type').on('mousedown', function(e) {
-                        e.preventDefault();
-                    });
-                } else {
-                    $('.sub_unit_type').off('mousedown');
                 }
                 $('.sub_unit_type').html(options).trigger('change');
                 $('.sub_unit_type').prop('required', true);
                 const $label = $('.sub_unit_type').siblings('label');
                 $label.addClass('asterisk');
-                // subUnitChange();
 
 
                 // subUnitChange(subunitId, editedUnit);
@@ -1748,9 +1598,6 @@
         function subUnitChange(subunitId, editedUnit, row) {
             // alert("subunitchangecalled");
             let contractId = $('#contract_id').val();
-            let salesTenantMonthlyRent = salesUnit.length > 0 ? salesUnit[0].monthly_rent : '';
-            let salestenantSubUnitId = salesUnit.length > 0 ? salesUnit[0].contract_subunit_details_id : '';
-            // alert(salesTenantmonthlyRent);
             let contract = allContracts.find(c => c.id == contractId);
             if (editedUnit) {
                 contract = fullContracts.find(c => c.id == contractId);
@@ -1770,20 +1617,13 @@
             console.log("selectedSubUnit", selectedSubUnit);
 
             if (selectedSubUnit) {
-                // alert(selectedSubUnit.subunit_rent);
-                if (salesTenantMonthlyRent && salestenantSubUnitId == subunitId) {
-                    // console.log('rent, count', salesTenantmonthlyRent, count);
-                    selectedSubUnit.subunit_rent = salesTenantMonthlyRent
-                }
                 $('.rent_per_month')
                     // .val(selectedUnit.rent_per_unit_per_month ?? '')
                     .val(selectedSubUnit.subunit_rent ?? '')
 
                     .prop('required', true)
                     .data('count', count);
-                // .trigger('input');
                 // .prop('readonly', true);
-                // alert(count);
                 calculatepaymentamount(selectedSubUnit.subunit_rent, count);
 
             }
@@ -1800,10 +1640,8 @@
 
         }
         $(document).on('input', '.rent_per_month', function() {
-            // alert("testinput");
             const rent_val = $(this).val();
             const count = $(this).data('count') || 0;
-            // alert(count);
             calculatepaymentamount(rent_val, count);
 
 
@@ -1819,8 +1657,6 @@
             let agreementPaymentDetails = editedPayment?.agreement_payment_details || [];
             let contractReceivables = selectedContract.contract_payment_receivables || [];
             let deletedAgreementUnitIds = [];
-
-            console.log('salesUnit', salesUnit);
             // console.log("editedPayment", editedPayment);
             // console.log("editedUnit", editedUnit);
             companyId = $("#company_id").val();
@@ -1843,7 +1679,6 @@
                 const amountInput = block.querySelector(`#payment_amount_${i}`);
                 oldValues[i] = amountInput ? amountInput.value : '';
             });
-            console.log("oldValues", oldValues);
             const prevFbBlocks = containerPayment.querySelectorAll('.payment_mode_div');
             prevFbBlocks.forEach(block => block.remove());
             //console.log(selectedContract);
@@ -2102,14 +1937,6 @@
                                 }
                             });
                         });
-                        let sales_id = 0;
-                        @if (isset($agreement))
-                            sales_id = @json($agreement->sales_tenant_agreement_id);
-                        @endif
-                        if (sales_id > 0) {
-                            total_revenue = parseFloat(editedPayment.total_rent_annum);
-                            // alert(total_revenue);
-                        }
                         $('#total_rent_per_annum').text(total_revenue.toFixed(2));
                         $('#total_rent_annum').val(total_revenue.toFixed(2));
                         // $('#total_rent_per_annum').text(parseFloat(editedPayment.total_rent_per_annum)
@@ -2340,7 +2167,7 @@
                     const selectedUnits = $('.unit-row').map(function() {
                         return $(this).find('select.unit_type0').val();
                     }).get();
-                    console.log('selected units', selectedUnits)
+                    // console.log('selected units', selectedUnits)
                     const filteredUnits = window.unit_details.filter(u => selectedUnits.includes(String(u.id)));
                     // const filteredUnits = selectedUnits.map(id =>
                     //     window.unit_details.find(u => String(u.id) === id)
@@ -2364,7 +2191,7 @@
                             totalRevenue += reven;
                             // console.log('totalRevenue', totalRevenue);
 
-                            console.log('unit', unit);
+                            // console.log('unit', unit);
 
                             const collapseId = `collapse_${unit.id}`;
                             const unitName = unit.unit_number || `Unit ${unitIndex + 1}`;
@@ -2394,20 +2221,12 @@
                                 ?.contract_unit
                                 ?.business_type == 1) {
 
-                                let matchedUnit = salesUnit.find(su =>
-                                    su.contract_unit_details_id == unit.id
-                                );
-                                if (matchedUnit) {
-                                    monthlyrent = parseFloat(matchedUnit.monthly_rent).toFixed(2);
-                                } else {
-                                    monthlyrent = parseFloat(unit.total_rent_per_unit_per_month || 0)
-                                        .toFixed(
-                                            2);
-                                }
-                                // console.log("unit new", unit, salestenantUnitId);
+                                monthlyrent = parseFloat(unit.total_rent_per_unit_per_month || 0).toFixed(
+                                    2);
+
+
 
                             }
-                            console.log('monthly', monthlyrent);
 
 
                             let installmentBlocks = `
@@ -2428,9 +2247,7 @@
                                 // 🗓️ Get the receivable date safely
                                 let receivableDate = '';
 
-                                // if (remainingReceivables.length > 0) {
-                                if (Array.isArray(remainingReceivables) && remainingReceivables.length >
-                                    0) {
+                                if (remainingReceivables.length > 0) {
                                     // console.log('remaining', remainingReceivables);
                                     const rawDate = remainingReceivables[i]?.receivable_date;
                                     receivableDate = rawDate ? moment(rawDate, 'DD-MM-YYYY').format(
@@ -2578,7 +2395,7 @@
 
                                 banks.forEach(bank => {
                                     bankSelect.append(`
-                                            <option value="${bank.id}" ${bank.id == 1 ? 'selected' : ''}>
+                                            <option value="${bank.id}" >
                                                 ${bank.bank_name}
                                             </option>
                                         `);
@@ -2604,11 +2421,6 @@
                     ?.business_type == 1) {
                     // console.log('totalRevenue', totalRevenue);
                     // totalRevenue = 1000;
-                    if (salesUnit.length > 0) {
-                        totalRevenue = salesUnit.reduce((sum, su) => {
-                            return sum + parseFloat(su.annual_rent || 0);
-                        }, 0);
-                    }
                     if (totalRevenue) {
 
                         $('#total_rent_per_annum').text(totalRevenue);
@@ -2815,27 +2627,19 @@
                         paymentBlock.classList.add('payment_mode_div');
                         let receivableDate = '';
 
-                        if (remainingReceivables && remainingReceivables.length > 0) {
-                            // alert("rece")
-                            console.log('remaining', remainingReceivables);
+                        if (remainingReceivables) {
+                            // console.log('remaining', remainingReceivables);
                             const rawDate = remainingReceivables[i]?.receivable_date;
                             receivableDate = rawDate ? moment(rawDate, 'DD-MM-YYYY').format('DD-MM-YYYY') :
                                 '';
                         } else {
                             const rawDate = selectedContract.contract_payment_receivables?.[i]
                                 ?.receivable_date;
-                            console.log("receivableDate", rawDate);
-                            // alert("receivable");
                             receivableDate = rawDate ? moment(rawDate, 'DD-MM-YYYY').format('DD-MM-YYYY') :
                                 '';
                         }
-                        let rentTenant = parseFloat($('.rent_per_month').val()) || 0;
 
-                        // const existingValue = oldValues[i] || '';
-                        const existingValue = oldValues[i] && oldValues[i] !== '' ?
-                            oldValues[i] :
-                            rentTenant.toFixed(2);
-
+                        const existingValue = oldValues[i] || '';
 
                         paymentBlock.innerHTML = `
 
@@ -2917,9 +2721,9 @@
                         initPaymentValidation(selectedContract.contract_type_id, selectedContract
                             .contract_unit
                             .business_type);
-                        $('input[name^="payment_detail"][name$="[payment_amount]"]').each(function() {
-                            $(this).trigger('input.paymentValidation');
-                        });
+                        // $('input[name^="payment_detail"][name$="[payment_amount]"]').each(function() {
+                        //     $(this).trigger('input.paymentValidation');
+                        // });
 
 
                         $('#otherPaymentDate' + i).datetimepicker({
@@ -3539,33 +3343,6 @@
                 expiryLabel.removeClass('asterisk');
                 issuedLabel.removeClass('asterisk');
             }
-        }
-    </script>
-    {{-- Prefill sales data --}}
-    <script>
-        function prefillSalesData(salesUnit) {
-            // alert("test");
-            console.log("salesUnit", salesUnit);
-            let salesUnitId = salesUnit.contract_unit_details_id;
-            let salesSubunitId = salesUnit.contract_subunit_details_id;
-            let salesmonthyRent = salesUnit.monthly_rent;
-            let salesAnnualRent = salesUnit.annual_rent;
-            // alert(salesUnitId);
-
-            // Pre-select Unit Type
-            $('.unit_type0').val(salesUnitId); // use trigger only if using select2
-
-            // // Pre-select Sub Unit Type
-            // $('.sub_unit_type')
-            //     .val(salesSubunitId)
-            //     .trigger('change.select2');
-
-            // // // Fill Monthly Rent
-            // // $('.monthly_rent').val(salesMonthlyRent);
-
-            // // // Fill Annual Rent
-            // // $('.annual_rent').val(salesAnnualRent);
-
         }
     </script>
 @endsection
