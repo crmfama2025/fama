@@ -1307,7 +1307,7 @@ class AgreementService
 
                 //  FIRST CONDITION
                 if ($row->contract->contract_type_id == 1) {
-                    return '<span class="badge badge-secondary">-ed</span>';
+                    return '<span class="badge badge-secondary">-</span>';
                 }
 
                 //  STATUS LOGIC
