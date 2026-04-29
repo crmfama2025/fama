@@ -280,4 +280,8 @@ class Agreement extends Model
 
         return $result;
     }
+    public function addedBy()
+    {
+        return $this->belongsTo(User::class, 'added_by');
+    }
 }

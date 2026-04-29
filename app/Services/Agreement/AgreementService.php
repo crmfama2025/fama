@@ -1250,6 +1250,24 @@ class AgreementService
                     <i class='fa fa-phone-alt text-danger'></i> <span class='font-weight-bold'>{$phone}</span>
                 </p>";
             })
+            ->addColumn('added_by', function ($row) {
+                if ($row->addedBy) {
+                    $name = $row->addedBy->first_name . ' ' . $row->addedBy->last_name;
+                    $image = $row->addedBy->profile_path
+                        ? asset('storage/' . $row->addedBy->profile_path)
+                        : asset('images/default-avatar.png');
+
+                    return '
+            <div style="display:flex; align-items:center; gap:8px;">
+                <img src="' . $image . '"
+                     style="width:30px; height:30px; border-radius:50%; object-fit:cover;">
+                <span>' . $name . '</span>
+            </div>
+        ';
+                }
+
+                return '-';
+            })
             ->addColumn('project_number', function ($row) {
                 // dd($row);
                 $number = 'P - ' . $row->contract->project_number ?? '-';
@@ -1339,7 +1357,7 @@ class AgreementService
                 return $action ?: '-';
             })
 
-            ->rawColumns(['tenant_details', 'action', 'project_number', 'business_type', 'start_date', 'end_date', 'property_name'])
+            ->rawColumns(['tenant_details', 'added_by', 'action', 'project_number', 'business_type', 'start_date', 'end_date', 'property_name'])
             // ->rawColumns(['action'])
             ->with(['columns' => $columns])
             ->toJson();

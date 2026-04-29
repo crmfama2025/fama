@@ -132,6 +132,10 @@ class AgreementRepository
                 ->orWhereHas('contract.contract_type', function ($q) use ($filters) {
                     $q->where('contract_type', 'like', '%' . $filters['search'] . '%');
                 })
+                ->orWhereHas('addedBy', function ($q) use ($filters) {
+                    $q->where('first_name', 'like', '%' . $filters['search'] . '%')
+                        ->orWhere('last_name', 'like', '%' . $filters['search'] . '%');
+                })
                 ->orWhereHas('contract.property', function ($q) use ($filters) {
                     $q->where('property_name', 'like', '%' . $filters['search'] . '%');
                 })

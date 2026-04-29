@@ -91,6 +91,7 @@
                                                 {{-- <th>Agreement Code</th> --}}
                                                 <th>Signed Agreement</th>
                                                 <th>Project Details</th>
+                                                <th>Added By</th>
                                                 <th>Customer Type</th>
                                                 <th>Property Name</th>
                                                 <th>Tenant Details</th>
@@ -396,6 +397,10 @@
                     {
                         data: 'project_number',
                         name: 'contracts.project_number',
+                    },
+                    {
+                        data: 'added_by',
+                        name: 'added_by',
                     },
                     {
                         data: 'business_type',
