@@ -2848,7 +2848,7 @@
                                         <select class="form-control " name="payment_detail[${i}][payment_mode_id]" id="payment_mode${i}" required>
                                             <option value="">Select</option>
                                             @foreach ($paymentmodes as $paymentmode)
-                                            <option value="{{ $paymentmode->id }}">
+                                            <option value="{{ $paymentmode->id }}" {{ $paymentmode->id == 2 ? 'selected' : '' }}>
                                             {{ $paymentmode->payment_mode_name }} </option>
                                             @endforeach
                                         </select>
@@ -2932,6 +2932,7 @@
                         $('#payment_mode' + i).change(function() {
                             paymentModeChange(i);
                         });
+                        paymentModeChange(i);
 
 
 
