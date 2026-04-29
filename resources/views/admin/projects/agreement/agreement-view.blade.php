@@ -216,8 +216,8 @@
                                                         aria-expanded="false">
                                                         <i class="fa fa-eye"></i> View More
                                                     </a> --}}
-                                                    <a href="{{ $agreement->tenant->tenant_type == 2
-                                                        ? route('tenant-registration.show', $agreement->tenant->salesAgreement[0]->id)
+                                                    <a href="{{ $agreement->tenant->tenant_type == 2 && $agreement->tenant->salesAgreement->first()
+                                                        ? route('tenant-registration.show', $agreement->tenant->salesAgreement->first()->id)
                                                         : route('tenant.show', $agreement->tenant->id) }}"
                                                         class="btn btn-sm btn-info" target="_blank">
                                                         <i class="fa fa-eye"></i> View More
