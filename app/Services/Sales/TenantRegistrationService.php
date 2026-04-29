@@ -983,6 +983,7 @@ class TenantRegistrationService
             ->whereNull('contract_subunit_details_id')
             ->whereNull('subunit_ids')
             ->whereHas('salesAgreement', fn($q) => $q->where('is_approved', '!=', 2))
+            ->whereHas('contractUnitDetail', fn($q) => $q->where('is_sales_agreement_added', 1))
             ->pluck('contract_unit_details_id')
             ->toArray();
 
@@ -993,6 +994,7 @@ class TenantRegistrationService
         //     ->toArray();
         $occupiedSubunitIds = SalesTenantUnit::whereNotNull('contract_subunit_details_id')
             ->whereHas('salesAgreement', fn($q) => $q->where('is_approved', '!=', 2))
+            ->whereHas('contractSubunitDetail', fn($q) => $q->where('is_sales_agreement_added', 1))
             ->pluck('contract_subunit_details_id')
             ->toArray();
 
