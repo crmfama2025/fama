@@ -241,6 +241,13 @@
                 apAllocatedIds.push(r.id);
                 apAllocatedAmounts[r.id] = covered;
             }
+            console.log('Allocating:', {
+                id: r.id,
+                amount: r.amount,
+                covered: covered,
+                remaining: remaining,
+                pool: pool
+            });
 
             const state = covered === r.amount ? 'full' : 'partial';
             const badgeClass = state === 'full' ? 'badge-success' : 'badge-warning';
