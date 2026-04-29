@@ -2932,7 +2932,13 @@
                         $('#payment_mode' + i).change(function() {
                             paymentModeChange(i);
                         });
-                        paymentModeChange(i);
+                        setTimeout(() => {
+                            const $paymentMode = $('#payment_mode' + i);
+
+
+
+                            $paymentMode.val(2).trigger('change');
+                        }, 0);
 
 
 
