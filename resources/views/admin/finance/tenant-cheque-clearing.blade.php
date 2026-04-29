@@ -736,6 +736,7 @@
                             </div>
                         </div>
                     </div>
+                    <input type="hidden" name="allocated_amount" id="ap_allocated_amount" value="0">
 
                     <!-- Payment type -->
                     <div class="form-group">

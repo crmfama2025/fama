@@ -6,6 +6,7 @@ use App\Models\Agreement;
 use App\Models\AgreementPayment;
 use App\Models\AgreementPaymentDetail;
 use App\Models\ClearedReceivable;
+use App\Models\ClearedReceivableAllocation;
 use App\Models\Company;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
@@ -447,5 +448,9 @@ class TenantChequeRepository
         // dd($t);
 
         return $query;
+    }
+    public function createallocation(array $data)
+    {
+        return ClearedReceivableAllocation::create($data);
     }
 }

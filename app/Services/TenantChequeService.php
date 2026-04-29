@@ -454,7 +454,7 @@ class TenantChequeService
                 throw new \Exception('No payment selected');
             }
             // dd($data);
-
+            $clearedReceivableIds = [];
             foreach ($paymentIds as $paymentId) {
 
                 $payment = $this->tenantChequeRepository->getPaymentDetailById($paymentId);
@@ -519,8 +519,9 @@ class TenantChequeService
                 $this->validate($cleared_data);
 
 
-                $this->tenantChequeRepository->createClearedReceivables($cleared_data);
+                $cleared =  $this->tenantChequeRepository->createClearedReceivables($cleared_data);
                 $this->tenantChequeRepository->updatePaymentDetail($detail_data);
+                $clearedReceivableIds[] = $cleared->id;
 
 
                 $TotalStatus = checkAgreementPayment($payment->agreement_payment_id);
@@ -555,6 +556,14 @@ class TenantChequeService
 
                 $this->tenantChequeRepository->updatePayment($paymentData);
             }
+            $allocation = [
+                'cleared_receivable_ids' => json_encode($clearedReceivableIds),
+                'allocated_amount' => $data['allocated_amount'],
+                'cleared_date' => $paidDate,
+                'created_at' => now(),
+                'added_by' => auth()->user()->id,
+            ];
+            $this->tenantChequeRepository->createallocation($allocation);
         });
     }
     public function bouncedCheque(array $data)

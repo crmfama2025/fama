@@ -336,6 +336,7 @@
         // populate confirmation modal summary
         $('#conf_tenant').text(apTenantName);
         $('#conf_amount').text(fmtAED(entered));
+        $('#ap_allocated_amount').val(entered);
         $('#conf_count').text(apAllocatedIds.length + ' receivable(s)');
 
         // reset form fields in confirm modal
@@ -405,6 +406,7 @@
         formData.append('paid_bank_id', $('#ap_bank_id').val());
         formData.append('paid_cheque_number', $('#ap_cheque_no').val());
         formData.append('payment_remarks', $('#ap_remarks').val());
+        formData.append('allocated_amount', $('#ap_allocated_amount').val());
 
         // attach all touched receivable IDs
         apAllocatedIds.forEach(id => {
@@ -436,6 +438,7 @@
                     apAllocatedIds = [];
                     $('#ap_amount_input').val('');
                     $('#ap_rows').html('');
+                    $('#ap_allocated_amount').val(0);
                     $('#ap_summary').hide();
                     $('#ap_banner').hide();
                     $('#ap_submit_btn').prop('disabled', true);

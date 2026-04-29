@@ -65,6 +65,7 @@ namespace App\Models{
  * @property int $renewal_status 0-new 1-renewal
  * @property int|null $parent_agreement_id
  * @property int|null $sales_tenant_agreement_id
+ * @property-read \App\Models\User|null $addedBy
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\AgreementStatusLogs> $agreementStatusLogs
  * @property-read int|null $agreement_status_logs_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\AgreementSubunitRentBifurcation> $agreementSubunitRentBifurcations
@@ -248,7 +249,6 @@ namespace App\Models{
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ClearedReceivable> $clearedReceivables
  * @property-read int|null $cleared_receivables_count
  * @property-read \App\Models\User|null $deletedBy
- * @property-read mixed $label
  * @property-read \App\Models\TenantInvoice|null $invoice
  * @property-read \App\Models\PaymentMode|null $paymentMode
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ClearedReceivable> $receivedPayments
@@ -617,6 +617,15 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable whereUpdatedAt($value)
  */
 	class ClearedReceivable extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation query()
+ */
+	class ClearedReceivableAllocation extends \Eloquent {}
 }
 
 namespace App\Models{
