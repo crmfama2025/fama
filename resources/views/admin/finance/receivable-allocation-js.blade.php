@@ -249,7 +249,7 @@
                 pool: pool
             });
 
-            const state = covered === r.amount ? 'full' : 'partial';
+            const state = covered.toFixed(2) === r.amount.toFixed(2) ? 'full' : 'partial';
             const badgeClass = state === 'full' ? 'badge-success' : 'badge-warning';
             const badgeLabel = state === 'full' ? 'Covered' : 'Partial';
             const barColor = state === 'full' ? '#28a745' : '#ffc107';
