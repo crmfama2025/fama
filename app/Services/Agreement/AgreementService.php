@@ -1302,7 +1302,21 @@ class AgreementService
             })
             ->addColumn('start_date', fn($row) => getFormattedDate($row->start_date))
             ->addColumn('end_date', fn($row) => getFormattedDate($row->end_date))
-            ->addColumn('is_signed_agreement_uploaded', fn($row) => $row->is_signed_agreement_uploaded ?? '-')
+            // ->addColumn('is_signed_agreement_uploaded', fn($row) => $row->is_signed_agreement_uploaded ?? '-')
+            ->addColumn('is_signed_agreement_uploaded', function ($row) {
+
+                //  FIRST CONDITION
+                if ($row->contract->contract_type_id == 1) {
+                    return '<span class="badge badge-secondary">-ed</span>';
+                }
+
+                //  STATUS LOGIC
+                if ($row->is_signed_agreement_uploaded == 1) {
+                    return '<span class="badge badge-success text-white">Uploaded</span>';
+                }
+
+                return '<span class="badge badge-warning">Not Uploaded</span>';
+            })
             ->addColumn('agreement_status', fn($row) => $row->agreement_status ?? '-')
             ->addColumn('renewal_status', fn($row) => $row->renewal_status ?? '-')
             ->addColumn('created_at', fn($row) => $row->created_at ?? '-')
@@ -1357,7 +1371,7 @@ class AgreementService
                 return $action ?: '-';
             })
 
-            ->rawColumns(['tenant_details', 'added_by', 'action', 'project_number', 'business_type', 'start_date', 'end_date', 'property_name'])
+            ->rawColumns(['tenant_details', 'is_signed_agreement_uploaded', 'added_by', 'action', 'project_number', 'business_type', 'start_date', 'end_date', 'property_name'])
             // ->rawColumns(['action'])
             ->with(['columns' => $columns])
             ->toJson();

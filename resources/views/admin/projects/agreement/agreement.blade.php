@@ -375,24 +375,6 @@
                     {
                         data: 'is_signed_agreement_uploaded',
                         name: 'agreements.is_signed_agreement_uploaded',
-                        render: function(data, type, row) {
-                            let badgeClass = '';
-                            let text = '';
-
-                            switch (data) {
-                                case 0:
-                                    badgeClass = 'badge badge-warning';
-                                    text = 'Not Uploaded';
-                                    break;
-                                case 1:
-                                    badgeClass = 'badge badge-success text-white';
-                                    text = 'Uploaded';
-                                    break;
-
-                            }
-
-                            return '<span class="' + badgeClass + '">' + text + '</span>';
-                        },
                     },
                     {
                         data: 'project_number',
