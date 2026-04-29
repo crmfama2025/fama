@@ -24,6 +24,8 @@
                 <span>Contact Email :
                     {{ $agreementUnit->agreement->tenant->contact_email }}</span></br>
                 {{-- <span>{{ strtoupper($contract->company->company_name) }}</span></br> --}}
+                <span>Annual rent :
+                    {{ $agreementUnit->unit_revenue }}</span></br>
 
                 </br>
             </address>
