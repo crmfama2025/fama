@@ -575,6 +575,7 @@ class TenantChequeService
                 if (!$payment) {
                     continue;
                 }
+                $bouncedDate = null;
                 if (!empty($data['bounced_date'])) {
                     $bouncedDate = Carbon::createFromFormat('d-m-Y', $data['bounced_date'])->format('Y-m-d');
                 }

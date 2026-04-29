@@ -441,6 +441,7 @@
                     $('#ap_submit_btn').prop('disabled', true);
                     $('#allocationCard').hide();
                     $('#tenantSelectAllocation').val(null).trigger('change.select2');
+                    $('#modal-ap-confirm').find('select').val(null).trigger('change');
 
                     $.get("{{ route('tenant.pending.receivables.all') }}", function(res) {
                         allReceivables = res.data || [];
