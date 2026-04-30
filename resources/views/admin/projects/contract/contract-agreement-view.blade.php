@@ -127,7 +127,8 @@
                     </div>
                 @endif
 
-                <div>Total Rent : {{ $agreementUnits->sum('unit_revenue') }} </div>
+                <div class="text-bold m-2 d-flex justify-content-end">Total Rent :
+                    {{ $agreementUnits->sum('unit_revenue') }} </div>
 
                 <div class="d-flex justify-content-center row">
                     {{-- @dd($agreementUnits[0]) --}}
