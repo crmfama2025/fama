@@ -33,7 +33,7 @@
         @endphp
     @endif
 
-    <div id="collapse{{ $key }}" class="collapse" data-parent="#accordion">
+    <div id="collapse{{ $key }}" class="collapse show" data-parent="#accordion">
         <div class="card-body">
             <div class="col-12 table-responsive card-body">
                 <div class="row">
