@@ -91,7 +91,7 @@ class ProjectScopeDataService
 
 
             'expected_rental' => formatNumber($contract->contract_rentals?->rent_receivable_per_month),
-            'number_of_months' => $contract->contract_rentals?->installment->installment_name,
+            'number_of_months' => $contract->contract_detail?->duration_in_months,
             'total_rental' => formatNumber($contract->contract_rentals?->rent_receivable_per_annum),
             'plot_no' => $contract->property?->plot_no,
             'renewal_status' => $contract->parent_contract_id ? 'Renew' : 'New',
