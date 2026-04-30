@@ -127,7 +127,7 @@
                     </div>
                 @endif
 
-                <div class="text-bold m-2 d-flex justify-content-end">Total Rent :
+                <div class="text-bold m-2 d-flex justify-content-end">Total Rent Occupied:
                     {{ $agreementUnits->sum('unit_revenue') }} </div>
 
                 <div class="d-flex justify-content-center row">
