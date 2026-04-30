@@ -1,3 +1,4 @@
+<div>Total Rent : {{ $agreementUnits->sum('unit_revenue') }} </div>
 <div class="col-6">
     <div class="card">
         <div class="card-header bg-gradient-olive">
