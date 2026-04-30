@@ -1608,6 +1608,10 @@
         calculateRoi();
         CalculatePayables();
     });
+    $('.rent_split_value').on('input change', function() {
+        CalculatePayables();
+        calculateRoi();
+    });
 
     function CalculatePayables() {
         let totRent = parseFloat($('#rent_per_annum').val()) || 0;
@@ -1634,7 +1638,10 @@
         // console.log('totdepo -' + totdepo);
         // let initialInv = parseFloat((totRent / parseFloat(installment)) + totcomm + totdepo + totcontractfee + totalotc)
         //     .toFixed(2);
-        let initialInv = parseFloat((totRent / 4) + totcomm + totdepo + totcontractfee + totalotc)
+        // let initialInv = parseFloat((totRent / 4) + totcomm + totdepo + totcontractfee + totalotc)
+        //     .toFixed(2);
+        let rent_split_value = parseFloat($('.rent_split_value').val());
+        let initialInv = parseFloat((totRent / rent_split_value) + totcomm + totdepo + totcontractfee + totalotc)
             .toFixed(2);
 
         $('.total_contract_amount').val(totRent);

@@ -763,6 +763,9 @@
                                                                 Final Cost - <input class="final_cost" readonly=""
                                                                     name="rentals[final_cost]" value="0.00"
                                                                     style="border:none;"><br>
+                                                                Rent Split Value - <input class="rent_split_value"
+                                                                    readonly="" name="" value="4"
+                                                                    style="border:none;"><br>
                                                                 Initial Investment - <input class="initial_inv"
                                                                     name="rentals[initial_investment]" readonly=""
                                                                     value="0.00" style="border:none;"><br>
