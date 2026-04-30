@@ -127,6 +127,7 @@
                     </div>
                 @endif
 
+                <div>Total Rent : {{ $agreementUnits->sum('unit_revenue') }} </div>
 
                 <div class="d-flex justify-content-center row">
                     {{-- @dd($agreementUnits[0]) --}}
@@ -139,7 +140,6 @@
                             ])
                         @endforeach
                     @else
-                        <div>Total Rent : {{ $agreementUnits->sum('unit_revenue') }} </div>
                         @include('admin.projects.contract.includes.contract-tenant-details', [
                             // 'unitNumbers' => $agreementUnit->unit_number,
                             'agreementUnit' => $agreementUnits[0],
