@@ -139,6 +139,7 @@
                             ])
                         @endforeach
                     @else
+                        <div>Total Rent : {{ $agreementUnits->sum('unit_revenue') }} </div>
                         @include('admin.projects.contract.includes.contract-tenant-details', [
                             // 'unitNumbers' => $agreementUnit->unit_number,
                             'agreementUnit' => $agreementUnits[0],
