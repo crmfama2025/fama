@@ -140,6 +140,16 @@
 
                                 <br>
                                 <!-- we are adding the accordion ID so Bootstrap's collapse plugin detects it -->
+                                @php
+                                    $totalRevenue = $contract->agreements
+                                        ->flatMap(function ($agreement) {
+                                            return $agreement->agreement_units;
+                                        })
+                                        ->sum('unit_revenue');
+                                @endphp
+
+                                <div class="text-bold m-2 d-flex justify-content-end">Total Rent Occupied:
+                                    {{ $totalRevenue }} </div>
                                 <div id="accordion">
                                     @php
                                         $unitdet = [];
