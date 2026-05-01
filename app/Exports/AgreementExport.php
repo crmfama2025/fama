@@ -131,6 +131,7 @@ class AgreementExport implements FromCollection, WithHeadings
                     )->document_number,
                     'Unit Numbers' => $unitNumbers ?: '-',
                     'Sub Unit'  => $sub,
+                    'Rent Per Month' => $agreement->agreement_units->sum('rent_per_month'),
                     'Total Rent Annum' => $agreement->agreement_payment->total_rent_annum ?? '',
                     'Created_at' => $agreement->created_at,
 
@@ -160,6 +161,7 @@ class AgreementExport implements FromCollection, WithHeadings
             'Emirates ID Number',
             'Unit Numbers',
             'Sub Unit',
+            'Rent Per Month',
             'Total Rent Annum',
             'Created_at',
         ];
