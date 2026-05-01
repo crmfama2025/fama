@@ -37,7 +37,8 @@ class AgreementExport implements FromCollection, WithHeadings
 
                 $q->orwhere('agreement_code', 'like', "%{$search}%")
                     ->orWhereHas('contract', function ($q) use ($search) {
-                        $q->where('project_number', 'like', "%{$search}%");
+                        $q->where('project_number', 'like', "%{$search}%")
+                            ->orWhereRaw("CONCAT('P-',project_number) LIKE ?", ["%{$search}%"]);
                     })
 
                     ->orWhereHas('company', function ($q) use ($search) {
