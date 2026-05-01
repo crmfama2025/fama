@@ -94,4 +94,31 @@ class UnitService
             throw new ValidationException($validator);
         }
     }
+    public function updateOccupiedRentPerMonth($contract_unit, $rent, $exisistingRent = 0)
+    {
+        if ($exisistingRent == 0) {
+            $newRent = $contract_unit->occupied_rent_per_month + $rent;
+            return $this->unitRepo->update($contract_unit->id, [
+                'occupied_rent_per_month' => $newRent
+            ]);
+        } else {
+            $newRent = $contract_unit->occupied_rent_per_month - $exisistingRent + $rent;
+            return $this->unitRepo->update($contract_unit->id, [
+                'occupied_rent_per_month' => $newRent
+            ]);
+        }
+    }
+    public function updateContractUnitOnAgreementdeleteB2c($contract_unit, $agreement_units)
+    {
+        // dd($contract_unit, $agreement_units);
+        if ($contract_unit && $agreement_units) {
+            if ($contract_unit->occupied_rent_per_month > 0) {
+                $newRent = $contract_unit->occupied_rent_per_month - $agreement_units->sum('rent_per_month');
+                return $this->unitRepo->update($contract_unit->id, [
+                    'occupied_rent_per_month' => $newRent
+                ]);
+            }
+        }
+        // return null;
+    }
 }

@@ -621,9 +621,25 @@ namespace App\Models{
 
 namespace App\Models{
 /**
+ * @property int $id
+ * @property string $allocated_amount
+ * @property array $cleared_receivable_ids
+ * @property string|null $cleared_date
+ * @property int $added_by
+ * @property int|null $updated_by
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation query()
+ * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereAddedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereAllocatedAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereClearedDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereClearedReceivableIds($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereUpdatedBy($value)
  */
 	class ClearedReceivableAllocation extends \Eloquent {}
 }

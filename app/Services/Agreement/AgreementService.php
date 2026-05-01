@@ -15,6 +15,7 @@ use App\Repositories\Agreement\AgreementTenantRepository;
 use App\Repositories\Agreement\AgreementUnitRepository;
 use App\Services\Contracts\ContractService;
 use App\Services\Contracts\SubUnitDetailService;
+use App\Services\Contracts\UnitService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
@@ -37,7 +38,8 @@ class AgreementService
         protected AgreementUnitService $agreementUnitService,
         protected AgreementDocumentService $agreementDocumentService,
         protected SubUnitDetailService $subUnitDetailserv,
-        protected ContractService $contractService
+        protected ContractService $contractService,
+        protected UnitService $contractUnitService
 
     ) {}
 
@@ -375,6 +377,7 @@ class AgreementService
                     ];
 
                     $createdUnit = $this->agreementUnitService->create($unitdata);
+                    $this->contractUnitService->updateOccupiedRentPerMonth($ct->contract_unit, $unit['rent_per_month']);
                     $agreementUnitId = $createdUnit->id ?? null;
                     // dd($data['payment_detail']);
 
@@ -1062,6 +1065,7 @@ class AgreementService
                     }
                     if ($exisistingUnit->contract_subunit_details_id != $unit['contract_subunit_details_id']) {
                         ContractSubunitDetail::where('id', $exisistingUnit->contract_subunit_details_id)->update(['is_vacant' => 0]);
+                        $this->contractUnitService->updateOccupiedRentPerMonth($ct->contract_unit, $unit['rent_per_month'], $exisistingUnit->rent_per_month);
                     }
                     $contractUnitDetail = ContractUnitDetail::find($unit['contract_unit_details_id']);
                     $subunit_ids = $unit['contract_subunit_details_id'] ?? [];

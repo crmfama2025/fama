@@ -14,6 +14,7 @@ use App\Repositories\Contracts\ContractRepository;
 use App\Services\Agreement\AgreementPaymentDetailService;
 use App\Services\Agreement\AgreementPaymentService;
 use App\Services\Agreement\AgreementTenantService;
+use App\Services\Contracts\UnitService;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -22,7 +23,8 @@ class AgreementRepository
 {
     public function __construct(
         protected ContractRepository $contractRepository,
-        protected AgreementPaymentDetailRepository $agreementPaymentDetailRepository
+        protected AgreementPaymentDetailRepository $agreementPaymentDetailRepository,
+        protected UnitService $contractUnitService
 
 
     ) {}
@@ -279,6 +281,9 @@ class AgreementRepository
                         $subunitdetail->is_vacant = 0;
                         $subunitdetail->is_sales_agreement_added = 0;
                         $subunitdetail->save();
+                        if ($business_type == 2) {
+                            $this->contractUnitService->updateContractUnitOnAgreementdeleteB2c($contract->contract_unit, $agreement->agreement_units);
+                        }
                     }
                 }
                 foreach ($contract_unit_details as $unit) {

@@ -28,7 +28,10 @@ class ContractUnit extends Model
         'unit_property_type',
         'no_of_floors',
         'floor_numbers',
-        'floor_type'
+        'floor_type',
+        'occupied_rent_per_month',
+        'total_payment_pending',
+        'total_payment_received'
     ];
 
     public function contract()

@@ -38,7 +38,8 @@ class ContractRepository
             'contract_type',
             'children',
             'parent',
-            'contract_scope'
+            'contract_scope',
+            'contract_unit'
         )->findOrFail($id);
 
         return $contract;
