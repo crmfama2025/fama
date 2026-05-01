@@ -1805,9 +1805,18 @@
             const count = $(this).data('count') || 0;
             // alert(count);
             calculatepaymentamount(rent_val, count);
+            // matchUnitRevenueB2c();
 
 
         });
+
+        // function matchUnitRevenueB2c() {
+
+        //     let b2cRent = $('.rent_per_month').val();
+        //     console.log('selected contract', selectedContract);
+        //     let unit_rent_receivable_per_month = selectedContract?.contract_rentals?.rent_receivable_per_month;
+
+        // }
     </script>
     {{-- end  --}}
     @include('admin.projects.agreement.terminate-js')
@@ -2950,7 +2959,7 @@
 
                         banks.forEach(bank => {
                             bankSelect.append(`
-                                <option value="${bank.id}">
+                                <option value="${bank.id}"  ${bank.id == 21 ? 'selected' : ''}>
                                     ${bank.bank_name}
                                 </option>
                             `);
