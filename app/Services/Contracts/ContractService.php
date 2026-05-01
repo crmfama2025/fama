@@ -153,6 +153,8 @@ class ContractService
 
             $ct_detail = $this->detailServ->create($contract->id, $data['detail'] ?? []);
 
+            $data['unit_detail']['total_payment_pending'] = $data['rentals']['rent_receivable_per_annum'] ?? 0;
+
             $unitData = $this->unitServ->create($contract->id, $data['unit'] ?? [], $data['unit_detail'] ?? []);
             // dd($unitData);
             $this->unitDetServ->create($contract, $ct_detail, $data['unit_detail'] ?? [], $data['rentals']['receivable_installments'], $unitData->id);
@@ -220,6 +222,7 @@ class ContractService
 
 
             $ct_detail = $this->detailServ->update($data['detail'] ?? []);
+            $data['unit_detail']['total_payment_pending'] = $data['rentals']['rent_receivable_per_annum'] ?? 0;
             $unitData = $this->unitServ->update($data['unit'] ?? [], $data['unit_detail'] ?? []);
             // dd($unitData);
             $this->unitDetServ->update($contract, $ct_detail, $data['unit_detail'] ?? [], $data['rentals']['receivable_installments'], $unitData->id);
