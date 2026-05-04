@@ -729,14 +729,32 @@
                                                 <div class="payment_details">
                                                     <div
                                                         class="form-group row font-weight-bold text-secondary mb-2 justify-content-end header-row d-none">
+                                                        {{-- <div class="col-auto text-end">
+                                                            <label class="me-2">Contract Rent per Month:</label>
+                                                            <span id="contract_rent_per_month"
+                                                                class="text-info font-weight-bold">
+                                                            </span>
+                                                        </div>
                                                         <div class="col-auto text-end">
+                                                            <label class="me-2">Occupied :</label>
+                                                            <span id="occupied" class="text-info font-weight-bold">
+                                                            </span>
+                                                        </div> --}}
+                                                        <div class="col-auto text-end text-bold">
                                                             <label class="me-2">Total Rent per Annum:</label>
                                                             <span id="total_rent_per_annum"
                                                                 class="text-info font-weight-bold">
                                                                 {{ isset($agreement) ? $agreement->agreement_payment->total_rent_annum : 0 }}
                                                             </span>
                                                         </div>
+
+
                                                     </div>
+                                                    {{-- <div>
+
+                                                    </div> --}}
+
+
                                                     <div id="paymentError"
                                                         class="text-danger font-weight-bold mb-2 d-none"></div>
                                                 </div>
@@ -1342,8 +1360,13 @@
                 $('#unit_details_div_ff')
                     .removeClass('d-none')
                     .html(html);
+                $('#unit_details_div_ff').find(':input').prop('disabled', false);
 
-                $('#unit_details_div_df').addClass('d-none');
+                // $('#unit_details_div_df').addClass('d-none');
+                $('#unit_details_div_df')
+                    .addClass('d-none')
+                    .find(':input')
+                    .prop('disabled', true);
 
 
 
@@ -1369,7 +1392,12 @@
 
                     $('#unit_id').val(agreementUnitId);
                 }
-                $('#unit_details_div_ff').addClass('d-none');
+                // $('#unit_details_div_ff').addClass('d-none');
+                // Hide FF and disable its inputs
+                $('#unit_details_div_ff')
+                    .addClass('d-none')
+                    .find(':input')
+                    .prop('disabled', true);
                 if (contract?.contract_unit
                     ?.business_type == 1) {
                     // alert('disabling subunit');
@@ -1377,7 +1405,12 @@
                 } else {
                     $('.subunit_number_div select').prop('disabled', false);
                 }
-                $('#unit_details_div_df').removeClass('d-none');
+                //$('#unit_details_div_df').removeClass('d-none');
+                $('#unit_details_div_df')
+                    .removeClass('d-none')
+                    .find(':input')
+                    .prop('disabled', false);
+
 
             }
 
@@ -1809,14 +1842,28 @@
 
 
         });
+        // matchUnitRevenueB2c();
 
-        // function matchUnitRevenueB2c() {
 
-        //     let b2cRent = $('.rent_per_month').val();
-        //     console.log('selected contract', selectedContract);
-        //     let unit_rent_receivable_per_month = selectedContract?.contract_rentals?.rent_receivable_per_month;
+        function matchUnitRevenueB2c() {
 
-        // }
+            let b2cRent = $('.rent_per_month').val();
+            // console.log('selected contract', selectedContract);
+            let total_rent_receivable_per_month = parseFloat(
+                selectedContract?.contract_rentals?.rent_receivable_per_month
+            ) || 0;
+
+            let occupied_rent_receivable_per_month = parseFloat(
+                selectedContract?.contract_unit?.occupied_rent_per_month
+            ) || 0;
+
+            let current_total_rent =
+                (parseFloat(b2cRent) || 0) + occupied_rent_receivable_per_month;
+            $('#contract_rent_per_month').text(total_rent_receivable_per_month.toFixed(2) || '0.00');
+            $('#occupied').text(current_total_rent.toFixed(2) || '0.00');
+
+
+        }
     </script>
     {{-- end  --}}
     @include('admin.projects.agreement.terminate-js')
