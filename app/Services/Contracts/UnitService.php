@@ -41,6 +41,7 @@ class UnitService
         $id = $data['id'];
         $this->validate($data, $id);
         $data['updated_by'] = auth()->user()->id;
+        // dd($data, $unitdetails);
         $data = array_merge($data, $this->getUnitSummary($unitdetails));
         // dd($data);
         return $this->unitRepo->update($id, $data);
@@ -71,6 +72,7 @@ class UnitService
         }
 
         $unitTypeSummaryText = implode(', ', $unitTypeSummary);
+        $total_payment_pending = $unitDetails['total_payment_pending'] ?? 0;
 
 
 
@@ -80,6 +82,7 @@ class UnitService
             'unit_property_type' => $property_type,
             'no_of_floors' => $no_of_floors,
             'floor_numbers' => $floor_no,
+            'total_payment_pending' => $total_payment_pending,
         ];
     }
 
