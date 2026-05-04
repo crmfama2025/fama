@@ -421,15 +421,15 @@
                     </div>
                     <div class="col-sm-2 part" id="part` + highestIndex + `">
                         <label class="control-label asterisk">Total Partitions</label>
-                        <input type="number" min="1" name="unit_detail[total_partition][]" class="form-control total_partitions" placeholder="Total Partitions" required>
+                        <input type="number" min="1"  onkeydown="return event.key !== '-'" name="unit_detail[total_partition][]" class="form-control total_partitions" placeholder="Total Partitions" required>
                     </div>
                     <div class="col-sm-2 bs" id="bs` + highestIndex + `">
                         <label class="control-label asterisk">Total Bed Spaces</label>
-                        <input type="number" min="1" name="unit_detail[total_bedspace][]" class="form-control total_bedspaces" placeholder="Total Bed Spaces" required>
+                        <input type="number" min="1"  onkeydown="return event.key !== '-'" name="unit_detail[total_bedspace][]" class="form-control total_bedspaces" placeholder="Total Bed Spaces" required>
                     </div>
                     <div class="col-sm-2 rm" id="rm` + highestIndex + `">
                         <label class="control-label asterisk">Total Room</label>
-                        <input type="number" min="1" name="unit_detail[total_room][]" class="form-control total_room" placeholder="Total Room" required>
+                        <input type="number" min="1"  onkeydown="return event.key !== '-'" name="unit_detail[total_room][]" class="form-control total_room" placeholder="Total Room" required>
                     </div>
                 </div>
                 <hr>
