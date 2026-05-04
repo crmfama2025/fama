@@ -135,13 +135,13 @@
                 <div class="d-flex justify-content-center row">
                     {{-- @dd($agreementUnits[0]) --}}
                     @if ($businessType == 2)
-                        @foreach ($agreementUnits as $agreementUnit)
-                            @include('admin.projects.contract.includes.contract-tenant-details', [
-                                'unitNumbers' => $contractUnitdetail->unit_number,
-                                'agreementUnits' => $contractUnitdetail->agreementUnits,
-                                'unitdetail' => $contractUnitdetail,
-                            ])
-                        @endforeach
+                        {{-- @foreach ($agreementUnits as $agreementUnit) --}}
+                        @include('admin.projects.contract.includes.contract-tenant-details', [
+                            'unitNumbers' => $contractUnitdetail->unit_number,
+                            'agreementUnits' => $contractUnitdetail->agreementUnits,
+                            'unitdetail' => $contractUnitdetail,
+                        ])
+                        {{-- @endforeach --}}
                     @else
                         @include('admin.projects.contract.includes.contract-tenant-details', [
                             // 'unitNumbers' => $agreementUnit->unit_number,

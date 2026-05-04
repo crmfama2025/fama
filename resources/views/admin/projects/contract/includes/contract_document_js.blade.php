@@ -36,3 +36,17 @@
         });
     });
 </script>
+<script>
+    $(function() {
+        $('.agreementUnitsTable').each(function() {
+            $(this).DataTable({
+                responsive: true,
+                autoWidth: false,
+                pageLength: 10,
+                order: [
+                    [0, 'asc']
+                ]
+            });
+        });
+    });
+</script>
