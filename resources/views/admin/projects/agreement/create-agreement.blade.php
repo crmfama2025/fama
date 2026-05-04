@@ -729,17 +729,20 @@
                                                 <div class="payment_details">
                                                     <div
                                                         class="form-group row font-weight-bold text-secondary mb-2 justify-content-end header-row d-none">
-                                                        {{-- <div class="col-auto text-end">
-                                                            <label class="me-2">Contract Rent per Month:</label>
-                                                            <span id="contract_rent_per_month"
-                                                                class="text-info font-weight-bold">
-                                                            </span>
+                                                        <div id="total_contract_rent_div" class="d-none">
+                                                            <div class="col-auto text-end ">
+                                                                <label class="me-2">Contract Rent per Month:</label>
+                                                                <span id="contract_rent_per_month"
+                                                                    class="text-info font-weight-bold">
+                                                                </span>
+                                                            </div>
+                                                            <div class="col-auto text-end ">
+                                                                <label class="me-2">Occupied RRent per Month:</label>
+                                                                <span id="occupied" class="text-info font-weight-bold">
+                                                                </span>
+                                                            </div>
                                                         </div>
-                                                        <div class="col-auto text-end">
-                                                            <label class="me-2">Occupied :</label>
-                                                            <span id="occupied" class="text-info font-weight-bold">
-                                                            </span>
-                                                        </div> --}}
+
                                                         <div class="col-auto text-end text-bold">
                                                             <label class="me-2">Total Rent per Annum:</label>
                                                             <span id="total_rent_per_annum"
@@ -754,9 +757,12 @@
 
                                                     </div> --}}
 
-
+                                                    <div id="rent_warning"
+                                                        class="text-danger alert alert-default-danger font-weight-bold mb-2 d-none">
+                                                    </div>
                                                     <div id="paymentError"
                                                         class="text-danger font-weight-bold mb-2 d-none"></div>
+
                                                 </div>
 
                                                 <button class="btn btn-info prevBtn" type="button">Previous</button>
@@ -1410,6 +1416,7 @@
                     .removeClass('d-none')
                     .find(':input')
                     .prop('disabled', false);
+                matchUnitRevenueB2c();
 
 
             }
@@ -1818,6 +1825,7 @@
                 // .prop('readonly', true);
                 // alert(count);
                 calculatepaymentamount(selectedSubUnit.subunit_rent, count);
+                matchUnitRevenueB2c();
 
             }
 
@@ -1838,29 +1846,72 @@
             const count = $(this).data('count') || 0;
             // alert(count);
             calculatepaymentamount(rent_val, count);
-            // matchUnitRevenueB2c();
+            matchUnitRevenueB2c();
 
 
         });
-        // matchUnitRevenueB2c();
+
 
 
         function matchUnitRevenueB2c() {
+            // $('#total_contract_rent_div').('d-none');
+            if (selectedContract?.contract_type_id === 1 && selectedContract?.contract_unit?.business_type === 2) {
 
-            let b2cRent = $('.rent_per_month').val();
-            // console.log('selected contract', selectedContract);
-            let total_rent_receivable_per_month = parseFloat(
-                selectedContract?.contract_rentals?.rent_receivable_per_month
-            ) || 0;
 
-            let occupied_rent_receivable_per_month = parseFloat(
-                selectedContract?.contract_unit?.occupied_rent_per_month
-            ) || 0;
+                let b2cRent = parseFloat($('.rent_per_month').val());
 
-            let current_total_rent =
-                (parseFloat(b2cRent) || 0) + occupied_rent_receivable_per_month;
-            $('#contract_rent_per_month').text(total_rent_receivable_per_month.toFixed(2) || '0.00');
-            $('#occupied').text(current_total_rent.toFixed(2) || '0.00');
+                if (isNaN(b2cRent) || b2cRent < 0) {
+                    b2cRent = 0;
+                    $('.rent_per_month').val(0);
+                }
+                // console.log('selected contract', selectedContract);
+                let total_rent_receivable_per_month = parseFloat(
+                    selectedContract?.contract_rentals?.rent_receivable_per_month
+                ) || 0;
+
+                let occupied_rent_receivable_per_month = parseFloat(
+                    selectedContract?.contract_unit?.occupied_rent_per_month
+                ) || 0;
+
+                let current_total_rent = b2cRent + occupied_rent_receivable_per_month;
+                $('#total_contract_rent_div').removeClass('d-none');
+
+                $('#contract_rent_per_month').text(total_rent_receivable_per_month.toFixed(2));
+                $('#occupied').text(current_total_rent.toFixed(2));
+
+                let vacantCount = 0;
+
+                selectedContract?.contract_unit?.contract_unit_details?.forEach(unit => {
+                    unit.contract_sub_unit_details?.forEach(sub => {
+                        if (Number(sub.is_vacant) === 0) {
+                            vacantCount++;
+                        }
+                    });
+                });
+                // console.log('vacantCount', vacantCount);
+                if (current_total_rent > total_rent_receivable_per_month) {
+                    $('#rent_warning').removeClass('d-none');
+                    $('#rent_warning').html(
+                        `Total rent per month <span class="text-dark">${current_total_rent.toFixed(2)}</span>  exceeds the contract rent <span class="text-dark">(${total_rent_receivable_per_month.toFixed(2)})</span>. Please adjust the rent or check unit selection.`
+                    );
+                    $('#submitBtn').prop('disabled', true);
+                } else if (vacantCount === 1 && current_total_rent < total_rent_receivable_per_month) {
+
+                    $('#rent_warning').removeClass('d-none');
+                    $('#rent_warning').html(
+                        `There is only 1 vacant subunit left. Total rent per month <span class="text-dark">${current_total_rent.toFixed(2)}</span> is less than the contract rent <span class="text-dark">(${total_rent_receivable_per_month.toFixed(2)})</span>. Please check unit selection.`
+                    );
+                    $('#submitBtn').prop('disabled', true);
+
+                } else {
+
+                    $('#rent_warning').addClass('d-none');
+                    $('#submitBtn').prop('disabled', false);
+                }
+            } else {
+                $('#total_contract_rent_div').addClass('d-none');
+            }
+
 
 
         }
@@ -3039,6 +3090,7 @@
                         validateTotalPaymentFF(changedIndex);
                     } else if (type === 1) {
                         validateTotalPayment();
+                        matchUnitRevenueB2c();
                     }
 
                 });
