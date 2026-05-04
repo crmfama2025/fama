@@ -3006,7 +3006,7 @@
 
                         banks.forEach(bank => {
                             bankSelect.append(`
-                                <option value="${bank.id}">
+                                <option value="${bank.id}" ${bank.id == 1 ? 'selected' : ''}>
                                     ${bank.bank_name}
                                 </option>
                             `);
