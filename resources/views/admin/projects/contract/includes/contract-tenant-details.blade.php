@@ -85,7 +85,7 @@
                             <td>{{ $agreementUnit->agreement->tenant->tenant_name }}</td>
                             <td>{{ $agreementUnit->agreement->tenant->nationality->nationality_name }}</td>
                             <td>{{ $agreementUnit->agreement->tenant->tenant_mobile }}</td>
-                            <td class="tex-blue">{{ $agreementUnit->contractUnitDetail->unit_number }} -
+                            <td class="text-blue">{{ $agreementUnit->contractUnitDetail->unit_number }} -
                                 {{ $agreementUnit->contractSubunitDetail->subunit_no }}</td>
                             <td>{{ $agreementUnit->rent_per_month }}</td>
                             <td>{{ $agreementUnit->unit_revenue }}</td>
