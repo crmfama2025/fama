@@ -990,19 +990,19 @@
             for (let i = 0; i < payment_count; i++) {
 
                 //  rent calcutaion in case of adjustment in months(loke 14 installments in 13 month duration)
-                // let receivableValue = parseFloat(
-                //     selectedContract.contract_payment_receivables?.[i]?.receivable_amount || 0
-                // );
-                // let totalreceivable = parseFloat(selectedContract?.contract_rentals
-                //     ?.rent_receivable_per_month || 0);
-                // let rentTenant = parseFloat($('.rent_per_month').val()) || 0;
-                // // console.log('initial rentTenant', receivableValue, totalreceivable, rentTenant);
-                // rentTenant = rentTenant * receivableValue / totalreceivable;
-                // $('#payment_amount_' + i).val((rentTenant).toFixed(2));
+                let receivableValue = parseFloat(
+                    selectedContract.contract_payment_receivables?.[i]?.receivable_amount || 0
+                );
+                let totalreceivable = parseFloat(selectedContract?.contract_rentals
+                    ?.rent_receivable_per_month || 0);
+                let rentTenant = parseFloat($('.rent_per_month').val()) || 0;
+                console.log('initial rentTenant', receivableValue, totalreceivable, rentTenant);
+                rentTenant = rentTenant * receivableValue / totalreceivable;
+                $('#payment_amount_' + i).val((rentTenant).toFixed(2));
                 //  end of updation
 
 
-                $('#payment_amount_' + i).val((rentmonth));
+                // $('#payment_amount_' + i).val((rentmonth));
 
             }
             console.log("rentmonth" + rentmonth);
