@@ -353,6 +353,7 @@ class AgreementService
                 $rent_annum_agreement = $data['total_rent_per_annum'];
 
                 // dd($rent_annum_agreement);
+                // dd($data['unit_detail']);
                 foreach ($data['unit_detail'] as $unit) {
                     $contractUnitDetail = ContractUnitDetail::find($unit['contract_unit_details_id']);
                     $subunit_ids = $unit['contract_subunit_details_id'] ?? [];
@@ -411,6 +412,7 @@ class AgreementService
                     //     $createdUnit['contract_unit_details_id']
                     // );
                 }
+                // dd($agreement->agreement_units());
             }
             $contract_id = $ct->id;
             // dd("before status update");
@@ -1065,8 +1067,9 @@ class AgreementService
                     }
                     if ($exisistingUnit->contract_subunit_details_id != $unit['contract_subunit_details_id']) {
                         ContractSubunitDetail::where('id', $exisistingUnit->contract_subunit_details_id)->update(['is_vacant' => 0]);
-                        $this->contractUnitService->updateOccupiedRentPerMonth($ct->contract_unit, $unit['rent_per_month'], $exisistingUnit->rent_per_month);
                     }
+                    $this->contractUnitService->updateOccupiedRentPerMonth($ct->contract_unit, $unit['rent_per_month'], $exisistingUnit->rent_per_month);
+
                     $contractUnitDetail = ContractUnitDetail::find($unit['contract_unit_details_id']);
                     $subunit_ids = $unit['contract_subunit_details_id'] ?? [];
                     if (!is_array($subunit_ids)) {
