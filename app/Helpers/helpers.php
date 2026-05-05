@@ -731,6 +731,13 @@ function updateContractUnitPayments($contract_unit_details_id, $paid_amount)
         return false;
     }
 
+    $contract_unit = $contract_unit_detail->contractUnit;
+    if ($contract_unit) {
+        $contract_unit->total_payment_received += $paid_amount;
+        $contract_unit->total_payment_pending -= $paid_amount;
+        $contract_unit->save();
+    }
+
     $contract_unit_detail->total_payment_received += $paid_amount;
     $contract_unit_detail->total_payment_pending -= $paid_amount;
     $contract_unit_detail->save();
@@ -1244,6 +1251,12 @@ function updateContractUnitReceivablePayback($contract_unit_details_id, $paid_am
 
     if (!$contract_unit_detail) {
         return false;
+    }
+    $contract_unit = $contract_unit_detail->contractUnit;
+    if ($contract_unit) {
+        $contract_unit->total_payment_received -= $paid_amount;
+        $contract_unit->total_payment_pending += $paid_amount;
+        $contract_unit->save();
     }
 
     $contract_unit_detail->total_payment_received -= $paid_amount;
