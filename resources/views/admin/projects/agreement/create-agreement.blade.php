@@ -1841,6 +1841,7 @@
                 // alert(count);
                 calculatepaymentamount(selectedSubUnit.subunit_rent, count);
                 matchUnitRevenueB2c();
+                dfB2cValidation();
 
             }
 
@@ -1862,6 +1863,7 @@
             // alert(count);
             calculatepaymentamount(rent_val, count);
             matchUnitRevenueB2c();
+            dfB2cValidation();
 
 
         });
@@ -1869,6 +1871,7 @@
 
 
         function matchUnitRevenueB2c() {
+            // alert("matchunitrevenue");
             // $('#total_contract_rent_div').('d-none');
             if (selectedContract?.contract_type_id === 1 && selectedContract?.contract_unit?.business_type === 2) {
 
@@ -3111,17 +3114,36 @@
                         // validateTotalPayment();
                         // matchUnitRevenueB2c();
 
-                        const isPaymentValid = validateTotalPayment();
-                        const isRentValid = matchUnitRevenueB2c();
+                        dfB2cValidation();
+                        // alert("validation called");
 
-                        if (isPaymentValid && isRentValid) {
-                            $('#submitBtn').prop('disabled', false);
-                        } else {
-                            $('#submitBtn').prop('disabled', true);
-                        }
+                        // const isPaymentValid = validateTotalPayment();
+                        // const isRentValid = matchUnitRevenueB2c();
+                        // console.log('Validation results - Payment:', isPaymentValid, 'Rent:', isRentValid);
+
+                        // if (isPaymentValid && isRentValid) {
+                        //     $('#submitBtn').prop('disabled', false);
+                        // } else {
+                        //     $('#submitBtn').prop('disabled', true);
+                        // }
                     }
 
                 });
+        }
+
+        function dfB2cValidation() {
+            // alert("validation called");
+            const isPaymentValid = validateTotalPayment();
+            const isRentValid = matchUnitRevenueB2c();
+            // console.log('Validation results - Payment:', isPaymentValid, 'Rent:', isRentValid);
+
+            if (isPaymentValid && isRentValid) {
+                // alert("validation passed");
+                $('#submitBtn').prop('disabled', false);
+            } else {
+                // alert("validation failed");
+                $('#submitBtn').prop('disabled', true);
+            }
         }
 
 
