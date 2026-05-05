@@ -143,7 +143,7 @@
                         ])
                         {{-- @endforeach --}}
                     @else
-                        @include('admin.projects.contract.includes.contract-tenant-details', [
+                        @include('admin.projects.contract.includes.contract-tenant-details-b2b', [
                             // 'unitNumbers' => $agreementUnit->unit_number,
                             'agreementUnit' => $agreementUnits[0],
                             // 'unitdetail' => $agreementUnit,

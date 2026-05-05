@@ -161,6 +161,7 @@
                                         $unitdet = [];
                                     @endphp
                                     @if ($contract->contract_unit->business_type == 2)
+                                        {{-- @dump('ff') --}}
                                         @foreach ($contractUnitdetails as $key => $contractUnitdetail)
                                             @include('admin.projects.contract.contract-agreement-view', [
                                                 'unitNumbers' => $contractUnitdetail->unit_number,
@@ -170,6 +171,7 @@
                                             ])
                                         @endforeach
                                     @elseif($contract->contract_unit->business_type == 1)
+                                        {{-- @dump('df') --}}
                                         @foreach ($contract->agreements as $key => $agreement)
                                             @include('admin.projects.contract.contract-agreement-view', [
                                                 'agreements' => $key + 1,
