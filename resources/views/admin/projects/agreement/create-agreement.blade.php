@@ -1909,19 +1909,23 @@
                     $('#rent_warning').html(
                         `Total rent per month <span class="text-dark">${current_total_rent.toFixed(2)}</span>  exceeds the contract rent <span class="text-dark">(${total_rent_receivable_per_month.toFixed(2)})</span>. Please adjust the rent or check unit selection.`
                     );
-                    $('#submitBtn').prop('disabled', true);
+                    // $('#submitBtn').prop('disabled', true);
+                    return false;
+
                 } else if (vacantCount === 1 && current_total_rent < total_rent_receivable_per_month) {
 
                     $('#rent_warning').removeClass('d-none');
                     $('#rent_warning').html(
                         `There is only 1 vacant subunit left. Total rent per month <span class="text-dark">${current_total_rent.toFixed(2)}</span> is less than the contract rent <span class="text-dark">(${total_rent_receivable_per_month.toFixed(2)})</span>. Please check unit selection.`
                     );
-                    $('#submitBtn').prop('disabled', true);
+                    // $('#submitBtn').prop('disabled', true);
+                    return false;
 
                 } else {
 
                     $('#rent_warning').addClass('d-none');
-                    $('#submitBtn').prop('disabled', false);
+                    // $('#submitBtn').prop('disabled', false);
+                    return true;
                 }
             } else {
                 $('#total_contract_rent_div').addClass('d-none');
@@ -3104,8 +3108,17 @@
                         const changedIndex = parseInt(match[1]);
                         validateTotalPaymentFF(changedIndex);
                     } else if (type === 1) {
-                        validateTotalPayment();
-                        matchUnitRevenueB2c();
+                        // validateTotalPayment();
+                        // matchUnitRevenueB2c();
+
+                        const isPaymentValid = validateTotalPayment();
+                        const isRentValid = matchUnitRevenueB2c();
+
+                        if (isPaymentValid && isRentValid) {
+                            $('#submitBtn').prop('disabled', false);
+                        } else {
+                            $('#submitBtn').prop('disabled', true);
+                        }
                     }
 
                 });
@@ -3138,10 +3151,11 @@
 
             // Enable or disable submit button
             if (totalPayment === totalRent && totalRent > 0) {
-                $('#submitBtn').prop('disabled', false);
+                // $('#submitBtn').prop('disabled', false);
                 errorDiv.addClass('d-none').removeClass('d-flex');
+                return true;
             } else {
-                $('#submitBtn').prop('disabled', true);
+                // $('#submitBtn').prop('disabled', true);
                 errorDiv.addClass('alert alert-default-danger fade show').attr('role', 'alert');
                 errorDiv.html(
                     `Total payment amount <span class="mx-1 text-dark">${totalPayment}</span> does not match total rent per annum <span class="mx-1 text-dark">${totalRent}</span>.`
@@ -3155,6 +3169,7 @@
             // `);
 
                 errorDiv.removeClass('d-none').addClass('d-flex');
+                return false;
                 // errorDiv.focus();
                 // errorDiv[0].scrollIntoView({
                 //     behavior: 'smooth',
