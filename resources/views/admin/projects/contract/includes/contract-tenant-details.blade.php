@@ -68,11 +68,11 @@
                         <th>#</th>
                         <th>Agreement Code</th>
                         <th>Tenant Name</th>
-                        <th>Nationality</th>
-                        <th>Mobile</th>
                         <th>Unit-Subunit</th>
                         <th>Monthly Rent</th>
                         <th>Annual Rent</th>
+                        <th>Nationality</th>
+                        <th>Mobile</th>
                         <th>Documents</th>
                         <th>Action</th>
                     </tr>
@@ -83,12 +83,13 @@
                             <td>{{ $index + 1 }}</td>
                             <td>{{ $agreementUnit->agreement->agreement_code }}</td>
                             <td>{{ $agreementUnit->agreement->tenant->tenant_name }}</td>
-                            <td>{{ $agreementUnit->agreement->tenant->nationality->nationality_name }}</td>
-                            <td>{{ $agreementUnit->agreement->tenant->tenant_mobile }}</td>
+
                             <td class="text-blue">{{ $agreementUnit->contractUnitDetail->unit_number }} -
                                 {{ $agreementUnit->contractSubunitDetail->subunit_no }}</td>
                             <td>{{ $agreementUnit->rent_per_month }}</td>
                             <td>{{ $agreementUnit->unit_revenue }}</td>
+                            <td>{{ $agreementUnit->agreement->tenant->nationality->nationality_name }}</td>
+                            <td>{{ $agreementUnit->agreement->tenant->tenant_mobile }}</td>
                             <td>
                                 @if ($agreementUnit->agreement->agreement_documents->isNotEmpty())
                                     <span class="badge badge-success">
