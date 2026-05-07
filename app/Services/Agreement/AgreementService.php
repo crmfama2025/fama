@@ -1478,6 +1478,25 @@ class AgreementService
                 <span class='{$badgeClass}'>{$type}</span>
             </p>";
             })
+            ->addColumn('property_name', function ($row) {
+                $unitNumbers = $row->agreement_units
+                    ->map(fn($au) => optional($au->contractUnitDetail)->unit_number)
+                    ->filter()
+                    ->implode(', ');
+                $sub = optional(
+                    $row->agreement_units->first()?->contractSubunitDetail
+                )->subunit_no;
+                $sub =  $sub ? 'SubUnit - ' . $sub : '-';
+                // ->implode(', ');
+                $pt = $row->contract->property->property_name ?? '-';
+                // $unit = $row->contract->property->property_name
+                return "{$pt} <p class='mb-0'>
+                    <span class='text-bold'>Unit(s) - {$unitNumbers}</span>
+                </p>
+                <p class='mb-0'>
+                    <span class='text-bold'>{$sub}</span>
+                </p>";
+            })
             ->addColumn('business_type', function ($row) {
                 if ($row->business_type == 1) {
                     $type = "B2B";
@@ -1540,7 +1559,7 @@ class AgreementService
             })
 
 
-            ->rawColumns(['tenant_details', 'action', 'project_number', 'business_type', 'start_date', 'end_date'])
+            ->rawColumns(['tenant_details', 'action', 'property_name', 'project_number', 'business_type', 'start_date', 'end_date'])
             // ->rawColumns(['action'])
             ->with(['columns' => $columns])
             ->toJson();

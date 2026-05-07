@@ -117,6 +117,7 @@
                                             <th>Agreement Code</th>
                                             <th>Company Name</th>
                                             <th>Project Details</th>
+                                            <th>Unit- Subunit</th>
                                             <th>Customer Type</th>
                                             <th>Tenant Details</th>
                                             <th>Start Date</th>
@@ -286,6 +287,10 @@
                     {
                         data: 'project_number',
                         name: 'contracts.project_number',
+                    },
+                    {
+                        data: 'property_name',
+                        name: 'properties.property_name',
                     },
                     {
                         data: 'business_type',
