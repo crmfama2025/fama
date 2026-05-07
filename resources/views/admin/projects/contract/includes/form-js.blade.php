@@ -2695,9 +2695,12 @@
 
         calculateEndDate();
         subUnitCheck(edit = true);
+
+
+
         calculateRoi();
-        finalRecCal();
-        valueTorentRec('load');
+        // finalRecCal();
+        // valueTorentRec('load');
         CalculatePayables();
 
         paymentSplit();
