@@ -858,6 +858,8 @@
 
 <!-- otc cost calculations -->
 <script>
+    let isRenew = {{ $renew }};
+
     function calculateSubAccommodations() {
         let totalPartition = 0;
         let totalBedSpace = 0;
@@ -930,8 +932,17 @@
         if ({{ $edit }}) {
             return;
         }
-
-        if ($('#contract_type').val() == 1) {
+        if ($('#contract_type').val() == 1 && (isRenew)) {
+            $('#cost_of_development').val(0);
+            $('#cost_of_beds').val(0);
+            $('#cost_of_mattress').val(0);
+            $('#cost_of_cabinets').val(0);
+            // $('#cost_of_cabinets').val(0);
+            $('#appliances').val(0);
+            $('#decoration').val(0);
+            // $('#cost_of_cabinets').val(0);
+            $('#dewa_deposit').attr('readonly', true).val(0);
+        } else if ($('#contract_type').val() == 1) {
             let subvalues = calculateSubAccommodations();
 
             // Set output values
@@ -939,22 +950,23 @@
             $('#cost_of_beds').val(240 * subvalues.totSubValue);
             $('#cost_of_mattress').val(55 * subvalues.totSubValue);
             $('#cost_of_cabinets').val(100 * subvalues.totSubValue);
-            $('#cost_of_cabinets').val(100 * subvalues.totSubValue);
+            // $('#cost_of_cabinets').val(100 * subvalues.totSubValue);
             $('#appliances').val(2500 * subvalues.totFlat);
             $('#decoration').val(0);
-            $('#cost_of_cabinets').val(100 * subvalues.totSubValue);
+            // $('#cost_of_cabinets').val(100 * subvalues.totSubValue);
             $('#dewa_deposit').val(2130 * subvalues.totFlat);
             // $('#ejari').val(0);
 
         } else {
+            alert('other');
             $('#cost_of_development').attr('readonly', true).val('');
             $('#cost_of_beds').attr('readonly', true).val('');
             $('#cost_of_mattress').attr('readonly', true).val('');
             $('#cost_of_cabinets').attr('readonly', true).val('');
-            $('#cost_of_cabinets').attr('readonly', true).val('');
+            // $('#cost_of_cabinets').attr('readonly', true).val('');
             $('#appliances').attr('readonly', true).val('');
             $('#decoration').attr('readonly', true).val('');
-            $('#cost_of_cabinets').attr('readonly', true).val('');
+            // $('#cost_of_cabinets').attr('readonly', true).val('');
             $('#dewa_deposit').attr('readonly', true).val('');
         }
         CalculatePayables();
@@ -2670,7 +2682,7 @@
 
     // let isEdit = @json($contract && $contract->exists);
     let isEdit = {{ $edit }};
-    let isRenew = {{ $renew }};
+    // let isRenew = {{ $renew }};
     if (isRenew) {
         $('#project_no').val(null);
         $('#commission_perc').val('0');
