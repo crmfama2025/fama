@@ -351,7 +351,7 @@
                             let renewalText = row.renewal_status == 1 ? 'Renewal' : 'New';
                             let renewalBadge = row.renewal_status == 1 ?
                                 'badge badge-info' :
-                                'badge badge-secondary';
+                                'badge badge-secondary bg-gradient-maroon';
 
                             return `
                                 <span class="${badgeClass}">${text}</span>
