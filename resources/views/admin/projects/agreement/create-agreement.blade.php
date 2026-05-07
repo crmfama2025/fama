@@ -1871,6 +1871,7 @@
 
 
         function matchUnitRevenueB2c() {
+            // console.log('editedUnit in matchUnitRevenueB2c', editedUnit);
             // alert("matchunitrevenue");
             // $('#total_contract_rent_div').('d-none');
             if (selectedContract?.contract_type_id === 1 && selectedContract?.contract_unit?.business_type === 2) {
@@ -1891,7 +1892,13 @@
                     selectedContract?.contract_unit?.occupied_rent_per_month
                 ) || 0;
 
-                let current_total_rent = b2cRent + occupied_rent_receivable_per_month;
+                let editedRent = 0;
+
+                if (editedUnit && editedUnit.length > 0) {
+                    editedRent = parseFloat(editedUnit[0].rent_per_month) || 0;
+                }
+
+                let current_total_rent = b2cRent + occupied_rent_receivable_per_month - editedRent;
                 $('#total_contract_rent_div').removeClass('d-none');
 
                 $('#contract_rent_per_month').text(total_rent_receivable_per_month.toFixed(2));
