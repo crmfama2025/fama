@@ -46,10 +46,10 @@
                     placeholder="Profit" readonly>
             </div>
             <div class="col-md-3">
-                <label for="exampleInputEmail1">Revenue</label>
-                <input type="number" class="form-control unit_revenue" name="unit_detail[unit_revenue][]"
-                    id="unit_revenue{{ $unitkey }}" value="{{ $unitDetail->unit_revenue ?? '' }}"
-                    placeholder="Revenue" readonly>
+                <label for="exampleInputEmail1" class="asterisk">Revenue</label>
+                <input type="number" class="form-control unit_revenue editafterapprove"
+                    name="unit_detail[unit_revenue][]" id="unit_revenue{{ $unitkey }}"
+                    value="{{ $unitDetail->unit_revenue ?? '' }}" placeholder="Revenue" required>
             </div>
         </div>
     </div>

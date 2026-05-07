@@ -2007,10 +2007,10 @@
                             placeholder="Profit" readonly>
                     </div>
                     <div class="col-md-3">
-                        <label for="exampleInputEmail1">Revenue</label>
-                        <input type="number" class="form-control unit_revenue"
+                        <label for="exampleInputEmail1" class="asterisk">Revenue</label>
+                        <input type="number" class="form-control unit_revenue editafterapprove"
                             name="unit_detail[unit_revenue][]" id="unit_revenue${i}"
-                            placeholder="Revenue" readonly>
+                            placeholder="Revenue" required>
                     </div>
                 </div>`;
                     containerPayment.appendChild(ffblock);
@@ -2049,6 +2049,15 @@
                         valueTorentRec('change');
                         finalRecCal();
                     });
+
+                    // Unit revenue change event - geethu
+                    $('#unit_revenue' + i).on('input change', function() {
+                        // console.log('unit profit change inside');
+                        calculateProfitUnit($(this), unit_payable);
+                        valueTorentRec('change');
+                        finalRecCal();
+                    });
+                    // End
 
                     unit_no.push(currentVal);
 
@@ -2113,7 +2122,12 @@
             const revenue = unit_payable + profit;
 
             profitInput.val(profit.toFixed(2));
-            revenueInput.val(revenue.toFixed(2));
+            // revenueInput.val(revenue.toFixed(2));
+
+            // ✅ Only auto-set revenue if user is NOT manually typing it
+            if (!isEditingRevenue) {
+                revenueInput.val(revenue.toFixed(2));
+            }
         });
 
         // Trigger other calculations
@@ -2136,6 +2150,50 @@
         installmentChangeRec();
 
     });
+
+    // FF last section unit revenue change - added by Geethu
+
+    // unit revenue edit flag
+    let isEditingRevenue = false;
+
+    // Track when user is manually editing revenue
+    $('.unit_revenue').on('focus', function() {
+        isEditingRevenue = true;
+    });
+
+    $('.unit_revenue').on('blur', function() {
+        isEditingRevenue = false;
+    });
+    $('.unit_revenue').on('input change', function() {
+        if (!isEditingRevenue) return;
+        profitHiddenValues();
+        let unit_payable = $(this).parent().siblings().find('input[name="unit_detail[unit_amount_payable][]"]')
+            .val();
+
+        calculateProfitUnit($(this), unit_payable);
+        installmentChangeRec();
+        valueTorentRec('change');
+        finalRecCal();
+    });
+
+    function calculateProfitUnit(ele, unit_payable) {
+        // console.log('calculate profit unit');
+        if (!$(ele).val()) return;
+        let profit = (parseFloat($(ele).val()) - parseFloat(unit_payable)).toFixed(2);
+        // console.log('unit_payable' + unit_payable);
+        let profit_perc = (profit / unit_payable) * 100;
+        $(ele).parent().siblings().find('input[name="unit_detail[unit_profit_perc][]"]')
+            .val(profit_perc.toFixed(2));
+        $(ele).parent().siblings().find('input[name="unit_detail[unit_profit][]"]')
+            .val(profit);
+        // console.log('profit', profit);
+        // console.log('profit_perc', profit_perc);
+        calculateRoiFF();
+        installmentChangeRec();
+        // console.log('profit' + profit);
+    }
+    // end of revenue edit tracking
+
 
 
     function calculateRevenueUnit(ele, unit_payable) {
@@ -2636,7 +2694,10 @@
         });
 
         calculateEndDate();
+        subUnitCheck(edit = true);
         calculateRoi();
+        finalRecCal();
+        valueTorentRec('load');
         CalculatePayables();
 
         paymentSplit();

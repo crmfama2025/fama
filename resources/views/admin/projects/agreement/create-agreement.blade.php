@@ -201,7 +201,7 @@
                                                                 name="tenant_email" placeholder="Tenant email"
                                                                 {{-- value="{{ old('tenant_email', $tenant->tenant_email ?? '') }}" --}}
                                                                 value="{{ old('tenant_email', $salesTenant->tenant_email ?? ($tenant->tenant_email ?? '')) }}"
-                                                                required>
+                                                                required {{-- pattern="^[^\s@]+@[^\s@]+\.[^\s@]{2,}$" --}}>
                                                             <div class="invalid-feedback">
                                                                 Please provide a valid email.
                                                             </div>
@@ -271,7 +271,7 @@
                                                                 id="contact_email" name="contact_email"
                                                                 placeholder="Contact email" {{-- value="{{ old('contact_email', $tenant->contact_email ?? '') }}" --}}
                                                                 value="{{ old('contact_email', $salesTenant->contact_email ?? ($tenant->contact_email ?? '')) }}"
-                                                                required>
+                                                                required {{-- pattern="^[^\s@]+@[^\s@]+\.[^\s@]{2,}$" --}}>
                                                             <div class="invalid-feedback">
                                                                 Please provide a valid email.
                                                             </div>
