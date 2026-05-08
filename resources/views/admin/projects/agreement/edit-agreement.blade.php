@@ -291,7 +291,7 @@
                 <div class="mb-2  font-weight-bold text-info"></div>
                     <div class="col-md-3 bank ml-3" id="bank_${uniqueId}">
                         <label>Bank Name</label>
-                        <select class="form-control " name="payment_detail[${unit.id}][${payIndex}][bank_id]" id="bank_name_${uniqueId}">
+                        <select class="form-control ${!pay.bank_id ? 'is-invalid' : ''}" name="payment_detail[${unit.id}][${payIndex}][bank_id]" id="bank_name_${uniqueId}">
                             <option value="">Select bank</option>
                             @foreach ($banks as $bank)
                                 <option value="{{ $bank->id }}" ${pay.bank_id == {{ $bank->id }} ? 'selected' : ''}>

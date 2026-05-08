@@ -1382,6 +1382,10 @@
                     .removeClass('d-none')
                     .html(html);
                 $('#unit_details_div_ff').find(':input').prop('disabled', false);
+                $('#unit_details_div_ff')
+                    .find('select')
+                    .prop('disabled', true)
+                    .trigger('change.select2');
 
                 // $('#unit_details_div_df').addClass('d-none');
                 $('#unit_details_div_df')
@@ -2166,15 +2170,18 @@
                                         2);
                             }
                             if (unitPayments.length === 0) {
-                                // alert("hi");
                                 unitPayments = contractReceivables.map(r => ({
                                     agreement_unit_id: unitId,
                                     receivable_amount: r.receivable_amount,
                                     receivable_date: r.receivable_date,
                                     payment_mode_id: 2,
-                                    payment_amount: df_b2b_per_month,
+                                    // payment_amount: df_b2b_per_month,
+                                    payment_amount: monthycalculateMonthlyrentDFB2b(r
+                                        .receivable_amount, unitObj.unit_revenue,
+                                        selectedContract.contract_rentals
+                                        ?.rent_receivable_per_annum),
                                     bank_id: null,
-                                    cheque_number: null,
+                                    cheque_number: null
                                 }));
                                 const termMoment = moment(termDate, 'YYYY-MM-DD');
 
@@ -2540,10 +2547,11 @@
                                         .toFixed(
                                             2);
                                 }
+
                                 // console.log("unit new", unit, salestenantUnitId);
 
                             }
-                            console.log('monthly', monthlyrent);
+                            // console.log('monthly', monthlyrent);
 
 
                             let installmentBlocks = `
@@ -2577,6 +2585,19 @@
                                     receivableDate = rawDate ? moment(rawDate, 'DD-MM-YYYY').format(
                                         'DD-MM-YYYY') : '';
                                 }
+
+
+                                let receivableValue = parseFloat(
+                                    receivablesToUse?.[i]
+                                    ?.receivable_amount || 0
+                                );
+                                let contractAnnumrent = parseFloat(selectedContract?.contract_rentals
+                                    ?.rent_receivable_per_annum || 0);
+                                monthlyrent = monthycalculateMonthlyrentDFB2b(receivableValue, rev,
+                                    contractAnnumrent);
+                                // console.log('receivableValue', receivableValue);
+                                console.log('monthlyRent', monthlyrent);
+
                                 installmentBlocks += `
                                 <div class="form-group row mb-2">
                                     <div class="mb-2  font-weight-bold text-info">${i + 1}.</div>
@@ -3737,6 +3758,15 @@
             // // // Fill Annual Rent
             // // $('.annual_rent').val(salesAnnualRent);
 
+        }
+
+        function monthycalculateMonthlyrentDFB2b(receivableValue, rev, contractAnnumrent) {
+            // alert("test");
+            // console.log("Receivable:", receivableValue, "Revenue:", rev, "Contract Annum Rent:", contractAnnumrent);
+            if (receivableValue > 0 && rev > 0 && contractAnnumrent > 0) {
+                let monthlyRent = rev * (receivableValue / contractAnnumrent);
+                return monthlyRent.toFixed(2);
+            }
         }
     </script>
 @endsection
