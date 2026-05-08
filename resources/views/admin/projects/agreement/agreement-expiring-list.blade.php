@@ -107,32 +107,33 @@
 
 
 
+                                <div class="table-responsive">
+                                    <table id="agreementTable" class="table table-striped projects display">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 1%">#</th>
+                                                <th>Actions</th>
 
-                                <table id="agreementTable" class="table table-striped projects display nowrap">
-                                    <thead>
-                                        <tr>
-                                            <th style="width: 1%">#</th>
-                                            <th>Actions</th>
+                                                <th>Agreement Code</th>
+                                                <th>Company Name</th>
+                                                <th>Project Details</th>
+                                                <th>Unit- Subunit</th>
+                                                <th>Customer Type</th>
+                                                <th>Tenant Details</th>
+                                                <th>Start Date</th>
+                                                <th>End Date</th>
+                                                <th>Agreement Status</th>
+                                                <th>Signed Agreement Status</th>
+                                                <th>Created At</th>
+                                                <!-- <th>Status</th> -->
+                                                {{-- <th></th> --}}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
 
-                                            <th>Agreement Code</th>
-                                            <th>Company Name</th>
-                                            <th>Project Details</th>
-                                            <th>Unit- Subunit</th>
-                                            <th>Customer Type</th>
-                                            <th>Tenant Details</th>
-                                            <th>Start Date</th>
-                                            <th>End Date</th>
-                                            <th>Agreement Status</th>
-                                            <th>Signed Agreement Status</th>
-                                            <th>Created At</th>
-                                            <!-- <th>Status</th> -->
-                                            {{-- <th></th> --}}
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-
-                                    </tbody>
-                                </table>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                             <!-- /.card-body -->
                         </div>
