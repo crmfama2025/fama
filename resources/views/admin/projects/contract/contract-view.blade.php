@@ -421,6 +421,7 @@
                                                 <th>Floor Number</th>
                                                 <th>Unit Status</th>
                                                 <th>Unit Rent Per Annum</th>
+                                                <th>Unit REnt Per Month</th>
                                                 <th>Partition / Bedspace / Room</th>
                                                 <th>No of partition / Bedspace / Room</th>
                                                 <th>Rent per partition / Bedspace / Room</th>
@@ -440,6 +441,7 @@
                                                     <td>{{ strtoupper($unitDetails->floor_no) }}</td>
                                                     <td>{{ strtoupper($unitDetails->unit_status->unit_status) }}</td>
                                                     <td>{{ 'AED ' . $unitDetails->unit_rent_per_annum }}</td>
+                                                    <td>{{ 'AED ' . $unitDetails->total_rent_per_unit_per_month }}</td>
                                                     </td>
                                                     <td>
                                                         {{ subunittypeName($unitDetails->subunittype) }}
