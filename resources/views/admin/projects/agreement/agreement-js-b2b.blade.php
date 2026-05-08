@@ -16,16 +16,14 @@
             }
         });
 
-        return total;
+        return total.toFixed(2);
     }
 
 
     function validateInstallmentsTotal() {
-        // alert("testr");
-        console.log('Validating installments total...');
-        let totalInstallments = calculateTotalInstallments();
+        let totalInstallments = parseFloat(calculateTotalInstallments());
         let rentPerAnnum = parseFloat($('#total_rent_annum').val());
-        console.log('Total Installments:', totalInstallments, 'Rent Per Annum:', rentPerAnnum);
+        // console.log('Total Installments:', totalInstallments, 'Rent Per Annum:', rentPerAnnum);
 
         if (totalInstallments !== rentPerAnnum) {
             $('#installment_error').remove();
