@@ -4,7 +4,7 @@ namespace App\Repositories\Agreement;
 
 use App\Models\Agreement;
 use App\Models\AgreementPaymentDetail;
-use App\Models\agreementSubunitRentBifurcation;
+use App\Models\AgreementSubunitRentBifurcation;
 use App\Models\AgreementUnit;
 use App\Models\Contract;
 use App\Models\ContractSubunitDetail;
@@ -561,7 +561,7 @@ class AgreementRepository
 
             // Insert all new rows at once
             if (!empty($insertData)) {
-                agreementSubunitRentBifurcation::insert($insertData);
+                AgreementSubunitRentBifurcation::insert($insertData);
             }
 
             DB::commit();
