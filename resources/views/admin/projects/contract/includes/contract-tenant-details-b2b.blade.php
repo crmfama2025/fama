@@ -11,17 +11,17 @@
                 <span>Tenant Name:
                     {{ $agreementUnit->agreement->tenant->tenant_name }}</span></br>
                 <span>Nationality :
-                    {{ $agreementUnit->agreement->tenant->nationality->nationality_name }}</span></br>
+                    {{ $agreementUnit->agreement->tenant->nationality?->nationality_name }}</span></br>
                 <span>Mobile :
                     {{ $agreementUnit->agreement->tenant->tenant_mobile }}</span></br>
                 <span>Email :
                     {{ $agreementUnit->agreement->tenant->tenant_email }}</span></br>
                 <span>Contact Person :
-                    {{ $agreementUnit->agreement->tenant->contact_person }}</span></br>
+                    {{ $agreementUnit->agreement->tenant->contact_person ?? ' - ' }}</span></br>
                 <span>Contact No :
-                    {{ $agreementUnit->agreement->tenant->contact_number }}</span></br>
+                    {{ $agreementUnit->agreement->tenant->contact_number ?? ' - ' }}</span></br>
                 <span>Contact Email :
-                    {{ $agreementUnit->agreement->tenant->contact_email }}</span></br>
+                    {{ $agreementUnit->agreement->tenant->contact_email ?? ' - ' }}</span></br>
                 <span class="text-bold">Annual rent :
                     {{ $agreementUnit->agreement->agreement_payment->total_rent_annum }}</span></br>
 
