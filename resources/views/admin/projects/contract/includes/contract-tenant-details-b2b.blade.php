@@ -11,7 +11,7 @@
                 <span>Tenant Name:
                     {{ $agreementUnit->agreement->tenant->tenant_name }}</span></br>
                 <span>Nationality :
-                    {{ $agreementUnit->agreement->tenant->nationality?->nationality_name }}</span></br>
+                    {{ $agreementUnit->agreement->tenant->nationality?->nationality_name ?? ' - ' }}</span></br>
                 <span>Mobile :
                     {{ $agreementUnit->agreement->tenant->tenant_mobile }}</span></br>
                 <span>Email :
