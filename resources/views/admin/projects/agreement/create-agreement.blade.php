@@ -167,7 +167,7 @@
                                                             <option value="">Select Tenant</option>
                                                             @foreach ($tenants as $t)
                                                                 <option value="{{ $t->id }}"
-                                                                    {{ (isset($agreement) && $agreement->tenant_id == $t->id) || (isset($tenant_id) && $tenant_id == $t->id) || (isset($salesTenant) && $salesTenant->id == $t->id) ? 'selected' : '' }}>
+                                                                    {{ (isset($agreement) && $agreement->tenant_id == $t->id) || (isset($tenant) && $tenant->id == $t->id) || (isset($salesTenant) && $salesTenant->id == $t->id) ? 'selected' : '' }}>
                                                                     {!! $t->tenant_code . ' - ' . $t->tenant_name !!}
                                                                 </option>
                                                             @endforeach
