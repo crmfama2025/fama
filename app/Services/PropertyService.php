@@ -210,6 +210,7 @@ class PropertyService
     {
         // Read Excel as collection
         $rows = Excel::toCollection(new PropertyImport, $file)->first();
+        // dd($rows);
 
         $insertData = [];
         $seen = [];
@@ -303,6 +304,7 @@ class PropertyService
                     $restoreCount++;
                 }
             } elseif ($propertyExist == null) {
+                // dd('test');
                 if (!isset($seen[$seenKey])) {
                     $insertData[] = [
                         // 'company_id' => $company_id,
@@ -317,10 +319,15 @@ class PropertyService
                         'created_at' => now()->toDateTimeString(),
                         'updated_at' => now()->toDateTimeString(),
                         'added_by' => $user_id,
+                        'makani_number' => $row['makani_number'] ?? null,
+                        'location' => $row['maps_url'] ?? null,
+                        'latitude' => $row['latitude'] ?? null,
+                        'longitude' => $row['longitude'] ?? null,
                     ];
                     $seen[$seenKey] = true;
                 }
             }
+            // dd($insertData);
 
 
             // if ($propertyExist == null) {
