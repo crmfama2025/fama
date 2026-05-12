@@ -594,9 +594,10 @@
                                                 {{-- @elseif (
                                                 $contract->is_vendor_contract_uploaded == 0 &&
                                                     auth()->user()->hasAnyPermission(['contract.add', 'contract.edit'], $contract->company_id)) --}}
-                                            @elseif(auth()->user()->hasAnyPermission(['contract.add'], $contract->company_id) &&
+                                                {{-- @elseif(auth()->user()->hasAnyPermission(['contract.add'], $contract->company_id) &&
                                                     $contract->has_agreement == 0 &&
-                                                    $contract->contract_status != 3)
+                                                    $contract->contract_status != 3) --}}
+                                            @elseif(auth()->user()->hasAnyPermission(['contract.add'], $contract->company_id))
                                                 <button class="btn btn-primary"
                                                     onclick="generateScope({{ $contract->id }})">
                                                     <i class="fas fa-download"></i> Update Scope
