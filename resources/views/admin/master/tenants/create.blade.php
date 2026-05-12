@@ -172,7 +172,7 @@
 
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label>Contact Person</label>
+                                            <label class="asterisk">Contact Person</label>
                                             <input type="text" name="contact_person"
                                                 class="form-control @error('contact_person') is-invalid @enderror"
                                                 value="{{ old('contact_person', $tenant->contact_person ?? '') }}"
@@ -185,7 +185,7 @@
 
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label>Contact Email</label>
+                                            <label class="asterisk">Contact Email</label>
                                             <input type="email" name="contact_email"
                                                 class="form-control @error('contact_email') is-invalid @enderror"
                                                 value="{{ old('contact_email', $tenant->contact_email ?? '') }}"
@@ -198,7 +198,7 @@
 
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label>Contact Mobile</label>
+                                            <label class="asterisk">Contact Mobile</label>
                                             <input type="text" name="contact_number"
                                                 class="form-control @error('contact_number') is-invalid @enderror"
                                                 value="{{ old('contact_number', $tenant->contact_number ?? '') }}"
@@ -284,7 +284,7 @@
 
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label>Address line 1</label>
+                                            <label class="asterisk">Address line 1</label>
                                             <input type="text" name="tenant_address"
                                                 class="form-control @error('tenant_address') is-invalid @enderror"
                                                 value="{{ old('tenant_address', $tenant->tenant_address ?? '') }}"
