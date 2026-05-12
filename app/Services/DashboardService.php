@@ -141,6 +141,7 @@ class DashboardService
                     ->orWhereNull('parent_contract_id');
             })
             ->whereNotIn('contract_status', [3])
+            ->where('renew_reject_status', 0)
             ->count();
         $wid_totalContracts = (clone $contracts)
             // ->where('contract_renewal_status', 0)
