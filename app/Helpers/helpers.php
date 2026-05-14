@@ -236,7 +236,7 @@ function getPartitionValue($dataArr, $ct_detail, $key, $receivable_installments)
     if ($installment->installment_name == '14') {
         $installment = '13';
         // dd($installment);
-    } else if ($installment->installment_name == '13' && $ct_detail->duration_in_months == 12) {
+    } else if ($installment->installment_name == '13' && ($ct_detail->duration_in_months == 12 || $ct_detail->duration_in_months == 12.8)) {
         $installment = '12';
         // dd($installment);
     } else {
