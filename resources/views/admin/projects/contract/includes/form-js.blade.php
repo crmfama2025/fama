@@ -958,7 +958,7 @@
             // $('#ejari').val(0);
 
         } else {
-            alert('other');
+            // alert('other');
             $('#cost_of_development').attr('readonly', true).val('');
             $('#cost_of_beds').attr('readonly', true).val('');
             $('#cost_of_mattress').attr('readonly', true).val('');
