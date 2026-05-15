@@ -241,6 +241,8 @@ function getPartitionValue($dataArr, $ct_detail, $key, $receivable_installments)
 
         if ($ct_detail->duration_in_months == 12.8) {
             $installment = '12.8';
+        } else if ($ct_detail->duration_in_months == 13) {
+            $installment = '13';
         } else {
             $installment = '12';
         }
