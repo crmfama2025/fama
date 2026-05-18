@@ -1642,7 +1642,8 @@
         // (parseFloat($('#ejari').val()) || 0);
 
         let paymenttovendor = parseFloat(totRent + totcomm + totdepo).toFixed(2);
-        let finalCost = (parseFloat(paymenttovendor) + parseFloat(totcontractfee) + parseFloat(totalotc)).toFixed(2);
+        let finalCost = (parseFloat(paymenttovendor) + parseFloat(totcontractfee) + parseFloat(totalotc) + parseFloat(
+            ejari)).toFixed(2);
         const installment = $('#no_of_installments').find(':selected').text();
         // console.log('installment - ' + installment);
         // console.log('totcomm - ' + totcomm);
