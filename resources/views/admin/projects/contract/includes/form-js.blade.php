@@ -1630,6 +1630,7 @@
         let totcomm = parseFloat($('#commission').val()) || 0;
         let totdepo = parseFloat($('#deposit').val()) || 0;
         let totcontractfee = parseFloat($('#contract_fee').val()) || 0;
+        let ejari = parseFloat($('#ejari').val()) || 0;
 
         let totalotc = (parseFloat($('#cost_of_development').val()) || 0) +
             (parseFloat($('#cost_of_beds').val()) || 0) +
@@ -1653,7 +1654,8 @@
         // let initialInv = parseFloat((totRent / 4) + totcomm + totdepo + totcontractfee + totalotc)
         //     .toFixed(2);
         let rent_split_value = parseFloat($('.rent_split_value').val());
-        let initialInv = parseFloat((totRent / rent_split_value) + totcomm + totdepo + totcontractfee + totalotc)
+        let initialInv = parseFloat((totRent / rent_split_value) + totcomm + totdepo + totcontractfee + totalotc +
+                ejari)
             .toFixed(2);
 
         $('.total_contract_amount').val(totRent);
