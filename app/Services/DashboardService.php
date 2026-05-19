@@ -156,7 +156,7 @@ class DashboardService
         $wid_totalContracts_terminated = (clone $contracts)
             // ->where('contract_renewal_status', 0)
             // ->where('renew_reject_status', 0)
-            ->where('contract_status', 10)
+            ->where('contract_status', 9)
             ->count();
 
 
