@@ -114,7 +114,7 @@
                                 <div class="inner">
                                     <h3 class="mb-1" id="totalContracts">{{ format_k($wid_totalContracts) }}</h3>
 
-                                    <p class="mb-0">New Projects</p>
+                                    <p class="mb-0">Projects</p>
                                     <small class="text-white">
                                         <strong id="totalRenewals">{{ $wid_totalContracts }}</strong>
                                     </small>
