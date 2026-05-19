@@ -3185,6 +3185,7 @@
                 let val = parseFloat($(this).val()) || 0;
                 totalPayment += val;
             });
+            totalPayment = totalPayment.toFixed(2);
             // console.log(totalRent, totalPayment);
 
             // // Enable or disable submit button
