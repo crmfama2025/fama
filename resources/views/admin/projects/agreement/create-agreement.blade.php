@@ -3185,7 +3185,8 @@
                 let val = parseFloat($(this).val()) || 0;
                 totalPayment += val;
             });
-            // totalPayment = totalPayment.toFixed(2);
+            // Fix floating precision (keep number)
+            totalPayment = Math.round(totalPayment * 100) / 100;
             // console.log(totalRent, totalPayment);
 
             // // Enable or disable submit button
@@ -3201,7 +3202,8 @@
             errorDiv.attr('tabindex', '-1');
 
             // Enable or disable submit button
-            if (totalPayment === totalRent && totalRent > 0) {
+            // if (totalPayment === totalRent && totalRent > 0) {
+            if (Math.abs(totalPayment - totalRent) < 0.01 && totalRent > 0) {
                 // $('#submitBtn').prop('disabled', false);
                 errorDiv.addClass('d-none').removeClass('d-flex');
                 return true;
