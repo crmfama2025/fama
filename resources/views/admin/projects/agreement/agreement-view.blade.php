@@ -716,7 +716,7 @@
                                     <h5 class="mb-0">Agreement Renewal Details</h5>
                                 </div>
 
-                                <div class="card-body p-0 table-responsive">
+                                <div class="card-body p-0 table-responsive" style="overflow-x: scroll;">
                                     <table class="table table-bordered table-hover mb-0">
                                         <thead class="table-light">
                                             <tr>
