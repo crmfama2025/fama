@@ -280,7 +280,7 @@
                                             Unit Details
                                         </div>
 
-                                        <div class="table-responsive" style="max-height:246px;">
+                                        <div class="table-responsive" style="max-height:246px; overflow-x: scroll;">
                                             <table class="table table-bordered table-hover mb-0 ">
                                                 <thead style=" color:white;">
                                                     <tr class="text-center bg-cyan">
