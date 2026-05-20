@@ -239,7 +239,7 @@
             // if (covered > 0) apAllocatedIds.push(r.id);
             if (covered > 0) {
                 apAllocatedIds.push(r.id);
-                apAllocatedAmounts[r.id] = covered;
+                apAllocatedAmounts[r.id] = parseFloat(covered.toFixed(2));
             }
             // console.log('Allocating:', {
             //     id: r.id,
@@ -382,6 +382,7 @@
 
     // ── Confirm & Clear ───────────────────────────────────────────────
     $('#ap_confirm_btn').on('click', function() {
+        // alert("test");
         const clearingDate = $('#ap_clearing_date_input').val();
         if (!clearingDate) {
             Swal.fire({
