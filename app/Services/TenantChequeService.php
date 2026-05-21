@@ -476,6 +476,7 @@ class TenantChequeService
                     ? (float) $allocatedAmounts[$paymentId]
                     : (float) ($data['paid_amount'] ?? $payment->payment_amount);
 
+
                 $paidDate = $data['paid_date'];
                 $paidCompanyId = $data['paid_company_id'];
                 // dd($paidAmount);
@@ -487,21 +488,49 @@ class TenantChequeService
                 // Calculate pending amount & payment status
                 // $existingAmount = $payment->payment_amount;
                 $existingAmount = getReceivableAmount($paymentId);
-                // dd($existingAmount);
+                // dd($existingAmount, $paidAmount);
+                // dd()
+                // dd(
+                //     sprintf('%.20f', $existingAmount),
+                //     sprintf('%.20f', $paidAmount)
+                // );
 
 
-                if ($existingAmount > $paidAmount) {
-                    $pendingAmount = $existingAmount - $paidAmount;
+                // if ($existingAmount > $paidAmount) {
+                //     dd("half");
+                //     $pendingAmount = $existingAmount - $paidAmount;
+                //     $isReceived = 2;
+                // } else {
+                //     // dd("full");
+                //     $pendingAmount = 0;
+                //     $isReceived = 1;
+                // }
+                // $diff = bcsub($existingAmount, $paidAmount, 2);
+
+                // if (bccomp($diff, '0', 2) === 1) {
+                //     dd("half");
+                //     $pendingAmount = $diff;
+                //     $isReceived = 2;
+                // } else {
+                //     dd('full');
+                //     $pendingAmount = 0;
+                //     $isReceived = 1;
+                // }
+                $diff = round($existingAmount - $paidAmount, 2);
+                if ($diff > 0) {
+                    $pendingAmount = $diff;
                     $isReceived = 2;
                 } else {
                     $pendingAmount = 0;
                     $isReceived = 1;
                 }
+                // dd($pendingAmount);
 
                 $detail_data = [
                     'is_payment_received' => $isReceived,
                     'payment_detail_id' => $paymentId
                 ];
+                // dd($detail_data);
                 $cleared_data = [
                     'paid_date' => $paidDate,
                     'paid_amount' => $paidAmount,
@@ -515,6 +544,7 @@ class TenantChequeService
                     'agreement_id' => $payment->agreement_id,
                     'paid_company_id' => $paidCompanyId ?? null
                 ];
+                // dd($cleared_data);
                 // dd($detail_date);
                 $this->validate($cleared_data);
 
