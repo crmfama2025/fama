@@ -329,7 +329,7 @@ class ContractController extends Controller
     public function exportBuildingSummary($id, $stage = null)
     {
         $contract = $this->contractService->getAllDataById($id);
-        $file_name = "Project " . $contract->project_number . (($contract->contract_type_id == 1) ? '_Direct' : '') . (($contract->parent_contract_id) ? '_Renewal' : '') . '_' . $contract->property->property_name . ' Building Summary.xlsx';
+        $file_name = "Project " . $contract->project_number . (($contract->contract_type_id == 1) ? '_Direct' : '') . (($contract->parent_contract_id) ? '_Renewal' : '') . '_' . $contract->property->property_name . ' Summary.xlsx';
 
         $file_name = preg_replace('/[^A-Za-z0-9.]+/', '_', $file_name); // replace unwanted chars with _
         $file_name = trim($file_name, '_');

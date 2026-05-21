@@ -47,7 +47,7 @@ class ProjectScopeExport implements FromArray, WithHeadings, WithStyles, ShouldA
         if (!isset($sheet)) {
             return [];
         }
-        $filename = "Project " . $this->contract['project_number'] . (($this->contract['contract_type_id'] == 1) ? '_Direct' : '') . (($this->contract['parent']) ? '_Renewal' : '') . '_' . $this->contract['property_name'] . ' Building Summary.xlsx';
+        $filename = "Project " . $this->contract['project_number'] . (($this->contract['contract_type_id'] == 1) ? '_Direct' : '') . (($this->contract['parent']) ? '_Renewal' : '') . '_' . $this->contract['property_name'] . ' Summary.xlsx';
         $title = "Project {$this->contract['project_number']} {$this->contract['property_name']}, {$this->contract['locality']}, {$this->contract['area']} ({$this->contract['vendor_name']}) Contract Period: {$this->contract['start_date']} to {$this->contract['end_date']}";
 
         if ($this->contract['contract_type_id'] == 1) {
