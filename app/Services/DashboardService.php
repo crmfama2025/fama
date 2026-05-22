@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Agreement;
 use App\Models\AgreementTenant;
 use App\Models\Company;
 use App\Models\Contract;
@@ -180,13 +181,19 @@ class DashboardService
             });
         })->sum('rent_receivable_per_annum');
 
-        $wid_tenants = AgreementTenant::where('id', '!=', 1)->when($companyId, function ($q) use ($companyId) {
-            $q->whereHas('agreement', function ($q2) use ($companyId) {
-                $q2->whereHas('contract', function ($c) use ($companyId) {
-                    $c->where('company_id', $companyId);
-                });
-            });
-        })->count();
+        // $wid_tenants = AgreementTenant::where('id', '!=', 1)->when($companyId, function ($q) use ($companyId) {
+        //     $q->whereHas('agreement', function ($q2) use ($companyId) {
+        //         $q2->whereHas('contract', function ($c) use ($companyId) {
+        //             $c->where('company_id', $companyId);
+        //         });
+        //     });
+        // })->count();
+        // dd($companyId);
+        $wid_tenants = Agreement::when($companyId, function ($q) use ($companyId) {
+            $q->where('company_id', $companyId);
+        })
+            ->distinct()
+            ->count('tenant_id');
 
         // dd($wid_tenants);
 
