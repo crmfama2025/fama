@@ -212,8 +212,11 @@
                                 <p>Revenue</p>
                             </div> --}}
                             <div class="inner">
-                                <h3 id="totalTenants">{{ format_k($wid_tenants) }}</h3>
-                                <p>Tenants</p>
+                                <h3 class="mb-1" id="totalTenants">{{ format_k($wid_tenants) }}</h3>
+                                <p class="mb-0">Tenants</p>
+                                <small class="text-white">
+                                    <strong>{{ $wid_tenants }}</strong>
+                                </small>
                             </div>
 
                             <div class="icon">
