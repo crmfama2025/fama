@@ -545,7 +545,7 @@
                                                         $renewal_count = 'New';
                                                     }
                                                 @endphp
-                                                <tr>
+                                                <tr class="{{ $renewal->id == $contract->id ? 'table-active' : '' }}">
                                                     <td><a href="{{ route('contract.show', $renewal->id) }}"
                                                             style="text-decoration: none; color: #17a2b8;">P -
                                                             {{ $renewal->project_number }}</a></td>
