@@ -29,7 +29,7 @@ class TenantController extends Controller
     }
     public function create()
     {
-        $title = "Tenants";
+        $title = "Add Tenants";
         $formData = $this->tenantService->gerFormData();
         // dd($formData);
         return view("admin.master.tenants.create", compact('title', 'formData'));
@@ -55,6 +55,7 @@ class TenantController extends Controller
     public function edit($id)
     {
         $tenant = $this->tenantService->getDetails($id);
+        $title = "Edit Tenant";
 
         // Prepare owners data by document type (skip Trade License type 3)
         $owners = [];
@@ -77,7 +78,7 @@ class TenantController extends Controller
         }
         // dd($owners);
 
-        $title = "Tenants";
+        // $title = "Tenants";
         $formData = $this->tenantService->gerFormData();
         return view('admin.master.tenants.create', compact('title', 'tenant', 'formData', 'owners'));
     }
