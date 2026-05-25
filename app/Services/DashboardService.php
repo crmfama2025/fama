@@ -160,6 +160,26 @@ class DashboardService
             ->where('contract_status', 9)
             ->count();
 
+        $b2cTenants = AgreementTenant::where('tenant_type', 2)->count();
+        // $b2bagreementContracts = Agreement::with('contract')->whereHas('contract', function ($q) {
+        //     $q->whereHas('contract_unit', function ($q2) {
+        //         $q2->where('business_type', 2);
+        //     });
+        // })->get();
+        $b2bTenants = AgreementTenant::with('agreement.agreement_units.contractUnitDetail')->where('tenant_type', 1)->get();
+        // dd($b2bTenants);
+        $totalSubunitsB2B = 0;
+
+        foreach ($b2bTenants as $tenant) {
+
+
+            foreach ($tenant->agreement as $agreement) {
+                foreach ($agreement->agreement_units as $unit) {
+                    $totalSubunitsB2B += $unit->contractUnitDetail->subunitcount_per_unit ?? 0;
+                }
+            }
+        }
+        // dd($totalSubunitsB2B);
 
         $wid_totalRenewals = (clone $contracts)
             ->where('parent_contract_id', '>', 0)
@@ -206,7 +226,9 @@ class DashboardService
             'wid_tenants',
             'wid_totalContracts_new',
             'wid_totalContracts_droped',
-            'wid_totalContracts_terminated'
+            'wid_totalContracts_terminated',
+            'b2cTenants',
+            'totalSubunitsB2B'
         );
     }
 
