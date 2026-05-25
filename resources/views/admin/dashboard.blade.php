@@ -205,26 +205,62 @@
                     </div>
                     <!-- ./col -->
                     <div class="col-lg-3 ">
-                        <div class="small-box bg-gradient-revenue">
+                        <div class="project-widget position-relative">
+                            <div class="small-box bg-gradient-revenue">
 
-                            {{-- <div class="inner">
+                                {{-- <div class="inner">
                                 <h3>{{ number_format($wid_revenue, 2) }}</h3>
                                 <p>Revenue</p>
                             </div> --}}
-                            <div class="inner">
-                                <h3 class="mb-1" id="totalTenants">{{ format_k($wid_tenants) }}</h3>
-                                <p class="mb-0">Tenants</p>
-                                <small class="text-white">
-                                    <strong>{{ $wid_tenants }}</strong>
-                                </small>
-                            </div>
+                                <div class="inner">
+                                    <h3 class="mb-1" id="totalTenants">{{ format_k($wid_tenants) }}</h3>
+                                    <p class="mb-0">Tenants</p>
+                                    <small class="text-white">
+                                        <strong>{{ $wid_tenants }}</strong>
+                                    </small>
+                                </div>
 
-                            <div class="icon">
-                                <i class="ion ion-person-stalker"></i>
-                            </div>
-                            {{-- <a href="#" class="small-box-footer">
+                                <div class="icon">
+                                    <i class="ion ion-person-stalker"></i>
+                                </div>
+                                {{-- <a href="#" class="small-box-footer">
                                 More info <i class="fas fa-arrow-circle-right"></i>
                             </a> --}}
+                            </div>
+                            <!-- 🔥 Hover Panel -->
+                            <div class="project-hover-box">
+                                <div class="d-flex text-center">
+
+                                    <div class="flex-fill">
+                                        <div class="text-success font-weight-bold">
+                                            {{ $b2cTenants }}
+                                        </div>
+                                        <small>B2C</small>
+                                    </div>
+
+                                    <div class="flex-fill">
+                                        <div class="text-info font-weight-bold">
+                                            {{ $totalSubunitsB2B }}
+                                        </div>
+                                        <small>B2B</small>
+                                    </div>
+
+                                    {{-- <div class="flex-fill">
+                                        <div class="text-warning font-weight-bold">
+                                            {{ format_k($wid_totalContracts_terminated) }}
+                                        </div>
+                                        <small>Terminated</small>
+                                    </div>
+
+                                    <div class="flex-fill">
+                                        <div class="text-danger font-weight-bold">
+                                            {{ format_k($wid_totalContracts_droped) }}
+                                        </div>
+                                        <small>Dropped</small>
+                                    </div> --}}
+
+                                </div>
+                            </div>
                         </div>
                     </div>
 
