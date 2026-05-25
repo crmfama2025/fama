@@ -50,7 +50,7 @@
             <div class="container-fluid">
                 <div class="row mb-2">
                     <div class="col-sm-6">
-                        <h1>Add Tenant</h1>
+                        <h1>{{ $title }}</h1>
                     </div>
                     <div class="col-sm-6">
                         <ol class="breadcrumb float-sm-right">
@@ -60,7 +60,7 @@
                             <li class="breadcrumb-item">
                                 <a href="{{ route('tenant.index') }}">Tenant</a>
                             </li>
-                            <li class="breadcrumb-item active">Add Tenant</li>
+                            <li class="breadcrumb-item active">{{ $title }}</li>
                         </ol>
                     </div>
                 </div>
@@ -72,7 +72,7 @@
             <div class="container-fluid">
                 <div class="card card-outline card-info">
                     <div class="card-header">
-                        <h3 class="card-title"><i class="fas fa-user-plus mr-2"></i>New Tenant Registration</h3>
+                        <h3 class="card-title"><i class="fas fa-user-plus mr-2"></i>{{ $title }}</h3>
                     </div>
 
                     <div class="card-body">
