@@ -25,7 +25,8 @@ class AgreementUnit extends Model
         'updated_by',
         'deleted_by',
         'subunit_ids',
-        'unit_revenue'
+        'unit_revenue',
+        'is_rent_bifurcation_added',
     ];
     protected $casts = [
         'subunit_ids' => 'array',

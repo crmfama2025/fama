@@ -562,6 +562,9 @@ class AgreementRepository
             // Insert all new rows at once
             if (!empty($insertData)) {
                 AgreementSubunitRentBifurcation::insert($insertData);
+                AgreementUnit::where('id', $data['agreement_unit_id'])->update([
+                    'is_rent_bifurcation_added' => 1,
+                ]);
             }
 
             DB::commit();
@@ -585,7 +588,7 @@ class AgreementRepository
             'agreement_units:id,agreement_id,contract_unit_details_id',
             'tenant:id,tenant_name,agreement_id'
         ])
-            ->select('id')
+            ->select('id', 'tenant_id')
             ->get();
     }
 }
