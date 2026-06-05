@@ -38,6 +38,6 @@ class AgreementSubunitRentBifurcation extends Model
     }
     public function contractSubunitDetail()
     {
-        return $this->belongsTo(ContractSubUnitDetail::class, 'contract_subunit_details_id');
+        return $this->belongsTo(ContractSubunitDetail::class, 'contract_subunit_details_id');
     }
 }
