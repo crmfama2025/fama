@@ -285,7 +285,7 @@ class InvoiceService
                     data-contract-id="' . $row->agreement->contract_id . '"
                     data-agreement-unit-id="' . $row->agreement_unit_id . '"
                     data-contract-unit-id="' . $unit->contractUnitDetail->id . '"
-                    data-total-amount = "' . $unit->rent_per_month . '"
+                    data-total-amount = "' . $row->payment_amount . '"
                     data-payment-date = "' . $row->payment_date . '"
                     title="Generate Invoice">
                     <i class="fas fa-file-invoice"></i>

@@ -192,162 +192,162 @@
 
         /* ---- Print ---- */
         /* @media print {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                            * {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -webkit-print-color-adjust: exact !important;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                print-color-adjust: exact !important;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                color-adjust: exact !important;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                            }
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            * {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -webkit-print-color-adjust: exact !important;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                print-color-adjust: exact !important;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                color-adjust: exact !important;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            }
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                            .no-print {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                display: none !important;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                            }
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            .no-print {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                display: none !important;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            }
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                            body {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                margin: 0;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                padding: 0;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                            }
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            body {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                margin: 0;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                padding: 0;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            }
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                            .content-wrapper,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                            .content,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                            .container-fluid {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                padding: 0 !important;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                margin: 0 !important;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                background: transparent !important;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                            }
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            .content-wrapper,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            .content,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            .container-fluid {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                padding: 0 !important;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                margin: 0 !important;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                background: transparent !important;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            }
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                            .invoice-page {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                box-shadow: none;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                margin: 0;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                max-width: 100%;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                width: 100%;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                min-height: 100vh;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -webkit-print-color-adjust: exact !important;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                print-color-adjust: exact !important;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                            }
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            .invoice-page {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                box-shadow: none;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                margin: 0;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                max-width: 100%;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                width: 100%;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                min-height: 100vh;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -webkit-print-color-adjust: exact !important;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                print-color-adjust: exact !important;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            }
 
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @page {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                margin: 0;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                size: A4 portrait;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                            }
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @page {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                margin: 0;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                size: A4 portrait;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            }
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                            .inv-table {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                width: 100%;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                border-collapse: collapse;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                font-size: 11px;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                min-height: 400px;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                height: 400px;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                            }
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            .inv-table {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                width: 100%;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                border-collapse: collapse;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                font-size: 11px;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                min-height: 400px;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                height: 400px;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            }
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                            .inv-table td {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                border: 1px solid #000;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                padding: 3px 6px;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                height: 25px;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                font-weight: 600;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                font-size: 13px;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                background: rgba(255, 255, 255, 0.7);
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                            }
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            .inv-table td {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                border: 1px solid #000;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                padding: 3px 6px;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                height: 25px;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                font-weight: 600;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                font-size: 13px;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                background: rgba(255, 255, 255, 0.7);
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            }
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                            .inv-table th {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                border: 1px solid #000;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                padding: 3px 6px;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                height: 25px;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                text-align: center;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                font-weight: 800;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                font-size: 13px;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                background: rgba(240, 240, 240, 0.85);
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                            }
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                        } */
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            .inv-table th {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                border: 1px solid #000;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                padding: 3px 6px;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                height: 25px;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                text-align: center;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                font-weight: 800;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                font-size: 13px;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                background: rgba(240, 240, 240, 0.85);
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            }
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        } */
         /* @media print {
-                                                                                                                                                                                                                                        * {
-                                                                                                                                                                                                                                            -webkit-print-color-adjust: exact !important;
-                                                                                                                                                                                                                                            print-color-adjust: exact !important;
-                                                                                                                                                                                                                                            color-adjust: exact !important;
-                                                                                                                                                                                                                                        }
+                                                                                                                                                                                                                                                        * {
+                                                                                                                                                                                                                                                            -webkit-print-color-adjust: exact !important;
+                                                                                                                                                                                                                                                            print-color-adjust: exact !important;
+                                                                                                                                                                                                                                                            color-adjust: exact !important;
+                                                                                                                                                                                                                                                        }
 
-                                                                                                                                                                                                                                        .no-print {
-                                                                                                                                                                                                                                            display: none !important;
-                                                                                                                                                                                                                                        }
+                                                                                                                                                                                                                                                        .no-print {
+                                                                                                                                                                                                                                                            display: none !important;
+                                                                                                                                                                                                                                                        }
 
-                                                                                                                                                                                                                                        body {
-                                                                                                                                                                                                                                            margin: 0;
-                                                                                                                                                                                                                                            padding: 0;
-                                                                                                                                                                                                                                        }
+                                                                                                                                                                                                                                                        body {
+                                                                                                                                                                                                                                                            margin: 0;
+                                                                                                                                                                                                                                                            padding: 0;
+                                                                                                                                                                                                                                                        }
 
-                                                                                                                                                                                                                                        .content-wrapper,
-                                                                                                                                                                                                                                        .content,
-                                                                                                                                                                                                                                        .container-fluid {
-                                                                                                                                                                                                                                            padding: 0 !important;
-                                                                                                                                                                                                                                            margin: 0 !important;
-                                                                                                                                                                                                                                            background: transparent !important;
-                                                                                                                                                                                                                                        }
+                                                                                                                                                                                                                                                        .content-wrapper,
+                                                                                                                                                                                                                                                        .content,
+                                                                                                                                                                                                                                                        .container-fluid {
+                                                                                                                                                                                                                                                            padding: 0 !important;
+                                                                                                                                                                                                                                                            margin: 0 !important;
+                                                                                                                                                                                                                                                            background: transparent !important;
+                                                                                                                                                                                                                                                        }
 
-                                                                                                                                                                                                                                        .invoice-page {
-                                                                                                                                                                                                                                            box-shadow: none;
-                                                                                                                                                                                                                                            margin: 0;
-                                                                                                                                                                                                                                            max-width: 100%;
-                                                                                                                                                                                                                                            width: 100%;
-                                                                                                                                                                                                                                            min-height: unset;
-                                                                                                                                                                                                                                            -webkit-print-color-adjust: exact !important;
-                                                                                                                                                                                                                                            print-color-adjust: exact !important;
-                                                                                                                                                                                                                                        }
+                                                                                                                                                                                                                                                        .invoice-page {
+                                                                                                                                                                                                                                                            box-shadow: none;
+                                                                                                                                                                                                                                                            margin: 0;
+                                                                                                                                                                                                                                                            max-width: 100%;
+                                                                                                                                                                                                                                                            width: 100%;
+                                                                                                                                                                                                                                                            min-height: unset;
+                                                                                                                                                                                                                                                            -webkit-print-color-adjust: exact !important;
+                                                                                                                                                                                                                                                            print-color-adjust: exact !important;
+                                                                                                                                                                                                                                                        }
 
-                                                                                                                                                                                                                                        @page {
-                                                                                                                                                                                                                                            margin: 0;
-                                                                                                                                                                                                                                            size: A4 portrait;
-                                                                                                                                                                                                                                        }
+                                                                                                                                                                                                                                                        @page {
+                                                                                                                                                                                                                                                            margin: 0;
+                                                                                                                                                                                                                                                            size: A4 portrait;
+                                                                                                                                                                                                                                                        }
 
-                                                                                                                                                                                                                                        .inv-table {
-                                                                                                                                                                                                                                            width: 100%;
-                                                                                                                                                                                                                                            border-collapse: collapse;
-                                                                                                                                                                                                                                            font-size: 11px;
-                                                                                                                                                                                                                                        }
+                                                                                                                                                                                                                                                        .inv-table {
+                                                                                                                                                                                                                                                            width: 100%;
+                                                                                                                                                                                                                                                            border-collapse: collapse;
+                                                                                                                                                                                                                                                            font-size: 11px;
+                                                                                                                                                                                                                                                        }
 
-                                                                                                                                                                                                                                        .inv-table thead {
-                                                                                                                                                                                                                                            display: table-header-group;
-                                                                                                                                                                                                                                        }
+                                                                                                                                                                                                                                                        .inv-table thead {
+                                                                                                                                                                                                                                                            display: table-header-group;
+                                                                                                                                                                                                                                                        }
 
-                                                                                                                                                                                                                                        .inv-table tfoot {
-                                                                                                                                                                                                                                            display: table-footer-group;
-                                                                                                                                                                                                                                        }
+                                                                                                                                                                                                                                                        .inv-table tfoot {
+                                                                                                                                                                                                                                                            display: table-footer-group;
+                                                                                                                                                                                                                                                        }
 
-                                                                                                                                                                                                                                        .inv-table tr {
-                                                                                                                                                                                                                                            page-break-inside: avoid;
-                                                                                                                                                                                                                                        }
+                                                                                                                                                                                                                                                        .inv-table tr {
+                                                                                                                                                                                                                                                            page-break-inside: avoid;
+                                                                                                                                                                                                                                                        }
 
-                                                                                                                                                                                                                                        .inv-table td {
-                                                                                                                                                                                                                                            border: 1px solid #000;
-                                                                                                                                                                                                                                            padding: 3px 6px;
-                                                                                                                                                                                                                                            height: 25px;
-                                                                                                                                                                                                                                            font-weight: 600;
-                                                                                                                                                                                                                                            font-size: 13px;
-                                                                                                                                                                                                                                            background: rgba(255, 255, 255, 0.7);
-                                                                                                                                                                                                                                        }
+                                                                                                                                                                                                                                                        .inv-table td {
+                                                                                                                                                                                                                                                            border: 1px solid #000;
+                                                                                                                                                                                                                                                            padding: 3px 6px;
+                                                                                                                                                                                                                                                            height: 25px;
+                                                                                                                                                                                                                                                            font-weight: 600;
+                                                                                                                                                                                                                                                            font-size: 13px;
+                                                                                                                                                                                                                                                            background: rgba(255, 255, 255, 0.7);
+                                                                                                                                                                                                                                                        }
 
-                                                                                                                                                                                                                                        .inv-table th {
-                                                                                                                                                                                                                                            border: 1px solid #000;
-                                                                                                                                                                                                                                            padding: 3px 6px;
-                                                                                                                                                                                                                                            height: 25px;
-                                                                                                                                                                                                                                            text-align: center;
-                                                                                                                                                                                                                                            font-weight: 800;
-                                                                                                                                                                                                                                            font-size: 13px;
-                                                                                                                                                                                                                                            background: rgba(240, 240, 240, 0.85);
-                                                                                                                                                                                                                                        }
+                                                                                                                                                                                                                                                        .inv-table th {
+                                                                                                                                                                                                                                                            border: 1px solid #000;
+                                                                                                                                                                                                                                                            padding: 3px 6px;
+                                                                                                                                                                                                                                                            height: 25px;
+                                                                                                                                                                                                                                                            text-align: center;
+                                                                                                                                                                                                                                                            font-weight: 800;
+                                                                                                                                                                                                                                                            font-size: 13px;
+                                                                                                                                                                                                                                                            background: rgba(240, 240, 240, 0.85);
+                                                                                                                                                                                                                                                        }
 
-                                                                                                                                                                                                                                        .pay-section {
-                                                                                                                                                                                                                                            page-break-inside: avoid;
-                                                                                                                                                                                                                                        }
+                                                                                                                                                                                                                                                        .pay-section {
+                                                                                                                                                                                                                                                            page-break-inside: avoid;
+                                                                                                                                                                                                                                                        }
 
-                                                                                                                                                                                                                                        .sig-row {
-                                                                                                                                                                                                                                            page-break-inside: avoid;
-                                                                                                                                                                                                                                        }
+                                                                                                                                                                                                                                                        .sig-row {
+                                                                                                                                                                                                                                                            page-break-inside: avoid;
+                                                                                                                                                                                                                                                        }
 
-                                                                                                                                                                                                                                        .inv-meta,
-                                                                                                                                                                                                                                        .inv-info,
-                                                                                                                                                                                                                                        .inv-period {
-                                                                                                                                                                                                                                            page-break-inside: avoid;
-                                                                                                                                                                                                                                        }
-                                                                                                                                                                                                                                    } */
+                                                                                                                                                                                                                                                        .inv-meta,
+                                                                                                                                                                                                                                                        .inv-info,
+                                                                                                                                                                                                                                                        .inv-period {
+                                                                                                                                                                                                                                                            page-break-inside: avoid;
+                                                                                                                                                                                                                                                        }
+                                                                                                                                                                                                                                                    } */
         @media print {
             * {
                 -webkit-print-color-adjust: exact !important;
@@ -488,6 +488,9 @@
         $rowsPerPage = 22;
 
         $subunitPages = $subunits->count() ? $subunits->chunk($rowsPerPage) : collect([collect()]);
+        $unitFullRentPerMonth = $agreementUnit->rent_per_month ?? 0;
+        $receivableRentPerMonth = $invoice->agreementPaymentDetail->payment_amount;
+        $subunitRent = round($receivableRentPerMonth / $subunits->count(), 2);
     @endphp
     <div class="content-wrapper">
         <section class="content">
@@ -503,198 +506,207 @@
                     </div>
                 </section>
                 <div id="invoice-print-area">
-                    @foreach ($subunitPages as $pageSubunits)
-                        @php
-                            $isFirstPage = $loop->first;
-                            $isLastPage = $loop->last;
-                        @endphp
+                    @if ($unitFullRentPerMonth != $receivableRentPerMonth)
+                        @include('admin.invoices.partial.invoice_rent_half', [
+                            'receivableRentPerMonth' => $receivableRentPerMonth,
+                        ])
+                    @else
+                        @foreach ($subunitPages as $pageSubunits)
+                            @php
+                                $isFirstPage = $loop->first;
+                                $isLastPage = $loop->last;
+                            @endphp
 
-                        <div class="invoice-page">
-                            <div class="invoice-content">
-                                @if ($isFirstPage)
-                                    <div class="inv-title">INVOICE</div>
+                            <div class="invoice-page">
+                                <div class="invoice-content">
+                                    @if ($isFirstPage)
+                                        <div class="inv-title">INVOICE</div>
 
-                                    @php
-                                        $tenant = $invoice->agreement->tenant ?? null;
-                                        $tenantName = $tenant->tenant_name ?? '-';
-                                        $companyName = $company->company_name ?? '-';
-                                        $trn_number =
-                                            $tenant?->tenantDocuments?->where('document_type', 3)->first()
-                                                ?->document_number ?? '-';
-                                    @endphp
+                                        @php
+                                            $tenant = $invoice->agreement->tenant ?? null;
+                                            $tenantName = $tenant->tenant_name ?? '-';
+                                            $companyName = $company->company_name ?? '-';
+                                            $trn_number =
+                                                $tenant?->tenantDocuments?->where('document_type', 3)->first()
+                                                    ?->document_number ?? '-';
+                                        @endphp
 
-                                    <div class="inv-meta">
-                                        <div>
-                                            <strong>{{ $tenantName }}</strong><br>UAE.
+                                        <div class="inv-meta">
+                                            <div>
+                                                <strong>{{ $tenantName }}</strong><br>UAE.
+                                            </div>
+                                            <div style="text-align:right;">
+                                                <strong>Invoice No. {{ $invoice->invoice_no }}</strong><br>
+                                                <strong>Date:
+                                                    {{ \Carbon\Carbon::parse($invoice->invoice_date)->format('d/m/Y') }}</strong>
+                                            </div>
                                         </div>
-                                        <div style="text-align:right;">
-                                            <strong>Invoice No. {{ $invoice->invoice_no }}</strong><br>
-                                            <strong>Date:
-                                                {{ \Carbon\Carbon::parse($invoice->invoice_date)->format('d/m/Y') }}</strong>
+
+                                        <div class="inv-info">
+                                            <strong>License No:
+                                                {{ str_starts_with($trn_number, '000') ? 'N/A' : $trn_number }}</strong><br>
+                                            <strong>{{ $companyName }} | P - {{ $contract->project_number }}</strong>
                                         </div>
-                                    </div>
 
-                                    <div class="inv-info">
-                                        <strong>License No:
-                                            {{ str_starts_with($trn_number, '000') ? 'N/A' : $trn_number }}</strong><br>
-                                        <strong>{{ $companyName }} | P - {{ $contract->project_number }}</strong>
-                                    </div>
-
-                                    <div class="inv-period">
-                                        <strong>For the M/o
-                                            {{ \Carbon\Carbon::parse($invoice->month_start)->format('d-m-Y') }}
-                                            to
-                                            {{ \Carbon\Carbon::parse($invoice->month_end)->format('d-m-Y') }}
-                                        </strong>
-                                    </div>
-                                @else
-                                    <div class="continued-space"></div>
-                                @endif
-
-
-
-                                <table class="inv-table">
-                                    <thead>
-                                        <tr>
-                                            {{-- <th>Project Number</th> --}}
-                                            <th>Building Name</th>
-                                            <th>Flat No.</th>
-                                            <th>Area</th>
-                                            <th>Type</th>
-                                            <th>Tenant Type</th>
-                                            <th>Partitions No.</th>
-                                            <th>Amount AED.</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @forelse ($pageSubunits as $subunit)
-                                            <tr>
-                                                {{-- <td>Project - {{ $project_no }}</td> --}}
-                                                <td class="c">{{ $buildingName }}</td>
-                                                <td class="c">{{ $flatNo }}</td>
-                                                <td class="c">{{ $area }}</td>
-                                                <td class="c">{{ $unitType }}</td>
-                                                <td class="c">{{ $tenantType }}</td>
-                                                <td class="c">{{ $subunit->contractSubunitDetail->subunit_no ?? '-' }}
-                                                </td>
-                                                <td class="r">{{ number_format($subunit->rent_per_month, 2) }}</td>
-                                            </tr>
-                                        @empty
-                                            <tr>
-                                                <td class="c">{{ $buildingName }}</td>
-                                                <td class="c">{{ $flatNo }}</td>
-                                                <td class="c">{{ $area }}</td>
-                                                <td class="c">{{ $unitType }}</td>
-                                                <td class="c">{{ $tenantType }}</td>
-                                                <td class="c">-</td>
-                                                <td class="r">{{ number_format($invoice->total_amount, 2) }}</td>
-                                            </tr>
-                                        @endforelse
-                                    </tbody>
-                                    @if ($isLastPage)
-                                        <tfoot>
-                                            <tr class="total">
-                                                <td colspan="6" class="r"><strong>Total Amount---AED</strong></td>
-                                                <td class="r">
-                                                    <strong>{{ number_format($invoice->total_amount, 2) }}</strong>
-                                                </td>
-                                            </tr>
-                                        </tfoot>
+                                        <div class="inv-period">
+                                            <strong>For the M/o
+                                                {{ \Carbon\Carbon::parse($invoice->month_start)->format('d-m-Y') }}
+                                                to
+                                                {{ \Carbon\Carbon::parse($invoice->month_end)->format('d-m-Y') }}
+                                            </strong>
+                                        </div>
+                                    @else
+                                        <div class="continued-space"></div>
                                     @endif
-                                </table>
-                                @if ($isLastPage)
-                                    <div class="pay-section">
-                                        <p><strong>Payment Methods: Cheque Or Bank Transfer</strong></p>
-                                        <p><strong>Account Details: -</strong></p>
-                                        <table class="bank-table">
-                                            <thead>
+
+
+
+                                    <table class="inv-table">
+                                        <thead>
+                                            <tr>
+                                                {{-- <th>Project Number</th> --}}
+                                                <th>Building Name</th>
+                                                <th>Flat No.</th>
+                                                <th>Area</th>
+                                                <th>Type</th>
+                                                <th>Tenant Type</th>
+                                                <th>Partitions No.</th>
+                                                <th>Amount AED.</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @forelse ($pageSubunits as $subunit)
                                                 <tr>
-                                                    <th>Bank Name.</th>
-                                                    <th>Account Name.</th>
-                                                    <th>Account No.</th>
-                                                    <th>IBAN</th>
+                                                    {{-- <td>Project - {{ $project_no }}</td> --}}
+                                                    <td class="c">{{ $buildingName }}</td>
+                                                    <td class="c">{{ $flatNo }}</td>
+                                                    <td class="c">{{ $area }}</td>
+                                                    <td class="c">{{ $unitType }}</td>
+                                                    <td class="c">{{ $tenantType }}</td>
+                                                    <td class="c">
+                                                        {{ $subunit->contractSubunitDetail->subunit_no ?? '-' }}
+                                                    </td>
+                                                    <td class="r">{{ number_format($subunit->rent_per_month, 2) }}
+                                                    </td>
                                                 </tr>
-                                            </thead>
-                                            <tbody>
+                                            @empty
                                                 <tr>
-                                                    <td>Emirates Islamic</td>
-                                                    <td>Faateh Real Estate LLC</td>
-                                                    <td>3708467001801</td>
-                                                    <td>AE630340003708467001801</td>
+                                                    <td class="c">{{ $buildingName }}</td>
+                                                    <td class="c">{{ $flatNo }}</td>
+                                                    <td class="c">{{ $area }}</td>
+                                                    <td class="c">{{ $unitType }}</td>
+                                                    <td class="c">{{ $tenantType }}</td>
+                                                    <td class="c">-</td>
+                                                    <td class="r">{{ number_format($invoice->total_amount, 2) }}</td>
                                                 </tr>
-                                                <tr>
-                                                    <td>Emirates NBD</td>
-                                                    <td>Faateh Real Estate LLC</td>
-                                                    <td>1015900588801</td>
-                                                    <td>AE090260001015900588801</td>
+                                            @endforelse
+                                        </tbody>
+                                        @if ($isLastPage)
+                                            <tfoot>
+                                                <tr class="total">
+                                                    <td colspan="6" class="r"><strong>Total Amount---AED</strong>
+                                                    </td>
+                                                    <td class="r">
+                                                        <strong>{{ number_format($invoice->total_amount, 2) }}</strong>
+                                                    </td>
                                                 </tr>
-                                                <tr>
-                                                    <td>ADCB</td>
-                                                    <td>Faateh Real Estate LLC</td>
-                                                    <td>14107498920001</td>
-                                                    <td>AE910030014107498920001</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                @endif
-
-                                {{-- ===== SIGNATURES ===== --}}
-                                @if ($isLastPage)
-                                    <div class="sig-row">
-
-                                        {{-- LEFT: Faateh Real Estate — digital approval --}}
-                                        {{-- <div class="sig-block">
-
-
-                                <div class="sig-line">For Faateh Real Estate</div>
-                            </div> --}}
-
-                                        {{-- RIGHT: Receiver --}}
-                                        <div class="sig-block text-right">
-                                            @if ($isApproved)
-                                                <div
-                                                    style="
-                                                border: 1.5px solid #198555;
-                                                border-radius: 5px;
-                                                padding: 6px 10px;
-                                                display: inline-block;
-                                                background: #fff;
-                                            ">
-                                                    <div
-                                                        style="display: flex; align-items: center; gap: 5px; margin-bottom: 4px;">
-                                                        <span
-                                                            style="color: #198555; font-size: 11px; font-weight: bold;">✓</span>
-                                                        <span
-                                                            style="font-size: 9px; font-weight: 600; color: #198555; letter-spacing: 0.4px; text-transform: uppercase;">
-                                                            Digitally Approved
-                                                        </span>
-                                                    </div>
-                                                    <div style="border-top: 0.5px solid #b7ddc8; padding-top: 4px;">
-                                                        <p style="font-size: 8.5px; color: #555; margin: 0 0 1px;">
-                                                            <span style="color: #999;">Approved by</span>
-                                                            &nbsp;{{ $invoice->approvedBy->first_name ?? '' }}
-                                                            {{ $invoice->approvedBy->last_name ?? '' }}
-                                                        </p>
-                                                        <p style="font-size: 8.5px; color: #555; margin: 0;">
-                                                            <span style="color: #999;">Date</span>
-                                                            &nbsp;{{ $approvedAt }}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            @else
-                                                <div style="height: 60px;"></div>
-                                            @endif
+                                            </tfoot>
+                                        @endif
+                                    </table>
+                                    @if ($isLastPage)
+                                        <div class="pay-section">
+                                            <p><strong>Payment Methods: Cheque Or Bank Transfer</strong></p>
+                                            <p><strong>Account Details: -</strong></p>
+                                            <table class="bank-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Bank Name.</th>
+                                                        <th>Account Name.</th>
+                                                        <th>Account No.</th>
+                                                        <th>IBAN</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>Emirates Islamic</td>
+                                                        <td>Faateh Real Estate LLC</td>
+                                                        <td>3708467001801</td>
+                                                        <td>AE630340003708467001801</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Emirates NBD</td>
+                                                        <td>Faateh Real Estate LLC</td>
+                                                        <td>1015900588801</td>
+                                                        <td>AE090260001015900588801</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>ADCB</td>
+                                                        <td>Faateh Real Estate LLC</td>
+                                                        <td>14107498920001</td>
+                                                        <td>AE910030014107498920001</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
                                         </div>
+                                    @endif
 
-                                    </div>
-                                @endif
+                                    {{-- ===== SIGNATURES ===== --}}
+                                    @if ($isLastPage)
+                                        <div class="sig-row">
 
-                                {{-- ===== END SIGNATURES ===== --}}
+                                            {{-- LEFT: Faateh Real Estate — digital approval --}}
+                                            {{-- <div class="sig-block">
 
-                            </div>{{-- /invoice-content --}}
-                        </div>{{-- /invoice-page --}}
-                    @endforeach
+
+                                                    <div class="sig-line">For Faateh Real Estate</div>
+                                                </div> --}}
+
+                                            {{-- RIGHT: Receiver --}}
+                                            <div class="sig-block text-right">
+                                                @if ($isApproved)
+                                                    <div
+                                                            style="
+                                                            border: 1.5px solid #198555;
+                                                            border-radius: 5px;
+                                                            padding: 6px 10px;
+                                                            display: inline-block;
+                                                            background: #fff;
+                                                        ">
+                                                        <div
+                                                            style="display: flex; align-items: center; gap: 5px; margin-bottom: 4px;">
+                                                            <span
+                                                                style="color: #198555; font-size: 11px; font-weight: bold;">✓</span>
+                                                            <span
+                                                                style="font-size: 9px; font-weight: 600; color: #198555; letter-spacing: 0.4px; text-transform: uppercase;">
+                                                                Digitally Approved
+                                                            </span>
+                                                        </div>
+                                                        <div style="border-top: 0.5px solid #b7ddc8; padding-top: 4px;">
+                                                            <p style="font-size: 8.5px; color: #555; margin: 0 0 1px;">
+                                                                <span style="color: #999;">Approved by</span>
+                                                                &nbsp;{{ $invoice->approvedBy->first_name ?? '' }}
+                                                                {{ $invoice->approvedBy->last_name ?? '' }}
+                                                            </p>
+                                                            <p style="font-size: 8.5px; color: #555; margin: 0;">
+                                                                <span style="color: #999;">Date</span>
+                                                                &nbsp;{{ $approvedAt }}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                @else
+                                                    <div style="height: 60px;"></div>
+                                                @endif
+                                            </div>
+
+                                        </div>
+                                    @endif
+
+                                    {{-- ===== END SIGNATURES ===== --}}
+
+                                </div>{{-- /invoice-content --}}
+                            </div>{{-- /invoice-page --}}
+                        @endforeach
+                    @endif
                 </div>
 
                 <div class="mt-4 mb-5 text-center no-print">
