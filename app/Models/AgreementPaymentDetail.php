@@ -44,7 +44,8 @@ class AgreementPaymentDetail extends Model
         'bounced_reason',
         'bounced_by',
         'has_bounced',
-        'transaction_type'
+        'transaction_type',
+        'is_invoice_added',
     ];
 
     /**

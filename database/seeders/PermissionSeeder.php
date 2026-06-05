@@ -60,6 +60,10 @@ class PermissionSeeder extends Seeder
                     $subModule[] = 'make-agreement';
                     $subModule[] = 'send-for-approval';
                 }
+                if (in_array($module, ['invoice'])) {
+                    $subModule[] = 'approve';
+                    $subModule[] = 'admin-view';
+                }
             }
 
             foreach ($subModule as $action) {

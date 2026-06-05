@@ -45,7 +45,7 @@ namespace App\Models{
  * @property int $company_id
  * @property string $start_date
  * @property string $end_date
- * @property int $duration_in_months
+ * @property string $duration_in_months
  * @property int|null $duration_in_days
  * @property int $is_emirates_id_uploaded
  * @property int $is_passport_uploaded
@@ -241,6 +241,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int $terminate_status
  * @property int $transaction_type 1 = Receive, 2 = Pay Back, 3 = Run Away
+ * @property int $is_invoice_added 0=pending,1=added
  * @property-read \App\Models\Agreement|null $agreement
  * @property-read \App\Models\AgreementPayment|null $agreementPayment
  * @property-read \App\Models\AgreementUnit|null $agreementUnit
@@ -277,6 +278,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail whereDeletedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail whereHasBounced($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail whereIsInvoiceAdded($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail whereIsPaymentReceived($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail wherePaymentAmount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail wherePaymentDate($value)
@@ -453,6 +455,7 @@ namespace App\Models{
  * @property string $rent_per_month
  * @property string $rent_per_annum_agreement
  * @property string $unit_revenue
+ * @property int $is_rent_bifurcation_added 0 - no, 1 - yes
  * @property int $added_by
  * @property int|null $updated_by
  * @property int|null $deleted_by
@@ -480,6 +483,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementUnit whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementUnit whereDeletedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementUnit whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AgreementUnit whereIsRentBifurcationAdded($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementUnit whereRentPerAnnumAgreement($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementUnit whereRentPerMonth($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementUnit whereSubunitIds($value)
@@ -882,7 +886,7 @@ namespace App\Models{
  * @property string|null $ejari
  * @property string $start_date
  * @property string $end_date
- * @property int $duration_in_months
+ * @property string $duration_in_months
  * @property int|null $duration_in_days
  * @property string $closing_date
  * @property int $grace_period
@@ -1498,6 +1502,9 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property string $occupied_rent_per_month
+ * @property string $total_payment_pending
+ * @property string $total_payment_received
  * @property-read \App\Models\Contract|null $contract
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ContractUnitDetail> $contractUnitDetails
  * @property-read int|null $contract_unit_details_count
@@ -1520,6 +1527,9 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|ContractUnit whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractUnit whereNoOfFloors($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractUnit whereNoOfUnits($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ContractUnit whereOccupiedRentPerMonth($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ContractUnit whereTotalPaymentPending($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ContractUnit whereTotalPaymentReceived($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractUnit whereTotalSubunitCountPerContract($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractUnit whereUnitNumbers($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractUnit whereUnitPropertyType($value)
@@ -3002,16 +3012,37 @@ namespace App\Models{
 /**
  * @property int $id
  * @property int $agreement_id
+ * @property int $contract_id
+ * @property int $contract_unit_details_id
+ * @property int $agreement_unit_id
+ * @property string $invoice_no
+ * @property string $invoice_date
+ * @property string|null $trn_number
+ * @property string $month_start
+ * @property string $month_end
+ * @property string $total_amount
+ * @property int $status 0=pending,1=approved
+ * @property string|null $approved_by
+ * @property string|null $approved_date
  * @property int $agreement_payment_detail_id
- * @property string $invoice_path
- * @property string $invoice_file_name
+ * @property int $tenant_id
+ * @property string|null $invoice_path
+ * @property string|null $invoice_file_name
  * @property int $added_by
  * @property int|null $updated_by
  * @property int|null $deleted_by
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read \App\Models\Agreement|null $agreement
+ * @property-read \App\Models\AgreementPaymentDetail|null $agreementPaymentDetail
+ * @property-read \App\Models\AgreementUnit|null $agreementUnit
+ * @property-read \App\Models\User|null $approvedBy
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\TenantInvoiceApprovalComments> $comments
+ * @property-read int|null $comments_count
+ * @property-read \App\Models\Contract|null $contract
  * @property-read \App\Models\User|null $deletedBy
+ * @property-read \App\Models\AgreementTenant|null $tenant
  * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoice newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoice newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoice onlyTrashed()
@@ -3019,18 +3050,54 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoice whereAddedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoice whereAgreementId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoice whereAgreementPaymentDetailId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoice whereAgreementUnitId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoice whereApprovedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoice whereApprovedDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoice whereContractId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoice whereContractUnitDetailsId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoice whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoice whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoice whereDeletedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoice whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoice whereInvoiceDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoice whereInvoiceFileName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoice whereInvoiceNo($value)
  * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoice whereInvoicePath($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoice whereMonthEnd($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoice whereMonthStart($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoice whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoice whereTenantId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoice whereTotalAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoice whereTrnNumber($value)
  * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoice whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoice whereUpdatedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoice withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoice withoutTrashed()
  */
 	class TenantInvoice extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property int $id
+ * @property int $tenant_invoice_id
+ * @property int $added_by
+ * @property string $comment
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\TenantInvoice $tenantInvoice
+ * @property-read \App\Models\User|null $user
+ * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoiceApprovalComments newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoiceApprovalComments newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoiceApprovalComments query()
+ * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoiceApprovalComments whereAddedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoiceApprovalComments whereComment($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoiceApprovalComments whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoiceApprovalComments whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoiceApprovalComments whereTenantInvoiceId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoiceApprovalComments whereUpdatedAt($value)
+ */
+	class TenantInvoiceApprovalComments extends \Eloquent {}
 }
 
 namespace App\Models{

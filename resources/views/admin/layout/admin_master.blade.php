@@ -193,15 +193,16 @@
                             $master = $project = $finance = $invest = 0;
                             if (
                                 request()->is([
-                                    'areas',
-                                    'locality',
-                                    'property_type',
-                                    'property',
-                                    'vendors',
-                                    'bank',
-                                    'installment',
-                                    'payment_mode',
-                                    'nationality',
+                                    'areas*',
+                                    'locality*',
+                                    'property_type*',
+                                    'property*',
+                                    'vendors*',
+                                    'bank*',
+                                    'installment*',
+                                    'payment_mode*',
+                                    'nationality*',
+                                    'tenant*',
                                 ])
                             ) {
                                 $master = 1;
@@ -218,7 +219,7 @@
                                 $invest = 1;
                             }
                         @endphp
-                        @if (auth()->user()->hasPermissionInRange(1, 45))
+                        @if (auth()->user()->hasPermissionInRange(1, 45) || auth()->user()->hasPermissionInRange(98, 102))
                             <li class="nav-item {{ $master ? 'menu-open' : '' }}">
                                 <a href="#"
                                     class="nav-link {{ $master ? 'active bg-gradient-projects' : '' }}">
@@ -232,7 +233,7 @@
                                     @if (Gate::any(['Area', 'area.add', 'area.view', 'area.edit', 'area.delete']))
                                         <li class="nav-item">
                                             <a href="{{ route('areas.index') }}"
-                                                class="nav-link {{ request()->is('areas') ? 'active' : '' }}">
+                                                class="nav-link {{ request()->is('areas*') ? 'active' : '' }}">
                                                 <i class="far fa-circle nav-icon"></i>
                                                 <p>Area</p>
                                             </a>
@@ -241,7 +242,7 @@
                                     @if (Gate::any(['Locality', 'locality.add', 'locality.view', 'locality.edit', 'locality.delete']))
                                         <li class="nav-item">
                                             <a href="{{ route('locality.index') }}"
-                                                class="nav-link {{ request()->is('locality') ? 'active' : '' }}">
+                                                class="nav-link {{ request()->is('locality*') ? 'active' : '' }}">
                                                 <i class="far fa-circle nav-icon"></i>
                                                 <p>Locality</p>
                                             </a>
@@ -259,7 +260,7 @@
                                     @if (Gate::any(['Property', 'property.add', 'property.view', 'property.edit', 'property.delete']))
                                         <li class="nav-item">
                                             <a href="{{ route('property.index') }}"
-                                                class="nav-link {{ request()->is('property') ? 'active' : '' }}">
+                                                class="nav-link {{ request()->is('property*') ? 'active' : '' }}">
                                                 <i class="far fa-circle nav-icon"></i>
                                                 <p>Property</p>
                                             </a>
@@ -268,7 +269,7 @@
                                     @if (Gate::any(['Vendor', 'vendor.add', 'vendor.view', 'vendor.edit', 'vendor.delete']))
                                         <li class="nav-item">
                                             <a href="{{ route('vendors.index') }}"
-                                                class="nav-link {{ request()->is('vendors') ? 'active' : '' }}">
+                                                class="nav-link {{ request()->is('vendors*') ? 'active' : '' }}">
                                                 <i class="far fa-circle nav-icon"></i>
                                                 <p>Vendor</p>
                                             </a>
@@ -277,7 +278,7 @@
                                     @if (Gate::any(['Tenant', 'tenant.add', 'tenant.view', 'tenant.edit', 'tenant.delete']))
                                         <li class="nav-item">
                                             <a href="{{ route('tenant.index') }}"
-                                                class="nav-link {{ request()->is('tenant') ? 'active' : '' }}">
+                                                class="nav-link {{ request()->is('tenant*') ? 'active' : '' }}">
                                                 <i class="far fa-circle nav-icon"></i>
                                                 <p>Tenant</p>
                                             </a>
@@ -286,7 +287,7 @@
                                     @if (Gate::any(['Bank', 'bank.add', 'bank.view', 'bank.edit', 'bank.delete']))
                                         <li class="nav-item">
                                             <a href="{{ route('bank.index') }}"
-                                                class="nav-link {{ request()->is('bank') ? 'active' : '' }}">
+                                                class="nav-link {{ request()->is('bank*') ? 'active' : '' }}">
                                                 <i class="far fa-circle nav-icon"></i>
                                                 <p>Bank</p>
                                             </a>
@@ -295,7 +296,7 @@
                                     @if (Gate::any(['Installments', 'installments.add', 'installments.view', 'installments.edit', 'installments.delete']))
                                         <li class="nav-item">
                                             <a href="{{ route('installment.index') }}"
-                                                class="nav-link {{ request()->is('installment') ? 'active' : '' }}">
+                                                class="nav-link {{ request()->is('installment*') ? 'active' : '' }}">
                                                 <i class="far fa-circle nav-icon"></i>
                                                 <p>Installment</p>
                                             </a>
@@ -304,7 +305,7 @@
                                     @if (Gate::any(['Payment_mode', 'payment_mode.add', 'payment_mode.view', 'payment_mode.edit', 'payment_mode.delete']))
                                         <li class="nav-item">
                                             <a href="{{ route('payment_mode.index') }}"
-                                                class="nav-link {{ request()->is('payment_mode') ? 'active' : '' }}">
+                                                class="nav-link {{ request()->is('payment_mode*') ? 'active' : '' }}">
                                                 <i class="far fa-circle nav-icon"></i>
                                                 <p>Payment Mode</p>
                                             </a>
@@ -313,7 +314,7 @@
                                     @if (Gate::any(['Nationality', 'nationality.add', 'nationality.view', 'nationality.edit', 'nationality.delete']))
                                         <li class="nav-item">
                                             <a href="{{ route('nationality.index') }}"
-                                                class="nav-link {{ request()->is('nationality') ? 'active' : '' }}">
+                                                class="nav-link {{ request()->is('nationality*') ? 'active' : '' }}">
                                                 <i class="far fa-circle nav-icon"></i>
                                                 <p>Nationality</p>
                                             </a>
@@ -489,6 +490,25 @@
                                     <i class="nav-icon fas fa-users"></i>
                                     <p>
                                         Tenant Registration
+                                    </p>
+                                </a>
+                            </li>
+                        @endif
+                        @if (auth()->user()->hasAnyPermission([
+                                    'invoice.add',
+                                    'invoice.edit',
+                                    'invoice.view',
+                                    'invoice.delete',
+                                    'invoice.approve',
+                                    'invoice.admin-view',
+                                ]))
+                            {{-- @dd('test') --}}
+                            <li class="nav-item {{ request()->is('invoices*') ? 'menu-open' : '' }}">
+                                <a href="{{ route('invoices.index') }}"
+                                    class="nav-link {{ request()->is('invoices*') ? 'active bg-gradient-projects' : '' }}">
+                                    <i class="nav-icon fas fa-file-invoice"></i>
+                                    <p>
+                                        Invoices
                                     </p>
                                 </a>
                             </li>

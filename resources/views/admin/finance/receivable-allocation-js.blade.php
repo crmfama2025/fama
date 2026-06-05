@@ -231,7 +231,7 @@
             if (pool <= 0) return;
 
             const covered = Math.min(pool, r.amount);
-            const pct = r.amount > 0 ? Math.round((covered / r.amount) * 100) : 0;
+            // const pct = r.amount > 0 ? Math.round((covered / r.amount) * 100) : 0;
             const remaining = r.amount - covered;
             pool = Math.max(0, pool - r.amount);
             allocated += covered;
