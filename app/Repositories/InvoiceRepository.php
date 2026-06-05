@@ -59,6 +59,7 @@ class InvoiceRepository
             // ->whereDate('payment_date', '>=', Carbon::today())
             // ->whereDate('payment_date', '<=', Carbon::today()->addWeeks(2))
             ->where('is_invoice_added', '=', 0)
+            ->whereDate('payment_date', '<=', '2025-12-31')
             ->whereHas('agreement.contract', function ($q) {
                 $q->where('contract_type_id', 1)
                     ->whereHas('contract_unit', function ($q2) {
