@@ -621,4 +621,18 @@ class AgreementTenantService
         // dd($existingCustomers);
         return $existingCustomers;
     }
+    public function updateDocumentNumberByTenantAndType($tenantId, $documentType, $documentNumber): int
+    {
+        return TenantDocument::where('tenant_id', $tenantId)
+            ->where('document_type', $documentType)
+            ->update([
+                'document_number' => $documentNumber,
+            ]);
+    }
+    public function getDocumentNumberByTenantAndType($tenantId, $documentType)
+    {
+        return TenantDocument::where('tenant_id', $tenantId)
+            ->where('document_type', $documentType)
+            ->value('document_number');
+    }
 }

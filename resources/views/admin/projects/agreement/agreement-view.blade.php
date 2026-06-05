@@ -453,7 +453,7 @@
                                                                 <th>Balance Amount</th>
                                                                 <th>Status of Termination</th>
                                                                 <th>Composition</th>
-                                                                <th>Invoice Upload</th>
+                                                                {{-- <th>Invoice Upload</th> --}}
                                                                 <th>View Invoice</th>
                                                             </tr>
                                                         </thead>
@@ -549,30 +549,37 @@
                                                                         RENT
                                                                         {{ $loop->iteration }}/{{ $agreement->agreement_payment->installment?->installment_name }}
                                                                     </td>
-                                                                    @if (auth()->user()->hasAnyPermission(['agreement.invoice_upload'], $agreement->company_id))
+                                                                    {{-- @if (auth()->user()->hasAnyPermission(['agreement.invoice_upload'], $agreement->company_id))
                                                                         <td>
                                                                             <button type="button"
                                                                                 class="btn btn-success btn-sm open-invoice-modal"
                                                                                 title="Upload Invoice"
                                                                                 data-detailId="{{ $detail->id }}"
                                                                                 data-agreementId="{{ $agreement->id }}"
-                                                                                @if ($detail->invoice) data-invoiceid="{{ $detail->invoice->id }}" @endif
+                                                                                @if ($detail->invoice && $detail->invoice->status == 2) data-invoiceid="{{ $detail->invoice->id }}" @endif
                                                                                 {{ $detail->terminate_status != 0 ? 'disabled' : '' }}><i
                                                                                     class="fas fa-file-upload"></i></button>
 
                                                                         </td>
-                                                                    @endif
+                                                                    @endif --}}
                                                                     <td>
-                                                                        @if ($detail->invoice)
+                                                                        @if ($detail->invoice && $detail->invoice->status == 2)
+                                                                            {{-- {{ dd($detail->invoice->status) }} --}}
                                                                             @php
                                                                                 $filePath = asset(
                                                                                     'storage/' .
                                                                                         $detail->invoice->invoice_path,
                                                                                 );
 
+                                                                                $invoiceviewUrl = route(
+                                                                                    'invoices.show',
+                                                                                    $detail->invoice->id,
+                                                                                );
+
                                                                             @endphp
 
-                                                                            <a href="{{ $filePath }}" target="_blank"
+                                                                            <a href="{{ $invoiceviewUrl }}"
+                                                                                target="_blank"
                                                                                 class="btn btn-primary btn-sm"
                                                                                 title="View Invoice">
                                                                                 <i class="fas fa-file-pdf"></i> View

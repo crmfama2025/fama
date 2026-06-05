@@ -625,7 +625,30 @@ function getPropertiesHaveContract()
 
     return $properties;
 }
+function getPropertiesHaveContractB2b()
+{
+    $properties = Property::select('id', 'property_name')->where('status', 1)
+        ->whereHas('contracts', function ($q) {
+            $q->where('contract_type_id', 1)
+                ->whereHas('contract_unit', function ($q2) {
+                    $q2->where('business_type', 1);
+                });
+        })
+        ->get();
 
+    return $properties;
+}
+function getContractsHaveAgreementB2b()
+{
+    $contracts = Contract::select('id', 'project_number')->where('contract_type_id', 1)
+        ->whereHas('agreements') // only contracts that have agreements
+        ->whereHas('contract_unit', function ($q) {
+            $q->where('business_type', 1);
+        })
+        ->get();
+
+    return $contracts;
+}
 function getPaymentModeHaveContract()
 {
     $paymentmodes = PaymentMode::where('status', 1)
@@ -696,6 +719,36 @@ function getUnitshaveAgreement()
         ->get();
 
     return $units;
+}
+function getUnitshaveAgreementB2b()
+{
+    // $cunits = ContractUnitDetail::with('contract')->whereHas('agreementUnits')
+    //     ->get();
+
+    $units = ContractUnitDetail::with('contract')
+        ->whereHas('agreementUnits')
+        ->whereHas('contract', function ($q) {
+            $q->where('contract_type_id', 1)
+                ->whereHas('contract_unit', function ($q2) {
+                    $q2->where('business_type', 1);
+                });
+        })
+        ->select('id', 'contract_id', 'unit_number')
+        ->get();
+    // dd($cunits->count(), $units->count());
+
+    return $units;
+}
+function getAllAgreementsB2b()
+{
+    $agreements = Agreement::whereHas('contract', function ($q) {
+        $q->where('contract_type_id', 1)
+            ->whereHas('contract_unit', function ($q2) {
+                $q2->where('business_type', 1);
+            });
+    })->get();
+
+    return $agreements;
 }
 function getPaymentModeHaveAgreement()
 {
@@ -1228,18 +1281,39 @@ function userAddedCount($model = null, $userId = null)
 
     return $query->count();
 }
+// function format_k($number)
+// {
+//     if ($number >= 1000000000) {
+//         return rtrim(rtrim(number_format($number / 1000000000, 1), '0'), '.') . 'B';
+//     }
+
+//     if ($number >= 1000000) {
+//         return rtrim(rtrim(number_format($number / 1000000, 1), '0'), '.') . 'M';
+//     }
+
+//     if ($number >= 1000) {
+//         return rtrim(rtrim(number_format($number / 1000, 1), '0'), '.') . 'K';
+//     }
+
+//     return number_format($number);
+// }
 function format_k($number)
 {
+    $number = (float) str_replace(',', '', $number);
+
     if ($number >= 1000000000) {
-        return rtrim(rtrim(number_format($number / 1000000000, 1), '0'), '.') . 'B';
+        $value = floor($number / 100000000) / 10;
+        return rtrim(rtrim(number_format($value, 1), '0'), '.') . 'B';
     }
 
     if ($number >= 1000000) {
-        return rtrim(rtrim(number_format($number / 1000000, 1), '0'), '.') . 'M';
+        $value = floor($number / 100000) / 10;
+        return rtrim(rtrim(number_format($value, 1), '0'), '.') . 'M';
     }
 
     if ($number >= 1000) {
-        return rtrim(rtrim(number_format($number / 1000, 1), '0'), '.') . 'K';
+        $value = floor($number / 100) / 10;
+        return rtrim(rtrim(number_format($value, 1), '0'), '.') . 'K';
     }
 
     return number_format($number);
@@ -1361,7 +1435,8 @@ function getModuleArray()
         'finance',
         'report',
         'tenant',
-        'tenant-registration'
+        'tenant-registration',
+        'invoice',
     ];
 }
 
@@ -1390,6 +1465,7 @@ function getSubModuleArray()
         'rent_split',
         'edit_after_approval',
         'make-agreement',
+        'admin-view'
     ];
 }
 

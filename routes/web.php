@@ -14,6 +14,7 @@ use App\Http\Controllers\InvesmentSOAController;
 use App\Http\Controllers\InvestmentController;
 use App\Http\Controllers\InvestorController;
 use App\Http\Controllers\InvestorPaymentDistributionController;
+use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\LocalityController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\NationalityController;
@@ -73,6 +74,7 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
     Route::resource('investorPayout', InvestorPaymentDistributionController::class);
     Route::resource('tenant', TenantController::class);
     Route::resource('tenant-registration', TenantregistrationController::class);
+    Route::resource('invoices', InvoiceController::class);
 
 
 
@@ -339,6 +341,24 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
         ->name('tenant.pending.receivables');
     Route::get('/finance/pending-receivables', [ReceivablesClearingController::class, 'getAllPendingReceivables'])
         ->name('tenant.pending.receivables.all');
+
+
+
+    Route::get('invoice-list', [InvoiceController::class, 'getInvoiceList'])->name('invoices.list');
+    Route::get('invoices/{id}/generate', [InvoiceController::class, 'generate'])
+        ->name('invoices.generate');
+
+    Route::post('invoices/{id}/approve', [InvoiceController::class, 'approve'])
+        ->name('invoices.approve');
+    Route::get('invoices/{id}/admin-view', [InvoiceController::class, 'admin_view'])
+        ->name('invoices.admin-view');
+    Route::post('invoices/{id}/comment', [InvoiceController::class, 'comment'])
+        ->name('invoices.comment');
+    Route::get('/invoices/{id}/comments', [InvoiceController::class, 'getComments'])->name('invoices.comments');
+    Route::get('/generated_invoices', [InvoiceController::class, 'getGeneratedInvoices'])->name('invoices.generated');
+    Route::get('/generated_invoices_list', [InvoiceController::class, 'getGenerated'])->name('invoices.generated-list');
+    Route::get('invoices/{invoice}/pdf', [InvoiceController::class, 'downloadPdf'])
+        ->name('invoices.pdf');
 });
 
 
