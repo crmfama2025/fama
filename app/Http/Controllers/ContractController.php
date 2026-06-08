@@ -109,6 +109,7 @@ class ContractController extends Controller
 
     public function store(Request $request)
     {
+        dd($request->all());
         try {
             // if ($request->contract['id'] != 0) {
             //     $contract = $this->contractService->update($request->contract['id'], $request->all());
