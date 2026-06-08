@@ -100,10 +100,20 @@ class ContractRepository
     }
     public function delete($id)
     {
-        $contract = $this->find($id);
-        $contract->deleted_by = auth()->user()->id;
-        $contract->save();
-        return $contract->delete();
+        return DB::transaction(function () use ($id) {
+            $contract = $this->find($id);
+
+            //  Update parent before delete
+            if (!empty($contract->parent_contract_id)) {
+                $contract->parent()->update([
+                    'contract_renewal_status' => 0
+                ]);
+            }
+
+            $contract->deleted_by = auth()->user()->id;
+            $contract->save();
+            return $contract->delete();
+        });
     }
 
     // public function checkIfExist($data)
