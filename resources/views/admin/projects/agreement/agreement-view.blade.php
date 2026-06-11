@@ -367,6 +367,7 @@
                                                                             data-subunit-count="{{ $unit->contractUnitDetail->subunitcount_per_unit }}"
                                                                             data-subunits='@json($unit->contractUnitDetail->contractSubUnitDetails)'
                                                                             data-units='@json($unit->contractUnitDetail)'
+                                                                            data-unitrent='{{ $unit->rent_per_month }}'
                                                                             data-agreement-id="{{ $agreement->id }}"
                                                                             title="{{ $hasBifurcation ? 'Edit Rent Bifurcation' : 'Split Rent' }}">
 
@@ -1131,7 +1132,9 @@
 
             const unit = $(this).data('units');
             const subunits = $(this).data('subunits');
-            const unitRent = Number(unit?.total_rent_per_unit_per_month);
+            // const unitRent = Number(unit?.total_rent_per_unit_per_month);
+            const unitRent = parseFloat($(this).data('unitrent'));
+            // alert(unitRent);
             const agreementUnitId = $(this).data('unit-id');
             const agreementId = $(this).data('agreement-id');
             const agreementUnits = agreement.agreement_units; // agreement must be defined globally
@@ -1149,6 +1152,7 @@
             let runningTotal = 0;
 
             $('#totalUnitRent').text(unitRent.toFixed(2));
+
             subunits.forEach((subunit, index) => {
 
                 // let value = unit.subunit_rent_per_unit;
