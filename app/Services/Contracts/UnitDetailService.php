@@ -35,14 +35,18 @@ class UnitDetailService
     {
         $data = [];
 
+        //Re-index all sub-arrays to fix gaps from frontend row deletions when no of units changes in form upon entering data.-Geethu
+        $dataArr = array_map(function ($value) {
+            return is_array($value) ? array_values($value) : $value;
+        }, $dataArr);
+        // end - Geethu
+
         foreach ($dataArr['unit_type_id'] as $key => $value) {
             // dd('test');
 
             $data[] = $this->getDetailArray($contractData, $ct_detail, $unit_id, $user_id, $dataArr, $key, $value, $receivable_installments, 1);
-            // dd($data);
             $this->validate($data);
         }
-
         // dd($data);
 
         $returnVal = $this->createManyData($data, $dataArr, $contractData, $unit_id, $user_id);
@@ -70,13 +74,12 @@ class UnitDetailService
             $subUnitData = $this->getsubUnitData($dataArr, $contractData, $unit_id);
 
 
-            // dd($subUnitData);
+
 
             if ($stage == 0) {
                 // print_r($stage);
                 $this->subUnitdetServ->create($unitDetId, $subUnitData, $user_id);
             }
-            // dd('after');
 
             return $unitDetId;
         });
@@ -91,6 +94,15 @@ class UnitDetailService
 
         $data = [];
         $insertData = [];
+        // dump($dataArr);
+
+        //Re-index all sub-arrays to fix gaps from frontend row deletions when no of units changes in form upon entering data.-Geethu
+        $dataArr = array_map(function ($value) {
+            return is_array($value) ? array_values($value) : $value;
+        }, $dataArr);
+        // end - Geethu
+        // dump($dataArr);
+
         foreach ($dataArr['unit_type_id'] as $key => $value) {
             $dataArray = [];
 
@@ -190,10 +202,11 @@ class UnitDetailService
                 $unitDetId = $this->createManyData($insertData, $dataArr, $contractData, $unit_id, $user_id, 1);
             }
 
-
             if ($data) {
                 $detailids = $this->unitdetRepo->updateMany($data);
+
                 $unitDetId = array_merge($unitDetId, $detailids);
+                // $unitDetId = $detailids + $unitDetId;
                 $subUnitData = $this->getsubUnitData($dataArr, $contractData, $unit_id);
 
                 $this->subUnitdetServ->update($unitDetId, $subUnitData, $user_id);
@@ -210,7 +223,6 @@ class UnitDetailService
 
     public function getsubUnitData($dataArr, $contractData, $unit_id)
     {
-
         // $is_partition = 0;
         // if (isset($subUnitData['is_partition'][$i])) {
         //     // if ($subUnitData['is_partition'][$i] == '1') {
@@ -310,6 +322,7 @@ class UnitDetailService
             'unit_commission' => isset($dataArr['unit_commission']) ? $dataArr['unit_commission'][$key] : 0,
             'unit_deposit' => isset($dataArr['unit_deposit']) ? $dataArr['unit_deposit'][$key] : 0,
             'total_payment_pending' => isset($dataArr['unit_revenue']) ? $dataArr['unit_revenue'][$key] : $total_rent_per_unit_per_annum,
+            // 'key' => $key, // to identify the unit in subunit creation/updation - Geethu
         );
 
         if ($action  == 1) {

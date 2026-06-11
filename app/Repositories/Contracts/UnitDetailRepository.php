@@ -43,7 +43,8 @@ class UnitDetailRepository
     {
         $detId = [];
         foreach ($dataArray as $data) {
-            // dd($data);
+            // $key = $data['key'];
+            // unset($data['key']);
             $detId[] = ContractUnitDetail::create($data)->id;
         }
         return  $detId;
@@ -53,6 +54,8 @@ class UnitDetailRepository
     {
         $detId = [];
         foreach ($dataArray as $id => $data) {
+            // $key = $data['key']; // to identify the unit in subunit creation/updation - Geethu
+            // unset($data['key']);
             ContractUnitDetail::where('id', $id)->update($data);
             $detId[] = $id;
         }

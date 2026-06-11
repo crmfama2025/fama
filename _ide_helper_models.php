@@ -3017,11 +3017,10 @@ namespace App\Models{
  * @property int $agreement_unit_id
  * @property string $invoice_no
  * @property string $invoice_date
- * @property string|null $trn_number
  * @property string $month_start
  * @property string $month_end
  * @property string $total_amount
- * @property int $status 0=pending,1=approved
+ * @property int $status 0=pending,1=generated,2=approved,3=approval on hold
  * @property string|null $approved_by
  * @property string|null $approved_date
  * @property int $agreement_payment_detail_id
@@ -3068,7 +3067,6 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoice whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoice whereTenantId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoice whereTotalAmount($value)
- * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoice whereTrnNumber($value)
  * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoice whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoice whereUpdatedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoice withTrashed()
