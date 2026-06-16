@@ -468,7 +468,11 @@ class TenantChequeService
                 // Use existing mode info if none provided
                 $paidModeId = $data['paid_mode_id'] ?? $payment->payment_mode_id;
                 $paidBankId = $data['paid_bank_id'] ?? $payment->bank_id;
-                $paidCheque = $data['paid_cheque_number'] ?? $payment->cheque_number;
+                // $paidCheque = $data['paid_cheque_number'] ?? $payment->cheque_number;
+                $paidCheque = $paidModeId == 3
+                    ? ($data['paid_cheque_number'] ?? $payment->cheque_number)
+                    : null;
+
 
                 // $paidAmount = $data['paid_amount'] ?? $payment->payment_amount;
                 $allocatedAmounts = $data['allocated_amounts'] ?? [];

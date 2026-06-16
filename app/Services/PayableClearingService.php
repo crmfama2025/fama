@@ -77,7 +77,7 @@ class PayableClearingService
 
                 return "<strong>{$number}</strong>
             <p class='mb-0'>
-                <span class='{$badgeClass}'>{$type}</span> 
+                <span class='{$badgeClass}'>{$type}</span>
             </p>";
             })
             ->addColumn('company_name', fn($row) => $row->contract?->company?->company_name ?? '-')
@@ -154,6 +154,7 @@ class PayableClearingService
 
                 $pendingAmt = toNumeric($paymentdetails->payment_amount) - $paid - toNumeric($data['paid_amount']);
             }
+            $paidMode = $data['paid_mode'] ?? $paymentdetails->payment_mode_id;
 
             $payable[] = array(
                 'contract_id' => $paymentdetails->contract_id,
@@ -163,9 +164,13 @@ class PayableClearingService
                 'paid_amount' => $data['paid_amount'] ?? toNumeric($paymentdetails->payment_amount),
                 'pending_amount' => $pendingAmt,
                 'paid_by' => auth()->user()->id,
-                'paid_mode' => $data['paid_mode'] ?? 0,
-                'paid_bank' => $data['paid_bank'] ?? null,
-                'paid_cheque_number' => $data['paid_cheque_number'] ?? null,
+                'paid_mode' => $paidMode,
+                'paid_bank' => $data['paid_bank'] ?? $paymentdetails->bank_id,
+                // 'paid_cheque_number' => $data['paid_cheque_number'] ?? null,
+                'paid_cheque_number' => $paidMode == 3
+                    ? ($data['paid_cheque_number'] ?? $paymentdetails->cheque_no)
+                    : null,
+
                 'payment_remarks' => $data['payment_remarks'] ?? null,
             );
 
@@ -289,7 +294,7 @@ class PayableClearingService
 
                 return "<strong>{$number}</strong>
             <p class='mb-0'>
-                <span class='{$badgeClass}'>{$type}</span> 
+                <span class='{$badgeClass}'>{$type}</span>
             </p>";
             })
             ->addColumn('company_name', fn($row) => $row->contract->company->company_name ?? '-')
