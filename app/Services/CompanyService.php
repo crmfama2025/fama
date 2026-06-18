@@ -40,6 +40,7 @@ class CompanyService
 
     public function createOrRestore(array $data, $user_id = null)
     {
+        // dd($data);
 
         $data['added_by'] = $user_id ? $user_id : auth()->user()->id;
         $data['company_code'] = $this->setCompanyCode();
@@ -47,6 +48,18 @@ class CompanyService
         $this->validate($data);
 
         $existing = $this->companyRepository->checkIfExist($data);
+
+
+        // $data['letter_head_path'] = $this->getTradeLicensePath($data);
+        if (
+            !empty($data['letter_head_path']) &&
+            $data['letter_head_path'] instanceof \Illuminate\Http\UploadedFile
+        ) {
+            $data['letter_head_path'] = $this->getTradeLicensePath($data);
+        } else {
+            //  REMOVE the key so it won’t overwrite DB
+            unset($data['letter_head_path']);
+        }
 
         if ($existing) {
             if ($existing->trashed()) {
@@ -57,13 +70,26 @@ class CompanyService
             return $existing;
         }
 
+
+
         return $this->companyRepository->create($data);
     }
 
     public function update($id, array $data)
     {
+        // dd($data);
         $this->validate($data, $id);
         $data['updated_by'] = auth()->user()->id;
+        //  Only update if new file is uploaded
+        if (
+            !empty($data['letter_head_path']) &&
+            $data['letter_head_path'] instanceof \Illuminate\Http\UploadedFile
+        ) {
+            $data['letter_head_path'] = $this->getTradeLicensePath($data);
+        } else {
+            //  REMOVE the key so it won’t overwrite DB
+            unset($data['letter_head_path']);
+        }
         return $this->companyRepository->update($id, $data);
     }
 
@@ -99,7 +125,24 @@ class CompanyService
                 Rule::unique('companies', 'company_short_code')
                     ->ignore($id)
                     ->where(fn($q) => $q->whereNull('deleted_at'))
-            ]
+            ],
+            // Trade License Number
+            'trade_license_number' => [
+                'required',
+                'regex:/^[0-9]{6,8}$/',
+                Rule::unique('companies', 'trade_license_number')
+                    ->ignore($id)
+                    ->where(fn($q) => $q->whereNull('deleted_at'))
+            ],
+
+            // Registration Number (CRN)
+            'registration_no' => [
+                'nullable',
+                'regex:/^[A-Za-z0-9-]{6,15}$/',
+                Rule::unique('companies', 'registration_no')
+                    ->ignore($id)
+                    ->where(fn($q) => $q->whereNull('deleted_at'))
+            ],
         ], [
 
             'industry_id.required' => 'Please select an industry.'
@@ -168,5 +211,34 @@ class CompanyService
     public function getWithIndustry($module = null, $submodule = null)
     {
         return $this->companyRepository->getWithIndustry($module, $submodule);
+    }
+    public function getTradeLicensePath($data)
+    {
+
+
+        $file = $data['letter_head_path'];
+
+
+        $filename = time() . '_' . $file->getClientOriginalName();
+
+        $pdfService = new PdfCompressionService();
+
+        if ($file->getClientOriginalExtension() === 'pdf') {
+
+            $path = $pdfService->compress(
+                $file,
+                'companies/' . $data['company_short_code'] . '/documents',
+                $filename
+            );
+        } else {
+
+            $path = $file->storeAs(
+                'companies/' . $data['company_short_code'] . '/documents',
+                $filename,
+                'public'
+            );
+        }
+
+        return $path;
     }
 }

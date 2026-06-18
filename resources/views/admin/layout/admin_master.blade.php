@@ -754,6 +754,64 @@
                 return true;
             }
         }
+
+        function tradeLicenseValidation(ele, field_name, message = 0) {
+            const LicenseRegex = /^[0-9]{6,8}$/;
+            const value = $(ele).val();
+
+            if (!LicenseRegex.test(value)) {
+                isValid = false;
+
+                if (message != 1) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Invalid Trade License',
+                        text: 'Enter ' + field_name + ' (6 to 8 digits only)',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 2500,
+                    });
+                }
+
+                setInvalid(ele, "");
+                return isValid;
+
+            } else {
+                isValid = true;
+                setValid(ele);
+                return isValid;
+            }
+        }
+
+        function registrationNumberValidation(ele, field_name, message = 0) {
+            const CRNRegex = /^[A-Za-z0-9-]{6,15}$/;
+            const value = $(ele).val();
+
+            if (!CRNRegex.test(value)) {
+                isValid = false;
+
+                if (message != 1) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Invalid Registration Number',
+                        text: 'Enter ' + field_name + ' (letters, numbers, optional dash, 6–15 characters)',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 2500,
+                    });
+                }
+
+                setInvalid(ele, "");
+                return isValid;
+
+            } else {
+                isValid = true;
+                setValid(ele);
+                return isValid;
+            }
+        }
     </script>
     {{-- <script>
         $(window).on('load', function() {

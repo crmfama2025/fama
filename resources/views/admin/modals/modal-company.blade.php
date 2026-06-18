@@ -28,6 +28,22 @@
                         </div>
                         <div class="form-group row">
                             <div class="col-sm-6">
+                                <label for="inputEmail3" class="col-form-label asterisk">Trade License Number</label>
+                                <input type="text" name="trade_license_number" id="trade_license_number"
+                                    class="form-control" id="inputEmail3" pattern="\d{6,8}"
+                                    placeholder="Trade License Number " required>
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="inputEmail3" class="col-form-label ">Registration Number</label>
+                                <input type="text" name="registration_no" id="registration_no" class="form-control"
+                                    pattern="[A-Za-z0-9-]{6,15}" id="inputEmail3"
+                                    placeholder="e.g. 12345678 or DMCC-123456">
+                            </div>
+
+
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-6">
                                 <label for="industry_id" class="col-form-label asterisk">Industry</label>
                                 <select name="industry_id" id="industry_id" class="form-control select2"
                                     style="width: 100%;" required>
@@ -69,6 +85,20 @@
                                     </option>
                                 </select>
                             </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-6">
+                                <label for="inputEmail3" class="col-form-label asterisk">Company Arabic Name</label>
+                                <input type="text" name="company_arabic_name" id="company_arabic_name"
+                                    class="form-control" id="inputEmail3" placeholder="Company Arabic Name" required>
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="inputEmail3" class="col-form-label ">Company Letter Head</label>
+                                <input type="file" name="letter_head_path" id="letter_head" class="form-control"
+                                    id="inputEmail3" placeholder="Company Letter Head">
+                            </div>
+
+
                         </div>
 
                     </div>

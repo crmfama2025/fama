@@ -78,6 +78,8 @@ class CompanyRepository
                 ->orWhere('email', 'like', '%' . $filters['search'] . '%')
                 ->orWhere('address', 'like', '%' . $filters['search'] . '%')
                 ->orWhere('website', 'like', '%' . $filters['search'] . '%')
+                ->orWhere('trade_license_number', 'like', '%' . $filters['search'] . '%')
+                ->orWhere('registration_no', 'like', '%' . $filters['search'] . '%')
 
                 ->orWhereHas('industry', function ($q) use ($filters) {
                     $q->where('name', 'like', '%' . $filters['search'] . '%');

@@ -93,6 +93,18 @@
                                             <td>{{ $company->company_name ?? '-' }}</td>
                                         </tr>
                                         <tr>
+                                            <th width="30%">Company Name in Arabic</th>
+                                            <td>{{ $company->company_arabic_name ?? '-' }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th width="30%">Trade License Number</th>
+                                            <td>{{ $company->trade_license_number ?? '-' }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th width="30%">Registration Number</th>
+                                            <td>{{ $company->registration_no ?? '-' }}</td>
+                                        </tr>
+                                        <tr>
                                             <th>Industry</th>
                                             <td>{{ $company->industry->name ?? '-' }}</td>
                                         </tr>
@@ -119,6 +131,20 @@
                                         <tr>
                                             <th>Address</th>
                                             <td>{{ $company->address ?? '-' }}</td>
+                                        </tr>
+                                        {{-- {{ dump($company) }} --}}
+                                        <tr>
+                                            <th>Lettter Head</th>
+                                            <td>
+                                                @if (!empty($company->letter_head_path))
+                                                    <a href="{{ asset('storage/' . $company->letter_head_path) }}"
+                                                        target="_blank" class="btn btn-sm btn-primary">
+                                                        View
+                                                    </a>
+                                                @else
+                                                    <span class="text-muted">No file</span>
+                                                @endif
+                                            </td>
                                         </tr>
                                     </table>
                                 </div>

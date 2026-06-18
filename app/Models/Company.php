@@ -31,7 +31,11 @@ class Company extends Model
         'added_by',
         'updated_by',
         'deleted_by',
-        'status'
+        'status',
+        'company_arabic_name',
+        'trade_license_number',
+        'registration_no',
+        'letter_head_path'
     ];
 
     public function areas()

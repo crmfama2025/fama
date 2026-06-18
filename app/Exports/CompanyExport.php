@@ -34,6 +34,8 @@ class CompanyExport implements FromCollection, WithHeadings
                     ->orWhere('email', 'like', "%{$search}%")
                     ->orWhere('address', 'like', "%{$search}%")
                     ->orWhere('website', 'like', "%{$search}%")
+                    ->orWhere('trade_license_number', 'like', "%{$search}%")
+                    ->orWhere('reagistration_no', 'like', "%{$search}%")
 
                     ->orWhereHas('industry', function ($q2) use ($search) {
                         $q2->where('name', 'like', "%{$search}%");

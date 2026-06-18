@@ -112,6 +112,12 @@
         $('#phone').on('blur', function() {
             phoneValidation(this, 'phone');
         });
+        $('#trade_license_number').on('blur', function() {
+            tradeLicenseValidation(this, 'trade license number');
+        });
+        $('#registration_no').on('blur', function() {
+            registrationNumberValidation(this, 'registration number');
+        });
 
         $(function() {
             let table = $('#companyTable').DataTable({
