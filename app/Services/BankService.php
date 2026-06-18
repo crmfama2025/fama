@@ -96,6 +96,7 @@ class BankService
             ['data' => 'DT_RowIndex', 'name' => 'id'],
             ['data' => 'company_name', 'name' => 'company_name'],
             ['data' => 'bank_name', 'name' => 'bank_name'],
+            ['data' => 'bank_arabic_name', 'name' => 'bank_arabic_name'],
             ['data' => 'back_short_code', 'name' => 'back_short_code'],
             ['data' => 'action', 'name' => 'action', 'orderable' => true, 'searchable' => true],
         ];
@@ -105,6 +106,7 @@ class BankService
             ->addIndexColumn()
             ->addColumn('company_name', fn($row) => $row->company->company_name ?? '-')
             ->addColumn('bank_name', fn($row) => $row->bank_name ?? '-')
+            ->addColumn('bank_arabic_name', fn($row) => $row->bank_arabic_name ?? '-')
             ->addColumn('back_short_code', fn($row) => $row->back_short_code ?? '-')
             ->addColumn('status', fn($row) => $row->status ?? '-')
             ->addColumn('action', function ($row) {

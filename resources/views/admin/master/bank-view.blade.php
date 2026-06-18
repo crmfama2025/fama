@@ -90,6 +90,10 @@
                                             <td>{{ $bank->bank_name ?? '-' }}</td>
                                         </tr>
                                         <tr>
+                                            <th width="30%">Bank Name in Arabic</th>
+                                            <td>{{ $bank->bank_arabic_name ?? '-' }}</td>
+                                        </tr>
+                                        <tr>
                                             <th width="30%">Bank Short Code<Code></Code></th>
                                             <td>{{ $bank->bank_short_code ?? '-' }}</td>
                                         </tr>

@@ -13,7 +13,7 @@ class Bank extends Model
 {
     use HasFactory, SoftDeletes, HasActivityLog, HasDeletedBy;
 
-    protected $fillable = ['company_id', 'bank_code', 'bank_name', 'bank_short_code', 'added_by', 'updated_by', 'deleted_by', 'status'];
+    protected $fillable = ['company_id', 'bank_code', 'bank_name', 'bank_short_code', 'added_by', 'updated_by', 'deleted_by', 'status', 'bank_arabic_name'];
 
     public function company()
     {

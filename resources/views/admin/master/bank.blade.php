@@ -57,6 +57,7 @@
                                             <th>#</th>
                                             <th>Company Name</th>
                                             <th>Bank Name</th>
+                                            <th>Bank Name In Arabic</th>
                                             <th>Short Code</th>
                                             <th>Status</th>
                                             <th>Action</th>
@@ -166,6 +167,10 @@
                     {
                         data: 'bank_name',
                         name: 'banks.bank_name',
+                    },
+                    {
+                        data: 'bank_arabic_name',
+                        name: 'banks.bank_arabic_name',
                     },
                     {
                         data: 'bank_short_code',

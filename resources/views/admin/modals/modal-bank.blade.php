@@ -32,6 +32,13 @@
                             <input type="text" name="bank_name" id="bank_name" class="col-sm-9 form-control"
                                 id="inputEmail3" placeholder="Bank Name" required>
                         </div>
+                        <div class="form-group row">
+                            <label for="inputEmail3" class="col-sm-3 col-form-label asterisk">Bank Name In
+                                Arabic</label>
+                            <input type="text" name="bank_arabic_name" id="bank_arabic_name"
+                                class="col-sm-9 form-control" id="inputEmail3" placeholder="Bank Name In Arabic"
+                                required>
+                        </div>
 
                         <div class="form-group row">
                             <label for="inputEmail3" class="col-sm-3 col-form-label asterisk">Short Code</label>

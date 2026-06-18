@@ -45,6 +45,7 @@ class BankExport implements FromCollection, WithHeadings
                     'Bank Code' => $bank->bank_code,
                     'Company' => $bank->company->company_name ?? '',
                     'Bank Name' => $bank->bank_name,
+                    'Bank Name in Arabic' => $bank->bank_arabic_name ?? '',
                     'Bank Short Code' => $bank->bank_short_code,
                     'status' => ($bank->status ?? 1) == 1 ? 'Active' : 'Inactive',
                 ];
@@ -58,6 +59,7 @@ class BankExport implements FromCollection, WithHeadings
             'Bank Code',
             'Company',
             'Bank Name',
+            'Bank Name In Arabic',
             'Bank Short Code',
             'Status'
         ];
