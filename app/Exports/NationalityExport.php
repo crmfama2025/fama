@@ -45,6 +45,7 @@ class NationalityExport implements FromCollection, WithHeadings
                     'Nationality Code' => $nationality->nationality_code,
                     // 'Company' => $nationality->company->company_name ?? '',
                     'Nationality Name' => $nationality->nationality_name,
+                    'Nationality Name In Arabic' => $nationality->nationality_arabic_name,
                     'Nationality Short Code' => $nationality->nationality_short_code,
                 ];
             });
@@ -57,6 +58,7 @@ class NationalityExport implements FromCollection, WithHeadings
             'Nationality Code',
             // 'Company',
             'Nationality Name',
+            'Nationality Name In Arabic',
             'Nationality Short Code'
         ];
     }

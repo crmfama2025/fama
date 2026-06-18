@@ -29,6 +29,14 @@
                             <input type="text" name="nationality_name" id="nationality_name"
                                 class="col-sm-8 form-control" id="inputEmail3" placeholder="Nationality Name" required>
                         </div>
+                        <div class="form-group row">
+                            <label for="inputEmail3" class="col-sm-4 col-form-label asterisk">Nationality Name In
+                                Arabic</label>
+                            <input type="text" name="nationality_arabic_name" id="nationality_arabic_name"
+                                class="col-sm-8 form-control" id="inputEmail3" placeholder="Nationality Name in Arabic"
+                                required>
+                        </div>
+
 
                         <div class="form-group row">
                             <label for="inputEmail3" class="col-sm-4 col-form-label asterisk">Short Code</label>

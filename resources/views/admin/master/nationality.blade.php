@@ -55,6 +55,7 @@
                                             <th>#</th>
                                             {{-- <th>Company Name</th> --}}
                                             <th>Nationality Name</th>
+                                            <th>Nationality Name In Arabic</th>
                                             <th>Short Code</th>
                                             <th>Action</th>
                                         </tr>
@@ -165,6 +166,10 @@
                     {
                         data: 'nationality_name',
                         name: 'nationalities.nationality_name',
+                    },
+                    {
+                        data: 'nationality_arabic_name',
+                        name: 'nationalities.nationality_arabic_name',
                     },
                     {
                         data: 'nationality_short_code',

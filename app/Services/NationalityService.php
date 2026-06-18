@@ -93,6 +93,7 @@ class NationalityService
             ['data' => 'DT_RowIndex', 'name' => 'id'],
             // ['data' => 'company_name', 'name' => 'company_name'],
             ['data' => 'nationality_name', 'name' => 'nationality_name'],
+            ['data' => 'nationality_arabic_name', 'name' => 'nationality_arabic_name'],
             ['data' => 'nationality_short_code', 'name' => 'nationality_short_code'],
             ['data' => 'action', 'name' => 'action', 'orderable' => true, 'searchable' => true],
         ];
@@ -102,6 +103,7 @@ class NationalityService
             ->addIndexColumn()
             // ->addColumn('company_name', fn($row) => $row->company->company_name ?? '-')
             ->addColumn('nationality_name', fn($row) => $row->nationality_name ?? '-')
+            ->addColumn('nationality_arabic_name', fn($row) => $row->nationality_arabic_name ?? '-')
             ->addColumn('nationality_short_code', fn($row) => $row->nationality_short_code ?? '-')
             ->addColumn('action', function ($row) {
                 $action = '<div class="d-flex flex-column flex-md-row ">';

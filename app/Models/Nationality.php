@@ -12,7 +12,7 @@ class Nationality extends Model
 {
     use HasFactory, SoftDeletes, HasActivityLog, HasDeletedBy;
 
-    protected $fillable = ['company_id', 'nationality_code', 'nationality_name', 'nationality_short_code', 'added_by', 'updated_by', 'deleted_by', 'status'];
+    protected $fillable = ['company_id', 'nationality_code', 'nationality_name', 'nationality_short_code', 'added_by', 'updated_by', 'deleted_by', 'status', 'nationality_arabic_name'];
 
     public function company()
     {
