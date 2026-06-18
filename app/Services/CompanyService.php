@@ -165,6 +165,7 @@ class CompanyService
         $columns = [
             ['data' => 'DT_RowIndex', 'name' => 'id'],
             ['data' => 'company_name', 'name' => 'company_name'],
+            ['data' => 'company_arabic_name', 'name' => 'company_arabic_name'],
             ['data' => 'company_code', 'name' => 'company_code'],
             ['data' => 'company_short_code', 'name' => 'company_short_name'],
             ['data' => 'industry', 'name' => 'industry'],
@@ -172,6 +173,8 @@ class CompanyService
             ['data' => 'phone', 'name' => 'phone'],
             ['data' => 'email', 'name' => 'email'],
             ['data' => 'website', 'name' => 'website'],
+            ['data' => 'trade_license_number', 'name' => 'trade_license_number'],
+            ['data' => 'registration_no', 'name' => 'registration_no'],
             ['data' => 'action', 'name' => 'action', 'orderable' => true, 'searchable' => true],
         ];
 
@@ -179,6 +182,9 @@ class CompanyService
             ->of($query)
             ->addIndexColumn()
             ->addColumn('company_name', fn($row) => ucfirst($row->company_name) ?? '-')
+            ->addColumn('company_arabic_name', fn($row) => ucfirst($row->company_arabic_name) ?? '-')
+            ->addColumn('trade_license_number', fn($row) => ucfirst($row->trade_license_number) ?? '-')
+            ->addColumn('registration_no', fn($row) => ucfirst($row->registration_no) ?? '-')
             ->addColumn('company_code', fn($row) => ucfirst($row->company_code) ?? '-')
             ->addColumn('company_short_code', fn($row) => ucfirst($row->company_short_code) ?? '-')
             ->addColumn('industry', fn($row) => $row->industries_name ?? '-')

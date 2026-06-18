@@ -51,8 +51,11 @@
                                     <thead>
                                         <tr>
                                             <th>#</th>
-                                            <th>Company Name</th>
                                             <th>Company Code</th>
+                                            <th>Company Name</th>
+                                            <th>Company Name In Arabic</th>
+                                            <th>TRN Number</th>
+                                            <th>Registration Number</th>
                                             <th>Company Short Code</th>
                                             <th>Industry</th>
                                             {{-- <th>Address</th>
@@ -137,13 +140,26 @@
                         searchable: false
                     },
                     {
+                        data: 'company_code',
+                        name: 'companies.company_code',
+                    },
+                    {
                         data: 'company_name',
                         name: 'companies.company_name',
                     },
                     {
-                        data: 'company_code',
-                        name: 'companies.company_code',
+                        data: 'company_arabic_name',
+                        name: 'companies.company_arabic_name',
                     },
+                    {
+                        data: 'trade_license_number',
+                        name: 'companies.trade_license_number',
+                    },
+                    {
+                        data: 'registration_no',
+                        name: 'companies.registration_no',
+                    },
+
                     {
                         data: 'company_short_code',
                         name: 'companies.company_short_code',
