@@ -53,12 +53,16 @@ class CompanyExport implements FromCollection, WithHeadings
                     'ID' => $company->id,
                     'Company Code' => $company->company_code,
                     'Company Name' => $company->company_name ?? '',
+                    'Company Arabic Name' => $company->company_arabic_name ?? '',
                     'Company Short Code' => $company->company_short_code ?? '',
                     'Industry' => $company->industry->name ?? '',
                     'Company Phone' => $company->phone,
                     'Company Email' => $company->email,
                     'Company Address' => $company->address,
                     'Webiste' => $company->website,
+                    'TRN Number' => $company->trade_license_number ?? '',
+                    'Registration Number' => $company->registration_no ?? '',
+
 
 
                 ];
@@ -71,12 +75,15 @@ class CompanyExport implements FromCollection, WithHeadings
             'ID',
             'Comapny Code',
             'Company Name',
+            'Company Arabic Name',
             'company Short Code',
             'Industry',
             'Company Phone',
             'Company Email',
             'Company Address',
             'Website',
+            'TRN Number',
+            'Registration Number'
 
         ];
     }
