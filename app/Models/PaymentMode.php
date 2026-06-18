@@ -12,7 +12,17 @@ class PaymentMode extends Model
 {
     use HasFactory, SoftDeletes, HasActivityLog, HasDeletedBy;
 
-    protected $fillable = ['company_id', 'payment_mode_code', 'payment_mode_name', 'payment_mode_short_code', 'added_by', 'updated_by', 'deleted_by', 'status'];
+    protected $fillable = [
+        'company_id',
+        'payment_mode_code',
+        'payment_mode_name',
+        'payment_mode_short_code',
+        'added_by',
+        'updated_by',
+        'deleted_by',
+        'status',
+        'payment_mode_arabic_name'
+    ];
 
     public function company()
     {

@@ -654,6 +654,10 @@ namespace App\Models{
  * @property int $industry_id
  * @property string $company_code
  * @property string $company_name
+ * @property string|null $company_arabic_name
+ * @property string|null $trade_license_number
+ * @property string|null $registration_no
+ * @property string|null $letter_head_path
  * @property string $company_short_code
  * @property string|null $address
  * @property string|null $phone
@@ -686,6 +690,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Company query()
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereAddedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereAddress($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Company whereCompanyArabicName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereCompanyCode($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereCompanyName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereCompanyShortCode($value)
@@ -695,8 +700,11 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereEmail($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereIndustryId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Company whereLetterHeadPath($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company wherePhone($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Company whereRegistrationNo($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Company whereTradeLicenseNumber($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereUpdatedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereWebsite($value)

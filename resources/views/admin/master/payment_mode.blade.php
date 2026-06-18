@@ -55,6 +55,7 @@
                                             <th>#</th>
                                             {{-- <th>Company Name</th> --}}
                                             <th>Payment Mode</th>
+                                            <th>Payment Mode In Arabic</th>
                                             <th>Code</th>
                                             <th>Action</th>
                                         </tr>
@@ -165,6 +166,10 @@
                     {
                         data: 'payment_mode_name',
                         name: 'payment_modes.payment_mode_name',
+                    },
+                    {
+                        data: 'payment_mode_arabic_name',
+                        name: 'payment_modes.payment_mode_arabic_name',
                     },
                     {
                         data: 'payment_mode_short_code',

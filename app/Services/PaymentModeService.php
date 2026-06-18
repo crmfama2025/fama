@@ -93,6 +93,7 @@ class PaymentModeService
             ['data' => 'DT_RowIndex', 'name' => 'id'],
             // ['data' => 'company_name', 'name' => 'company_name'],
             ['data' => 'payment_mode_name', 'name' => 'payment_mode_name'],
+            ['data' => 'payment_mode_arabic_name', 'name' => 'payment_mode_arabic_name'],
             ['data' => 'payment_mode_short_code', 'name' => 'payment_mode_short_code'],
             ['data' => 'action', 'name' => 'action', 'orderable' => true, 'searchable' => true],
         ];
@@ -102,6 +103,7 @@ class PaymentModeService
             ->addIndexColumn()
             // ->addColumn('company_name', fn($row) => $row->company->company_name ?? '-')
             ->addColumn('payment_mode_name', fn($row) => $row->payment_mode_name ?? '-')
+            ->addColumn('payment_mode_arabic_name', fn($row) => $row->payment_mode_arabic_name ?? '-')
             ->addColumn('payment_mode_short_code', fn($row) => $row->payment_mode_short_code ?? '-')
             ->addColumn('action', function ($row) {
                 $action = '<div class="d-flex flex-column flex-md-row ">';

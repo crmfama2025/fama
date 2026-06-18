@@ -45,6 +45,7 @@ class PaymentModeExport implements FromCollection, WithHeadings
                     'Payment Mode Code' => $paymentMode->payment_mode_code,
                     // 'Company' => $paymentMode->company->company_name ?? '',
                     'Payment Mode Name' => $paymentMode->payment_mode_name,
+                    'Payment Mode Name Arabic' => $paymentMode->payment_mode_arabic_name,
                     'Payment Mode Short Code' => $paymentMode->payment_mode_short_code,
                 ];
             });
@@ -57,6 +58,7 @@ class PaymentModeExport implements FromCollection, WithHeadings
             'Payment Mode Code',
             // 'Company',
             'Payment Mode Name',
+            'Payment Mode Name In Arabic',
             'Payment Mode Short Code'
         ];
     }
