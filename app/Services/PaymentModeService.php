@@ -184,6 +184,7 @@ class PaymentModeService
                 $insertData[] = [
                     'payment_mode_code' => $this->setPaymentModeCode($key + 1),
                     'payment_mode_name' => $row['payment_mode_name'],
+                    'payment_mode_arabic_name' => $row['payment_mode_arabic_name'] ?? '',
                     'payment_mode_short_code' => $row['payment_mode_short_code'],
                     'created_at' => now(),
                     'updated_at' => now(),

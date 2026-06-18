@@ -161,6 +161,7 @@ class NationalityService
                     // 'company_id' => $company_id,
                     'nationality_code' => $this->setPaymentModeCode($key + 1),
                     'nationality_name' => $row['country_name'],
+                    'nationality_arabic_name' => $row['country_name_arabic'] ?? '',
                     'nationality_short_code' => $row['country_code'],
                     'created_at' => now(),
                     'updated_at' => now(),

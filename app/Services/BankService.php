@@ -168,6 +168,7 @@ class BankService
                     'company_id' => $company_id,
                     'bank_code' => $this->setBankCode($key + 1),
                     'bank_name' => $row['bank_name'],
+                    'bank_arabic_name' => $row['bank_arabic_name'] ?? '',
                     'bank_short_code' => $row['bank_short_code'],
                     'created_at' => now(),
                     'updated_at' => now(),
