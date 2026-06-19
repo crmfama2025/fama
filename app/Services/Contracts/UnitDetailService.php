@@ -36,9 +36,9 @@ class UnitDetailService
         $data = [];
 
         //Re-index all sub-arrays to fix gaps from frontend row deletions when no of units changes in form upon entering data.-Geethu
-        $dataArr = array_map(function ($value) {
-            return is_array($value) ? array_values($value) : $value;
-        }, $dataArr);
+        // $dataArr = array_map(function ($value) {
+        //     return is_array($value) ? array_values($value) : $value;
+        // }, $dataArr);
         // end - Geethu
 
         foreach ($dataArr['unit_type_id'] as $key => $value) {
@@ -97,9 +97,9 @@ class UnitDetailService
         // dump($dataArr);
 
         //Re-index all sub-arrays to fix gaps from frontend row deletions when no of units changes in form upon entering data.-Geethu
-        $dataArr = array_map(function ($value) {
-            return is_array($value) ? array_values($value) : $value;
-        }, $dataArr);
+        // $dataArr = array_map(function ($value) {
+        //     return is_array($value) ? array_values($value) : $value;
+        // }, $dataArr);
         // end - Geethu
         // dump($dataArr);
 
