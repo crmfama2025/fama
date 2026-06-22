@@ -168,7 +168,7 @@ class InvestorService
             'payment_mode_id' => 'required',
             'investor_address' => 'required',
             'payout_batch_id' => 'required',
-            'address_line2' => 'required',
+            // 'address_line2' => 'required',
             'city' => 'required',
             'state' => 'required',
             'country_id' => 'required',

@@ -53,8 +53,15 @@
                                                 <div class="col-sm-4">
                                                     <label class="asterisk">Investor Name</label>
                                                     <input type="text" name="investor[investor_name]"
-                                                        class="form-control" placeholder="Investor Name"
+                                                        class="form-control " placeholder="Investor Name"
                                                         value="{{ $investor->investor_name ?? '' }}" required>
+                                                </div>
+                                                <div class="col-sm-4">
+                                                    <label class="asterisk">Investor Name In Arabic</label>
+                                                    <input type="text" name="investor[investor_name_arabic]"
+                                                        pattern="[‌\u0600-\u06FF\s]+" class="form-control arabic-input"
+                                                        placeholder="Investor Name in Arabic"
+                                                        value="{{ $investor->investor_name_arabic ?? '' }}" required>
                                                 </div>
 
                                                 <div class="col-sm-4">
@@ -66,6 +73,10 @@
                                                         placeholder="CountryCodeMobileNumber (e.g. 971501234567)"
                                                         value="{{ $investor->investor_mobile ?? '' }}" required>
                                                 </div>
+
+                                            </div>
+
+                                            <div class="form-group row">
                                                 <div class="col-sm-4">
                                                     <label for="inputEmail3" class="asterisk">Investor
                                                         Email</label>
@@ -73,9 +84,6 @@
                                                         name="investor[investor_email]" placeholder="Investor Email"
                                                         value="{{ $investor->investor_email ?? '' }}" required>
                                                 </div>
-                                            </div>
-
-                                            <div class="form-group row">
                                                 <div class="col-sm-4">
                                                     <label class="asterisk">Nationality</label>
                                                     <select name="investor[nationality_id]" class="form-control select2"
@@ -103,6 +111,9 @@
                                                         @endforeach
                                                     </select>
                                                 </div>
+
+                                            </div>
+                                            <div class="form-group row">
                                                 <div class="col-md-4">
                                                     <label for="inputEmail3" class="asterisk">Preferred
                                                         Payment
@@ -117,8 +128,6 @@
                                                         @endforeach
                                                     </select>
                                                 </div>
-                                            </div>
-                                            <div class="form-group row">
                                                 <div class="col-sm-4">
                                                     <label for="inputEmail3" class="asterisk">Emirates ID/
                                                         Other
@@ -134,6 +143,9 @@
                                                         placeholder="Passport Number"
                                                         value="{{ $investor->passport_number ?? '' }}">
                                                 </div>
+
+                                            </div>
+                                            <div class="form-group row">
                                                 <div class="col-sm-4">
                                                     <label for="inputEmail3" class="">Referral</label>
                                                     <select class="form-control select2" name="investor[referral_id]">
@@ -146,8 +158,6 @@
                                                         @endforeach
                                                     </select>
                                                 </div>
-                                            </div>
-                                            <div class="form-group row">
                                                 <div class="col-sm-4">
                                                     <label for="inputEmail3" class="asterisk">Investor Relation</label>
                                                     <select class="form-control select2"
@@ -176,6 +186,9 @@
                                                     </select>
                                                 </div>
 
+
+                                            </div>
+                                            <div class="form-group row">
                                                 <div class="col-sm-4">
                                                     <label for="inputEmail3" class="col-form-label">Profit Release
                                                         Date </label>
@@ -224,11 +237,10 @@
                                                 </div>
 
                                                 <div class="col-sm-4">
-                                                    <label for="inputEmail3" class="asterisk">Address Line 2</label>
+                                                    <label for="inputEmail3" class="">Address Line 2</label>
                                                     <input type="text" class="form-control"
                                                         name="investor[address_line2]" placeholder="Street"
-                                                        value="{{ $investor->address_line2 ?? '' }}" id=""
-                                                        required>
+                                                        value="{{ $investor->address_line2 ?? '' }}" id="">
                                                 </div>
 
                                                 <div class="col-sm-4">
@@ -269,6 +281,47 @@
                                                     </select>
                                                 </div>
                                             </div>
+
+                                            {{-- Arabic Address section --}}
+                                            <h5>Address In Arabic</h5>
+                                            <hr>
+                                            <div class="form-group row">
+                                                <div class="col-sm-4">
+                                                    <label for="inputEmail3" class="asterisk">Address Line 1</label>
+                                                    <input type="text" class="form-control arabic-input"
+                                                        name="investor[investor_address_arabic]"
+                                                        placeholder="Flat no, Buiding name"
+                                                        value="{{ $investor->investor_address_arabic ?? '' }}"
+                                                        id="" required>
+                                                </div>
+
+                                                <div class="col-sm-4">
+                                                    <label for="inputEmail3" class="">Address Line 2</label>
+                                                    <input type="text" class="form-control arabic-input"
+                                                        name="investor[address_line2_arabic]" placeholder="Street"
+                                                        value="{{ $investor->address_line2_arabic ?? '' }}"
+                                                        id="">
+                                                </div>
+
+                                                <div class="col-sm-4">
+                                                    <label for="inputEmail3" class="asterisk">City</label>
+                                                    <input type="text" class="form-control arabic-input"
+                                                        name="investor[city_arabic]"
+                                                        value="{{ $investor->city_arabic ?? '' }}" placeholder="City"
+                                                        id="" required>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group row">
+                                                <div class="col-sm-4">
+                                                    <label for="inputEmail3"
+                                                        class="asterisk">State/Province/Region</label>
+                                                    <input type="text" class="form-control arabic-input"
+                                                        name="investor[state_arabic]"
+                                                        value="{{ $investor->state_arabic ?? '' }}" placeholder="State"
+                                                        id="" required>
+                                                </div>
+                                            </div>
                                         </div>
 
                                         <div class="card card-outline card-info p-4">
@@ -303,16 +356,36 @@
                                                         required>
                                                 </div>
                                                 <div class="col-md-4">
-                                                    <label for="inputEmail3" class="asterisk">Bank
-                                                        Name</label>
-                                                    <input type="text" name="investor_bank[investor_bank_name]"
-                                                        id="investor_bank_name" class="form-control"
-                                                        placeholder="Bank Name"
-                                                        value="{{ $investor->primaryBank->investor_bank_name ?? '' }}"
+                                                    <label for="inputEmail3" class="asterisk">Benenficiary
+                                                        Name In Arabic</label>
+                                                    <input type="text"
+                                                        name="investor_bank[investor_beneficiary_arabic]"
+                                                        id="investor_beneficiary_arabic" class="form-control arabic-input"
+                                                        placeholder="Benenficiary Name"
+                                                        value="{{ $investor->primaryBank->investor_beneficiary_arabic ?? '' }}"
                                                         required>
                                                 </div>
                                             </div>
                                             <div class="form-group row">
+
+                                                <div class="col-md-4">
+                                                    <label for="inputEmail3" class="asterisk">Benenficiary Bank
+                                                        Name</label>
+                                                    <input type="text" name="investor_bank[investor_bank_name]"
+                                                        id="investor_bank_name" class="form-control "
+                                                        placeholder="Bank Name"
+                                                        value="{{ $investor->primaryBank->investor_bank_name ?? '' }}"
+                                                        required>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label for="inputEmail3" class="asterisk">Benenficiary Bank
+                                                        Name Arabic</label>
+                                                    <input type="text" name="investor_bank[investor_bank_name_arabic]"
+                                                        id="investor_bank_name_arabic" class="form-control arabic-input"
+                                                        placeholder="Bank Name"
+                                                        value="{{ $investor->primaryBank->investor_bank_name_arabic ?? '' }}"
+                                                        required>
+                                                </div>
                                                 <div class="col-md-4">
                                                     <label for="inputEmail3" class="asterisk">IBAN</label>
                                                     <input type="text" name="investor_bank[investor_iban]"
@@ -453,6 +526,21 @@
             let isValid = true;
             $(".error-text").remove(); // clear old errors
             let investorId = $('#investor_id').val();
+
+
+            console.log($("#investorForm").find('.is-invalid').length);
+
+            if ($("#investorForm").find('.is-invalid').length > 0) {
+                // $('#investorsubmitbutton').prop('disabled', true).addClass('disabled');
+                toastr.error('Please fill all required fields before submitting.');
+                return;
+            }
+            //  else {
+            // $('#investorsubmitbutton').prop('disabled', false).removeClass('disabled');
+            // }
+            // iF(!checkFormValidity('investorForm', 'investorsubmitbutton')) {
+
+            // };
 
 
             // validate ALL required fields

@@ -812,6 +812,45 @@
                 return isValid;
             }
         }
+
+        // Arabic input validation
+        function validateArabicInput(input) {
+            const arabic = /^[\u0600-\u06FF\s]+$/;
+
+            if (input.value && !arabic.test(input.value)) {
+                input.classList.add('is-invalid');
+                toastr.error('Please enter Arabic characters only testfffffffffffff.');
+            } else {
+                input.classList.remove('is-invalid');
+            }
+        }
+
+        document.querySelectorAll('.arabic-input').forEach(function(input) {
+            validateArabicInput(input);
+
+            // Real-time as user types
+            // input.addEventListener('input', function() {
+            //     validateArabicInput(this);
+            // });
+
+
+            input.addEventListener('blur', function() {
+                validateArabicInput(this);
+            });
+        });
+
+        function checkFormValidity(formId, buttonId) {
+            alert('test');
+            if ($("#" + formId).find('.is-invalid').length > 0) {
+                alert("test1")
+                $('#' + buttonId).prop('disabled', true).addClass('disabled');
+                toastr.error('Please fill all required fields before submitting.');
+                return false;
+            } else {
+                $('#' + buttonId).prop('disabled', false).removeClass('disabled');
+                return true;
+            }
+        }
     </script>
     {{-- <script>
         $(window).on('load', function() {

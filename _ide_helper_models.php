@@ -545,6 +545,7 @@ namespace App\Models{
  * @property int $company_id
  * @property string $bank_code
  * @property string $bank_name
+ * @property string|null $bank_arabic_name
  * @property string $bank_short_code
  * @property int|null $added_by
  * @property int|null $updated_by
@@ -564,6 +565,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Bank onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|Bank query()
  * @method static \Illuminate\Database\Eloquent\Builder|Bank whereAddedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Bank whereBankArabicName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Bank whereBankCode($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Bank whereBankName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Bank whereBankShortCode($value)
@@ -2471,6 +2473,7 @@ namespace App\Models{
  * @property int|null $company_id
  * @property string $nationality_code
  * @property string $nationality_name
+ * @property string|null $nationality_arabic_name
  * @property string $nationality_short_code
  * @property int|null $added_by
  * @property int|null $updated_by
@@ -2492,6 +2495,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Nationality whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Nationality whereDeletedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Nationality whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Nationality whereNationalityArabicName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Nationality whereNationalityCode($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Nationality whereNationalityName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Nationality whereNationalityShortCode($value)
@@ -2510,6 +2514,7 @@ namespace App\Models{
  * @property int|null $company_id
  * @property string $payment_mode_code
  * @property string $payment_mode_name
+ * @property string|null $payment_mode_arabic_name
  * @property string $payment_mode_short_code
  * @property int|null $added_by
  * @property int|null $updated_by
@@ -2535,6 +2540,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|PaymentMode whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|PaymentMode whereDeletedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|PaymentMode whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PaymentMode wherePaymentModeArabicName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|PaymentMode wherePaymentModeCode($value)
  * @method static \Illuminate\Database\Eloquent\Builder|PaymentMode wherePaymentModeName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|PaymentMode wherePaymentModeShortCode($value)

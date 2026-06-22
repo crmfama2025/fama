@@ -47,6 +47,13 @@ class Investor extends Model
         'state',
         'postal_code',
         'country_id',
+
+        // New fields for contracts
+        'investor_name_arabic',
+        'investor_address_arabic',
+        'address_line2_arabic',
+        'city_arabic',
+        'state_arabic'
     ];
 
     public function nationality()

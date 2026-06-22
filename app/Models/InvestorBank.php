@@ -22,7 +22,11 @@ class InvestorBank extends Model
         'added_by',
         'updated_by',
         'deleted_by',
-        'banking_region'
+        'banking_region',
+
+        // new fields for contracts
+        'investor_beneficiary_arabic',
+        'investor_bank_name_arabic',
     ];
 
     public function investor()

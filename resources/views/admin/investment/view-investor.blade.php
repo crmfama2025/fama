@@ -103,7 +103,8 @@
                                     <div class="card-header">
                                         <strong>
                                             <h3 class="card-title font-weight-bold text-lg text-maroon">
-                                                {{ $investor->investor_name }}</h3>
+                                                {{ $investor->investor_name }} - {{ $investor->investor_name_arabic }}
+                                            </h3>
                                         </strong>
                                     </div>
                                     <!-- /.card-header -->
@@ -126,15 +127,28 @@
 
                                         <hr>
 
-                                        <strong><i class="fas fa-map-marker-alt mr-1"></i> Location</strong>
+                                        <strong><i class="fas fa-map-marker-alt mr-1"></i> Address</strong>
 
-                                        <p class="text-muted">{{ $investor->countryOfResidence->nationality_name }}</p>
+                                        <p class="text-muted m-0">{{ $investor->countryOfResidence->nationality_name }}</p>
+                                        <p class="text-muted m-0">{{ $investor->investor_address }}</p>
+                                        <p class="text-muted m-0">{{ $investor->adressline2 ?? ' - ' }}</p>
+                                        <p class="text-muted m-0">{{ $investor->state }}</p>
+                                        <p class="text-muted m-0">{{ $investor->city }}</p>
+                                        <p class="text-muted m-0">{{ $investor->postal_code ?? ' - ' }}</p>
+
+                                        <strong>Arabic Address</strong>
+
+                                        <p class="text-muted m-0">{{ $investor->investor_address_arabic }}</p>
+                                        <p class="text-muted m-0">{{ $investor->adress_line2_arabic ?? ' - ' }}</p>
+                                        <p class="text-muted m-0">{{ $investor->state_arabic }}</p>
+                                        <p class="text-muted m-0">{{ $investor->city_arabic }}</p>
 
                                         <hr>
 
                                         <strong><i class="fas fa-pencil-alt mr-1"></i> Identity Details</strong>
 
-                                        <p class="text-muted m-0">Emirates ID / Other ID : {{ $investor->id_number }}</p>
+                                        <p class="text-muted m-0">Emirates ID / Other ID : {{ $investor->id_number }}
+                                        </p>
                                         <p class="text-muted m-0">Passport : {{ $investor->passport_number }}</p>
 
                                         <hr>
@@ -176,7 +190,9 @@
                                                 <tr>
                                                     <th>#</th>
                                                     <th>Bank name</th>
+                                                    <th>Bank Name Arabic</th>
                                                     <th>Beneficiary</th>
+                                                    <th>Beneficiary Arabic</th>
                                                     <th>IBAN</th>
                                                     <th>Action</th>
                                                 </tr>
@@ -186,14 +202,17 @@
                                                     <tr>
                                                         <td>{{ $loop->iteration }}</td>
                                                         <td>{{ $investorBank->investor_bank_name }}</td>
+                                                        <td>{{ $investorBank->investor_bank_name_arabic }}</td>
                                                         <td>{{ $investorBank->investor_beneficiary }}</td>
+                                                        <td>{{ $investorBank->investor_beneficiary_arabic }}</td>
                                                         <td>{{ $investorBank->investor_iban }}</td>
                                                         <td>
                                                             <button class="btn btn-info btn-sm"
                                                                 data-id="{{ $investorBank->id }}"
                                                                 data-investor-id="{{ $investorBank->investor_id }}"
                                                                 data-target="#modal-add-bank" data-toggle="modal"
-                                                                title="Add Bank"><i class="fas fa-pencil-alt"></i></button>
+                                                                title="Add Bank"><i
+                                                                    class="fas fa-pencil-alt"></i></button>
                                                         </td>
                                                     </tr>
                                                 @endforeach

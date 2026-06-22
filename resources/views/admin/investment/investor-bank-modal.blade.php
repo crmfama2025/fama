@@ -25,9 +25,31 @@
                                  class="form-control" placeholder="Bank Name" required>
                          </div>
                          <div class="form-group row">
+                             <label for="inputEmail3" class="asterisk">Benenficiary
+                                 Name Arabic</label>
+                             <input type="text" name="investor_beneficiary_arabic" id="investor_beneficiary_arabic"
+                                 class="form-control arabic-input" placeholder="Benenficiary Name Arabic" required>
+                         </div>
+                         <div class="form-group row">
+                             <label for="inputEmail3" class="asterisk">Bank
+                                 Name Arabic</label>
+                             <input type="text" name="investor_bank_name_arabic" id="investor_bank_name_arabic"
+                                 class="form-control arabic-input" placeholder="Bank Name Arabic" required>
+                         </div>
+                         <div class="form-group row">
                              <label for="inputEmail3" class="asterisk">IBAN</label>
                              <input type="text" name="investor_iban" id="investor_iban" class="form-control"
                                  id="inputEmail3" placeholder="IBAN" required>
+                         </div>
+                         <div class="form-group row">
+                             <label for="inputEmail3" class="asterisk">Banking Region</label>
+                             <select class="form-control " name="banking_region" id="banking_region" required>
+                                 <option value="">Select Region</option>
+                                 <option value="1">
+                                     Local</option>
+                                 <option value="2">
+                                     International</option>
+                             </select>
                          </div>
                          <input type="hidden" name="is_primary" id="is_primary" value="0">
                      </div>
@@ -52,6 +74,19 @@
          let isValid = true;
          $(".error-text").remove(); // clear old errors
 
+
+         // ✅ Then check after validation has set is-invalid classes
+         //  if (!checkFormValidity('addInvestorBank', 'submitBank')) {
+         //      return;
+         //  }
+         if ($("#addInvestorBank").find('.is-invalid').length > 0) {
+             //  $('#submitBank').prop('disabled', true).addClass('disabled');
+             toastr.error('Please fill all required fields before submitting.');
+             return;
+         }
+         //  else {
+         //      $('#submitBank').prop('disabled', false).removeClass('disabled');
+         //  }
          // validate ALL required fields
          $("#addInvestorBank").find("[required]:visible").each(function() {
              const value = $(this).val()?.trim();
@@ -66,6 +101,8 @@
          });
 
          if (!isValid) return;
+
+
 
          submitBankForm(); // everything passed
      });
@@ -148,6 +185,9 @@
                      $('#investor_bank_name').val(response.investor_bank_name);
                      $('#investor_iban').val(response.investor_iban);
                      $('#is_primary').val(response.is_primary);
+                     $('#investor_beneficiary_arabic').val(response.investor_beneficiary_arabic);
+                     $('#investor_bank_name_arabic').val(response.investor_bank_name_arabic);
+                     $('#banking_region').val(response.banking_region);
                  },
                  error: function(xhr) {
                      console.error('AJAX error:', xhr.responseText);
