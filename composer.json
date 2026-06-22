@@ -13,6 +13,7 @@
         "laravel/sanctum": "^3.3",
         "laravel/tinker": "^2.8",
         "maatwebsite/excel": "3.1.47",
+        "mpdf/mpdf": "^8.3",
         "setasign/fpdi-tcpdf": "^2.3",
         "twilio/sdk": "^8.10",
         "yajra/laravel-datatables-oracle": "^10.11"
@@ -36,7 +37,8 @@
         },
          "files": [
         "app/Helpers/helpers.php",
-        "app/Helpers/scopehelpers.php"
+        "app/Helpers/scopehelpers.php",
+        "app/Helpers/investmenthelpers.php"
     ]
     },
     "autoload-dev": {

@@ -12,6 +12,7 @@ use App\Http\Controllers\ImportController;
 use App\Http\Controllers\InstallmentController;
 use App\Http\Controllers\InvesmentSOAController;
 use App\Http\Controllers\InvestmentController;
+use App\Http\Controllers\InvestorAgreementTemplateController;
 use App\Http\Controllers\InvestorController;
 use App\Http\Controllers\InvestorPaymentDistributionController;
 use App\Http\Controllers\InvoiceController;
@@ -75,8 +76,7 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
     Route::resource('tenant', TenantController::class);
     Route::resource('tenant-registration', TenantregistrationController::class);
     Route::resource('invoices', InvoiceController::class);
-
-
+    Route::resource('legal_template', InvestorAgreementTemplateController::class);
 
 
 
@@ -359,6 +359,10 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
     Route::get('/generated_invoices_list', [InvoiceController::class, 'getGenerated'])->name('invoices.generated-list');
     Route::get('invoices/{invoice}/pdf', [InvoiceController::class, 'downloadPdf'])
         ->name('invoices.pdf');
+
+
+    Route::get('mudarabah-view/{id}', [InvestorAgreementTemplateController::class, 'mudarabah_view'])->name('legal_template.contractview');
+    Route::get('inv-agreement-list', [InvestorAgreementTemplateController::class, 'getInvestorAgreements'])->name('legal_template.list');
 });
 
 

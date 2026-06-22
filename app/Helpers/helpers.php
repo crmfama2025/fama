@@ -1437,6 +1437,7 @@ function getModuleArray()
         'tenant',
         'tenant-registration',
         'invoice',
+        'investor_legal_documents'
     ];
 }
 

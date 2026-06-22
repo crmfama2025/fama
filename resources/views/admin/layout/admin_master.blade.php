@@ -203,6 +203,7 @@
                                     'payment_mode*',
                                     'nationality*',
                                     'tenant*',
+                                    'legal_template*',
                                 ])
                             ) {
                                 $master = 1;
@@ -317,6 +318,21 @@
                                                 class="nav-link {{ request()->is('nationality*') ? 'active' : '' }}">
                                                 <i class="far fa-circle nav-icon"></i>
                                                 <p>Nationality</p>
+                                            </a>
+                                        </li>
+                                    @endif
+                                    @if (Gate::any([
+                                            'Investor_legal_documents',
+                                            'Investor_legal_documents.add',
+                                            'Investor_legal_documents.view',
+                                            'Investor_legal_documents.edit',
+                                            'Investor_legal_documents.delete',
+                                        ]))
+                                        <li class="nav-item ">
+                                            <a href="{{ route('legal_template.index') }}"
+                                                class="nav-link {{ request()->is('legal_template*') ? 'active' : '' }}">
+                                                <i class="far fa-circle nav-icon"></i>
+                                                <p>Investor Legal Templates</p>
                                             </a>
                                         </li>
                                     @endif
