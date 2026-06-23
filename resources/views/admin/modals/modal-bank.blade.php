@@ -33,6 +33,17 @@
                                 id="inputEmail3" placeholder="Bank Name" required>
                         </div>
                         <div class="form-group row">
+                            <label for="iban" class="col-sm-3 col-form-label asterisk">IBAN</label>
+                            <input type="text" name="iban" id="iban" class="col-sm-9 form-control"
+                                placeholder="IBAN" required>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="account_number" class="col-sm-3 col-form-label asterisk">Account Number</label>
+                            <input type="text" name="account_number" id="account_number"
+                                class="col-sm-9 form-control" placeholder="Account Number" required>
+                        </div>
+                        <div class="form-group row">
                             <label for="inputEmail3" class="col-sm-3 col-form-label asterisk">Bank Name In
                                 Arabic</label>
                             <input type="text" name="bank_arabic_name" id="bank_arabic_name"

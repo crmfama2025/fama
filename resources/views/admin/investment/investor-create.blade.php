@@ -528,7 +528,7 @@
             let investorId = $('#investor_id').val();
 
 
-            console.log($("#investorForm").find('.is-invalid').length);
+            // console.log($("#investorForm").find('.is-invalid').length);
 
             if ($("#investorForm").find('.is-invalid').length > 0) {
                 // $('#investorsubmitbutton').prop('disabled', true).addClass('disabled');

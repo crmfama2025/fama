@@ -2106,9 +2106,11 @@ namespace App\Models{
  * @property int $id
  * @property string $investor_code
  * @property string $investor_name
+ * @property string $investor_name_arabic
  * @property string $investor_mobile
  * @property string $investor_email
  * @property string $investor_address
+ * @property string $investor_address_arabic
  * @property int $nationality_id
  * @property int $country_of_residence
  * @property int $payment_mode_id
@@ -2141,6 +2143,9 @@ namespace App\Models{
  * @property string $state
  * @property string|null $postal_code
  * @property string $country_id
+ * @property string|null $address_line2_arabic
+ * @property string $city_arabic
+ * @property string $state_arabic
  * @property-read \App\Models\Nationality|null $country
  * @property-read \App\Models\Nationality|null $countryOfResidence
  * @property-read \App\Models\User|null $deletedBy
@@ -2161,7 +2166,9 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Investor onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|Investor query()
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereAddressLine2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Investor whereAddressLine2Arabic($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereCity($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Investor whereCityArabic($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereCountryId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereCountryOfResidence($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereCreatedAt($value)
@@ -2171,10 +2178,12 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereIdNumber($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereInvestorAddress($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Investor whereInvestorAddressArabic($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereInvestorCode($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereInvestorEmail($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereInvestorMobile($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereInvestorName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Investor whereInvestorNameArabic($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereInvestorRelationId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereIsIdUploaded($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereIsPassportUploaded($value)
@@ -2188,6 +2197,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereProfitReleaseDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereReferralId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereState($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Investor whereStateArabic($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereTotalInvestedAmount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereTotalNoOfInvestments($value)
@@ -2220,6 +2230,8 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int $banking_region 1-local, 2-international
+ * @property string $investor_beneficiary_arabic
+ * @property string $investor_bank_name_arabic
  * @property-read \App\Models\User|null $deletedBy
  * @property-read \App\Models\Investor|null $investor
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorBank newModelQuery()
@@ -2233,7 +2245,9 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorBank whereDeletedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorBank whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorBank whereInvestorBankName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorBank whereInvestorBankNameArabic($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorBank whereInvestorBeneficiary($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorBank whereInvestorBeneficiaryArabic($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorBank whereInvestorIban($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorBank whereInvestorId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorBank whereIsPrimary($value)

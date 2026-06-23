@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\CustomEncrypted;
 use App\Models\Traits\HasActivityLog;
 use App\Models\Traits\HasDeletedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -27,6 +28,10 @@ class InvestorBank extends Model
         // new fields for contracts
         'investor_beneficiary_arabic',
         'investor_bank_name_arabic',
+    ];
+
+    protected $casts = [
+        'investor_iban' => CustomEncrypted::class,
     ];
 
     public function investor()
