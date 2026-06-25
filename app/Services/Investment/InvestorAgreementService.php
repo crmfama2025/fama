@@ -75,7 +75,7 @@ class InvestorAgreementService
                 return $row->agreementType->investor_agreement_type ?? '-';
             })
             ->addColumn('version_no', function ($row) {
-                return $row->version_no ?? '-';
+                return 'V' . $row->version_no ?? '-';
             })
             ->addColumn('effective_from', function ($row) {
                 return $row->effective_from;
