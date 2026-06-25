@@ -1642,6 +1642,19 @@ function getFcmAccessToken()
     return $response['access_token'];
 }
 
+
+function InvestorDocVersion()
+{
+    return array(
+        1 => 'V1',
+        2 => 'V2',
+        3 => 'V3',
+        4 => 'V4',
+        5 => 'V5',
+        6 => 'V6',
+    );
+}
+
 // app/Helpers/FileHelper.php
 if (!function_exists('is_file_ready')) {
     function is_file_ready(string $filePath): bool

@@ -68,11 +68,11 @@
                                                     <label class="asterisk">Version No</label>
                                                     <select name="version_no" class="form-control select2" required>
                                                         <option value="">Select Version No</option>
-                                                        @for ($i = 1; $i <= 10; $i++)
-                                                            <option value="{{ $i }}"
-                                                                {{ $i == $investorTemplate?->version_no ? 'selected' : '' }}>
-                                                                {{ $i }} </option>
-                                                        @endfor
+                                                        @foreach (InvestorDocVersion() as $key => $item)
+                                                            <option value="{{ $key }}"
+                                                                {{ $key == $investorTemplate?->version_no ? 'selected' : '' }}>
+                                                                {{ $item }} </option>
+                                                        @endforeach
                                                     </select>
                                                 </div>
                                             </div>
