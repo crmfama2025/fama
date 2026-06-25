@@ -169,7 +169,7 @@ class InvestmentContractService
             '{invested_amount_ar}' => numberToArabicWords($grandTotalInvested) . ' فقط',
             '{total_invested_amount}' => number_format($grandTotalInvested, 2),
             '{total_profit}'          => number_format($grandTotalProfit, 2),
-            '{monthly_estimate}'      => number_format($grandTotalPerInterval, 2),
+            '{monthly_estimate}'      => 0, //number_format($grandTotalPerInterval, 2)
 
             // Annexure blocks
             '{annexA}' => $annexureA,
