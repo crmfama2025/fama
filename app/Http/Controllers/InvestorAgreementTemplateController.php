@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\InvestorAgreementType;
+use App\Services\Investment\InvestmentContractService;
 use App\Services\Investment\InvestorAgreementService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -13,7 +14,8 @@ use Mpdf\Mpdf;
 class InvestorAgreementTemplateController extends Controller
 {
     public function __construct(
-        protected InvestorAgreementService $invAgreement
+        protected InvestorAgreementService $invAgreement,
+        protected InvestmentContractService $invContractServ
     ) {}
 
     /**
@@ -100,10 +102,16 @@ class InvestorAgreementTemplateController extends Controller
         //
     }
 
-    public function mudarabah_view($id)
+    public function mudarabah_view($docType, $investorId, $investmentId = 0, $companyId)
     {
-        $page = 9;
-        return view('admin.investment.inv_agreement.pdfview-agreement', compact('page'));
+        $data = $this->invContractServ->sendContractDocument($docType, $investorId, $investmentId, $companyId);
+
+        return view('admin.investment.inv_agreement.pdfview-agreement-dynamic', compact('data'));
+    }
+
+    public function doc_view()
+    {
+        return view('admin.investment.inv_agreement.pdfview-agreement');
     }
 
     public function getInvestorAgreements(Request $request)

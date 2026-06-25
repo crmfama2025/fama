@@ -16,6 +16,14 @@ class InvestorAgreementRepository
         return $this->model->find($id);
     }
 
+    public function findByType($docTypeId)
+    {
+        return $this->model
+            ->where('investor_agreement_type_id', $docTypeId)
+            ->orderBy('version_no', 'desc')
+            ->first();
+    }
+
     public function create(array $data)
     {
         return InvestorAgreementTemplate::create($data);

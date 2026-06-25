@@ -68,20 +68,4 @@ class InvestorContractTemplateController extends Controller
     {
         //
     }
-
-    public function print_view($id)
-    {
-        $agreement = $this->agreementService->getDetails($id);
-        $page = 1;
-        return view('admin.investment.contract-content.mudarabah', compact('agreement', 'page'));
-    }
-
-    public function print($id)
-    {
-        // $agreement = $this->agreementService->getDetails($id);
-        // $page = 0;
-        // $pdf = Pdf::loadView('admin.projects.agreement.pdf-agreement', compact('agreement', 'page'))
-        //     ->setPaper([0, 0, 930, 1250]);
-        // return $pdf->stream('agreement-' . $agreement->id . '.pdf');
-    }
 }
