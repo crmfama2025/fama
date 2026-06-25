@@ -172,14 +172,14 @@
                         if (window.stepper._currentIndex === 6) { // adjust step index
                             rentPerUnitFamaFaateh();
                             CalculatePayables();
-                            matchPayables();
+                            // matchPayables();
                             $('#rent_installments, #rent_per_part, #rent_per_bs, #rent_per_room, #rent_per_flat')
                                 .trigger('change');
 
 
                         }
                         if (window.stepper._currentIndex === 4) {
-                            matchPayables();
+                            // matchPayables();
                         }
 
                         if (window.stepper._currentIndex === window.stepper._steps.length - 1 &&
