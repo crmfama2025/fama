@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\CustomEncrypted;
 use App\Models\Traits\HasActivityLog;
 use App\Models\Traits\HasDeletedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -82,9 +83,17 @@ class Investment extends Model
         'termination_outstanding',
 
         'invested_company_id',
-        'termination_referral_commission_outstanding'
-    ];
+        'termination_referral_commission_outstanding',
 
+        'company_bank_iban',
+        'company_bank_account_number',
+
+        'investment_amount_arabic'
+    ];
+    protected $casts = [
+        'company_bank_iban' => CustomEncrypted::class,
+        'company_bank_account_number' => CustomEncrypted::class,
+    ];
     public function investor()
     {
         return $this->belongsTo(Investor::class);

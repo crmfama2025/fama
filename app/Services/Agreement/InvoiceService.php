@@ -51,6 +51,7 @@ class InvoiceService
         $agreement = Agreement::with('contract')->findOrFail($data['agreement_id']);
         $code = $agreement->agreement_code;
         $project_code = $agreement->contract->project_code;
+        $company_code = $agreement->contract->company->company_code;
 
         $filename = uniqid() . '_' . $data['invoice_path']->getClientOriginalName();
         // $path = $data['invoice_path']->storeAs(
@@ -67,11 +68,11 @@ class InvoiceService
 
             $path = $pdfservice->compress(
                 $data['invoice_path'],
-                'projects/' . $project_code . '/agreements/' . $code . '/tenant-invoices',
+                'projects/' . $company_code . '/' . $project_code . '/agreements/' . $code . '/tenant-invoices',
                 $filename
             );
         } else {
-            $path = $data['invoice_path']->storeAs("projects/{$project_code}/agreements/{$code}/tenant-invoices", $filename, 'public');
+            $path = $data['invoice_path']->storeAs("projects/{$company_code}/{$project_code}/agreements/{$code}/tenant-invoices", $filename, 'public');
         }
 
         if (!empty($data['invoice_id'])) {

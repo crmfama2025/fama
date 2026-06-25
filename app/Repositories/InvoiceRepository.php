@@ -66,6 +66,9 @@ class InvoiceRepository
                         $q2->where('business_type', 1);
                     });
             });
+        // ->whereHas('agreement.agreement_units', function ($q) {
+        //     $q->where('is_rent_bifurcation_added', 1);
+        // });
 
         $query->whereHas('agreement.company', function ($q) use ($permittedCompanyIds) {
             $q->whereIn('company_id', $permittedCompanyIds);

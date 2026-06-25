@@ -57,7 +57,9 @@
 
     function dfB2cTotalrentChange() {
         let totalRentAnnum = parseFloat(document.getElementById('total_rent_annum').value) || 0;
+        // alert("test");
         $('#total_rent_per_annum').text(totalRentAnnum);
-        validateTotalPayment();
+        // validateTotalPayment();
+        dfB2cValidation();
     }
 </script>

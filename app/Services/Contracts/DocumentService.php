@@ -99,7 +99,7 @@ class DocumentService
                         $filename
                     );
                 } else {
-                    $path = $file->storeAs('projects/' . $contract->project_code . '/contract_documents', $filename, 'public');
+                    $path = $file->storeAs('projects/' . $contract->company->company_code . '/' . $contract->project_code . '/contract_documents', $filename, 'public');
                 }
                 // dd($path);
 

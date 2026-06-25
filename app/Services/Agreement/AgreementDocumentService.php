@@ -127,6 +127,7 @@ class AgreementDocumentService
         // dd($documents);
         $code = $agreement->agreement_code;
         $project_code = $agreement->contract->project_code;
+        $company_code = $agreement->contract->company->company_code;
         $ct_type = $agreement->contract->contract_type_id;
 
 
@@ -169,11 +170,11 @@ class AgreementDocumentService
 
                                 $path = $pdfservice->compress(
                                     $doc['document_path'],
-                                    'projects/' . $project_code . '/agreements/' . $code . '/documents',
+                                    'projects/' . $company_code . '/' . $project_code . '/agreements/' . $code . '/documents',
                                     $filename
                                 );
                             } else {
-                                $path = $doc['document_path']->storeAs("projects/{$project_code}/agreements/{$code}/documents", $filename, 'public');
+                                $path = $doc['document_path']->storeAs("projects/{$company_code}/{$project_code}/agreements/{$code}/documents", $filename, 'public');
                             }
 
                             $existingDoc->original_document_path = $path;
@@ -238,11 +239,11 @@ class AgreementDocumentService
 
                     $path = $pdfservice->compress(
                         $doc['document_path'],
-                        'projects/' . $project_code . '/agreements/' . $code . '/documents',
+                        'projects/' . $company_code . '/' . $project_code . '/agreements/' . $code . '/documents',
                         $filename
                     );
                 } else {
-                    $path = $doc['document_path']->storeAs("projects/{$project_code}/agreements/{$code}/documents", $filename, 'public');
+                    $path = $doc['document_path']->storeAs("projects/{$company_code}/{$project_code}/agreements/{$code}/documents", $filename, 'public');
                 }
                 $doc_data = [
                     'agreement_id' => $agreement->id,

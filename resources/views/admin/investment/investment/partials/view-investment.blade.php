@@ -40,7 +40,8 @@
                          <td>{{ $investment->company->company_name }}</td>
                          <td>{{ $investment->investedCompany->company_name ?? ' - ' }}</td>
                          <td>{{ getFormattedDate($investment->investment_date) }}</td>
-                         <td>{{ number_format($investment->investment_amount, 2) }}</td>
+                         <td>{{ number_format($investment->investment_amount, 2) }} -
+                             {{ $investment->investment_amount_arabic ?? ' - ' }}</td>
                          <td class="text-success">
                              {{ number_format($investment->total_received_amount, 2) }}
                          </td>
@@ -150,6 +151,39 @@
                          <td>{{ $investment->nominee_name ?? ' - ' }}</td>
                          <td>{{ $investment->nominee_email ?? ' - ' }}</td>
                          <td>{{ $investment->nominee_phone ?? ' - ' }}</td>
+                     </tr>
+
+                 </tbody>
+             </table>
+         </div>
+     </div>
+
+ </div>
+ <div class="card card-outline card-info">
+     <div class="card-header">
+         <h3 class="card-title text-teal text-bold">
+             <i class="fas fa-user mr-2"></i> Bank Details
+         </h3>
+     </div>
+
+     <div class="card-body p-0">
+         <div class="table-responsive">
+             <table class="table table-bordered table-striped">
+                 <thead class="bg-light">
+                     <tr>
+                         {{-- <th>#</th> --}}
+                         <th>Bank Name</th>
+                         <th>Iban</th>
+                         <th>Account Number</th>
+
+                     </tr>
+                 </thead>
+
+                 <tbody>
+                     <tr>
+                         <td>{{ $investment->companyBank->bank_name ?? ' - ' }}</td>
+                         <td>{{ $investment->company_bank_iban ?? ' - ' }}</td>
+                         <td>{{ $investment->company_bank_account_number ?? ' - ' }}</td>
                      </tr>
 
                  </tbody>

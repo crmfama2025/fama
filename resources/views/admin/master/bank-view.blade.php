@@ -94,6 +94,14 @@
                                             <td>{{ $bank->bank_arabic_name ?? '-' }}</td>
                                         </tr>
                                         <tr>
+                                            <th width="30%">Iban</th>
+                                            <td>{{ $bank->iban ?? '-' }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th width="30%">Account Number</th>
+                                            <td>{{ $bank->account_number ?? '-' }}</td>
+                                        </tr>
+                                        <tr>
                                             <th width="30%">Bank Short Code<Code></Code></th>
                                             <td>{{ $bank->bank_short_code ?? '-' }}</td>
                                         </tr>

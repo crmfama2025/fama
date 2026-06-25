@@ -835,7 +835,7 @@
 
             if (input.value && !arabic.test(input.value)) {
                 input.classList.add('is-invalid');
-                toastr.error('Please enter Arabic characters only testfffffffffffff.');
+                toastr.error('Please enter Arabic characters only.');
             } else {
                 input.classList.remove('is-invalid');
             }
@@ -856,7 +856,7 @@
         });
 
         function checkFormValidity(formId, buttonId) {
-            alert('test');
+            // alert('test');
             if ($("#" + formId).find('.is-invalid').length > 0) {
                 alert("test1")
                 $('#' + buttonId).prop('disabled', true).addClass('disabled');

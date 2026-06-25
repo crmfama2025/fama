@@ -238,11 +238,12 @@ class InvestorService
 
                 if (in_array($row->paymentMode->id, [1, 4])) return $row->paymentMode->payment_mode_name;
 
-                if ($row->paymentMode->id == 2) {
+                if (in_array($row->paymentMode->id, [3, 2])) {
                     // $primaryBank = $row->investorBanks->where('is_primary', 1)->first();
                     $bankName = $row->primaryBank->investor_bank_name ?? '-';
                     return $row->paymentMode->payment_mode_name . ' - ' . $bankName;
                 }
+                // dump($row->paymentMode->payment_mode_name);
 
                 return '-';
             })
@@ -258,7 +259,7 @@ class InvestorService
 
                 return $action;
             })
-            ->rawColumns(['investor_name', 'action'])
+            ->rawColumns(['investor_name', 'action', 'payment_mode'])
             ->with(['columns' => $columns])
             ->toJson();
     }

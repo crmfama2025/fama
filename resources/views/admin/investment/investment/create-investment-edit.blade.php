@@ -106,6 +106,17 @@
                                                             required>
                                                     </div>
                                                 </div>
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <label class="asterisk">Investment Amount in Arabic(
+                                                            Words)</label>
+                                                        <input type="text" class="form-control arabic-input"
+                                                            id="investment_amount_arabic" name="investment_amount_arabic"
+                                                            placeholder="Enter Investment Amount In Arabic Words"
+                                                            value="{{ old('investment_amount_arabic', isset($investment) ? $investment->investment_amount_arabic : '') }}"
+                                                            required>
+                                                    </div>
+                                                </div>
 
                                                 <div class="col-md-4">
                                                     <div class="form-group">
@@ -617,6 +628,27 @@
                                                     </div>
                                                 </div>
 
+                                                <div class="col-md-4">
+
+                                                    <div class="form-group ">
+                                                        <label for="iban"
+                                                            class=" col-form-label asterisk">IBAN</label>
+                                                        <input type="text" name="company_bank_iban"
+                                                            id="company_bank_iban" class=" form-control"
+                                                            placeholder="IBAN" required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+
+                                                    <div class="form-group ">
+                                                        <label for="account_number"
+                                                            class=" col-form-label asterisk">Account Number</label>
+                                                        <input type="text" name="company_bank_account_number"
+                                                            id="company_bank_account_number" class=" form-control"
+                                                            placeholder="Account Number" required>
+                                                    </div>
+                                                </div>
+
 
                                             </div>
                                         </div>
@@ -1001,6 +1033,55 @@
         $('#company_id').on('change', function() {
             companyChange();
         });
+
+
+        let existing_iban = "{{ old('company_bank_iban', $investment->company_bank_iban ?? '') }}";
+        let existing_account_number =
+            "{{ old('company_bank_account_number', $investment->company_bank_account_number ?? '') }}";
+        if (existing_account_number) {
+            $('#company_bank_account_number').val(existing_account_number);
+        }
+        if (existing_iban) {
+            $('#company_bank_iban').val(existing_iban);
+        }
+
+        // Store original bank id from investment table
+        let existing_bank_id = "{{ old('company_bank_id', $investment->company_bank_id ?? '') }}";
+
+
+        function companyBankChange() {
+            let bankId = $('#company_bank_id').val();
+            let selectedOption = $('#company_id option:selected');
+            let banks = selectedOption.data('banks');
+
+            // If user selected the same bank as in investment table
+            // show investment table values
+            if (existing_bank_id && bankId == existing_bank_id) {
+                $('#company_bank_iban').val(existing_iban);
+                $('#company_bank_account_number').val(existing_account_number);
+                return;
+            }
+
+            if (banks && bankId) {
+                // Find the selected bank from the banks array
+                let selectedBank = banks.find(bank => bank.id == bankId);
+
+                if (selectedBank) {
+                    $('#company_bank_iban').val(selectedBank.iban);
+                    $('#company_bank_account_number').val(selectedBank.account_number);
+                } else {
+                    $('#company_bank_iban').val('');
+                    $('#company_bank_account_number').val('');
+                }
+            } else {
+                $('#company_bank_iban').val('');
+                $('#company_bank_account_number').val('');
+            }
+        }
+
+        $('#company_bank_id').on('change', function() {
+            companyBankChange();
+        });
     </script>
     <script>
         function validateReceivedAmount() {
@@ -1039,6 +1120,17 @@
             // }
             const form = this;
 
+
+            // let invalidFields = $("#investmentForm").find('.is-invalid');
+            // alert(invalidFields);
+            // console.log(invalidFields)
+
+
+            if ($("#investmentForm").find('.is-invalid').length > 0) {
+                toastr.error('Please fill all required fields before submitting.');
+                return;
+            }
+
             // Run custom validation
             if (!validateFormFields(form)) {
                 // Optional: scroll to first error
@@ -1061,6 +1153,7 @@
                 return;
             }
             validateReceivedAmount();
+
 
 
             let investmentId = $('#investment_id').val();

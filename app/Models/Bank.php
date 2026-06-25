@@ -8,12 +8,18 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
+use App\Casts\CustomEncrypted;
 
 class Bank extends Model
 {
     use HasFactory, SoftDeletes, HasActivityLog, HasDeletedBy;
 
-    protected $fillable = ['company_id', 'bank_code', 'bank_name', 'bank_short_code', 'added_by', 'updated_by', 'deleted_by', 'status', 'bank_arabic_name'];
+    protected $fillable = ['company_id', 'bank_code', 'bank_name', 'bank_short_code', 'added_by', 'updated_by', 'deleted_by', 'status', 'bank_arabic_name', 'iban', 'account_number'];
+
+    protected $casts = [
+        'iban'           => CustomEncrypted::class,
+        'account_number' => CustomEncrypted::class,
+    ];
 
     public function company()
     {
