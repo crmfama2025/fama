@@ -37,6 +37,11 @@ class InvestmentRepository
         return Investment::where($areaData)->first();
     }
 
+    public function getAllByCondition($where)
+    {
+        return Investment::where($where)->get();
+    }
+
     public function create($data)
     {
         return Investment::create($data);

@@ -36,7 +36,8 @@ class DatabaseSeeder extends Seeder
             ProfitIntervalSeeder::class,
             ReferralCommissionFrequencySeeder::class,
             InvestorRelationsSeeder::class,
-            EmiratesSeeder::class
+            EmiratesSeeder::class,
+            InvestorAgreementTypeSeeder::class
         ]);
     }
 }

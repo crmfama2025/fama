@@ -617,9 +617,19 @@ class InvestmentService
                             </button>
                         ';
                     }
+
+
+                    $action .= '<a href="' . route('legal_template.contractview', [
+                        'docType' => 1,
+                        'investmentId' => $row->id,
+                        'investorId' => $row->investor_id,
+                        'companyId' => $row->company_id,
+                    ]) . '"
+                                    class="btn btn-sm btn-primary m-1"
+                                    title="View Investment">
+                                    Send Mudarabah
+                                </a>';
                 }
-
-
 
                 return $action;
             })
