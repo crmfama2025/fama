@@ -1340,13 +1340,13 @@
             CalculatePayables();
 
             // MAtch Payables with the total payable
-            // matchPayables();
+            matchPayables();
 
             // containerPayment.querySelectorAll('.payment_mode_div').forEach(attachEventsPayment);
         });
 
         $(document).on('input change', '.payment_installments', function() {
-            // matchPayables();
+            matchPayables();
         });
         $(document).on('change.datetimepicker', '#otherPaymentDate1', function() {
             // console.log('new', $(this));
