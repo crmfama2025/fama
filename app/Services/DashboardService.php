@@ -175,28 +175,28 @@ class DashboardService
         //         $q2->where('business_type', 2);
         //     });
         // })->get();
-        $b2bTenants = AgreementTenant::with('agreement.agreement_units.contractUnitDetail')->where('tenant_type', 1)->when($companyId, function ($q) use ($companyId) {
-            $q->whereHas('agreement.contract', function ($c) use ($companyId) {
-                $c->where('company_id', $companyId);
-            });
-        })->get();
-        // $b2bTenants = AgreementTenant::with([
-        //     'agreement' => function ($a) use ($companyId) {
-        //         $a->when($companyId, function ($q) use ($companyId) {
-        //             $q->whereHas('contract', function ($c) use ($companyId) {
-        //                 $c->where('company_id', $companyId);
-        //             });
-        //         })
-        //             ->with('agreement_units.contractUnitDetail');
-        //     }
-        // ])
-        //     ->where('tenant_type', 1)
-        //     ->when($companyId, function ($q) use ($companyId) {
-        //         $q->whereHas('agreement.contract', function ($c) use ($companyId) {
-        //             $c->where('company_id', $companyId);
-        //         });
-        //     })
-        //     ->get();
+        // $b2bTenants = AgreementTenant::with('agreement.agreement_units.contractUnitDetail')->where('tenant_type', 1)->when($companyId, function ($q) use ($companyId) {
+        //     $q->whereHas('agreement.contract', function ($c) use ($companyId) {
+        //         $c->where('company_id', $companyId);
+        //     });
+        // })->get();
+        $b2bTenants = AgreementTenant::with([
+            'agreement' => function ($a) use ($companyId) {
+                $a->when($companyId, function ($q) use ($companyId) {
+                    $q->whereHas('contract', function ($c) use ($companyId) {
+                        $c->where('company_id', $companyId);
+                    });
+                })
+                    ->with('agreement_units.contractUnitDetail');
+            }
+        ])
+            ->where('tenant_type', 1)
+            ->when($companyId, function ($q) use ($companyId) {
+                $q->whereHas('agreement.contract', function ($c) use ($companyId) {
+                    $c->where('company_id', $companyId);
+                });
+            })
+            ->get();
         // dd($b2bTenants);
         $b2bTenantsCount = Agreement::query()
             ->whereHas('tenant', function ($q) {
