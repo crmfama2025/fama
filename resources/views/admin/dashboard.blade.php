@@ -215,7 +215,7 @@
                                     <h3 class="mb-1" id="totalTenants">{{ format_k($wid_tenants) }}</h3>
                                     <p class="mb-0">Tenants</p>
                                     <small class="text-white">
-                                        <strong>{{ $wid_tenants }}</strong>
+                                        <strong id="totalTenantsfull">{{ $wid_tenants }}</strong>
                                     </small>
                                 </div>
 
@@ -231,14 +231,14 @@
                                 <div class="d-flex text-center">
 
                                     <div class="flex-fill">
-                                        <div class="text-success font-weight-bold">
+                                        <div class="text-success font-weight-bold" id="b2cTenantsCount">
                                             {{ $b2cTenants }}
                                         </div>
                                         <small>B2C</small>
                                     </div>
 
                                     <div class="flex-fill">
-                                        <div class="text-info font-weight-bold">
+                                        <div class="text-info font-weight-bold" id="b2bTenantsCount">
                                             {{ $totalSubunitsB2B }}
                                         </div>
                                         <small>B2B</small>
@@ -1111,10 +1111,14 @@
                 $('#totalInvestors').text(res.widgets.wid_totalInvestors);
                 $('#totalInvestments').text(res.widgets.wid_totalInvestments);
                 $('#totalTenants').text(res.widgets.wid_tenants);
+                $('#totalTenantsfull').text(res.widgets.wid_tenants);
                 $('#totalContracts_new').text(res.widgets.wid_totalContracts_new);
                 $('#totalContracts_dropped').text(res.widgets.wid_totalContracts_droped);
                 $('#totalContracts_terminated').text(res.widgets.wid_totalContracts_terminated);
                 $('#totalContractsfull').text(res.widgets.wid_totalContracts);
+                $('#b2cTenantsCount').text(res.widgets.b2cTenantsCount);
+                $('#b2bTenantsCount').text(res.widgets.totalSubunitsB2B);
+
 
                 // console.log("top investors", res.topInvestors)
 

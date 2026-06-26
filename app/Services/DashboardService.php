@@ -161,13 +161,35 @@ class DashboardService
             ->count();
 
         $b2cTenants = AgreementTenant::where('tenant_type', 2)->count();
+        $b2cTenantsCount = Agreement::query()
+            ->whereHas('tenant', function ($q) {
+                $q->where('tenant_type', 2);
+            })
+            ->when($companyId, function ($q) use ($companyId) {
+                $q->where('company_id', $companyId);
+            })
+            ->distinct('tenant_id')
+            ->count('tenant_id');
         // $b2bagreementContracts = Agreement::with('contract')->whereHas('contract', function ($q) {
         //     $q->whereHas('contract_unit', function ($q2) {
         //         $q2->where('business_type', 2);
         //     });
         // })->get();
-        $b2bTenants = AgreementTenant::with('agreement.agreement_units.contractUnitDetail')->where('tenant_type', 1)->get();
+        $b2bTenants = AgreementTenant::with('agreement.agreement_units.contractUnitDetail')->where('tenant_type', 1)->when($companyId, function ($q) use ($companyId) {
+            $q->whereHas('agreement.contract', function ($c) use ($companyId) {
+                $c->where('company_id', $companyId);
+            });
+        })->get();
         // dd($b2bTenants);
+        $b2bTenantsCount = Agreement::query()
+            ->whereHas('tenant', function ($q) {
+                $q->where('tenant_type', 1);
+            })
+            ->when($companyId, function ($q) use ($companyId) {
+                $q->where('company_id', $companyId);
+            })
+            ->distinct('tenant_id')
+            ->count('tenant_id');
         $totalSubunitsB2B = 0;
 
         foreach ($b2bTenants as $tenant) {
@@ -201,6 +223,8 @@ class DashboardService
             });
         })->sum('rent_receivable_per_annum');
 
+
+
         // $wid_tenants = AgreementTenant::where('id', '!=', 1)->when($companyId, function ($q) use ($companyId) {
         //     $q->whereHas('agreement', function ($q2) use ($companyId) {
         //         $q2->whereHas('contract', function ($c) use ($companyId) {
@@ -228,7 +252,9 @@ class DashboardService
             'wid_totalContracts_droped',
             'wid_totalContracts_terminated',
             'b2cTenants',
-            'totalSubunitsB2B'
+            'totalSubunitsB2B',
+            'b2bTenantsCount',
+            'b2cTenantsCount'
         );
     }
 
