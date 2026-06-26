@@ -1108,7 +1108,7 @@
 
                 // Widgets
                 $('#totalContracts').text(res.widgets.wid_totalContracts);
-                $('#totalRenewals').text(res.widgets.wid_totalRenewals);
+                $('#totalRenewals').text(res.widgets.wid_totalContracts);
                 $('#totalInvestors').text(res.widgets.wid_totalInvestors);
                 $('#totalInvestments').text(res.widgets.wid_totalInvestments);
                 $('#totalTenants').text(res.widgets.wid_tenants);
