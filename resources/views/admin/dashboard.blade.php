@@ -116,7 +116,7 @@
 
                                     <p class="mb-0">Projects</p>
                                     <small class="text-white">
-                                        <strong id="totalRenewals">{{ $wid_totalContracts }}</strong>
+                                        <strong id="totalContractsfull">{{ $wid_totalContracts }}</strong>
                                     </small>
                                 </div>
 
@@ -130,30 +130,29 @@
                                 <div class="d-flex text-center">
 
                                     <div class="flex-fill">
-                                        <div class="text-success font-weight-bold">
+                                        <div class="text-success font-weight-bold" id="totalContracts_new">
                                             {{ format_k($wid_totalContracts_new) }}
                                         </div>
                                         <small>New</small>
                                     </div>
 
                                     <div class="flex-fill">
-                                        <div class="text-info font-weight-bold">
+                                        <div class="text-info font-weight-bold" id="totalRenewals">
                                             {{ format_k($wid_totalRenewals) }}
                                         </div>
                                         <small>Renew</small>
                                     </div>
 
                                     <div class="flex-fill">
-                                        <div class="text-warning font-weight-bold">
+                                        <div class="text-warning font-weight-bold" id="totalContracts_terminated">
                                             {{ format_k($wid_totalContracts_terminated) }}
                                         </div>
                                         <small>Terminated</small>
                                     </div>
 
                                     <div class="flex-fill">
-                                        <div class="text-danger font-weight-bold">
-                                            {{ format_k($wid_totalContracts_droped) }}
-                                        </div>
+                                        <div class="text-danger font-weight-bold" id="totalContracts_dropped">
+                                            {{ format_k($wid_totalContracts_droped) }} </div>
                                         <small>Dropped</small>
                                     </div>
 
@@ -1108,10 +1107,15 @@
 
                 // Widgets
                 $('#totalContracts').text(res.widgets.wid_totalContracts);
-                $('#totalRenewals').text(res.widgets.wid_totalContracts);
+                $('#totalRenewals').text(res.widgets.wid_totalRenewals);
                 $('#totalInvestors').text(res.widgets.wid_totalInvestors);
                 $('#totalInvestments').text(res.widgets.wid_totalInvestments);
                 $('#totalTenants').text(res.widgets.wid_tenants);
+                $('#totalContracts_new').text(res.widgets.wid_totalContracts_new);
+                $('#totalContracts_dropped').text(res.widgets.wid_totalContracts_droped);
+                $('#totalContracts_terminated').text(res.widgets.wid_totalContracts_terminated);
+                $('#totalContractsfull').text(res.widgets.wid_totalContracts);
+
                 // console.log("top investors", res.topInvestors)
 
                 // // Info boxes
