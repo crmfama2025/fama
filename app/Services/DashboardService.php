@@ -175,28 +175,28 @@ class DashboardService
         //         $q2->where('business_type', 2);
         //     });
         // })->get();
-        // $b2bTenants = AgreementTenant::with('agreement.agreement_units.contractUnitDetail')->where('tenant_type', 1)->when($companyId, function ($q) use ($companyId) {
-        //     $q->whereHas('agreement.contract', function ($c) use ($companyId) {
-        //         $c->where('company_id', $companyId);
-        //     });
-        // })->get();
-        $b2bTenants = AgreementTenant::with([
-            'agreement' => function ($a) use ($companyId) {
-                $a->when($companyId, function ($q) use ($companyId) {
-                    $q->whereHas('contract', function ($c) use ($companyId) {
-                        $c->where('company_id', $companyId);
-                    });
-                })
-                    ->with('agreement_units.contractUnitDetail');
-            }
-        ])
-            ->where('tenant_type', 1)
-            ->when($companyId, function ($q) use ($companyId) {
-                $q->whereHas('agreement.contract', function ($c) use ($companyId) {
-                    $c->where('company_id', $companyId);
-                });
-            })
-            ->get();
+        $b2bTenants = AgreementTenant::with('agreement.agreement_units.contractUnitDetail')->where('tenant_type', 1)->when($companyId, function ($q) use ($companyId) {
+            $q->whereHas('agreement.contract', function ($c) use ($companyId) {
+                $c->where('company_id', $companyId);
+            });
+        })->get();
+        // $b2bTenants = AgreementTenant::with([
+        //     'agreement' => function ($a) use ($companyId) {
+        //         $a->when($companyId, function ($q) use ($companyId) {
+        //             $q->whereHas('contract', function ($c) use ($companyId) {
+        //                 $c->where('company_id', $companyId);
+        //             });
+        //         })
+        //             ->with('agreement_units.contractUnitDetail');
+        //     }
+        // ])
+        //     ->where('tenant_type', 1)
+        //     ->when($companyId, function ($q) use ($companyId) {
+        //         $q->whereHas('agreement.contract', function ($c) use ($companyId) {
+        //             $c->where('company_id', $companyId);
+        //         });
+        //     })
+        //     ->get();
         // dd($b2bTenants);
         $b2bTenantsCount = Agreement::query()
             ->whereHas('tenant', function ($q) {
@@ -218,6 +218,17 @@ class DashboardService
                 }
             }
         }
+
+        // $totalSubunitsB2B = \DB::table('contracts as c')
+        //     ->join('contract_units as cu', 'cu.contract_id', '=', 'c.id')
+        //     ->join('contract_unit_details as cud', 'cud.contract_unit_id', '=', 'cu.id')
+        //     ->whereNull('cud.deleted_at')
+        //     ->where('cu.business_type', 1)
+        //     ->where('c.is_agreement_added', 1)
+        //     ->when($companyId, function ($q) use ($companyId) {
+        //         $q->where('c.company_id', $companyId);
+        //     })
+        //     ->sum('cud.subunitcount_per_unit');
         // dd($totalSubunitsB2B);
 
         $wid_totalRenewals = (clone $contracts)
