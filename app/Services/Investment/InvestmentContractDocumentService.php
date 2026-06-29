@@ -106,7 +106,7 @@ class InvestmentContractDocumentService
             ->addColumn('investor_name', fn($row) => $row->investor->investor_name . " - " . $row->investor->investor_code ?? '-')
 
             ->addColumn('investment_code', fn($row) =>
-            $row->investedment->investment_code ?? '-')
+            $row->investment->investment_code ?? '-')
             ->addColumn('investor_agreement_type', fn($row) => $row->agreementType->investor_agreement_type)
 
 
