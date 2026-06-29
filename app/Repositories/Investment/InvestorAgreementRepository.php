@@ -57,4 +57,10 @@ class InvestorAgreementRepository
 
         return $query;
     }
+    public function getActiveIdBytype($tdocTpeId)
+    {
+
+        $template = InvestorAgreementTemplate::where('investor_agreement_type_id', $tdocTpeId)->where('is_active', 1)->first();
+        return $template->id;
+    }
 }
