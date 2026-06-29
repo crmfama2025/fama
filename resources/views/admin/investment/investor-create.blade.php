@@ -530,11 +530,11 @@
 
             // console.log($("#investorForm").find('.is-invalid').length);
 
-            if ($("#investorForm").find('.is-invalid').length > 0) {
-                // $('#investorsubmitbutton').prop('disabled', true).addClass('disabled');
-                toastr.error('Please fill all required fields before submitting.');
-                return;
-            }
+            // if ($("#investorForm").find('.is-invalid').length > 0) {
+            //     // $('#investorsubmitbutton').prop('disabled', true).addClass('disabled');
+            //     toastr.error('Please fill all required fields before submitting.');
+            //     return;
+            // }
             //  else {
             // $('#investorsubmitbutton').prop('disabled', false).removeClass('disabled');
             // }
@@ -561,6 +561,7 @@
                     isValid = false;
                     setInvalid(this, "This field is required");
                 } else {
+
                     setValid(this);
                 }
             });
@@ -585,13 +586,24 @@
                 }
             });
 
+            // ✅ Re-validate arabic fields on submit
+            $("#investorForm").find('.arabic-input:visible').each(function() {
+                validateArabicInput(this); // uses the global function from master layout
+                if ($(this).hasClass('is-invalid')) {
+                    isValid = false;
+                }
+            });
 
 
             if (!isValid) {
                 toastr.error('Please fill all required fields before submitting.');
                 return;
             }
-
+            // if ($("#investorForm").find('.is-invalid').length > 0) {
+            //     // $('#investorsubmitbutton').prop('disabled', true).addClass('disabled');
+            //     toastr.error('Please fill all required fields before submitting.');
+            //     return;
+            // }
 
             submitForm(); // everything passed
 

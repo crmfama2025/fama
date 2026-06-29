@@ -22,7 +22,14 @@ class InvestmentContractDocuments extends Model
         'is_company_signed',
         'company_signed_at',
         'status',
-        'contract_document_html'
+        'added_by',
+        'contract_document_html',
+        'contract_file_path',
+        'additional_file_path',
+        'generated_date',
+        'has_additional_doc',
+        'action_type',
+        'generated_by'
     ];
 
     public function investment()

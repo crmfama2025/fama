@@ -6,6 +6,7 @@ use App\Exports\InvestmentExport;
 use App\Models\Investment;
 use App\Models\InvestmentReceivedPayment;
 use App\Repositories\Investment\InvestmentRepository;
+use App\Services\Investment\InvestmentContractDocumentService;
 use App\Services\Investment\InvestmentService;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
@@ -15,7 +16,8 @@ class InvestmentController extends Controller
     //
     public function __construct(
         protected InvestmentService $investmentService,
-        protected InvestmentRepository $investmentRepository
+        protected InvestmentRepository $investmentRepository,
+        protected InvestmentContractDocumentService $investmentContractService,
     ) {}
 
     public function index()
@@ -139,6 +141,38 @@ class InvestmentController extends Controller
             return response()->json(['success' => true, 'data' => $termination, 'message' => 'Termination request submittedsuccessfully'], 200);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage(), 'error'   => $e], 422);
+        }
+    }
+    public function documents($id)
+    {
+        $title = "Documents";
+        $formData = $this->investmentService->documentsFormData();
+        $investment = $this->investmentService->getDetails($id);
+        // dd($formData);
+        return view('admin.investment.investment.investment-documents', compact('title', 'formData', 'investment'));
+    }
+    public function contractsList($id)
+    {
+        $title = "Contracts List";
+        // dd("test");
+        // $formData = $this->investmentService->documentsFormData();
+        $investment = $this->investmentService->getDetails($id);
+        // dd($formData);
+        return view('admin.investment.investment.documents_list', compact('title', 'investment'));
+    }
+    public function getContracts(Request $request)
+    {
+        // dd("test");
+        // dd($request->all());
+
+        if ($request->ajax()) {
+            $filters = [
+                'investor_id' => $request->investorid,
+                'company_id' => auth()->user()->company_id,
+                'search' => $request->search['value'] ?? null
+            ];
+
+            return $this->investmentContractService->getDataTable($filters);
         }
     }
 }
