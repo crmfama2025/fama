@@ -184,7 +184,8 @@ class DashboardService
             'agreement' => function ($a) use ($companyId) {
                 $a->when($companyId, function ($q) use ($companyId) {
                     $q->whereHas('contract', function ($c) use ($companyId) {
-                        $c->where('company_id', $companyId);
+                        $c->where('company_id', $companyId)
+                            ->where('contract_renewal_status', '!=', 0);
                     });
                 })
                     ->with('agreement_units.contractUnitDetail');
