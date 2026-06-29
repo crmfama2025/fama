@@ -3,8 +3,10 @@
 namespace App\Services\Investment;
 
 use App\Models\Company;
+use App\Models\Investment;
 use App\Models\InvestmentReferral;
 use App\Models\Investor;
+use App\Models\InvestorAgreementType;
 use App\Models\PaymentTerms;
 use App\Models\PayoutBatch;
 use App\Models\ProfitInterval;
@@ -35,7 +37,9 @@ class InvestmentService
         protected InvestmentDocumentService $investmentDocumentService,
         protected InvestmentReferralService $investmentReferralService,
         protected InvestmentReceivedPaymentService $investmentReceivedPaymentService,
-        protected BrevoService $brevoService
+        protected BrevoService $brevoService,
+        protected InvestorAgreementService $investorAgreementService,
+        protected InvestmentContractDocumentService $investmentContractDocumentService
 
 
     ) {}
@@ -149,59 +153,76 @@ class InvestmentService
             // ---------------- Update Investor Totals ----------------
             updateInvestor($data['investor_id'], $investment->id);
             $investor = Investor::find($data['investor_id']);
+            $companyId = $investment->company_id;
+            $docInsertData = [
+                'investment_id' => $investment->id,
+                'investor_id' => $investment->investor_id,
+            ];
+            $this->createInvestorDocument($investor->id, $companyId, $investor, $docInsertData);
+
+            // count investments for this investor in this company
+            $companyInvestmentCount = Investment::where('investor_id', $investor->id)
+                ->where('company_id', $companyId)
+                ->count();
+            if (
+                $investor->total_no_of_investments == 1 ||
+                $companyInvestmentCount == 1
+            ) {
+            } else {
+            }
 
             // // ---------------- Investment Documents ----------------
-            if (!empty($data['contract_file'])) {
-                $file = $data['contract_file'];
+            // if (!empty($data['contract_file'])) {
+            //     $file = $data['contract_file'];
 
-                $validator = Validator::make(['file' => $file], [
-                    'file' => 'required|file|mimes:pdf|max:10240',
-                ], [
-                    'file.required' => 'Contract file is required.',
-                    'file.file' => 'The uploaded file must be a valid file.',
-                    'file.mimes' => 'The contract file must be a PDF.',
-                    'file.max' => 'The contract file size cannot exceed 10 MB.',
-                ]);
+            //     $validator = Validator::make(['file' => $file], [
+            //         'file' => 'required|file|mimes:pdf|max:10240',
+            //     ], [
+            //         'file.required' => 'Contract file is required.',
+            //         'file.file' => 'The uploaded file must be a valid file.',
+            //         'file.mimes' => 'The contract file must be a PDF.',
+            //         'file.max' => 'The contract file size cannot exceed 10 MB.',
+            //     ]);
 
-                if ($validator->fails()) {
-                    throw new ValidationException($validator);
-                }
+            //     if ($validator->fails()) {
+            //         throw new ValidationException($validator);
+            //     }
 
-                $fileName = uniqid() . '_' . $file->getClientOriginalName();
+            //     $fileName = uniqid() . '_' . $file->getClientOriginalName();
 
-                // $path = $file->storeAs(
-                //     'investments/' . $investor->investor_code . '/investments/' . $investment_code,
-                //     $fileName,
-                //     'public'
-                // );
+            //     // $path = $file->storeAs(
+            //     //     'investments/' . $investor->investor_code . '/investments/' . $investment_code,
+            //     //     $fileName,
+            //     //     'public'
+            //     // );
 
-                // file upload with pdf comporession
-                $pdfService = new PdfCompressionService();
+            //     // file upload with pdf comporession
+            //     $pdfService = new PdfCompressionService();
 
-                if ($file->getClientOriginalExtension() === 'pdf') {
-                    $path = $pdfService->compress(
-                        $file,
-                        'investments/' . $investor->investor_code . '/investments/' . $investment_code,
-                        $fileName
-                    );
-                } else {
-                    $path = $file->storeAs(
-                        'investments/' . $investor->investor_code . '/investments/' . $investment_code,
-                        $fileName,
-                        'public'
-                    );
-                }
+            //     if ($file->getClientOriginalExtension() === 'pdf') {
+            //         $path = $pdfService->compress(
+            //             $file,
+            //             'investments/' . $investor->investor_code . '/investments/' . $investment_code,
+            //             $fileName
+            //         );
+            //     } else {
+            //         $path = $file->storeAs(
+            //             'investments/' . $investor->investor_code . '/investments/' . $investment_code,
+            //             $fileName,
+            //             'public'
+            //         );
+            //     }
 
-                $investorDocData = [
-                    'investment_id' => $investment->id,
-                    'investor_id' => $data['investor_id'],
-                    'investment_contract_file_name' => $fileName,
-                    'investment_contract_file_path' => $path,
-                    'added_by' => $userId,
-                ];
+            //     $investorDocData = [
+            //         'investment_id' => $investment->id,
+            //         'investor_id' => $data['investor_id'],
+            //         'investment_contract_file_name' => $fileName,
+            //         'investment_contract_file_path' => $path,
+            //         'added_by' => $userId,
+            //     ];
 
-                $this->investmentDocumentService->create($investorDocData);
-            }
+            //     $this->investmentDocumentService->create($investorDocData);
+            // }
 
 
 
@@ -307,38 +328,38 @@ class InvestmentService
             $investment = $this->investmentRepository->update($id, $investmentData);
 
             // Update Investment Documents
-            if (!empty($data['contract_file'])) {
-                $file = $data['contract_file'];
+            // if (!empty($data['contract_file'])) {
+            //     $file = $data['contract_file'];
 
-                $validator = Validator::make(['file' => $file], [
-                    'file' => 'required|file|mimes:pdf|max:10240',
-                ]);
+            //     $validator = Validator::make(['file' => $file], [
+            //         'file' => 'required|file|mimes:pdf|max:10240',
+            //     ]);
 
-                if ($validator->fails()) {
-                    throw new ValidationException($validator);
-                }
+            //     if ($validator->fails()) {
+            //         throw new ValidationException($validator);
+            //     }
 
-                $fileName = uniqid() . '_' . $file->getClientOriginalName();
-                $path = $file->storeAs(
-                    'investments/' . $investment->investor->investor_code . '/investments/' . $investment->investment_code,
-                    $fileName,
-                    'public'
-                );
+            //     $fileName = uniqid() . '_' . $file->getClientOriginalName();
+            //     $path = $file->storeAs(
+            //         'investments/' . $investment->investor->investor_code . '/investments/' . $investment->investment_code,
+            //         $fileName,
+            //         'public'
+            //     );
 
-                $investorDocData = [
-                    'investment_id' => $investment->id,
-                    'investor_id' => $investment->investor_id,
-                    'investment_contract_file_name' => $fileName,
-                    'investment_contract_file_path' => $path,
-                    // 'updated_by' => $userId,
-                ];
-                // dd($data['document_id']);
-                if (isset($data['document_id']) && $data['document_id']) {
-                    $this->investmentDocumentService->update($data['document_id'], $investorDocData);
-                } else {
-                    $this->investmentDocumentService->create($investorDocData);
-                }
-            }
+            //     $investorDocData = [
+            //         'investment_id' => $investment->id,
+            //         'investor_id' => $investment->investor_id,
+            //         'investment_contract_file_name' => $fileName,
+            //         'investment_contract_file_path' => $path,
+            //         // 'updated_by' => $userId,
+            //     ];
+            //     // dd($data['document_id']);
+            //     if (isset($data['document_id']) && $data['document_id']) {
+            //         $this->investmentDocumentService->update($data['document_id'], $investorDocData);
+            //     } else {
+            //         $this->investmentDocumentService->create($investorDocData);
+            //     }
+            // }
 
             // Update Referral
             if (!empty($data['referral_commission_perc']) && $data['referral_commission_perc'] > 0) {
@@ -629,6 +650,12 @@ class InvestmentService
                                     title="View Investment">
                                     Send Mudarabah
                                 </a>';
+
+                    $action .= '<a href="' . route('investment.contracts.list', $row->id) . '"
+                            class="btn btn-sm btn-warning m-1"
+                            title="Documents">
+                            <i class="fas fa-file-upload"></i>
+                        </a>';
                 }
 
                 return $action;
@@ -1005,5 +1032,31 @@ class InvestmentService
             'investorPayouts.investorPayoutDistribution'
 
         ])->findOrFail($id);
+    }
+    public function documentsFormData()
+    {
+        $data['doc_types'] = InvestorAgreementType::all();
+        return $data;
+    }
+    public function createInvestorDocument($investorId, $companyId, $investor, $docInsertData)
+    {
+        // dd("test");
+        $companyInvestmentCount = Investment::where('investor_id', $investorId)
+            ->where('company_id', $companyId)
+            ->count();
+        // dd($companyInvestmentCount);
+        if (
+            $companyInvestmentCount == 1
+        ) {
+            // Mudaraba contract
+            $docInsertData['investor_agreement_type_id'] = 1;
+            $docInsertData['investor_agreement_template_id'] = $this->investorAgreementService->getActiveIdBytype($docInsertData['investor_agreement_type_id']);
+            $this->investmentContractDocumentService->create($docInsertData);
+        } elseif ($companyInvestmentCount > 1) {
+            // Addendum contract
+            $docInsertData['investor_agreement_type_id'] = 2;
+            $docInsertData['investor_agreement_template_id'] = $this->investorAgreementService->getActiveIdBytype($docInsertData['investor_agreement_type_id']);
+            $this->investmentContractDocumentService->create($docInsertData);
+        }
     }
 }
