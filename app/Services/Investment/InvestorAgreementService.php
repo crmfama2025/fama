@@ -106,4 +106,8 @@ class InvestorAgreementService
     {
         return $this->InvAgreementRepo->findById($id);
     }
+    public function getActiveIdBytype($tdocTpeId)
+    {
+        return $this->InvAgreementRepo->getActiveIdBytype($tdocTpeId);
+    }
 }

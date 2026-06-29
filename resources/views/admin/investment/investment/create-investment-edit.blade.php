@@ -655,7 +655,7 @@
                                     </div>
 
                                     <!-- ================= Nominee & Documents ================= -->
-                                    <div class="card card-outline card-info ">
+                                    {{-- <div class="card card-outline card-info ">
                                         <div class="card-header">
                                             <h3 class="card-title font-weight-bold">Documents</h3>
                                         </div>
@@ -682,7 +682,7 @@
 
                                             </div>
                                         </div>
-                                    </div>
+                                    </div> --}}
 
                                     {{-- Reinvestment hidden Inputs --}}
                                     <input type="hidden" name="reinvestment_or_not" value="{{ $reinvestment }}">
