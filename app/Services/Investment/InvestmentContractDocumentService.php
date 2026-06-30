@@ -112,6 +112,13 @@ class InvestmentContractDocumentService
             $row->investment->investment_code ?? '-')
             ->addColumn('investor_agreement_type', fn($row) => $row->agreementType->investor_agreement_type)
             ->addColumn('investor_agreement_template', fn($row) => 'V' . $row->investor_agreement_template_id)
+            ->addColumn('status', function ($row) {
+                if (!empty($row->generated_date)) {
+                    return '<span class="badge badge-success">Generated</span>';
+                } else {
+                    return '<span class="badge badge-warning">Pending</span>';
+                }
+            })
             // Main Document View
             ->addColumn('main_doc_view', function ($row) {
                 if ($row->contract_file_path) {
@@ -173,7 +180,7 @@ class InvestmentContractDocumentService
 
                 return $action;
             })
-            ->rawColumns(['action', 'investor_agreement_type', 'main_doc_view', 'additional_doc_view', 'generated_date', 'investor_agreement_template'])
+            ->rawColumns(['action', 'investor_agreement_type', 'main_doc_view', 'additional_doc_view', 'generated_date', 'investor_agreement_template', 'status'])
             ->toJson();
     }
     public function documentsFormData()
