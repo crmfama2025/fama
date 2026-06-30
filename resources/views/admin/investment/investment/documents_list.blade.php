@@ -21,7 +21,7 @@
             <div class="container-fluid">
                 <div class="row mb-2">
                     <div class="col-sm-6">
-                        <h1>Investment</h1>
+                        <h1>{{ $title }}</h1>
                     </div>
                     <div class="col-sm-6">
                         <ol class="breadcrumb float-sm-right">
@@ -40,16 +40,14 @@
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header">
-                                <!-- <h3 class="card-title">Property Details</h3> -->
-                                @if (auth()->user()->hasAnyPermission(['investment.add']))
-                                    <span class="float-right">
-                                        <a class="btn btn-info float-right m-1" href="{{ route('investment.create') }}">Add
-                                            Investment</a>
-                                        {{-- <button class="btn btn-secondary float-right m-1" data-toggle="modal"
+                                <span class="float-right">
+                                    <a class="btn btn-info float-right m-1" href="{{ route('investment.index') }}">Back to
+                                        Investments</a>
+                                    {{-- <button class="btn btn-secondary float-right m-1" data-toggle="modal"
                                         data-target="#modal-import">Import</button> --}}
-                                    </span>
-                                @endif
+                                </span>
                             </div>
+
                             <!-- /.card-header -->
                             <div class="card-body table-responsive">
                                 <table id="investmentContractsTable" class="table table-striped  nowrap"width="100%">
@@ -60,6 +58,10 @@
                                             <th>Investment Code</th>
                                             <th>Investor Name</th>
                                             <th>Contract Type</th>
+                                            <th>Version</th>
+                                            <th>Document</th>
+                                            <th>Additional Document </th>
+                                            <th>Generated Date</th>
                                             {{-- <th>Version</th> --}}
 
                                         </tr>
@@ -119,6 +121,7 @@
                     url: "{{ route('investment.contracts', $investment->id) }}",
                     data: function(d) {
                         // You can add filters here if needed
+                        d.investment_id = "{{ $investment->id }}";
                     },
                 },
                 columns: [{
@@ -146,65 +149,50 @@
                         data: 'investor_agreement_type',
                         name: 'investor_agreement_type'
                     },
-                    // {
-                    //     data: 'investment_date',
-                    //     name: 'investment_date'
-                    // },
-                    // {
-                    //     data: 'profit_interval',
-                    //     name: 'profitInterval.profit_interval_name'
-                    // },
-                    // {
-                    //     data: 'profit_perc',
-                    //     name: 'profit_perc'
-                    // },
-                    // {
-                    //     data: 'maturity_date',
-                    //     name: 'maturity_date'
-                    // },
-                    // {
-                    //     data: 'profit_release_date',
-                    //     name: 'profit_release_date'
-                    // },
-                    // {
-                    //     data: 'grace_period',
-                    //     name: 'grace_period'
-                    // },
-                    // {
-                    //     data: 'batch_name',
-                    //     name: 'payoutBatch.batch_name'
-                    // },
-                    // {
-                    //     data: 'nominee_details',
-                    //     name: 'nominee_name'
-                    // },
-                    // {
-                    //     data: 'referral_commission_amount',
-                    //     name: 'investmentReferral.referral_commission_amount'
-                    // },
+                    {
+                        data: 'investor_agreement_template',
+                        name: 'investor_agreement_template'
+                    },
+                    //  Main Document
+                    {
+                        data: 'main_doc_view',
+                        name: 'main_doc_view',
+                        orderable: false,
+                        searchable: false
+                    },
 
-                    // {
-                    //     data: 'referral_commission_perc',
-                    //     name: 'investmentReferral.referral_commission_perc'
-                    // },
+                    //  Additional Document
+                    {
+                        data: 'additional_doc_view',
+                        name: 'additional_doc_view',
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: 'generated_date',
+                        name: 'generated_date',
+                        orderable: false,
+                        searchable: false
+                    },
+
 
                 ],
 
                 order: [
                     [0, 'desc']
                 ],
-                dom: 'Bfrtip',
-                buttons: [{
-                    extend: 'excelHtml5',
-                    text: 'Export Excel',
-                    title: 'Investments Data',
-                    action: function(e, dt, node, config) {
-                        let searchValue = dt.search();
-                        let url = "{{ route('investment.export') }}" + "?search=" +
-                            encodeURIComponent(searchValue);
-                        window.location.href = url;
-                    }
-                }]
+                // dom: 'Bfrtip',
+                // buttons: [{
+                //     extend: 'excelHtml5',
+                //     text: 'Export Excel',
+                //     title: 'Investments Data',
+                //     action: function(e, dt, node, config) {
+                //         let searchValue = dt.search();
+                //         let url = "{{ route('investment.export') }}" + "?search=" +
+                //             encodeURIComponent(searchValue);
+                //         window.location.href = url;
+                //     }
+                // }]
             });
 
         });

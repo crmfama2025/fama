@@ -143,21 +143,21 @@ class InvestmentController extends Controller
             return response()->json(['success' => false, 'message' => $e->getMessage(), 'error'   => $e], 422);
         }
     }
-    public function documents($id)
-    {
-        $title = "Documents";
-        $formData = $this->investmentService->documentsFormData();
-        $investment = $this->investmentService->getDetails($id);
-        // dd($formData);
-        return view('admin.investment.investment.investment-documents', compact('title', 'formData', 'investment'));
-    }
+    // public function documents($id)
+    // {
+    //     $title = "Documents";
+    //     $formData = $this->investmentService->documentsFormData();
+    //     $investment = $this->investmentService->getDetails($id);
+    //     // dd($formData);
+    //     return view('admin.investment.investment.investment-documents', compact('title', 'formData', 'investment'));
+    // }
     public function contractsList($id)
     {
         $title = "Contracts List";
         // dd("test");
         // $formData = $this->investmentService->documentsFormData();
         $investment = $this->investmentService->getDetails($id);
-        // dd($formData);
+        // dd($investment);
         return view('admin.investment.investment.documents_list', compact('title', 'investment'));
     }
     public function getContracts(Request $request)
@@ -169,6 +169,7 @@ class InvestmentController extends Controller
             $filters = [
                 'investor_id' => $request->investorid,
                 'company_id' => auth()->user()->company_id,
+                'investment_id' => $request->investment_id,
                 'search' => $request->search['value'] ?? null
             ];
 
