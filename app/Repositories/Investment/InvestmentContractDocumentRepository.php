@@ -37,6 +37,9 @@ class InvestmentContractDocumentRepository
         $query->whereHas('investment.company', function ($q) use ($permittedCompanyIds) {
             $q->whereIn('company_id', $permittedCompanyIds);
         });
+        if (!empty($filters['investment_id'])) {
+            $query->where('investment_id', $filters['investment_id']);
+        }
 
 
         $result = $query->get();
@@ -77,5 +80,14 @@ class InvestmentContractDocumentRepository
         // }
 
         return $query;
+    }
+    public function getDetails($id)
+    {
+        return InvestmentContractDocuments::with([
+            'investor',
+            'investment',
+            'agreementType',
+            'agreementTemplate'
+        ])->findOrFail($id);
     }
 }

@@ -1033,11 +1033,7 @@ class InvestmentService
 
         ])->findOrFail($id);
     }
-    public function documentsFormData()
-    {
-        $data['doc_types'] = InvestorAgreementType::all();
-        return $data;
-    }
+
     public function createInvestorDocument($investorId, $companyId, $investor, $docInsertData)
     {
         // dd("test");

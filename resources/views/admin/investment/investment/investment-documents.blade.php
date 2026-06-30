@@ -24,9 +24,10 @@
 
                 <div class="card">
                     <div class="card-body">
+                        {{-- @dump($document); --}}
 
-                        <form method="POST" enctype="multipart/form-data"
-                            action="{{ route('investment.contracts.submit', $investment->id) }}">
+                        <form id="documentForm" method="POST" enctype="multipart/form-data"
+                            action="{{ route('investment.contracts.submit', $document->id) }}">
                             @csrf
 
                             {{-- RADIO ACTION --}}
@@ -34,12 +35,12 @@
                                 <div class="col-md-12">
 
                                     <label class="mr-3">
-                                        <input type="radio" name="action_type" value="upload" checked>
+                                        <input type="radio" name="action_type" value="0" checked>
                                         Upload
                                     </label>
 
                                     <label class="mr-3">
-                                        <input type="radio" name="action_type" value="generate">
+                                        <input type="radio" name="action_type" value="1">
                                         Generate
                                     </label>
 
@@ -55,7 +56,9 @@
                                     <select name="version" class="form-control select2" required>
                                         <option value="">Select Version No</option>
                                         @foreach (InvestorDocVersion() as $key => $item)
-                                            <option value="{{ $key }}">{{ $item }}</option>
+                                            <option value="{{ $key }}"
+                                                {{ $document->investor_agreement_template_id == $key ? 'selected' : '' }}>
+                                                {{ $item }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -66,7 +69,8 @@
                                     <select name="contract_type" class="form-control select2" required>
                                         <option value="">Select Type</option>
                                         @foreach ($formData['doc_types'] as $type)
-                                            <option value="{{ $type->id }}">
+                                            <option value="{{ $type->id }}"
+                                                {{ $document->investor_agreement_type_id == $type->id ? 'selected' : '' }}>
                                                 {{ $type->investor_agreement_type }}
                                             </option>
                                         @endforeach
@@ -82,11 +86,27 @@
                                 </div>
 
                                 {{-- Date --}}
-                                <div class="col-md-3" id="date">
+                                {{-- <div class="col-md-3" id="date">
                                     <label class="field-label" id="date_label">
                                         Date
                                     </label>
                                     <input type="date" name="generated_date" class="form-control">
+                                </div> --}}
+                                <div class="col-md-3" id="date">
+                                    {{-- <div class="form-group"> --}}
+                                    <label class="asterisk" id="date_label">Date</label>
+                                    <div class="input-group date" id="generateddate" data-target-input="nearest">
+                                        <input type="text" class="form-control datetimepicker-input"
+                                            name="generated_date" id="generated_date" data-target="#generateddate"
+                                            placeholder="DD-MM-YYYY" required>
+                                        <div class="input-group-append" data-target="#generateddate"
+                                            data-toggle="datetimepicker">
+                                            <div class="input-group-text">
+                                                <i class="fa fa-calendar"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {{-- </div> --}}
                                 </div>
 
                             </div>
@@ -151,7 +171,36 @@
 @endsection
 
 @section('custom_js')
+    <!-- Select2 -->
     <script src="{{ asset('assets/select2/js/select2.full.min.js') }}"></script>
+
+    <!-- Moment & Date Picker -->
+    <script src="{{ asset('assets/moment/moment.min.js') }}"></script>
+    <script src="{{ asset('assets/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js') }}"></script>
+
+    <!-- DataTables -->
+    <script src="{{ asset('assets/datatables/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('assets/datatables-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('assets/datatables-responsive/js/dataTables.responsive.min.js') }}"></script>
+    <script src="{{ asset('assets/datatables-buttons/js/dataTables.buttons.min.js') }}"></script>
+    <script src="{{ asset('assets/datatables-buttons/js/buttons.bootstrap4.min.js') }}"></script>
+    <script>
+        $(function() {
+
+            // Select2
+            $('.select2').select2({
+                theme: 'bootstrap4'
+            });
+
+            // Date Pickers
+            $('#generateddate').datetimepicker({
+                format: 'DD-MM-YYYY'
+            });
+
+
+
+        });
+    </script>
 
     <script>
         $(document).ready(function() {
@@ -164,7 +213,7 @@
             function toggleActionFields() {
                 let type = $('input[name="action_type"]:checked').val();
 
-                if (type === 'upload') {
+                if (type == 0) {
                     // $('#upload_fields').show();
                     $('#date').show();
                     $('#file_upload').show();
@@ -206,6 +255,59 @@
                 // asterisk labels
                 $('#add_doc_type_label').toggleClass('asterisk', checked);
                 $('#add_doc_file_label').toggleClass('asterisk', checked);
+            });
+
+        });
+    </script>
+    <script>
+        const redirectUrl = "{{ route('investment.contracts', $document->investment_id) }}";
+    </script>
+    <script>
+        $('#documentForm').on('submit', function(e) {
+            e.preventDefault();
+
+            let form = this;
+            let formData = new FormData(form);
+
+            $.ajax({
+                url: $(form).attr('action'),
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                beforeSend: function() {
+                    $('button[type="submit"]').prop('disabled', true).text('Processing...');
+                },
+                success: function(response) {
+                    $('button[type="submit"]').prop('disabled', false).text('Submit');
+
+                    if (response.success) {
+                        toastr.success(response.message);
+
+                        //  reload page redirect
+                        window.location.href = redirectUrl;
+
+                    } else {
+                        toastr.error(response.message);
+                    }
+                },
+                error: function(xhr) {
+                    $('button[type="submit"]').prop('disabled', false).text('Submit');
+
+                    let errors = xhr.responseJSON?.errors;
+
+                    if (errors) {
+                        let msg = '';
+                        $.each(errors, function(key, value) {
+                            msg += value[0] + '\n';
+                        });
+                        toastr.error(msg);
+                        // alert(msg);
+                    } else {
+                        toastr.error('Server error');
+                        // alert('Server error ');
+                    }
+                }
             });
 
         });
