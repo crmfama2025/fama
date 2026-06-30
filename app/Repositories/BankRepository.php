@@ -50,7 +50,7 @@ class BankRepository
     public function checkIfExist($data)
     {
         $existing = Bank::withTrashed()
-            // ->where('company_id', $data['company_id'])
+            ->where('company_id', $data['company_id'])
             ->where('bank_name', $data['bank_name'])
             ->first();
 
