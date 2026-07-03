@@ -2,6 +2,7 @@
 
 namespace App\Services\Investment;
 
+use App\Models\Investment;
 use App\Models\InvestmentContractDocuments;
 use App\Models\InvestorAgreementType;
 use App\Repositories\Investment\InvestmentContractDocumentRepository;
@@ -14,6 +15,7 @@ class InvestmentContractDocumentService
 {
     public function __construct(
         protected InvestmentContractDocumentRepository $investmentContractDocumentRepository,
+        protected InvestorAgreementService $investorAgreementService,
     ) {}
 
 
@@ -34,26 +36,15 @@ class InvestmentContractDocumentService
 
     public function create(array $data, $user_id = null)
     {
-        // dd($data);
         $data['added_by'] = auth()->user()->id;
-        // dd($data);
         $record = $this->investmentContractDocumentRepository->create($data);
         return $record;
     }
 
     public function update($id, array $data)
     {
-        // dd($data);
-        $this->validate($data);
         $data['updated_by'] = auth()->user()->id;
-        $existingDoc = $this->investmentContractDocumentRepository->find($id);
-        if ($existingDoc && $existingDoc->investment_contract_file_path) {
-            if (Storage::disk('public')->exists($existingDoc->investment_contract_file_path)) {
-                Storage::disk('public')->delete($existingDoc->investment_contract_file_path);
-            }
-
-            $this->investmentContractDocumentRepository->update($id, $data);
-        }
+        $this->investmentContractDocumentRepository->update($id, $data);
     }
 
     // public function delete($id)
@@ -294,5 +285,50 @@ class InvestmentContractDocumentService
         $document->save();
 
         return $document;
+    }
+    public function createInvestorDocument($investorId, $companyId, $investor, $docInsertData)
+    {
+        // dd("test");
+        $companyInvestmentCount = Investment::where('investor_id', $investorId)
+            ->where('company_id', $companyId)
+            ->count();
+        // dd($companyInvestmentCount);
+        if (
+            $companyInvestmentCount == 1
+        ) {
+            // Mudaraba contract
+            $docInsertData['investor_agreement_type_id'] = 1;
+            $docInsertData['investor_agreement_template_id'] = $this->investorAgreementService->getActiveIdBytype($docInsertData['investor_agreement_type_id']);
+            $this->create($docInsertData);
+        } elseif ($companyInvestmentCount > 1) {
+            // Addendum contract
+            $docInsertData['investor_agreement_type_id'] = 2;
+            $docInsertData['investor_agreement_template_id'] = $this->investorAgreementService->getActiveIdBytype($docInsertData['investor_agreement_type_id']);
+            $this->create($docInsertData);
+        }
+    }
+    public function updateInvestorDocument($investorId, $companyId, $investor, $docInsertData)
+    {
+        // dd("test");
+        $companyInvestmentCount = Investment::where('investor_id', $investorId)
+            ->where('company_id', $companyId)
+            ->count();
+        $contract_doc = InvestmentContractDocuments::where('investment_id', $docInsertData['investment_id'])
+            ->whereIn('investor_agreement_type_id', [1, 2])
+            ->first();
+        // dd($companyInvestmentCount);
+        if (
+            $companyInvestmentCount == 1
+        ) {
+            // Mudaraba contract
+            $docInsertData['investor_agreement_type_id'] = 1;
+            $docInsertData['investor_agreement_template_id'] = $this->investorAgreementService->getActiveIdBytype($docInsertData['investor_agreement_type_id']);
+            $this->update($contract_doc->id, $docInsertData);
+        } elseif ($companyInvestmentCount > 1) {
+            // Addendum contract
+            $docInsertData['investor_agreement_type_id'] = 2;
+            $docInsertData['investor_agreement_template_id'] = $this->investorAgreementService->getActiveIdBytype($docInsertData['investor_agreement_type_id']);
+            $this->update($contract_doc->id, $docInsertData);
+        }
     }
 }

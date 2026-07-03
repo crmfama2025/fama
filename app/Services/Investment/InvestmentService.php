@@ -39,8 +39,8 @@ class InvestmentService
         protected InvestmentReceivedPaymentService $investmentReceivedPaymentService,
         protected BrevoService $brevoService,
         protected InvestorAgreementService $investorAgreementService,
-        protected InvestmentContractDocumentService $investmentContractDocumentService
-
+        protected InvestmentContractDocumentService $investmentContractDocumentService,
+        protected InvestorLedgerService $investorLedgerService
 
     ) {}
 
@@ -158,7 +158,12 @@ class InvestmentService
                 'investment_id' => $investment->id,
                 'investor_id' => $investment->investor_id,
             ];
-            $this->createInvestorDocument($investor->id, $companyId, $investor, $docInsertData);
+
+            // Investment contract document creation
+            $this->investmentContractDocumentService->createInvestorDocument($investor->id, $companyId, $investor, $docInsertData);
+
+            // Investment contract document creation
+            $this->investorLedgerService->createInvestmentLedger($investor->id, $companyId, $investor, $docInsertData, $investment);
 
             // count investments for this investor in this company
             $companyInvestmentCount = Investment::where('investor_id', $investor->id)
@@ -402,6 +407,18 @@ class InvestmentService
             $this->investmentReceivedPaymentService->updateInitial($investment->id, $receivedPaymentData);
 
             updateInvestor($data['investor_id'], $investment->id);
+
+            $investor = Investor::find($data['investor_id']);
+            $companyId = $investment->company_id;
+            $docInsertData = [
+                'investment_id' => $investment->id,
+                'investor_id' => $investment->investor_id,
+            ];
+
+            // Investment contract document updation
+            $this->investmentContractDocumentService->updateInvestorDocument($investor->id, $companyId, $investor, $docInsertData);
+            // Investment contract document updation
+            $this->investorLedgerService->updateInvestmentLedger($investor->id, $companyId, $investor, $docInsertData, $investment);
             updateInvestmentBalance($investment->id);
 
             return $investment;
@@ -1034,25 +1051,98 @@ class InvestmentService
         ])->findOrFail($id);
     }
 
-    public function createInvestorDocument($investorId, $companyId, $investor, $docInsertData)
-    {
-        // dd("test");
-        $companyInvestmentCount = Investment::where('investor_id', $investorId)
-            ->where('company_id', $companyId)
-            ->count();
-        // dd($companyInvestmentCount);
-        if (
-            $companyInvestmentCount == 1
-        ) {
-            // Mudaraba contract
-            $docInsertData['investor_agreement_type_id'] = 1;
-            $docInsertData['investor_agreement_template_id'] = $this->investorAgreementService->getActiveIdBytype($docInsertData['investor_agreement_type_id']);
-            $this->investmentContractDocumentService->create($docInsertData);
-        } elseif ($companyInvestmentCount > 1) {
-            // Addendum contract
-            $docInsertData['investor_agreement_type_id'] = 2;
-            $docInsertData['investor_agreement_template_id'] = $this->investorAgreementService->getActiveIdBytype($docInsertData['investor_agreement_type_id']);
-            $this->investmentContractDocumentService->create($docInsertData);
-        }
-    }
+    // public function createInvestorDocument($investorId, $companyId, $investor, $docInsertData)
+    // {
+    //     // dd("test");
+    //     $companyInvestmentCount = Investment::where('investor_id', $investorId)
+    //         ->where('company_id', $companyId)
+    //         ->count();
+    //     // dd($companyInvestmentCount);
+    //     if (
+    //         $companyInvestmentCount == 1
+    //     ) {
+    //         // Mudaraba contract
+    //         $docInsertData['investor_agreement_type_id'] = 1;
+    //         $docInsertData['investor_agreement_template_id'] = $this->investorAgreementService->getActiveIdBytype($docInsertData['investor_agreement_type_id']);
+    //         $this->investmentContractDocumentService->create($docInsertData);
+    //     } elseif ($companyInvestmentCount > 1) {
+    //         // Addendum contract
+    //         $docInsertData['investor_agreement_type_id'] = 2;
+    //         $docInsertData['investor_agreement_template_id'] = $this->investorAgreementService->getActiveIdBytype($docInsertData['investor_agreement_type_id']);
+    //         $this->investmentContractDocumentService->create($docInsertData);
+    //     }
+    // }
+    // public function updateInvestorDocument($investorId, $companyId, $investor, $docInsertData)
+    // {
+    //     // dd("test");
+    //     $companyInvestmentCount = Investment::where('investor_id', $investorId)
+    //         ->where('company_id', $companyId)
+    //         ->count();
+    //     // dd($companyInvestmentCount);
+    //     if (
+    //         $companyInvestmentCount == 1
+    //     ) {
+    //         // Mudaraba contract
+    //         $docInsertData['investor_agreement_type_id'] = 1;
+    //         $docInsertData['investor_agreement_template_id'] = $this->investorAgreementService->getActiveIdBytype($docInsertData['investor_agreement_type_id']);
+    //         $this->investmentContractDocumentService->create($docInsertData);
+    //     } elseif ($companyInvestmentCount > 1) {
+    //         // Addendum contract
+    //         $docInsertData['investor_agreement_type_id'] = 2;
+    //         $docInsertData['investor_agreement_template_id'] = $this->investorAgreementService->getActiveIdBytype($docInsertData['investor_agreement_type_id']);
+    //         $this->investmentContractDocumentService->create($docInsertData);
+    //     }
+    // }
+    // public function createInvestmentLedger($investorId, $companyId, $investor, $ledgerInsertData, $investment)
+    // {
+    //     $companyInvestmentCount = Investment::where('investor_id', $investorId)
+    //         ->where('company_id', $companyId)
+    //         ->count();
+    //     if (
+    //         $companyInvestmentCount == 1
+    //     ) {
+    //         // Mudaraba contract
+    //         $ledgerInsertData['investor_transaction_type_id'] = 1;
+    //         $ledgerInsertData['is_credit'] = 1;
+    //         $ledgerInsertData['company_id'] = $companyId;
+    //         $ledgerInsertData['company_id'] = $companyId;
+    //         $ledgerInsertData['transaction_date'] = $investment->investment_date;
+    //         $ledgerInsertData['transaction_amount'] = $investment->investment_amount;
+    //         $this->investorLedgerService->create($ledgerInsertData);
+    //     } elseif ($companyInvestmentCount > 1) {
+    //         // Addendum contract
+    //         $ledgerInsertData['investor_transaction_type_id'] = 2;
+    //         $ledgerInsertData['is_credit'] = 1;
+    //         $ledgerInsertData['company_id'] = $companyId;
+    //         $ledgerInsertData['transaction_date'] = $investment->investment_date;
+    //         $ledgerInsertData['transaction_amount'] = $investment->investment_amount;
+    //         $this->investorLedgerService->create($ledgerInsertData);
+    //     }
+    // }
+    // public function updateInvestmentLedger($investorId, $companyId, $investor, $ledgerInsertData, $investment)
+    // {
+    //     $companyInvestmentCount = Investment::where('investor_id', $investorId)
+    //         ->where('company_id', $companyId)
+    //         ->count();
+    //     if (
+    //         $companyInvestmentCount == 1
+    //     ) {
+    //         // Mudaraba contract
+    //         $ledgerInsertData['investor_transaction_type_id'] = 1;
+    //         $ledgerInsertData['is_credit'] = 1;
+    //         $ledgerInsertData['company_id'] = $companyId;
+    //         $ledgerInsertData['company_id'] = $companyId;
+    //         $ledgerInsertData['transaction_date'] = $investment->investment_date;
+    //         $ledgerInsertData['transaction_amount'] = $investment->investment_amount;
+    //         $this->investorLedgerService->update($ledgerInsertData);
+    //     } elseif ($companyInvestmentCount > 1) {
+    //         // Addendum contract
+    //         $ledgerInsertData['investor_transaction_type_id'] = 2;
+    //         $ledgerInsertData['is_credit'] = 1;
+    //         $ledgerInsertData['company_id'] = $companyId;
+    //         $ledgerInsertData['transaction_date'] = $investment->investment_date;
+    //         $ledgerInsertData['transaction_amount'] = $investment->investment_amount;
+    //         $this->investorLedgerService->update($ledgerInsertData);
+    //     }
+    // }
 }
