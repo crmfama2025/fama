@@ -432,7 +432,7 @@
                                     @if (hasPermission(auth()->id(), ['investment'], $companyId = null))
                                         <li class="nav-item">
                                             <a href="{{ route('investment.index') }}"
-                                                class="nav-link {{ request()->is('investment*') && !request()->is('investments/referrals*') && !request()->is('investments/investment-soa') ? 'active' : '' }}">
+                                                class="nav-link {{ request()->is('investment*') && !request()->is('investments/referrals*') && !request()->is('investments/investment-soa') && !request()->is('investments/contracts*') ? 'active' : '' }}">
                                                 <i class="far fa-circle nav-icon"></i>
                                                 <p>Investments</p>
                                             </a>
@@ -445,6 +445,13 @@
                                             </a>
                                         </li>
                                     @endif
+                                    <li class="nav-item">
+                                        <a href="{{ route('investmentContracts') }}"
+                                            class="nav-link {{ request()->is('investments/contracts*') ? 'active' : '' }}">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>Contracts</p>
+                                        </a>
+                                    </li>
                                     @if (auth()->user()->hasAnyPermission(['finance.payout']))
                                         <li class="nav-item">
                                             <a href="{{ route('investorPayout.index') }}"

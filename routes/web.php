@@ -367,9 +367,13 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
 
     Route::get('investment-documents/{id}', [InvestmentContractsController::class, 'document'])->name('investment.document');
     Route::post('investments/contracts/{id}', [InvestmentContractsController::class, 'updateContract'])->name('investment.contracts.submit');
-    Route::get('investments/contracts/{id}', [InvestmentController::class, 'contractsList'])->name('investment.contracts.list');
-    Route::get('investments/contract-list/{id}', [InvestmentController::class, 'getContracts'])->name('investment.contracts');
+    Route::get('investments/contracts/{id?}', [InvestmentController::class, 'contractsList'])->name('investment.contracts.list');
+    Route::get('investments/contract-list/{id?}', [InvestmentController::class, 'getContracts'])->name('investment.contracts');
     Route::get('investment-documents-view/{id}', [InvestmentContractsController::class, 'documentView'])->name('investment.document.view');
+    Route::get('investments/ledger/{id}', [InvestmentController::class, 'ledgerList'])->name('investment.ledger.list');
+    Route::get('investments/ledger-list/{id}', [InvestmentController::class, 'getLedgerData'])->name('investment.ledgers');
+    Route::get('investment_contracts', [InvestmentContractsController::class, 'index'])->name('investmentContracts');
+    Route::get('investment_contracts/list', [InvestmentContractsController::class, 'getContracts'])->name('investmentContracts.list');
 });
 
 

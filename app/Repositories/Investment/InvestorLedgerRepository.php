@@ -32,7 +32,7 @@ class InvestorLedgerRepository
     {
         $permittedCompanyIds = getUserPermittedCompanyIds(auth()->user()->id, 'investment');
 
-        $query = InvestorLedger::with('investor', 'investment', 'investment.company', 'agreementType', 'agreementTemplate');
+        $query = InvestorLedger::with('investor', 'investment', 'investment.company', 'transactionType');
 
         $query->whereHas('investment.company', function ($q) use ($permittedCompanyIds) {
             $q->whereIn('company_id', $permittedCompanyIds);
@@ -40,7 +40,7 @@ class InvestorLedgerRepository
         if (!empty($filters['investment_id'])) {
             $query->where('investment_id', $filters['investment_id']);
         }
-
+        // dd($filters);
 
         $result = $query->get();
         // dd($result);
@@ -63,12 +63,10 @@ class InvestorLedgerRepository
                     $q->where('investment_code', 'like', '%' . $filters['search'] . '%');
                 })
 
-                ->orWhereHas('agreementType', function ($q) use ($filters) {
-                    $q->where('investor_agreement_type', 'like', '%' . $filters['search'] . '%');
+                ->orWhereHas('transactionType', function ($q) use ($filters) {
+                    $q->where('transaction_type', 'like', '%' . $filters['search'] . '%');
                 })
-                ->orWhereHas('agreementTemplate', function ($q) use ($filters) {
-                    $q->whereRaw("CONCAT('V', version_no) LIKE ?", ['%' . $filters['search'] . '%']);
-                })
+
                 ->orWhereHas('investment.company', function ($q) use ($filters) {
                     $q->where('company_name', 'like', '%' . $filters['search'] . '%');
                 })
@@ -86,8 +84,7 @@ class InvestorLedgerRepository
         return InvestorLedger::with([
             'investor',
             'investment',
-            'agreementType',
-            'agreementTemplate'
+            'transactionType'
         ])->findOrFail($id);
     }
 }

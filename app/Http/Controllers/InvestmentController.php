@@ -8,6 +8,7 @@ use App\Models\InvestmentReceivedPayment;
 use App\Repositories\Investment\InvestmentRepository;
 use App\Services\Investment\InvestmentContractDocumentService;
 use App\Services\Investment\InvestmentService;
+use App\Services\Investment\InvestorLedgerService;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -18,6 +19,9 @@ class InvestmentController extends Controller
         protected InvestmentService $investmentService,
         protected InvestmentRepository $investmentRepository,
         protected InvestmentContractDocumentService $investmentContractService,
+        protected InvestorLedgerService $investorLedgerService,
+
+
     ) {}
 
     public function index()
@@ -154,10 +158,8 @@ class InvestmentController extends Controller
     public function contractsList($id)
     {
         $title = "Contracts List";
-        // dd("test");
-        // $formData = $this->investmentService->documentsFormData();
+
         $investment = $this->investmentService->getDetails($id);
-        // dd($investment);
         return view('admin.investment.investment.documents_list', compact('title', 'investment'));
     }
     public function getContracts(Request $request)
@@ -174,6 +176,29 @@ class InvestmentController extends Controller
             ];
 
             return $this->investmentContractService->getDataTable($filters);
+        }
+    }
+    public function ledgerList($id)
+    {
+        $title = "Ledger List";
+        $investment = $this->investmentService->getDetails($id);
+        // dd($investment);
+        return view('admin.investment.investment.ledger', compact('title', 'investment'));
+    }
+    public function getLedgerData(Request $request)
+    {
+        // dd("test");
+        // dd($request->all());
+
+        if ($request->ajax()) {
+            $filters = [
+                'investor_id' => $request->investorid,
+                'company_id' => auth()->user()->company_id,
+                'investment_id' => $request->investment_id,
+                'search' => $request->search['value'] ?? null
+            ];
+
+            return $this->investorLedgerService->getDataTable($filters);
         }
     }
 }

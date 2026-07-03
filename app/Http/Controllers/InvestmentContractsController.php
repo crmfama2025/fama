@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Services\Investment\InvestmentContractDocumentService;
 use App\Services\Investment\InvestmentService;
 use Illuminate\Http\Request;
+use App\Services\CompanyService;
 
 class InvestmentContractsController extends Controller
 {
@@ -12,18 +13,18 @@ class InvestmentContractsController extends Controller
     public function __construct(
         protected InvestmentContractDocumentService $investmentContractService,
         protected InvestmentService $investmentService,
+        protected CompanyService $companyService,
     ) {}
 
     public function index()
     {
-        $title = "Documents List";
-        return view("admin.investment.investment.documents_list", compact("title"));
+        $title = "Contracts List";
+        $companies = $this->companyService->getAll();
+        return view("admin.investment.contracts", compact("title", "companies"));
     }
     public function getContracts(Request $request)
     {
-        // dd("test");
-        // dd("test");
-        // dd($request->all());
+
 
         if ($request->ajax()) {
             $filters = [

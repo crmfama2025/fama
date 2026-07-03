@@ -21,4 +21,17 @@ class InvestorLedger extends Model
         'updated_by',
         'deleted_by',
     ];
+
+    public function transactionType()
+    {
+        return $this->belongsTo(InvestorTransactionTypes::class, 'investor_transaction_type_id');
+    }
+    public function investor()
+    {
+        return $this->belongsTo(Investor::class, 'investor_id');
+    }
+    public function investment()
+    {
+        return $this->belongsTo(Investment::class, 'investment_id');
+    }
 }

@@ -40,6 +40,13 @@ class InvestmentContractDocumentRepository
         if (!empty($filters['investment_id'])) {
             $query->where('investment_id', $filters['investment_id']);
         }
+        if (!empty($filters['company_id'])) {
+            // dump($filters['company_id']);
+            $query->whereHas('investment.company', function ($q) use ($filters) {
+                $q->where('company_id', $filters['company_id']);
+            });
+        }
+
 
 
         $result = $query->get();

@@ -57,6 +57,7 @@ class InvestorLedgerService
 
     public function getDataTable(array $filters = [])
     {
+        // dd("test");
         $query = $this->investorLedgerRepository->getQuery($filters);
 
         $columns = [
@@ -64,63 +65,53 @@ class InvestorLedgerService
             ['data' => 'company_name', 'name' => 'company.company_name'],
             ['data' => 'investment_code', 'name' => 'investment.investment_code'],
             ['data' => 'investor_name', 'name' => 'investor.investor_name'],
-            ['data' => 'investor_agreement_type', 'name' => 'investor_agreement_types.investor_agreement_type'],
-            ['data' => 'investor_name', 'name' => 'investor.investor_name'],
+            ['data' => 'transaction_type', 'name' => 'transactionType.transaction_type'],
             ['data' => 'action', 'name' => 'action', 'orderable' => false, 'searchable' => false],
+
         ];
 
         return datatables()
             ->of($query)
             ->addIndexColumn()
-            ->addColumn('company_name', fn($row) => $row->company->company_name ?? '-')
-            ->addColumn(
-                'invested_company_name',
-                fn($row) =>
-                $row->investedCompany->company_name ?? '-'
-            )
+
             ->addColumn('investor_name', fn($row) => $row->investor->investor_name . " - " . $row->investor->investor_code ?? '-')
+            ->addColumn('company_name', fn($row) => $row->investment->company->company_name  ?? '-')
+            ->addColumn('transaction_amount', fn($row) => $row->transaction_amount  ?? '-')
+            ->addColumn('transaction_date', function ($row) {
+                return $row->transaction_date
+                    ? \Carbon\Carbon::parse($row->transaction_date)->format('d M Y h:i A')
+                    : '-';
+            })
 
             ->addColumn('investment_code', fn($row) =>
             $row->investment->investment_code ?? '-')
-            ->addColumn('investor_agreement_type', fn($row) => $row->agreementType->investor_agreement_type)
-            ->addColumn('investor_agreement_template', fn($row) => 'V' . $row->investor_agreement_template_id)
-            ->addColumn('status', function ($row) {
-                if (!empty($row->generated_date)) {
-                    return '<span class="badge badge-success">Generated</span>';
+            ->addColumn('transaction_type', function ($row) {
+
+                $typeId = $row->investor_transaction_type_id;
+                $typeName = $row->transactionType->transaction_type ?? 'N/A';
+
+                $badges = [
+                    1 => 'success',
+                    2 => 'info',
+                    3 => 'warning',
+                    4 => 'maroon',
+                ];
+
+                $class = $badges[$typeId] ?? 'secondary';
+
+                return "<span class='badge badge-{$class}'>{$typeName}</span>";
+            })
+            ->addColumn('credit_debit', function ($row) {
+
+                if ($row->is_credit) {
+                    return "<span class='badge badge-success'>
+                    <i class='fas fa-arrow-down mr-1'></i> Credit
+                </span>";
                 } else {
-                    return '<span class="badge badge-warning">Pending</span>';
+                    return "<span class='badge badge-danger'>
+                    <i class='fas fa-arrow-up mr-1'></i> Debit
+                </span>";
                 }
-            })
-            // Main Document View
-            ->addColumn('main_doc_view', function ($row) {
-                if ($row->contract_file_path) {
-                    return '<a href="' . Storage::url($row->contract_file_path) . '"
-                    target="_blank"
-                    class="btn btn-sm btn-outline-primary"
-                    title="View Document">
-                    <i class="fas fa-eye"></i>
-                </a>';
-                }
-                return '-';
-            })
-
-            // Additional Document View
-            ->addColumn('additional_doc_view', function ($row) {
-                if ($row->additional_file_path) {
-                    return '<a href="' . Storage::url($row->additional_file_path) . '"
-                    target="_blank"
-                    class="btn btn-sm btn-outline-info"
-                    title="View Document">
-                    <i class="fas fa-eye"></i>
-                </a>';
-                }
-                return '-';
-            })
-
-            ->addColumn('generated_date', function ($row) {
-                return $row->generated_date
-                    ? \Carbon\Carbon::parse($row->generated_date)->format('d M Y h:i A')
-                    : '-';
             })
 
 
@@ -152,7 +143,7 @@ class InvestorLedgerService
 
                 return $action;
             })
-            ->rawColumns(['action', 'investor_agreement_type', 'main_doc_view', 'additional_doc_view', 'generated_date', 'investor_agreement_template', 'status'])
+            ->rawColumns(['action', 'transaction_type', 'credit_debit', 'transaction_amount', 'transaction_date'])
             ->toJson();
     }
 
