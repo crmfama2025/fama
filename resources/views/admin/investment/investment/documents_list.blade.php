@@ -57,6 +57,7 @@
                                             <th>Action</th>
                                             <th>Investment Code</th>
                                             <th>Investor Name</th>
+                                            <th>Status</th>
                                             <th>Contract Type</th>
                                             <th>Version</th>
                                             <th>Document</th>
@@ -143,6 +144,10 @@
                     {
                         data: 'investor_name',
                         name: 'investor.investor_name'
+                    },
+                    {
+                        data: 'status',
+                        name: 'status'
                     },
 
                     {

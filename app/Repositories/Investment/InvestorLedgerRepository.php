@@ -2,37 +2,37 @@
 
 namespace App\Repositories\Investment;
 
-use App\Models\InvestmentContractDocuments;
 use App\Models\InvestmentDocument;
+use App\Models\InvestorLedger;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 
-class InvestmentContractDocumentRepository
+class InvestorLedgerRepository
 {
     public function all()
     {
-        return InvestmentContractDocuments::all();
+        return InvestorLedger::all();
     }
 
     public function find($id)
     {
-        return InvestmentContractDocuments::findOrFail($id);
+        return InvestorLedger::findOrFail($id);
     }
 
 
     public function create($data)
     {
-        return InvestmentContractDocuments::create($data);
+        return InvestorLedger::create($data);
     }
     public function update(int $id, array $data)
     {
-        $investmentDocument = InvestmentContractDocuments::findOrFail($id);
+        $investmentDocument = InvestorLedger::findOrFail($id);
         return $investmentDocument->update($data);
     }
     public function getQuery(array $filters = []): Builder
     {
         $permittedCompanyIds = getUserPermittedCompanyIds(auth()->user()->id, 'investment');
 
-        $query = InvestmentContractDocuments::with('investor', 'investment', 'investment.company', 'agreementType', 'agreementTemplate');
+        $query = InvestorLedger::with('investor', 'investment', 'investment.company', 'agreementType', 'agreementTemplate');
 
         $query->whereHas('investment.company', function ($q) use ($permittedCompanyIds) {
             $q->whereIn('company_id', $permittedCompanyIds);
@@ -83,7 +83,7 @@ class InvestmentContractDocumentRepository
     }
     public function getDetails($id)
     {
-        return InvestmentContractDocuments::with([
+        return InvestorLedger::with([
             'investor',
             'investment',
             'agreementType',

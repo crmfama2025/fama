@@ -260,7 +260,7 @@
         });
     </script>
     <script>
-        const redirectUrl = "{{ route('investment.contracts', $document->investment_id) }}";
+        const redirectUrl = "{{ route('investment.contracts.list', $document->investment_id) }}";
     </script>
     <script>
         $('#documentForm').on('submit', function(e) {
