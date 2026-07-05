@@ -633,7 +633,7 @@ class InvestmentService
                                     data-termination-date="' . ($row->termination_date ? \Carbon\Carbon::parse($row->termination_date)->format('d-m-Y') : '') . '"
                                    data-file-path="' . ($row->termination_document ? Storage::url($row->termination_document) : '') . '"
                                    data-principal="' . ($row->investment_amount) . '"
-                                   data-outstanding="' . ($row->termination_outstanding) . '"
+                                  data-outstanding="' . ($row->termination_outstanding) . '"
                                    data-commission-outstanding="' . ($row->termination_referral_commission_outstanding) . '"
                                    data-outstanding-profit = "' . ($row->outstanding_profit) . '"
                                     title="Edit termination Details">
@@ -670,6 +670,11 @@ class InvestmentService
                             class="btn btn-sm btn-warning m-1"
                             title="Documents">
                             <i class="fas fa-file-upload"></i>
+                        </a>';
+                    $action .= '<a href="' . route('investment.ledger.list', $row->id) . '"
+                            class="btn btn-sm btn-info m-1"
+                            title="ledger">
+                            <i class="fas fa-book"></i>
                         </a>';
                 }
 
