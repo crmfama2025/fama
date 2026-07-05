@@ -15,6 +15,7 @@ class InvestmentContractDocuments extends Model
     protected $fillable = [
         'investment_id',
         'investor_id',
+        'company_id',
         'investor_agreement_template_id',
         'investor_agreement_type_id',
         'is_investor_signed',

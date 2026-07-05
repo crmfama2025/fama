@@ -65,10 +65,19 @@
                                                 </div>
 
                                                 <div class="col-sm-6">
+                                                    @php
+                                                        $InvestorDocVersion = array_filter(
+                                                            InvestorDocVersion(),
+                                                            function ($key) {
+                                                                return $key >= 4;
+                                                            },
+                                                            ARRAY_FILTER_USE_KEY,
+                                                        );
+                                                    @endphp
                                                     <label class="asterisk">Version No</label>
                                                     <select name="version_no" class="form-control select2" required>
                                                         <option value="">Select Version No</option>
-                                                        @foreach (InvestorDocVersion() as $key => $item)
+                                                        @foreach ($InvestorDocVersion as $key => $item)
                                                             <option value="{{ $key }}"
                                                                 {{ $key == $investorTemplate?->version_no ? 'selected' : '' }}>
                                                                 {{ $item }} </option>

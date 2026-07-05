@@ -102,9 +102,9 @@ class InvestorAgreementTemplateController extends Controller
         //
     }
 
-    public function mudarabah_view($docType, $investorId, $investmentId = 0, $companyId)
+    public function mudarabah_view($docId, $companyId)
     {
-        $data = $this->invContractServ->sendContractDocument($docType, $investorId, $investmentId, $companyId);
+        $data = $this->invContractServ->sendContractDocument($docId, $companyId);
 
         return view('admin.investment.inv_agreement.pdfview-agreement-dynamic', compact('data'));
     }

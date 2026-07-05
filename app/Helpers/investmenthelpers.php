@@ -209,3 +209,20 @@ function toarabicLetterNumber(int $number): string
 
     return $letters[$number] ?? $number;
 }
+
+function profitInterval_ar($interval)
+{
+    if ($interval == 'Every Month') {
+        return 'كل شهر';
+    } elseif ($interval == 'Every 3 Month') {
+        return 'كل ثلاثة أشهر';
+    } elseif ($interval == 'Every 6 Month') {
+        return 'كل ستة أشهر';
+    } elseif ($interval == 'Every 12 Month') {
+        return 'كل اثني عشر شهراً';
+    } elseif ($interval == 'Every 2 Month') {
+        return 'كل شهرين';
+    } elseif ($interval == 'yearly') {
+        return 'سنوي';
+    }
+}

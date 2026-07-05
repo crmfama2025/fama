@@ -160,7 +160,7 @@ class InvestmentService
             ];
 
             // Investment contract document creation
-            $this->investmentContractDocumentService->createInvestorDocument($investor->id, $companyId, $investor, $docInsertData);
+            $this->investmentContractDocumentService->createInvestorDocument($investor->id, $companyId, $docInsertData);
 
             // Investment contract document creation
             $this->investorLedgerService->createInvestmentLedger($investor->id, $companyId, $investor, $docInsertData, $investment);
@@ -658,9 +658,7 @@ class InvestmentService
 
 
                     $action .= '<a href="' . route('legal_template.contractview', [
-                        'docType' => 1,
-                        'investmentId' => $row->id,
-                        'investorId' => $row->investor_id,
+                        'docId' => 1,
                         'companyId' => $row->company_id,
                     ]) . '"
                                     class="btn btn-sm btn-primary m-1"

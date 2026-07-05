@@ -546,6 +546,8 @@ namespace App\Models{
  * @property string $bank_code
  * @property string $bank_name
  * @property string|null $bank_arabic_name
+ * @property $iban
+ * @property $account_number
  * @property string $bank_short_code
  * @property int|null $added_by
  * @property int|null $updated_by
@@ -564,6 +566,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Bank newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Bank onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|Bank query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Bank whereAccountNumber($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Bank whereAddedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Bank whereBankArabicName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Bank whereBankCode($value)
@@ -573,6 +576,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Bank whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Bank whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Bank whereDeletedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Bank whereIban($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Bank whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Bank whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Bank whereUpdatedAt($value)
@@ -1836,7 +1840,10 @@ namespace App\Models{
  * @property int $company_id
  * @property int $profit_interval_id
  * @property int $invested_company_id
+ * @property $company_bank_iban
+ * @property $company_bank_account_number
  * @property string $investment_amount
+ * @property string|null $investment_amount_arabic
  * @property int $investment_type 0-New
  * @property string $received_amount
  * @property string $total_received_amount
@@ -1907,6 +1914,8 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Investment query()
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereAddedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereBalanceAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Investment whereCompanyBankAccountNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Investment whereCompanyBankIban($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereCompanyBankId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereCompanyId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereCreatedAt($value)
@@ -1920,6 +1929,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereInitialProfitReleaseMonth($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereInvestedCompanyId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereInvestmentAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Investment whereInvestmentAmountArabic($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereInvestmentCode($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereInvestmentDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereInvestmentStatus($value)
@@ -1977,15 +1987,40 @@ namespace App\Models{
  * @property int $is_company_signed 0 = No, 1 = Yes
  * @property string|null $company_signed_at
  * @property int $status 1 = Active, 0 = Inactive
- * @property string $contract_document_html
+ * @property string|null $contract_document_html
+ * @property int $added_by
+ * @property int|null $updated_by
+ * @property int|null $deleted_by
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property string|null $contract_file_path
+ * @property string|null $additional_file_path
+ * @property string|null $generated_date
+ * @property int $has_additional_doc 0 = No, 1 = Yes
+ * @property int $action_type 0 = Upload, 1 = Generate
+ * @property int|null $generated_by
+ * @property-read \App\Models\InvestorAgreementTemplate|null $agreementTemplate
+ * @property-read \App\Models\InvestorAgreementType|null $agreementType
+ * @property-read \App\Models\User|null $deletedBy
+ * @property-read \App\Models\Investment|null $investment
+ * @property-read \App\Models\Investor|null $investor
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments query()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereActionType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereAddedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereAdditionalFilePath($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereCompanySignedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereContractDocumentHtml($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereContractFilePath($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereDeletedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereGeneratedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereGeneratedDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereHasAdditionalDoc($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereInvestmentId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereInvestorAgreementTemplateId($value)
@@ -1996,6 +2031,9 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereIsInvestorSigned($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereUpdatedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments withoutTrashed()
  */
 	class InvestmentContractDocuments extends \Eloquent {}
 }
@@ -2138,6 +2176,15 @@ namespace App\Models{
 
 namespace App\Models{
 /**
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentTransactionTypes newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentTransactionTypes newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentTransactionTypes query()
+ */
+	class InvestmentTransactionTypes extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
  * @property int $id
  * @property string $investor_code
  * @property string $investor_name
@@ -2150,7 +2197,7 @@ namespace App\Models{
  * @property int $country_of_residence
  * @property int $payment_mode_id
  * @property string $id_number
- * @property string $passport_number
+ * @property string|null $passport_number
  * @property int|null $referral_id
  * @property int $payout_batch_id
  * @property int|null $profit_release_date
@@ -2320,7 +2367,7 @@ namespace App\Models{
  * @property int $investor_id
  * @property string $investor_beneficiary
  * @property string $investor_bank_name
- * @property string $investor_iban
+ * @property $investor_iban
  * @property int $is_primary
  * @property int $status
  * @property int $added_by
@@ -2395,6 +2442,43 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocument withoutTrashed()
  */
 	class InvestorDocument extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property int $id
+ * @property int $investment_id
+ * @property int $investor_id
+ * @property int $company_id
+ * @property int $investor_transaction_type_id
+ * @property string $transaction_amount
+ * @property int $is_credit 0 = Debit, 1 = Credit
+ * @property string|null $transaction_date
+ * @property int $status 1 = Active, 0 = Inactive
+ * @property int $added_by
+ * @property int|null $updated_by
+ * @property int|null $deleted_by
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorLedger newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorLedger newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorLedger query()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorLedger whereAddedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorLedger whereCompanyId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorLedger whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorLedger whereDeletedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorLedger whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorLedger whereInvestmentId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorLedger whereInvestorId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorLedger whereInvestorTransactionTypeId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorLedger whereIsCredit($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorLedger whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorLedger whereTransactionAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorLedger whereTransactionDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorLedger whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorLedger whereUpdatedBy($value)
+ */
+	class InvestorLedger extends \Eloquent {}
 }
 
 namespace App\Models{
@@ -2526,6 +2610,23 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorRelation whereUpdatedAt($value)
  */
 	class InvestorRelation extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property int $id
+ * @property string $transaction_type
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorTransactionTypes newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorTransactionTypes newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorTransactionTypes query()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorTransactionTypes whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorTransactionTypes whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorTransactionTypes whereTransactionType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorTransactionTypes whereUpdatedAt($value)
+ */
+	class InvestorTransactionTypes extends \Eloquent {}
 }
 
 namespace App\Models{

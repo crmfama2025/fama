@@ -16,7 +16,7 @@ class InvestorAgreementTemplate extends Model
         'template',
         'added_by',
         'updated_by',
-        'status',
+        'is_active',
     ];
 
     public function agreementType()

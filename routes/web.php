@@ -362,7 +362,7 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
         ->name('invoices.pdf');
 
     Route::get('doc_view', [InvestorAgreementTemplateController::class, 'doc_view'])->name('legal_template.doc_view'); //only for reference
-    Route::get('mudarabah-view/{docType}/{companyId}', [InvestorAgreementTemplateController::class, 'mudarabah_view'])->name('legal_template.contractview');
+    Route::get('mudarabah-view/{docId}/{companyId}', [InvestorAgreementTemplateController::class, 'mudarabah_view'])->name('legal_template.contractview');
     Route::get('inv-agreement-list', [InvestorAgreementTemplateController::class, 'getInvestorAgreements'])->name('legal_template.list');
 
     Route::get('investment-documents/{id}', [InvestmentContractsController::class, 'document'])->name('investment.document');

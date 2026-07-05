@@ -3,6 +3,8 @@
 namespace App\Services\Investment;
 
 use App\Models\Company;
+use App\Models\Investment;
+use App\Repositories\Investment\InvestmentContractDocumentRepository;
 use App\Repositories\Investment\InvestmentRepository;
 use App\Repositories\Investment\InvestorAgreementRepository;
 use App\Repositories\Investment\InvestorRepository;
@@ -13,48 +15,63 @@ class InvestmentContractService
     public function __construct(
         protected InvestmentRepository $investmentRepository,
         protected InvestorRepository $investorRepository,
-        protected InvestorAgreementRepository $InvAgreementRepo
+        protected InvestorAgreementRepository $InvAgreementRepo,
+        protected InvestmentContractDocumentRepository $investmentContractDocumentRepository,
     ) {}
 
-    public function sendContractDocument($docTypeId, $investorId, $investmentId, $companyId)
+    public function sendContractDocument($docId, $companyId)
     {
+        $docDetails = $this->investmentContractDocumentRepository->find($docId);
+
+        $docTypeId     = $docDetails->investor_agreement_type_id;
+
+
         if ($docTypeId == 1) {
-            return $this->sendMudarabah($docTypeId, $investorId, $investmentId, $companyId);
+            return $this->sendMudarabah($docId, $companyId);
+        } elseif ($docTypeId == 2) {
+            return $this->sendAddendum($docId, $companyId);
         }
     }
 
-    public function sendMudarabah($docTypeId, $investorId, $investmentId, $companyId)
+    public function sendMudarabah($docId, $companyId)
     {
-        $investorData   = $this->investorRepository->find($investorId);
-        $documentDetail = $this->InvAgreementRepo->findByType($docTypeId);
+        $invDocDetails = $this->investmentContractDocumentRepository->find($docId);
+
+        $docTypeId     = $invDocDetails->investor_agreement_type_id;
+        $investorData   = $invDocDetails->investor;
+        $investmentId   = $invDocDetails->investment_id;
+
+        // $investorData   = $this->investorRepository->find($investorId);
+        $templateDocumentDetail = $this->InvAgreementRepo->findByType($docTypeId);
 
         if ($investmentId == 0) {
             $investments = $this->investmentRepository->getAllByCondition([
-                'investor_id'       => $investorId,
+                'investor_id'       => $$invDocDetails->investor_id,
                 'investment_status' => 1,
                 'company_id' => $companyId,
             ]);
 
             // dd($investments);
-            return $this->sendMudarabahMultiple($documentDetail, $investorData, $investments);
+            return $this->sendMudarabahMultiple($invDocDetails, $templateDocumentDetail, $investorData, $investments);
         }
 
         $investmentData = $this->investmentRepository->find($investmentId);
-        return $this->buildMudarabahPayload($documentDetail, $investorData, $investmentData);
+        return $this->buildMudarabahPayload($invDocDetails, $templateDocumentDetail, $investorData, $investmentData);
     }
 
 
     /**
      * Multiple investments — Annexure A per contract, Annexure B per company.
      */
-    private function sendMudarabahMultiple($documentDetail, $investorData, $investments)
+    private function sendMudarabahMultiple($invDocDetails, $documentDetail, $investorData, $investments)
     {
+        // dd('multiple');
         $byCompany = [];
         foreach ($investments as $inv) {
             $byCompany[$inv->company_id][] = $inv;
         }
 
-        $annexureA    = '';
+        $annexureAMulti    = '';
         // $annexureA_Ar     = '';
         $annexureB_Eng    = '';
         $annexureB_Ar     = '';
@@ -70,16 +87,16 @@ class InvestmentContractService
                 $InvestorProfitPerc = $inv->profit_perc * 100 / 50;
                 $CompanyProfitPerc  = 100 - $InvestorProfitPerc;
 
-                $annexureA .= $this->buildSingleAnnexureA(
+                $annexureAMulti .= $this->buildSingleAnnexureA(
                     $companyData,
                     $inv,
                     $investorData,
                     $annexureACounter,
                     $InvestorProfitPerc,
                     $CompanyProfitPerc,
-                    'english'
+                    // 'english'
                 );
-                // $annexureA .= $this->buildSingleAnnexureA(
+                // $annexureAMulti .= $this->buildSingleAnnexureA(
                 //     $companyData,
                 //     $inv,
                 //     $investorData,
@@ -102,7 +119,7 @@ class InvestmentContractService
 
             $annexureBCounter++;
         }
-
+        // dump($annexureAMulti);
         // ── Grand totals ─────────────────────────────────────────────────────────
         $investmentsCollection = collect($investments);
         $grandTotalInvested    = $investmentsCollection->sum('investment_amount');
@@ -115,14 +132,19 @@ class InvestmentContractService
         $InvestorProfitPerc = $firstInv->profit_perc * 100 / 50;
         $CompanyProfitPerc  = 100 - $InvestorProfitPerc;
 
-        $html = $documentDetail->template;
+        $htmlMulti = $documentDetail->template;
 
-        $placeholders = [
+        $placeholdersMulti = [
             // Dates
-            '{mudarabah_created_long_date_eng}'  => date('j \d\a\y \o\f F Y'),
-            '{mudarabah_created_long_date_ar}'   => arabicLongDate(date('Y-m-d')),
-            '{mudarabah_created_short_date_eng}' => date('d M Y'),
-            '{mudarabah_created_short_date_ar}'  => arabicShortDate(date('Y-m-d')),
+            '{mudarabah_created_long_date_eng}'  => date('j \d\a\y \o\f F Y', strtotime($invDocDetails->generated_date)),
+            '{mudarabah_created_long_date_ar}'   => arabicLongDate($invDocDetails->generated_date),
+            '{mudarabah_created_short_date_eng}' => date('d M Y', strtotime($invDocDetails->generated_date)),
+            '{mudarabah_created_short_date_ar}'  => arabicShortDate($invDocDetails->generated_date),
+
+            // '{mudarabah_created_long_date_eng}'  => date('j \d\a\y \o\f F Y'),
+            // '{mudarabah_created_long_date_ar}'   => arabicLongDate(date('Y-m-d')),
+            // '{mudarabah_created_short_date_eng}' => date('d M Y'),
+            // '{mudarabah_created_short_date_ar}'  => arabicShortDate(date('Y-m-d')),
 
             // Investor
             '{investor_name_eng}'        => $investorData->investor_name,
@@ -172,16 +194,16 @@ class InvestmentContractService
             '{monthly_estimate}'      => 0, //number_format($grandTotalPerInterval, 2)
 
             // Annexure blocks
-            '{annexA}' => $annexureA,
+            '{annexA}' => $annexureAMulti,
             // '{annexure_a_ar}'  => $annexureA_Ar,
             '{profit_month_eng}' => $annexureB_Eng,
             '{profit_month_ar}'  => $annexureB_Ar,
         ];
-
-        $html = str_replace(array_keys($placeholders), array_values($placeholders), $html);
-
+        // dump($annexureAMulti);
+        $htmlMulti = str_replace(array_keys($placeholdersMulti), array_values($placeholdersMulti), $htmlMulti);
+        // dd($htmlMulti);
         return [
-            'html'       => $html,
+            'html'       => $htmlMulti,
             'letterHead' => asset('storage/' . $companyData->letter_head_path),
         ];
     }
@@ -198,14 +220,14 @@ class InvestmentContractService
         int $annexureNo,
         float $invProfitPerc,
         float $companyProfitPerc,
-        string $lang
+        // string $lang
     ): string {
         $annexureNoR = toRoman($annexureNo);
         $annexureNoA = toarabicLetterNumber($annexureNo);
-        $isAr = $lang === 'arabic';
+        // $isAr = $lang === 'arabic';
 
-        $annexureLabelEng = "ANNEXURE-A ({$annexureNoR})";
-        $annexureLabelAr  = "الملحق ({$annexureNoA})";
+        $annexureLabelEng = "ANNEXURE-A";
+        $annexureLabelAr  = "الملحق";
 
         $invDateEng = date('d M Y', strtotime($inv->investment_date));
         $invDateAr  = arabicShortDate($inv->investment_date);
@@ -213,7 +235,7 @@ class InvestmentContractService
         $investedAmount = number_format($inv->investment_amount, 2);
         $gracePeriod    = $inv->grace_period;
         $tenureEng      = $inv->profitInterval->profit_interval_name;
-        $tenureAr       = 'tenure_ar'; // replace with actual arabic tenure when available
+        $tenureAr       = profitInterval_ar($inv->profitInterval->profit_interval_name);
 
         $companyNameEng = $companyData->company_name;
         $companyNameAr  = $companyData->company_arabic_name;
@@ -563,7 +585,7 @@ class InvestmentContractService
     /**
      * Original single-investment path — unchanged logic.
      */
-    private function buildMudarabahPayload($documentDetail, $investorData, $investmentData): array
+    private function buildMudarabahPayload($invDocDetails, $documentDetail, $investorData, $investmentData): array
     {
         $companyData = Company::find($investmentData->company_id);
         $html        = $documentDetail->template;
@@ -637,15 +659,15 @@ class InvestmentContractService
             1,
             $InvestorProfitPerc,
             $CompanyProfitPerc,
-            'english'
+            // 'english'
         );
 
 
         $placeholders = [
-            '{mudarabah_created_long_date_eng}'  => date('j \d\a\y \o\f F Y'),
-            '{mudarabah_created_long_date_ar}'   => arabicLongDate(date('Y-m-d')),
-            '{mudarabah_created_short_date_eng}' => date('d M Y'),
-            '{mudarabah_created_short_date_ar}'  => arabicShortDate(date('Y-m-d')),
+            '{mudarabah_created_long_date_eng}'  => date('j \d\a\y \o\f F Y', strtotime($invDocDetails->generated_date)),
+            '{mudarabah_created_long_date_ar}'   => arabicLongDate($invDocDetails->generated_date),
+            '{mudarabah_created_short_date_eng}' => date('d M Y', strtotime($invDocDetails->generated_date)),
+            '{mudarabah_created_short_date_ar}'  => arabicShortDate($invDocDetails->generated_date),
 
             '{investor_name_eng}'        => $investorData->investor_name,
             '{investor_name_ar}'         => $investorData->investor_name_arabic,
@@ -686,8 +708,8 @@ class InvestmentContractService
             '{company_email}'    => $companyData->email,
             '{company_bank_eng}' => $investmentData->companyBank->bank_name,
             '{company_bank_ar}'  => $investmentData->companyBank->bank_arabic_name,
-            '{company_account_no}' => 'company_account_no',
-            '{company_iban}'       => 'company_iban',
+            '{company_account_no}' => $investmentData->companyBank->account_number,
+            '{company_iban}'       => $investmentData->companyBank->iban,
 
             '{annexA}' => $annexureA,
 
@@ -704,5 +726,162 @@ class InvestmentContractService
             'html'       => $html,
             'letterHead' => asset('storage/' . $companyData->letter_head_path),
         ];
+    }
+
+
+    public function sendAddendum($docId, $companyId)
+    {
+        $docDetails = $this->investmentContractDocumentRepository->find($docId);
+
+        $docTypeId     = $docDetails->investor_agreement_type_id;
+        $investor   = $docDetails->investor;
+        $investment   = $docDetails->investment;
+
+        // $investor   = $this->investorRepository->find($investorId);
+        // $investment = $this->investmentRepository->find($investmentId);
+        $documentDetail = $this->InvAgreementRepo->findByType($docTypeId);
+        $company    = Company::findOrFail($companyId);
+
+        $prevAmount = 0;
+        $allInv = Investment::where(['investor_id' => $docDetails->investor_id, 'company_id' => $companyId])->where('id', '!=', $docDetails->investment_id)->get();
+        foreach ($allInv as $key => $inv) {
+            $prevAmount += $inv->investment_amount;
+        }
+
+        $currentTotal = $prevAmount + $investment->investment_amount;
+
+        $investmentDate       = Carbon::parse($investment->investment_date);
+        $mudarabahCreatedDate = Carbon::parse($docDetails->generated_date);
+
+        $html        = $documentDetail->template;
+
+        $vars = [
+            '{investment_long_date_eng}'        => $investmentDate->format('jS \d\a\y \o\f F Y'),
+            '{mudarabah_created_long_date_eng}' => $mudarabahCreatedDate->format('jS \d\a\y \o\f F Y'),
+            '{investment_long_date_ar}'         => arabicLongDate($investmentDate),
+            '{mudarabah_created_long_date_ar}'  => arabicLongDate($mudarabahCreatedDate),
+
+            '{company_name_eng}'  => $company->company_name,
+            '{company_name_ar}'   => $company->company_arabic_name,
+            '{company_license}'   => $company->trade_license_number,
+            '{company_reg}'       => $company->registration_no,
+
+            '{investor_name_eng}' => $investor->investor_name,
+            '{investor_name_ar}'  => $investor->investor_name_arabic,
+            '{id_number}'         => $investor->id_number,
+
+            '{tot_prev_invested_amount}'     => number_format($prevAmount, 2),
+            '{tot_prev_invested_amount_eng}' => numberToEnglishWords($prevAmount),
+            '{tot_prev_invested_amount_ar}'  => numberToArabicWords($prevAmount),
+
+            '{current_invested_amount}'     => number_format($investment->investment_amount, 2),
+            '{current_invested_amount_eng}' => numberToEnglishWords($investment->investment_amount),
+            '{current_invested_amount_ar}'  => numberToArabicWords($investment->investment_amount),
+
+            '{new_total_investment_amount}'     => number_format($currentTotal, 2),
+            '{new_total_investment_amount_eng}' => numberToEnglishWords($currentTotal),
+            '{new_total_investment_amount_ar}'  => numberToArabicWords($currentTotal),
+
+            '{annexA}' => $this->buildAnnexureARows($docDetails->investor_id, $companyId)
+        ];
+
+
+
+        $html = str_replace(array_keys($vars), array_values($vars), $html);
+
+        return [
+            'html'       => $html,
+            'letterHead' => asset('storage/' . $company->letter_head_path),
+        ];
+        // return view('documents.addendum', compact('html', 'annexureRows'));
+    }
+
+
+    private function buildAnnexureARows(int $investorId, int $companyId): string
+    {
+        $rows   = [];
+        $serial = 1;
+        $last_invDate = date('d/m/Y');
+
+        $investments = Investment::where(['investor_id' => $investorId, 'company_id' => $companyId])
+            ->orderBy('investment_date')
+            ->get();
+
+        foreach ($investments as $key => $inv) {
+            $rows[] = [
+                'serial'          => $serial++,
+                'particulars_eng' => $key == 0 ? 'Original Investment' : 'Additional Investment',
+                'particulars_ar'  => $key == 0 ? 'الاستثمار الأصلي'    : 'استثمار إضافي',
+                'amount'          => number_format($inv->investment_amount, 2),
+                'received_on'     => Carbon::parse($inv->investment_date)->format('d/m/Y'),
+                'doc_date'        => Carbon::parse($inv->investment_date)->format('d/m/Y'),
+                'type'            => 'investment',
+            ];
+
+            $last_invDate = Carbon::parse($inv->investment_date)->format('d/m/Y');
+
+
+            // foreach (PartialWithdrawal::where('investment_id', $inv->id)->orderBy('withdrawal_date')->get() as $wd) {
+            //     $rows[] = [
+            //         'serial'          => $serial++,
+            //         'particulars_eng' => 'Partial Withdrawal',
+            //         'particulars_ar'  => 'سحب جزئي',
+            //         'amount'          => '(' . number_format($wd->amount, 2) . ')',
+            //         'received_on'     => Carbon::parse($wd->withdrawal_date)->format('d/m/Y'),
+            //         'doc_date'        => Carbon::parse($wd->document_date ?? $wd->withdrawal_date)->format('d/m/Y'),
+            //         'type'            => 'withdrawal',
+            //     ];
+            // }
+        }
+
+        // Total row
+        $totalInvested  = Investment::where('investor_id', $investorId)->sum('investment_amount');
+        // $totalWithdrawn = PartialWithdrawal::whereIn(
+        //     'investment_id',
+        //     Investment::where('investor_id', $investorId)->pluck('id')
+        // )->sum('amount');
+        $totalWithdrawn = 0;
+
+        $rows[] = [
+            'serial'          => null,
+            'particulars_eng' => 'Total Revised Capital',
+            'particulars_ar'  => 'إجمالي رأس المال المعدّل',
+            'amount'          => number_format($totalInvested - $totalWithdrawn, 2),
+            'received_on'     => $last_invDate,
+            'doc_date'        => '{addedndum_added_date}',
+            'type'            => 'total',
+        ];
+
+        // ── Now build HTML from all collected rows ────────────────────────────
+        $html = '';
+
+        foreach ($rows as $row) {
+            $isTotal    = $row['type'] === 'total';
+            $isWithdraw = $row['type'] === 'withdrawal';
+
+            $rowStyle   = $isTotal    ? 'background:#f0f0f0; font-weight:bold;' : '';
+            $amtStyle   = $isWithdraw ? 'color:#C0392B;' : '';
+            $serial     = $row['serial'] ?? '';
+
+            $html .= "
+                <tr style='{$rowStyle}'>
+                    <td width='50%' style='border:1px solid #ccc;'>
+                        <div class='english'>
+                            <p class='text-sm'>
+                                {$serial} | {$row['particulars_eng']} | <span style='{$amtStyle}'>{$row['amount']}</span> | {$row['received_on']} | {$row['doc_date']}
+                            </p>
+                        </div>
+                    </td>
+                    <td width='50%' style='border:1px solid #ccc;'>
+                        <div class='arabic'>
+                            <p class='text-sm' dir='rtl'>
+                                {$serial} | {$row['particulars_ar']} | <span style='{$amtStyle}'>{$row['amount']}</span> | {$row['received_on']} | {$row['doc_date']}
+                            </p>
+                        </div>
+                    </td>
+                </tr>";
+        }
+
+        return $html;
     }
 }
