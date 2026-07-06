@@ -80,7 +80,7 @@
                                         <tr>
                                             <th>#</th>
                                             <th>Action</th>
-                                            {{-- <th>Investment Code</th> --}}
+                                            <th>Company Name</th>
                                             <th>Investor Name</th>
                                             <th>Status</th>
                                             <th>Contract Type</th>
@@ -161,10 +161,10 @@
                         orderable: false,
                         searchable: false
                     },
-                    // {
-                    //     data: 'investment_code',
-                    //     name: 'investment_code'
-                    // },
+                    {
+                        data: 'company_name',
+                        name: 'company.company_name'
+                    },
 
 
                     {

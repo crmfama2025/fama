@@ -99,7 +99,8 @@ class InvestmentContractDocumentService
                 $row->investedCompany->company_name ?? '-'
             )
             ->addColumn('investor_name', fn($row) => $row->investor->investor_name . " - " . $row->investor->investor_code ?? '-')
-
+            ->addColumn('company_name', fn($row) =>
+            $row->company->company_name ?? '-')
             // ->addColumn('investment_code', fn($row) =>
             // $row->investment->investment_code ?? '-')
             ->addColumn('investor_agreement_type', fn($row) => $row->agreementType->investor_agreement_type)
