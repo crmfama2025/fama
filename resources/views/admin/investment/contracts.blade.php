@@ -80,7 +80,7 @@
                                         <tr>
                                             <th>#</th>
                                             <th>Action</th>
-                                            <th>Investment Code</th>
+                                            {{-- <th>Investment Code</th> --}}
                                             <th>Investor Name</th>
                                             <th>Status</th>
                                             <th>Contract Type</th>
@@ -148,7 +148,7 @@
                     url: "{{ route('investmentContracts.list') }}",
                     data: function(d) {
                         // d.investment_id = "{{ $investment->id ?? '' }}";
-                        d.company_id = $('#companyFilter').val(); // 👈 filter param
+                        // d.company_id = $('#companyFilter').val(); // 👈 filter param
                     }
                 },
                 columns: [{
@@ -161,10 +161,10 @@
                         orderable: false,
                         searchable: false
                     },
-                    {
-                        data: 'investment_code',
-                        name: 'investment_code'
-                    },
+                    // {
+                    //     data: 'investment_code',
+                    //     name: 'investment_code'
+                    // },
 
 
                     {
