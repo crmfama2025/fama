@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\InvestmentContractsExport;
 use App\Services\Investment\InvestmentContractDocumentService;
 use App\Services\Investment\InvestmentService;
 use Illuminate\Http\Request;
 use App\Services\CompanyService;
+use Maatwebsite\Excel\Facades\Excel;
 
 class InvestmentContractsController extends Controller
 {
@@ -64,5 +66,15 @@ class InvestmentContractsController extends Controller
 
         // dd($document);
         return view('admin.investment.investment.document_view', compact('title',  'document'));
+    }
+    public function export()
+    {
+        // $filters = [
+        //     'investor_id' => $request->investorid,
+        //     'company_id' => auth()->user()->company_id,
+        // ];
+        $search = request('search') ?? null;
+
+        return Excel::download(new InvestmentContractsExport($search), 'investment_contracts.xlsx');
     }
 }

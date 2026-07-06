@@ -374,6 +374,7 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
     Route::get('investments/ledger-list/{id}', [InvestmentController::class, 'getLedgerData'])->name('investment.ledgers');
     Route::get('investment_contracts', [InvestmentContractsController::class, 'index'])->name('investmentContracts');
     Route::get('investment_contracts/list', [InvestmentContractsController::class, 'getContracts'])->name('investmentContracts.list');
+    Route::get('investment_contracts/export', [InvestmentContractsController::class, 'export'])->name('investment_contracts.export');
 });
 
 

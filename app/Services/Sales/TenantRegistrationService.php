@@ -1012,15 +1012,18 @@ class TenantRegistrationService
             $b2bFloorsMap = [];
 
             foreach ($property->contracts as $contract) {
+                // @dump('test');
                 // Skip contracts that are not of type 1
                 if ($contract->contract_type_id != 1) continue;
-
+                // @dump('test1');
                 $contractUnit = $contract->contract_unit;
                 if (!$contractUnit) continue;
+                // @dump('test2');
 
                 $details = $contractUnit->contractUnitDetails;
+                // @dump($details);
                 if (!$details || !is_iterable($details)) continue;
-
+                // @dump('test3');
                 $isB2C = $contractUnit->business_type == 2;
                 if ($isB2C) {
                     $floorsMap = &$b2cFloorsMap;

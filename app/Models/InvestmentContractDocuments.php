@@ -56,4 +56,8 @@ class InvestmentContractDocuments extends Model
     {
         return $this->belongsTo(Company::class, 'company_id');
     }
+    public function generatedBy()
+    {
+        return $this->belongsTo(User::class, 'generated_by');
+    }
 }

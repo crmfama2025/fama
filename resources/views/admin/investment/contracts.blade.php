@@ -38,7 +38,7 @@
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-12">
-                        <div class="card">
+                        {{-- <div class="card">
                             <div class="card-header">
                                 <h5 class="mb-0">Filters</h5>
                             </div>
@@ -63,7 +63,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> --}}
                         <div class="card">
                             <div class="card-header">
                                 {{-- <span class="float-right">
@@ -219,7 +219,7 @@
                     title: 'Investments Data',
                     action: function(e, dt, node, config) {
                         let searchValue = dt.search();
-                        let url = "{{ route('investment.export') }}" + "?search=" +
+                        let url = "{{ route('investment_contracts.export') }}" + "?search=" +
                             encodeURIComponent(searchValue);
                         window.location.href = url;
                     }

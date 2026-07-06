@@ -103,14 +103,48 @@ class PropertyRepository
             return $existing;
         }
     }
+    // public function getProperties()
+    // {
+    //     $properties = Property::with([
+    //         'contracts' => function ($q) {
+    //             // $q->where('contract_status', 7);
+    //             $q->whereIn('contract_status', [1, 7])
+    //                 ->where('is_vendor_contract_uploaded', 1);
+    //         },
+    //         'contracts.contract_unit.contractUnitDetails' => function ($q) {
+    //             $q->where('is_vacant', 0)
+    //                 ->orWhereHas('contractSubUnitDetails', function ($subQ) {
+    //                     $subQ->where('is_vacant', 0);
+    //                 })
+    //                 ->with(['contractSubUnitDetails' => function ($subQ) {
+    //                     $subQ->where('is_vacant', 0);
+    //                 }]);
+    //         }
+    //     ])
+    //         ->where('status', 1)
+    //         ->whereHas('contracts', function ($q) {
+    //             $q->whereIn('contract_status', [1, 7])
+    //                 ->where('is_vendor_contract_uploaded', 1)
+    //                 ->where('contract_type_id', 1)
+    //                 ->where('is_agreement_added', 0);
+    //         })
+    //         ->get();
+    //     dd($properties);
+
+    //     return $properties;
+    // }
     public function getProperties()
     {
+        $contractFilter = function ($q) {
+            $q->whereIn('contract_status', [1, 7])
+                ->where('is_vendor_contract_uploaded', 1)
+                ->where('contract_type_id', 1)
+                ->where('is_agreement_added', 0)
+                ->where('parent_contract_id', null); // exclude renewals
+        };
+
         $properties = Property::with([
-            'contracts' => function ($q) {
-                // $q->where('contract_status', 7);
-                $q->whereIn('contract_status', [1, 7])
-                    ->where('is_vendor_contract_uploaded', 1);
-            },
+            'contracts' => $contractFilter,
             'contracts.contract_unit.contractUnitDetails' => function ($q) {
                 $q->where('is_vacant', 0)
                     ->orWhereHas('contractSubUnitDetails', function ($subQ) {
@@ -122,7 +156,10 @@ class PropertyRepository
             }
         ])
             ->where('status', 1)
+            ->whereHas('contracts', $contractFilter)
             ->get();
+
+        // dd($properties);
 
         return $properties;
     }

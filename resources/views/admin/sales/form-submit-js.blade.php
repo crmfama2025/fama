@@ -74,6 +74,9 @@
     // });
     $('#tenancyForm').on('submit', function(e) {
         e.preventDefault();
+        if (!validateAll()) {
+            return;
+        }
 
         const form = document.getElementById('tenancyForm');
         const formData = new FormData(form);
