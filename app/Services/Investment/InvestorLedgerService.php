@@ -6,7 +6,7 @@ use App\Models\Investment;
 use App\Models\InvestmentContractDocuments;
 use App\Models\InvestorAgreementType;
 use App\Models\InvestorLedger;
-use App\Repositories\Investment\investorLedgerRepository;
+use App\Repositories\Investment\InvestorLedgerRepository;
 use App\Services\PdfCompressionService;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
