@@ -52,4 +52,8 @@ class InvestmentContractDocuments extends Model
     {
         return $this->belongsTo(InvestorAgreementType::class, 'investor_agreement_type_id');
     }
+    public function company()
+    {
+        return $this->belongsTo(Company::class, 'company_id');
+    }
 }
