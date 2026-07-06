@@ -82,7 +82,7 @@ class InvestmentContractDocumentService
         $columns = [
             ['data' => 'DT_RowIndex', 'name' => 'id'],
             ['data' => 'company_name', 'name' => 'company.company_name'],
-            ['data' => 'investment_code', 'name' => 'investment.investment_code'],
+            // ['data' => 'investment_code', 'name' => 'investment.investment_code'],
             ['data' => 'investor_name', 'name' => 'investor.investor_name'],
             ['data' => 'investor_agreement_type', 'name' => 'investor_agreement_types.investor_agreement_type'],
             ['data' => 'investor_name', 'name' => 'investor.investor_name'],
@@ -100,8 +100,8 @@ class InvestmentContractDocumentService
             )
             ->addColumn('investor_name', fn($row) => $row->investor->investor_name . " - " . $row->investor->investor_code ?? '-')
 
-            ->addColumn('investment_code', fn($row) =>
-            $row->investment->investment_code ?? '-')
+            // ->addColumn('investment_code', fn($row) =>
+            // $row->investment->investment_code ?? '-')
             ->addColumn('investor_agreement_type', fn($row) => $row->agreementType->investor_agreement_type)
             ->addColumn('investor_agreement_template', fn($row) => 'V' . $row->investor_agreement_template_id)
             ->addColumn('status', function ($row) {
@@ -162,7 +162,7 @@ class InvestmentContractDocumentService
 
                 $action .= '<a href="' . route('legal_template.contractview', [
                     'docId' => $row->id,
-                    'companyId' => $row->investment->company_id,
+                    'companyId' => $row->company_id,
                 ]) . '"
                                     class="btn btn-sm btn-success m-1"
                                     title="View Document">

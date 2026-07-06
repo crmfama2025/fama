@@ -32,17 +32,30 @@ class InvestmentContractDocumentRepository
     {
         $permittedCompanyIds = getUserPermittedCompanyIds(auth()->user()->id, 'investment');
 
-        $query = InvestmentContractDocuments::with('investor', 'investment', 'investment.company', 'agreementType', 'agreementTemplate');
+        // $query = InvestmentContractDocuments::with('investor', 'investment', 'investment.company', 'agreementType', 'agreementTemplate');
+        $query = InvestmentContractDocuments::query();
 
-        $query->whereHas('investment.company', function ($q) use ($permittedCompanyIds) {
-            $q->whereIn('company_id', $permittedCompanyIds);
-        });
+        // Always needed relations
+        $with = ['investor', 'agreementType', 'agreementTemplate', 'company'];
+
+        // Only add investment if filter exists
+        if (!empty($filters['investment_id'])) {
+            $with[] = 'investment';
+            $with[] = 'investment.company';
+        }
+
+        // Apply with
+        $query->with($with);
+
+        // $query->whereHas('investment.company', function ($q) use ($permittedCompanyIds) {
+        //     $q->whereIn('company_id', $permittedCompanyIds);
+        // });
         if (!empty($filters['investment_id'])) {
             $query->where('investment_id', $filters['investment_id']);
         }
         if (!empty($filters['company_id'])) {
             // dump($filters['company_id']);
-            $query->whereHas('investment.company', function ($q) use ($filters) {
+            $query->whereHas('company', function ($q) use ($filters) {
                 $q->where('company_id', $filters['company_id']);
             });
         }
@@ -66,9 +79,9 @@ class InvestmentContractDocumentRepository
                 ->WhereHas('investor', function ($q) use ($filters) {
                     $q->where('investor_name', 'like', '%' . $filters['search'] . '%');
                 })
-                ->orWhereHas('investment', function ($q) use ($filters) {
-                    $q->where('investment_code', 'like', '%' . $filters['search'] . '%');
-                })
+                // ->orWhereHas('investment', function ($q) use ($filters) {
+                //     $q->where('investment_code', 'like', '%' . $filters['search'] . '%');
+                // })
 
                 ->orWhereHas('agreementType', function ($q) use ($filters) {
                     $q->where('investor_agreement_type', 'like', '%' . $filters['search'] . '%');
@@ -76,7 +89,7 @@ class InvestmentContractDocumentRepository
                 ->orWhereHas('agreementTemplate', function ($q) use ($filters) {
                     $q->whereRaw("CONCAT('V', version_no) LIKE ?", ['%' . $filters['search'] . '%']);
                 })
-                ->orWhereHas('investment.company', function ($q) use ($filters) {
+                ->orWhereHas('company', function ($q) use ($filters) {
                     $q->where('company_name', 'like', '%' . $filters['search'] . '%');
                 })
                 ->orWhereRaw("CAST(investment_contract_documents.id AS CHAR) LIKE ?", ['%' . $filters['search'] . '%']);
