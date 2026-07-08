@@ -1,3 +1,10 @@
+<style>
+    /* body {
+        color: #000 !important;
+        background: url('{{ public_path('images/fama-letterhead.png') }}') no-repeat center center;
+        background-size: cover;
+    } */
+</style>
 <table width="88%" height="30" border="0" align="center" cellpadding="5">
     <tr>
         <td height="30" align="left" valign="top" bgcolor="#FFFFFF">
@@ -22,7 +29,7 @@
                 <tr>
                     <td colspan="3" bgcolor="#FFFFFF">
                         <div align="center">
-                            <h5 class="style10"><strong>ACKNOWLEDGEMENT OF PAYMENT</strong></h5>
+                            <h4 class="style10"><strong>ACKNOWLEDGEMENT OF PAYMENT</strong></h4>
                         </div>
                     </td>
                 </tr>
@@ -58,14 +65,16 @@
             <table width="95%" height="83" border="0" align="center" cellpadding="5" style="width:95%;">
                 <tr>
                     <td>
-                        <div align="left" class="mx-5"><strong>We, {{ $contract->vendor->vendor_name }} here by
-                                acknowledge
-                                the receipts of
-                                the below
-                                mentioned cheques ({{ paymentModeCount($contract->contract_payment_details) }}) in
-                                favour against the below
-                                Contract details.
-                            </strong>
+                        <div align="left" class="mx-5">We,<strong>
+                                {{ strtoupper($contract->vendor->vendor_name) }}</strong>
+                            here by
+                            acknowledge
+                            the receipts of
+                            the below
+                            mentioned cheques ({{ paymentModeCount($contract->contract_payment_details) }}) in
+                            favour against the below
+                            Contract details.
+
                         </div>
                     </td>
                 </tr>
@@ -116,10 +125,7 @@
                         </td>
                         <td style="border: solid 1px;">
                             <div align="center">
-                                {{ match ($contract->contract_renewal_status) {
-                                    0 => 'New',
-                                    1 => 'Renewal',
-                                } }}
+                                {{ empty($contract->parent_contract_id) ? 'New' : 'Renewal' }}
                             </div>
                         </td>
                     </tr>
@@ -128,7 +134,9 @@
                             <div align="left" class="mx-1">Renewal Number</div>
                         </td>
                         <td style="border: solid 1px;">
-                            <div align="center">{{ $contract->renewal_count ?? 0 }}</div>
+                            {{-- <div align="center">{{ $contract->renewal_count ?? 0 }}</div> --}}
+                            <div align="center">{{ $contract->parent ? $contract->parent->project_number : '-' }}
+                            </div>
                         </td>
                     </tr>
                     <tr style="border: solid 1px;">
@@ -297,7 +305,9 @@
                         <td style="border: solid 1px;">
                             <div align="center" class="mx-1"><strong>Payment Amount</strong></div>
                         </td>
+
                     </tr>
+
                     @foreach ($contract->contract_payment_details as $payment)
                         <tr style="border: solid 1px;">
                             <td style="border: solid 1px;">
@@ -317,8 +327,19 @@
                                 <div align="center" class="mx-1">{{ formatNumber($payment->payment_amount) }}
                                 </div>
                             </td>
+
                         </tr>
                     @endforeach
+                    <!-- Total Row -->
+                    <tr style="border: solid 1px; font-weight: bold;">
+                        <td colspan="4" style="border: solid 1px;">
+                            <div align="right" class="mx-1">Total</div>
+                        </td>
+                        <td style="border: solid 1px;">
+                            <div align="center" class="mx-1">
+                                {{ $contract->contract_rentals->total_payment_to_vendor }}</div>
+                        </td>
+                    </tr>
                 </table>
             </div>
 
@@ -333,14 +354,14 @@
                 <tr>
 
                     <td>
-                        <div align="left" class="mx-5 mb-5"><strong>
-                                <p>l acknowledge that l have received
-                                    the
-                                    cheques with above details for the contract mentioned.</p>
+                        <div align="left" class="mx-5 mb-5">
+                            <p>l acknowledge that l have received
+                                the
+                                cheques with above details for the contract mentioned.</p>
 
-                                <p>Authorized Signatory with Seal (Recipient):</p>
-                                <p>Name: </p>
-                            </strong>
+                            <p>Authorized Signatory with Seal (Recipient):</p>
+                            <p>Name: </p>
+
                         </div>
                     </td>
                 </tr>

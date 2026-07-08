@@ -5,13 +5,26 @@
     <meta charset="UTF-8">
     <title>Agreement PDF</title>
     <style>
+        /* @media print {
+            body {
+
+                color: #000 !important;
+                background: url('{{ public_path('images/fama-letterhead.png') }}') no-repeat center center;
+                background-size: cover;
+            }
+
+        } */
+
+
         @page {
             margin: 20px 30px;
         }
 
         body {
             font-family: DejaVu Sans, sans-serif;
-            font-size: 12px;
+            font-size: 15px;
+            /* background: url('{{ str_replace('\\', '/', public_path('images/fama-letterhead.png')) }}') no-repeat center center;
+            background-size: cover; */
         }
 
         table {
@@ -63,10 +76,20 @@
             font-size: 10px;
             color: #666;
         }
+
+        .bg-letterhead img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
     </style>
 </head>
 
 <body>
+    {{-- <div class="bg-letterhead">
+        <img src="{{ str_replace('\\', '/', public_path('images/fama-letterhead.png')) }}">
+    </div> --}}
+
     {{-- Same contract tables as your normal view --}}
     @include('admin.projects.contract.includes.acknowledgement_content', ['contract' => $contract])
 
