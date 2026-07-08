@@ -291,6 +291,9 @@
                                                 <th>Unit No</th>
                                                 <th>Floor</th>
                                                 <th>Type</th>
+                                                @if ($agreement->business_type == 2)
+                                                    <th>SubUnit</th>
+                                                @endif
                                                 {{-- <th>Subunits</th> --}}
                                                 <th>Monthly Rent</th>
                                                 <th>Annual Rent</th>
@@ -323,6 +326,9 @@
                                                             <span class="text-muted">-</span>
                                                         @endif
                                                     </td> --}}
+                                                    @if ($agreement->business_type == 2)
+                                                        <td>{{ $unit->contractSubunitDetail->subunit_no ?? '-' }}</td>
+                                                    @endif
                                                     <td>
                                                         @if ($unit->monthly_rent)
                                                             <strong>AED
