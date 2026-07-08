@@ -5,10 +5,11 @@
         background-size: cover;
     }
 </style>
-<table width="88%" height="30" border="0" align="center" cellpadding="5">
+<div style="height: 100px;">&nbsp;</div>
+<table width="88%" border="0" align="center" cellpadding="5" style="margin-top: 50px;">
     <tr>
-        <td height="30" align="left" valign="top" bgcolor="#FFFFFF">
-            <table width="95%" height="30" border="0" align="center" cellpadding="5" style="width:95%;">
+        <td align="left" valign="top">
+            <table width="95%" border="0" align="center" cellpadding="5" style="width:95%;">
                 <tr>
 
                     <td>
@@ -16,7 +17,7 @@
                                 {{ $contract->acknowledgement_released_date }}</strong>
                         </div>
                     </td>
-                    <td height="30">
+                    {{-- <td >
                         @if ($page == 0)
                             <div align="right" class="mx-5"><img width="300" height="100"
                                     src="{{ public_path('images/fama-dark.png') }}" alt="fama-logo"></div>
@@ -24,12 +25,12 @@
                             <div align="right" class="mx-5"><img width="300" height="100"
                                     src="{{ asset('images/fama-dark.png') }}" alt="fama-logo"></div>
                         @endif
-                    </td>
+                    </td> --}}
                 </tr>
                 <tr>
-                    <td colspan="3" bgcolor="#FFFFFF">
+                    <td colspan="3">
                         <div align="center">
-                            <h4 class="style10"><strong>ACKNOWLEDGEMENT OF PAYMENT</strong></h4>
+                            <h3 class="style10"><strong>ACKNOWLEDGEMENT OF PAYMENT</strong></h4>
                         </div>
                     </td>
                 </tr>
@@ -39,10 +40,10 @@
 
 </table>
 
-<table width="88%" height="72" border="0" align="center" cellpadding="5">
+<table width="88%" border="0" align="center" cellpadding="5">
     <tr>
-        <td height="62" align="left" valign="top" bgcolor="#FFFFFF">
-            <table width="95%" height="83" border="0" align="center" cellpadding="5" style="width:95%;">
+        <td align="left" valign="top">
+            <table width="95%" border="0" align="center" cellpadding="5" style="width:95%;">
                 <tr>
 
                     <td>
@@ -59,10 +60,10 @@
     </tr>
 </table>
 
-<table width="88%" height="72" border="0" align="center" cellpadding="5">
+<table width="88%" border="0" align="center" cellpadding="5">
     <tr>
-        <td height="62" align="left" valign="top" bgcolor="#FFFFFF">
-            <table width="95%" height="83" border="0" align="center" cellpadding="5" style="width:95%;">
+        <td align="left" valign="top">
+            <table width="95%" border="0" align="center" cellpadding="5" style="width:95%;">
                 <tr>
                     <td>
                         <div align="left" class="mx-5">We,<strong>
@@ -83,10 +84,10 @@
     </tr>
 </table>
 
-<table width="88%" height="72" border="0" align="center" cellpadding="5">
+<table width="88%" border="0" align="center" cellpadding="5">
 
     <tr>
-        <td height="62" align="left" valign="top" bgcolor="#FFFFFF">
+        <td align="left" valign="top">
             <div class="mx-5">
                 <table width="95%" border="2" align="center" cellpadding="2"
                     style="border-collapse: collapse; width:95%;background-color: #dadaff;border: solid 2px;">
@@ -265,10 +266,10 @@
     </tr>
 </table>
 
-<table width="88%" height="20" border="0" align="center" cellpadding="0">
+<table width="88%" border="0" align="center" cellpadding="0">
     <tr>
-        <td height="20" align="left" valign="top" bgcolor="#FFFFFF">
-            <table width="95%" height="20" border="0" align="center" cellpadding="0" style="width:95%;">
+        <td align="left" valign="top">
+            <table width="95%" border="0" align="center" cellpadding="0" style="width:95%;">
                 <tr>
 
                     <td>
@@ -281,11 +282,11 @@
     </tr>
 </table>
 
-<table width="88%" height="72" border="0" align="center" cellpadding="5">
+<table width="88%" border="0" align="center" cellpadding="5">
 
     <tr>
 
-        <td height="62" align="left" valign="top" bgcolor="#FFFFFF">
+        <td align="left" valign="top">
             <div class="mx-5">
 
                 <table width="95%" border="2" align="center" cellpadding="2" style="width:95%;">
@@ -347,10 +348,10 @@
     </tr>
 </table>
 
-<table width="88%" height="72" border="0" align="center" cellpadding="5">
+<table width="88%" border="0" align="center" cellpadding="5">
     <tr>
-        <td height="62" align="left" valign="top" bgcolor="#FFFFFF">
-            <table width="95%" height="83" border="0" align="center" cellpadding="5" style="width:95%;">
+        <td align="left" valign="top">
+            <table width="95%" border="0" align="center" cellpadding="5" style="width:95%;">
                 <tr>
 
                     <td>

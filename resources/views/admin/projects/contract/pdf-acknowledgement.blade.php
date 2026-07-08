@@ -22,7 +22,7 @@
 
         body {
             font-family: DejaVu Sans, sans-serif;
-            font-size: 15px;
+            font-size: 14px;
             /* background: url('{{ str_replace('\\', '/', public_path('images/fama-letterhead.png')) }}') no-repeat center center;
             background-size: cover; */
         }
@@ -30,13 +30,13 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 10px;
+            margin-bottom: 7px;
         }
 
         th,
         td {
             /* border: 1px solid #000; */
-            padding: 5px;
+            padding: 3px;
             text-align: left;
             vertical-align: top;
         }
@@ -91,7 +91,13 @@
     </div> --}}
 
     {{-- Same contract tables as your normal view --}}
-    @include('admin.projects.contract.includes.acknowledgement_content', ['contract' => $contract])
+    @if ($page == 0)
+        @include('admin.projects.contract.includes.acknowledgement_content_print', [
+            'contract' => $contract,
+        ])
+    @else
+        @include('admin.projects.contract.includes.acknowledgement_content', ['contract' => $contract])
+    @endif
 
 
     <div class="footer">

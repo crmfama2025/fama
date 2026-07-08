@@ -599,7 +599,8 @@ class ContractController extends Controller
         $contract = $this->contractService->getById($id);
         $page = 0;
         $pdf = Pdf::loadView('admin.projects.contract.pdf-acknowledgement', compact('contract', 'page'))
-            ->setPaper([0, 0, 830, 1400]);
+            // ->setPaper([0, 0, 830, 1400]);
+            ->setPaper([0, 0, 930, 1250]);
         return $pdf->stream('contract-' . $contract->id . '.pdf');
     }
 
