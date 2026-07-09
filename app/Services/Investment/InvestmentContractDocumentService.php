@@ -199,8 +199,8 @@ class InvestmentContractDocumentService
         //folder (COMMON for both)
         $folder = 'investments/'
             . $investor->investor_code . '/'
-            . $investment->company->company_name . '/investments/'
-            . $investment->investment_code;
+            . $document->company->company_name . '/investments/'
+            . $document->short_codes;
 
         $pdfService = new PdfCompressionService();
 
@@ -292,6 +292,14 @@ class InvestmentContractDocumentService
     {
         // dump('createInvestorDocument');
         // dump($investorId);
+        $lastMudarabah = InvestmentContractDocuments::where('investor_id', $investorId)
+            ->where('company_id', $companyId)
+            ->where('investor_agreement_type_id', 1) // Mudarabah
+            ->latest('id') // or latest('created_at')
+            ->first();
+
+        $docInsertData['reference_mudarabah_id'] = $lastMudarabah ? $lastMudarabah->id : null;
+
         if ($docInsertData['investment_id'] == 0) {
 
             $this->createAgreement($docInsertData, $companyId, 4); // Novation
@@ -306,44 +314,11 @@ class InvestmentContractDocumentService
             if ($companyInvestmentCount == 1) {
                 $this->createAgreement($docInsertData, $companyId, 1); // Mudarabah
             } elseif ($companyInvestmentCount > 1) {
+
+
                 $this->createAgreement($docInsertData, $companyId, 2); // Addendum
             }
         }
-
-        // if ($docInsertData['investment_id'] == 0) {
-        //     // add Novation and mudarabah
-        //     $novation = $docInsertData;
-        //     $novation['company_id'] = $companyId;
-        //     $novation['investor_agreement_type_id'] = 4;
-        //     $novation['investor_agreement_template_id'] = $this->InvestorAgreementRepository->getActiveIdBytype($novation['investor_agreement_type_id']);
-        //     $this->create($novation);
-
-        //     $mudarabah = $docInsertData;
-        //     $mudarabah['company_id'] = $companyId;
-        //     $mudarabah['investor_agreement_type_id'] = 1;
-        //     $mudarabah['investor_agreement_template_id'] = $this->InvestorAgreementRepository->getActiveIdBytype($mudarabah['investor_agreement_type_id']);
-        //     $this->create($mudarabah);
-        // } else {
-        //     $companyInvestmentCount = Investment::where('investor_id', $investorId)
-        //         ->where('company_id', $companyId)
-        //         ->count();
-        //     // dd($companyInvestmentCount);
-        //     if (
-        //         $companyInvestmentCount == 1
-        //     ) {
-        //         // Mudaraba contract
-        //         $docInsertData['company_id'] = $companyId;
-        //         $docInsertData['investor_agreement_type_id'] = 1;
-        //         $docInsertData['investor_agreement_template_id'] = $this->InvestorAgreementRepository->getActiveIdBytype($docInsertData['investor_agreement_type_id']);
-        //         $this->create($docInsertData);
-        //     } elseif ($companyInvestmentCount > 1) {
-        //         // Addendum contract
-        //         $docInsertData['company_id'] = $companyId;
-        //         $docInsertData['investor_agreement_type_id'] = 2;
-        //         $docInsertData['investor_agreement_template_id'] = $this->InvestorAgreementRepository->getActiveIdBytype($docInsertData['investor_agreement_type_id']);
-        //         $this->create($docInsertData);
-        //     }
-        // }
     }
 
     private function createAgreement(array $data, int $companyId, int $agreementTypeId): void

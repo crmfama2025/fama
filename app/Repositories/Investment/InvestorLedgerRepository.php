@@ -18,6 +18,10 @@ class InvestorLedgerRepository
         return InvestorLedger::findOrFail($id);
     }
 
+    public function getfirstbyCond($condition)
+    {
+        return InvestorLedger::where($condition)->first();
+    }
 
     public function create($data)
     {

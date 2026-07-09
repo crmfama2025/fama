@@ -15,10 +15,10 @@ class InvestorAgreementTypeSeeder extends Seeder
     {
         DB::table('investor_agreement_types')->upsert(
             [
-                ['investor_agreement_type' => "Profit-sharing investment agreement", 'added_by' => 1, 'created_at' => now(), 'updated_at' => now()],
-                ['investor_agreement_type' => "Addendum to mudarabah agreement", 'added_by' => 1, 'created_at' => now(), 'updated_at' => now()],
-                ['investor_agreement_type' => "Partial withdrawal form", 'added_by' => 1, 'created_at' => now(), 'updated_at' => now()],
-                ['investor_agreement_type' => "Novation and restatement agreement", 'added_by' => 1, 'created_at' => now(), 'updated_at' => now()],
+                ['investor_agreement_type' => "Profit-sharing investment agreement", 'short_code' => 'ProfitSharing', 'added_by' => 1, 'created_at' => now(), 'updated_at' => now()],
+                ['investor_agreement_type' => "Addendum to mudarabah agreement", 'short_code' => 'Addendum', 'added_by' => 1, 'created_at' => now(), 'updated_at' => now()],
+                ['investor_agreement_type' => "Partial withdrawal form", 'short_code' => 'PartialWithdrawal', 'added_by' => 1, 'created_at' => now(), 'updated_at' => now()],
+                ['investor_agreement_type' => "Novation and restatement agreement", 'short_code' => 'Novation', 'added_by' => 1, 'created_at' => now(), 'updated_at' => now()],
             ],
             ['investor_agreement_type'],
             ['updated_at']

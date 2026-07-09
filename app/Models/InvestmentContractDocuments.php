@@ -18,6 +18,8 @@ class InvestmentContractDocuments extends Model
         'company_id',
         'investor_agreement_template_id',
         'investor_agreement_type_id',
+        'applied_investments',
+        'reference_mudarabah_id',
         'is_investor_signed',
         'investor_signed_at',
         'is_company_signed',
@@ -52,6 +54,12 @@ class InvestmentContractDocuments extends Model
     {
         return $this->belongsTo(InvestorAgreementType::class, 'investor_agreement_type_id');
     }
+
+    public function mudarabahReference()
+    {
+        return $this->belongsTo(InvestmentContractDocuments::class, 'reference_mudarabah_id', 'id');
+    }
+
     public function company()
     {
         return $this->belongsTo(Company::class, 'company_id');

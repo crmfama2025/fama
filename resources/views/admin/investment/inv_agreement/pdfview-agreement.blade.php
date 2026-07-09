@@ -105,7 +105,11 @@
 
             p {
                 margin: 4px;
-                margin-bottom: 1rem;
+            }
+
+            .marginClass {
+                margin: 4px !important;
+                margin-bottom: 1rem !important;
             }
 
             /* ── SIGNATURE STAMP ── */
@@ -380,229 +384,201 @@
                 {{-- Pages are injected here by JS --}}
                 <div id="file-print-area"></div>
 
-                <table id="all-rows-source" width="100%" border="0" cellpadding="0" cellspacing="0"
-                    style="width:100%; border-collapse:collapse; font-family: DejaVu Sans, Arial, sans-serif;">
+                <table id="all-rows-source" style="display:none; width:100%; border-collapse:collapse;" border="0"
+                    cellpadding="0" cellspacing="0">
 
-                    <!-- Title -->
+
                     <tr data-row>
-                        <td align="center" style="padding:0 0 20px 0;">
-                            <p
-                                style="
-                                    margin:0;
-                                    font-size:18px;
-                                    font-weight:bold;
-                                    text-decoration:underline;
-                                    text-align:center;
-                                    line-height:1.5;
-                                ">
-                                NOVATION AND RESTATEMENT AGREEMENT
+                        <td colspan="2" align="center">
+                            <p class="text-lg">
+                                PARTIAL WITHDRAWAL FORM / نموذج السحب الجزئي
                             </p>
                         </td>
                     </tr>
 
-                    <!-- Date -->
-                    <tr data-row>
-                        <td style="padding-bottom:15px;">
-                            <p
-                                style="
-                                    margin:0;
-                                    font-size:11px;
-                                    line-height:1.8;
-                                    text-align:justify;
-                                ">
-                                This Agreement is made on this 13 day of June 2026 between:
-                            </p>
 
-                            <p
-                                style="
-                                    margin:0;
-                                    font-size:11px;
-                                    line-height:1.8;
-                                    text-align:justify;
-                                ">
-                                <strong>{company_name}</strong>, a company duly incorporated and existing
-                                under the laws of the United Arab Emirates, having license number
-                                {company_licence_no} and registration number
-                                {company_reg_no}, hereinafter referred to as the
-                                "<strong>Company</strong>" or "<strong>Mudarib</strong>".
-                            </p>
-
-                            <p>AND</p>
-
-                            <p
-                                style="
-                                    margin:0;
-                                    font-size:11px;
-                                    line-height:1.8;
-                                    text-align:justify;
-                                ">
-                                <strong>{investor_name}</strong>, holder of Emirates ID / Passport No.
-                                <strong>{investor_id_no}</strong>, hereinafter referred to as the
-                                <strong>“Investor”</strong> or <strong>“Rabb-ul-Maal”</strong>.
-                            </p>
-
-
-                            <p><strong>1. Background</strong></p>
-
-                            <p
-                                style="
-                                    margin:0;
-                                    font-size:11px;
-                                    line-height:1.8;
-                                    text-align:justify;
-                                ">
-                                1.1 The Investor has an existing aggregate investment of AED {total_invested_amount}/-
-                                ({total_invested_eng}) with the Company under the earlier Mudarabah / Profit-Sharing
-                                Investment Agreement(s), together with any addendum(s), partial withdrawal form(s), or
-                                other related documents executed between the Parties from time to time (“Old Investment
-                                Agreement”).
-                            </p>
-                            <p
-                                style="
-                                    margin:0;
-                                    font-size:11px;
-                                    line-height:1.8;
-                                    text-align:justify;
-                                ">
-                                1.2 The Parties now wish to replace and restate the Old Investment Agreement under the
-                                revised Profit-sharing Investment Agreement executed on or about the date of this
-                                Agreement (“New Investment Agreement”).
-
-                            </p>
-
-                            <p><strong>2. Novation and Restatement</strong></p>
-                            <p
-                                style="
-                                    margin:0;
-                                    font-size:11px;
-                                    line-height:1.8;
-                                    text-align:justify;
-                                ">
-                                2.1 With effect from the date of this Agreement, the Old Investment Agreement shall
-                                stand
-                                replaced and restated by the New Investment Agreement.</p>
-                            <p
-                                style="
-                                    margin:0;
-                                    font-size:11px;
-                                    line-height:1.8;
-                                    text-align:justify;
-                                ">
-                                2.2 The Investor’s existing aggregate investment of AED 32,000/-
-                                ({total_invested_amount}
-                                {total_invested_eng}) shall be treated as the Capital under the New Investment Agreement
-                                from
-                                the
-                                Effective Date.</p>
-                            <p
-                                style="
-                                    margin:0;
-                                    font-size:11px;
-                                    line-height:1.8;
-                                    text-align:justify;
-                                ">
-                                2.3 No fresh transfer of funds shall be required in respect of the above Capital, unless
-                                the
-                                Investor separately contributes additional capital in future.
-                            </p>
-
-                            <p><strong>3. Continuity and Effect</strong></p>
-                            <p
-                                style="
-                                    margin:0;
-                                    font-size:11px;
-                                    line-height:1.8;
-                                    text-align:justify;
-                                ">
-                                3.1 From the Effective Date, the Investor’s Capital and relationship with the Company
-                                shall be governed by the New Profit-sharing Investment Agreement.</p>
-                            <p
-                                style="
-                                    margin:0;
-                                    font-size:11px;
-                                    line-height:1.8;
-                                    text-align:justify;
-                                ">
-                                3.2 Except for accrued rights and obligations intended to survive by their nature, the
-                                Old Investment Agreement shall cease to govern the investment relationship between the
-                                Parties from the Effective Date.</p>
-                            <p
-                                style="
-                                    margin:0;
-                                    font-size:11px;
-                                    line-height:1.8;
-                                    text-align:justify;
-                                ">
-                                3.3 Any profit, payment, adjustment, deduction, reconciliation, or liability accrued
-                                prior to the Effective Date shall remain valid and may be adjusted or reconciled by the
-                                Company in accordance with the Old Investment Agreement and/or New Investment Agreement,
-                                as applicable.
-                            </p>
-
-                            <p><strong>4. Investor Confirmation</strong></p>
-                            <p
-                                style="
-                                    margin:0;
-                                    font-size:11px;
-                                    line-height:1.8;
-                                    text-align:justify;
-                                ">
-                                4.1 The Investor confirms that he/she has read, understood, and voluntarily agreed to
-                                the terms of New Profit-sharing Investment Agreement.</p>
-
-                            <p><strong>5. Governing Law</strong></p>
-                            <p
-                                style="
-                                    margin:0;
-                                    font-size:11px;
-                                    line-height:1.8;
-                                    text-align:justify;
-                                ">
-                                5.1 This Agreement shall be governed by and construed in accordance with the laws
-                                applicable in the Emirate of Dubai and the federal laws of the United Arab Emirates.</p>
-
-                            <p><strong>6. Counterparts and Electronic Signature</strong></p>
-                            <p
-                                style="
-                                    margin:0;
-                                    font-size:11px;
-                                    line-height:1.8;
-                                    text-align:justify;
-                                ">
-                                6.1 This Agreement may be executed in counterparts and by electronic or scanned
-                                signatures, each of which shall be deemed an original.</p>
-
-                            <p
-                                style="
-                                    margin:0;
-                                    font-size:11px;
-                                    line-height:1.8;
-                                    text-align:justify;
-                                ">
-                                IN WITNESS WHEREOF, the Parties hereto have executed this Agreement on the date first
-                                written above.</p>
-                        </td>
-                    </tr>
-
-                    <tr data-row>
-                        <td width="50%">
-                            <div class="english">
-                                <p class="text-sm"> Signature:
-                                    For
-                                </p>
-
-                                <p class="text-sm"> {company_name}</p>
-
-                                <p class="text-sm"> Authorized Signatory: </p><br>
-                                <p class="text-sm"> Date: {novation_created_date}</p>
+                    <tr data-row style="background-color:#F2F2F2">
+                        <td width="50%" height="30" style="border:1px solid #ccc;">
+                            <div class="english text-md" style="margin-top:6px;">PARTIAL WITHDRAWAL FORM
                             </div>
                         </td>
-                        <td width="50%">
+                        <td width="50%" height="30" style="border:1px solid #ccc;">
+                            <div class="arabic text-md" style="margin-top:6px;">نموذج السحب الجزئي
+                            </div>
+                        </td>
+                    </tr>
+
+
+                    <tr data-row>
+                        <td width="50%" style="border:1px solid #ccc;">
                             <div class="english">
-                                <p class="text-sm">Investor (Guardian):</p>
-                                <p class="text-sm">{investor_name}</p>
-                                <p class="text-sm"> Signature: </p><br>
-                                <p class="text-sm">Date: {novation_created_date}</p>
+                                <p class="text-sm">Date: {doc_created_date}<br>
+                                    Investor Name: {investor_name_eng}<br>
+                                    Emirates ID / Passport No.: {investor_id}
+                                </p>
+                            </div>
+                        </td>
+                        <td width="50%" style="border:1px solid #ccc;">
+                            <div class="arabic">
+                                <p class="text-sm">
+                                    التاريخ: {doc_created_date}<br>
+                                    اسم المستثمر: {investor_name_ar}<br>
+                                    رقم الهوية الإماراتية / جواز السفر: {investor_id}
+
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr data-row>
+                        <td width="50%" style="border:1px solid #ccc;">
+                            <div class="english">
+                                <p class="text-sm">1. This Partial Withdrawal Form is executed in relation to the
+                                    Mudarabah Investment Agreement dated {mudarabah_created_date} entered into between
+                                    {company_name_eng} (“Company”) and the undersigned Investor, together with
+                                    addendum(s),
+                                    if any.</p>
+                            </div>
+                        </td>
+                        <td width="50%" style="border:1px solid #ccc;">
+                            <div class="arabic">
+                                <p class="text-sm"><span>1 </span>. تم توقيع نموذج السحب الجزئي هذا فيما يتعلق باتفاقية
+                                    استثمار
+                                    المضاربة المؤرخة في {mudarabah_created_date} والمبرمة بين شركة {company_name_ar}
+                                    («الشركة») والمستثمر الموقّع أدناه، مع الملحق أو الملاحق، إن وجدت.</p>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr data-row>
+                        <td width="50%" style="border:1px solid #ccc;">
+                            <div class="english">
+                                <p class="text-sm">2. The Investor has requested, and the Company has agreed, to permit
+                                    partial withdrawal of AED /- {withdrwal_amount} ({withdrwal_amount_eng}) from the
+                                    Investor’s aggregate investment with the Company.</p>
+                            </div>
+                        </td>
+                        <td width="50%" style="border:1px solid #ccc;">
+                            <div class="arabic">
+                                <p class="text-sm"><span>2 </span>.طلب المستثمر، ووافقت الشركة، السماح بسحب جزئي بمبلغ
+                                    {withdrwal_amount}/- درهم إماراتي ({withdrwal_amount_ar}) من إجمالي استثمار المستثمر
+                                    لدى الشركة.</p>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr data-row>
+                        <td width="50%" style="border:1px solid #ccc;">
+                            <div class="english">
+                                <p class="text-sm">3. Accordingly, upon payment of the above amount, the Investor’s
+                                    aggregate investment with the Company shall stand revised as follows:</p>
+                            </div>
+                        </td>
+                        <td width="50%" style="border:1px solid #ccc;">
+                            <div class="arabic">
+                                <p class="text-sm"><span>3 </span>.وبناءً عليه، عند دفع المبلغ المذكور أعلاه، يُعد
+                                    إجمالي استثمار المستثمر لدى الشركة معدلاً على النحو الآتي:</p>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr data-row style="background-color:#F2F2F2">
+                        <td width="50%" height="20" style="border:1px solid #ccc;">
+                            <div class="english text-md">Revised Investment Statement</div>
+                        </td>
+                        <td width="50%" height="20" style="border:1px solid #ccc;">
+                            <div class="arabic text-md">بيان الاستثمار المعدّل</div>
+                        </td>
+                    </tr>
+
+                    <tr data-row>
+                        <td width="50%" style="border:1px solid #ccc;">
+                            <div class="english">
+                                <p class="text-sm">S. No. | Particulars | Amount (AED) | Received/Paid on | Date of
+                                    Document<br>
+                                    1 | Original Investment | __________ | ______ | ______<br>
+                                    2 | Partial Withdrawal | ___________ | ______ | ______<br>
+                                    3 | Additional Investment | __________ | ______ | ______<br>
+                                    4 | Additional Investment | __________ | ______ | ______<br>
+                                    5 | Total Revised Capital | ___________ | ______ | ______
+                                </p>
+                            </div>
+                        </td>
+                        <td width="50%" style="border:1px solid #ccc;">
+                            <div class="arabic">
+                                <p class="text-sm">
+                                    الرقم التسلسلي | البيان | المبلغ (درهم إماراتي) | تاريخ الاستلام/الدفع | تاريخ
+                                    المستند<br>
+                                    1 | الاستثمار الأصلي | __________ | ______ | ______<br>
+                                    2 | سحب جزئي | ___________ | ______ | ______<br>
+                                    3 | استثمار إضافي | __________ | ______ | ______<br>
+                                    4 | استثمار إضافي | __________ | ______ | ______<br>
+                                    5 | إجمالي رأس المال المعدّل | ___________ | ______ | ______
+
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr data-row>
+                        <td width="50%" style="border:1px solid #ccc;">
+                            <div class="english">
+                                <p class="text-sm">4. Except to the extent of the above partial withdrawal, all terms
+                                    and conditions of the Mudarabah Investment Agreement and addendum(s), if any, shall
+                                    continue to remain valid and binding.</p>
+                            </div>
+                        </td>
+                        <td width="50%" style="border:1px solid #ccc;">
+                            <div class="arabic">
+                                <p class="text-sm"><span>4 </span>.باستثناء نطاق السحب الجزئي المذكور أعلاه، تستمر جميع
+                                    شروط وأحكام اتفاقية استثمار المضاربة والملحق أو الملاحق، إن وجدت، صحيحة وملزمة.</p>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr data-row style="background-color:#F2F2F2">
+                        <td width="50%" height="20" style="border:1px solid #ccc;">
+                            <div class="english text-md">Signatures</div>
+                        </td>
+                        <td width="50%" height="20" style="border:1px solid #ccc;">
+                            <div class="arabic text-md">التوقيعات</div>
+                        </td>
+                    </tr>
+
+                    <tr data-row>
+                        <td width="50%" style="border:1px solid #ccc;">
+                            <div class="english">
+                                <p class="text-sm">For {company_name_eng}<br>
+                                    Authorized Signatory: ______________________<br>
+                                    Date: __________________
+                                </p>
+                            </div>
+                        </td>
+                        <td width="50%" style="border:1px solid #ccc;">
+                            <div class="arabic">
+                                <p class="text-sm">عن شركة {company_name_ar}<br>
+                                    المفوّض بالتوقيع: ______________________<br>
+                                    التاريخ: __________________
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr data-row>
+                        <td width="50%" style="border:1px solid #ccc;">
+                            <div class="english">
+                                <p class="text-sm">Investor {investor_name_eng}<br>
+                                    Signature: ______________________<br>
+                                    Date: ______________________
+                                </p>
+                            </div>
+                        </td>
+                        <td width="50%" style="border:1px solid #ccc;">
+                            <div class="arabic">
+                                <p class="text-sm">المستثمر {investor_name_ar}<br>
+                                    التوقيع: ______________________<br>
+                                    التاريخ: ______________________
+                                </p>
                             </div>
                         </td>
                     </tr>
@@ -631,7 +607,7 @@
     <div class="sig-modal-overlay" id="sigModalOverlay">
         <div class="sig-modal">
             <h5>✍️ Investor Signature</h5>
-            <p style="font-size:11px;color:#888;margin:-8px 0 14px;">
+            <p class="marginClass" style="font-size:11px;color:#888;margin:-8px 0 14px;">
                 Your signature will appear on every page of this agreement.
             </p>
 
@@ -644,7 +620,7 @@
             <!-- Draw Panel -->
             <div class="sig-panel active" id="sig-panel-draw">
                 <canvas id="sig-canvas" width="420" height="160"></canvas>
-                <p class="sig-canvas-hint">Draw your signature above using mouse or touch</p>
+                <p class="marginClass" class="sig-canvas-hint">Draw your signature above using mouse or touch</p>
             </div>
 
             <!-- Upload Panel -->
@@ -652,14 +628,16 @@
                 <div class="sig-upload-area" id="sigUploadArea"
                     onclick="document.getElementById('sigFileInput').click()">
                     <div style="font-size:28px;">📂</div>
-                    <p style="margin:6px 0 2px;font-size:13px;font-weight:600;">Click to upload signature image</p>
-                    <p style="font-size:11px;color:#aaa;">PNG, JPG — transparent background recommended</p>
+                    <p class="marginClass" style="margin:6px 0 2px;font-size:13px;font-weight:600;">Click to upload
+                        signature image</p>
+                    <p class="marginClass" style="font-size:11px;color:#aaa;">PNG, JPG — transparent background
+                        recommended</p>
                     <input type="file" id="sigFileInput" accept="image/*">
                 </div>
                 <div class="sig-upload-preview" id="sigUploadPreview">
                     <img id="sigUploadImg" src="" alt="Signature preview">
-                    <p style="font-size:11px;color:#888;margin-top:4px;">Preview — <a href="#"
-                            id="sigChangeFile" style="color:#007bff;">change file</a></p>
+                    <p class="marginClass" style="font-size:11px;color:#888;margin-top:4px;">Preview — <a
+                            href="#" id="sigChangeFile" style="color:#007bff;">change file</a></p>
                 </div>
             </div>
 

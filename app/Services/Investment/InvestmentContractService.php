@@ -7,6 +7,7 @@ use App\Models\Investment;
 use App\Repositories\Investment\InvestmentContractDocumentRepository;
 use App\Repositories\Investment\InvestmentRepository;
 use App\Repositories\Investment\InvestorAgreementRepository;
+use App\Repositories\Investment\InvestorLedgerRepository;
 use App\Repositories\Investment\InvestorRepository;
 use Carbon\Carbon;
 
@@ -17,6 +18,7 @@ class InvestmentContractService
         protected InvestorRepository $investorRepository,
         protected InvestorAgreementRepository $InvAgreementRepo,
         protected InvestmentContractDocumentRepository $investmentContractDocumentRepository,
+        protected InvestorLedgerRepository $ledgerRepository
     ) {}
 
     public function sendContractDocument($docId, $companyId)
@@ -30,6 +32,10 @@ class InvestmentContractService
             return $this->sendMudarabah($docId, $companyId);
         } elseif ($docTypeId == 2) {
             return $this->sendAddendum($docId, $companyId);
+        } elseif ($docTypeId == 3) {
+            return $this->sendPartWithdrawal($docId, $companyId);
+        } elseif ($docTypeId == 4) {
+            return $this->sendNovation($docId, $companyId);
         }
     }
 
@@ -46,7 +52,7 @@ class InvestmentContractService
 
         if ($investmentId == 0) {
             $investments = $this->investmentRepository->getAllByCondition([
-                'investor_id'       => $$invDocDetails->investor_id,
+                'investor_id'       => $invDocDetails->investor_id,
                 'investment_status' => 1,
                 'company_id' => $companyId,
             ]);
@@ -178,8 +184,8 @@ class InvestmentContractService
 
             '{company_bank_eng}' => $firstInv->companyBank->bank_name,
             '{company_bank_ar}' => $firstInv->companyBank->bank_arabic_name,
-            '{company_account_no}' => 'company_account_no',
-            '{company_iban}' => 'company_iban',
+            '{company_account_no}' => $firstInv->companyBank->account_number,
+            '{company_iban}'       => $firstInv->companyBank->iban,
 
             // profit
             '{inv_profit_perc}' => $InvestorProfitPerc,
@@ -249,12 +255,12 @@ class InvestmentContractService
                         <tr style='background-color:#F2F2F2'>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='english'>
-                                    <p class='text-md' style='font-weight:700 !important;'>{$annexureLabelEng}</p>
+                                    <p class='marginClass text-md' style='font-weight:700 !important;'>{$annexureLabelEng} ({$annexureNoR})</p>
                                 </div>
                             </td>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='arabic'>
-                                    <p class='text-md' style='font-weight:700 !important;'>{$annexureLabelAr}</p>
+                                    <p class='marginClass text-md' style='font-weight:700 !important;'>{$annexureLabelAr} ({$annexureNoA})</p>
                                 </div>
                             </td>
                         </tr>
@@ -264,12 +270,12 @@ class InvestmentContractService
                         <tr>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='english'>
-                                    <p class='text-sm'>Investment Date: {$invDateEng}</p>
+                                    <p class='marginClass text-sm'>Investment Date: {$invDateEng}</p>
                                 </div>
                             </td>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='arabic'>
-                                    <p class='text-sm'>تاريخ الاستثمار: {$invDateAr}</p>
+                                    <p class='marginClass text-sm'>تاريخ الاستثمار: {$invDateAr}</p>
                                 </div>
                             </td>
                         </tr>
@@ -277,12 +283,12 @@ class InvestmentContractService
                         <tr>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='english'>
-                                    <p class='text-sm'>Investment Amount: {$investedAmount}/- AED</p>
+                                    <p class='marginClass text-sm'>Investment Amount: {$investedAmount}/- AED</p>
                                 </div>
                             </td>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='arabic'>
-                                    <p class='text-sm'>مبلغ الاستثمار: {$investedAmount}/- درهم إماراتي</p>
+                                    <p class='marginClass text-sm'>مبلغ الاستثمار: {$investedAmount}/- درهم إماراتي</p>
                                 </div>
                             </td>
                         </tr>
@@ -290,12 +296,12 @@ class InvestmentContractService
                         <tr>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='english'>
-                                    <p class='text-sm'>Investor Name: {$investorData->investor_name}</p>
+                                    <p class='marginClass text-sm'>Investor Name: {$investorData->investor_name}</p>
                                 </div>
                             </td>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='arabic'>
-                                    <p class='text-sm'>اسم المستثمر: {$investorData->investor_name_arabic}</p>
+                                    <p class='marginClass text-sm'>اسم المستثمر: {$investorData->investor_name_arabic}</p>
                                 </div>
                             </td>
                         </tr>
@@ -303,12 +309,12 @@ class InvestmentContractService
                         <tr>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='english'>
-                                    <p class='text-sm'>Mobile No: {$investorData->investor_mobile}</p>
+                                    <p class='marginClass text-sm'>Mobile No: {$investorData->investor_mobile}</p>
                                 </div>
                             </td>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='arabic'>
-                                    <p class='text-sm'>رقم الهاتف المتحرك: {$investorData->investor_mobile}</p>
+                                    <p class='marginClass text-sm'>رقم الهاتف المتحرك: {$investorData->investor_mobile}</p>
                                 </div>
                             </td>
                         </tr>
@@ -316,12 +322,12 @@ class InvestmentContractService
                         <tr>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='english'>
-                                    <p class='text-sm'>Email ID: {$investorData->investor_email}</p>
+                                    <p class='marginClass text-sm'>Email ID: {$investorData->investor_email}</p>
                                 </div>
                             </td>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='arabic'>
-                                    <p class='text-sm'>البريد الإلكتروني: {$investorData->investor_email}</p>
+                                    <p class='marginClass text-sm'>البريد الإلكتروني: {$investorData->investor_email}</p>
                                 </div>
                             </td>
                         </tr>
@@ -329,12 +335,12 @@ class InvestmentContractService
                         <tr>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='english'>
-                                    <p class='text-sm'>Address: {$investorData->investor_address}</p>
+                                    <p class='marginClass text-sm'>Address: {$investorData->investor_address}</p>
                                 </div>
                             </td>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='arabic'>
-                                    <p class='text-sm'>العنوان: {$investorData->investor_address}</p>
+                                    <p class='marginClass text-sm'>العنوان: {$investorData->investor_address}</p>
                                 </div>
                             </td>
                         </tr>
@@ -342,12 +348,12 @@ class InvestmentContractService
                         <tr>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='english'>
-                                    <p class='text-sm'>Investor ID/ Passport: {$investorData->id_number}</p>
+                                    <p class='marginClass text-sm'>Investor ID/ Passport: {$investorData->id_number}</p>
                                 </div>
                             </td>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='arabic'>
-                                    <p class='text-sm'>هوية المستثمر/جواز السفر: {$investorData->id_number}</p>
+                                    <p class='marginClass text-sm'>هوية المستثمر/جواز السفر: {$investorData->id_number}</p>
                                 </div>
                             </td>
                         </tr>
@@ -355,12 +361,12 @@ class InvestmentContractService
                         <tr>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='english'>
-                                    <p class='text-sm'>Nationality: {$investorData->nationality->nationality_name}</p>
+                                    <p class='marginClass text-sm'>Nationality: {$investorData->nationality->nationality_name}</p>
                                 </div>
                             </td>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='arabic'>
-                                    <p class='text-sm'>الجنسية: {$investorData->nationality->nationality_arabic_name}</p>
+                                    <p class='marginClass text-sm'>الجنسية: {$investorData->nationality->nationality_arabic_name}</p>
                                 </div>
                             </td>
                         </tr>
@@ -368,12 +374,12 @@ class InvestmentContractService
                         <tr>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='english'>
-                                    <p class='text-sm'>Country of Residence: {$investorData->countryOfResidence->nationality_name}</p>
+                                    <p class='marginClass text-sm'>Country of Residence: {$investorData->countryOfResidence->nationality_name}</p>
                                 </div>
                             </td>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='arabic'>
-                                    <p class='text-sm'>بلد الإقامة: {$investorData->countryOfResidence->nationality_arabic_name}</p>
+                                    <p class='marginClass text-sm'>بلد الإقامة: {$investorData->countryOfResidence->nationality_arabic_name}</p>
                                 </div>
                             </td>
                         </tr>
@@ -381,12 +387,12 @@ class InvestmentContractService
                         <tr>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='english'>
-                                    <p class='text-sm'>Passport No: {$investorData->passport_number}</p>
+                                    <p class='marginClass text-sm'>Passport No: {$investorData->passport_number}</p>
                                 </div>
                             </td>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='arabic'>
-                                    <p class='text-sm'>رقم جواز السفر: {$investorData->passport_number}</p>
+                                    <p class='marginClass text-sm'>رقم جواز السفر: {$investorData->passport_number}</p>
                                 </div>
                             </td>
                         </tr>
@@ -394,12 +400,12 @@ class InvestmentContractService
                         <tr>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='english'>
-                                    <p class='text-sm'>Grace Period (Days): {$gracePeriod}</p>
+                                    <p class='marginClass text-sm'>Grace Period (Days): {$gracePeriod}</p>
                                 </div>
                             </td>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='arabic'>
-                                    <p class='text-sm'>فترة السماح (بالأيام): {$gracePeriod} يوم</p>
+                                    <p class='marginClass text-sm'>فترة السماح (بالأيام): {$gracePeriod} يوم</p>
                                 </div>
                             </td>
                         </tr>
@@ -407,12 +413,12 @@ class InvestmentContractService
                         <tr>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='english'>
-                                    <p class='text-sm'>Profit Sharing Ratio: Investor {$invProfitPerc}% and Company {$companyProfitPerc}%</p>
+                                    <p class='marginClass text-sm'>Profit Sharing Ratio: Investor {$invProfitPerc}% and Company {$companyProfitPerc}%</p>
                                 </div>
                             </td>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='arabic'>
-                                    <p class='text-sm'>نسبة توزيع الربح: المستثمر {$invProfitPerc}% و الشركة {$companyProfitPerc}%</p>
+                                    <p class='marginClass text-sm'>نسبة توزيع الربح: المستثمر {$invProfitPerc}% و الشركة {$companyProfitPerc}%</p>
                                 </div>
                             </td>
                         </tr>
@@ -420,12 +426,12 @@ class InvestmentContractService
                         <tr>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='english'>
-                                    <p class='text-sm'>Mode of Payment: {$investorData->paymentMode->payment_mode_name}</p>
+                                    <p class='marginClass text-sm'>Mode of Payment: {$investorData->paymentMode->payment_mode_name}</p>
                                 </div>
                             </td>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='arabic'>
-                                    <p class='text-sm'>طريقة الدفع: {$investorData->paymentMode->payment_mode_arabic_name}</p>
+                                    <p class='marginClass text-sm'>طريقة الدفع: {$investorData->paymentMode->payment_mode_arabic_name}</p>
                                 </div>
                             </td>
                         </tr>
@@ -433,12 +439,12 @@ class InvestmentContractService
                         <tr>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='english'>
-                                    <p class='text-sm'>Tenure of Profit: {$tenureEng}</p>
+                                    <p class='marginClass text-sm'>Tenure of Profit: {$tenureEng}</p>
                                 </div>
                             </td>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='arabic'>
-                                    <p class='text-sm'>مدة الربح: {$tenureAr}</p>
+                                    <p class='marginClass text-sm'>مدة الربح: {$tenureAr}</p>
                                 </div>
                             </td>
                         </tr>
@@ -446,12 +452,12 @@ class InvestmentContractService
                         <tr>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='english'>
-                                    <p class='text-sm'>Beneficiary Name: {$investorData->investorBanks[0]->investor_beneficiary}</p>
+                                    <p class='marginClass text-sm'>Beneficiary Name: {$investorData->investorBanks[0]->investor_beneficiary}</p>
                                 </div>
                             </td>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='arabic'>
-                                    <p class='text-sm'>اسم المستفيد: {$investorData->investorBanks[0]->investor_beneficiary_arabic}</p>
+                                    <p class='marginClass text-sm'>اسم المستفيد: {$investorData->investorBanks[0]->investor_beneficiary_arabic}</p>
                                 </div>
                             </td>
                         </tr>
@@ -459,12 +465,12 @@ class InvestmentContractService
                         <tr>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='english'>
-                                    <p class='text-sm'>Beneficiary Bank Name: {$investorData->investorBanks[0]->investor_bank_name}</p>
+                                    <p class='marginClass text-sm'>Beneficiary Bank Name: {$investorData->investorBanks[0]->investor_bank_name}</p>
                                 </div>
                             </td>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='arabic'>
-                                    <p class='text-sm'>البنك المستفيد: {$investorData->investorBanks[0]->investor_bank_name_arabic}</p>
+                                    <p class='marginClass text-sm'>البنك المستفيد: {$investorData->investorBanks[0]->investor_bank_name_arabic}</p>
                                 </div>
                             </td>
                         </tr>
@@ -472,12 +478,12 @@ class InvestmentContractService
                         <tr>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='english'>
-                                    <p class='text-sm'>Beneficiary IBAN: {$investorData->investorBanks[0]->investor_iban}</p>
+                                    <p class='marginClass text-sm'>Beneficiary IBAN: {$investorData->investorBanks[0]->investor_iban}</p>
                                 </div>
                             </td>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='arabic'>
-                                    <p class='text-sm'>رقم آيبان الخاص بالمستفيد: {$investorData->investorBanks[0]->investor_iban}</p>
+                                    <p class='marginClass text-sm'>رقم آيبان الخاص بالمستفيد: {$investorData->investorBanks[0]->investor_iban}</p>
                                 </div>
                             </td>
                         </tr>
@@ -558,20 +564,20 @@ class InvestmentContractService
             $rowsEng .= "
             <tr>
                 <td width='50%' style='border:1px solid #ccc; padding:6px;'>
-                    <div class='english'><p class='text-md'>{$monthEng}</p></div>
+                    <div class='english'><p class='marginClass text-md'>{$monthEng}</p></div>
                 </td>
                 <td width='50%' style='border:1px solid #ccc; padding:6px;'>
-                    <div class='english'><p class='text-md'>AED {$amtFmt}/-</p></div>
+                    <div class='english'><p class='marginClass text-md'>AED {$amtFmt}/-</p></div>
                 </td>
             </tr>";
 
             $rowsAr .= "
             <tr>
                 <td width='50%' style='border:1px solid #ccc; padding:6px;'>
-                    <div class='arabic'><p class='text-md'>{$monthAr}</p></div>
+                    <div class='arabic'><p class='marginClass text-md'>{$monthAr}</p></div>
                 </td>
                 <td width='50%' style='border:1px solid #ccc; padding:6px;'>
-                    <div class='arabic'><p class='text-md'>{$amtFmt}/- درهم إماراتي</p></div>
+                    <div class='arabic'><p class='marginClass text-md'>{$amtFmt}/- درهم إماراتي</p></div>
                 </td>
             </tr>";
         }
@@ -749,9 +755,8 @@ class InvestmentContractService
         }
 
         $currentTotal = $prevAmount + $investment->investment_amount;
-
         $investmentDate       = Carbon::parse($investment->investment_date);
-        $mudarabahCreatedDate = Carbon::parse($docDetails->generated_date);
+        $mudarabahCreatedDate = Carbon::parse($docDetails->mudarabahReference->generated_date ?? $docDetails->mudarabahReference->created_at);
 
         $html        = $documentDetail->template;
 
@@ -782,7 +787,7 @@ class InvestmentContractService
             '{new_total_investment_amount_eng}' => numberToEnglishWords($currentTotal),
             '{new_total_investment_amount_ar}'  => numberToArabicWords($currentTotal),
 
-            '{annexA}' => $this->buildAnnexureARows($docDetails->investor_id, $companyId)
+            '{annexA}' => $this->buildAnnexureARows($docDetails->investor_id, $companyId, $mudarabahCreatedDate)
         ];
 
 
@@ -796,25 +801,221 @@ class InvestmentContractService
         // return view('documents.addendum', compact('html', 'annexureRows'));
     }
 
+    private function buildAnnexureARows(int $investorId, int $companyId, $mudarabahCreatedDate): string
+    {
+        $rows = $this->ledgerRows($investorId, $companyId, $mudarabahCreatedDate);
 
-    private function buildAnnexureARows(int $investorId, int $companyId): string
+        // ── Now build HTML from all collected rows ────────────────────────────
+        $html = '';
+
+        foreach ($rows as $row) {
+            $isTotal    = $row['type'] === 'total';
+            $isWithdraw = $row['type'] === 'withdrawal';
+
+            $rowStyle   = $isTotal    ? 'background:#f0f0f0; font-weight:bold;' : '';
+            $amtStyle   = $isWithdraw ? 'color:#C0392B;' : '';
+            $serial     = $row['serial'] ?? '';
+
+            $html .= "
+                <tr style='{$rowStyle}'>
+                    <td width='50%' style='border:1px solid #ccc;'>
+                        <div class='english'>
+                            <p class='text-sm'>
+                                {$serial} | {$row['particulars_eng']} | <span style='{$amtStyle}'>{$row['amount']}</span> | {$row['received_on']} | {$row['doc_date']}
+                            </p>
+                        </div>
+                    </td>
+                    <td width='50%' style='border:1px solid #ccc;'>
+                        <div class='arabic'>
+                            <p class='text-sm' dir='rtl'>
+                                {$serial} | {$row['particulars_ar']} | <span style='{$amtStyle}'>{$row['amount']}</span> | {$row['received_on']} | {$row['doc_date']}
+                            </p>
+                        </div>
+                    </td>
+                </tr>";
+        }
+
+        return $html;
+    }
+
+
+    public function sendNovation($docId, $companyId)
+    {
+        $docDetails = $this->investmentContractDocumentRepository->find($docId);
+
+        $docTypeId     = $docDetails->investor_agreement_type_id;
+        $investor   = $docDetails->investor;
+        $investments = Investment::where(['investor_id' => $docDetails->investor_id, 'company_id' => $companyId])
+            ->orderBy('investment_date')
+            ->get();
+
+        $totalInvested  = Investment::where('investor_id', $docDetails->investor_id)->sum('investment_amount');
+
+
+        // $investor   = $this->investorRepository->find($investorId);
+        // $investment = $this->investmentRepository->find($investmentId);
+        $documentDetail = $this->InvAgreementRepo->findByType($docTypeId);
+        $company    = Company::findOrFail($companyId);
+
+        $html        = $documentDetail->template;
+
+        // $investmentDate       = Carbon::parse($investment->investment_date);
+        $novationCreated       = Carbon::parse($docDetails->generated_date);
+
+
+        $vars = [
+            '{novation_created_date}' => $novationCreated->format('d/m/Y'),
+
+            '{company_name}'  => $company->company_name,
+            '{company_licence_no}'   => $company->trade_license_number,
+            '{company_reg_no}'       => $company->registration_no,
+
+            '{investor_name}' => $investor->investor_name,
+            '{investor_id_no}'         => $investor->id_number,
+
+            '{total_invested_amount}'     => number_format($totalInvested, 2),
+            '{total_invested_eng}' => numberToEnglishWords($totalInvested) . ' Only',
+
+        ];
+
+
+
+        $html = str_replace(array_keys($vars), array_values($vars), $html);
+
+
+        return [
+            'html'       => $html,
+            'letterHead' => asset('storage/' . $company->letter_head_path),
+        ];
+    }
+
+    public function sendPartWithdrawal($docId, $companyId)
+    {
+        $docDetails = $this->investmentContractDocumentRepository->find($docId);
+
+        $docTypeId     = $docDetails->investor_agreement_type_id;
+        $investor   = $docDetails->investor;
+        $investments = Investment::where(['investor_id' => $docDetails->investor_id, 'company_id' => $companyId])
+            ->orderBy('investment_date')
+            ->get();
+
+        $invDocDetails = $this->investmentContractDocumentRepository->find($docId);
+
+        // $ledger = $this->ledgerRepository->getfirstbyCond(['investment_contract_document_id' => $docId]);
+
+
+
+        // $investor   = $this->investorRepository->find($investorId);
+        // $investment = $this->investmentRepository->find($investmentId);
+        $documentDetail = $this->InvAgreementRepo->findByType($docTypeId);
+        $company    = Company::findOrFail($companyId);
+
+        $html        = $documentDetail->template;
+
+        // $investmentDate       = Carbon::parse($investment->investment_date);
+        $withdrwalCreated       = Carbon::parse($docDetails->generated_date);
+        $mudarabahCreatedDate       = Carbon::parse($invDocDetails->mudarabahReference->generated_date ?? $invDocDetails->mudarabahReference->created_at);
+
+
+        $vars = [
+            '{doc_created_date}' => $withdrwalCreated->format('d/m/Y'),
+
+            '{mudarabah_created_date}' => $mudarabahCreatedDate->format('jS F Y'),
+            '{mudarabah_created_date_ar}'  => arabicShortDate($mudarabahCreatedDate),
+
+            '{investor_name_eng}'  => $investor->investor_name,
+            '{investor_name_ar}'  => $investor->investor_name_arabic,
+            '{investor_id}'  => $investor->id_number,
+
+            // '{withdrawal_amount}' => number_format($ledger->transaction_amount, 2),
+            // '{withdrwal_amount_eng}' => numberToEnglishWords($docDetails->withdrawal_amount) . ' Only',
+            // '{withdrwal_amount_ar}' => numberToArabicWords($docDetails->withdrawal_amount),
+
+            '{company_name_eng}'  => $company->company_name,
+            '{company_name_ar}'  => $company->company_name_arabic,
+            '{company_licence_no}'   => $company->trade_license_number,
+            '{company_reg_no}'       => $company->registration_no,
+
+            '{investor_name}' => $investor->investor_name,
+            '{investor_id_no}' => $investor->id_number,
+
+            '{html_eng}' => $this->ledgerPartialWithdrawal($docDetails->investor_id, $companyId, $mudarabahCreatedDate)['html_eng'],
+            '{html_ar}' => $this->ledgerPartialWithdrawal($docDetails->investor_id, $companyId, $mudarabahCreatedDate)['html_ar']
+
+        ];
+
+        $html = str_replace(array_keys($vars), array_values($vars), $html);
+
+        return [
+            'html'       => $html,
+            'letterHead' => asset('storage/' . $company->letter_head_path),
+        ];
+    }
+
+    public function ledgerPartialWithdrawal(int $investorId, int $companyId, $mudarabahCreatedDate)
+    {
+        // 1 | الاستثمار الأصلي | __________ | ______ | ______<br>
+        //                                 2 | سحب جزئي | ___________ | ______ | ______<br>
+        //                                 3 | استثمار إضافي | __________ | ______ | ______<br>
+        //                                 4 | استثمار إضافي | __________ | ______ | ______<br>
+        //                                 5 | إجمالي رأس المال المعدّل | ___________ | ______ | ______
+
+
+        // 1 | Original Investment | __________ | ______ | ______<br>
+        //                                 2 | Partial Withdrawal | ___________ | ______ | ______<br>
+        //                                 3 | Additional Investment | __________ | ______ | ______<br>
+        //                                 4 | Additional Investment | __________ | ______ | ______<br>
+        //                                 5 | Total Revised Capital | ___________ | ______ | ______
+
+        $rows = $this->ledgerRows($investorId, $companyId, $mudarabahCreatedDate);
+
+        // ── Now build HTML from all collected rows ────────────────────────────
+        $html = '';
+        $htmlAr = '';
+
+        foreach ($rows as $row) {
+            $isTotal    = $row['type'] === 'total';
+            $isWithdraw = $row['type'] === 'withdrawal';
+
+            $rowStyle   = $isTotal    ? 'background:#f0f0f0; font-weight:bold;' : '';
+            $amtStyle   = $isWithdraw ? 'color:#C0392B;' : '';
+            $serial     = $row['serial'] ?? '';
+
+            $html .= "
+                    {$serial} | {$row['particulars_eng']} | <span style='{$amtStyle}'>{$row['amount']}</span> | {$row['received_on']} | {$row['doc_date']}
+                    <br>";
+            $htmlAr .= "
+                    {$serial} | {$row['particulars_ar']} | <span style='{$amtStyle}'>{$row['amount']}</span> | {$row['received_on']} | {$row['doc_date']}
+                    <br>";
+        }
+
+        return [
+            'html_eng' => $html,
+            'html_ar' => $htmlAr
+        ];
+    }
+
+    public function ledgerRows($investorId, $companyId, $mudarabahCreatedDate)
     {
         $rows   = [];
         $serial = 1;
         $last_invDate = date('d/m/Y');
+
+        $ledger = $this->ledgerRepository->getfirstbyCond(['investor_id' => $investorId, 'company_id' => $companyId]);
 
         $investments = Investment::where(['investor_id' => $investorId, 'company_id' => $companyId])
             ->orderBy('investment_date')
             ->get();
 
         foreach ($investments as $key => $inv) {
+
             $rows[] = [
                 'serial'          => $serial++,
                 'particulars_eng' => $key == 0 ? 'Original Investment' : 'Additional Investment',
                 'particulars_ar'  => $key == 0 ? 'الاستثمار الأصلي'    : 'استثمار إضافي',
                 'amount'          => number_format($inv->investment_amount, 2),
                 'received_on'     => Carbon::parse($inv->investment_date)->format('d/m/Y'),
-                'doc_date'        => Carbon::parse($inv->investment_date)->format('d/m/Y'),
+                'doc_date'        => Carbon::parse($mudarabahCreatedDate)->format('d/m/Y'),
                 'type'            => 'investment',
             ];
 
@@ -848,40 +1049,10 @@ class InvestmentContractService
             'particulars_ar'  => 'إجمالي رأس المال المعدّل',
             'amount'          => number_format($totalInvested - $totalWithdrawn, 2),
             'received_on'     => $last_invDate,
-            'doc_date'        => '{addedndum_added_date}',
+            'doc_date'        => Carbon::parse($mudarabahCreatedDate)->format('d/m/Y'),
             'type'            => 'total',
         ];
 
-        // ── Now build HTML from all collected rows ────────────────────────────
-        $html = '';
-
-        foreach ($rows as $row) {
-            $isTotal    = $row['type'] === 'total';
-            $isWithdraw = $row['type'] === 'withdrawal';
-
-            $rowStyle   = $isTotal    ? 'background:#f0f0f0; font-weight:bold;' : '';
-            $amtStyle   = $isWithdraw ? 'color:#C0392B;' : '';
-            $serial     = $row['serial'] ?? '';
-
-            $html .= "
-                <tr style='{$rowStyle}'>
-                    <td width='50%' style='border:1px solid #ccc;'>
-                        <div class='english'>
-                            <p class='text-sm'>
-                                {$serial} | {$row['particulars_eng']} | <span style='{$amtStyle}'>{$row['amount']}</span> | {$row['received_on']} | {$row['doc_date']}
-                            </p>
-                        </div>
-                    </td>
-                    <td width='50%' style='border:1px solid #ccc;'>
-                        <div class='arabic'>
-                            <p class='text-sm' dir='rtl'>
-                                {$serial} | {$row['particulars_ar']} | <span style='{$amtStyle}'>{$row['amount']}</span> | {$row['received_on']} | {$row['doc_date']}
-                            </p>
-                        </div>
-                    </td>
-                </tr>";
-        }
-
-        return $html;
+        return $rows;
     }
 }

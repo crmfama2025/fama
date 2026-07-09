@@ -5,6 +5,7 @@ namespace App\Services\Investment;
 use App\Models\Investment;
 use App\Repositories\Investment\InvestorAgreementRepository;
 use App\Repositories\Investment\InvestorRepository;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -46,50 +47,71 @@ class InvestorAgreementService
 
     public function create(array $data)
     {
-        $this->validate($data);
-        $data['added_by'] = auth()->user()->id;
+        return DB::transaction(function () use ($data) {
 
-        $docExist = $this->InvAgreementRepo->findByType($data['investor_agreement_type_id']);
+            $this->validate($data);
+            $data['added_by'] = auth()->user()->id;
 
-        if ($docExist->version_no < $data['version_no']) {
+            $docExist = $this->InvAgreementRepo->findByType($data['investor_agreement_type_id']);
 
-            $investments = Investment::select('investor_id', 'company_id')
-                ->where('investment_status', 1)
-                ->get();
+            if ($docExist && $docExist->version_no < $data['version_no']) {
 
-            $grouped = $investments
-                ->groupBy('investor_id')
-                ->map(function ($items) {
-                    return $items->pluck('company_id')->unique();
-                });
+                $investments = Investment::select('id', 'investor_id', 'company_id')
+                    ->where('investment_status', 1)
+                    ->get();
 
-            $activeInvestorIds = $this->investorRepo->allActive()->pluck('id')->toArray();
+                // Investor => Company IDs
+                $grouped = $investments
+                    ->groupBy('investor_id')
+                    ->map(function ($items) {
+                        return $items->pluck('company_id')->unique();
+                    });
 
-            foreach ($activeInvestorIds as $investorId) {
-                // dump($investorId);
-                if (!isset($grouped[$investorId])) {
-                    continue;
+                // Investor => Company => Investment IDs
+                $investmentIds = $investments
+                    ->groupBy('investor_id')
+                    ->map(function ($investorItems) {
+                        return $investorItems
+                            ->groupBy('company_id')
+                            ->map(function ($companyItems) {
+                                return $companyItems->pluck('id')->values()->toArray();
+                            })
+                            ->toArray();
+                    })
+                    ->toArray();
+
+                $activeInvestorIds = $this->investorRepo
+                    ->allActive()
+                    ->pluck('id')
+                    ->toArray();
+
+                foreach ($activeInvestorIds as $investorId) {
+
+                    if (!isset($grouped[$investorId])) {
+                        continue;
+                    }
+
+                    foreach ($grouped[$investorId] as $companyId) {
+
+                        $docInsertData = [
+                            'investment_id' => 0,
+                            'applied_investments' => json_encode($investmentIds[$investorId][$companyId] ?? []),
+                            'investor_id' => $investorId,
+                        ];
+
+                        $this->investmentContractDocumentService
+                            ->createInvestorDocument($investorId, $companyId, $docInsertData);
+                    }
                 }
 
-                foreach ($grouped[$investorId] as $companyId) {
-                    // dump($companyId);
-                    $docInsertData = [
-                        'investment_id' => 0,
-                        'investor_id'   => $investorId,
-                    ];
-
-                    $this->investmentContractDocumentService
-                        ->createInvestorDocument($investorId, $companyId, $docInsertData);
-                }
+                $this->InvAgreementRepo->update($docExist->id, [
+                    'is_active' => 0,
+                    'updated_by' => auth()->id(),
+                ]);
             }
 
-            $this->InvAgreementRepo->update($docExist->id, [
-                'is_active' => 0,
-                'updated_by' => auth()->user()->id
-            ]);
-        }
-
-        return $this->InvAgreementRepo->create($data);
+            return $this->InvAgreementRepo->create($data);
+        });
     }
 
     public function update($id, array $data)

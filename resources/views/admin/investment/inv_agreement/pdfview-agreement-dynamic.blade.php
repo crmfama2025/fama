@@ -98,7 +98,11 @@
                 font-weight: 700 !important;
             }
 
-            p {
+            /* p {
+                margin: 4px;
+            } */
+
+            .marginClass {
                 margin: 4px;
             }
         }

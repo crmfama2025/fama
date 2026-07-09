@@ -12,7 +12,7 @@ class InvestorAgreementType extends Model
 {
     use HasFactory, softDeletes, HasActivityLog, HasDeletedBy;
 
-    protected $fillable = ['investor_agreement_type', 'status'];
+    protected $fillable = ['investor_agreement_type', 'short_code', 'status'];
 
     public function templates()
     {
