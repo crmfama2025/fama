@@ -1890,6 +1890,8 @@ namespace App\Models{
  * @property int|null $terminated_by
  * @property string $termination_outstanding
  * @property string $termination_referral_commission_outstanding
+ * @property string $total_invested_amount
+ * @property string $total_withdrawn_amount
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Investment> $childInvestments
  * @property-read int|null $child_investments_count
  * @property-read \App\Models\Company|null $company
@@ -1965,8 +1967,10 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereTerminationReferralCommissionOutstanding($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereTerminationRequestedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereTerminationRequestedDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Investment whereTotalInvestedAmount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereTotalProfitReleased($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereTotalReceivedAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Investment whereTotalWithdrawnAmount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereUpdatedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment withTrashed()
@@ -2236,6 +2240,8 @@ namespace App\Models{
  * @property-read int|null $investor_banks_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvestorDocument> $investorDocuments
  * @property-read int|null $investor_documents_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvestorLedger> $investorLedgers
+ * @property-read int|null $investor_ledgers_count
  * @property-read \App\Models\InvestorRelation|null $investor_relation
  * @property-read \App\Models\Nationality|null $nationality
  * @property-read \App\Models\PaymentMode|null $paymentMode
@@ -2723,6 +2729,18 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Nationality withoutTrashed()
  */
 	class Nationality extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property-read \App\Models\User|null $addedBy
+ * @property-read \App\Models\Company|null $company
+ * @property-read \App\Models\Investment|null $investment
+ * @method static \Illuminate\Database\Eloquent\Builder|PartialWithdrawalBifurcation newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|PartialWithdrawalBifurcation newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|PartialWithdrawalBifurcation query()
+ */
+	class PartialWithdrawalBifurcation extends \Eloquent {}
 }
 
 namespace App\Models{
