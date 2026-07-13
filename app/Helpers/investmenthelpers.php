@@ -227,8 +227,22 @@ function profitInterval_ar($interval)
         return 'سنوي';
     }
 }
+
 function getTotalWithdrawnAmount($investmentId)
 {
     return Investment::where('id', $investmentId)
         ->value('total_withdrawn_amount') ?? 0;;
+}
+
+function document_name_ar($shortCode)
+{
+    if ($shortCode == 'ProfitSharing') {
+        return 'اتفاقية استثمار بالمشاركة في الأرباح';
+    } elseif ($shortCode == 'Addendum') {
+        return 'ملحق لاتفاقية المضاربة';
+    } elseif ($shortCode == 'PartialWithdrawal') {
+        return 'نموذج السحب الجزئي';
+    } elseif ($shortCode == 'Novation') {
+        return 'اتفاقية تجديد وإعادة صياغة';
+    }
 }

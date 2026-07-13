@@ -2,11 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AgreementSignatureEvent;
+use App\Models\InvestmentContractDocuments;
 use App\Models\InvestorAgreementType;
+use App\Services\Investment\AgreementSignatureService;
 use App\Services\Investment\InvestmentContractService;
 use App\Services\Investment\InvestorAgreementService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Mpdf\Config\ConfigVariables;
 use Mpdf\Config\FontVariables;
 use Mpdf\Mpdf;
@@ -15,7 +21,8 @@ class InvestorAgreementTemplateController extends Controller
 {
     public function __construct(
         protected InvestorAgreementService $invAgreement,
-        protected InvestmentContractService $invContractServ
+        protected InvestmentContractService $invContractServ,
+        protected AgreementSignatureService $signatureService,
     ) {}
 
     /**
@@ -102,11 +109,18 @@ class InvestorAgreementTemplateController extends Controller
         //
     }
 
-    public function mudarabah_view($docId, $companyId)
+    public function contract_view($docId, $companyId)
     {
         $data = $this->invContractServ->sendContractDocument($docId, $companyId);
+        $contractDocument = InvestmentContractDocuments::find($docId);
 
-        return view('admin.investment.inv_agreement.pdfview-agreement-dynamic', compact('data'));
+        if (!$contractDocument->is_investor_signed) {
+            $signerRole = 'investor';
+        } else {
+            $signerRole = 'company';
+        }
+
+        return view('admin.investment.inv_agreement.pdfview-agreement-dynamic', compact('data', 'contractDocument', 'signerRole'));
     }
 
     public function doc_view()
@@ -122,5 +136,176 @@ class InvestorAgreementTemplateController extends Controller
             ];
             return $this->invAgreement->getDataTable($filters);
         }
+    }
+
+    public function signAgreement(Request $request, InvestmentContractDocuments $contract)
+    {
+
+        $validated = $request->validate([
+            'signer_role'      => 'required|in:investor,company',
+            'signature_count'  => 'required|integer|min:1',
+            'signed_html'      => 'required|string',
+        ]);
+
+        if ($validated['signer_role'] === 'investor' && $contract->is_investor_signed) {
+            return response()->json(['message' => 'Investor has already signed.'], 422);
+        }
+        if ($validated['signer_role'] === 'company' && $contract->is_company_signed) {
+            return response()->json(['message' => 'Company has already signed.'], 422);
+        }
+        // dd($request->all());
+
+        $rawSignature = $request->signature; // full data URL: "data:image/png;base64,iVBORw0KG..."
+
+        // Strip prefix ONLY for decoding to file bytes
+        $base64Data = $rawSignature;
+        if (str_contains($base64Data, ',')) {
+            $base64Data = substr($base64Data, strpos($base64Data, ',') + 1);
+        }
+
+        if ($validated['signer_role'] === 'investor') {
+            $fileName = 'Investors/' . $contract->investor->investor_code . '/signature/' . Str::random(8) . '-' . $contract->id . '.png';
+        } else {
+            $fileName = 'companies/' . $contract->company->company_name . '/signature/' . Str::random(8) . '-' . $contract->id . '.png';
+        }
+
+        Storage::disk('public')->put(
+            $fileName,
+            base64_decode($base64Data)
+        );
+
+        $imageUrl = asset('storage/' . $fileName);
+
+        // Replace the FULL original data URL (with prefix) in the HTML — not the stripped version
+        $html = str_replace($rawSignature, $imageUrl, $validated['signed_html']);
+
+        $dom = new \DOMDocument();
+        $dom->loadHTML('<?xml encoding="utf-8" ?>' . $html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+
+        $xpath = new \DOMXPath($dom);
+
+        // Remove all remove buttons
+        foreach ($xpath->query("//button[contains(@class,'sig-placed-remove')]") as $btn) {
+            $btn->parentNode->removeChild($btn);
+        }
+
+        $html = $dom->saveHTML();
+
+        $expectedCount = $this->expectedSignatureCountFor($contract, $validated['signer_role']);
+
+        if ($validated['signature_count'] < $expectedCount) {
+            return response()->json([
+                'message' => "Incomplete signing. Expected {$expectedCount} signature(s), received {$validated['signature_count']}."
+            ], 422);
+        }
+        // dump($html);
+        // dd($contract);
+        DB::transaction(function () use ($contract, $validated, $imageUrl, $html) {
+            $contract->contract_document_html = $html;
+
+            if ($validated['signer_role'] === 'investor') {
+                $contract->is_investor_signed = true;
+                $contract->investor_signed_at = now();
+                $contract->investor_sign  = $imageUrl;
+            } else {
+                $contract->is_company_signed = true;
+                $contract->company_sign  = $imageUrl;
+                $contract->company_signed_at = now();
+            }
+
+            $contract->updated_by = auth()->id();
+            $contract->sign_token = null; // invalidate the signing link after successful signing
+            // dd($contract->toArray());
+            $contract->save();
+
+            AgreementSignatureEvent::create([
+                'contract_id' => $contract->id,
+                'signer_role' => $validated['signer_role'],
+                'event_type' => 'signed',
+                'channel' => 'web',
+                'occurred_at' => now(),
+            ]);
+        });
+
+        return response()->json(['message' => 'Signed successfully.', 'status' => 'success']);
+    }
+
+    private function expectedSignatureCountFor(InvestmentContractDocuments $contract, string $signerRole): int
+    {
+        // Use the ORIGINAL unsigned template — never the client's own signed_html —
+        // otherwise a stripped-down payload could under-report and pass its own check.
+        $sourceHtml = $contract->contract_document_html; // unsigned source, before this submission
+
+        $dom = new \DOMDocument();
+        libxml_use_internal_errors(true);
+        $dom->loadHTML('<?xml encoding="utf-8" ?>' . $sourceHtml);
+        libxml_clear_errors();
+
+        $xpath = new \DOMXPath($dom);
+
+        // Count named slots belonging to this signer (data-signer="investor"/"company")
+        $namedSlots = $xpath->query("//*[@data-signature-slot][@data-signer='{$signerRole}']");
+        $namedCount = $namedSlots->length;
+
+        if ($namedCount > 0) {
+            return $namedCount;
+        }
+
+        // No named slots defined at all for this role — fall back to "one per page"
+        // (matches the JS default-page behavior for investor-wide initialing)
+        if ($signerRole === 'investor') {
+            $pages = $xpath->query("//*[contains(concat(' ', normalize-space(@class), ' '), ' new-page ')]");
+            return max($pages->length, 1);
+        }
+
+        return 1; // company: at least one signature expected if no named slots found
+    }
+
+    public function investorContractView($uniqueId, $docId)
+    {
+
+        // dd(substr(md5(103), 0, 8));
+        // Str::random(8)
+
+        // 65b9eea6
+        // LEyWFMhF
+
+        $contractDocument = $contractDocument = InvestmentContractDocuments::whereRaw(
+            'SUBSTRING(MD5(id), 1, 8) = ?',
+            [$docId]
+        )->where('sign_token', $uniqueId)
+            ->first();
+        // dd($contractDocument);
+        if (!$contractDocument) {
+            abort(404, 'Contract not found or invalid unique key.');
+        }
+
+        $data = $this->invContractServ->sendContractDocument($contractDocument->id, $contractDocument->company_id);
+
+        if (!$contractDocument->is_investor_signed) {
+            $signerRole = 'investor';
+        } else {
+            $signerRole = 'company';
+        }
+
+        // else {
+        //     $signerRole = null;
+        // }
+
+        return view('admin.investment.inv_agreement.pdfview-agreement-dynamic', compact('data', 'contractDocument', 'signerRole'));
+    }
+
+    /**
+     * Staff triggers sending the signing link (auth required — wire this route inside your auth middleware group).
+     */
+    public function sendForSignature(Request $request, InvestmentContractDocuments $contract)
+    {
+        $validated = $request->validate([
+            'channel' => 'required|in:whatsapp,email',
+        ]);
+
+        $this->signatureService->sendForSignature($contract->id, $validated['channel']);
+
+        return response()->json(['message' => 'Sent for signature via ' . $validated['channel'] . '.']);
     }
 }

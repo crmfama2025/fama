@@ -438,12 +438,12 @@
                     // spot they placed it (see submitSignatures() -> signed_html below).
                     // Render that directly instead of rebuilding pages from the raw row source.
                     $currentRole = $signerRole ?? 'investor';
-                    $hasSavedSnapshot =
-                        ($contractDocument->is_investor_signed && $contractDocument->contract_document_html) ||
-                        $contractDocument->is_investor_signed;
+                    $alreadySignedByThisRole =
+                        ($currentRole === 'investor' && $contractDocument->is_investor_signed) ||
+                        ($currentRole === 'company' && $contractDocument->is_company_signed);
                 @endphp
 
-                @if ($hasSavedSnapshot && $contractDocument->contract_document_html)
+                @if ($alreadySignedByThisRole && $contractDocument->contract_document_html)
                     {{-- Already signed: show the saved snapshot, signature already in place --}}
                     <div id="file-print-area">{!! $contractDocument->contract_document_html !!}</div>
                 @else
@@ -453,36 +453,20 @@
                 @endif
 
                 <div class="mt-4 mb-5 text-center no-print">
-                    @if (Auth::check())
-                        <a href="{{ route('invoices.generated') }}" class="btn btn-secondary mr-2">
-                            <i class="fas fa-arrow-left"></i> Back
-                        </a>
-                        @if (!$contractDocument->is_investor_signed || !$contractDocument->is_company_signed)
-                            <button onclick="openSendModal()" class="btn btn-success mr-2">
-                                <i class="fas fa-paper-plane"></i> Send
-                            </button>
-                        @endif
-                    @else
-                        @if (!$contractDocument->is_investor_signed && !$contractDocument->is_company_signed)
-                            <button onclick="openSignatureModal()" class="btn btn-success mr-2">
-                                <i class="fas fa-signature"></i> Add Signature
-                            </button>
-
-                            <button id="sigSubmitBtn" class="btn btn-primary" disabled onclick="submitSignatures()">
-                                <i class="fas fa-check"></i> Submit Signed Agreement
-                            </button>
-                        @endif
-
-                    @endif
-                    {{-- <a href="{{ route('invoices.generated') }}" class="btn btn-secondary mr-2">
+                    <a href="{{ route('invoices.generated') }}" class="btn btn-secondary mr-2">
                         <i class="fas fa-arrow-left"></i> Back
-                    </a> --}}
+                    </a>
 
+                    <button onclick="openSignatureModal()" class="btn btn-success mr-2">
+                        <i class="fas fa-signature"></i> Add Signature
+                    </button>
 
                     {{-- <button onclick="printInvoice()" class="btn btn-primary">
                         <i class="fas fa-print"></i> Print
                     </button> --}}
-
+                    <button id="sigSubmitBtn" class="btn btn-primary" disabled onclick="submitSignatures()">
+                        <i class="fas fa-check"></i> Submit Signed Agreement
+                    </button>
                 </div>
 
             </div>
@@ -530,27 +514,6 @@
                 <button class="sig-btn sig-btn-cancel" id="sigCancelBtn">Cancel</button>
                 <button class="sig-btn sig-btn-clear" id="sigClearBtn">Clear</button>
                 <button class="sig-btn sig-btn-apply" id="sigApplyBtn" disabled>Apply to All Pages</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="sig-modal-overlay" id="sendModalOverlay">
-        <div class="sig-modal" style="width:360px;">
-            <h5>📤 Send for Signature</h5>
-            <p style="font-size:12px;color:#888;margin:-8px 0 14px;">
-                Choose how to deliver the signing link.
-            </p>
-            <div class="sig-actions" style="justify-content:center;gap:12px;">
-                <button class="sig-btn" style="background:#25D366;color:#fff;"
-                    onclick="sendForSignature('whatsapp')">
-                    <i class="fab fa-whatsapp"></i> WhatsApp
-                </button>
-                <button class="sig-btn" style="background:#007bff;color:#fff;" onclick="sendForSignature('email')">
-                    <i class="fas fa-envelope"></i> Email
-                </button>
-            </div>
-            <div class="sig-actions">
-                <button class="sig-btn sig-btn-cancel" onclick="closeSendModal()">Cancel</button>
             </div>
         </div>
     </div>
@@ -1028,7 +991,6 @@
         function enableSignaturePlacement() {
             if (!signatureDataUrl) return;
             const cfg = window.AgreementConfig;
-            console.log(cfg);
 
             const alreadySigned = (cfg.signerRole === 'investor' && cfg.isInvestorSigned) ||
                 (cfg.signerRole === 'company' && cfg.isCompanySigned);
@@ -1043,28 +1005,23 @@
 
                 document.querySelectorAll('.new-page').forEach((page, pageIndex) => {
                     const slots = page.querySelectorAll(`[data-signature-slot][data-signer="${cfg.signerRole}"]`);
-                    const hasOwnSignaturePad = page.querySelector('[data-own-signature-pad]') !== null;
 
-                    slots.forEach(slot => {
-                        window.requiredSignatureSpots.add(`${pageIndex}-${slot.dataset.signatureSlot}`);
-                    });
-
-                    // Only require the default stamp on pages WITHOUT their own dedicated pad
-                    if (!hasOwnSignaturePad) {
-                        window.requiredSignatureSpots.add(`${pageIndex}-default-${cfg.signerRole}`);
+                    if (slots.length > 0) {
+                        slots.forEach(slot => {
+                            window.requiredSignatureSpots.add(`${pageIndex}-${slot.dataset.signatureSlot}`);
+                        });
+                    } else if (cfg.signerRole === 'investor') {
+                        window.requiredSignatureSpots.add(`${pageIndex}-default`);
                     }
                 });
             }
-
 
             document.querySelectorAll('.new-page').forEach((page, pageIndex) => {
                 page.style.position = 'relative';
 
                 const slots = page.querySelectorAll(`[data-signature-slot][data-signer="${cfg.signerRole}"]`);
-                const hasOwnSignaturePad = page.querySelector('[data-own-signature-pad]') !== null;
 
                 if (slots.length > 0) {
-                    // Named slots (e.g. fama_en/fama_ar or investor_en/investor_ar on the signature-pad page)
                     slots.forEach((slot) => {
                         const slotId = slot.dataset.signatureSlot;
                         const spotKey = `${pageIndex}-${slotId}`;
@@ -1076,35 +1033,22 @@
                         const slotRect = slot.getBoundingClientRect();
 
                         const btn = createPlaceButton(page, slotId, spotKey);
-                        if (cfg.signerRole === 'investor') {
-                            btn.style.top = (slotRect.top - pageRect.top + 4) + 'px';
-                        } else {
-                            btn.style.top = (slotRect.top - pageRect.top + 59) + 'px';
-                        }
+                        btn.style.top = (slotRect.top - pageRect.top + 4) + 'px';
                         btn.style.left = (slotRect.left - pageRect.left + 125) + 'px';
 
                         page.appendChild(btn);
                     });
-                }
+                } else if (cfg.signerRole === 'investor') {
+                    const spotKey = `${pageIndex}-default`;
 
-                // Skip the default per-page stamp entirely on the dedicated signature-pad page —
-                // it already has its own named slots for both signers above.
-                if (hasOwnSignaturePad) return;
+                    if (page.querySelector(`.sig-placed-wrap[data-spot-key="${spotKey}"]`)) return;
+                    if (page.querySelector(`.sig-placeholder-btn[data-spot-key="${spotKey}"]`)) return;
 
-                // Default per-page stamp — every OTHER page gets one, positioned per role.
-                const spotKey = `${pageIndex}-default-${cfg.signerRole}`;
-
-                if (page.querySelector(`.sig-placed-wrap[data-spot-key="${spotKey}"]`)) return;
-                if (page.querySelector(`.sig-placeholder-btn[data-spot-key="${spotKey}"]`)) return;
-
-                const btn = createPlaceButton(page, null, spotKey);
-                btn.style.bottom = '37mm';
-                if (cfg.signerRole === 'investor') {
-                    btn.style.right = '16mm';
-                } else {
+                    const btn = createPlaceButton(page, null, spotKey);
+                    btn.style.bottom = '37mm';
                     btn.style.left = '16mm';
+                    page.appendChild(btn);
                 }
-                page.appendChild(btn);
             });
 
             updateSubmitButtonState();
@@ -1133,7 +1077,7 @@
             const btn = document.createElement('button');
             btn.type = 'button';
             btn.className = 'sig-placeholder-btn no-print';
-            btn.textContent = slotId ? '✍️ Place Signature' : '✍️ Place Signature';
+            btn.textContent = slotId ? '✍️ Sign' : '✍️ Place Signature';
             if (slotId) btn.dataset.slotId = slotId;
             btn.dataset.spotKey = spotKey;
             btn.addEventListener('click', () => placeSignatureOnPage(page, btn, slotId, spotKey));
@@ -1144,16 +1088,16 @@
             const cfg = window.AgreementConfig;
             const wrap = document.createElement('div');
             wrap.className = 'sig-placed-wrap';
-            wrap.dataset.signer = cfg.signerRole;
+            wrap.dataset.signer = cfg.signerRole; // ← tag ownership
             if (slotId) wrap.dataset.slotId = slotId;
             wrap.dataset.spotKey = spotKey;
 
             wrap.style.top = btn.style.top || '';
             wrap.style.left = btn.style.left || '';
-            wrap.style.right = btn.style.right || '';
             wrap.style.bottom = btn.style.bottom || '';
             wrap.style.width = slotId ? '28mm' : '40mm';
             wrap.style.height = slotId ? '10mm' : '16mm';
+            if (slotId) wrap.dataset.slotId = slotId;
 
             const img = document.createElement('img');
             img.src = signatureDataUrl;
@@ -1169,7 +1113,6 @@
                 const newBtn = createPlaceButton(page, slotId, spotKey);
                 newBtn.style.top = wrap.style.top;
                 newBtn.style.left = wrap.style.left;
-                newBtn.style.right = wrap.style.right;
                 newBtn.style.bottom = wrap.style.bottom;
                 page.appendChild(newBtn);
                 updateSubmitButtonState();
@@ -1180,8 +1123,9 @@
 
             btn.remove();
             page.appendChild(wrap);
-            updateSubmitButtonState();
+            updateSubmitButtonState(); // ← this was likely missing or not firing reliably before
         }
+
         // ── Optional: let them nudge the signature within the page ──
         function makeDraggable(el, container) {
             let dragging = false,
@@ -1249,8 +1193,7 @@
                 toastr.error('Please place your signature before submitting.');
                 return;
             }
-
-            const sigWrap = document.querySelector(`.sig-placed-wrap[data-signer="${cfg.signerRole}"]`);
+            const sigWrap = document.querySelector('.sig-placed-wrap');
 
             // Clone the print area and strip ALL interactive-only elements —
             // this removes both this session's buttons AND any leftover buttons
@@ -1279,10 +1222,9 @@
                 });
 
                 // Catch redirects explicitly — if this is true, res.url is likely the login page
-                if (res.status == 'success') {
+                if (res.redirected) {
                     console.error('Request was redirected to:', res.url);
-                    window.location.reload();
-                    // toastr.error('Your session may have expired. Please refresh and try again.');
+                    toastr.error('Your session may have expired. Please refresh and try again.');
                     return;
                 }
 
@@ -1322,40 +1264,6 @@
             // Who is viewing this page right now — investor-facing link vs internal staff link
             signerRole: '{{ $signerRole ?? 'investor' }}' // set this from the route/controller
         };
-    </script>
-
-    <script>
-        function openSendModal() {
-            document.getElementById('sendModalOverlay').classList.add('active');
-        }
-
-        function closeSendModal() {
-            document.getElementById('sendModalOverlay').classList.remove('active');
-        }
-
-        async function sendForSignature(channel) {
-            closeSendModal();
-            try {
-                const res = await fetch(`/agreements/{{ $contractDocument->id }}/send`, {
-                    method: 'POST',
-                    credentials: 'same-origin',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                    },
-                    body: JSON.stringify({
-                        channel
-                    })
-                });
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.message || 'Send failed');
-                toastr.success(data.message);
-            } catch (err) {
-                console.error(err);
-                toastr.error('Could not send the agreement. Please try again.');
-            }
-        }
     </script>
 </body>
 

@@ -54,6 +54,12 @@ Route::post('do-forgotpassword', [LoginController::class, 'doForgotPassword'])->
 Route::get('reset-password/{token}', [LoginController::class, 'resetPassword'])->name('reset.password');
 Route::post('do-reset-password', [LoginController::class, 'doResetPassword'])->name('do.reset.password');
 
+Route::get('investor-contract/{uniqueId}/{docId}', [InvestorAgreementTemplateController::class, 'investorContractView'])->name('legal_template.investorContractView');
+Route::get('/agreements/sign/{token}', [InvestorAgreementTemplateController::class, 'showByToken'])
+    ->name('agreements.sign.byToken');
+Route::post('/agreements/{contract}/sign', [InvestorAgreementTemplateController::class, 'signAgreement'])
+    ->name('agreements.sign');
+
 Route::middleware(['auth', 'update.fcm'])->group(function () {
     Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 
@@ -362,8 +368,12 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
         ->name('invoices.pdf');
 
     Route::get('doc_view', [InvestorAgreementTemplateController::class, 'doc_view'])->name('legal_template.doc_view'); //only for reference
-    Route::get('mudarabah-view/{docId}/{companyId}', [InvestorAgreementTemplateController::class, 'mudarabah_view'])->name('legal_template.contractview');
+    Route::get('contract-view/{docId}/{companyId}', [InvestorAgreementTemplateController::class, 'contract_view'])->name('legal_template.contractview');
     Route::get('inv-agreement-list', [InvestorAgreementTemplateController::class, 'getInvestorAgreements'])->name('legal_template.list');
+
+    Route::post('/agreements/{contract}/send', [InvestorAgreementTemplateController::class, 'sendForSignature'])
+        ->middleware('auth')
+        ->name('agreements.send');
 
     Route::get('investment-documents/{id}', [InvestmentContractsController::class, 'document'])->name('investment.document');
     Route::post('investments/contracts/{id}', [InvestmentContractsController::class, 'updateContract'])->name('investment.contracts.submit');
@@ -388,7 +398,6 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
     Route::put('investor/partial-withdrawal/{id}', [InvestorController::class, 'updatePartialWithdrawal'])
         ->name('investor.partial-withdrawal.update');
 });
-
 
 
 

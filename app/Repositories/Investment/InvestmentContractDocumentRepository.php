@@ -110,4 +110,10 @@ class InvestmentContractDocumentRepository
             'agreementTemplate'
         ])->findOrFail($id);
     }
+
+    public function isInvestorSigned($contractId)
+    {
+        return InvestmentContractDocuments::where('id', $contractId)
+            ->value('is_investor_signed') ?? false;
+    }
 }

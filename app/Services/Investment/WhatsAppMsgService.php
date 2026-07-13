@@ -78,7 +78,11 @@ class WhatsAppMsgService
                 'payload'  => $payload,
                 'response' => $data
             ]);
-            // dd($data);
+            // dd(
+            //     $response->status(),
+            //     $response->body(),
+            //     $response->json()
+            // );
 
             return $data;
         } catch (\Exception $e) {
