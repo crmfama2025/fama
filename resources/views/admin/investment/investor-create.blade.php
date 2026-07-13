@@ -587,12 +587,12 @@
             });
 
             // ✅ Re-validate arabic fields on submit
-            $("#investorForm").find('.arabic-input:visible').each(function() {
-                validateArabicInput(this); // uses the global function from master layout
-                if ($(this).hasClass('is-invalid')) {
-                    isValid = false;
-                }
-            });
+            // $("#investorForm").find('.arabic-input:visible').each(function() {
+            //     validateArabicInput(this); // uses the global function from master layout
+            //     if ($(this).hasClass('is-invalid')) {
+            //         isValid = false;
+            //     }
+            // });
 
 
             if (!isValid) {

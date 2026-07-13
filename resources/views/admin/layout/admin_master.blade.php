@@ -856,19 +856,19 @@
             }
         }
 
-        document.querySelectorAll('.arabic-input').forEach(function(input) {
-            validateArabicInput(input);
+        // document.querySelectorAll('.arabic-input').forEach(function(input) {
+        //     validateArabicInput(input);
 
-            // Real-time as user types
-            // input.addEventListener('input', function() {
-            //     validateArabicInput(this);
-            // });
+        //     // Real-time as user types
+        //     // input.addEventListener('input', function() {
+        //     //     validateArabicInput(this);
+        //     // });
 
 
-            input.addEventListener('blur', function() {
-                validateArabicInput(this);
-            });
-        });
+        //     input.addEventListener('blur', function() {
+        //         validateArabicInput(this);
+        //     });
+        // });
 
         function checkFormValidity(formId, buttonId) {
             // alert('test');
