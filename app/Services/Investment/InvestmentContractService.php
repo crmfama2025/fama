@@ -4,6 +4,8 @@ namespace App\Services\Investment;
 
 use App\Models\Company;
 use App\Models\Investment;
+use App\Models\InvestorLedger;
+use App\Models\PartialWithdrawalBifurcation;
 use App\Repositories\Investment\InvestmentContractDocumentRepository;
 use App\Repositories\Investment\InvestmentRepository;
 use App\Repositories\Investment\InvestorAgreementRepository;
@@ -265,7 +267,7 @@ class InvestmentContractService
                             </td>
                         </tr>
 
-                        
+
 
                         <tr>
                             <td width='50%' style='border:1px solid #ccc;'>
@@ -754,6 +756,8 @@ class InvestmentContractService
             $prevAmount += $inv->investment_amount;
         }
 
+        // dd($docDetails);
+
         $currentTotal = $prevAmount + $investment->investment_amount;
         $investmentDate       = Carbon::parse($investment->investment_date);
         $mudarabahCreatedDate = Carbon::parse($docDetails->mudarabahReference->generated_date ?? $docDetails->mudarabahReference->created_at);
@@ -787,7 +791,7 @@ class InvestmentContractService
             '{new_total_investment_amount_eng}' => numberToEnglishWords($currentTotal),
             '{new_total_investment_amount_ar}'  => numberToArabicWords($currentTotal),
 
-            '{annexA}' => $this->buildAnnexureARows($docDetails->investor_id, $companyId, $mudarabahCreatedDate)
+            '{annexA}' => $this->buildAnnexureARows($docDetails->investor_id, $companyId, $mudarabahCreatedDate, $docId)
         ];
 
 
@@ -801,9 +805,9 @@ class InvestmentContractService
         // return view('documents.addendum', compact('html', 'annexureRows'));
     }
 
-    private function buildAnnexureARows(int $investorId, int $companyId, $mudarabahCreatedDate): string
+    private function buildAnnexureARows(int $investorId, int $companyId, $mudarabahCreatedDate, $docId): string
     {
-        $rows = $this->ledgerRows($investorId, $companyId, $mudarabahCreatedDate);
+        $rows = $this->ledgerRows($investorId, $companyId, $mudarabahCreatedDate, $docId);
 
         // ── Now build HTML from all collected rows ────────────────────────────
         $html = '';
@@ -891,6 +895,7 @@ class InvestmentContractService
 
     public function sendPartWithdrawal($docId, $companyId)
     {
+        // dd("test");
         $docDetails = $this->investmentContractDocumentRepository->find($docId);
 
         $docTypeId     = $docDetails->investor_agreement_type_id;
@@ -900,8 +905,10 @@ class InvestmentContractService
             ->get();
 
         $invDocDetails = $this->investmentContractDocumentRepository->find($docId);
+        // dd($invDocDetails);
 
-        // $ledger = $this->ledgerRepository->getfirstbyCond(['investment_contract_document_id' => $docId]);
+        $ledger = $this->ledgerRepository->getfirstbyCond(['investment_contract_document_id' => $docId]);
+        // dd($ledger);
 
 
 
@@ -912,10 +919,12 @@ class InvestmentContractService
 
         $html        = $documentDetail->template;
 
+        // dd($html);
+
         // $investmentDate       = Carbon::parse($investment->investment_date);
         $withdrwalCreated       = Carbon::parse($docDetails->generated_date);
         $mudarabahCreatedDate       = Carbon::parse($invDocDetails->mudarabahReference->generated_date ?? $invDocDetails->mudarabahReference->created_at);
-
+        // dd("test");
 
         $vars = [
             '{doc_created_date}' => $withdrwalCreated->format('d/m/Y'),
@@ -927,9 +936,9 @@ class InvestmentContractService
             '{investor_name_ar}'  => $investor->investor_name_arabic,
             '{investor_id}'  => $investor->id_number,
 
-            // '{withdrawal_amount}' => number_format($ledger->transaction_amount, 2),
-            // '{withdrwal_amount_eng}' => numberToEnglishWords($docDetails->withdrawal_amount) . ' Only',
-            // '{withdrwal_amount_ar}' => numberToArabicWords($docDetails->withdrawal_amount),
+            '{withdrawal_amount}' => number_format($ledger->transaction_amount, 2),
+            '{withdrawal_amount_eng}' => numberToEnglishWords($ledger->transaction_amount) . ' Only',
+            '{withdrawal_amount_ar}' => numberToArabicWords($ledger->transaction_amount),
 
             '{company_name_eng}'  => $company->company_name,
             '{company_name_ar}'  => $company->company_name_arabic,
@@ -939,12 +948,14 @@ class InvestmentContractService
             '{investor_name}' => $investor->investor_name,
             '{investor_id_no}' => $investor->id_number,
 
-            '{html_eng}' => $this->ledgerPartialWithdrawal($docDetails->investor_id, $companyId, $mudarabahCreatedDate)['html_eng'],
-            '{html_ar}' => $this->ledgerPartialWithdrawal($docDetails->investor_id, $companyId, $mudarabahCreatedDate)['html_ar']
+            '{html_eng}' => $this->ledgerPartialWithdrawal($docDetails->investor_id, $companyId, $mudarabahCreatedDate, $docId)['html_eng'],
+            '{html_ar}' => $this->ledgerPartialWithdrawal($docDetails->investor_id, $companyId, $mudarabahCreatedDate, $docId)['html_ar']
 
         ];
+        // dd($vars);
 
         $html = str_replace(array_keys($vars), array_values($vars), $html);
+        // dd('test');
 
         return [
             'html'       => $html,
@@ -952,8 +963,9 @@ class InvestmentContractService
         ];
     }
 
-    public function ledgerPartialWithdrawal(int $investorId, int $companyId, $mudarabahCreatedDate)
+    public function ledgerPartialWithdrawal(int $investorId, int $companyId, $mudarabahCreatedDate, $docId)
     {
+        // dd("test");
         // 1 | الاستثمار الأصلي | __________ | ______ | ______<br>
         //                                 2 | سحب جزئي | ___________ | ______ | ______<br>
         //                                 3 | استثمار إضافي | __________ | ______ | ______<br>
@@ -967,7 +979,8 @@ class InvestmentContractService
         //                                 4 | Additional Investment | __________ | ______ | ______<br>
         //                                 5 | Total Revised Capital | ___________ | ______ | ______
 
-        $rows = $this->ledgerRows($investorId, $companyId, $mudarabahCreatedDate);
+        $rows = $this->ledgerRows($investorId, $companyId, $mudarabahCreatedDate, $docId);
+        // dd($rows);
 
         // ── Now build HTML from all collected rows ────────────────────────────
         $html = '';
@@ -995,13 +1008,15 @@ class InvestmentContractService
         ];
     }
 
-    public function ledgerRows($investorId, $companyId, $mudarabahCreatedDate)
+    public function ledgerRows($investorId, $companyId, $mudarabahCreatedDate, $docId)
     {
+        // dd("test");
         $rows   = [];
         $serial = 1;
         $last_invDate = date('d/m/Y');
 
         $ledger = $this->ledgerRepository->getfirstbyCond(['investor_id' => $investorId, 'company_id' => $companyId]);
+        // dd($ledger);
 
         $investments = Investment::where(['investor_id' => $investorId, 'company_id' => $companyId])
             ->orderBy('investment_date')
@@ -1035,13 +1050,30 @@ class InvestmentContractService
             // }
         }
 
+        $partial_ledger = $this->ledgerRepository->findByDocId($docId);
+        // dd
+        $ledger_id = $partial_ledger->id;
+
+        foreach (InvestorLedger::where('investor_id',  $investorId)->where('company_id', $companyId)->where('investor_transaction_type_id', 3)->where('id', '<=', $ledger_id)->orderBy('withdrawal_date')->get() as $wd) {
+            $rows[] = [
+                'serial'          => $serial++,
+                'particulars_eng' => 'Partial Withdrawal',
+                'particulars_ar'  => 'سحب جزئي',
+                'amount'          => '(' . number_format($wd->transaction_amount, 2) . ')',
+                'received_on'     => Carbon::parse($wd->withdrawal_date)->format('d/m/Y'),
+                'doc_date'        => Carbon::parse($wd->document_date ?? $wd->withdrawal_date)->format('d/m/Y'),
+                'type'            => 'Partial withdrawal',
+            ];
+        }
+        // $partial_withdrawal = PartialWithdrawalBifurcation::
+
         // Total row
-        $totalInvested  = Investment::where('investor_id', $investorId)->sum('investment_amount');
-        // $totalWithdrawn = PartialWithdrawal::whereIn(
-        //     'investment_id',
-        //     Investment::where('investor_id', $investorId)->pluck('id')
-        // )->sum('amount');
-        $totalWithdrawn = 0;
+        $totalInvested  = Investment::where('investor_id', $investorId)->where('company_id', $companyId)->sum('investment_amount');
+        $totalWithdrawn = PartialWithdrawalBifurcation::whereIn(
+            'investment_id',
+            Investment::where('investor_id', $investorId)->where('company_id', $companyId)->pluck('id')
+        )->where('ledger_id', $ledger_id)->sum('withdrawal_amount');
+        // $totalWithdrawn = 0;
 
         $rows[] = [
             'serial'          => null,

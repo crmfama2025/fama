@@ -178,4 +178,8 @@ class Investor extends Model
     {
         return $this->hasmany(Investment::class, 'investor_id');
     }
+    public function investorLedgers()
+    {
+        return $this->hasMany(InvestorLedger::class, 'investor_id');
+    }
 }

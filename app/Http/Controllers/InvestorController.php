@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Exports\InvestorExport;
 use App\Models\DocumentType;
+use App\Models\Investment;
 use App\Models\Investor;
 use App\Models\InvestorRelation;
 use App\Models\PaymentMode;
 use App\Models\PayoutBatch;
+use App\Repositories\Investment\InvestorLedgerRepository;
 use App\Services\Investment\InvestorBankService;
 use App\Services\Investment\InvestorDocumentService;
 use App\Services\Investment\InvestorService;
@@ -22,6 +24,7 @@ class InvestorController extends Controller
         protected InvestorBankService $investorBankSer,
         protected NationalityService $nationalityService,
         protected InvestorDocumentService $investorDocSer,
+        protected InvestorLedgerRepository $investorLedgerRepo
     ) {}
 
     public function index()
@@ -166,5 +169,103 @@ class InvestorController extends Controller
     {
         $this->investorService->delete($investor->id);
         return response()->json(['success' => true, 'message' => 'Investor deleted successfully']);
+    }
+    public function partialWithdrawal($id)
+    {
+        $title = 'Partial Withdrawal';
+        $companies = $this->investorService->getInvestedCompanies($id);
+        // dd($companies);
+        $investor = $this->investorService->getById($id);
+
+        return view("admin.investment.partial-withdrawal", compact("title", "investor", "companies"));
+    }
+    // public function partialWithdrawal($id)
+    // {
+    //     $title = 'Partial Withdrawal';
+    //     $companies = $this->investorService->getInvestedCompanies($id);
+    //     // dd($companies);
+    //     $investor = $this->investorService->getById($id);
+
+    //     return view("admin.investment.partial_withdrawal", compact("title", "investor", "companies"));
+    // }
+    // public function getInvestorLedger(Request $request, $investorId)
+    // {
+    //     // dd("test");
+    //     if ($request->ajax()) {
+    //         $filters = [
+    //             'search' => $request->search['value'] ?? null,
+    //             'investor_id' => $investorId,
+    //             'company_id' => $request->company_id ?? null,
+    //         ];
+    //         return $this->investorService->getInvestorLedger($filters);
+    //     }
+    // }
+    public function getCompanyInvestments($investorId, $companyId, Request $request)
+    {
+        // $investments = $this->investorService->getCompanyInvestments($investorId, $companyId);
+        // // dd($investments);
+
+        // return response()->json($investments);
+        $editLedgerId = $request->query('edit_ledger_id');
+
+        $investments = $this->investorService->getCompanyInvestments($investorId, $companyId, $editLedgerId);
+
+        return response()->json($investments);
+    }
+    public function partialWithdrawalSubmit(Request $request, $id)
+    {
+        // dd($request->all());
+        try {
+            $withdrawal = $this->investorService->partialWithdrawal($id, $request->all());
+
+            return response()->json(['success' => true, 'data' => $withdrawal, 'message' => 'Partial Withdrawal submitted successfully'], 200);
+        } catch (\Exception $e) {
+
+            return response()->json(['success' => false, 'message' => $e->getMessage(), 'error'   => $e], 500);
+        }
+    }
+    public function partialWithdrawallist()
+    {
+        // dd("test");
+        $title = "Partial Withdrawal List";
+        // dd($title);
+        return view("admin.investment.partial-withdrawals-list", compact("title"));
+    }
+    public function getPartialWithdrawals(Request $request)
+    {
+        // dd("test");
+        if ($request->ajax()) {
+            $filters = [
+                'investor_id' => $request->investorid,
+                'company_id' => auth()->user()->company_id,
+                'investment_id' => $request->investment_id,
+                'search' => $request->search['value'] ?? null
+            ];
+
+            return $this->investorService->getPartialWithdrawals($filters);
+        }
+    }
+    public function editPartialWithdrawal($id)
+    {
+        $data = $this->investorService->getPartialWithdrawalForEdit($id);
+
+        $companies = $this->investorService->getInvestedCompanies($data['investor']['id']);
+        // dd($companies);
+        // dd($data);
+
+        if (!$data) {
+            abort(404);
+        }
+
+        return view('admin.investment.partial-withdrawal-edit', compact('data', 'companies'));
+    }
+    public function updatePartialWithdrawal($id, Request $request)
+    {
+        try {
+            $this->investorService->updatePartialWithdrawal($id, $request->all());
+            return response()->json(['success' => true, 'message' => 'Partial withdrawal updated successfully.']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+        }
     }
 }

@@ -375,6 +375,18 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
     Route::get('investment_contracts', [InvestmentContractsController::class, 'index'])->name('investmentContracts');
     Route::get('investment_contracts/list', [InvestmentContractsController::class, 'getContracts'])->name('investmentContracts.list');
     Route::get('investment_contracts/export', [InvestmentContractsController::class, 'export'])->name('investment_contracts.export');
+    Route::get('investor/partial-withdrawal/{id}', [InvestorController::class, 'partialWithdrawal'])->name('investor.partial_withdrawal');
+    Route::get('investor/ledger/{investorId}', [InvestorController::class, 'getInvestorLedger'])->name('investor.ledger');
+    Route::get(
+        'investor/{investorId}/company/{companyId}/investments',
+        [InvestorController::class, 'getCompanyInvestments']
+    )->name('investor.company.investments');
+    Route::post('investor/partial-withdrawal/{id}', [InvestorController::class, 'partialWithdrawalSubmit'])->name('investor.partial-withdrawal.store');
+    Route::get('partial-withdrawals', [InvestorController::class, 'partialWithdrawallist'])->name('investor.partial-withdrawal-list');
+    Route::get('partial-withdrawals/getList', [InvestorController::class, 'getPartialWithdrawals'])->name('investor.partial-withdrawals');
+    Route::get('partial-withdrawals/edit/{id}/edit', [InvestorController::class, 'editPartialWithdrawal'])->name('investor.partial-withdrawals.edit');
+    Route::put('investor/partial-withdrawal/{id}', [InvestorController::class, 'updatePartialWithdrawal'])
+        ->name('investor.partial-withdrawal.update');
 });
 
 

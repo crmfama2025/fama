@@ -4,6 +4,7 @@ namespace App\Repositories\Investment;
 
 use App\Models\InvestmentDocument;
 use App\Models\InvestorLedger;
+use App\Models\PartialWithdrawalBifurcation;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 
 class InvestorLedgerRepository
@@ -16,6 +17,10 @@ class InvestorLedgerRepository
     public function find($id)
     {
         return InvestorLedger::findOrFail($id);
+    }
+    public function findByDocId($id)
+    {
+        return InvestorLedger::where('investment_contract_document_id', $id)->first();
     }
 
     public function getfirstbyCond($condition)
@@ -90,5 +95,26 @@ class InvestorLedgerRepository
             'investment',
             'transactionType'
         ])->findOrFail($id);
+    }
+    public function createPartialWithdrawal($data)
+    {
+        return PartialWithdrawalBifurcation::create($data);
+    }
+    // InvestorLedgerRepository
+    public function getBifurcationsByLedgerId($ledgerId)
+    {
+        return PartialWithdrawalBifurcation::where('ledger_id', $ledgerId)->get();
+    }
+
+    public function deleteBifurcationsByLedgerId($ledgerId)
+    {
+        return PartialWithdrawalBifurcation::where('ledger_id', $ledgerId)->delete();
+    }
+
+    public function investmentHasOtherActiveBifurcation($investmentId, $excludeLedgerId)
+    {
+        return PartialWithdrawalBifurcation::where('investment_id', $investmentId)
+            ->where('ledger_id', '!=', $excludeLedgerId)
+            ->exists();
     }
 }

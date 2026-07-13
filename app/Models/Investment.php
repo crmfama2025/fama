@@ -88,7 +88,10 @@ class Investment extends Model
         'company_bank_iban',
         'company_bank_account_number',
 
-        'investment_amount_arabic'
+        'investment_amount_arabic',
+        'total_invested_amount',
+        'total_withdrawn_amount',
+        'has_partial_withdrawal'
     ];
     protected $casts = [
         'company_bank_iban' => CustomEncrypted::class,
@@ -269,5 +272,10 @@ class Investment extends Model
     public function setLastProfitReleasedDate($date)
     {
         $this->attributes['last_profit_released_date'] = Carbon::parse($date)->format('Y-m-d');
+    }
+    public function latestBifurcation()
+    {
+        return $this->hasOne(PartialWithdrawalBifurcation::class, 'investment_id')
+            ->latestOfMany();
     }
 }

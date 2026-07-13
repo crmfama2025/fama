@@ -20,6 +20,11 @@ class InvestorLedger extends Model
         'added_by',
         'updated_by',
         'deleted_by',
+        'investment_contract_document_id',
+        'requested_date',
+        'withdrawal_date',
+        'duration_days',
+        'partial_withdrawal_status'
     ];
 
     public function transactionType()

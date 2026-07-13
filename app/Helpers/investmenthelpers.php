@@ -131,6 +131,7 @@ function ar_month($month)
     }
 }
 
+use App\Models\Investment;
 use NumberToWords\NumberToWords;
 
 function numberToArabicWords($number)
@@ -225,4 +226,9 @@ function profitInterval_ar($interval)
     } elseif ($interval == 'yearly') {
         return 'سنوي';
     }
+}
+function getTotalWithdrawnAmount($investmentId)
+{
+    return Investment::where('id', $investmentId)
+        ->value('total_withdrawn_amount') ?? 0;;
 }

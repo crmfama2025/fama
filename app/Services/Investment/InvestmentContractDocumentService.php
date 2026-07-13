@@ -104,7 +104,7 @@ class InvestmentContractDocumentService
             // ->addColumn('investment_code', fn($row) =>
             // $row->investment->investment_code ?? '-')
             ->addColumn('investor_agreement_type', fn($row) => $row->agreementType->investor_agreement_type)
-            ->addColumn('investor_agreement_template', fn($row) => 'V' . $row->investor_agreement_template_id)
+            ->addColumn('investor_agreement_template', fn($row) => 'V' . $row->agreementTemplate->version_no)
             ->addColumn('status', function ($row) {
                 if (!empty($row->generated_date)) {
                     return '<span class="badge badge-success">Generated</span>';
@@ -292,6 +292,11 @@ class InvestmentContractDocumentService
     {
         // dump('createInvestorDocument');
         // dump($investorId);
+        // dump($docInsertData);
+        // dd($docInsertData);
+        $docInsertData['generated_date'] = now()->format('Y-m-d H:i:s');
+        $docInsertData['generated_by'] = auth()->user()->id;
+
         $lastMudarabah = InvestmentContractDocuments::where('investor_id', $investorId)
             ->where('company_id', $companyId)
             ->where('investor_agreement_type_id', 1) // Mudarabah
@@ -301,11 +306,18 @@ class InvestmentContractDocumentService
         $docInsertData['reference_mudarabah_id'] = $lastMudarabah ? $lastMudarabah->id : null;
 
         if ($docInsertData['investment_id'] == 0) {
+            if ($docInsertData['investor_agreement_type_id'] == 3) {
+                return $this->createAgreement($docInsertData, $companyId, 3); //Partial Withdrawal
+            }
 
             $this->createAgreement($docInsertData, $companyId, 4); // Novation
             $this->createAgreement($docInsertData, $companyId, 1); // Mudarabah
 
         } else {
+
+            if ($docInsertData['investor_agreement_type_id'] == 5) {
+                return  $this->createAgreement($docInsertData, $companyId, 5);
+            }
 
             $companyInvestmentCount = Investment::where('investor_id', $investorId)
                 ->where('company_id', $companyId)
@@ -321,17 +333,17 @@ class InvestmentContractDocumentService
         }
     }
 
-    private function createAgreement(array $data, int $companyId, int $agreementTypeId): void
+    private function createAgreement(array $data, int $companyId, int $agreementTypeId)
     {
         $data['company_id'] = $companyId;
         $data['investor_agreement_type_id'] = $agreementTypeId;
         $data['investor_agreement_template_id'] = $this->InvestorAgreementRepository
             ->getActiveIdBytype($agreementTypeId);
 
-        $this->create($data);
+        return $this->create($data);
     }
 
-    public function updateInvestorDocument($investorId, $companyId, $investor, $docInsertData)
+    public function updateInvestorDocument($investorId, $companyId, $docInsertData)
     {
         // dd("test");
         $companyInvestmentCount = Investment::where('investor_id', $investorId)

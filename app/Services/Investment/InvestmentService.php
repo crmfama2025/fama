@@ -118,7 +118,8 @@ class InvestmentService
                 'next_profit_release_date' => parseDate($data['next_profit_release_date']),
                 // 'next_referral_commission_release_date' => $next_profit_release_date,
                 'initial_profit_release_month' => Carbon::parse($data['next_profit_release_date'])->format('M Y'),
-                'invested_company_id' => $data['invested_company_id']
+                'invested_company_id' => $data['invested_company_id'],
+                'total_invested_amount' => $data['investment_amount'],
             ];
             $this->validate($investmentData);
             // dd($investmentData);
@@ -325,7 +326,8 @@ class InvestmentService
                 'next_profit_release_date' => parseDate($data['next_profit_release_date']),
                 // 'next_referral_commission_release_date' => $data['next_profit_release_date'],
                 'initial_profit_release_month' => Carbon::parse($data['next_profit_release_date'])->format('M Y'),
-                'invested_company_id' => $data['invested_company_id']
+                'invested_company_id' => $data['invested_company_id'],
+                'total_invested_amount' => $data['investment_amount'],
             ];
 
             $this->validate($investmentData);
@@ -614,7 +616,7 @@ class InvestmentService
                             <i class="fas fa-trash-alt"></i>
                         </button>';
                     }
-                    if (!paymentFullyReceived($row->id) && auth()->user()->hasAnyPermission(['investment.submit_pending'], $row->company_id)) {
+                    if (!paymentFullyReceived($row->id) && $row->total_withdrawn_amount == 0 && auth()->user()->hasAnyPermission(['investment.submit_pending'], $row->company_id)) {
                         $action .= '
                             <button class="btn btn-sm btn-success m-1 openPendingModal"
                                 data-id="' . $row->id . '" data-balance="' . $row->balance_amount . '"
@@ -625,7 +627,7 @@ class InvestmentService
                     }
                     if (($row->terminate_status == 1) && auth()->user()->hasAnyPermission(['investment.terminate'], $row->company_id)) {
                         $action .= '
-                                <button class="btn btn-sm btn-warning m-1 openTerminationModal"
+                                <button class="btn btn-sm bg-gradient-navy m-1 openTerminationModal"
                                 data-status = "' . $row->terminate_status . '"
                                     data-id="' . $row->id . '"
                                     data-requested-date="' . ($row->termination_requested_date ? \Carbon\Carbon::parse($row->termination_requested_date)->format('d-m-Y') : '') . '"
@@ -657,25 +659,18 @@ class InvestmentService
                     }
 
 
-                    $action .= '<a href="' . route('legal_template.contractview', [
-                        'docId' => 1,
-                        'companyId' => $row->company_id,
-                    ]) . '"
-                                    class="btn btn-sm btn-primary m-1"
-                                    title="View Investment">
-                                    Send Mudarabah
-                                </a>';
+
 
                     $action .= '<a href="' . route('investment.contracts.list', $row->id) . '"
                             class="btn btn-sm btn-warning m-1"
                             title="Documents">
                             <i class="fas fa-file-upload"></i>
                         </a>';
-                    $action .= '<a href="' . route('investment.ledger.list', $row->id) . '"
-                            class="btn btn-sm btn-info m-1"
-                            title="ledger">
-                            <i class="fas fa-book"></i>
-                        </a>';
+                    // $action .= '<a href="' . route('investment.ledger.list', $row->id) . '"
+                    //         class="btn btn-sm btn-info m-1"
+                    //         title="ledger">
+                    //         <i class="fas fa-book"></i>
+                    //     </a>';
                 }
 
                 return $action;

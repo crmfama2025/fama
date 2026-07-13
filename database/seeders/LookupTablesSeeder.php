@@ -35,7 +35,7 @@ class LookupTablesSeeder extends Seeder
                     'updated_at'    => $now,
                 ],
                 [
-                    'contract_type' => 'Faateh',
+                    'contract_type' => 'Faateh/Ineternal',
                     'shortcode'     => 'FF',
                     'created_at'    => $now,
                     'updated_at'    => $now,
