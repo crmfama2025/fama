@@ -557,7 +557,8 @@ class InvestorService
             })
 
             ->addColumn('action', function ($row) {
-                $action = '<a href="' . route('investor.partial-withdrawals.edit', $row->id) . '" class="btn btn-info btn-sm" ><i class="fas fa-pencil-alt"></i></a>';
+                $action = '';
+                // $action .= '<a href="' . route('investor.partial-withdrawals.edit', $row->id) . '" class="btn btn-info btn-sm" ><i class="fas fa-pencil-alt"></i></a>';
                 return $action;
             })
             ->rawColumns(['transaction_amount', 'requested_date', 'withdrawal_date', 'investor_name', 'action', 'status'])
