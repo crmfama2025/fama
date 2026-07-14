@@ -24,7 +24,7 @@ class AgreementSignatureService
      */
     public function currentSignerRole($contract)
     {
-        return $this->InvContractDocRepo->isInvestorSigned($contract) ? 'company' : 'investor';
+        return $this->InvContractDocRepo->isInvestorSigned($contract) ? 'investor' : 'company';
     }
 
     /**
@@ -230,21 +230,128 @@ class AgreementSignatureService
             ? $contract->investor->email
             : $contract->company->email;
 
-        $result = $this->brevoService->sendEmail(
-            [
-                ['email' => 'rahmathrasmiya@gmail.com', 'name' => 'Test User']
-            ],
-            'Investment Document Signature Request',
-            'admin.emails.investment-document-signature-email',
-            [
-                'name'           => $contract->investor->investor_name,
-                'name_ar'           => $contract->investor->investor_name_arabic,
-                'document_name'           => $contract->agreementType->investor_agreement_type,
-                'document_name_ar'           => document_name_ar($contract->agreementType->short_code),
-                'document_path' => $signLink,
+        $investorhtml = '<p>
+                    Dear ' . $contract->investor->investor_name . ',
+                </p>
 
-            ]
-        );
+                <p>Greetings.</p>
+
+                <p>Please find the link to the
+                    updated ' . $contract->agreementType->investor_agreement_type . '
+                    for
+                    your review.</p>
+
+                <p>Kindly review all pages
+                    carefully and sign exactly
+                    as per your ID using "Add
+                    Signature", then use "Place
+                    Signature" option to place
+                    your signature in all the
+                    designated locations
+                    throughout before submitting
+                    the document.</p>
+
+                <p>Once done, please submit the
+                    document.</p>
+
+                <p>If you need any assistance,
+                    feel free to contact me.</p>
+
+                <p>Thank you for your
+                    cooperation and continued
+                    trust.</p>
+
+                <p>Kind Regards,</p>
+
+                <p>عزيزي/تي
+                    ' . $contract->investor->investor_name_arabic . '،</p>
+
+                <p>تحية طيبة،</p>
+
+                <p>يرجى مراجعة المستند المُحدّث
+                    ' . document_name_ar($contract->agreementType->short_code) . ' من
+                    خلال
+                    الرابط أدناه.</p>
+                <p>يرجى التوقيع بما يطابق
+                    التوقيع المعتمد في بطاقة
+                    الهوية الإماراتية أو جواز
+                    السفر باستخدام خيار "Add
+                    Signature"، ثم استخدام
+                    "Place Signature" لوضع
+                    التوقيع في جميع الأماكن
+                    المخصصة، وبعدها الضغط على
+                    "Submit" لإرسال المستند.</p>
+
+                <p>في حال احتجتم إلى أي مساعدة،
+                    يُرجى عدم التردد في التواصل
+                    معنا.</p>
+
+                <p>شكرًا لكم على تعاونكم
+                    وثقتكم.</p>
+
+                <p>مع خالص التحية والتقدير،</p>';
+
+
+        $Companyhtml = '<p>
+                    Dear ' . $contract->company->company_name . ',
+                </p>
+
+                <p>Greetings.</p>
+
+                <p>Please find the link to the
+                    updated ' . $contract->agreementType->investor_agreement_type . '
+                    for
+                    your review.</p>
+
+                <p>Kindly review all pages
+                    carefully and sign using "Add
+                    Signature", then use "Place
+                    Signature" option to place
+                    your signature in all the
+                    designated locations
+                    throughout before submitting
+                    the document.</p>
+
+                <p>Once done, please submit the
+                    document.</p>
+
+                <p>Kind Regards,</p>';
+        // dd($signerRole);
+        if ($signerRole == 'investor') {
+            $result = $this->brevoService->sendEmail(
+                [
+                    ['email' => 'rahmathrasmiya@gmail.com', 'name' => 'Test User']
+                ],
+                'Investment Document Signature Request',
+                'admin.emails.investment-document-signature-email',
+                [
+                    // 'name'           => $contract->investor->investor_name,
+                    // 'name_ar'           => $contract->investor->investor_name_arabic,
+                    // 'document_name'           => $contract->agreementType->investor_agreement_type,
+                    // 'document_name_ar'           => document_name_ar($contract->agreementType->short_code),
+                    'document_path' => $signLink,
+                    'content' => $investorhtml,
+
+                ]
+            );
+        } else {
+            $result = $this->brevoService->sendEmail(
+                [
+                    ['email' => 'rahmathrasmiya@gmail.com', 'name' => 'Test User']
+                ],
+                'Investment Document Signature Request',
+                'admin.emails.investment-document-signature-email',
+                [
+                    // 'name'           => $contract->investor->investor_name,
+                    // 'name_ar'           => $contract->investor->investor_name_arabic,
+                    // 'document_name'           => $contract->agreementType->investor_agreement_type,
+                    // 'document_name_ar'           => document_name_ar($contract->agreementType->short_code),
+                    'document_path' => $signLink,
+                    'content' => $Companyhtml,
+                ]
+            );
+        }
+
         // Mail::send('emails.sign-agreement', [
         //     'signLink' => $signLink,
         //     'signerRole' => $signerRole,

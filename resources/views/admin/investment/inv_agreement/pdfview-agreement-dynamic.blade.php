@@ -463,7 +463,7 @@
                             </button>
                         @endif
                     @else
-                        @if (!$contractDocument->is_investor_signed && !$contractDocument->is_company_signed)
+                        @if (!$contractDocument->is_investor_signed || !$contractDocument->is_company_signed)
                             <button onclick="openSignatureModal()" class="btn btn-success mr-2">
                                 <i class="fas fa-signature"></i> Add Signature
                             </button>
@@ -472,7 +472,6 @@
                                 <i class="fas fa-check"></i> Submit Signed Agreement
                             </button>
                         @endif
-
                     @endif
                     {{-- <a href="{{ route('invoices.generated') }}" class="btn btn-secondary mr-2">
                         <i class="fas fa-arrow-left"></i> Back

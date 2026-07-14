@@ -304,7 +304,7 @@ class InvestmentContractDocumentService
             ->first();
 
         $docInsertData['reference_mudarabah_id'] = $lastMudarabah ? $lastMudarabah->id : null;
-
+        // dd($docInsertData);
         if ($docInsertData['investment_id'] == 0) {
             if ($docInsertData['investor_agreement_type_id'] == 3) {
                 return $this->createAgreement($docInsertData, $companyId, 3); //Partial Withdrawal
@@ -315,20 +315,22 @@ class InvestmentContractDocumentService
 
         } else {
 
-            if ($docInsertData['investor_agreement_type_id'] == 5) {
-                return  $this->createAgreement($docInsertData, $companyId, 5);
-            }
+            if (isset($docInsertData['investor_agreement_type_id'])) {
+                if ($docInsertData['investor_agreement_type_id'] == 5) {
+                    return  $this->createAgreement($docInsertData, $companyId, 5);
+                }
+            } else {
+                $companyInvestmentCount = Investment::where('investor_id', $investorId)
+                    ->where('company_id', $companyId)
+                    ->count();
 
-            $companyInvestmentCount = Investment::where('investor_id', $investorId)
-                ->where('company_id', $companyId)
-                ->count();
-
-            if ($companyInvestmentCount == 1) {
-                $this->createAgreement($docInsertData, $companyId, 1); // Mudarabah
-            } elseif ($companyInvestmentCount > 1) {
+                if ($companyInvestmentCount == 1) {
+                    $this->createAgreement($docInsertData, $companyId, 1); // Mudarabah
+                } elseif ($companyInvestmentCount > 1) {
 
 
-                $this->createAgreement($docInsertData, $companyId, 2); // Addendum
+                    $this->createAgreement($docInsertData, $companyId, 2); // Addendum
+                }
             }
         }
     }

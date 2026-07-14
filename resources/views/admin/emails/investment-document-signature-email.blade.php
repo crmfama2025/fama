@@ -86,66 +86,7 @@
                                                                                 <tr>
                                                                                     <td align="center"
                                                                                         class="esd-block-text es-p5t es-p5b es-p40r es-p40l es-m-p0r es-m-p0l">
-                                                                                        <p>
-                                                                                            Dear {{ $name }},
-                                                                                        </p>
-
-                                                                                        <p>Greetings.</p>
-
-                                                                                        <p>Please find the link to the
-                                                                                            updated {{ $document_name }}
-                                                                                            for
-                                                                                            your review.</p>
-
-                                                                                        <p>Kindly review all pages
-                                                                                            carefully and sign exactly
-                                                                                            as per your ID using "Add
-                                                                                            Signature", then use "Place
-                                                                                            Signature" option to place
-                                                                                            your signature in all the
-                                                                                            designated locations
-                                                                                            throughout before submitting
-                                                                                            the document.</p>
-
-                                                                                        <p>Once done, please submit the
-                                                                                            document.</p>
-
-                                                                                        <p>If you need any assistance,
-                                                                                            feel free to contact me.</p>
-
-                                                                                        <p>Thank you for your
-                                                                                            cooperation and continued
-                                                                                            trust.</p>
-
-                                                                                        <p>Kind Regards,</p>
-
-                                                                                        <p>عزيزي/تي
-                                                                                            {{ $name_ar }}،</p>
-
-                                                                                        <p>تحية طيبة،</p>
-
-                                                                                        <p>يرجى مراجعة المستند المُحدّث
-                                                                                            {{ $document_name_ar }} من
-                                                                                            خلال
-                                                                                            الرابط أدناه.</p>
-                                                                                        <p>يرجى التوقيع بما يطابق
-                                                                                            التوقيع المعتمد في بطاقة
-                                                                                            الهوية الإماراتية أو جواز
-                                                                                            السفر باستخدام خيار "Add
-                                                                                            Signature"، ثم استخدام
-                                                                                            "Place Signature" لوضع
-                                                                                            التوقيع في جميع الأماكن
-                                                                                            المخصصة، وبعدها الضغط على
-                                                                                            "Submit" لإرسال المستند.</p>
-
-                                                                                        <p>في حال احتجتم إلى أي مساعدة،
-                                                                                            يُرجى عدم التردد في التواصل
-                                                                                            معنا.</p>
-
-                                                                                        <p>شكرًا لكم على تعاونكم
-                                                                                            وثقتكم.</p>
-
-                                                                                        <p>مع خالص التحية والتقدير،</p>
+                                                                                        {!! $content !!}
 
                                                                                     </td>
                                                                                 </tr>
