@@ -435,7 +435,8 @@
                                                 <input type="number" step="0.01" min="0" class="form-control"
                                                     id="withdrawal_amount" name="withdrawal_amount" placeholder="0.00"
                                                     required>
-                                                <small class="form-text text-muted">Split this amount across the
+                                                <small class="form-text text-muted" id="withdrawalAmountHint">Split this
+                                                    amount across the
                                                     investments below.</small>
                                             </div>
                                         </div>
@@ -631,6 +632,9 @@
                 $(target).find('table.ledger-table').DataTable().columns.adjust();
             });
 
+            let totalAvailableBalance = 0;
+            let exceedAlertShown = false;
+
             /* ---------- Load investments when company changes ---------- */
             $('#company_id').on('change', function() {
                 const companyId = $(this).val();
@@ -640,6 +644,7 @@
                 $('#investmentsWrapper').hide();
                 $('#noInvestmentsMsg').hide();
                 $('#submitWithdrawalBtn').prop('disabled', true);
+
                 updateSummary();
 
                 if (!companyId) return;
@@ -658,6 +663,15 @@
                         $('#noInvestmentsMsg').show();
                         return;
                     }
+
+                    //  sum up available balances across all investments in this company
+                    totalAvailableBalance = investments.reduce(function(sum, inv) {
+                        return sum + parseFloat(inv.available_balance || 0);
+                    }, 0);
+
+                    $('#withdrawal_amount')
+                        .attr('max', totalAvailableBalance.toFixed(2))
+                        .attr('title', 'Max available: ' + totalAvailableBalance.toFixed(2));
 
                     investments.forEach(function(inv) {
                         const row = `
@@ -733,6 +747,23 @@
                 });
             });
 
+            $('#withdrawal_amount').on('input', function() {
+                const targetAmount = parseFloat($(this).val());
+
+                if (!isNaN(targetAmount) && targetAmount > totalAvailableBalance && totalAvailableBalance >
+                    0) {
+                    if (!exceedAlertShown) {
+                        toastr.error('Withdrawal amount cannot exceed available balance of ' +
+                            totalAvailableBalance.toFixed(2));
+                        exceedAlertShown = true;
+                    }
+                } else {
+                    exceedAlertShown = false;
+                }
+
+                updateSummary();
+            });
+
             /* ---------- Select all ---------- */
             $(document).on('change', '#selectAllInvestments', function() {
                 const checked = $(this).is(':checked');
@@ -775,6 +806,11 @@
                     // $reqDateInput.prop('required', false).prop('disabled', true);
                     // $durationInput.prop('required', false).prop('disabled', true);
                     // $termDateInput.prop('required', false).prop('disabled', true);
+                    if (entered > available) {
+                        toastr.error('Amount cannot exceed available balance of ' +
+                            available.toFixed(2));
+                    }
+
                     $(this).addClass('amount-invalid');
                 } else if (entered === available) {
                     // $reqDateInput.prop('required', true).prop('disabled', false);
@@ -822,10 +858,12 @@
 
                 const diff = targetIsValid ? (targetAmount - total) : 0;
                 if (targetIsValid && !totalsMatch) {
+                    // toastr.warning('Total allocated (' + total.toFixed(2) + ') does not match withdrawal amount (' +
+                    //     targetAmount.toFixed(2) + ')');
                     $('#withdrawalAmountHint').text(
                         diff > 0 ?
                         `Remaining to allocate: ${diff.toFixed(2)}` :
-                        `Over-allocated by: ${Math.abs(diff).toFixed(2)}`
+                        `You've allocated ${Math.abs(diff).toFixed(2)} more than the withdrawal amount`
                     ).addClass('text-danger').removeClass('text-muted');
                 } else {
                     $('#withdrawalAmountHint').text('Split this amount across the investments below.')
