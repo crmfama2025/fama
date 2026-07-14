@@ -269,7 +269,7 @@ class InvestorService
                 $action .= ' <button class="btn btn-warning btn-sm" data-id="" data-investor-id="' . $row->id . '" data-target="#modal-add-bank" data-toggle="modal" title="Add Bank"><i class="fas fa-university"></i></button>';
                 $action .= ' <a href="' . route('investor.partial_withdrawal', $row->id) . '"
                     title="Partial Withdrawal"
-                    class="btn bg-secondary btn-sm">
+                    class="btn bg-orange btn-sm">
                     <i class="fas fa-wallet"></i>
                 </a>';
 

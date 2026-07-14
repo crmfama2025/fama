@@ -23,7 +23,7 @@ class InvestorTransactionTypeSeeder extends Seeder
         ]);
 
         InvestorTransactionTypes::updateOrCreate([
-            "transaction_type" => "Partial Withrawal",
+            "transaction_type" => "Partial Withdrawal",
         ]);
         InvestorTransactionTypes::updateOrCreate([
             "transaction_type" => "Full Withdrawal",

@@ -190,12 +190,17 @@
                                                                             strtolower($entry['type']),
                                                                             'investment',
                                                                         )
+                                                                            => 'badge-warning',
+                                                                        str_contains(
+                                                                            strtolower($entry['type']),
+                                                                            'addendum',
+                                                                        )
                                                                             => 'badge-success',
                                                                         str_contains(
                                                                             strtolower($entry['type']),
                                                                             'withdrawal',
                                                                         )
-                                                                            => 'badge-warning',
+                                                                            => 'badge-danger',
                                                                         str_contains(
                                                                             strtolower($entry['type']),
                                                                             'return',
