@@ -325,11 +325,11 @@ class InvestmentContractDocumentService
                     ->count();
 
                 if ($companyInvestmentCount == 1) {
-                    $this->createAgreement($docInsertData, $companyId, 1); // Mudarabah
+                    return $this->createAgreement($docInsertData, $companyId, 1); // Mudarabah
                 } elseif ($companyInvestmentCount > 1) {
 
 
-                    $this->createAgreement($docInsertData, $companyId, 2); // Addendum
+                    return $this->createAgreement($docInsertData, $companyId, 2); // Addendum
                 }
             }
         }

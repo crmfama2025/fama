@@ -161,8 +161,11 @@ class InvestmentService
             ];
 
             // Investment contract document creation
-            $this->investmentContractDocumentService->createInvestorDocument($investor->id, $companyId, $docInsertData);
+            $inv_document = $this->investmentContractDocumentService->createInvestorDocument($investor->id, $companyId, $docInsertData);
+            // dd($inv_document);
 
+
+            $docInsertData['investment_contract_document_id'] = $inv_document->id;
             // Investment contract document creation
             $this->investorLedgerService->createInvestmentLedger($investor->id, $companyId, $investor, $docInsertData, $investment);
 
