@@ -181,7 +181,7 @@
                                                 <tbody>
                                                     @forelse ($company->ledger as $entry)
                                                         <tr>
-                                                            <td>{{ \Carbon\Carbon::parse($entry['date'])->format('Y-m-d') }}
+                                                            <td>{{ \Carbon\Carbon::parse($entry['date'])->format('d-m-Y') }}
                                                             </td>
                                                             <td>
                                                                 @php

@@ -223,7 +223,8 @@ class InvestorRepository
         // 3. Filter & group ledger entries by company
         $ledgerByCompany = $investor->investorLedgers
             ->where('status', 1) // only active records
-            ->sortBy('transaction_date')
+            // ->sortBy('transaction_date')
+            ->sortBy('id')
             ->groupBy('company_id');
 
         // 4. Attach financial data to each company
