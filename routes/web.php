@@ -402,3 +402,7 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
 
 
 // Route::get('/download-scope/{id}', [ContractController::class, 'downloadScope']);
+
+Route::get('/investor-sign-success', function () {
+    return view('admin.investment.investor_success_page');
+})->name('investor.sign.success');
