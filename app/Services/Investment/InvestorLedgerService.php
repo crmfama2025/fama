@@ -179,7 +179,7 @@ class InvestorLedgerService
             $this->create($ledgerInsertData);
         }
     }
-    public function updateInvestmentLedger($investorId, $companyId, $investor, $ledgerInsertData, $investment)
+    public function updateInvestmentLedger($investorId, $companyId, $ledgerInsertData, $investment)
     {
         $companyInvestmentCount = Investment::where('investor_id', $investorId)
             ->where('company_id', $companyId)

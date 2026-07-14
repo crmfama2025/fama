@@ -26,7 +26,9 @@ class InvestmentContractDocumentRepository
     public function update(int $id, array $data)
     {
         $investmentDocument = InvestmentContractDocuments::findOrFail($id);
-        return $investmentDocument->update($data);
+        $investmentDocument->update($data);
+
+        return $investmentDocument->fresh();
     }
     public function getQuery(array $filters = []): Builder
     {

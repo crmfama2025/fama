@@ -45,7 +45,8 @@ class InvestmentContractDocumentService
     public function update($id, array $data)
     {
         $data['updated_by'] = auth()->user()->id;
-        $this->investmentContractDocumentRepository->update($id, $data);
+        $record = $this->investmentContractDocumentRepository->update($id, $data);
+        return $record;
     }
 
     // public function delete($id)
@@ -362,13 +363,15 @@ class InvestmentContractDocumentService
             $docInsertData['company_id'] = $companyId;
             $docInsertData['investor_agreement_type_id'] = 1;
             $docInsertData['investor_agreement_template_id'] = $this->InvestorAgreementRepository->getActiveIdBytype($docInsertData['investor_agreement_type_id']);
-            $this->update($contract_doc->id, $docInsertData);
+            // dd($docInsertData);
+            return $this->update($contract_doc->id, $docInsertData);
         } elseif ($companyInvestmentCount > 1) {
             // Addendum contract
             $docInsertData['company_id'] = $companyId;
             $docInsertData['investor_agreement_type_id'] = 2;
             $docInsertData['investor_agreement_template_id'] = $this->InvestorAgreementRepository->getActiveIdBytype($docInsertData['investor_agreement_type_id']);
-            $this->update($contract_doc->id, $docInsertData);
+            // dd($docInsertData);
+            return $this->update($contract_doc->id, $docInsertData);
         }
     }
 }
