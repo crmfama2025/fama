@@ -537,7 +537,7 @@
 
     <div class="sig-modal-overlay" id="sendModalOverlay">
         <div class="sig-modal" style="width:360px;">
-            <h5>📤 Send for Signature</h5>
+            <h5>Send for Signature</h5>
             <p style="font-size:12px;color:#888;margin:-8px 0 14px;">
                 Choose how to deliver the signing link.
             </p>
