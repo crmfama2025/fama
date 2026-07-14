@@ -601,6 +601,31 @@ class InvestmentContractService
         $InvestorProfitPerc = $investmentData->profit_perc * 100 / 50;
         $CompanyProfitPerc  = 100 - $InvestorProfitPerc;
 
+        // // ── Start from next month of mudarabah created date ──────────────────────
+        // $startDate = Carbon::now()->addMonth()->startOfMonth();
+        // $firstPayoutDate = Carbon::createFromFormat('M Y', $inv->initial_profit_release_month)
+        //     ->startOfMonth();
+
+        // // ── Use endOfMonth on windowEnd to avoid any startOfMonth boundary issues ─
+        // $windowEnd = $startDate->copy()->addMonths(12)->endOfMonth();
+
+        // $nextDate = $firstPayoutDate->copy()->startOfMonth();
+
+        // while ($nextDate->lessThanOrEqualTo($windowEnd)) {
+
+        //     if ($nextDate->greaterThanOrEqualTo($startDate)) {
+        //         $contractPayoutMonths[$inv->id][] = $nextDate->copy();
+        //     }
+
+        //     $nextDate = Carbon::parse(calculateNextProfitReleaseDate(
+        //         0,
+        //         $inv->profit_interval_id,
+        //         $nextDate->format('M Y'),
+        //         $inv->payoutBatch->batch_name
+        //     ))->startOfMonth();
+        // }
+
+
         $startDate = Carbon::createFromFormat('M Y', $investmentData->initial_profit_release_month)
             ->startOfMonth();
 
@@ -613,23 +638,42 @@ class InvestmentContractService
             $investmentData->initial_profit_release_month,
             $investmentData->payoutBatch->batch_name
         );
+        // dump($startDate);
+        // dump($nextProfitDate);
 
         for ($i = 0; $i < 12; $i++) {
             $currentMonth = $startDate->copy()->addMonths($i);
+            $windowEnd = $startDate->copy()->addMonths(12)->endOfMonth();
+            $nextDate = $startDate->copy()->startOfMonth();
             $profitAmount = 0;
-
-            if ($currentMonth->equalTo($nextProfitDate) || $i === 0) {
+            // dump($nextDate->lessThanOrEqualTo($windowEnd));
+            while ($nextDate->lessThanOrEqualTo($windowEnd)) {
                 $profitAmount = $investmentData->profit_amount_per_interval;
-
-                if ($i > 0) {
-                    $nextProfitDate = calculateNextProfitReleaseDate(
-                        0,
-                        $investmentData->profit_interval_id,
-                        $nextProfitDate,
-                        $investmentData->payoutBatch->batch_name
-                    );
+                if ($nextDate->greaterThanOrEqualTo($startDate)) {
+                    $contractPayoutMonths[$investmentData->id][] = $nextDate->copy();
                 }
+
+                $nextDate = Carbon::parse(calculateNextProfitReleaseDate(
+                    0,
+                    $investmentData->profit_interval_id,
+                    $nextDate->format('M Y'),
+                    $investmentData->payoutBatch->batch_name
+                ))->startOfMonth();
             }
+            // if ($currentMonth->equalTo($nextProfitDate) || $i === 0) {
+            //     $profitAmount = $investmentData->profit_amount_per_interval;
+
+            // if ($i > 0) {
+            //     $nextProfitDate = calculateNextProfitReleaseDate(
+            //         0,
+            //         $investmentData->profit_interval_id,
+            //         $nextProfitDate,
+            //         $investmentData->payoutBatch->batch_name
+            //     );
+
+            //     dump($nextProfitDate);
+            // }
+            // }
 
             $profitEng .= "
             <tr>
@@ -1019,7 +1063,7 @@ class InvestmentContractService
         // dd($ledger);
 
         $investments = Investment::where(['investor_id' => $investorId, 'company_id' => $companyId])
-            ->orderBy('investment_date')
+            // ->orderBy('investment_date')
             ->get();
 
         foreach ($investments as $key => $inv) {

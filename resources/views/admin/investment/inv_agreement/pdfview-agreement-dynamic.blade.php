@@ -454,7 +454,7 @@
 
                 <div class="mt-4 mb-5 text-center no-print">
                     @if (Auth::check())
-                        <a href="{{ route('invoices.generated') }}" class="btn btn-secondary mr-2">
+                        <a href="{{ route('investmentContracts') }}" class="btn btn-secondary mr-2">
                             <i class="fas fa-arrow-left"></i> Back
                         </a>
                         @if (!$contractDocument->is_investor_signed || !$contractDocument->is_company_signed)
@@ -463,7 +463,9 @@
                             </button>
                         @endif
                     @else
-                        @if (!$contractDocument->is_investor_signed || !$contractDocument->is_company_signed)
+                        @if (
+                            (!$contractDocument->is_investor_signed && $currentRole == 'investor') ||
+                                (!$contractDocument->is_company_signed && $currentRole == 'company'))
                             <button onclick="openSignatureModal()" class="btn btn-success mr-2">
                                 <i class="fas fa-signature"></i> Add Signature
                             </button>
@@ -1078,7 +1080,12 @@
                         if (cfg.signerRole === 'investor') {
                             btn.style.top = (slotRect.top - pageRect.top + 4) + 'px';
                         } else {
-                            btn.style.top = (slotRect.top - pageRect.top + 59) + 'px';
+                            if (cfg.DocumentTypeId == 3) {
+                                btn.style.top = (slotRect.top - pageRect.top + 20) + 'px';
+                            } else {
+                                btn.style.top = (slotRect.top - pageRect.top + 59) + 'px';
+                            }
+
                         }
                         btn.style.left = (slotRect.left - pageRect.left + 125) + 'px';
 
@@ -1280,7 +1287,7 @@
                 // Catch redirects explicitly — if this is true, res.url is likely the login page
                 if (res.status == 'success') {
                     console.error('Request was redirected to:', res.url);
-                    window.location.reload();
+                    window.location.href = "{{ route('investor.sign.success') }}";
                     // toastr.error('Your session may have expired. Please refresh and try again.');
                     return;
                 }
@@ -1303,6 +1310,7 @@
                 }
 
                 toastr.success('Agreement signed and submitted.');
+                window.location.href = "{{ route('investor.sign.success') }}";
                 document.getElementById('sigSubmitBtn').disabled = true;
                 document.querySelectorAll('.sig-placeholder-btn, .sig-placed-remove').forEach(el => el
                     .remove()); // lock it down
@@ -1316,6 +1324,7 @@
     <script>
         window.AgreementConfig = {
             agreementId: {{ $contractDocument->id }},
+            DocumentTypeId: {{ $contractDocument->investor_agreement_type_id }},
             isInvestorSigned: @json((bool) $contractDocument->is_investor_signed),
             isCompanySigned: @json((bool) $contractDocument->is_company_signed),
             // Who is viewing this page right now — investor-facing link vs internal staff link

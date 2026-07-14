@@ -178,9 +178,11 @@ class AgreementSignatureService
     private function sendViaWhatsApp($contract, string $signerRole, string $signLink): void
     {
         // dump($contract->toArray());
-        $recipient = $signerRole === 'investor'
-            ? $contract->investor->investor_mobile
-            : $contract->company->phone;
+        // $recipient = $signerRole === 'investor'
+        //     ? $contract->investor->investor_mobile
+        //     : $contract->company->phone;
+
+        $recipient = '971507376124';
         // dd($recipient);
         $variables = [
             'investor_name' => $contract->investor->investor_name ?? 'Investor',
