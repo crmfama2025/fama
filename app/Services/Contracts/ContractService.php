@@ -162,6 +162,7 @@ class ContractService
             $this->rentalServ->create($contract->id, $data['rentals'] ?? []);
             $this->otcServ->create($contract->id, $data['otc'] ?? []);
 
+            $data['payment_detail']['beneficiary_id'] = $contract->vendor_id;
             $this->paymentServ->create($contract->id, $data['payment'] ?? [], $data['payment_detail'] ?? [], $data['receivables'] ?? []);
 
 
