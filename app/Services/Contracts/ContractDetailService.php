@@ -64,4 +64,9 @@ class ContractDetailService
             throw new ValidationException($validator);
         }
     }
+    public function update_detail($id, array $data)
+    {
+        $data['updated_by'] = auth()->user()->id;
+        return $this->detailRepo->update($id, $data);
+    }
 }

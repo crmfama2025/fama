@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Exports\ContractExport;
 use App\Exports\ProjectScopeExport;
 use App\Models\Agreement;
+use App\Models\Bank;
 use App\Models\Contract;
 use App\Models\DocumentType;
+use App\Models\PaymentMode;
 use App\Repositories\Agreement\AgreementRepository;
 use App\Services\AreaService;
 use App\Services\BankService;
@@ -185,9 +187,12 @@ class ContractController extends Controller
         $documentTypes = DocumentType::where('status', 1)->get();
         $contractDocuments = $this->documentService->getByContractId($contractId);
         $contractUnitdetails = $this->unitdetServ->getByContractId($contractId);
-
+        $contractPayables = $this->paymentSev->getByContractId($contractId);
+        $dropdowns = $this->contractService->getDropdownData('add');
+        // dd($contractPayables);
+        // dd($dropdowns);
         // dd($agreements);
-        return view("admin.projects.contract.contract-documents", compact("title", 'contract', 'documentTypes', 'contractDocuments', 'contractUnitdetails'));
+        return view("admin.projects.contract.contract-documents", compact("title", 'contract', 'documentTypes', 'contractDocuments', 'contractUnitdetails', 'dropdowns', 'contractPayables'));
     }
 
     public function allocatedDetails($contractId)
@@ -625,4 +630,22 @@ class ContractController extends Controller
         ]);
     }
     public function updateIndirectData($contract) {}
+
+    public function updatePayables(Request $request, $id)
+    {
+        // dd($request->all());
+        try {
+            $contract = $this->contractService->updatePayables($id, $request->all());
+
+            // if ($contract->contract_scope != null) {
+            //     $this->exportBuildingSummary($id, 'update');
+            // }
+
+
+            return response()->json(['success' => true, 'data' => $contract, 'message' => 'Vendor Contract updated successfully'], 200);
+        } catch (\Exception $e) {
+
+            return response()->json(['success' => false, 'message' => $e->getMessage(), 'error'   => $e], 500);
+        }
+    }
 }

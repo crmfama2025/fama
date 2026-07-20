@@ -1,7 +1,14 @@
 @extends('admin.layout.admin_master')
 
 @section('custom_css')
+    <!-- Select2 -->
+    <link rel="stylesheet" href="{{ asset('assets/daterangepicker/daterangepicker.css') }}">
+    <!-- Tempusdominus Bootstrap 4 -->
+    <link rel="stylesheet" href="{{ asset('assets/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css') }}">
+    <!-- iCheck for checkboxes and radio inputs -->
+
     <link rel="stylesheet" href="{{ asset('assets/icheck-bootstrap/icheck-bootstrap.min.css') }}">
+
 
     <style>
         .contractTable tbody tr {
@@ -47,6 +54,8 @@
                                         class="btn btn-info float-right m-1" target="_blank">View Contract</a>
                                     <button class="btn btn-info float-right m-1" data-toggle="modal"
                                         data-target="#modal-upload">Upload Files</button>
+                                    <button class="btn btn-info float-right m-1" data-toggle="modal"
+                                        data-target="#modal-payments">Update Payments</button>
                                 </span>
                             </div>
                             <!-- /.card-header -->
@@ -183,6 +192,7 @@
                                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                                     <button type="submit" id="importBtn" class="btn btn-info">Upload</button>
                                 </div>
+                            </div>
                         </form>
                     </div>
                     <!-- /.modal-content -->
@@ -191,6 +201,149 @@
             </div>
             <!-- /.modal -->
 
+            {{-- Payables modal --}}
+            <div class="modal fade" id="modal-payments" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-xl" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Update Payments</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <form id="formUpdatePayments">
+                            @csrf
+                            <input type="hidden" name="contract_id" value="{{ $contract->id }}">
+                            <div class="modal-body">
+                                <div class="form-row mb-3">
+                                    <div class="form-group col-md-3">
+                                        <label>Closing Date <span class="text-danger">*</span></label>
+                                        <div class="input-group date" id="closing-date-picker"
+                                            data-target-input="nearest">
+                                            <input type="text" name="closing_date"
+                                                class="form-control datetimepicker-input closing-date"
+                                                data-target="#closing-date-picker"
+                                                value="{{ $contract->contract_detail->closing_date ? \Carbon\Carbon::parse($contract->contract_detail->closing_date)->format('d-m-Y') : '' }}"
+                                                required>
+                                            <div class="input-group-append" data-target="#closing-date-picker"
+                                                data-toggle="datetimepicker">
+                                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group col-md-3">
+                                        <div class="d-flex align-items-center">
+                                            <label class="mb-0 mr-3 mt-31">Business Type <span
+                                                    class="text-danger">*</span></label>
+                                            <div class="icheck-primary d-inline-block mr-3">
+                                                <input type="radio" id="business_type_b2b" name="business_type"
+                                                    value="1"
+                                                    {{ old('business_type', $contract->contract_unit->business_type) == '1' ? 'checked' : '' }}>
+                                                <label for="business_type_b2b">B2B</label>
+                                            </div>
+                                            <div class="icheck-primary d-inline-block">
+                                                <input type="radio" id="business_type_b2c" name="business_type"
+                                                    value="2"
+                                                    {{ old('business_type', $contract->contract_unit->business_type) == '2' ? 'checked' : '' }}>
+                                                <label for="business_type_b2c">B2C</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="paymentRowsWrapper">
+                                    @foreach ($contractPayables as $index => $detail)
+                                        <div class="payment-row" data-index="{{ $index }}">
+                                            <input type="hidden" name="payments[{{ $index }}][id]"
+                                                value="{{ $detail->id }}">
+                                            <div class="form-row">
+                                                <div class="form-group col-md-3">
+                                                    <label>Payment Mode <span class="text-danger">*</span></label>
+                                                    <select name="payments[{{ $index }}][payment_mode_id]"
+                                                        class="form-control select2 payment-mode-select" required>
+                                                        @foreach ($dropdowns['paymentmodes'] as $mode)
+                                                            <option value="{{ $mode->id }}"
+                                                                {{ $detail->payment_mode_id == $mode->id ? 'selected' : '' }}>
+                                                                {{ $mode->payment_mode_name }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <div class="form-group col-md-3">
+                                                    <label>Payment Date <span class="text-danger">*</span></label>
+                                                    <div class="input-group date payment-date-picker"
+                                                        id="payment-date-picker-{{ $index }}"
+                                                        data-target-input="nearest">
+                                                        <input type="text"
+                                                            name="payments[{{ $index }}][payment_date]"
+                                                            class="form-control datetimepicker-input payment-date"
+                                                            data-target="#payment-date-picker-{{ $index }}"
+                                                            value="{{ \Carbon\Carbon::parse($detail->payment_date)->format('d-m-Y') }}"
+                                                            required>
+                                                        <div class="input-group-append"
+                                                            data-target="#payment-date-picker-{{ $index }}"
+                                                            data-toggle="datetimepicker">
+                                                            <div class="input-group-text"><i class="fa fa-calendar"></i>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group col-md-3">
+                                                    <label>Payment Amount <span class="text-danger">*</span></label>
+                                                    <input type="text"
+                                                        name="payments[{{ $index }}][payment_amount]"
+                                                        class="form-control payment-amount"
+                                                        value="{{ $detail->payment_amount }}" required disabled>
+                                                </div>
+                                                <div class="form-group col-md-3">
+                                                    <label>Beneficiary <span class="text-danger">*</span></label>
+                                                    <select name="payments[{{ $index }}][beneficiary_id]"
+                                                        class="form-control select2 beneficiary-select" required>
+                                                        @foreach ($dropdowns['vendors'] as $vendor)
+                                                            <option value="{{ $vendor->id }}"
+                                                                {{ old("payments.$index.beneficiary_id", $detail->beneficiary_id ?? $contract->vendor_id) == $vendor->id ? 'selected' : '' }}>
+                                                                {{ $vendor->vendor_name ?? $vendor->name }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-row bank-fields">
+                                                <div class="form-group col-md-4 bank-name-field">
+                                                    <label>Bank Name <span class="text-danger">*</span></label>
+                                                    <select name="payments[{{ $index }}][bank_id]"
+                                                        class="form-control select2 bank-select">
+                                                        <option value="">Select Bank</option>
+                                                        @foreach ($dropdowns['banks'] as $bank)
+                                                            <option value="{{ $bank->id }}"
+                                                                {{ $detail->bank_id == $bank->id ? 'selected' : '' }}>
+                                                                {{ $bank->bank_name }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <div class="form-group col-md-4 cheque-no-field">
+                                                    <label>Cheque No <span class="text-danger">*</span></label>
+                                                    <input type="text" name="payments[{{ $index }}][cheque_no]"
+                                                        class="form-control cheque-no-input"
+                                                        value="{{ $detail->cheque_no }}">
+                                                </div>
+                                            </div>
+                                            <hr>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
         </section>
         <!-- /.content -->
     </div>
@@ -198,5 +351,89 @@
 @endsection
 
 @section('custom_js')
+    <script src="{{ asset('assets/moment/moment.min.js') }}"></script>
+    <!-- Tempusdominus Bootstrap 4 -->
+    <script src="{{ asset('assets/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js') }}"></script>
+    <!-- date-range-picker -->
+    <script src="{{ asset('assets/daterangepicker/daterangepicker.js') }}"></script>
     @include('admin.projects.contract.includes.contract_document_js')
+
+    <script>
+        $(function() {
+
+
+            $('.payment-date-picker').each(function() {
+                $(this).datetimepicker({
+                    format: 'DD-MM-YYYY',
+                    useCurrent: false
+                });
+            });
+
+            $('#closing-date-picker').datetimepicker({
+                format: 'DD-MM-YYYY',
+                useCurrent: false
+            });
+
+            $('.select2').select2({
+                dropdownParent: $('#modal-payments')
+            });
+
+            function toggleFieldsByMode(select) {
+                const row = select.closest('.payment-row');
+                const modeId = select.val();
+
+                const bankField = row.find('.bank-name-field');
+                const chequeField = row.find('.cheque-no-field');
+
+                if (modeId == '3') { // Cheque
+                    bankField.show();
+                    chequeField.show();
+                    row.find('.cheque-no-input').attr('required', true);
+                } else if (modeId == '2') { // Bank Transfer
+                    bankField.show();
+                    chequeField.hide();
+                    row.find('.cheque-no-input').removeAttr('required').val('');
+                } else { // Cash / other
+                    bankField.hide();
+                    chequeField.hide();
+                    row.find('.cheque-no-input').removeAttr('required').val('');
+                }
+            }
+
+            $('#modal-payments').on('shown.bs.modal', function() {
+
+                $(document).off('focusin.modal');
+                $('.payment-mode-select').each(function() {
+                    toggleFieldsByMode($(this));
+                });
+            });
+
+            $(document).on('change', '.payment-mode-select', function() {
+                toggleFieldsByMode($(this));
+            });
+
+            $('#formUpdatePayments').on('submit', function(e) {
+                e.preventDefault();
+                $.ajax({
+                    method: 'POST',
+                    url: '{{ route('contracts.updatePayables', $contract->id) }}',
+                    data: $(this).serialize(),
+                    success: function(res) {
+                        $('#modal-payments').modal('hide');
+
+                        toastr.success(res.message ?? 'Payments updated successfully');
+                    },
+                    error: function(xhr) {
+                        if (xhr.status === 422) {
+                            let errors = xhr.responseJSON.errors;
+                            let msg = Object.values(errors).map(e => e[0]).join('<br>');
+                            toastr.error(msg);
+                        } else {
+                            toastr.error('Something went wrong');
+                        }
+                    }
+                });
+            });
+        });
+    </script>
 @endsection

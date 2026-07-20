@@ -397,6 +397,9 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
     Route::get('partial-withdrawals/edit/{id}/edit', [InvestorController::class, 'editPartialWithdrawal'])->name('investor.partial-withdrawals.edit');
     Route::put('investor/partial-withdrawal/{id}', [InvestorController::class, 'updatePartialWithdrawal'])
         ->name('investor.partial-withdrawal.update');
+
+
+    Route::post('/contracts/{id}/update-payables', [ContractController::class, 'updatePayables'])->name('contracts.updatePayables');
 });
 
 

@@ -124,4 +124,9 @@ class UnitService
         }
         // return null;
     }
+    public function update_unit($id, array $data)
+    {
+        $data['updated_by'] = auth()->user()->id;
+        return $this->unitRepo->update($id, $data);
+    }
 }

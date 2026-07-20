@@ -793,4 +793,42 @@ class ContractService
         ];
         $this->contractRepo->update($parent_contract->id, $update);
     }
+    public function updatePayables($id, $data)
+    {
+        return DB::transaction(function () use ($id, $data) {
+            $contract = $this->contractRepo->find($id);
+
+            $contract_detail = $contract->contract_detail;
+            $contract_unit = $contract->contract_unit;
+
+            $detail_data = [
+                'closing_date' => $data['closing_date']
+            ];
+            $this->detailServ->update_detail($contract_detail->id, $detail_data);
+
+            $unit_data = [
+                'business_type' => $data['business_type']
+            ];
+            $this->unitServ->update_unit($contract_unit->id, $unit_data);
+
+            // $payment_details = $contract->contract_payment_details;
+
+            foreach ($data['payments'] as $payment) {
+                $modeId = (int) $payment['payment_mode_id'];
+
+                $payment_data = [
+                    'payment_mode_id' => $modeId,
+                    'payment_date'    => \Carbon\Carbon::createFromFormat('d-m-Y', $payment['payment_date'])->format('Y-m-d'),
+                    // 'payment_amount'  => $payment['payment_amount'],
+                    'beneficiary_id'  => $payment['beneficiary_id'],
+                    'bank_id'         => $modeId == 1 ? null : ($payment['bank_id'] ?? null),
+                    'cheque_no'       => $modeId == 3 ? ($payment['cheque_no'] ?? null) : null,
+                ];
+
+                $this->paymentdetServ->update_payment_detail($payment['id'], $payment_data);
+            }
+
+            return true;
+        });
+    }
 }

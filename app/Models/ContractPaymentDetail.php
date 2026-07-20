@@ -31,7 +31,8 @@ class ContractPaymentDetail extends Model
         'has_returned',
         'returned_date',
         'returned_reason',
-        'returned_by'
+        'returned_by',
+        'beneficiary_id'
     ];
 
     public function contract()

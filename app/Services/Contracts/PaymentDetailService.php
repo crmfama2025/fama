@@ -22,6 +22,10 @@ class PaymentDetailService
     {
         return $this->paymentdetRepo->find($id);
     }
+    public function getByContractId($contractId)
+    {
+        return $this->paymentdetRepo->getByContractId($contractId);
+    }
 
     public function create($contract_id, array $dataArr, $payment_id, $user_id = null)
     {
@@ -138,5 +142,11 @@ class PaymentDetailService
         // logger('Payments updated', ['rows' => $retVal]);
 
         return $retVal;
+    }
+
+    public function update_payment_detail($id, $data)
+    {
+        $data['updated_by'] = auth()->user()->id;
+        return $this->paymentdetRepo->update($id, $data);
     }
 }

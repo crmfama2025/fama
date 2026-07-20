@@ -77,4 +77,14 @@ class PaymentDetailRepository
 
         return $details;
     }
+
+    public function getByContractId($contractId)
+    {
+        return ContractPaymentDetail::with('payment_mode', 'bank')->where('contract_id', $contractId)->get();
+    }
+    public function update($id, $data)
+    {
+        $pDet = $this->find($id);
+        return $pDet->update($data);
+    }
 }
