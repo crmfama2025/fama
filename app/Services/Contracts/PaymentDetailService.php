@@ -41,13 +41,13 @@ class PaymentDetailService
                 'payment_amount' => $dataArr['payment_amount'][$key],
                 'bank_id' => $dataArr['bank_id'][$key],
                 'cheque_no' => $dataArr['cheque_no'][$key],
-                'beneficiary_id' => $dataArr['beneficiary_id']
                 // 'cheque_issuer' => $dataArr['cheque_issuer'][$key],
                 // 'cheque_issuer_name' => $dataArr['cheque_issuer_name'][$key],
                 // 'cheque_issuer_id' => $dataArr['cheque_issuer_id'][$key]
             );
 
             $this->validate($data, $key);
+            $data['beneficiary_id'] = $dataArr['beneficiary_id'];
         }
         // dd($data);
 
