@@ -24,7 +24,7 @@ class AgreementSignatureService
      */
     public function currentSignerRole($contract)
     {
-        return $this->InvContractDocRepo->isInvestorSigned($contract) ? 'investor' : 'company';
+        return $this->InvContractDocRepo->isInvestorSigned($contract->id) ? 'company' : 'investor';
     }
 
     /**
@@ -322,7 +322,7 @@ class AgreementSignatureService
         if ($signerRole == 'investor') {
             $result = $this->brevoService->sendEmail(
                 [
-                    ['email' => 'rahmathrasmiya@gmail.com', 'name' => 'Test User']
+                    ['email' => 'crmfama2025@gmail.com', 'name' => 'Test User']
                 ],
                 'Investment Document Signature Request',
                 'admin.emails.investment-document-signature-email',
@@ -339,7 +339,7 @@ class AgreementSignatureService
         } else {
             $result = $this->brevoService->sendEmail(
                 [
-                    ['email' => 'rahmathrasmiya@gmail.com', 'name' => 'Test User']
+                    ['email' => 'crmfama2025@gmail.com', 'name' => 'Test User']
                 ],
                 'Investment Document Signature Request',
                 'admin.emails.investment-document-signature-email',

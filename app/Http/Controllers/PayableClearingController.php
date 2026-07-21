@@ -117,19 +117,30 @@ class PayableClearingController extends Controller
         }
     }
 
-    public function exportPayablePending(ContractPaymentDetail $detail)
+    public function exportPayablePending(Request $request)
     {
-        $filters = array(
-            'date_from' => dateFormatChange(request('date_from'), 'Y-m-d'),
-            'date_to' => dateFormatChange(request('date_to'), 'Y-m-d'),
-            'vendor_id' => dateFormatChange(request('vendor_id'), 'Y-m-d'),
-            'property_id' => dateFormatChange(request('property_id'), 'Y-m-d'),
-            'payment_mode' => dateFormatChange(request('payment_mode'), 'Y-m-d'),
-        );
 
-        $search = request('search')['value'] ?? null;
+        // $filters = array(
+        //     'date_from' => dateFormatChange(request('date_from'), 'Y-m-d'),
+        //     'date_to' => dateFormatChange(request('date_to'), 'Y-m-d'),
+        //     'vendor_id' => dateFormatChange(request('vendor_id'), 'Y-m-d'),
+        //     'property_id' => dateFormatChange(request('property_id'), 'Y-m-d'),
+        //     'payment_mode' => dateFormatChange(request('payment_mode'), 'Y-m-d'),
+        // );
 
-        return Excel::download(new PayablePendingExport($search, $filters), 'payable-pending-report.xlsx');
+        // $search = request('search')['value'] ?? null;
+
+        $filters = [
+            'company_id'  => $request->company_id,
+            'search'      => $request->search ?? null ?? null,
+            'date_from'   => $request->date_from ?? null,
+            'date_to'     => $request->date_to ?? null,
+            'property_id' => $request->property_id ?? null,
+            'vendor_id'     => $request->vendor_id ?? null,
+            'mode_id' => $request->payment_mode ?? null,
+        ];
+
+        return Excel::download(new PayablePendingExport($request->search, $filters), 'payable-pending-report.xlsx');
     }
 
     public function exportPayables(ContractPayableClear $payable)
