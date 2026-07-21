@@ -145,7 +145,7 @@
                                                     data-filter="">All</button>
                                                 @foreach ($companies as $company)
                                                     <button class="btn btn-outline-info filter-btn companyFilterBtn"
-                                                        add-class="btn-info"
+                                                        add-class="btn-info" data-companyid = "{{ $company->id }}"
                                                         data-filter="{{ $company->company_name }}">{{ $company->company_short_code }}</button>
                                                 @endforeach
                                             </div>
@@ -533,6 +533,7 @@
         });
 
         function CompanyChange(ele) {
+            console.log('company');
             const companyId = $(ele).val();
             const companyName = $(ele).find('option:selected').text().trim();
 
@@ -704,9 +705,72 @@
                     action: function(e, dt, node, config) {
                         // redirect to your Laravel export route
                         let searchValue = dt.search();
-                        let url = "{{ route('payables.pending.export') }}" + "?search=" +
-                            encodeURIComponent(searchValue);
-                        window.location.href = url;
+                        let form = $('<form>', {
+                            action: "{{ route('payables.pending.export') }}",
+                            method: 'POST'
+                        });
+
+                        // let searchValue = dt.search();
+                        // let form = $('<form>', {
+                        //     action: "{{ route('tanantReceivables.export') }}",
+                        //     method: 'POST'
+                        // });
+
+                        // CSRF token
+                        form.append($('<input>', {
+                            type: 'hidden',
+                            name: '_token',
+                            value: '{{ csrf_token() }}'
+                        }));
+
+                        // Global search
+                        form.append($('<input>', {
+                            type: 'hidden',
+                            name: 'search',
+                            value: searchValue
+                        }));
+
+                        // Add all filters
+
+                        form.append($('<input>', {
+                            type: 'hidden',
+                            name: 'date_from',
+                            value: $('#dateFrom input').val()
+                        }));
+                        form.append($('<input>', {
+                            type: 'hidden',
+                            name: 'date_to',
+                            value: $('#dateTo input').val()
+                        }));
+                        form.append($('<input>', {
+                            type: 'hidden',
+                            name: 'vendor_id',
+                            value: $('#vendor_id').val()
+                        }));
+                        form.append($('<input>', {
+                            type: 'hidden',
+                            name: 'property_id',
+                            value: $('#property_id').val()
+                        }));
+                        form.append($('<input>', {
+                            type: 'hidden',
+                            name: 'payment_mode',
+                            value: $('#payment_mode').val()
+                        }));
+                        form.append($('<input>', {
+                            type: 'hidden',
+                            name: 'mode_id',
+                            value: $('#modeSelect').val()
+                        }));
+                        form.append($('<input>', {
+                            type: 'hidden',
+                            name: 'company_id',
+                            value: $('#statusFilters .btn.btn-info').attr(
+                                'data-companyid')
+                        }));
+
+                        // Append to body and submit
+                        form.appendTo('body').submit();
                     }
                 }]
             });

@@ -214,7 +214,7 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
     Route::get('finance/cleared-list', [PayableClearingController::class, 'crearedList'])->name('cleared.list');
     Route::get('finance/cleared-data', [PayableClearingController::class, 'getClearedData'])->name('cleared.data');
     Route::get('finance/export-payables', [PayableClearingController::class, 'exportPayables'])->name('payables.report.export');
-    Route::get('finance/export-payable-pending', [PayableClearingController::class, 'exportPayablePending'])->name('payables.pending.export');
+    Route::post('finance/export-payable-pending', [PayableClearingController::class, 'exportPayablePending'])->name('payables.pending.export');
 
 
     Route::get('investor-list', [InvestorController::class, 'getInvestors'])->name('investor.list');
