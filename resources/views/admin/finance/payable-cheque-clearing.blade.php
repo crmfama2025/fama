@@ -604,6 +604,7 @@
                 processing: true,
                 serverSide: true,
                 responsive: true,
+                pageLength: 25,
 
                 ajax: {
                     url: "{{ route('payable.list') }}",
