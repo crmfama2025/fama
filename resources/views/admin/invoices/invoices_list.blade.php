@@ -432,7 +432,7 @@
                 data: $.param(formData),
                 success: function(response) {
                     $('#approveInvoiceModal').modal('hide');
-                    $('#invoiceTable').DataTable().ajax.reload();
+                    $('#invoiceTable').DataTable().ajax.reload(null, false);
                     toastr.success(response.message ?? 'Success');
                 },
                 error: function(xhr) {
@@ -783,8 +783,8 @@
                     $('#generateModal').modal('hide');
                     form[0].reset();
                     hideLoader();
-
-                    location.reload();
+                    $('#invoiceTable').DataTable().ajax.reload(null, false);
+                    // location.reload();
                 },
                 error: function(xhr) {
                     hideLoader();
