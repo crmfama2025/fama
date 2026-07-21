@@ -81,22 +81,6 @@ class PayableClearRepository
                 'payables'
             ]);
 
-        // ->with('payables')
-        // ->select(
-        //     'contract_payment_details.*',
-        //     'contracts.project_number',
-        //     'companies.company_name',
-        //     'vendors.vendor_name',
-        //     'properties.property_name',
-        //     'contract_types.contract_type',
-        //     'contract_types.id as contract_type_id'
-        // )
-        // ->join('contracts', 'contract_payment_details.contract_id', '=', 'contracts.id')
-        // ->join('vendors', 'vendors.id', '=', 'contracts.vendor_id')
-        // ->join('properties', 'properties.id', '=', 'contracts.property_id')
-        // ->join('payment_modes', 'payment_modes.id', '=', 'contract_payment_details.payment_mode_id')
-        // ->join('companies', 'companies.id', '=', 'contracts.company_id')
-        // ->join('contract_types', 'contract_types.id', '=', 'contracts.contract_type_id')
         $query->whereHas('contract', function ($q) use ($permittedCompanyIds) {
             $q->where('contract_status', '>=', 2)
                 ->whereIn('company_id', $permittedCompanyIds);
@@ -145,12 +129,20 @@ class PayableClearRepository
             // }
 
             if (!empty($filter['date_from'])) {
-                $fromDate = $filter['date_from'];
+                $fromDate =  $filter['date_from'];
             }
 
             if (!empty($filter['date_to'])) {
                 $todate = $filter['date_to'];
             }
+
+            // // Date filter
+            // if (!empty($filters['date_from']) && !empty($filters['date_to'])) {
+            //     $query->whereBetween('paid_date', [
+            //         Carbon::createFromFormat('d-m-Y', $filters['date_from'])->format('Y-m-d'),
+            //         Carbon::createFromFormat('d-m-Y', $filters['date_to'])->format('Y-m-d'),
+            //     ]);
+            // }
         }
 
         if ($fromDate) {
@@ -165,7 +157,6 @@ class PayableClearRepository
                 $todate
             );
         }
-
 
         if (!empty($filters['search'])) {
             $search = trim($filters['search']);
@@ -204,6 +195,14 @@ class PayableClearRepository
         //     $query->Where('contracts.company_id', $filters['company_id']);
         // }
 
+
+        // dd(
+        //     DB::connection()->getDatabaseName(),
+        //     DB::connection()->getConfig('host'),
+        //     $query->getModel()->getConnectionName(), // in case ContractPaymentDetail uses a non-default connection
+        //     $query->toRawSql(),
+        //     $query->count()
+        // );
 
         return $query;
     }

@@ -4,6 +4,7 @@ namespace App\Exports;
 
 use App\Models\Contract;
 use App\Models\ContractPayableClear;
+use Carbon\Carbon;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 
@@ -15,10 +16,14 @@ class PayableExport implements FromCollection, WithHeadings
 
 
 
-    public function __construct(
-        protected $search = null,
-        protected $filter = null,
-    ) {}
+    protected $search;
+    protected $filters;
+
+    public function __construct($search = null, array $filters = [])
+    {
+        $this->search = $search;
+        $this->filters = $filters;
+    }
 
     public function collection()
     {
@@ -79,6 +84,17 @@ class PayableExport implements FromCollection, WithHeadings
                     });
             });
         }
+        $results = $query->get();
+
+        // Date filter
+        if (!empty($this->filters['date_from']) && !empty($this->filters['date_to'])) {
+            $query->whereBetween('payment_date', [
+                Carbon::createFromFormat('d-m-Y', $this->filters['date_from'])->format('Y-m-d'),
+                Carbon::createFromFormat('d-m-Y', $this->filters['date_to'])->format('Y-m-d'),
+            ]);
+        }
+        $results = $query->get();
+        // dd($results);
 
         // if ($this->search) {
         //     $search = $this->search;
@@ -108,32 +124,31 @@ class PayableExport implements FromCollection, WithHeadings
         // if ($this->filter) {
         //     $query->where('contracts.id', $this->filter);
         // }
-        return $query->get()
-            ->map(function ($payable) {
-                return [
-                    'Project No' => "P - " . $payable->contractPaymentDetail->contract->project_number,
-                    'Contract Type' => $payable->contractPaymentDetail->contract->contract_type->contract_type,
-                    'Start Date'  => $payable->contractPaymentDetail->contract->contract_detail->start_date,
-                    'End Date'  => $payable->contractPaymentDetail->contract->contract_detail->end_date,
-                    'Company Name' => $payable->contractPaymentDetail->contract->company->company_name,
-                    'Vendor Name' => $payable->contractPaymentDetail->contract->vendor->vendor_name,
-                    'Buliding' => $payable->contractPaymentDetail->contract->property->property_name,
-                    'Locality' => $payable->contractPaymentDetail->contract->locality->locality_name ?? '',
-                    'Payment Due' => $payable->contractPaymentDetail->payment_date,
-                    'Clear Date' => $payable->paid_date,
-                    'Amount Paid' => $payable->paid_amount,
-                    'Pending Amount' => $payable->pending_amount,
-                    'Payment Mode' => $payable->paidMode?->payment_mode_name,
-                    'Bank Name' => $payable->paidBank?->bank_name,
-                    'Cheque Number' => $payable->paid_cheque_number,
-                    'Payable Cleared By' => $payable->paidBy?->first_name . ' ' . $payable->paidBy?->last_name,
-                    'Project Status' => match ($payable->contractPaymentDetail->contract->contract_renewal_status) {
-                        0 => 'New',
-                        1 => 'Renewal (' . ($payable->contractPaymentDetail->contract->renewal_count ?? 0) . ')',
-                    },
-                    'Created_at' => $payable->created_at->format('d/m/Y'),
-                ];
-            });
+        return $results->map(function ($payable) {
+            return [
+                'Project No' => "P - " . $payable->contractPaymentDetail->contract->project_number,
+                'Contract Type' => $payable->contractPaymentDetail->contract->contract_type->contract_type,
+                'Start Date'  => $payable->contractPaymentDetail->contract->contract_detail->start_date,
+                'End Date'  => $payable->contractPaymentDetail->contract->contract_detail->end_date,
+                'Company Name' => $payable->contractPaymentDetail->contract->company->company_name,
+                'Vendor Name' => $payable->contractPaymentDetail->contract->vendor->vendor_name,
+                'Buliding' => $payable->contractPaymentDetail->contract->property->property_name,
+                'Locality' => $payable->contractPaymentDetail->contract->locality->locality_name ?? '',
+                'Payment Due' => $payable->contractPaymentDetail->payment_date,
+                'Clear Date' => $payable->paid_date,
+                'Amount Paid' => $payable->paid_amount,
+                'Pending Amount' => $payable->pending_amount,
+                'Payment Mode' => $payable->paidMode?->payment_mode_name,
+                'Bank Name' => $payable->paidBank?->bank_name,
+                'Cheque Number' => $payable->paid_cheque_number,
+                'Payable Cleared By' => $payable->paidBy?->first_name . ' ' . $payable->paidBy?->last_name,
+                'Project Status' => match ($payable->contractPaymentDetail->contract->contract_renewal_status) {
+                    0 => 'New',
+                    1 => 'Renewal (' . ($payable->contractPaymentDetail->contract->renewal_count ?? 0) . ')',
+                },
+                'Created_at' => $payable->created_at->format('d/m/Y'),
+            ];
+        });
     }
 
     public function headings(): array
