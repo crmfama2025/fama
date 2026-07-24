@@ -457,7 +457,7 @@
                                         <a href="{{ route('investor.partial-withdrawal-list') }}"
                                             class="nav-link {{ request()->is('/partial-withdrawals') && !request()->is('investment/*') ? 'active' : '' }}">
                                             <i class="far fa-circle nav-icon"></i>
-                                            <p>Partial Withdrawal</p>
+                                            <p>Partial Withdrawal / Settlement</p>
                                         </a>
                                     </li>
                                     @if (auth()->user()->hasAnyPermission(['finance.payout']))
@@ -474,7 +474,7 @@
                                             <a href="{{ route('investment-soa.list') }}"
                                                 class="nav-link  {{ request()->is('investments/investment-soa') ? 'active' : '' }}">
                                                 <i class="far fa-circle nav-icon"></i>
-                                                <p>Investment SOA</p>
+                                                <p>Investor SOA</p>
                                             </a>
                                         </li>
                                     @endif
