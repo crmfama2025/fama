@@ -25,6 +25,7 @@ class ContractRepository
             'contract_otc',
             'contract_payments.contractPaymentDetails.payment_mode',
             'contract_payments.contractPaymentDetails.bank',
+            'contract_payments.contractPaymentDetails.contractPayableClears',
             'contract_payments.installment',
             'contract_unit.contractUnitDetails.contractSubUnitDetails',
             'contract_unit_details.property_type',

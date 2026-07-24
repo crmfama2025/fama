@@ -257,7 +257,18 @@
                                                     } elseif ($details->paid_status == 2) {
                                                         $bgColor = '#c5f5ff';
                                                     }
+                                                    $paid_on = null;
                                                 @endphp
+
+                                                @foreach ($details->contractPaymentClears ?? [] as $clear)
+                                                    @php
+                                                        $totalPaid += (float) ($clear->paid_amount ?? 0);
+                                                        $totalBalance = $clear->pending_amount ?? 0;
+                                                        if ($totalPaid > 0 && !empty($clear->paid_date)) {
+                                                            $paid_on = $clear->paid_date;
+                                                        }
+                                                    @endphp
+                                                @endforeach
                                                 <tr style="background-color: {{ $bgColor }}">
                                                     <td>{{ $details->payment_date }}</td>
                                                     <td> {{ strtoupper($details->payment_mode->payment_mode_name) }}</td>
@@ -272,7 +283,10 @@
                                                     </td>
                                                     <td>{{ $details->payment_amount }}</td>
                                                     <td>{{ strtoupper($contract->contract_payments->beneficiary) }}</td>
-                                                    <td>{{ $details->paid_date ?? ' - ' }}</td>
+                                                    {{-- <td>{{ $details->paid_date ?? ' - ' }}</td>
+                                                     --}}
+                                                    <td>{{ $paid_on ? \Carbon\Carbon::parse($paid_on)->format('d/m/Y') : '-' }}
+                                                    </td>
                                                     <td>
                                                         {{ 'RENT ' . $loop->iteration . '/' . $contract->contract_payments->installment?->installment_name }}
                                                     </td>

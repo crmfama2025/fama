@@ -121,4 +121,8 @@ class ContractPaymentDetail extends Model
     {
         return $this->belongsTo(User::class, 'returned_by', 'id');
     }
+    public function contractPayableClears()
+    {
+        return $this->hasMany(ContractPayableClear::class, 'contract_payment_detail_id', 'id');
+    }
 }
