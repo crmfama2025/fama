@@ -281,6 +281,7 @@ class InvoiceRepository
 
         // $count = (clone $query)->count();
         // dd('2013 records found: ' . $count);
+        $query->orderBy('payment_date', 'asc');
         return $query;
     }
     public function create($data)
