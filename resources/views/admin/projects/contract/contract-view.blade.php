@@ -248,6 +248,7 @@
                                         </thead>
                                         <tbody>
                                             @foreach ($contract->contract_payments->contractPaymentDetails as $details)
+                                                {{-- @dump($details) --}}
                                                 @php
                                                     $bgColor = '';
                                                     if ($details->paid_status == 0) {
@@ -257,10 +258,14 @@
                                                     } elseif ($details->paid_status == 2) {
                                                         $bgColor = '#c5f5ff';
                                                     }
+                                                    $totalPaid = 0;
+                                                    $totalBalance = 0;
                                                     $paid_on = null;
                                                 @endphp
+                                                {{-- @dump($details->contractPaymentClears) --}}
 
-                                                @foreach ($details->contractPaymentClears ?? [] as $clear)
+                                                @foreach ($details->contractPayableClears ?? [] as $clear)
+                                                    {{-- @dump($clear) --}}
                                                     @php
                                                         $totalPaid += (float) ($clear->paid_amount ?? 0);
                                                         $totalBalance = $clear->pending_amount ?? 0;
@@ -269,6 +274,7 @@
                                                         }
                                                     @endphp
                                                 @endforeach
+                                                {{-- @dump($totalPaid, $totalBalance) --}}
                                                 <tr style="background-color: {{ $bgColor }}">
                                                     <td>{{ $details->payment_date }}</td>
                                                     <td> {{ strtoupper($details->payment_mode->payment_mode_name) }}</td>
