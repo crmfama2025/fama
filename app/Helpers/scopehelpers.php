@@ -687,8 +687,9 @@ function renderRenewDetailsDF($sheet, $contract)
 // FF scope
 function renderFamaPaymentSummary($sheet, $contract)
 {
+    // dd($contract);
     // Example: add summary data to Excel
-    $sheet->setCellValue('A2', 'FAMA REAL ESTATE');
+    $sheet->setCellValue('A2', $contract['company_name']);
     $sheet->getStyle('A2')->getFont()->setBold(true);
     $sheet->getStyle('A2')->applyFromArray(FFScopeStyles::headerFama());
 

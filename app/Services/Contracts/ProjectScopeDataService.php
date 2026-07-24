@@ -54,6 +54,7 @@ class ProjectScopeDataService
             'project_number' => $contract->project_number ?? '',
             'contract_type_id' => $contract->contract_type_id ?? 0,
             'property_name' => $contract->property?->property_name ?? '',
+            'company_name' => $contract->company?->company_name ?? '',
             'area' => $contract->area?->area_name ?? '',
             'locality' => $contract->locality?->locality_name ?? '',
             'vendor_name' => $contract->vendor?->vendor_name ?? '',
