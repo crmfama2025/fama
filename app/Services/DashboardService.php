@@ -321,8 +321,14 @@ class DashboardService
 
         $companiesQuery = Company::with(['contracts.contract_unit'])
             ->whereHas('contracts', function ($query) {
-                $query->whereNotIn('contract_status', [3, 9, 10]);
+                $query->whereNotIn('contract_status', [3, 9, 10])
+                    // ->where('contract_renewal_status', 0);
+                    ->where(function ($q) {
+                        $q->whereNull('parent_contract_id')
+                            ->orWhere('parent_contract_id', 0);
+                    });
             });
+
         if ($companyId) {
             $companiesQuery->where('id', $companyId);
         }
@@ -351,8 +357,11 @@ class DashboardService
                 if (in_array($contract->contract_status, [3, 9, 10])) {
                     continue;
                 }
-                // ✅ skip if renewal status is NOT 0
-                if ($contract->contract_renewal_status != 0) {
+                //  skip if renewal status is NOT 0
+                // if ($contract->contract_renewal_status != 0) {
+                //     continue;
+                // }
+                if ($contract->parent_contract_id !== null && $contract->parent_contract_id != 0) {
                     continue;
                 }
 

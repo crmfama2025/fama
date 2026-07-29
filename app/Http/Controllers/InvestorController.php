@@ -172,7 +172,7 @@ class InvestorController extends Controller
     }
     public function partialWithdrawal($id)
     {
-        $title = 'Partial Withdrawal';
+        $title = 'Withdrawal';
         $companies = $this->investorService->getInvestedCompanies($id);
         // dd($companies);
         $investor = $this->investorService->getById($id);
