@@ -17,7 +17,7 @@ class InvesmentSOAController extends Controller
 
     public function index()
     {
-        $title = "Investment SOA";
+        $title = "Investor SOA";
         return view('admin.investment.investment_soa', compact('title'));
     }
     public function getData(Request $request)
