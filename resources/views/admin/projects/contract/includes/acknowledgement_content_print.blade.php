@@ -10,6 +10,7 @@
     @endif
     /* */
     /* background: url("{{ str_replace('\\', '/', public_path('storage/' . $company->letter_head_path)) }}") no-repeat center center; */
+    /* background-image: url('{{ asset('storage/' . $company->letter_head_path) }}'); */
     */ background-size: cover;
     }
 </style>
