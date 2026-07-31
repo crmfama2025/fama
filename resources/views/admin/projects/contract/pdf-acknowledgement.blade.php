@@ -98,6 +98,7 @@
     @php
         $imagePath = public_path('storage/' . $company->letter_head_path);
     @endphp
+    @dump($imagePath);
 
     @if (!empty($company->letter_head_path) && file_exists($imagePath))
         <img src="{{ str_replace('\\', '/', $imagePath) }}"
