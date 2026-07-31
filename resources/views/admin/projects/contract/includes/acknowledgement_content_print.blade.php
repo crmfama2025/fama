@@ -9,7 +9,7 @@
         background: url('{{ public_path('images/fama-letterhead.png') }}') no-repeat center center;
     @endif
     /* */
-    background: url("{{ str_replace('\\', '/', public_path('storage/' . $company->letter_head_path)) }}") no-repeat center center;
+    /* background: url("{{ str_replace('\\', '/', public_path('storage/' . $company->letter_head_path)) }}") no-repeat center center; */
     */ background-size: cover;
     }
 </style>
