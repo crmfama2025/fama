@@ -92,7 +92,7 @@
         <img src="{{ str_replace('\\', '/', public_path('images/fama-letterhead.png')) }}">
     </div> --}}
     @if (!empty($company->letter_head_path))
-        <img src="{{ public_path('storage/' . $company->letter_head_path) }}"
+        <img src="{{ public_path('test/storage/' . $company->letter_head_path) }}"
             style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;">
     @endif
     {{-- Same contract tables as your normal view --}}
