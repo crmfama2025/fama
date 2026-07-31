@@ -17,7 +17,9 @@
 
 
         @page {
+            /* margin: 20px 30px; */
             margin: 20px 30px;
+            /* TOP RIGHT BOTTOM LEFT */
         }
 
         body {
@@ -41,9 +43,9 @@
             vertical-align: top;
         }
 
-        th {
+        /* th {
             background: #f9f9f9;
-        }
+        } */
 
         .center {
             text-align: center;
@@ -89,12 +91,18 @@
     {{-- <div class="bg-letterhead">
         <img src="{{ str_replace('\\', '/', public_path('images/fama-letterhead.png')) }}">
     </div> --}}
-
+    @if (!empty($company->letter_head_path))
+        <img src="{{ public_path('storage/' . $company->letter_head_path) }}"
+            style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;">
+    @endif
     {{-- Same contract tables as your normal view --}}
     @if ($page == 0)
-        @include('admin.projects.contract.includes.acknowledgement_content_print', [
-            'contract' => $contract,
-        ])
+        <div style="padding-bottom:60px; margin-left:20px;margin-right:20px;">
+            @include('admin.projects.contract.includes.acknowledgement_content_print', [
+                'contract' => $contract,
+                'company' => $company,
+            ])
+        </div>
     @else
         @include('admin.projects.contract.includes.acknowledgement_content', ['contract' => $contract])
     @endif

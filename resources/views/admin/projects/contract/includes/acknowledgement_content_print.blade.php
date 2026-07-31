@@ -1,12 +1,21 @@
 <style>
     body {
+
         /* color: #000 !important; */
+        /* background: url('{{ public_path('images/fama-letterhead.png') }}') no-repeat center center; */
+        /* @if (!empty($company->letter_head_path))
+        background: url('{{ public_path('storage/' . $company->letter_head_path) }}') no-repeat center center;
+    @else
         background: url('{{ public_path('images/fama-letterhead.png') }}') no-repeat center center;
-        background-size: cover;
+    @endif
+    /* */
+    background: url("{{ str_replace('\\', '/', public_path('storage/' . $company->letter_head_path)) }}") no-repeat center center;
+    */ background-size: cover;
     }
 </style>
-<div style="height: 100px;">&nbsp;</div>
-<table width="88%" border="0" align="center" cellpadding="5" style="margin-top: 50px;">
+<div style="height: 120px;">&nbsp;</div>
+
+<table width="88%" border="0" align="center" cellpadding="5" style="margin-top: 50px;marging-bottom:50px;">
     <tr>
         <td align="left" valign="top">
             <table width="95%" border="0" align="center" cellpadding="5" style="width:95%;">
