@@ -1000,13 +1000,15 @@
 
             // Mobile: 971 + 9 digits → 12 total
             // Landline: 971 + area code (1 digit) + 7 digits → 11 total
-            let regex = /^(9715[0-9]{8}|971[2-9][0-9]{7})$/;
+            // let regex = /^(9715[0-9]{8}|971[2-9][0-9]{7})$/;
+            let regex = /^\+?[1-9]\d{7,14}$/;
 
             input.removeClass('is-invalid');
             input.next('.invalid-feedback').remove();
 
             if (val.length != 0 && !regex.test(val)) {
-                showError(input, "Enter valid UAE mobile or landline (e.g. 971501234567 or 97141234567)");
+                // showError(input, "Enter valid UAE mobile or landline (e.g. 971501234567 or 97141234567)");
+                showError(input, "Enter valid UAE mobile or landline");
                 return false;
             }
 
