@@ -661,13 +661,15 @@ class InvestmentContractService
                 if ($nextDate->greaterThanOrEqualTo($startDate)) {
                     $contractPayoutMonths[$investmentData->id][] = $nextDate->copy();
                 }
-                dump($profitAmount);
+
                 $nextDate = Carbon::parse(calculateNextProfitReleaseDate(
                     0,
                     $investmentData->profit_interval_id,
                     $nextDate->format('M Y'),
                     $investmentData->payoutBatch->batch_name
                 ))->startOfMonth();
+
+                dump($nextDate);
             }
             dd("test");
             // if ($currentMonth->equalTo($nextProfitDate) || $i === 0) {
