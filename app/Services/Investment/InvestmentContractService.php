@@ -655,13 +655,13 @@ class InvestmentContractService
             $nextDate = $startDate->copy()->startOfMonth();
             $profitAmount = 0;
             // dd($currentMonth,$windowEnd,$nextDate);
-            dump($nextDate->lessThanOrEqualTo($windowEnd));
+            // dump($nextDate->lessThanOrEqualTo($windowEnd));
             while ($nextDate->lessThanOrEqualTo($windowEnd)) {
                 $profitAmount = $investmentData->profit_amount_per_interval;
                 if ($nextDate->greaterThanOrEqualTo($startDate)) {
                     $contractPayoutMonths[$investmentData->id][] = $nextDate->copy();
                 }
-
+                dump($profitAmount);
                 $nextDate = Carbon::parse(calculateNextProfitReleaseDate(
                     0,
                     $investmentData->profit_interval_id,
