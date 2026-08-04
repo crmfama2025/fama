@@ -644,9 +644,9 @@ class InvestmentContractService
             $investmentData->initial_profit_release_month,
             $investmentData->payoutBatch->batch_name
         );
-        dump($startDate);
-        dump($nextProfitDate);
-        dd("test");
+        // dump($startDate);
+        // dump($nextProfitDate);
+        // dd("test");
         //
 
         for ($i = 0; $i < 12; $i++) {
@@ -655,7 +655,7 @@ class InvestmentContractService
             $nextDate = $startDate->copy()->startOfMonth();
             $profitAmount = 0;
             // dd($currentMonth,$windowEnd,$nextDate);
-            // dump($nextDate->lessThanOrEqualTo($windowEnd));
+            dump($nextDate->lessThanOrEqualTo($windowEnd));
             while ($nextDate->lessThanOrEqualTo($windowEnd)) {
                 $profitAmount = $investmentData->profit_amount_per_interval;
                 if ($nextDate->greaterThanOrEqualTo($startDate)) {
@@ -669,7 +669,7 @@ class InvestmentContractService
                     $investmentData->payoutBatch->batch_name
                 ))->startOfMonth();
             }
-            // dd("test");
+            dd("test");
             // if ($currentMonth->equalTo($nextProfitDate) || $i === 0) {
             //     $profitAmount = $investmentData->profit_amount_per_interval;
 
