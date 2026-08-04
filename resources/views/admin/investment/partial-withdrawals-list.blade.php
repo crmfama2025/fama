@@ -49,6 +49,7 @@
                                             <th>Action</th>
                                             <th>investor Details</th>
                                             <th>Status</th>
+                                            <th>Transaction Type</th>
                                             <th>Transaction Amount</th>
                                             <th>Requested Date</th>
                                             <th>Duration Days</th>
@@ -130,6 +131,10 @@
                     {
                         data: 'status',
                         name: 'status'
+                    },
+                    {
+                        data: 'transaction_type',
+                        name: 'transaction_type'
                     },
                     {
                         data: 'transaction_amount',

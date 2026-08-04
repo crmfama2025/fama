@@ -21,7 +21,13 @@ class PartialWithdrawalBifurcation extends Model
         'added_by',
         'requested_date',
         'withdrawal_date',
-        'duration_days'
+        'duration_days',
+        'withdrawal_month_profit',
+        'total_paid',
+        'balance_to_pay',
+        'payout_status',
+        'profit_payout_status',
+        'withdrawal_month_profit'
     ];
 
     public function investment()

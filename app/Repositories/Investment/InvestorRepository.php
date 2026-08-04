@@ -229,9 +229,11 @@ class InvestorRepository
 
         // 4. Attach financial data to each company
         foreach ($companies as $company) {
+            // dd($company->ledger);
 
             // Get ledger entries for this company
             $entries = $ledgerByCompany->get($company->id, collect());
+            // dd($entries);
 
             // 4.1 Calculate totals
             $totalCredit = $entries->where('is_credit', 1)->sum('transaction_amount');
@@ -243,6 +245,7 @@ class InvestorRepository
 
             // 4.2 Build ledger with running balance
             $runningBalance = 0;
+            // @dump($company->ledger);
 
             $company->ledger = $entries->map(function ($entry) use (&$runningBalance) {
 
@@ -270,7 +273,7 @@ class InvestorRepository
                 ];
             })->values();
         }
-
+        // dd($companies);
         return $companies;
     }
     private function buildDescription($entry)
@@ -322,7 +325,7 @@ class InvestorRepository
         $query = InvestorLedger::query()
             ->with(['transactionType', 'investor'])
             ->where('status', 1)
-            ->where('investor_transaction_type_id', 3);
+            ->whereIn('investor_transaction_type_id', [3, 4]);
 
         if (!empty($filters['search'])) {
             $search = trim($filters['search']);

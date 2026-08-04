@@ -136,6 +136,7 @@ class InvestmentService
                 ];
                 $this->investmentRepository->update($data['parent_investment_id'], $parentInv);
             }
+            // dd("test");
 
             // ---------------- Investment Received Payment ----------------
 
@@ -153,13 +154,17 @@ class InvestmentService
 
             // ---------------- Update Investor Totals ----------------
             updateInvestor($data['investor_id'], $investment->id);
+            // dd("test");
+            // dd($data);
             $investor = Investor::find($data['investor_id']);
+            // dd($investor);
             $companyId = $investment->company_id;
             $docInsertData = [
                 'investment_id' => $investment->id,
                 'investor_id' => $investment->investor_id,
             ];
 
+            // dd($docInsertData);
             // Investment contract document creation
             $inv_document = $this->investmentContractDocumentService->createInvestorDocument($investor->id, $companyId, $docInsertData);
             // dd($inv_document);

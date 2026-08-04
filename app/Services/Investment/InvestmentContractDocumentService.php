@@ -293,55 +293,64 @@ class InvestmentContractDocumentService
     {
         // dump('createInvestorDocument');
         // dump($investorId);
-        // dump($docInsertData);
+        // dd($docInsertData);
         // dd($docInsertData);
         $docInsertData['generated_date'] = now()->format('Y-m-d H:i:s');
         $docInsertData['generated_by'] = auth()->user()->id;
+        // dd($docInsertData);
 
         $lastMudarabah = InvestmentContractDocuments::where('investor_id', $investorId)
             ->where('company_id', $companyId)
             ->where('investor_agreement_type_id', 1) // Mudarabah
             ->latest('id') // or latest('created_at')
             ->first();
+        // dd($lastMudarabah);
 
         $docInsertData['reference_mudarabah_id'] = $lastMudarabah ? $lastMudarabah->id : null;
         // dd($docInsertData);
         if ($docInsertData['investment_id'] == 0) {
             if ($docInsertData['investor_agreement_type_id'] == 3) {
                 return $this->createAgreement($docInsertData, $companyId, 3); //Partial Withdrawal
+            } elseif ($docInsertData['investor_agreement_type_id'] == 5) {
+                return  $this->createAgreement($docInsertData, $companyId, 5); //Settlement Or Termination
             }
 
             $this->createAgreement($docInsertData, $companyId, 4); // Novation
             $this->createAgreement($docInsertData, $companyId, 1); // Mudarabah
 
         } else {
+            // dd("test1");
 
-            if (isset($docInsertData['investor_agreement_type_id'])) {
-                if ($docInsertData['investor_agreement_type_id'] == 5) {
-                    return  $this->createAgreement($docInsertData, $companyId, 5);
-                }
-            } else {
-                $companyInvestmentCount = Investment::where('investor_id', $investorId)
-                    ->where('company_id', $companyId)
-                    ->count();
+            // if (isset($docInsertData['investor_agreement_type_id'])) {
+            //     if ($docInsertData['investor_agreement_type_id'] == 5) {
+            //         return  $this->createAgreement($docInsertData, $companyId, 5);
+            //     }
+            // } else {
+            $companyInvestmentCount = Investment::where('investor_id', $investorId)
+                ->where('company_id', $companyId)
+                ->count();
+            // dd($companyInvestmentCount);
 
-                if ($companyInvestmentCount == 1) {
-                    return $this->createAgreement($docInsertData, $companyId, 1); // Mudarabah
-                } elseif ($companyInvestmentCount > 1) {
+            if ($companyInvestmentCount == 1) {
+                // dd('inv');
+                return $this->createAgreement($docInsertData, $companyId, 1); // Mudarabah
+            } elseif ($companyInvestmentCount > 1) {
 
-
-                    return $this->createAgreement($docInsertData, $companyId, 2); // Addendum
-                }
+                // dd('add');
+                return $this->createAgreement($docInsertData, $companyId, 2); // Addendum
             }
+            // }
         }
     }
 
     private function createAgreement(array $data, int $companyId, int $agreementTypeId)
     {
+        // dd("createAgreement");
         $data['company_id'] = $companyId;
         $data['investor_agreement_type_id'] = $agreementTypeId;
         $data['investor_agreement_template_id'] = $this->InvestorAgreementRepository
             ->getActiveIdBytype($agreementTypeId);
+        // dd($data['investor_agreement_template_id']);
 
         return $this->create($data);
     }

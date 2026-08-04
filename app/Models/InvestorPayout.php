@@ -25,6 +25,7 @@ class InvestorPayout extends Model
         'is_processed',
         'updated_by',
         'deleted_by',
+        'bifurcation_id'
     ];
 
     public function investor()
@@ -46,5 +47,9 @@ class InvestorPayout extends Model
     public function investorPayoutDistribution()
     {
         return $this->hasmany(InvestorPaymentDistribution::class, 'payout_id', 'id');
+    }
+    public function bifurcation()
+    {
+        return $this->belongsTo(PartialWithdrawalBifurcation::class, 'bifurcation_id');
     }
 }

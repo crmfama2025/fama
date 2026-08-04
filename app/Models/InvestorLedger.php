@@ -24,7 +24,9 @@ class InvestorLedger extends Model
         'requested_date',
         'withdrawal_date',
         'duration_days',
-        'partial_withdrawal_status'
+        'withdrawal_status',
+        'profit_payout_status',
+        'withdrawal_month_profit'
     ];
 
     public function transactionType()

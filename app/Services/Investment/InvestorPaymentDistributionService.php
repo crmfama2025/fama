@@ -3,6 +3,7 @@
 namespace App\Services\Investment;
 
 use App\Models\InvestorPayout;
+use App\Models\PartialWithdrawalBifurcation;
 use App\Models\WhatsappMessage;
 use App\Repositories\Investment\InvestmentRepository;
 use App\Repositories\Investment\InvestorPaymentDistributionRepository;
@@ -107,8 +108,12 @@ class InvestorPaymentDistributionService
                 return match ($row->payout_type) {
                     1 => '<span class="badge badge-success">Profit</span>',
                     2 => '<span class="badge badge-info">Commission</span>',
-                    3 => '<span class="badge badge-warning">Principal</span>',
-                    4 => '<span class="badge badge-secondary">Pending Profit</span>',
+                    // 3 => '<span class="badge badge-warning">Principal</span>',
+                    // 4 => '<span class="badge badge-secondary">Pending Profit</span>',
+                    // 6 => '<span class="badge bg-orange">Withdrawal/Settlement</span>',
+                    6 => ($row->investment && $row->investment->terminate_status == 1)
+                        ? '<span class="badge bg-danger">Settlement</span>'
+                        : '<span class="badge bg-orange">Withdrawal</span>',
                     default => '-',
                 };
             })
@@ -135,17 +140,25 @@ class InvestorPaymentDistributionService
             })
 
             ->addColumn('action', function ($row) {
-                return '
-                <a class="btn btn-success btn-sm bulktriggerbtn" title="Pay now"
-                                data-toggle="modal" data-target="#modal-payout"
-                                data-clear-type="single" data-reinvest="0" data-det-id="' . $row->id . '"
-                                data-amount="' . $row->amount_pending . '">
-                                <i class="fas fa-dollar-sign"></i></a>  <a class="btn btn-secondary btn-sm bulktriggerbtn" title="Re-Invest"
-                                data-toggle="modal" data-target="#modal-payout"
-                                data-clear-type="single" data-det-id="' . $row->id . '" data-reinvest="1" data-investmentid="' . $row->investment_id . '"
-                                data-amount="' . $row->amount_pending . '">
-                                <i class="fas fa-redo"></i></a>';
+                $action = " - ";
+                $action .= '<div class="d-flex align-items-center">';
+                $action .= '<a class="btn btn-success btn-sm bulktriggerbtn mr-1" title="Pay now"
+                    data-toggle="modal" data-target="#modal-payout"
+                    data-clear-type="single" data-reinvest="0" data-det-id="' . $row->id . '"
+                    data-amount="' . $row->amount_pending . '">
+                    <i class="fas fa-dollar-sign"></i></a>';
+                if ($row->payout_type == 1) {
+                    $action .= '<a class="btn btn-secondary btn-sm bulktriggerbtn" title="Re-Invest"
+                    data-toggle="modal" data-target="#modal-payout"
+                    data-clear-type="single" data-det-id="' . $row->id . '" data-reinvest="1" data-investmentid="' . $row->investment_id . '"
+                    data-amount="' . $row->amount_pending . '">
+                    <i class="fas fa-redo"></i></a>';
+                }
+
+                $action .= '</div>';
+                return $action;
             })
+
 
             ->rawColumns(['investor_name', 'payout_type', 'action', 'checkbox', 'investment_code', 'company_name'])
             ->with(['columns' => $columns])
@@ -212,6 +225,30 @@ class InvestorPaymentDistributionService
 
                 // dd($payoutData);
 
+                // Withdrawal/Settlement
+                if ($payoutData->payout_type == 6 && $payoutData->bifurcation_id != null) {
+
+                    $bifurcation = PartialWithdrawalBifurcation::find($payoutData->bifurcation_id);
+                    $investment = $this->investmentRepository->find($bifurcation->investment_id);
+
+                    // bifucation table updation on withdrawal payout
+                    updateBifuractionOnWithdrawal($bifurcation, $balance, $distributionData->amount_paid);
+
+                    if ($investment->terminate_status == 1 && $balance == 0) {
+                        terminateStatusChange($investment->id);
+                    }
+                    updateInvestorLedgerOnPayout($bifurcation->ledger_id, $payoutData->payout_type);
+                }
+
+                // withdrawal month profit payout
+                if ($payoutData->payout_type == 1 && $payoutData->bifurcation_id != null) {
+                    $bifurcation = PartialWithdrawalBifurcation::find($payoutData->bifurcation_id);
+
+                    // bifucation table updation on profit payout
+                    updateBifuractionOnProfitPayout($bifurcation, $balance, $distributionData->amount_paid);
+
+                    updateInvestorLedgerOnPayout($bifurcation->ledger_id, $payoutData->payout_type);
+                }
 
 
 

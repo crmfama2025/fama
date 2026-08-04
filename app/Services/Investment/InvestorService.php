@@ -370,48 +370,169 @@ class InvestorService
             ];
         });
     }
+    // public function partialWithdrawal($investorId, array $data)
+    // {
+    //     // dd($data);
+    //     return DB::transaction(function () use ($investorId, $data) {
+
+    //         // create partial withdrawal contract document for the withdrawal
+    //         $appliedInvestments = json_encode(array_keys($data['investments'] ?? []));
+
+    //         $Document_data = [
+    //             'investor_id' => $investorId,
+    //             'company_id' => $data['company_id'],
+    //             'investor_agreement_template_id' => $this->investorAgreementRepository->getActiveIdBytype(3),
+    //             'investor_agreement_type_id' => 3,
+    //             'added_by' => auth()->user()->id,
+    //             'applied_investments' => $appliedInvestments,
+    //             'investment_id' => 0,
+    //         ];
+    //         // dd($Document_data);
+    //         $document = $this->investmentContractDocumentService->createInvestorDocument($investorId, $data['company_id'], $Document_data);
+
+    //         // create ledger entry for the withdrawal
+
+    //         $ledger_data = [
+    //             'investment_contract_document_id' => $document->id,
+    //             'investor_id' => $investorId,
+    //             'company_id' => $data['company_id'],
+    //             'investor_transaction_type_id' => '3',
+    //             'transaction_amount' => $data['withdrawal_amount'],
+    //             'is_credit' => 0,
+    //             'transaction_date' => parseDate($data['requested_date']),
+    //             'added_by' => auth()->user()->id,
+    //             'investment_id' => 0,
+    //             'withdrawal_status' => 1,
+    //             'requested_date' => parseDate($data['requested_date']),
+    //             'duration_days' => $data['duration_days'],
+    //             'withdrawal_date' => parseDate($data['withdrawal_date'])
+    //         ];
+    //         $ledger = $this->investorLedgerRepo->create($ledger_data);
+
+
+    //         // Update Investments
+    //         // $investments = $data['investments'] ?? [];
+    //         $investments = collect($data['investments'] ?? [])
+    //             ->filter(function ($row) {
+    //                 return isset($row['selected'])
+    //                     && $row['selected'] == '1'
+    //                     && isset($row['amount'])
+    //                     && $row['amount'] !== ''
+    //                     && (float) $row['amount'] > 0;
+    //             })
+    //             ->toArray();
+    //         // dd($investments);
+    //         foreach ($investments as $investmentId => $row) {
+
+    //             $withdrawalAmount = $row['amount'];
+    //             $availableBalance = $row['available_amount'];
+
+    //             $balance_investment_amount = $availableBalance - $withdrawalAmount;
+    //             $totalWithdrawnAmount = getTotalWithdrawnAmount($investmentId) + $withdrawalAmount;
+
+    //             $investmentData = [
+    //                 'has_partial_withdrawal' => 1,
+    //                 'investment_amount' => $balance_investment_amount,
+    //                 'total_withdrawn_amount' => $totalWithdrawnAmount,
+    //             ];
+    //             // @dump($investmentData);
+
+    //             // Full withdrawal of this investment = termination
+    //             $isTermination = abs($availableBalance - $withdrawalAmount) < 0.01;
+
+    //             if ($isTermination && !empty($data['requested_date']) && !empty($data['withdrawal_date'])) {
+    //                 $investmentData['investment_status'] = 1;
+    //             }
+    //             $investment = $this->investmentRepository->update($investmentId, $investmentData);
+
+
+    //             // $checkTermination = $this->checkIftermination($investorId, $data['company_id']);
+    //             // if ($checkTermination) {
+    //             //     foreach ($investments as $investmentId => $row) {
+    //             //         $termData['termination_requested_date'] = parseDate($data['requested_date']);
+    //             //         $termData['termination_date'] = parseDate($data['withdrawal_date']);
+    //             //         $termData['termination_duration'] = $data['duration_days'];
+    //             //         $termData['termination_requested_by'] = auth()->user()->id;
+    //             //         $twrmData['terminate_status'] = 1;
+
+
+    //             //         $investment = $this->investmentRepository->update($investmentId, $termData);
+    //             //     }
+
+    //             //     $termination_data = [
+    //             //         'investor_id' => $investorId,
+    //             //         'company_id' => $data['company_id'],
+    //             //         'investor_agreement_template_id' => $this->investorAgreementRepository->getActiveIdBytype(5),
+    //             //         'investor_agreement_type_id' => 5,
+    //             //         'added_by' => auth()->user()->id,
+    //             //         'applied_investments' => $appliedInvestments,
+    //             //         'investment_id' => $investmentId,
+    //             //     ];
+    //             //     // dump($termination_data);
+
+
+    //             //     $terminationDoc = $this->investmentContractDocumentService->createInvestorDocument($investorId, $data['company_id'], $termination_data);
+    //             // }
+
+    //             // dd("test");
+
+
+
+    //             // 3. Create bifurcation record
+
+    //             $partialWithdrawalData = [
+    //                 'investment_id' => $investmentId,
+    //                 'ledger_id' => $ledger->id,
+    //                 'company_id' => $data['company_id'],
+    //                 'withdrawal_amount' => $withdrawalAmount,
+    //                 'previous_amount' => $availableBalance,
+    //                 'balance_amount' => $balance_investment_amount,
+    //                 'added_by' => auth()->user()->id,
+    //                 'requested_date' => parseDate($data['requested_date']),
+    //                 'withdrawal_date' => parseDate($data['withdrawal_date']),
+    //                 'duration_days' => $data['duration_days'],
+    //             ];
+    //             $partial_Withdrawal = $this->investorLedgerRepo->createPartialWithdrawal($partialWithdrawalData);
+    //         }
+    //         $checkTermination = $this->checkIftermination($investorId, $data['company_id']);
+    //         if ($checkTermination) {
+    //             foreach ($investments as $investmentId => $row) {
+    //                 $termData['termination_requested_date'] = parseDate($data['requested_date']);
+    //                 $termData['termination_date'] = parseDate($data['withdrawal_date']);
+    //                 $termData['termination_duration'] = $data['duration_days'];
+    //                 $termData['termination_requested_by'] = auth()->user()->id;
+    //                 $termData['terminate_status'] = 1;
+
+
+    //                 $investment = $this->investmentRepository->update($investmentId, $termData);
+    //             }
+
+    //             $termination_data = [
+    //                 'investor_id' => $investorId,
+    //                 'company_id' => $data['company_id'],
+    //                 'investor_agreement_template_id' => $this->investorAgreementRepository->getActiveIdBytype(5),
+    //                 'investor_agreement_type_id' => 5,
+    //                 'added_by' => auth()->user()->id,
+    //                 'applied_investments' => $appliedInvestments,
+    //                 // 'investment_id' => $investmentId,
+    //             ];
+    //             // dump($termination_data);
+
+
+    //             $terminationDoc = $this->investmentContractDocumentService->createInvestorDocument($investorId, $data['company_id'], $termination_data);
+    //         }
+    //         // dd($checkTermination);
+    //     });
+    // }
+
     public function partialWithdrawal($investorId, array $data)
     {
         // dd($data);
         return DB::transaction(function () use ($investorId, $data) {
 
-            // create partial withdrawal contract document for the withdrawal
             $appliedInvestments = json_encode(array_keys($data['investments'] ?? []));
 
-            $Document_data = [
-                'investor_id' => $investorId,
-                'company_id' => $data['company_id'],
-                'investor_agreement_template_id' => $this->investorAgreementRepository->getActiveIdBytype(3),
-                'investor_agreement_type_id' => 3,
-                'added_by' => auth()->user()->id,
-                'applied_investments' => $appliedInvestments,
-                'investment_id' => 0,
-            ];
-            // dd($Document_data);
-            $document = $this->investmentContractDocumentService->createInvestorDocument($investorId, $data['company_id'], $Document_data);
-
-            // create ledger entry for the withdrawal
-
-            $ledger_data = [
-                'investment_contract_document_id' => $document->id,
-                'investor_id' => $investorId,
-                'company_id' => $data['company_id'],
-                'investor_transaction_type_id' => '3',
-                'transaction_amount' => $data['withdrawal_amount'],
-                'is_credit' => 0,
-                'transaction_date' => parseDate($data['requested_date']),
-                'added_by' => auth()->user()->id,
-                'investment_id' => 0,
-                'partial_withdrawal_status' => 1,
-                'requested_date' => parseDate($data['requested_date']),
-                'duration_days' => $data['duration_days'],
-                'withdrawal_date' => parseDate($data['withdrawal_date'])
-            ];
-            $ledger = $this->investorLedgerRepo->create($ledger_data);
-
-
-            // Update Investments
-            // $investments = $data['investments'] ?? [];
+            // Only keep investments that were actually selected with a valid amount
             $investments = collect($data['investments'] ?? [])
                 ->filter(function ($row) {
                     return isset($row['selected'])
@@ -421,68 +542,137 @@ class InvestorService
                         && (float) $row['amount'] > 0;
                 })
                 ->toArray();
-            // dd($investments);
+
+            // --- 1. Update each investment's balance/withdrawn totals first ---
+            // (bifurcation records get created later, once we know which ledger they attach to)
+            $investmentUpdates = [];
+            $total_profit = 0;
             foreach ($investments as $investmentId => $row) {
 
                 $withdrawalAmount = $row['amount'];
                 $availableBalance = $row['available_amount'];
+                $total_profit += $row['profit'];
 
                 $balance_investment_amount = $availableBalance - $withdrawalAmount;
-                // $totalWithdrawnAmount = getTotalWithdrawnAmount($investmentId) + $withdrawalAmount;
-                // $investmentData = [
-                //     'investment_amount' => $balance_investment_amount,
-                //     'total_withdrawn_amount' => $totalWithdrawnAmount,
-                // ];
+                $totalWithdrawnAmount = getTotalWithdrawnAmount($investmentId) + $withdrawalAmount;
+
                 $investmentData = [
                     'has_partial_withdrawal' => 1,
+                    'investment_amount' => $balance_investment_amount,
+                    'total_withdrawn_amount' => $totalWithdrawnAmount,
                 ];
 
-                // Full withdrawal of this investment = termination
                 $isTermination = abs($availableBalance - $withdrawalAmount) < 0.01;
-
                 if ($isTermination && !empty($data['requested_date']) && !empty($data['withdrawal_date'])) {
-
-                    $investmentData['termination_requested_date'] = parseDate($data['requested_date']);
-                    $investmentData['termination_date'] = parseDate($data['withdrawal_date']);
-                    $investmentData['termination_duration'] = $data['duration_days'];
-                    $investmentData['termination_requested_by'] = auth()->user()->id;
-                    $investmentData['terminate_status'] = 1;
-
-                    $termination_data = [
-                        'investor_id' => $investorId,
-                        'company_id' => $data['company_id'],
-                        'investor_agreement_template_id' => $this->investorAgreementRepository->getActiveIdBytype(5),
-                        'investor_agreement_type_id' => 5,
-                        'added_by' => auth()->user()->id,
-                        'applied_investments' => $appliedInvestments,
-                        'investment_id' => $investmentId,
-                    ];
-                    // dump($termination_data);
-
-
-                    $terminationDoc = $this->investmentContractDocumentService->createInvestorDocument($investorId, $data['company_id'], $termination_data);
+                    $investmentData['investment_status'] = 1;
                 }
-                $investment = $this->investmentRepository->update($investmentId, $investmentData);
+
+                $this->investmentRepository->update($investmentId, $investmentData);
+
+                // stash what's needed for the bifurcation record, created below
+                $investmentUpdates[$investmentId] = [
+                    'withdrawalAmount' => $withdrawalAmount,
+                    'availableBalance' => $availableBalance,
+                    'balance_investment_amount' => $balance_investment_amount,
+                    'withdrawal_month_profit' => $row['profit']
+                ];
+            }
+
+            // --- 2. Decide: is this a termination, or a plain partial withdrawal? ---
+            $checkTermination = $this->checkIftermination($investorId, $data['company_id']);
+            // dd($checkTermination);
+
+            if ($checkTermination) {
+                // Mark termination fields on each investment involved
+                foreach ($investments as $investmentId => $row) {
+                    $this->investmentRepository->update($investmentId, [
+                        'termination_requested_date' => parseDate($data['requested_date']),
+                        'termination_date' => parseDate($data['withdrawal_date']),
+                        'termination_duration' => $data['duration_days'],
+                        'termination_requested_by' => auth()->user()->id,
+                        'terminate_status' => 1,
+                    ]);
+                }
 
                 // dd("test");
+                $Document_data = [
+                    'investor_id' => $investorId,
+                    'company_id' => $data['company_id'],
+                    'investor_agreement_template_id' => $this->investorAgreementRepository->getActiveIdBytype(5),
+                    'investor_agreement_type_id' => 5,
+                    'added_by' => auth()->user()->id,
+                    'applied_investments' => $appliedInvestments,
+                    'investment_id' => 0,
+                ];
+                // dd("test");
 
+                $document = $this->investmentContractDocumentService->createInvestorDocument($investorId, $data['company_id'], $Document_data);
+                // dd($document);
+                $ledger_data = [
+                    'investment_contract_document_id' => $document->id,
+                    'investor_id' => $investorId,
+                    'company_id' => $data['company_id'],
+                    'investor_transaction_type_id' => '4',
+                    'transaction_amount' => $data['withdrawal_amount'],
+                    'is_credit' => 0,
+                    'transaction_date' => parseDate($data['requested_date']),
+                    'added_by' => auth()->user()->id,
+                    'investment_id' => 0,
+                    'withdrawal_status' => 1,
+                    'requested_date' => parseDate($data['requested_date']),
+                    'duration_days' => $data['duration_days'],
+                    'withdrawal_date' => parseDate($data['withdrawal_date']),
+                    'withdrawal_month_profit' => $total_profit
+                ];
+                $ledger = $this->investorLedgerRepo->create($ledger_data);
+            } else {
+                $Document_data = [
+                    'investor_id' => $investorId,
+                    'company_id' => $data['company_id'],
+                    'investor_agreement_template_id' => $this->investorAgreementRepository->getActiveIdBytype(3),
+                    'investor_agreement_type_id' => 3,
+                    'added_by' => auth()->user()->id,
+                    'applied_investments' => $appliedInvestments,
+                    'investment_id' => 0,
+                ];
+                $document = $this->investmentContractDocumentService->createInvestorDocument($investorId, $data['company_id'], $Document_data);
 
+                $ledger_data = [
+                    'investment_contract_document_id' => $document->id,
+                    'investor_id' => $investorId,
+                    'company_id' => $data['company_id'],
+                    'investor_transaction_type_id' => '3',
+                    'transaction_amount' => $data['withdrawal_amount'],
+                    'is_credit' => 0,
+                    'transaction_date' => parseDate($data['requested_date']),
+                    'added_by' => auth()->user()->id,
+                    'investment_id' => 0,
+                    'withdrawal_status' => 1,
+                    'requested_date' => parseDate($data['requested_date']),
+                    'duration_days' => $data['duration_days'],
+                    'withdrawal_date' => parseDate($data['withdrawal_date']),
+                    'withdrawal_month_profit' => $total_profit
+                ];
+                $ledger = $this->investorLedgerRepo->create($ledger_data);
+            }
 
-                // 3. Create bifurcation record
-
+            // --- 3. Create the bifurcation records against whichever ledger was just made ---
+            foreach ($investmentUpdates as $investmentId => $vals) {
                 $partialWithdrawalData = [
                     'investment_id' => $investmentId,
                     'ledger_id' => $ledger->id,
                     'company_id' => $data['company_id'],
-                    'withdrawal_amount' => $withdrawalAmount,
-                    'previous_amount' => $availableBalance,
-                    'balance_amount' => $balance_investment_amount,
+                    'withdrawal_amount' => $vals['withdrawalAmount'],
+                    'previous_amount' => $vals['availableBalance'],
+                    'balance_amount' => $vals['balance_investment_amount'],
                     'added_by' => auth()->user()->id,
                     'requested_date' => parseDate($data['requested_date']),
                     'withdrawal_date' => parseDate($data['withdrawal_date']),
                     'duration_days' => $data['duration_days'],
+                    'withdrawal_month_profit' => $vals['withdrawal_month_profit'],
+                    'balance_to_pay' => $vals['withdrawalAmount']
                 ];
-                $partial_Withdrawal = $this->investorLedgerRepo->createPartialWithdrawal($partialWithdrawalData);
+                $this->investorLedgerRepo->createPartialWithdrawal($partialWithdrawalData);
             }
         });
     }
@@ -494,7 +684,6 @@ class InvestorService
         $columns = [
             ['data' => 'DT_RowIndex', 'name' => 'id'],
             ['data' => 'investor_name', 'name' => 'investor_name'],
-
             ['data' => 'action', 'name' => 'action', 'orderable' => true, 'searchable' => true],
         ];
 
@@ -527,7 +716,7 @@ class InvestorService
             <p class='text-muted small'><i class='fa fa-phone-alt text-danger'></i> <span class='font-weight-bold'>{$phone}</span> </p><p class='text-muted small'><i class='fas fa-home text-danger'></i> <span class='font-weight-bold'>{$address}</span></p>";
             })
             ->addColumn('status', function ($row) {
-                switch ($row->partial_withdrawal_status) {
+                switch ($row->withdrawal_status) {
                     case 1:
                         return '<span class="badge badge-warning">Requested</span>';
                     case 2:
@@ -542,6 +731,18 @@ class InvestorService
                 return $row->transaction_amount
                     ? number_format($row->transaction_amount)
                     : '-';
+            })
+            ->addColumn('transaction_type', function ($row) {
+                $typeId = $row->transactionType->id ?? null;
+                $typeName = $row->transactionType->transaction_type ?? ' - ';
+
+                if ($typeId == 3) {
+                    return '<span class="badge bg-warning">' . $typeName . '</span>';
+                } elseif ($typeId == 4) {
+                    return '<span class="badge bg-danger">' . $typeName . '</span>';
+                }
+
+                return '<span class="badge bg-secondary">' . $typeName . '</span>';
             })
             ->addColumn('requested_date', function ($row) {
                 return $row->requested_date
@@ -558,10 +759,10 @@ class InvestorService
 
             ->addColumn('action', function ($row) {
                 $action = '';
-                // $action .= '<a href="' . route('investor.partial-withdrawals.edit', $row->id) . '" class="btn btn-info btn-sm" ><i class="fas fa-pencil-alt"></i></a>';
+                $action .= '<a href="' . route('investor.partial-withdrawals.edit', $row->id) . '" class="btn btn-info btn-sm" ><i class="fas fa-pencil-alt"></i></a>';
                 return $action;
             })
-            ->rawColumns(['transaction_amount', 'requested_date', 'withdrawal_date', 'investor_name', 'action', 'status'])
+            ->rawColumns(['transaction_amount', 'transaction_type', 'requested_date', 'withdrawal_date', 'investor_name', 'action', 'status'])
             ->with(['columns' => $columns])
             ->toJson();
     }
@@ -569,7 +770,7 @@ class InvestorService
     {
         $ledger = $this->investorLedgerRepo->find($id);
 
-        if (!$ledger || (int) $ledger->partial_withdrawal_status !== 1) {
+        if (!$ledger || (int) $ledger->withdrawal_status !== 1) {
             return null; // let the controller decide how to respond (404, redirect, etc.)
         }
 
@@ -591,7 +792,7 @@ class InvestorService
 
             $ledger = $this->investorLedgerRepo->find($ledgerId);
 
-            if (!$ledger || (int) $ledger->partial_withdrawal_status !== 1) {
+            if (!$ledger || (int) $ledger->withdrawal_status !== 1) {
                 throw new \Exception('Only pending partial withdrawal requests can be edited.');
             }
 
@@ -607,115 +808,212 @@ class InvestorService
                         && (float) $row['amount'] > 0;
                 })
                 ->toArray();
-            $appliedInvestments = json_encode(array_keys($investments ?? []));
 
+            $appliedInvestments = json_encode(array_keys($investments));
 
-            $Document_data = [
-                'investor_id' => $investorId,
-                'company_id' => $data['company_id'],
-                'investor_agreement_template_id' => $this->investorAgreementRepository->getActiveIdBytype(3),
-                'investor_agreement_type_id' => 3,
-                'added_by' => auth()->user()->id,
-                'applied_investments' => $appliedInvestments,
-                'investment_id' => 0,
-            ];
-            $this->investmentContractDocumentRepo->update($ledger->investment_contract_document_id, $Document_data);
+            // dd($appliedInvestments);
 
-            // --- 2. Revert flags on investments that are no longer part of this withdrawal ---
+            // --- 1. Snapshot old bifurcations for this ledger, keyed by investment ---
             $oldBifurcations = $this->investorLedgerRepo->getBifurcationsByLedgerId($ledgerId);
-            // dd($oldBifurcations);
+            $oldBifurcationsByInvestment = collect($oldBifurcations)->keyBy('investment_id');
             $newInvestmentIds = array_keys($investments);
-            dd($newInvestmentIds);
 
+            // dd($newInvestmentIds);
+
+            // --- 2. Revert investments that were dropped from the selection ---
             foreach ($oldBifurcations as $old) {
                 if (!in_array($old->investment_id, $newInvestmentIds)) {
-                    // Only reset the flag if no OTHER pending/active bifurcation references this investment
+
                     $stillReferenced = $this->investorLedgerRepo->investmentHasOtherActiveBifurcation($old->investment_id, $ledgerId);
-                    // $haveBi
+
+                    $investment = $this->investmentRepository->find($old->investment_id);
+
+                    // dd($stillReferenced);
                     if (!$stillReferenced) {
+                        // dd($investment);
+
                         $this->investmentRepository->update($old->investment_id, [
-                            'has_partial_withdrawal'   => 0,
-                            'terminate_status'         => 0,
-                            'termination_requested_date' => null,
-                            'termination_date'          => null,
-                            'termination_duration'      => null,
-                            'termination_requested_by'  => null,
+                            'has_partial_withdrawal'     => 0,
+                            'terminate_status'            => 0,
+                            'termination_requested_date'  => null,
+                            'termination_date'            => null,
+                            'termination_duration'        => null,
+                            'termination_requested_by'    => null,
+                            'investment_status'           => 0,
+                            'investment_amount'           => $investment->investment_amount + $old->withdrawal_amount,
+                            'total_withdrawn_amount'      => $investment->total_withdrawn_amount - $old->withdrawal_amount,
+                        ]);
+                    } else {
+                        // dd($stillReferenced);
+                        // PARTIAL revert
+                        $this->investmentRepository->update($old->investment_id, [
+                            'investment_amount'          => $investment->investment_amount + $old->withdrawal_amount,
+                            'total_withdrawn_amount'     => $investment->total_withdrawn_amount - $old->withdrawal_amount,
                         ]);
                     }
                 }
             }
 
-            // --- 3. Clear old bifurcation records for this ledger (will be recreated below) ---
+            // --- 3. Clear old bifurcation rows for this ledger (recreated in step 6) ---
             $this->investorLedgerRepo->deleteBifurcationsByLedgerId($ledgerId);
 
-            // --- 4. Update the ledger entry itself ---
-            $ledgerData = [
-                'company_id'         => $data['company_id'],
-                'transaction_amount' => $data['withdrawal_amount'],
-                'transaction_date'   => parseDate($data['requested_date']),
-                'requested_date'     => parseDate($data['requested_date']),
-                'duration_days'      => $data['duration_days'],
-                'withdrawal_date'    => parseDate($data['withdrawal_date']),
-            ];
-            $this->investorLedgerRepo->update($ledgerId, $ledgerData);
-
-            // --- 5. Recreate bifurcations + reapply investment flags (same logic as create) ---
-            $investments = $data['investments'] ?? [];
+            // --- 4. Update each currently-selected investment's balance/withdrawn totals ---
+            // (delta-adjusted against what THIS ledger previously contributed, mirrors create's step 1)
+            $investmentUpdates = [];
+            $total_profit = 0;
             foreach ($investments as $investmentId => $row) {
 
                 $withdrawalAmount = $row['amount'];
                 $availableBalance = $row['available_amount'];
                 $balance_investment_amount = $availableBalance - $withdrawalAmount;
+                $total_profit += $row['profit'];
 
-                $investmentData = ['has_partial_withdrawal' => 1];
+                $previouslyWithdrawn = optional($oldBifurcationsByInvestment->get($investmentId))->withdrawal_amount ?? 0;
+                $totalWithdrawnAmount = getTotalWithdrawnAmount($investmentId) - $previouslyWithdrawn + $withdrawalAmount;
+
+                $investmentData = [
+                    'has_partial_withdrawal' => 1,
+                    'investment_amount' => $balance_investment_amount,
+                    'total_withdrawn_amount' => $totalWithdrawnAmount,
+                    'withdrawal_month_profit' => $row['profit']
+                ];
+
                 $isTermination = abs($availableBalance - $withdrawalAmount) < 0.01;
-
-                if ($isTermination && !empty($data['requested_date']) && !empty($data['withdrawal_date'])) {
-                    $investmentData['termination_requested_date'] = parseDate($data['requested_date']);
-                    $investmentData['termination_date']           = parseDate($data['withdrawal_date']);
-                    $investmentData['termination_duration']       = $data['duration_days'];
-                    $investmentData['termination_requested_by']   = auth()->user()->id;
-                    $investmentData['terminate_status']           = 1;
-
-                    // NOTE: if a termination document already exists for this investment
-                    // under this same withdrawal, avoid creating a duplicate here.
-                    $existingTerminationDoc = $this->investmentContractDocumentService
-                        ->findTerminationDocForInvestment($investmentId, $ledger->investment_contract_document_id);
-
-                    if (!$existingTerminationDoc) {
-                        $this->investmentContractDocumentService->createInvestorDocument(
-                            $investorId,
-                            $data['company_id'],
-                            [
-                                'investor_id' => $investorId,
-                                'company_id'  => $data['company_id'],
-                                'investor_agreement_template_id' => $this->investorAgreementRepository->getActiveIdBytype(5),
-                                'investor_agreement_type_id' => 5,
-                                'added_by' => auth()->user()->id,
-                                'applied_investments' => $appliedInvestments,
-                                'investment_id' => $investmentId,
-                            ]
-                        );
-                    }
-                }
+                $investmentData['investment_status'] = ($isTermination && !empty($data['requested_date']) && !empty($data['withdrawal_date'])) ? 1 : 0;
 
                 $this->investmentRepository->update($investmentId, $investmentData);
 
+                $investmentUpdates[$investmentId] = [
+                    'withdrawalAmount' => $withdrawalAmount,
+                    'availableBalance' => $availableBalance,
+                    'balance_investment_amount' => $balance_investment_amount,
+                ];
+            }
+
+            // --- 5. Investor-level termination check — same branch structure as create() ---
+            $checkTermination = $this->checkIftermination($investorId, $data['company_id']);
+
+            if ($checkTermination) {
+                foreach ($investments as $investmentId => $row) {
+                    $this->investmentRepository->update($investmentId, [
+                        'termination_requested_date' => parseDate($data['requested_date']),
+                        'termination_date'            => parseDate($data['withdrawal_date']),
+                        'termination_duration'        => $data['duration_days'],
+                        'termination_requested_by'    => auth()->user()->id,
+                        'terminate_status'             => 1,
+                    ]);
+                }
+
+                $Document_data = [
+                    'investor_id' => $investorId,
+                    'company_id' => $data['company_id'],
+                    'investor_agreement_template_id' => $this->investorAgreementRepository->getActiveIdBytype(5),
+                    'investor_agreement_type_id' => 5,
+                    'added_by' => auth()->user()->id,
+                    'applied_investments' => $appliedInvestments,
+                    'investment_id' => 0,
+                ];
+                $this->investmentContractDocumentRepo->update($ledger->investment_contract_document_id, $Document_data);
+
+                $ledgerData = [
+                    'company_id' => $data['company_id'],
+                    'investor_transaction_type_id' => '4',
+                    'transaction_amount' => $data['withdrawal_amount'],
+                    'transaction_date' => parseDate($data['requested_date']),
+                    'requested_date' => parseDate($data['requested_date']),
+                    'duration_days' => $data['duration_days'],
+                    'withdrawal_date' => parseDate($data['withdrawal_date']),
+                    'withdrawal_month_profit' => $total_profit
+
+                ];
+                $this->investorLedgerRepo->update($ledgerId, $ledgerData);
+            } else {
+                // Termination may have applied on the original save but no longer does — clear it
+                foreach ($investments as $investmentId => $row) {
+                    $this->investmentRepository->update($investmentId, [
+                        'termination_requested_date' => null,
+                        'termination_date'            => null,
+                        'termination_duration'        => null,
+                        'termination_requested_by'    => null,
+                        'terminate_status'             => 0,
+                    ]);
+                }
+
+                $Document_data = [
+                    'investor_id' => $investorId,
+                    'company_id' => $data['company_id'],
+                    'investor_agreement_template_id' => $this->investorAgreementRepository->getActiveIdBytype(3),
+                    'investor_agreement_type_id' => 3,
+                    'added_by' => auth()->user()->id,
+                    'applied_investments' => $appliedInvestments,
+                    'investment_id' => 0,
+                ];
+                $this->investmentContractDocumentRepo->update($ledger->investment_contract_document_id, $Document_data);
+
+                $ledgerData = [
+                    'company_id' => $data['company_id'],
+                    'investor_transaction_type_id' => '3',
+                    'transaction_amount' => $data['withdrawal_amount'],
+                    'transaction_date' => parseDate($data['requested_date']),
+                    'requested_date' => parseDate($data['requested_date']),
+                    'duration_days' => $data['duration_days'],
+                    'withdrawal_date' => parseDate($data['withdrawal_date']),
+                    'withdrawal_month_profit' => $total_profit
+                ];
+                $this->investorLedgerRepo->update($ledgerId, $ledgerData);
+            }
+
+            // --- 6. Recreate bifurcation records against this ledger ---
+            foreach ($investmentUpdates as $investmentId => $vals) {
                 $this->investorLedgerRepo->createPartialWithdrawal([
-                    'investment_id'   => $investmentId,
-                    'ledger_id'       => $ledgerId,
-                    'company_id'      => $data['company_id'],
-                    'withdrawal_amount' => $withdrawalAmount,
-                    'previous_amount'   => $availableBalance,
-                    'balance_amount'    => $balance_investment_amount,
-                    'added_by'          => auth()->user()->id,
-                    'requested_date'    => parseDate($data['requested_date']),
-                    'withdrawal_date'   => parseDate($data['withdrawal_date']),
-                    'duration_days'     => $data['duration_days'],
+                    'investment_id' => $investmentId,
+                    'ledger_id' => $ledgerId,
+                    'company_id' => $data['company_id'],
+                    'withdrawal_amount' => $vals['withdrawalAmount'],
+                    'previous_amount' => $vals['availableBalance'],
+                    'balance_amount' => $vals['balance_investment_amount'],
+                    'added_by' => auth()->user()->id,
+                    'requested_date' => parseDate($data['requested_date']),
+                    'withdrawal_date' => parseDate($data['withdrawal_date']),
+                    'duration_days' => $data['duration_days'],
+                    'withdrawal_month_profit' => $vals['withdrawal_month_profit']
+
                 ]);
             }
 
             return $ledger->fresh();
         });
+    }
+
+    public function checkIftermination($investorId, $companyId)
+    {
+        $investments = $this->investmentRepository->getAllByCondition([
+            'investor_id' => $investorId,
+            'company_id' => $companyId,
+        ]);
+        $allTerminated = true;
+
+        foreach ($investments as $investment) {
+
+            $totalInvested = $investment->total_invested_amount;
+
+            $totalWithdrawn = $investment->total_withdrawn_amount;
+            // @dump($totalInvested, $totalWithdrawn);
+
+            // bccomp returns 0 if equal, avoids float drift
+            $isFullyWithdrawn = bccomp((string) $totalInvested, (string) $totalWithdrawn, 2) === 0;
+            // @dump($isFullyWithdrawn);
+
+            if ($isFullyWithdrawn) {
+                // if ($investment->investment_status != 1) {
+                //     $investment->update(['investment_status' => 1]);
+                // }
+                $allTerminated = true;
+            } else {
+                $allTerminated = false;
+            }
+        }
+
+        return $allTerminated;
     }
 }

@@ -15,7 +15,9 @@ use App\Models\Investment;
 use App\Models\InvestmentReceivedPayment;
 use App\Models\InvestmentReferral;
 use App\Models\Investor;
+use App\Models\InvestorLedger;
 use App\Models\InvestorPayout;
+use App\Models\PartialWithdrawalBifurcation;
 use App\Models\PaymentMode;
 use App\Models\Property;
 use App\Models\SalesTenantAgreement;
@@ -945,8 +947,11 @@ function getPayoutDate($row)
     return match ($row->payout_type) {
         1 => optional($row->investment)->next_profit_release_date,
         2 => optional($row->investment)->next_referral_commission_release_date,
-        3 => optional($row->investment)->termination_date,
-        4 => optional($row->investment)->termination_date,
+        // 3 => optional($row->investment)->termination_date,
+        // 4 => optional($row->investment)->termination_date,
+        6 => optional($row->bifurcation)->withdrawal_date
+            ? \Carbon\Carbon::parse($row->bifurcation->withdrawal_date)->format('d-m-Y')
+            : null,
         default => null,
     };
 }
@@ -1095,9 +1100,9 @@ function  updateInvestmentOnDistribution($payoutData, $distributedData)
         'updated_by' => auth()->user()->id,
     );
 
-    if ($payoutData->amount_pending == 0) {
-        terminateStatusChange($investmentId);
-    }
+    // if ($payoutData->amount_pending == 0) {
+    //     terminateStatusChange($investmentId);
+    // }
 
     return $repository->update($investmentId, $investmentArr);
 }
@@ -1208,7 +1213,8 @@ function terminateStatusChange($investmentId)
 {
     $data = [
         'investment_status' => 0,
-        'terminate_status' => 2
+        'terminate_status' => 2,
+        'terminated_by' => auth()->user()->id
     ];
     $inv = Investment::find($investmentId);
     $inv->update($data);
@@ -1660,5 +1666,84 @@ if (!function_exists('is_file_ready')) {
     function is_file_ready(string $filePath): bool
     {
         return file_exists(storage_path('app/public/' . $filePath));
+    }
+}
+
+// Partial withdrawal Bifurcations table status updation on withdrawal/Settlement
+function updateBifuractionOnWithdrawal($bifurcation, $balance, $paidAmount)
+{
+    // $bifurcation = PartialWithdrawalBifurcation::find($bifucationId);
+    $updateArr = [];
+    $totalPaid = ($bifurcation->total_paid ?? 0) + $paidAmount;
+    if ($balance == 0) {
+        $updateArr = [
+            'payout_status' => 2,
+            'total_paid' => $totalPaid
+        ];
+    } elseif ($balance > 0 && $balance != $bifurcation->withdrawal_amount) {
+        $updateArr = [
+            'payout_status' => 2,
+            'balance_to_pay' => $balance,
+            'total_paid' => $totalPaid
+        ];
+    }
+    $bifurcation->update($updateArr);
+
+    return true;
+}
+
+function updateBifuractionOnProfitPayout($bifucationId, $balance, $paidAmount)
+{
+    $bifurcation = PartialWithdrawalBifurcation::find($bifucationId);
+    $updateArr = [];
+    $totalPaid = ($bifurcation->total_paid ?? 0) + $paidAmount;
+    if ($balance == 0) {
+        $updateArr = [
+            'profit_payout_status' => 2,
+            'total_paid' => $totalPaid
+        ];
+    } elseif ($balance > 0 && $balance != $bifurcation->withdrawal_month_profit) {
+        $updateArr = [
+            'profit_payout_status' => 2,
+            'balance_to_pay' => $balance,
+            'total_paid' => $totalPaid
+        ];
+    }
+    $bifurcation->update($updateArr);
+
+    return true;
+}
+
+// Investor ledger table status updation on payout
+function updateInvestorLedgerOnPayout($ledgerId, $payoutType)
+{
+    $ledger = InvestorLedger::find($ledgerId);
+
+    if (!$ledger) {
+        return false;
+    }
+
+    $bifurcations = PartialWithdrawalBifurcation::where('ledger_id', $ledgerId)->get();
+
+    if ($bifurcations->isEmpty()) {
+        return false;
+    }
+
+    // Withdrawal/Settlement
+    if ($payoutType == 6) {
+        // Check if ALL payout_status == 2
+        if ($bifurcations->where('payout_status', 2)->count() === $bifurcations->count()) {
+            $ledger->update([
+                'withdrawal_status' => 2
+            ]);
+        }
+    } elseif ($payoutType == 1) {  // profit payout of withdrawal / settlement Month
+
+        // Check if ALL profit_payout_status == 2
+        if ($bifurcations->where('profit_payout_status', 2)->count() === $bifurcations->count()) {
+            $ledger->update([
+                'profit_payout_status' => 2
+            ]);
+        }
     }
 }

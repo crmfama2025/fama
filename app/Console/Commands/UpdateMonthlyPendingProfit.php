@@ -38,15 +38,48 @@ class UpdateMonthlyPendingProfit extends Command
                 // dd($investments);
 
                 foreach ($investments as $investment) {
+                    $termDate = $investment->termination_date
+                        ? Carbon::parse($investment->termination_date)
+                        : null;
 
+                    // ----------------------------
+                    // Partial withdrawal Payout
+                    // ----------------------------
+
+                    // Get partial withdrawal for current month partial  withdrawal
+                    $withdrawal = DB::table('partial_withdrawal_bifurcations')
+                        ->where('investment_id', $investment->id)
+                        ->whereMonth('withdrawal_date', $currentMonthStart->month)
+                        ->whereYear('withdrawal_date', $currentMonthStart->year)
+                        ->where('payout_status', '!=', 2)
+                        ->get();
+                    if ($withdrawal->isNotEmpty()) {
+
+                        foreach ($withdrawal as $wd) {
+
+                            $exists = InvestorPayout::where('payout_type', 6)
+                                ->where('investment_id', $investment->id)
+                                ->where('bifurcation_id', $wd->id)
+                                ->exists();
+
+                            if (!$exists) {
+
+                                $this->createInvestorpayout(
+                                    6,
+                                    $currentMonthStart,
+                                    $investment,
+                                    $wd->balance_to_pay,
+                                    $wd->id
+                                );
+                            }
+                        }
+                    }
                     // ----------------------------
                     // PROFIT PAYOUT
                     // ----------------------------
                     if ($investment->profitInterval && $investment->next_profit_release_date) {
                         $nextProfitRelease = Carbon::parse($investment->next_profit_release_date);
-                        $termDate = $investment->termination_date
-                            ? Carbon::parse($investment->termination_date)
-                            : null;
+
                         // dd($investment);
                         // $monthsGap = 12 / $investment->profitInterval->no_of_installments;
                         // $monthsDiff = $nextProfitRelease->diffInMonths($currentMonth);
@@ -59,6 +92,19 @@ class UpdateMonthlyPendingProfit extends Command
                         // Check if next profit release is **within current month**
                         // if ($nextProfitRelease->between($currentMonthStart, $currentMonthEnd)) {
                         $payout = null;
+
+
+
+                        // Get partial withdrawal for current month profit
+                        $partialWithdrawal = DB::table('partial_withdrawal_bifurcations')
+                            ->where('investment_id', $investment->id)
+                            ->whereMonth('withdrawal_date', $currentMonthStart->month)
+                            ->whereYear('withdrawal_date', $currentMonthStart->year)
+                            ->where('profit_payout_status', '!=', 2)
+                            ->get();
+
+
+
                         if ($nextProfitRelease->lt($currentMonthStart) || $nextProfitRelease->isSameMonth($currentMonth)) {
                             if ($termDate && ($termDate->isSameMonth($currentMonth) || $termDate->lt($nextProfitRelease))) {
                                 // $investment->next_profit_release_date = $investment->next_profit_release_date;
@@ -66,7 +112,38 @@ class UpdateMonthlyPendingProfit extends Command
 
                                 $investment->save();
                             } else {
-                                $payout = $this->createInvestorpayout(1, $currentMonthStart, $investment);
+                                //  CASE 1: Partial withdrawal in current month
+                                if ($partialWithdrawal->isNotEmpty()) {
+
+                                    // 👉 Profit from bifurcation
+                                    // $bifurcations = DB::table('partial_withdrawal_bifurcations')
+                                    //     ->where('investment_id', $investment->id)
+                                    //     ->whereMonth('withdrawal_date', $currentMonthStart->month)
+                                    //     ->whereYear('withdrawal_date', $currentMonthStart->year)
+                                    //     ->where('profit_payout_status', '!=', 2)
+                                    //     ->get();
+
+                                    foreach ($partialWithdrawal as $bifurcation) {
+
+                                        $exists = InvestorPayout::where('payout_type', 1)
+                                            ->where('investment_id', $investment->id)
+                                            ->where('bifurcation_id', $bifurcation->id)
+                                            ->exists();
+
+                                        if (!$exists) {
+
+                                            $this->createInvestorpayout(
+                                                1,
+                                                $currentMonthStart,
+                                                $investment,
+                                                $bifurcation->withdrawal_month_profit,
+                                                $bifurcation->id
+                                            );
+                                        }
+                                    }
+                                } else {
+                                    $payout = $this->createInvestorpayout(1, $currentMonthStart, $investment);
+                                }
                             }
 
                             // dd($payout);
@@ -98,7 +175,14 @@ class UpdateMonthlyPendingProfit extends Command
                                 $investment->next_referral_commission_release_date = null;
                                 $investment->save();
                             } else {
-                                $this->createInvestorpayout(2, $currentMonthStart, $investment);
+
+                                $exists = InvestorPayout::where('payout_type', 2)
+                                    ->where('investment_id', $investment->id)
+                                    ->where('payout_release_month', $currentMonthStart->format('Y-m'))
+                                    ->exists();
+                                if (!$exists) {
+                                    $this->createInvestorpayout(2, $currentMonthStart, $investment);
+                                }
                             }
                         }
                     }
@@ -106,35 +190,53 @@ class UpdateMonthlyPendingProfit extends Command
                     // ----------------------------
                     // TERMINATION PAYOUT
                     // ----------------------------
-                    if ($investment->terminate_status == 1 && $investment->termination_date) {
-                        // dd("test");
-                        $terminationDate = Carbon::parse($investment->termination_date);
+                    // if ($investment->terminate_status == 1 && $investment->termination_date) {
+                    //     // dd("test");
+                    //     $terminationDate = Carbon::parse($investment->termination_date);
 
-                        // Check if termination date is **within current month**
-                        // if ($terminationDate->between($currentMonthStart, $currentMonthEnd)) {
-                        if ($terminationDate->lt($currentMonthStart) || $terminationDate->isSameMonth($currentMonth)) {
-                            // dd("test");
-                            $this->createInvestorpayout(3, $currentMonthStart, $investment);
-                            if ($investment->termination_outstanding != 0) {
-                                $this->createInvestorpayout(4, $currentMonthStart, $investment);
-                            }
-                        }
-                    }
+                    //     // Check if termination date is **within current month**
+                    //     // if ($terminationDate->between($currentMonthStart, $currentMonthEnd)) {
+                    //     if ($terminationDate->lt($currentMonthStart) || $terminationDate->isSameMonth($currentMonth)) {
+                    //         // dd("test");
+                    //         $this->createInvestorpayout(3, $currentMonthStart, $investment);
+                    //         if ($investment->termination_outstanding != 0) {
+                    //             $this->createInvestorpayout(4, $currentMonthStart, $investment);
+                    //         }
+                    //     }
+                    // }
                 }
             });
 
 
         $this->info('Monthly profit payout records generated successfully.');
     }
-    public function createInvestorpayout($payout_type, $currentMonth, $investment)
-    {
-        return DB::transaction(function () use ($investment, $currentMonth, $payout_type) {
+    public function createInvestorpayout(
+        $payout_type,
+        $currentMonth,
+        $investment,
+        $amountOverride = null,
+        $bifurcationId = null
+    ) {
+        return DB::transaction(function () use (
+            $investment,
+            $currentMonth,
+            $payout_type,
+            $amountOverride,
+            $bifurcationId
+        ) {
 
             $amount = 0;
+            $payoutReferrenceId = null;
+
 
             switch ($payout_type) {
                 case 1: // PROFIT
-                    $amount = ($investment->profit_amount_per_interval) + ($investment->outstanding_profit);
+                    if ($amountOverride > 0) {
+                        $amount = $amountOverride;
+                        $payoutReferrenceId = $bifurcationId;
+                    } else {
+                        $amount = ($investment->profit_amount_per_interval) + ($investment->outstanding_profit);
+                    }
                     $investorId = $investment->investor_id;
                     break;
                 case 2: // REFERRAL
@@ -189,17 +291,22 @@ class UpdateMonthlyPendingProfit extends Command
                     $amount = $investment->investment_amount;
                     $investorId = $investment->investor_id;
                     break;
-                case 4: // PENDING PROFIT
-                    $amount = $investment->termination_outstanding;
+                // case 4: // PENDING PROFIT
+                //     $amount = $investment->termination_outstanding;
+                //     $investorId = $investment->investor_id;
+                //     break;
+                // case 5: // PENDING COMMISSION
+                //     $referral = $investment->investmentReferral;
+                //     if ($referral) {
+                //         $amount = $investment->termination_referral_commission_outstanding;
+                //         $investorId = $referral->investor_referror_id;
+                //         $payoutReferrenceId = $referral->id;
+                //     }
+                //     break;
+                case 6: // Partial Withdrawal
+                    $amount = $amountOverride ?? 0;
+                    $payoutReferrenceId = $bifurcationId;
                     $investorId = $investment->investor_id;
-                    break;
-                case 5: // PENDING COMMISSION
-                    $referral = $investment->investmentReferral;
-                    if ($referral) {
-                        $amount = $investment->termination_referral_commission_outstanding;
-                        $investorId = $referral->investor_referror_id;
-                        $payoutReferrenceId = $referral->id;
-                    }
                     break;
             }
 
@@ -209,6 +316,7 @@ class UpdateMonthlyPendingProfit extends Command
                     'investment_id'        => $investment->id,
                     'investor_id'          => $investorId,
                     'payout_reference_id'  => $payoutReferrenceId ?? null,
+                    'bifurcation_id'       => $bifurcationId,
                     'payout_type'          => $payout_type,
                     'payout_release_month' => $currentMonth->format('Y-m'),
                 ],

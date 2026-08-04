@@ -26,9 +26,10 @@ class InvestmentContractService
     public function sendContractDocument($docId, $companyId)
     {
         $docDetails = $this->investmentContractDocumentRepository->find($docId);
+        // dump($docDetails);
 
         $docTypeId     = $docDetails->investor_agreement_type_id;
-
+        // dd($docTypeId);
 
         if ($docTypeId == 1) {
             return $this->sendMudarabah($docId, $companyId);
@@ -38,11 +39,15 @@ class InvestmentContractService
             return $this->sendPartWithdrawal($docId, $companyId);
         } elseif ($docTypeId == 4) {
             return $this->sendNovation($docId, $companyId);
+        } elseif ($docTypeId == 5) {
+            // dd("test32");
+            return $this->sendTermination($docId, $companyId);
         }
     }
 
     public function sendMudarabah($docId, $companyId)
     {
+        // dd("test");
         $invDocDetails = $this->investmentContractDocumentRepository->find($docId);
 
         $docTypeId     = $invDocDetails->investor_agreement_type_id;
@@ -64,6 +69,8 @@ class InvestmentContractService
         }
 
         $investmentData = $this->investmentRepository->find($investmentId);
+        // dd("test");
+        //
         return $this->buildMudarabahPayload($invDocDetails, $templateDocumentDetail, $investorData, $investmentData);
     }
 
@@ -640,12 +647,15 @@ class InvestmentContractService
         );
         // dump($startDate);
         // dump($nextProfitDate);
+        // dd("test");
+        //
 
         for ($i = 0; $i < 12; $i++) {
             $currentMonth = $startDate->copy()->addMonths($i);
             $windowEnd = $startDate->copy()->addMonths(12)->endOfMonth();
             $nextDate = $startDate->copy()->startOfMonth();
             $profitAmount = 0;
+            // dd($currentMonth,$windowEnd,$nextDate);
             // dump($nextDate->lessThanOrEqualTo($windowEnd));
             while ($nextDate->lessThanOrEqualTo($windowEnd)) {
                 $profitAmount = $investmentData->profit_amount_per_interval;
@@ -660,6 +670,7 @@ class InvestmentContractService
                     $investmentData->payoutBatch->batch_name
                 ))->startOfMonth();
             }
+            // dd("test");
             // if ($currentMonth->equalTo($nextProfitDate) || $i === 0) {
             //     $profitAmount = $investmentData->profit_amount_per_interval;
 
@@ -703,7 +714,7 @@ class InvestmentContractService
                 </td>
             </tr>";
         }
-
+        // dd("test");
         $annexureA = $this->buildSingleAnnexureA(
             $companyData,
             $investmentData,
@@ -773,6 +784,7 @@ class InvestmentContractService
         ];
 
         $html = str_replace(array_keys($placeholders), array_values($placeholders), $html);
+        // dd($html);
 
         return [
             'html'       => $html,
@@ -1130,5 +1142,125 @@ class InvestmentContractService
         ];
 
         return $rows;
+    }
+    public function sendTermination($docId, $companyId)
+    {
+        // dd("test");
+        $docDetails = $this->investmentContractDocumentRepository->find($docId);
+
+        // dd($docDetails);
+
+        $docTypeId     = $docDetails->investor_agreement_type_id;
+        $investor   = $docDetails->investor;
+        // dd($investor);
+        $investments = Investment::where(['investor_id' => $docDetails->investor_id, 'company_id' => $companyId])
+            ->orderBy('investment_date')
+            ->get();
+        // dd($investments);
+        // $investment = $this->investmentRepository->find($docDetails->investment_id);
+        // dd($investment);
+
+        $invDocDetails = $this->investmentContractDocumentRepository->find($docId);
+        // dd($invDocDetails);
+
+        $ledger = $this->ledgerRepository->getfirstbyCond(['investment_contract_document_id' => $docId]);
+        // dd($ledger);
+
+        $total_amount = ($ledger->transaction_amount ?? 0) + ($ledger->withdrawal_month_profit ?? 0);
+
+
+
+        // $investor   = $this->investorRepository->find($investorId);
+        // $investment = $this->investmentRepository->find($investmentId);
+        $documentDetail = $this->InvAgreementRepo->findByType($docTypeId);
+        $company    = Company::findOrFail($companyId);
+
+        $html        = $documentDetail->template;
+
+        // dd($html);
+
+        $day = Carbon::parse($docDetails->created_at);
+        $termination_requested_date = carbon::parse($ledger->requested_date);
+        // $termination_requested_date = carbon::parse($ledger->termination_requested_date);
+
+
+        // $investmentDate       = Carbon::parse($investment->investment_date);
+        $withdrwalCreated       = Carbon::parse($docDetails->generated_date);
+        $mudarabahCreatedDate       = Carbon::parse($invDocDetails->mudarabahReference->generated_date ?? $invDocDetails->mudarabahReference->created_at);
+        // dd("test");
+
+
+        // Build the underlined, "date1, date2 and date3" addendum dates string
+        $addendumDates = $this->joinWithAnd(
+            $investments->map(fn($inv) => '<span class="underline-date">'
+                . Carbon::parse($inv->investment_date)->format('jS F Y')
+                . '</span>')->toArray()
+        );
+        $vars = [
+
+            '{settlement_day}'   => $day->format('d'),      // e.g. 15
+            '{settlement_month}' => $day->format('F'),      // e.g. July
+            '{settlement_year}'  => $day->format('Y'),       // e.g. 2026
+
+
+            '{doc_created_date}' => $withdrwalCreated->format('d/m/Y'),
+
+            '{mudarabah_created_date}' => $mudarabahCreatedDate->format('jS F Y'),
+            '{mudarabah_created_date_ar}'  => arabicShortDate($mudarabahCreatedDate),
+
+            '{investor_name_eng}'  => $investor->investor_name,
+            '{investor_name_ar}'  => $investor->investor_name_arabic,
+            '{investor_id}'  => $investor->id_number,
+
+            // '{withdrawal_amount}' => number_format($ledger->transaction_amount, 2),
+            // '{withdrawal_amount_eng}' => numberToEnglishWords($ledger->transaction_amount) . ' Only',
+            // '{withdrawal_amount_ar}' => numberToArabicWords($ledger->transaction_amount),
+
+            '{company_name_eng}'  => $company->company_name,
+            // '{company_name_ar}'  => $company->company_name_arabic,
+            '{company_licence_no}'   => $company->trade_license_number,
+            '{company_reg_no}'       => $company->registration_no,
+
+            '{investor_name}' => $investor->investor_name,
+            '{investor_id_no}' => $investor->id_number,
+
+            '{termination_requested_date}' => $termination_requested_date->format('d-m-Y'),
+
+            '{addendum_dates}'    => $addendumDates,
+
+            '{capital}' => $ledger->transaction_amount,
+            '{profit}' => $ledger->withdrawal_month_profit,
+            '{total_amount}' => $total_amount
+
+            // '{html_eng}' => $this->ledgerPartialWithdrawal($docDetails->investor_id, $companyId, $mudarabahCreatedDate, $docId)['html_eng'],
+            // '{html_ar}' => $this->ledgerPartialWithdrawal($docDetails->investor_id, $companyId, $mudarabahCreatedDate, $docId)['html_ar']
+
+        ];
+        // dd($vars);
+
+        $html = str_replace(array_keys($vars), array_values($vars), $html);
+        // dd('test');
+
+        return [
+            'html'       => $html,
+            'letterHead' => asset('storage/' . $company->letter_head_path),
+            'investments'      => $investments,
+        ];
+    }
+
+    private function joinWithAnd(array $items, bool $arabic = false): string
+    {
+        if (empty($items)) {
+            return '____________________';
+        }
+
+        if (count($items) === 1) {
+            return $items[0];
+        }
+
+        $last = array_pop($items);
+        $andWord = $arabic ? 'و' : 'and';
+
+        return implode(', ', $items) . ' ' . $andWord . ' ' . $last;
     }
 }

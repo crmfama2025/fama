@@ -220,6 +220,7 @@
                                                                 {{ $entry['credit'] > 0 ? number_format($entry['credit'], 2) : '-' }}
                                                             </td>
                                                             <td class="text-right font-weight-bold">
+                                                                {{-- @dump($entry['balance']) --}}
                                                                 {{ number_format($entry['balance'], 2) }}</td>
                                                         </tr>
                                                     @empty
@@ -233,169 +234,7 @@
                                         </div>
                                     @endforeach
                                 </div>
-                                <div class="tab-content pt-3" id="companyLedgerTabContent">
 
-                                    {{-- ============ COMPANY 1: Faateh Properties LLC ============ --}}
-                                    {{-- <div class="tab-pane fade show active" id="company-pane-1" role="tabpanel">
-
-                                        <div class="row mb-2">
-                                            <div class="col-4"><small class="text-muted">Invested</small>
-                                                <div class="font-weight-bold">500,000.00</div>
-                                            </div>
-                                            <div class="col-4"><small class="text-muted">Withdrawn</small>
-                                                <div class="font-weight-bold text-danger">75,000.00</div>
-                                            </div>
-                                            <div class="col-4"><small class="text-muted">Balance</small>
-                                                <div class="font-weight-bold text-success">425,000.00</div>
-                                            </div>
-                                        </div>
-
-                                        <table class="table table-sm table-bordered ledger-table" data-company="1"
-                                            style="width:100%">
-                                            <thead>
-                                                <tr>
-                                                    <th>Date</th>
-                                                    <th>Type</th>
-                                                    <th>Description</th>
-                                                    <th class="text-right">Debit</th>
-                                                    <th class="text-right">Credit</th>
-                                                    <th class="text-right">Balance</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr>
-                                                    <td>2026-01-10</td>
-                                                    <td><span class="badge badge-success">Investment</span></td>
-                                                    <td>Initial investment - INV-0001</td>
-                                                    <td class="text-right">-</td>
-                                                    <td class="text-right">300,000.00</td>
-                                                    <td class="text-right font-weight-bold">300,000.00</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>2026-02-15</td>
-                                                    <td><span class="badge badge-success">Investment</span></td>
-                                                    <td>Additional investment - INV-0002</td>
-                                                    <td class="text-right">-</td>
-                                                    <td class="text-right">200,000.00</td>
-                                                    <td class="text-right font-weight-bold">500,000.00</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>2026-04-01</td>
-                                                    <td><span class="badge badge-info">Return</span></td>
-                                                    <td>Quarterly profit distribution</td>
-                                                    <td class="text-right">-</td>
-                                                    <td class="text-right">12,500.00</td>
-                                                    <td class="text-right font-weight-bold">512,500.00</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>2026-05-20</td>
-                                                    <td><span class="badge badge-warning">Withdrawal</span></td>
-                                                    <td>Partial withdrawal from INV-0001</td>
-                                                    <td class="text-right">75,000.00</td>
-                                                    <td class="text-right">-</td>
-                                                    <td class="text-right font-weight-bold">437,500.00</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>2026-06-30</td>
-                                                    <td><span class="badge badge-info">Return</span></td>
-                                                    <td>Quarterly profit distribution</td>
-                                                    <td class="text-right">-</td>
-                                                    <td class="text-right">10,500.00</td>
-                                                    <td class="text-right font-weight-bold">448,000.00</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div> --}}
-
-                                    {{-- ============ COMPANY 2: Faateh Al Barsha Development ============ --}}
-                                    {{-- <div class="tab-pane fade" id="company-pane-2" role="tabpanel">
-
-                                        <div class="row mb-2">
-                                            <div class="col-4"><small class="text-muted">Invested</small>
-                                                <div class="font-weight-bold">250,000.00</div>
-                                            </div>
-                                            <div class="col-4"><small class="text-muted">Withdrawn</small>
-                                                <div class="font-weight-bold text-danger">0.00</div>
-                                            </div>
-                                            <div class="col-4"><small class="text-muted">Balance</small>
-                                                <div class="font-weight-bold text-success">250,000.00</div>
-                                            </div>
-                                        </div>
-
-                                        <table class="table table-sm table-bordered ledger-table" data-company="2"
-                                            style="width:100%">
-                                            <thead>
-                                                <tr>
-                                                    <th>Date</th>
-                                                    <th>Type</th>
-                                                    <th>Description</th>
-                                                    <th class="text-right">Debit</th>
-                                                    <th class="text-right">Credit</th>
-                                                    <th class="text-right">Balance</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr>
-                                                    <td>2026-03-05</td>
-                                                    <td><span class="badge badge-success">Investment</span></td>
-                                                    <td>Initial investment - INV-0003</td>
-                                                    <td class="text-right">-</td>
-                                                    <td class="text-right">250,000.00</td>
-                                                    <td class="text-right font-weight-bold">250,000.00</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div> --}}
-
-                                    {{-- ============ COMPANY 3: Faateh Marina Towers ============ --}}
-                                    {{-- <div class="tab-pane fade" id="company-pane-3" role="tabpanel">
-
-                                        <div class="row mb-2">
-                                            <div class="col-4"><small class="text-muted">Invested</small>
-                                                <div class="font-weight-bold">150,000.00</div>
-                                            </div>
-                                            <div class="col-4"><small class="text-muted">Withdrawn</small>
-                                                <div class="font-weight-bold text-danger">50,000.00</div>
-                                            </div>
-                                            <div class="col-4"><small class="text-muted">Balance</small>
-                                                <div class="font-weight-bold text-success">100,000.00</div>
-                                            </div>
-                                        </div>
-
-                                        <table class="table table-sm table-bordered ledger-table" data-company="3"
-                                            style="width:100%">
-                                            <thead>
-                                                <tr>
-                                                    <th>Date</th>
-                                                    <th>Type</th>
-                                                    <th>Description</th>
-                                                    <th class="text-right">Debit</th>
-                                                    <th class="text-right">Credit</th>
-                                                    <th class="text-right">Balance</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr>
-                                                    <td>2025-11-12</td>
-                                                    <td><span class="badge badge-success">Investment</span></td>
-                                                    <td>Initial investment - INV-0004</td>
-                                                    <td class="text-right">-</td>
-                                                    <td class="text-right">150,000.00</td>
-                                                    <td class="text-right font-weight-bold">150,000.00</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>2026-01-25</td>
-                                                    <td><span class="badge badge-warning">Withdrawal</span></td>
-                                                    <td>Partial withdrawal from INV-0004</td>
-                                                    <td class="text-right">50,000.00</td>
-                                                    <td class="text-right">-</td>
-                                                    <td class="text-right font-weight-bold">100,000.00</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div> --}}
-
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -407,7 +246,7 @@
                     <div class="col-md-12">
                         <div class="card card-outline card-warning">
                             <div class="card-header">
-                                <h3 class="card-title"><i class="fas fa-hand-holding-usd mr-1"></i> Partial Withdrawal
+                                <h3 class="card-title"><i class="fas fa-hand-holding-usd mr-1"></i> Withdrawal
                                 </h3>
                             </div>
                             <form id="partialWithdrawalForm" autocomplete="off">
@@ -575,55 +414,14 @@
                 format: 'DD-MM-YYYY'
             });
 
-            /* ---------- Ledger DataTables, one per company tab ---------- */
-            // NOTE: adjust the route name/params to match your controller.
-            // Expected JSON response shape per row:
-            // { date, type, description, debit, credit, balance }
-            // $('.ledger-table').each(function() {
-            //     const companyId = $(this).data('company');
-            //     $(this).DataTable({
-            //         processing: true,
-            //         serverSide: true,
-            //         ajax: {
-            //             data: function(d) {
-            //                 d.company_id = companyId;
-            //             }
-            //         },
-            //         order: [
-            //             [0, 'desc']
-            //         ],
-            //         columns: [{
-            //                 data: 'date',
-            //                 name: 'date'
-            //             },
-            //             {
-            //                 data: 'type',
-            //                 name: 'type'
-            //             },
-            //             // {
-            //             //     data: 'description',
-            //             //     name: 'description'
-            //             // },
-            //             {
-            //                 data: 'debit',
-            //                 name: 'debit',
-            //                 className: 'text-right',
-            //                 render: (d) => d > 0 ? parseFloat(d).toFixed(2) : '-'
-            //             },
-            //             {
-            //                 data: 'credit',
-            //                 name: 'credit',
-            //                 className: 'text-right',
-            //                 render: (d) => d > 0 ? parseFloat(d).toFixed(2) : '-'
-            //             },
-            //             {
-            //                 data: 'balance',
-            //                 name: 'balance',
-            //                 className: 'text-right font-weight-bold',
-            //                 render: (d) => parseFloat(d).toFixed(2)
-            //             }
-            //         ]
-            //     });
+
+            // $('.ledger-table').DataTable({
+            //     order: [
+            //         [0, 'asc']
+            //     ], // Date column
+            //     paging: true,
+            //     searching: true,
+            //     info: true
             // });
 
             // Redraw DataTable when its tab becomes visible (fixes column width glitch)
@@ -691,8 +489,7 @@
                                               <input type="number" step="0.01" min="0"
                                                 class="form-control form-control-sm "
                                                 name="investments[${inv.id}][available_amount]"
-                                                value="${parseFloat(inv.available_balance).toFixed(2)}" readonly
-                                                >
+                                                value="${parseFloat(inv.available_balance).toFixed(2)}" readonly>
                                         </div>
                                         <div class="col-md-2 col-6 mt-2 mt-md-0">
                                             <small class="text-muted d-block">Withdraw Amount</small>
@@ -700,6 +497,14 @@
                                                 class="form-control form-control-sm withdrawal-amount-input"
                                                 name="investments[${inv.id}][amount]"
                                                 max="${inv.available_balance}"
+                                                disabled>
+                                        </div>
+                                         <div class="col-md-2 col-6 mt-2 mt-md-0">
+                                            <small class="text-muted d-block">Withdrawal Month Profit</small>
+                                            <input type="number" step="0.01" min="0"
+                                                class="form-control form-control-sm profit-input"
+                                                name="investments[${inv.id}][profit]"
+
                                                 disabled>
                                         </div>
 
@@ -750,15 +555,29 @@
             $('#withdrawal_amount').on('input', function() {
                 const targetAmount = parseFloat($(this).val());
 
+                if (totalAvailableBalance <= 0) {
+                    if (targetAmount > 0 && !exceedAlertShown) {
+                        toastr.error('No available balance to withdraw from for this company.');
+                        exceedAlertShown = true;
+                    }
+                    $(this).addClass('amount-invalid');
+                    updateSummary();
+                    return;
+                }
+
+
                 if (!isNaN(targetAmount) && targetAmount > totalAvailableBalance && totalAvailableBalance >
                     0) {
+                    // alert("test");
                     if (!exceedAlertShown) {
+                        // alert("test1");
                         toastr.error('Withdrawal amount cannot exceed available balance of ' +
                             totalAvailableBalance.toFixed(2));
                         exceedAlertShown = true;
                     }
                 } else {
                     exceedAlertShown = false;
+                    $(this).removeClass('amount-invalid');
                 }
 
                 updateSummary();
@@ -774,18 +593,21 @@
             $(document).on('change', '.investment-checkbox', function() {
                 const $row = $(this).closest('.investment-row');
                 const $amountInput = $row.find('.withdrawal-amount-input');
+                const $profittInput = $row.find('.profit-input');
                 // const $reqDateInput = $row.find('.termination-requested-date-input');
                 // const $durationInput = $row.find('.duration-days-input');
                 // const $termDateInput = $row.find('.termination-date-input');
 
                 if ($(this).is(':checked')) {
                     $amountInput.prop('disabled', false).focus();
+                    $profittInput.prop('disabled', false);
                     // $reqDateInput.prop('disabled', false);
                     // $durationInput.prop('disabled', false);
                     // $termDateInput.prop('disabled', false);
                     $row.removeClass('disabled-row');
                 } else {
                     $amountInput.prop('disabled', true).val('').removeClass('amount-invalid');
+                    $profittInput.prop('disabled', true).val('').removeClass('amount-invalid');
                     // $reqDateInput.prop('disabled', true).val('');
                     // $durationInput.prop('disabled', true).val('');
                     // $termDateInput.prop('disabled', true).val('');
@@ -872,7 +694,7 @@
 
                 $('#submitWithdrawalBtn').prop('disabled', !(count > 0 && !hasInvalid && totalsMatch));
             }
-            $('#withdrawal_amount').on('input', updateSummary);
+            // $('#withdrawal_amount').on('input', updateSummary);
 
             $('#requestedDatePicker').on('change.datetimepicker', function(e) {
                 calculateTerminationDate();

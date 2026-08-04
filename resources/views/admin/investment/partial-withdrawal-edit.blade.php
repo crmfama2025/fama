@@ -42,6 +42,14 @@
         .bootstrap-datetimepicker-widget {
             z-index: 9999 !important;
         }
+
+        .ledger-table tbody tr {
+            background-color: #f6ffff;
+        }
+
+        .ledger-table thead tr {
+            background-color: #D6EEEE;
+        }
     </style>
 @endsection
 
@@ -130,12 +138,17 @@
                                                                             strtolower($entry['type']),
                                                                             'investment',
                                                                         )
+                                                                            => 'badge-warning',
+                                                                        str_contains(
+                                                                            strtolower($entry['type']),
+                                                                            'addendum',
+                                                                        )
                                                                             => 'badge-success',
                                                                         str_contains(
                                                                             strtolower($entry['type']),
                                                                             'withdrawal',
                                                                         )
-                                                                            => 'badge-warning',
+                                                                            => 'badge-danger',
                                                                         str_contains(
                                                                             strtolower($entry['type']),
                                                                             'return',
@@ -237,6 +250,7 @@
                                                 <strong id="totalWithdrawalAmount">0.00</strong>
                                             </div>
                                         </div>
+                                        {{-- @dump($data['ledger']->requested_date); --}}
 
                                         <div class="row">
                                             <div class="col-md-3">
@@ -247,7 +261,7 @@
                                                         <input type="text" class="form-control datetimepicker-input"
                                                             name="requested_date" id="requested_date"
                                                             data-target="#requestedDatePicker" placeholder="DD-MM-YYYY"
-                                                            value="{{ optional($data['ledger']->requested_date)->format('d-m-Y') }}"
+                                                            value="{{ isset($data['ledger']->requested_date) ? \Carbon\Carbon::parse($data['ledger']->requested_date)->format('d-m-Y') : '' }}"
                                                             required>
                                                         <div class="input-group-append" data-target="#requestedDatePicker"
                                                             data-toggle="datetimepicker">
@@ -267,7 +281,7 @@
                                                         required>
                                                 </div>
                                             </div>
-
+                                            {{-- @dump($data['ledger']->withdrawal_date); --}}
                                             <div class="col-md-3">
                                                 <div class="form-group">
                                                     <label for="withdrawal_date" class="asterisk">Withdrawal Date</label>
@@ -277,7 +291,7 @@
                                                             class="form-control datetimepicker-input termination-date-input"
                                                             name="withdrawal_date" id="withdrawal_date"
                                                             data-target="#withdrawalDatePicker" placeholder="DD-MM-YYYY"
-                                                            value="{{ optional($data['ledger']->withdrawal_date)->format('d-m-Y') }}"
+                                                            value="{{ isset($data['ledger']->withdrawal_date) ? \Carbon\Carbon::parse($data['ledger']->withdrawal_date)->format('d-m-Y') : '' }}"
                                                             required>
                                                         <div class="input-group-append"
                                                             data-target="#withdrawalDatePicker"
@@ -325,6 +339,7 @@
                 return [
                     'withdrawal_amount' => (float) $b->withdrawal_amount,
                     'previous_amount' => (float) $b->previous_amount,
+                    'withdrawal_month_profit' => (float) $b->withdrawal_month_profit,
                 ];
             })->toJson() !!};
         console.log(existingBifurcations);
@@ -350,11 +365,25 @@
 
             $('#requestedDatePicker').datetimepicker({
                 format: 'DD-MM-YYYY',
-                maxDate: moment()
+                // maxDate: moment(),
+
             });
+
+            let totalAvailableBalance = 0;
+            let exceedAlertShown = false;
+
+            // Force the picker to reflect the server-rendered value
+            const requestedVal = $('#requested_date').val();
+            if (requestedVal) {
+                $('#requestedDatePicker').datetimepicker('date', moment(requestedVal, 'DD-MM-YYYY'));
+            }
             $('#withdrawalDatePicker').datetimepicker({
                 format: 'DD-MM-YYYY'
             });
+            const withdrawalVal = $('#withdrawal_date').val();
+            if (withdrawalVal) {
+                $('#withdrawalDatePicker').datetimepicker('date', moment(withdrawalVal, 'DD-MM-YYYY'));
+            }
 
             /* ---------- Load investments for a company, prefilling from existingBifurcations ---------- */
             function loadInvestments(companyId) {
@@ -380,8 +409,20 @@
                         return;
                     }
 
+                    totalAvailableBalance = investments.reduce(function(sum, inv) {
+                        const existing = existingBifurcations[inv.id];
+                        const availableForDisplay = existing ? existing.previous_amount : inv
+                            .available_balance;
+                        return sum + parseFloat(availableForDisplay || 0);
+                    }, 0);
+
+                    $('#withdrawal_amount')
+                        .attr('max', totalAvailableBalance.toFixed(2))
+                        .attr('title', 'Max available: ' + totalAvailableBalance.toFixed(2));
+
                     investments.forEach(function(inv) {
                         const existing = existingBifurcations[inv.id];
+                        // console.log('Investment ID:', inv.id, 'Existing bifurcation:', existing);
 
                         // If this investment was part of the withdrawal being edited,
                         // show the balance as it was BEFORE this withdrawal, not the
@@ -390,6 +431,8 @@
                             .available_balance;
                         const prefillAmount = existing ? existing.withdrawal_amount : '';
                         const isChecked = !!existing;
+                        const profitPrefill = existing ? existing.withdrawal_month_profit : '';
+                        console.log(existing, prefillAmount, profitPrefill, isChecked);
 
                         const row = `
                             <div class="card investment-row mb-2 ${isChecked ? '' : 'disabled-row'}"
@@ -420,6 +463,16 @@
                                                 max="${availableForDisplay}"
                                                 value="${prefillAmount}"
                                                 ${isChecked ? '' : 'disabled'}>
+
+                                        </div>
+                                         <div class="col-md-2 col-6 mt-2 mt-md-0">
+                                            <small class="text-muted d-block">Withdrawal Month Profit</small>
+                                            <input type="number" step="0.01" min="0"
+                                                class="form-control form-control-sm profit-input"
+                                                name="investments[${inv.id}][profit]"
+
+                                                value="${profitPrefill}"
+                                                 ${isChecked ? '' : 'disabled'}>
                                         </div>
                                     </div>
                                 </div>
@@ -452,11 +505,11 @@
 
                 if ($(this).is(':checked')) {
                     $amountInput.prop('disabled', false).focus();
-                    $availableInput.prop('disabled', false);
+                    // $availableInput.prop('disabled', false);
                     $row.removeClass('disabled-row');
                 } else {
                     $amountInput.prop('disabled', true).val('').removeClass('amount-invalid');
-                    $availableInput.prop('disabled', true);
+                    // $availableInput.prop('disabled', true);
                     $row.addClass('disabled-row');
                 }
                 updateSummary();
@@ -468,6 +521,9 @@
                 const entered = parseFloat($(this).val());
 
                 if (isNaN(entered) || entered <= 0 || entered > available) {
+                    if (entered > available) {
+                        toastr.error('Amount cannot exceed available balance of ' + available.toFixed(2));
+                    }
                     $(this).addClass('amount-invalid');
                 } else {
                     $(this).removeClass('amount-invalid');
@@ -544,6 +600,33 @@
 
                 $('#withdrawal_date').val(`${day}-${month}-${year}`);
             }
+
+            $('#withdrawal_amount').on('input', function() {
+                const targetAmount = parseFloat($(this).val());
+
+                if (totalAvailableBalance <= 0) {
+                    if (targetAmount > 0 && !exceedAlertShown) {
+                        toastr.error('No available balance to withdraw from for this company.');
+                        exceedAlertShown = true;
+                    }
+                    $(this).addClass('amount-invalid');
+                    updateSummary();
+                    return;
+                }
+
+                if (!isNaN(targetAmount) && targetAmount > totalAvailableBalance) {
+                    if (!exceedAlertShown) {
+                        toastr.error('Withdrawal amount cannot exceed available balance of ' +
+                            totalAvailableBalance.toFixed(2));
+                        exceedAlertShown = true;
+                    }
+                } else {
+                    exceedAlertShown = false;
+                    $(this).removeClass('amount-invalid');
+                }
+
+                updateSummary();
+            });
 
             /* ---------- Submit (PUT to update route) ---------- */
             $('#partialWithdrawalEditForm').on('submit', function(e) {
