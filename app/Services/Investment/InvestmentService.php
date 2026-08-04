@@ -604,7 +604,7 @@ class InvestmentService
                         </a>';
                     }
                 } else {
-                    if (auth()->user()->hasAnyPermission(['investment.edit'], $row->company_id) && $row->is_profit_processed == 0) {
+                    if (auth()->user()->hasAnyPermission(['investment.edit'], $row->company_id) && $row->is_profit_processed == 0 && $row->has_partial_withdrawal == 0) {
                         $action .= '<a href="' . route('investment.edit', $row->id) . '"
                             class="btn btn-sm btn-info m-1 editInvestment"
                             title="Edit Investment">
@@ -619,7 +619,7 @@ class InvestmentService
                         </a>';
                     }
 
-                    if (auth()->user()->hasAnyPermission(['investment.delete'], $row->company_id) && $row->is_profit_processed == 0 && $row->terminate_status == 0) {
+                    if (auth()->user()->hasAnyPermission(['investment.delete'], $row->company_id) && $row->is_profit_processed == 0 && $row->terminate_status == 0 && $row->has_partial_withdrawal == 0) {
                         $action .= '<button
                             class="btn btn-sm btn-danger m-1"
                             title="Delete Investment"
@@ -636,47 +636,48 @@ class InvestmentService
                             </button>
                         ';
                     }
-                    if (($row->terminate_status == 1) && auth()->user()->hasAnyPermission(['investment.terminate'], $row->company_id)) {
-                        $action .= '
-                                <button class="btn btn-sm bg-gradient-navy m-1 openTerminationModal"
-                                data-status = "' . $row->terminate_status . '"
-                                    data-id="' . $row->id . '"
-                                    data-requested-date="' . ($row->termination_requested_date ? \Carbon\Carbon::parse($row->termination_requested_date)->format('d-m-Y') : '') . '"
-                                    data-duration="' . ($row->termination_duration ?? '') . '"
-                                    data-termination-date="' . ($row->termination_date ? \Carbon\Carbon::parse($row->termination_date)->format('d-m-Y') : '') . '"
-                                   data-file-path="' . ($row->termination_document ? Storage::url($row->termination_document) : '') . '"
-                                   data-principal="' . ($row->investment_amount) . '"
-                                  data-outstanding="' . ($row->termination_outstanding) . '"
-                                   data-commission-outstanding="' . ($row->termination_referral_commission_outstanding) . '"
-                                   data-outstanding-profit = "' . ($row->outstanding_profit) . '"
-                                    title="Edit termination Details">
-                                    <i class="fas fa-file-signature"></i>
-                                </button>
-                            ';
-                    } elseif (auth()->user()->hasAnyPermission(['investment.terminate'], $row->company_id) && ($row->terminate_status == 0) && ($row->is_profit_processed == 1)) {
-                        $action .= '
-                            <button class="btn btn-sm btn-danger m-1 openTerminationModal"
-                                data-id="' . $row->id . '"
-                                data-balance="' . $row->balance_amount . '"
-                                data-principal="' . ($row->investment_amount) . '"
-                                data-outstanding="' . ($row->termination_outstanding) . '"
-                                data-commission-outstanding="' . ($row->termination_referral_commission_outstanding) . '"
-                                data-outstanding-profit = "' . ($row->outstanding_profit) . '"
-                                data-status = "' . $row->terminate_status . '"
-                                title="Terminate Investment">
-                                <i class="fas fa-ban"></i>
-                            </button>
-                        ';
-                    }
+                    // if (($row->terminate_status == 1) && auth()->user()->hasAnyPermission(['investment.terminate'], $row->company_id)) {
+                    //     $action .= '
+                    //             <button class="btn btn-sm bg-gradient-navy m-1 openTerminationModal"
+                    //             data-status = "' . $row->terminate_status . '"
+                    //                 data-id="' . $row->id . '"
+                    //                 data-requested-date="' . ($row->termination_requested_date ? \Carbon\Carbon::parse($row->termination_requested_date)->format('d-m-Y') : '') . '"
+                    //                 data-duration="' . ($row->termination_duration ?? '') . '"
+                    //                 data-termination-date="' . ($row->termination_date ? \Carbon\Carbon::parse($row->termination_date)->format('d-m-Y') : '') . '"
+                    //                data-file-path="' . ($row->termination_document ? Storage::url($row->termination_document) : '') . '"
+                    //                data-principal="' . ($row->investment_amount) . '"
+                    //               data-outstanding="' . ($row->termination_outstanding) . '"
+                    //                data-commission-outstanding="' . ($row->termination_referral_commission_outstanding) . '"
+                    //                data-outstanding-profit = "' . ($row->outstanding_profit) . '"
+                    //                 title="Edit termination Details">
+                    //                 <i class="fas fa-file-signature"></i>
+                    //             </button>
+                    //         ';
+                    // } elseif (auth()->user()->hasAnyPermission(['investment.terminate'], $row->company_id) && ($row->terminate_status == 0) && ($row->is_profit_processed == 1)) {
+                    //     $action .= '
+                    //         <button class="btn btn-sm btn-danger m-1 openTerminationModal"
+                    //             data-id="' . $row->id . '"
+                    //             data-balance="' . $row->balance_amount . '"
+                    //             data-principal="' . ($row->investment_amount) . '"
+                    //             data-outstanding="' . ($row->termination_outstanding) . '"
+                    //             data-commission-outstanding="' . ($row->termination_referral_commission_outstanding) . '"
+                    //             data-outstanding-profit = "' . ($row->outstanding_profit) . '"
+                    //             data-status = "' . $row->terminate_status . '"
+                    //             title="Terminate Investment">
+                    //             <i class="fas fa-ban"></i>
+                    //         </button>
+                    //     ';
+                    // }
 
 
 
-
-                    $action .= '<a href="' . route('investment.contracts.list', $row->id) . '"
+                    if (auth()->user()->hasAnyPermission(['investment.view'], $row->company_id)) {
+                        $action .= '<a href="' . route('investment.contracts.list', $row->id) . '"
                             class="btn btn-sm btn-warning m-1"
                             title="Documents">
                             <i class="fas fa-file-upload"></i>
                         </a>';
+                    }
                     // $action .= '<a href="' . route('investment.ledger.list', $row->id) . '"
                     //         class="btn btn-sm btn-info m-1"
                     //         title="ledger">
@@ -1035,12 +1036,12 @@ class InvestmentService
             ->addColumn('action', function ($row) {
                 $action = '';
 
-                // if (Gate::allows('investment.view')) {
-                $action .= '<a href="' . route('referrals.show', $row->id) . '"
-                class="btn btn-sm btn-primary">
-                <i class="fas fa-eye"></i>
-            </a>';
-                // }
+                if (auth()->user()->hasAnyPermission(['investment.view'], $row->company_id)) {
+                    $action .= '<a href="' . route('referrals.show', $row->id) . '"
+                        class="btn btn-sm btn-primary">
+                        <i class="fas fa-eye"></i>
+                    </a>';
+                }
 
                 return $action;
             })
