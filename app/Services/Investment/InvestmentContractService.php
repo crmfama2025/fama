@@ -54,7 +54,7 @@ class InvestmentContractService
         $investorData   = $invDocDetails->investor;
         $investmentId   = $invDocDetails->investment_id;
 
-        // $investorData   = $this->investorRepository->find($investorId);
+        // $investorData = $this->investorRepository->find($investorId);
         $templateDocumentDetail = $this->InvAgreementRepo->findByType($docTypeId);
 
         if ($investmentId == 0) {
@@ -70,7 +70,6 @@ class InvestmentContractService
 
         $investmentData = $this->investmentRepository->find($investmentId);
         // dd("test");
-        //
         return $this->buildMudarabahPayload($invDocDetails, $templateDocumentDetail, $investorData, $investmentData);
     }
 
@@ -645,9 +644,9 @@ class InvestmentContractService
             $investmentData->initial_profit_release_month,
             $investmentData->payoutBatch->batch_name
         );
-        // dump($startDate);
-        // dump($nextProfitDate);
-        // dd("test");
+        dump($startDate);
+        dump($nextProfitDate);
+        dd("test");
         //
 
         for ($i = 0; $i < 12; $i++) {
