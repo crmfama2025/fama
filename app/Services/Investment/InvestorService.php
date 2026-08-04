@@ -259,19 +259,28 @@ class InvestorService
                 return '-';
             })
             ->addColumn('action', function ($row) {
-                $action = '<a href="' . route('investor.edit', $row->id) . '" class="btn btn-info btn-sm" ><i class="fas fa-pencil-alt"></i></a>
+                $action = '';
+                if (auth()->user()->hasAnyPermission(['investor.edit'], $row->company_id)) {
+                    $action .= '<a href="' . route('investor.edit', $row->id) . '" class="btn btn-info btn-sm" ><i class="fas fa-pencil-alt"></i></a>';
+                }
+                if (auth()->user()->hasAnyPermission(['investor.show'], $row->company_id)) {
+                    $action .= '
                 <a href="' . route('investor.show', $row->id) . '" class="btn btn-primary btn-sm" ><i class="fas fa-eye"></i></a>';
-
-                if ($row->total_no_of_investments == 0) {
-                    $action .= ' <button class="btn btn-danger btn-sm" data-id="' . $row->id . '" onclick="deleteConf(' . $row->id . ')"><i class="fas fa-trash-alt"></i></button>';
                 }
 
-                $action .= ' <button class="btn btn-warning btn-sm" data-id="" data-investor-id="' . $row->id . '" data-target="#modal-add-bank" data-toggle="modal" title="Add Bank"><i class="fas fa-university"></i></button>';
-                $action .= ' <a href="' . route('investor.partial_withdrawal', $row->id) . '"
-                    title="Partial Withdrawal"
+                if ($row->total_no_of_investments == 0 && auth()->user()->hasAnyPermission(['investor.delete'], $row->company_id)) {
+                    $action .= ' <button class="btn btn-danger btn-sm" data-id="' . $row->id . '" onclick="deleteConf(' . $row->id . ')"><i class="fas fa-trash-alt"></i></button>';
+                }
+                if (auth()->user()->hasAnyPermission(['investor.add'], $row->company_id)) {
+                    $action .= ' <button class="btn btn-warning btn-sm" data-id="" data-investor-id="' . $row->id . '" data-target="#modal-add-bank" data-toggle="modal" title="Add Bank"><i class="fas fa-university"></i></button>';
+                }
+                if (auth()->user()->hasAnyPermission(['investor.withdrawal'], $row->company_id)) {
+                    $action .= ' <a href="' . route('investor.partial_withdrawal', $row->id) . '"
+                    title="Withdrawal/Settlement"
                     class="btn bg-orange btn-sm">
                     <i class="fas fa-wallet"></i>
                 </a>';
+                }
 
                 return $action;
             })
