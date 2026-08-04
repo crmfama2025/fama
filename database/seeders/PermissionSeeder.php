@@ -65,7 +65,7 @@ class PermissionSeeder extends Seeder
                     $subModule[] = 'admin-view';
                 }
                 if (in_array($module, ['investor'])) {
-                    $subModule[] = 'withdrawal';
+                    $subModule[] = 'approve';
                 }
             }
 

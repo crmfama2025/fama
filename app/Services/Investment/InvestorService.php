@@ -261,11 +261,11 @@ class InvestorService
             ->addColumn('action', function ($row) {
                 $action = '';
                 if (auth()->user()->hasAnyPermission(['investor.edit'], $row->company_id)) {
-                    $action .= '<a href="' . route('investor.edit', $row->id) . '" class="btn btn-info btn-sm" ><i class="fas fa-pencil-alt"></i></a>';
+                    $action .= '<a href="' . route('investor.edit', $row->id) . '" class="btn btn-info btn-sm" title="Edit Investor"><i class="fas fa-pencil-alt"></i></a>';
                 }
                 if (auth()->user()->hasAnyPermission(['investor.show'], $row->company_id)) {
                     $action .= '
-                <a href="' . route('investor.show', $row->id) . '" class="btn btn-primary btn-sm" ><i class="fas fa-eye"></i></a>';
+                <a href="' . route('investor.show', $row->id) . '" class="btn btn-primary btn-sm" title="View Investor"><i class="fas fa-eye"></i></a>';
                 }
 
                 if ($row->total_no_of_investments == 0 && auth()->user()->hasAnyPermission(['investor.delete'], $row->company_id)) {
