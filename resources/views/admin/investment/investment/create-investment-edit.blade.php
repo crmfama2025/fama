@@ -1132,10 +1132,10 @@
             // console.log(invalidFields)
 
 
-            if ($("#investmentForm").find('.is-invalid').length > 0) {
-                toastr.error('Please fill all required fields before submitting.');
-                return;
-            }
+            // if ($("#investmentForm").find('.is-invalid').length > 0) {
+            //     toastr.error('Please fill all required fields before submitting.');
+            //     return;
+            // }
 
             // Run custom validation
             if (!validateFormFields(form)) {
