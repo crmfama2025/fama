@@ -799,12 +799,16 @@
                     divisor = 6;
                     break;
             }
+            if (divisor === 0) {
+                $('#profit_amount_per_interval').val('');
+                return;
+            }
 
             let profitPerInterval = profitAmount / divisor;
             $('#profit_amount_per_interval').val(profitPerInterval.toFixed(2));
         }
 
-        $('#profit_amount, #profit_interval_id').on('keyup change', function() {
+        $('#profit_amount, #profit_interval_id, #profit_perc').on('keyup change', function() {
             calculateProfitPerInterval();
         });
 
