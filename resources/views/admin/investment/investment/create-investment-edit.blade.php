@@ -799,12 +799,16 @@
                     divisor = 6;
                     break;
             }
+            if (divisor === 0) {
+                $('#profit_amount_per_interval').val('');
+                return;
+            }
 
             let profitPerInterval = profitAmount / divisor;
             $('#profit_amount_per_interval').val(profitPerInterval.toFixed(2));
         }
 
-        $('#profit_amount, #profit_interval_id').on('keyup change', function() {
+        $('#profit_amount, #profit_interval_id, #profit_perc').on('keyup change', function() {
             calculateProfitPerInterval();
         });
 
@@ -933,6 +937,7 @@
 
         function calculateFirstProfitReleaseDate() {
 
+
             let investmentDate = $('#investment_date').val();
             let gracePeriod = parseInt($('#grace_period').val()) || 0;
             let profitIntervalId = $('#profit_interval_id').val();
@@ -944,10 +949,10 @@
             }
 
             // Only calculate if the input is empty
-            let firstProfitInput = $('#first_profit_release_date');
-            if (firstProfitInput.val().trim() !== '') {
-                return; // keep existing value
-            }
+            // let firstProfitInput = $('#first_profit_release_date');
+            // if (firstProfitInput.val().trim() !== '') {
+            //     return; // keep existing value
+            // }
 
             let parts = investmentDate.split('-');
             let date = new Date(parts[2], parts[1] - 1, parts[0]);
@@ -958,6 +963,7 @@
             }
 
             date.setDate(date.getDate() + gracePeriod);
+            console.log("Date after grace period:", date);
 
             switch (profitIntervalId) {
                 case '1':
