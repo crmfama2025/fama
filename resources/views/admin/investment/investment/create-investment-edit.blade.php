@@ -967,7 +967,7 @@
 
             switch (profitIntervalId) {
                 case '1':
-                    date.setMonth(date.getMonth() + 1);
+                    date.setMonth(date.getMonth());
                     break;
                 case '2':
                     date.setMonth(date.getMonth() + 3);
