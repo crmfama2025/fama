@@ -700,29 +700,15 @@ class InvestorService
             ->of($query)
             ->addIndexColumn()
             ->addColumn('investor_name', function ($row) {
-                $name = $row->investor->investor_name ?? '-';
-                $email = $row->investor->investor_email ?? '-';
-                $phone = $row->investor->investor_mobile ?? '-';
+                $name = $row->investor
+                    ? ($row->investor->investor_name ?? '-') . ' - ' . ($row->investor->investor_code ?? '-')
+                    : '-';
 
-                $address = $row->investor->investor_address;
-                if (!empty($row->investor->address_line2)) {
-                    $address .= ', ' . $row->investor->address_line2;
-                }
-                if (!empty($row->investor->city)) {
-                    $address .= ', ' . $row->investor->city;
-                }
-                if (!empty($row->investor->country_id)) {
-                    $address .= ', ' . $row->investor->country?->nationality_name;
-                }
-                if (!empty($row->investor->postal_code)) {
-                    $address .= ' - ' . $row->investor->postal_code;
-                }
+                $url = route('investor.show', $row->investor->id); // adjust route name if needed
 
-
-                $address = $address ?? '-';
-
-                return "<strong class='text-capitalize'>{$name}</strong><p class='mb-0 text-primary'>{$email}</p>
-            <p class='text-muted small'><i class='fa fa-phone-alt text-danger'></i> <span class='font-weight-bold'>{$phone}</span> </p><p class='text-muted small'><i class='fas fa-home text-danger'></i> <span class='font-weight-bold'>{$address}</span></p>";
+                return "<a href='{$url}' title='View Investor Details' target='_blank' class='text-primary text-decoration-none'>
+                    <strong class='text-capitalize'>{$name}</strong>
+                </a>";
             })
             ->addColumn('status', function ($row) {
                 switch ($row->withdrawal_status) {
@@ -765,13 +751,28 @@ class InvestorService
                     ? getFormattedDate($row->withdrawal_date)
                     : '-';
             })
+            ->addColumn('company_name', fn($row) => $row->company->company_name ?? '-')
+            ->addColumn('added_by', function ($row) {
+                return $row->addedBy
+                    ? $row->addedBy->first_name . ' ' . $row->addedBy->last_name
+                    : '-';
+            })
 
             ->addColumn('action', function ($row) {
-                $action = '';
-                $action .= '<a href="' . route('investor.partial-withdrawals.edit', $row->id) . '" class="btn btn-info btn-sm" ><i class="fas fa-pencil-alt"></i></a>';
+                $action = '-';
+                if (auth()->user()->hasAnyPermission(['investor.withdrawal'], $row->company_id) && $row->investor_transaction_type_id == 3 && $row->withdrawal_status == 1) {
+                    $action .= '<a href="' . route('investor.partial-withdrawals.edit', $row->id) . '" class="btn btn-info btn-sm mr-1" ><i class="fas fa-pencil-alt"></i></a>';
+                }
+                if ($row->withdrawal_status == 1 &&  $row->investor_transaction_type_id == 3) {
+                    $action .= '<button
+                    class="btn btn-success btn-sm open-approval-modal" title="Approve Withdrawal"
+                    data-id="' . $row->id . '">
+                    <i class="fas fa-check"></i>
+                </button>';
+                }
                 return $action;
             })
-            ->rawColumns(['transaction_amount', 'transaction_type', 'requested_date', 'withdrawal_date', 'investor_name', 'action', 'status'])
+            ->rawColumns(['transaction_amount', "added_by", 'company_name', 'transaction_type', 'requested_date', 'withdrawal_date', 'investor_name', 'action', 'status'])
             ->with(['columns' => $columns])
             ->toJson();
     }
@@ -1024,5 +1025,33 @@ class InvestorService
         }
 
         return $allTerminated;
+    }
+
+    public function approvePartialWithdrawal($id, $data)
+    {
+        return DB::transaction(function () use ($id, $data) {
+
+            $ledger = $this->investorLedgerRepo->find($id);
+
+            if (!$ledger) {
+                throw new \Exception('Ledger not found');
+            }
+
+            // Prevent double approval
+            if ($ledger->status == 'approved') {
+                throw new \Exception('Already approved');
+            }
+
+            // Update ledger status
+            $ledger->withdrawal_status = 2;
+            $ledger->approved_date = now();
+            $ledger->approved_by = auth()->id();
+            $ledger->approval_remarks = $data['remarks'] ?? null;
+            $ledger->save();
+
+
+
+            return true;
+        });
     }
 }

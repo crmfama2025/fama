@@ -1734,7 +1734,7 @@ function updateInvestorLedgerOnPayout($ledgerId, $payoutType)
         // Check if ALL payout_status == 2
         if ($bifurcations->where('payout_status', 2)->count() === $bifurcations->count()) {
             $ledger->update([
-                'withdrawal_status' => 2
+                'withdrawal_status' => 3
             ]);
         }
     } elseif ($payoutType == 1) {  // profit payout of withdrawal / settlement Month

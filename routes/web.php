@@ -397,9 +397,11 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
     Route::get('partial-withdrawals/edit/{id}/edit', [InvestorController::class, 'editPartialWithdrawal'])->name('investor.partial-withdrawals.edit');
     Route::put('investor/partial-withdrawal/{id}', [InvestorController::class, 'updatePartialWithdrawal'])
         ->name('investor.partial-withdrawal.update');
-
+    Route::post('investor/partial-withdrawal/approve/{id}', [InvestorController::class, 'approvePartialWithdrawal'])
+        ->name('investor.partial-withdrawals.approve');
 
     Route::post('/contracts/{id}/update-payables', [ContractController::class, 'updatePayables'])->name('contracts.updatePayables');
+    Route::get('partial-withdrawal/export-withdrawal', [InvestorController::class, 'exportPartialWithdrawals'])->name('investor.partial-withdrawal.export');
 });
 
 
@@ -409,3 +411,7 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
 Route::get('/investor-sign-success', function () {
     return view('admin.investment.investor_success_page');
 })->name('investor.sign.success');
+
+// Route::get('/investment_annexture', function () {
+//     return view('admin.investment.inv_agreement.investment_annexture');
+// })->name('investment.annexture');

@@ -149,11 +149,13 @@ class InvestmentContractDocumentService
             ->addColumn('action', function ($row) use ($filters) {
                 $action = '';
 
-                $action .= '<a href="' . route('investment.document', $row->id) . '"
+                if (auth()->user()->hasAnyPermission(['investment.add'], $row->company_id)) {
+                    $action .= '<a href="' . route('investment.document', $row->id) . '"
                             class="btn btn-sm btn-warning m-1"
                             title="Documents">
                             <i class="fas fa-file-upload"></i>
                         </a>';
+                }
                 // if ($row->generated_date) {
                 //     $action .= '<a href="' . route('investment.document.view', $row->id) . '"
                 //             class="btn btn-sm btn-primary m-1"
@@ -161,15 +163,16 @@ class InvestmentContractDocumentService
                 //             <i class="fas fa-eye"></i>
                 //         </a>';
                 // }
-
-                $action .= '<a href="' . route('legal_template.contractview', [
-                    'docId' => $row->id,
-                    'companyId' => $row->company_id,
-                ]) . '"
+                if (auth()->user()->hasAnyPermission(['investment.add'], $row->company_id)) {
+                    $action .= '<a href="' . route('legal_template.contractview', [
+                        'docId' => $row->id,
+                        'companyId' => $row->company_id,
+                    ]) . '"
                                     class="btn btn-sm btn-success m-1"
                                     title="View Document">
                                  <i class="fas fa-external-link-alt"></i>
                                 </a>';
+                }
 
 
                 return $action;

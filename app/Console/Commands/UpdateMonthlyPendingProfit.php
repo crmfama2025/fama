@@ -132,7 +132,7 @@ class UpdateMonthlyPendingProfit extends Command
 
                                         if (!$exists) {
 
-                                            $this->createInvestorpayout(
+                                            $payout =  $this->createInvestorpayout(
                                                 1,
                                                 $currentMonthStart,
                                                 $investment,

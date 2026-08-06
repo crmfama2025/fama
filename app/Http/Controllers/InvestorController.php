@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\InvestorExport;
+use App\Exports\WithdrawalExport;
 use App\Models\DocumentType;
 use App\Models\Investment;
 use App\Models\Investor;
@@ -179,27 +180,7 @@ class InvestorController extends Controller
 
         return view("admin.investment.partial-withdrawal", compact("title", "investor", "companies"));
     }
-    // public function partialWithdrawal($id)
-    // {
-    //     $title = 'Partial Withdrawal';
-    //     $companies = $this->investorService->getInvestedCompanies($id);
-    //     // dd($companies);
-    //     $investor = $this->investorService->getById($id);
 
-    //     return view("admin.investment.partial_withdrawal", compact("title", "investor", "companies"));
-    // }
-    // public function getInvestorLedger(Request $request, $investorId)
-    // {
-    //     // dd("test");
-    //     if ($request->ajax()) {
-    //         $filters = [
-    //             'search' => $request->search['value'] ?? null,
-    //             'investor_id' => $investorId,
-    //             'company_id' => $request->company_id ?? null,
-    //         ];
-    //         return $this->investorService->getInvestorLedger($filters);
-    //     }
-    // }
     public function getCompanyInvestments($investorId, $companyId, Request $request)
     {
         // $investments = $this->investorService->getCompanyInvestments($investorId, $companyId);
@@ -227,20 +208,22 @@ class InvestorController extends Controller
     public function partialWithdrawallist()
     {
         // dd("test");
-        $title = "Partial Withdrawal List";
+        $title = "Withdrawal/Settlement List";
         // dd($title);
         return view("admin.investment.partial-withdrawals-list", compact("title"));
     }
     public function getPartialWithdrawals(Request $request)
     {
+        // dd($request->all());
         // dd("test");
         if ($request->ajax()) {
             $filters = [
                 'investor_id' => $request->investorid,
                 'company_id' => auth()->user()->company_id,
-                'investment_id' => $request->investment_id,
-                'search' => $request->search['value'] ?? null
+                'search' => $request->input('search.value') ?? null,
+                'status' => $request->status ?? 'all',
             ];
+            // dd($filters);
 
             return $this->investorService->getPartialWithdrawals($filters);
         }
@@ -263,9 +246,31 @@ class InvestorController extends Controller
     {
         try {
             $this->investorService->updatePartialWithdrawal($id, $request->all());
-            return response()->json(['success' => true, 'message' => 'Partial withdrawal updated successfully.']);
+            return response()->json(['success' => true, 'message' => 'Withdrawal updated successfully.']);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
         }
+    }
+    public function approvePartialWithdrawal($id, Request $request)
+    {
+        try {
+            $this->investorService->approvePartialWithdrawal($id, $request->all());
+            return response()->json(['success' => true, 'message' => 'Withdrawal approved successfully.']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+        }
+    }
+    public function exportPartialWithdrawals()
+    {
+        $filters = [
+            'search' => request('search'),
+            'status' => request('status'),
+            'investor_id' => request('investor_id'),
+        ];
+
+        return Excel::download(
+            new WithdrawalExport(null, $filters),
+            'withdrawals.xlsx'
+        );
     }
 }
