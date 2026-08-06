@@ -26,7 +26,10 @@ class InvestorLedger extends Model
         'duration_days',
         'withdrawal_status',
         'profit_payout_status',
-        'withdrawal_month_profit'
+        'withdrawal_month_profit',
+        'approved_date',
+        'approved_by',
+        'approval_remarks'
     ];
 
     public function transactionType()
@@ -40,5 +43,17 @@ class InvestorLedger extends Model
     public function investment()
     {
         return $this->belongsTo(Investment::class, 'investment_id');
+    }
+    public function company()
+    {
+        return $this->belongsTo(Company::class, 'company_id');
+    }
+    public function addedBy()
+    {
+        return $this->belongsTo(User::class, 'added_by');
+    }
+    public function approvedBy()
+    {
+        return $this->belongsTo(User::class, 'approved_by');
     }
 }

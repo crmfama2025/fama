@@ -446,20 +446,24 @@
                                             </a>
                                         </li>
                                     @endif
-                                    <li class="nav-item">
-                                        <a href="{{ route('investmentContracts') }}"
-                                            class="nav-link {{ request()->is('investment_contracts*') && !request()->is('investment/*') ? 'active' : '' }}">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>Investor Documents</p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="{{ route('investor.partial-withdrawal-list') }}"
-                                            class="nav-link {{ request()->is('/partial-withdrawals') && !request()->is('investment/*') ? 'active' : '' }}">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>Partial Withdrawal / Settlement</p>
-                                        </a>
-                                    </li>
+                                    @if (auth()->user()->hasAnyPermission(['investment.add']))
+                                        <li class="nav-item">
+                                            <a href="{{ route('investmentContracts') }}"
+                                                class="nav-link {{ request()->is('investment_contracts*') && !request()->is('investment/*') ? 'active' : '' }}">
+                                                <i class="far fa-circle nav-icon"></i>
+                                                <p>Investor Documents</p>
+                                            </a>
+                                        </li>
+                                    @endif
+                                    @if (auth()->user()->hasAnyPermission(['investor.withdrawal']))
+                                        <li class="nav-item">
+                                            <a href="{{ route('investor.partial-withdrawal-list') }}"
+                                                class="nav-link {{ request()->is('/partial-withdrawals') && !request()->is('investment/*') ? 'active' : '' }}">
+                                                <i class="far fa-circle nav-icon"></i>
+                                                <p>Partial Withdrawal / Settlement</p>
+                                            </a>
+                                        </li>
+                                    @endif
                                     @if (auth()->user()->hasAnyPermission(['finance.payout']))
                                         <li class="nav-item">
                                             <a href="{{ route('investorPayout.index') }}"

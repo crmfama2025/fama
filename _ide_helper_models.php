@@ -296,6 +296,31 @@ namespace App\Models{
 namespace App\Models{
 /**
  * @property int $id
+ * @property int $contract_id
+ * @property string $signer_role
+ * @property string $event_type
+ * @property string|null $channel
+ * @property string $occurred_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @method static \Illuminate\Database\Eloquent\Builder|AgreementSignatureEvent newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|AgreementSignatureEvent newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|AgreementSignatureEvent query()
+ * @method static \Illuminate\Database\Eloquent\Builder|AgreementSignatureEvent whereChannel($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AgreementSignatureEvent whereContractId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AgreementSignatureEvent whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AgreementSignatureEvent whereEventType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AgreementSignatureEvent whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AgreementSignatureEvent whereOccurredAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AgreementSignatureEvent whereSignerRole($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AgreementSignatureEvent whereUpdatedAt($value)
+ */
+	class AgreementSignatureEvent extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property int $id
  * @property int $agreement_id
  * @property int $old_status
  * @property int $new_status
@@ -1122,6 +1147,7 @@ namespace App\Models{
  * @property string $payment_date
  * @property string $payment_amount
  * @property int|null $bank_id
+ * @property int $beneficiary_id
  * @property string|null $cheque_no
  * @property string|null $cheque_issuer
  * @property string|null $cheque_issuer_name
@@ -1141,6 +1167,8 @@ namespace App\Models{
  * @property-read \App\Models\User|null $addedBy
  * @property-read \App\Models\Bank|null $bank
  * @property-read \App\Models\Contract|null $contract
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ContractPayableClear> $contractPayableClears
+ * @property-read int|null $contract_payable_clears_count
  * @property-read \App\Models\ContractPayment|null $contract_payment
  * @property-read \App\Models\User|null $deletedBy
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ContractPayableClear> $payables
@@ -1154,6 +1182,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPaymentDetail query()
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPaymentDetail whereAddedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPaymentDetail whereBankId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ContractPaymentDetail whereBeneficiaryId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPaymentDetail whereChequeIssuer($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPaymentDetail whereChequeIssuerId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPaymentDetail whereChequeIssuerName($value)
@@ -1892,6 +1921,7 @@ namespace App\Models{
  * @property string $termination_referral_commission_outstanding
  * @property string $total_invested_amount
  * @property string $total_withdrawn_amount
+ * @property int $has_partial_withdrawal 0-No ,1-Yes
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Investment> $childInvestments
  * @property-read int|null $child_investments_count
  * @property-read \App\Models\Company|null $company
@@ -1906,6 +1936,7 @@ namespace App\Models{
  * @property-read \App\Models\InvestmentReferral|null $investmentReferral
  * @property-read \App\Models\Investor|null $investor
  * @property-read \App\Models\Bank|null $investorBank
+ * @property-read \App\Models\PartialWithdrawalBifurcation|null $latestBifurcation
  * @property-read Investment|null $parentInvestment
  * @property-read \App\Models\PayoutBatch|null $payoutBatch
  * @property-read \App\Models\ProfitInterval|null $profitInterval
@@ -1926,6 +1957,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereDeletedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereGracePeriod($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereHasFullyReceived($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Investment whereHasPartialWithdrawal($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereHasReinvestment($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereInitialProfitReleaseMonth($value)
@@ -2007,6 +2039,11 @@ namespace App\Models{
  * @property int $has_additional_doc 0 = No, 1 = Yes
  * @property int $action_type 0 = Upload, 1 = Generate
  * @property int|null $generated_by
+ * @property string|null $investor_sign
+ * @property string|null $investor_sign_channel
+ * @property string|null $company_sign
+ * @property string|null $company_sign_channel
+ * @property string|null $sign_token
  * @property-read \App\Models\InvestorAgreementTemplate|null $agreementTemplate
  * @property-read \App\Models\InvestorAgreementType|null $agreementType
  * @property-read \App\Models\Company|null $company
@@ -2024,6 +2061,8 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereAdditionalFilePath($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereAppliedInvestments($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereCompanyId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereCompanySign($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereCompanySignChannel($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereCompanySignedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereContractDocumentHtml($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereContractFilePath($value)
@@ -2038,10 +2077,13 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereInvestorAgreementTemplateId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereInvestorAgreementTypeId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereInvestorId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereInvestorSign($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereInvestorSignChannel($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereInvestorSignedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereIsCompanySigned($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereIsInvestorSigned($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereReferenceMudarabahId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereSignToken($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereUpdatedBy($value)
@@ -2469,6 +2511,12 @@ namespace App\Models{
  * @property int|null $deleted_by
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $requested_date
+ * @property string|null $withdrawal_date
+ * @property int|null $duration_days
+ * @property int $withdrawal_status 0 - Not Partial Withdrawal, 1 - Partial withdrawal requested, 2 - Approved, 3-Partail Withdrawal Done
+ * @property int $profit_payout_status 0-Not Paid ,1-partially paid, 2-Fully Paid
+ * @property string $withdrawal_month_profit
  * @property-read \App\Models\Investment|null $investment
  * @property-read \App\Models\Investor|null $investor
  * @property-read \App\Models\InvestorTransactionTypes|null $transactionType
@@ -2479,17 +2527,23 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorLedger whereCompanyId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorLedger whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorLedger whereDeletedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorLedger whereDurationDays($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorLedger whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorLedger whereInvestmentContractDocumentId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorLedger whereInvestmentId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorLedger whereInvestorId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorLedger whereInvestorTransactionTypeId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorLedger whereIsCredit($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorLedger whereProfitPayoutStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorLedger whereRequestedDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorLedger whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorLedger whereTransactionAmount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorLedger whereTransactionDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorLedger whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorLedger whereUpdatedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorLedger whereWithdrawalDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorLedger whereWithdrawalMonthProfit($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorLedger whereWithdrawalStatus($value)
  */
 	class InvestorLedger extends \Eloquent {}
 }
@@ -2574,6 +2628,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read \App\Models\PartialWithdrawalBifurcation|null $bifurcation
  * @property-read \App\Models\User|null $deletedBy
  * @property-read \App\Models\Investment|null $investment
  * @property-read \App\Models\InvestmentReferral|null $investmentReferral
@@ -2748,6 +2803,14 @@ namespace App\Models{
  * @property int $added_by
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string $requested_date
+ * @property string $withdrawal_date
+ * @property int $duration_days
+ * @property string $withdrawal_month_profit
+ * @property string $total_paid
+ * @property string $balance_to_pay
+ * @property int $payout_status 0-Not Paid ,1-partially paid, 2-Fully Paid
+ * @property int $profit_payout_status 0-Not Paid ,1-partially paid, 2-Fully Paid
  * @property-read \App\Models\User|null $addedBy
  * @property-read \App\Models\Company|null $company
  * @property-read \App\Models\Investment|null $investment
@@ -2757,14 +2820,22 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|PartialWithdrawalBifurcation query()
  * @method static \Illuminate\Database\Eloquent\Builder|PartialWithdrawalBifurcation whereAddedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|PartialWithdrawalBifurcation whereBalanceAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PartialWithdrawalBifurcation whereBalanceToPay($value)
  * @method static \Illuminate\Database\Eloquent\Builder|PartialWithdrawalBifurcation whereCompanyId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|PartialWithdrawalBifurcation whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PartialWithdrawalBifurcation whereDurationDays($value)
  * @method static \Illuminate\Database\Eloquent\Builder|PartialWithdrawalBifurcation whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|PartialWithdrawalBifurcation whereInvestmentId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|PartialWithdrawalBifurcation whereLedgerId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PartialWithdrawalBifurcation wherePayoutStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder|PartialWithdrawalBifurcation wherePreviousAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PartialWithdrawalBifurcation whereProfitPayoutStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PartialWithdrawalBifurcation whereRequestedDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PartialWithdrawalBifurcation whereTotalPaid($value)
  * @method static \Illuminate\Database\Eloquent\Builder|PartialWithdrawalBifurcation whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|PartialWithdrawalBifurcation whereWithdrawalAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PartialWithdrawalBifurcation whereWithdrawalDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|PartialWithdrawalBifurcation whereWithdrawalMonthProfit($value)
  */
 	class PartialWithdrawalBifurcation extends \Eloquent {}
 }
@@ -3358,7 +3429,7 @@ namespace App\Models{
  * @property string $comment
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\TenantInvoice $tenantInvoice
+ * @property-read \App\Models\TenantInvoice|null $tenantInvoice
  * @property-read \App\Models\User|null $user
  * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoiceApprovalComments newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoiceApprovalComments newQuery()

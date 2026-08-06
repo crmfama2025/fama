@@ -41,26 +41,51 @@
                         <div class="card">
 
                             <!-- /.card-header -->
-                            <div class="card-body table-responsive">
-                                <table id="partialWithdrawalsTable" class="table table-striped  nowrap"width="100%">
-                                    <thead>
-                                        <tr>
-                                            <th>#</th>
-                                            <th>Action</th>
-                                            <th>investor Details</th>
-                                            <th>Status</th>
-                                            <th>Transaction Type</th>
-                                            <th>Transaction Amount</th>
-                                            <th>Requested Date</th>
-                                            <th>Duration Days</th>
-                                            <th>Withdrawal Date</th>
+                            <div class="card-body ">
 
-                                        </tr>
-                                    </thead>
-                                    <tbody>
+                                <div class="mb-3 text-center">
+                                    <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                        <label class="btn btn-outline-info active">
+                                            <input type="radio" name="statusFilter" value="all" autocomplete="off"
+                                                checked> All
+                                        </label>
+                                        <label class="btn btn-outline-info">
+                                            <input type="radio" name="statusFilter" value="1" autocomplete="off">
+                                            Requested
+                                        </label>
+                                        <label class="btn btn-outline-info">
+                                            <input type="radio" name="statusFilter" value="2" autocomplete="off">
+                                            Approved
+                                        </label>
+                                        <label class="btn btn-outline-info">
+                                            <input type="radio" name="statusFilter" value="3" autocomplete="off">
+                                            Withdawal Done
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="card-body table-responsive">
+                                    <table id="partialWithdrawalsTable" class="table table-striped  nowrap"width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Action</th>
+                                                <th>investor Details</th>
+                                                <th>Company Name</th>
+                                                <th>Status</th>
+                                                <th>Transaction Type</th>
+                                                <th>Transaction Amount</th>
+                                                <th>Added By</th>
+                                                <th>Requested Date</th>
+                                                <th>Duration Days</th>
+                                                <th>Withdrawal Date</th>
 
-                                    </tbody>
-                                </table>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                             <!-- /.card-body -->
                         </div>
@@ -80,6 +105,41 @@
 
         </section>
         <!-- /.content -->
+
+        <div class="modal fade" id="approvalModal" tabindex="-1">
+            <div class="modal-dialog">
+                <form id="approvalForm">
+                    @csrf
+
+                    <input type="hidden" id="approval_id" name="id">
+
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Approve Withdrawal</h5>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+
+                        <div class="modal-body">
+                            <p>Are you sure you want to approve this withdrawal?</p>
+
+                            <div class="form-group">
+                                <label>Remarks (optional)</label>
+                                <textarea name="approval_remarks" class="form-control"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                Cancel
+                            </button>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-check"></i> Approve
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
     <!-- /.content-wrapper -->
 @endsection
@@ -112,6 +172,7 @@
                     url: "{{ route('investor.partial-withdrawals') }}",
                     data: function(d) {
                         // You can add filters here if needed
+                        d.status = $('input[name="statusFilter"]:checked').val();
                     },
                 },
                 columns: [{
@@ -126,19 +187,28 @@
                     },
                     {
                         data: 'investor_name',
-                        name: 'investor_name'
+                        name: 'investor.investor_name'
+                    },
+                    {
+                        data: 'company_name',
+                        name: 'company.company_name'
                     },
                     {
                         data: 'status',
                         name: 'status'
                     },
+
                     {
                         data: 'transaction_type',
-                        name: 'transaction_type'
+                        name: 'transactionType.transaction_type'
                     },
                     {
                         data: 'transaction_amount',
-                        name: 'transaction_amount'
+                        name: 'investor_ledgers.transaction_amount'
+                    },
+                    {
+                        data: 'added_by',
+                        name: 'addedBy.first_name'
                     },
                     {
                         data: 'requested_date',
@@ -164,7 +234,8 @@
                     title: 'Investments Data',
                     action: function(e, dt, node, config) {
                         let searchValue = dt.search();
-                        let url = "{{ route('investment.export') }}" + "?search=" +
+                        let url = "{{ route('investor.partial-withdrawal.export') }}" +
+                            "?search=" +
                             encodeURIComponent(searchValue);
                         window.location.href = url;
                     }
@@ -183,86 +254,14 @@
         $('#terminationdate').datetimepicker({
             format: 'DD-MM-YYYY'
         });
+        $('input[name="statusFilter"]').on('change', function() {
+            table.ajax.reload();
+            setTimeout(function() {
+                table.columns.adjust().responsive.recalc();
+            }, 200);
+        });
     </script>
     <script>
-        $(document).on('click', '.openPendingModal', function() {
-            let investmentId = $(this).data('id');
-            let pendingBalance = parseFloat($(this).data('balance')) || 0;
-
-
-            $('#investment_id').val(investmentId);
-            $('#pending_balance').val(pendingBalance.toFixed(2));
-            $('#received_amount')
-                .attr('max', pendingBalance.toFixed(2))
-                .attr('min', 1)
-                .val('');
-            $('#pendingInvestmentModal').modal('show');
-        });
-
-        // function validateReceivedAmount() {
-        //     let received = parseFloat($('#received_amount').val()) || 0;
-        //     let pending = parseFloat($('#pending_balance').val()) || 0;
-
-        //     if (received > pending) {
-        //         Swal.fire({
-        //             icon: 'warning',
-        //             text: 'Received Amount cannot be greater than Investment Amount.',
-        //             toast: true,
-        //             position: 'top-end',
-        //             showConfirmButton: false,
-        //             timer: 2500,
-        //         });
-        //         $('#pendingInvestmentForm button[type="submit"]').attr('disabled', true);
-        //     } else if (received == 0) {
-        //         Swal.fire({
-        //             icon: 'warning',
-        //             text: 'Received Amount cannot be Zero.',
-        //             toast: true,
-        //             position: 'top-end',
-        //             showConfirmButton: false,
-        //             timer: 2500,
-        //         });
-        //         $('#pendingInvestmentForm button[type="submit"]').attr('disabled', true);
-        //     } else {
-        //         $('#pendingInvestmentForm button[type="submit"]').attr('disabled', false);
-        //     }
-        // }
-
-        // $('#received_amount').on('input', function() {
-        //     validateReceivedAmount();
-        // });
-        $('#pendingInvestmentForm').on('submit', function(e) {
-            e.preventDefault();
-
-            $.ajax({
-                url: "{{ route('investment.submit.pending') }}",
-                method: "POST",
-                data: $(this).serialize(),
-                beforeSend: function() {
-                    $('#pendingInvestmentForm button[type="submit"]').attr('disabled', true);
-                },
-                success: function(res) {
-                    $('#pendingInvestmentModal').modal('hide');
-                    $('#investmentsTable').DataTable().ajax.reload(null, false);
-                    toastr.success(res.message);
-                    setTimeout(function() {
-                        window.location.reload();
-                    }, 2000);
-                },
-                error: function(xhr) {
-                    // Handle error
-                    let errMsg = 'Something went wrong!';
-                    if (xhr.responseJSON && xhr.responseJSON.message) {
-                        errMsg = xhr.responseJSON.message;
-                    }
-                    toastr.error(errMsg);
-                },
-                complete: function() {
-                    $('#pendingInvestmentForm button[type="submit"]').attr('disabled', false);
-                }
-            });
-        });
-
         function confirmDelete(id) {
             Swal.fire({
                 title: "Are you sure?",
@@ -293,151 +292,53 @@
                 // }
             });
         }
-        $(document).on('click', '.openTerminationModal', function() {
 
-            $('#terminationForm')[0].reset();
-            $('#existingFileContainer').html('');
-            let investmentId = $(this).data('id');
+        $(document).on('click', '.open-approval-modal', function() {
+            let id = $(this).data('id');
 
+            // set hidden input value
+            $('#approval_id').val(id);
 
-            $('#termination_investment_id').val(investmentId);
-            $('#requested_date').val('');
-            $('#termination_duration').val('');
-            $('#termination_date').val('');
-            let invest_amount = $(this).data('principal');
-            $('#investment_amount').val(invest_amount);
-            let outstanding = $(this).data('outstanding');
-            let comm_outstanding = $(this).data('outstanding');
-            $('#termination_outstanding').val(outstanding);
-            $('#termination_referral_commission_outstanding').val(comm_outstanding);
-            // 👉 Outstanding profit
-            let outstandingProfit = $(this).data('outstanding-profit');
+            // Laravel route with placeholder
+            let url = "{{ route('investor.partial-withdrawals.approve', ':id') }}";
+            url = url.replace(':id', id);
 
-            if (outstandingProfit !== null && outstandingProfit !== '' && outstandingProfit != 0) {
-                $('#profit-div')
-                    .removeClass('d-none')
-                    .html(' Pending Payout Amount Generated: <strong>' + outstandingProfit +
-                        '</strong>');
-            } else {
-                $('#profit-div')
-                    .addClass('d-none')
-                    .html('');
-            }
+            $('#approvalForm').data('url', url);
 
-
-
-
-
-            // if ($(this).data('status')) {
-            $status = $(this).data('status');
-            if ($status == 1) {
-                // alert("test");
-
-                let requestedDate = $(this).data('requested-date') || '';
-                let duration = $(this).data('duration') || '';
-                let terminationDate = $(this).data('termination-date') || '';
-                let filePath = $(this).data('file-path');
-
-                console.log(filePath);
-
-
-                $('#termination_investment_id').val(investmentId);
-                $('#termination_requested_date').val(requestedDate);
-                $('#termination_duration').val(duration);
-                $('#termination_date').val(terminationDate);
-
-                if (filePath) {
-                    $('#existingFileContainer').html(
-                        '<a style="text-decoration:underline;" class="text-blue" href="' + filePath +
-                        '" target="_blank">Click here </a>to view Existing File'
-                    );
-                } else {
-                    $('#existingFileContainer').html('');
-                }
-                $('.pending_div')
-                    .removeClass('d-none')
-            } else if ($status == 0) {
-
-                // alert("test");
-                $('#profit-div')
-                    .addClass('d-none')
-                    .html('');
-                $('.pending_div')
-                    .addClass('d-none')
-            }
-            // }
-
-            $('#terminationModal').modal('show');
+            // OPEN MODAL USING JS
+            $('#approvalModal').modal('show');
         });
-        $('#requesteddate').on('change.datetimepicker', function() {
-            calculateTerminationDate();
-        });
-        $('#termination_duration').on('change keyup', function() {
-            calculateTerminationDate();
-        });
-
-        function calculateTerminationDate() {
-            let requestedDate = $('#termination_requested_date').val();
-            let duration = parseInt($('#termination_duration').val(), 10);
-
-            if (!requestedDate || isNaN(duration) || duration <= 0) {
-                $('#termination_date').val('');
-                return;
-            }
-
-            // Convert DD-MM-YYYY to YYYY-MM-DD
-            let parts = requestedDate.split('-');
-            if (parts.length !== 3) return;
-
-            let date = new Date(parts[2], parts[1] - 1, parts[0]); // year, monthIndex, day
-            if (isNaN(date.getTime())) return;
-
-            date.setDate(date.getDate() + duration);
-
-            let day = String(date.getDate()).padStart(2, '0');
-            let month = String(date.getMonth() + 1).padStart(2, '0');
-            let year = date.getFullYear();
-
-            $('#termination_date').val(`${day}-${month}-${year}`);
-        }
-        $('#terminationForm').on('submit', function(e) {
+        $(document).on('submit', '#approvalForm', function(e) {
             e.preventDefault();
 
-            let form = $(this)[0];
-            let formData = new FormData(form);
+            let form = $(this);
+            let url = form.data('url');
 
             $.ajax({
-                url: "{{ route('investment.submit.termination') }}",
-                method: "POST",
-                data: formData,
-                processData: false,
-                contentType: false,
+                url: url,
+                type: "POST",
+                data: form.serialize(),
                 beforeSend: function() {
-                    $('#terminationForm button[type="submit"]').attr('disabled', true);
+                    form.find('button[type="submit"]').prop('disabled', true).text('Processing...');
                 },
-                success: function(res) {
-                    $('#terminationModal').modal('hide');
-                    $('#investmentsTable').DataTable().ajax.reload(null, false);
-                    toastr.success(res.message);
-                    setTimeout(function() {
-                        window.location.reload();
-                    }, 2000);
+                success: function(response) {
+                    $('#approvalModal').modal('hide');
+
+                    // Optional: show success message
+                    toastr.success(response.message || 'Approved successfully');
+
+                    // Reload DataTable (important)
+                    table.ajax.reload(null, false);
                 },
                 error: function(xhr) {
-                    let errMsg = 'Something went wrong!';
-                    if (xhr.responseJSON && xhr.responseJSON.message) {
-                        errMsg = xhr.responseJSON.message;
-                    }
-                    toastr.error(errMsg);
+                    let error = xhr.responseJSON?.message || 'Something went wrong';
+                    toastr.error(error);
                 },
                 complete: function() {
-                    $('#terminationForm button[type="submit"]').attr('disabled', false);
+                    form.find('button[type="submit"]').prop('disabled', false).html(
+                        '<i class="fas fa-check"></i> Approve');
                 }
             });
-        });
-        $('#terminationModal').on('hidden.bs.modal', function() {
-            $('#terminationForm')[0].reset();
-
         });
     </script>
 @endsection

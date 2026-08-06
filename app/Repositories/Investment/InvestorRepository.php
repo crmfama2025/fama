@@ -322,50 +322,48 @@ class InvestorRepository
 
     public function getPartialWithdrawalsQuery(array $filters = []): Builder
     {
+        // dd($filters);
         $query = InvestorLedger::query()
-            ->with(['transactionType', 'investor'])
+            ->with(['transactionType', 'investor', 'company', 'addedBy'])
             ->where('status', 1)
             ->whereIn('investor_transaction_type_id', [3, 4]);
 
         if (!empty($filters['search'])) {
-            $search = trim($filters['search']);
-            $searchLike = str_replace('-', '%', $search);
 
-            $query->where(function ($q) use ($search, $searchLike) {
+            $search = trim($filters['search'] ?? '');
+            // $searchLike = str_replace('-', '%', $search);
+            // dd($search, $searchLike);
 
-                $q->where('investor_name', 'like', "%{$search}%")
-                    ->orWhereRaw("CAST(investor_mobile AS CHAR) LIKE ?", ["%{$searchLike}%"])
-                    ->orWhere('investor_email', 'like', "%{$search}%")
-                    ->orWhereRaw("CAST(id_number AS CHAR) LIKE ?", ["%{$searchLike}%"])
-                    ->orWhereRaw("CAST(passport_number AS CHAR) LIKE ?", ["%{$searchLike}%"])
-                    ->orWhereRaw('DATE_FORMAT(profit_release_date, "%Y-%m-%d") LIKE ?', ["%{$searchLike}%"])
+            $query->where(function ($q) use ($search) {
 
-                    ->orWhereHas('nationality', function ($q) use ($search) {
-                        $q->where('nationality_name', 'like', "%{$search}%");
+                $q->where('transaction_amount', 'like', "%{$search}%")
+
+                    ->orWhereHas('transactionType', function ($q) use ($search) {
+                        $q->where('transaction_type', 'like', "%{$search}%");
                     })
 
-                    ->orWhereHas('payoutBatch', function ($q) use ($search) {
-                        $q->where('batch_name', 'like', "%{$search}%");
+                    ->orWhereHas('company', function ($q) use ($search) {
+                        $q->where('company_name', 'like', "%{$search}%");
                     })
 
-                    ->orWhereHas('paymentMode', function ($q) use ($search) {
-                        $q->where('payment_mode_name', 'like', "%{$search}%");
+                    ->orWhereHas('addedBy', function ($q) use ($search) {
+                        $q->where('first_name', 'like', '%' . $search . '%')
+                            ->orWhere('last_name', 'like', '%' . $search . '%');
                     })
 
-                    ->orWhereHas('investorBanks', function ($q) use ($search) {
-                        $q->where(function ($q) use ($search) {
-                            $q->where('investor_beneficiary', 'like', "%{$search}%")
-                                ->orWhere('investor_bank_name', 'like', "%{$search}%")
-                                ->orWhere('investor_iban', 'like', "%{$search}%");
-                        });
-                    })
-
-                    ->orWhereHas('referral', function ($q) use ($search) {
+                    ->orWhereHas('investor', function ($q) use ($search) {
                         $q->where('investor_name', 'like', "%{$search}%");
                     });
             });
         }
+        if (isset($filters['status'])) {
+            if ($filters['status'] !== 'all') {
+                $query->where('investor_ledgers.withdrawal_status', $filters['status']);
+            } else if ($filters['status'] === 'all') {
+                $query->whereIn('investor_ledgers.withdrawal_status', [0, 1, 2, 3]);
+            }
+        }
 
-        return $query; // ✅ ALWAYS return Builder
+        return $query;
     }
 }
