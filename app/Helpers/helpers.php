@@ -901,6 +901,7 @@ function calculateNextProfitReleaseDate($grace_period, $profit_interval_id, $inv
 {
     $date = Carbon::parse($investment_date)
         ->addDays($grace_period);
+    // dd($date);
 
     // Extract batch start day from range (e.g. "11-20" → 11)
     [$batchStartDay] = explode('-', $batch_name);
@@ -908,7 +909,7 @@ function calculateNextProfitReleaseDate($grace_period, $profit_interval_id, $inv
 
     switch ($profit_interval_id) {
         case 1: // Monthly
-            $date->addMonth();
+            // $date->addMonth();
             break;
         case 2: // Quarterly
             $date->addMonths(3);
@@ -923,6 +924,7 @@ function calculateNextProfitReleaseDate($grace_period, $profit_interval_id, $inv
             $date->addMonths(2);
             break;
     }
+    // dd($date);
 
     // Set date to batch first day (avoid invalid dates like Feb 30)
     $date->day = min($batchStartDay, $date->daysInMonth);
