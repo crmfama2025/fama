@@ -105,7 +105,7 @@ class ContractExport implements FromCollection, WithHeadings
                     $indirect = "Indirect";
                 }
                 return [
-                    'Project ID' => "Project - " . $contract->project_number,
+                    'Project ID' => "Project " . $contract->project_number,
                     'Project CODE' => $contract->project_code,
                     'Contract Type' => $contract->contract_type->contract_type,
                     'Direct/Indirect/Under Faateh' => $indirect ?? " - ",
