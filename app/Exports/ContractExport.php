@@ -105,7 +105,7 @@ class ContractExport implements FromCollection, WithHeadings
                     $indirect = "Indirect";
                 }
                 return [
-                    'Project ID' => "P - " . $contract->project_number,
+                    'Project ID' => "Project " . $contract->project_number,
                     'Project CODE' => $contract->project_code,
                     'Contract Type' => $contract->contract_type->contract_type,
                     'Direct/Indirect/Under Faateh' => $indirect ?? " - ",
@@ -121,9 +121,13 @@ class ContractExport implements FromCollection, WithHeadings
                         : ' - ',
                     'Vendor Name' => $contract->vendor->vendor_name,
                     'Buliding' => $contract->property->property_name,
+                    'Area' => $contract->property->area?->area_name ?? '',
                     'Locality' => $contract->locality->locality_name ?? '',
+                    'Plot Number' => $contract->property->plot_no ?? '',
+                    'Makani Number' => $contract->property->makani_number ?? '',
                     'Total Units' => $contract->contract_unit->no_of_units ?? '',
                     'Unit' => $contract->contract_unit->unit_numbers ?? '',
+                    'UniT Type' => $contract->contract_unit->unit_type_count ?? '',
                     'Commission' => $contract->contract_rentals->commission ?? '',
                     'Deposit' => $contract->contract_rentals->deposit,
                     'Rent Per Annum' => $contract->contract_rentals->rent_per_annum_payable,
@@ -163,7 +167,7 @@ class ContractExport implements FromCollection, WithHeadings
     public function headings(): array
     {
         return [
-            'ID',
+            'Project Number',
             'Project CODE',
             'Contact Type',
             'Direct/Indirect/Under Faateh',
@@ -174,9 +178,13 @@ class ContractExport implements FromCollection, WithHeadings
             'Indirect Company',
             'Vendor Name',
             'Buliding',
+            'Area',
             'Locality',
+            'Plot Number',
+            'Makani Number',
             'Total Units',
             'Unit',
+            'UniT Type',
             'Commission',
             'Deposit',
             'Rent Per Annum',

@@ -8,6 +8,7 @@ use App\Models\InvestorAgreementType;
 use App\Services\Investment\AgreementSignatureService;
 use App\Services\Investment\InvestmentContractService;
 use App\Services\Investment\InvestorAgreementService;
+use App\Services\Investment\InvestorService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -23,6 +24,7 @@ class InvestorAgreementTemplateController extends Controller
         protected InvestorAgreementService $invAgreement,
         protected InvestmentContractService $invContractServ,
         protected AgreementSignatureService $signatureService,
+        protected InvestorService $investorService,
     ) {}
 
     /**
@@ -113,6 +115,9 @@ class InvestorAgreementTemplateController extends Controller
     {
         $data = $this->invContractServ->sendContractDocument($docId, $companyId);
         $contractDocument = InvestmentContractDocuments::find($docId);
+        // dd($contractDocument);
+        $investor = $this->investorService->getById($contractDocument->investor_id);
+        $investments = $this->investorService->getCompanyTotalInvestments($contractDocument->investor_id);
 
         if (!$contractDocument->is_investor_signed) {
             $signerRole = 'investor';
@@ -120,7 +125,7 @@ class InvestorAgreementTemplateController extends Controller
             $signerRole = 'company';
         }
 
-        return view('admin.investment.inv_agreement.pdfview-agreement-dynamic', compact('data', 'contractDocument', 'signerRole'));
+        return view('admin.investment.inv_agreement.pdfview-agreement-dynamic', compact('data', 'contractDocument', 'signerRole', 'investor', 'investments'));
     }
 
     public function doc_view()
@@ -190,6 +195,7 @@ class InvestorAgreementTemplateController extends Controller
         }
 
         $html = $dom->saveHTML();
+        // dd($html);
 
         $expectedCount = $this->expectedSignatureCountFor($contract, $validated['signer_role']);
 
@@ -269,6 +275,8 @@ class InvestorAgreementTemplateController extends Controller
 
         // 65b9eea6
         // LEyWFMhF
+        // dd($docId);
+        // dd($uniqueId);
 
         $contractDocument = $contractDocument = InvestmentContractDocuments::whereRaw(
             'SUBSTRING(MD5(id), 1, 8) = ?',
@@ -287,12 +295,16 @@ class InvestorAgreementTemplateController extends Controller
         } else {
             $signerRole = 'company';
         }
+        // dd($signerRole);
 
         // else {
         //     $signerRole = null;
         // }
 
-        return view('admin.investment.inv_agreement.pdfview-agreement-dynamic', compact('data', 'contractDocument', 'signerRole'));
+        $investor = $this->investorService->getById($contractDocument->investor_id);
+        $investments = $this->investorService->getCompanyTotalInvestments($contractDocument->investor_id);
+
+        return view('admin.investment.inv_agreement.pdfview-agreement-dynamic', compact('data', 'contractDocument', 'signerRole', 'investor', 'investments'));
     }
 
     /**

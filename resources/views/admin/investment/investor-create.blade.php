@@ -287,12 +287,12 @@
                                             <hr>
                                             <div class="form-group row">
                                                 <div class="col-sm-4">
-                                                    <label for="inputEmail3" class="asterisk">Address Line 1</label>
+                                                    <label for="inputEmail3">Address Line 1</label>
                                                     <input type="text" class="form-control arabic-input"
                                                         name="investor[investor_address_arabic]"
                                                         placeholder="Flat no, Buiding name"
                                                         value="{{ $investor->investor_address_arabic ?? '' }}"
-                                                        id="" required>
+                                                        id="">
                                                 </div>
 
                                                 <div class="col-sm-4">
@@ -304,22 +304,21 @@
                                                 </div>
 
                                                 <div class="col-sm-4">
-                                                    <label for="inputEmail3" class="asterisk">City</label>
+                                                    <label for="inputEmail3">City</label>
                                                     <input type="text" class="form-control arabic-input"
                                                         name="investor[city_arabic]"
                                                         value="{{ $investor->city_arabic ?? '' }}" placeholder="City"
-                                                        id="" required>
+                                                        id="">
                                                 </div>
                                             </div>
 
                                             <div class="form-group row">
                                                 <div class="col-sm-4">
-                                                    <label for="inputEmail3"
-                                                        class="asterisk">State/Province/Region</label>
+                                                    <label for="inputEmail3">State/Province/Region</label>
                                                     <input type="text" class="form-control arabic-input"
                                                         name="investor[state_arabic]"
                                                         value="{{ $investor->state_arabic ?? '' }}" placeholder="State"
-                                                        id="" required>
+                                                        id="">
                                                 </div>
                                             </div>
                                         </div>
@@ -636,8 +635,8 @@
 
 
             let url = investorId ?
-                `/investor/${investorId}` :
-                `/investor`;
+                "{{ route('investor.show', ':id') }}".replace(':id', investorId) :
+                "{{ route('investor.index') }}";
 
             let method = investorId ? 'PUT' : 'POST';
 

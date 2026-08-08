@@ -31,7 +31,7 @@
                 min-height: 297mm;
                 margin: 0 auto 40px auto;
                 background-color: #fff;
-                background-image: url("{{ asset('images/investment_letter_head.png') }}");
+                /* background-image: url("{{ $data['letterHead'] }}"); */
                 background-size: 210mm 297mm;
                 background-repeat: no-repeat;
                 background-position: top left;
@@ -42,13 +42,17 @@
                 overflow: hidden;
             }
 
+            .new-page.annexure-page {
+                background-image: none !important;
+            }
+
             /*
          * Page 1 — top: 29mm clears your letterhead header
          *           bottom: 48mm clears your letterhead footer
          */
             .file-content {
                 position: relative;
-                padding: 29mm 16mm 48mm 16mm;
+                padding: 34mm 16mm 48mm 16mm;
                 box-sizing: border-box;
             }
 
@@ -104,6 +108,11 @@
 
             .marginClass {
                 margin: 4px;
+            }
+
+            .underline-date {
+                text-decoration: underline;
+                text-underline-offset: 3px;
             }
         }
 
@@ -399,7 +408,7 @@
             }
 
             .file-content {
-                padding: 29mm 16mm 48mm 16mm !important;
+                padding: 34mm 16mm 48mm 16mm !important;
             }
 
             .file-content.page-subsequent {
@@ -420,6 +429,447 @@
             }
         }
     </style>
+
+
+    {{-- Investment annexture style --}}
+
+    <style>
+        body {
+            background: #eef0f2;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            color: #222;
+        }
+
+        .letter-sheet {
+            background: #fff;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 127px 70px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e0e0e0;
+        }
+
+        .letter-title {
+            text-align: center;
+            font-weight: 700;
+            font-size: 1.4rem;
+            letter-spacing: 0.5px;
+            margin-bottom: 40px;
+        }
+
+        .letter-meta {
+            margin-bottom: 30px;
+        }
+
+        .letter-meta .label {
+            font-weight: 600;
+        }
+
+        .letter-subject {
+            font-weight: 700;
+            margin: 25px 0;
+        }
+
+        .investment-table th {
+            background: #e8eaed;
+            font-weight: 600;
+            border-top: none;
+        }
+
+        .investment-table td,
+        .investment-table th {
+            vertical-align: middle;
+            padding: 12px 16px;
+        }
+
+        .investment-table tfoot td {
+            font-weight: 700;
+            background: #e8eaed;
+            border-top: 2px solid #333;
+        }
+
+        .signature-block {
+            margin-top: 100px;
+        }
+
+        .signature-line {
+            display: inline-block;
+            border-bottom: 1px solid #333;
+            min-width: 260px;
+            margin-top: 45px;
+        }
+
+        /* ANNEXURE SIGNATURE BUTTON */
+        /* .annexure-signature-btn {
+            transform: translate(-5px, -10px);
+        } */
+
+        @media print {
+            body {
+                background: #fff;
+            }
+
+            .letter-sheet {
+                box-shadow: none;
+                border: none;
+                margin: 0;
+                padding: 20px;
+            }
+        }
+    </style>
+    {{-- <style>
+        #file-print-area {
+
+            /* ── SCREEN VIEW ── */
+            .new-page {
+                position: relative;
+                width: 210mm;
+                min-height: 297mm;
+                margin: 0 auto 40px auto;
+                background-color: #fff;
+                background-image: url("{{ asset('images/investment_letter_head.png') }}");
+                background-size: 210mm 297mm;
+                background-repeat: no-repeat;
+                background-position: top left;
+                font-family: 'Times New Roman', Times, serif;
+                font-size: 12px;
+                box-shadow: 0 4px 24px #aaa;
+                box-sizing: border-box;
+                overflow: hidden;
+            }
+
+            /*
+         * Page 1 — top: 29mm clears your letterhead header
+         *           bottom: 48mm clears your letterhead footer
+         */
+            .file-content {
+                position: relative;
+                padding: 34mm 16mm 48mm 16mm;
+                box-sizing: border-box;
+            }
+
+            /*
+         * Pages 2+ — your letterhead has a slightly taller header zone on continuation pages
+         *             top: 33mm (was .page-top in your original code)
+         */
+            .file-content.page-subsequent {
+                padding-top: 35mm;
+            }
+
+            .arabic {
+                direction: rtl;
+                text-align: right;
+                padding-right: 3px;
+                unicode-bidi: embed;
+                font-family: amiri;
+            }
+
+            .english {
+                direction: ltr;
+                padding-left: 3px;
+                text-align: left;
+                font-family: "Times New Roman";
+            }
+
+            .text-lg {
+                font-size: 12pt !important;
+                font-weight: 700 !important;
+            }
+
+            .text-md {
+                font-size: 8.5pt !important;
+                font-weight: 700 !important;
+                margin-top: 4px;
+            }
+
+            .text-medium {
+                font-size: 9.5pt !important;
+                margin-top: 4px;
+            }
+
+            .text-sm {
+                font-size: 8pt !important;
+            }
+
+            .mt-15 {
+                padding-top: 15px;
+            }
+
+            strong {
+                font-weight: 700 !important;
+            }
+
+            p {
+                margin: 4px;
+            }
+        }
+
+        .marginClass {
+            margin: 4px !important;
+            margin-bottom: 1rem !important;
+        }
+
+        /* ── SIGNATURE STAMP ── */
+        .signature-stamp {
+            position: absolute;
+            bottom: 14mm;
+            /* tune: distance from page bottom */
+            left: 16mm;
+            /* tune: left side for investor signature */
+            width: 40mm;
+            height: 16mm;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .signature-stamp img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            object-position: left bottom;
+        }
+
+        .signature-label {
+            position: absolute;
+            bottom: 10mm;
+            left: 16mm;
+            font-size: 6.5pt;
+            color: #444;
+            font-family: 'Times New Roman', serif;
+            width: 40mm;
+            text-align: left;
+        }
+
+        /* Modal overlay */
+        .sig-modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sig-modal-overlay.active {
+            display: flex;
+        }
+
+        .sig-modal {
+            background: #fff;
+            border-radius: 10px;
+            padding: 28px 28px 20px;
+            width: 480px;
+            max-width: 95vw;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.25);
+        }
+
+        .sig-modal h5 {
+            margin: 0 0 16px;
+            font-size: 15px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .sig-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        .sig-tab {
+            flex: 1;
+            padding: 8px;
+            border: 1.5px solid #ccc;
+            border-radius: 6px;
+            background: #f8f8f8;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            text-align: center;
+            transition: all .2s;
+        }
+
+        .sig-tab.active {
+            border-color: #007bff;
+            background: #e8f0fe;
+            color: #007bff;
+        }
+
+        .sig-panel {
+            display: none;
+        }
+
+        .sig-panel.active {
+            display: block;
+        }
+
+        #sig-canvas {
+            border: 1.5px solid #ccc;
+            border-radius: 6px;
+            background: #fafafa;
+            cursor: crosshair;
+            display: block;
+            width: 100%;
+            touch-action: none;
+        }
+
+        .sig-canvas-hint {
+            font-size: 11px;
+            color: #aaa;
+            text-align: center;
+            margin-top: 5px;
+        }
+
+        .sig-upload-area {
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 28px 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color .2s;
+        }
+
+        .sig-upload-area:hover {
+            border-color: #007bff;
+        }
+
+        .sig-upload-area input[type="file"] {
+            display: none;
+        }
+
+        .sig-upload-preview {
+            display: none;
+            margin-top: 12px;
+        }
+
+        .sig-upload-preview img {
+            max-height: 80px;
+            max-width: 100%;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            padding: 4px;
+        }
+
+        .sig-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+            justify-content: flex-end;
+        }
+
+        .sig-btn {
+            padding: 8px 18px;
+            border-radius: 6px;
+            border: none;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .sig-btn-clear {
+            background: #f1f1f1;
+            color: #555;
+        }
+
+        .sig-btn-apply {
+            background: #007bff;
+            color: #fff;
+        }
+
+        .sig-btn-apply:disabled {
+            background: #aaa;
+            cursor: not-allowed;
+        }
+
+        .sig-btn-cancel {
+            background: #fff;
+            color: #888;
+            border: 1px solid #ddd;
+        }
+
+        /* ── PRINT ── */
+        @media print {
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                box-sizing: border-box;
+            }
+
+            @page {
+                size: A4 portrait;
+                margin: 0;
+            }
+
+            html,
+            body {
+                width: 210mm;
+                height: 297mm;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: #fff;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            #file-print-area,
+            .content-wrapper,
+            .content,
+            .container-fluid {
+                width: 210mm !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            .new-page {
+                width: 210mm !important;
+                height: 297mm !important;
+                min-height: 297mm !important;
+                margin: 0 !important;
+                box-shadow: none !important;
+                overflow: hidden !important;
+                page-break-after: always;
+                break-after: page;
+                background-image: url("{{ asset('images/investment_letter_head.png') }}") !important;
+                background-size: 210mm 297mm !important;
+                background-repeat: no-repeat !important;
+                background-position: top left !important;
+            }
+
+            .new-page:last-child {
+                page-break-after: auto;
+                break-after: auto;
+            }
+
+            .file-content {
+                padding: 34mm 16mm 48mm 16mm !important;
+            }
+
+            .file-content.page-subsequent {
+                padding-top: 35mm !important;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            td {
+                vertical-align: top;
+            }
+
+            p {
+                margin: 4px !important;
+            }
+
+            .underline-date {
+                text-decoration: underline;
+                text-underline-offset: 3px;
+            }
+        }
+    </style> --}}
 </head>
 
 <body class="hold-transition sidebar-mini">
@@ -443,6 +893,7 @@
                         $contractDocument->is_investor_signed;
                 @endphp
 
+                {{-- {{ dd($contractDocument->contract_document_html) }} --}}
                 @if ($hasSavedSnapshot && $contractDocument->contract_document_html)
                     {{-- Already signed: show the saved snapshot, signature already in place --}}
                     <div id="file-print-area">{!! $contractDocument->contract_document_html !!}</div>
@@ -450,6 +901,12 @@
                     {{-- Not signed yet: JS paginates this raw row source into #file-print-area --}}
                     <div id="file-print-area"></div>
                     {!! $data['html'] !!}
+                    @if ($investments['grand_total'] != 0)
+                        @include('admin.investment.inv_agreement.investment_annexture', [
+                            'investor' => $investor,
+                            'investments' => $investments,
+                        ])
+                    @endif
                 @endif
 
                 <div class="mt-4 mb-5 text-center no-print">
@@ -580,6 +1037,7 @@
         function buildPages() {
             const source = document.getElementById('all-rows-source');
             const printArea = document.getElementById('file-print-area');
+            const annexure = document.querySelector('.letter-sheet.new-page'); // your annexure root
             if (!source || !printArea) return;
 
             const rows = Array.from(source.querySelectorAll('tr[data-row]'));
@@ -615,6 +1073,7 @@
                 usedH = 0;
                 maxH = isFirst ? CONTENT_H_P1 : CONTENT_H_PN;
             }
+
 
             newPage(); // start page 1
 
@@ -654,6 +1113,10 @@
                     }
                 }
             });
+            if (annexure && printArea && !printArea.contains(annexure)) {
+                annexure.style.backgroundImage = 'none';
+                printArea.appendChild(annexure);
+            }
         }
 
         document.addEventListener('DOMContentLoaded', buildPages);
@@ -684,8 +1147,8 @@
             background-size: 210mm 297mm !important; background-repeat: no-repeat !important; background-position: top left !important;
         }
         .new-page:last-child { page-break-after: auto; break-after: auto; }
-        .file-content { padding: 29mm 16mm 48mm 16mm !important; }
-        .file-content.page-subsequent { padding-top: 33mm !important; }
+        .file-content { padding: 34mm 16mm 48mm 16mm !important; }
+        .file-content.page-subsequent { padding-top: 35mm !important; }
         .no-print { display: none !important; }
         table { width: 100%; border-collapse: collapse; }
         td { vertical-align: top; }
@@ -1077,17 +1540,32 @@
                         const slotRect = slot.getBoundingClientRect();
 
                         const btn = createPlaceButton(page, slotId, spotKey);
-                        if (cfg.signerRole === 'investor') {
-                            btn.style.top = (slotRect.top - pageRect.top + 4) + 'px';
-                        } else {
-                            if (cfg.DocumentTypeId == 3) {
-                                btn.style.top = (slotRect.top - pageRect.top + 20) + 'px';
-                            } else {
-                                btn.style.top = (slotRect.top - pageRect.top + 59) + 'px';
-                            }
 
+                        // Detect annexure signature slot
+                        const isAnnexure = !!page.querySelector('.annexure-signature');
+
+                        if (isAnnexure) { // If it's an annexure signature slot, add a special class for styling
+                            btn.classList.add('annexure-signature-btn');
+
+                            // ANNEXURE:
+                            // Position directly over/near the Signature slot
+                            btn.style.left = (slotRect.left - pageRect.left + 100) + 'px';
+                            btn.style.top = (slotRect.top - pageRect.top - 15) + 'px';
+
+                        } else {
+
+                            if (cfg.signerRole === 'investor') {
+                                btn.style.top = (slotRect.top - pageRect.top + 4) + 'px';
+                            } else {
+                                if (cfg.DocumentTypeId == 3) {
+                                    btn.style.top = (slotRect.top - pageRect.top + 20) + 'px';
+                                } else {
+                                    btn.style.top = (slotRect.top - pageRect.top + 59) + 'px';
+                                }
+
+                            }
+                            btn.style.left = (slotRect.left - pageRect.left + 125) + 'px';
                         }
-                        btn.style.left = (slotRect.left - pageRect.left + 125) + 'px';
 
                         page.appendChild(btn);
                     });
@@ -1150,6 +1628,11 @@
             const cfg = window.AgreementConfig;
             const wrap = document.createElement('div');
             wrap.className = 'sig-placed-wrap';
+
+            if (btn.classList.contains('annexure-signature-btn')) {
+                wrap.classList.add('annexure-signature');
+            }
+
             wrap.dataset.signer = cfg.signerRole;
             if (slotId) wrap.dataset.slotId = slotId;
             wrap.dataset.spotKey = spotKey;
@@ -1267,14 +1750,20 @@
 
             const signedHtml = clone.innerHTML;
 
+            // console.log(signedHtml);
+
             try {
-                const res = await fetch(`/agreements/${cfg.agreementId}/sign`, {
+                const url = "{{ route('agreements.sign', ['contract' => 'PLACEHOLDER_ID']) }}".replace(
+                    'PLACEHOLDER_ID', cfg.agreementId);
+                // const res = await fetch(`/agreements/${cfg.agreementId}/sign`, {
+                const res = await fetch(url, {
                     method: 'POST',
                     credentials: 'same-origin', // ensure session cookie rides along — avoids silent 302→login
                     headers: {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json', // tells Laravel to return JSON errors, not a Blade page
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                            .content
                     },
                     body: JSON.stringify({
                         signer_role: cfg.signerRole,
@@ -1292,11 +1781,17 @@
                     return;
                 }
 
-                const rawText = await res.text(); // always read as text first, never blind res.json()
+                const rawText = await res
+                    .text(); // always read as text first, never blind res.json()
 
                 if (!res.ok) {
                     console.error('Server responded with error', res.status, rawText);
-                    toastr.error(`Submit failed (HTTP ${res.status}). Check console for details.`);
+                    toastr.error(`
+                            Submit failed(HTTP $ {
+                                res.status
+                            }).Check console
+                            for details.
+                            `);
                     return;
                 }
 
@@ -1312,7 +1807,8 @@
                 toastr.success('Agreement signed and submitted.');
                 window.location.href = "{{ route('investor.sign.success') }}";
                 document.getElementById('sigSubmitBtn').disabled = true;
-                document.querySelectorAll('.sig-placeholder-btn, .sig-placed-remove').forEach(el => el
+                document.querySelectorAll('.sig-placeholder-btn, .sig-placed-remove').forEach(el =>
+                    el
                     .remove()); // lock it down
             } catch (err) {
                 console.error('Network/fetch error:', err);
@@ -1344,7 +1840,8 @@
         async function sendForSignature(channel) {
             closeSendModal();
             try {
-                const res = await fetch(`/agreements/{{ $contractDocument->id }}/send`, {
+                // const res = await fetch(`/agreements/{{ $contractDocument->id }}/send`, {
+                const res = await fetch(`{{ route('agreements.send', $contractDocument->id) }}`, {
                     method: 'POST',
                     credentials: 'same-origin',
                     headers: {

@@ -81,6 +81,8 @@ class CompanyService
         $this->validate($data, $id);
         $data['updated_by'] = auth()->user()->id;
         //  Only update if new file is uploaded
+        $com = $this->companyRepository->find($id);
+        $data['company_code'] = $com->company_code;
         if (
             !empty($data['letter_head_path']) &&
             $data['letter_head_path'] instanceof \Illuminate\Http\UploadedFile
@@ -233,13 +235,13 @@ class CompanyService
 
             $path = $pdfService->compress(
                 $file,
-                'companies/' . $data['company_short_code'] . '/documents',
+                'companies/' . $data['company_code'] . '/documents',
                 $filename
             );
         } else {
 
             $path = $file->storeAs(
-                'companies/' . $data['company_short_code'] . '/documents',
+                'companies/' . $data['company_code'] . '/documents',
                 $filename,
                 'public'
             );

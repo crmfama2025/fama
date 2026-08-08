@@ -281,6 +281,11 @@ class InvestorService
                     <i class="fas fa-wallet"></i>
                 </a>';
                 }
+                $action .= ' <a href="' . route('investor.investment_annexture', $row->id) . '"
+                    title="Investment Annexture"
+                    class="btn bg-pink btn-sm">
+                    <i class="fas fa-file"></i>
+                </a>';
 
                 return $action;
             })
@@ -1053,5 +1058,27 @@ class InvestorService
 
             return true;
         });
+    }
+    public function getCompanyTotalInvestments($investorId)
+    {
+        $data = Investment::select(
+            'investments.company_id',
+            'companies.company_name as company_name',
+            \DB::raw('SUM(investment_amount) as total_invested')
+        )
+            ->join('companies', 'companies.id', '=', 'investments.company_id')
+            ->where('investments.investor_id', $investorId)
+            ->where('investments.terminate_status', '!=', 2)
+            ->groupBy('investments.company_id', 'companies.company_name')
+            ->get();
+
+        $grandTotal = $data->sum('total_invested');
+
+        return [
+            'companies'   => $data,
+            'grand_total' => $grandTotal,
+        ];
+        // dd($test);
+        // return $test;
     }
 }

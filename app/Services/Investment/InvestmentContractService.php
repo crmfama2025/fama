@@ -213,6 +213,7 @@ class InvestmentContractService
             // '{annexure_a_ar}'  => $annexureA_Ar,
             '{profit_month_eng}' => $annexureB_Eng,
             '{profit_month_ar}'  => $annexureB_Ar,
+            // '{date}' =>  now()->format('d/m/Y')
         ];
         // dump($annexureAMulti);
         $htmlMulti = str_replace(array_keys($placeholdersMulti), array_values($placeholdersMulti), $htmlMulti);
@@ -669,6 +670,7 @@ class InvestmentContractService
                     $nextDate->format('M Y'),
                     $investmentData->payoutBatch->batch_name
                 ))->startOfMonth();
+                // dump($nextDate);
             }
             // dd("test");
             // if ($currentMonth->equalTo($nextProfitDate) || $i === 0) {
@@ -724,6 +726,7 @@ class InvestmentContractService
             $CompanyProfitPerc,
             // 'english'
         );
+        // dd($investmentData->investment_date);
 
 
         $placeholders = [
@@ -781,6 +784,7 @@ class InvestmentContractService
             '{monthly_estimate}'      => $investmentData->profit_amount_per_interval,
             '{profit_month_eng}'      => $profitEng,
             '{profit_month_ar}'       => $profitAr,
+            '{date}' => Carbon::parse($investmentData->investment_date)->format('d/m/Y'),
         ];
 
         $html = str_replace(array_keys($placeholders), array_values($placeholders), $html);
@@ -847,7 +851,8 @@ class InvestmentContractService
             '{new_total_investment_amount_eng}' => numberToEnglishWords($currentTotal),
             '{new_total_investment_amount_ar}'  => numberToArabicWords($currentTotal),
 
-            '{annexA}' => $this->buildAnnexureARows($docDetails->investor_id, $companyId, $mudarabahCreatedDate, $docId)
+            '{annexA}' => $this->buildAnnexureARows($docDetails->investor_id, $companyId, $mudarabahCreatedDate, $docId),
+            '{date}' =>  Carbon::parse($investment->investment_date)->format('d/m/Y')
         ];
 
 
@@ -935,6 +940,7 @@ class InvestmentContractService
 
             '{total_invested_amount}'     => number_format($totalInvested, 2),
             '{total_invested_eng}' => numberToEnglishWords($totalInvested) . ' Only',
+            '{date}' =>  Carbon::parse($novationCreated)->format('d/m/Y')
 
         ];
 
@@ -1005,8 +1011,8 @@ class InvestmentContractService
             '{investor_id_no}' => $investor->id_number,
 
             '{html_eng}' => $this->ledgerPartialWithdrawal($docDetails->investor_id, $companyId, $mudarabahCreatedDate, $docId)['html_eng'],
-            '{html_ar}' => $this->ledgerPartialWithdrawal($docDetails->investor_id, $companyId, $mudarabahCreatedDate, $docId)['html_ar']
-
+            '{html_ar}' => $this->ledgerPartialWithdrawal($docDetails->investor_id, $companyId, $mudarabahCreatedDate, $docId)['html_ar'],
+            '{date}' =>  Carbon::parse($ledger->withdrawal_date)->format('d/m/Y')
         ];
         // dd($vars);
 
@@ -1174,6 +1180,7 @@ class InvestmentContractService
         // $investment = $this->investmentRepository->find($investmentId);
         $documentDetail = $this->InvAgreementRepo->findByType($docTypeId);
         $company    = Company::findOrFail($companyId);
+        // dd($company);
 
         $html        = $documentDetail->template;
 
@@ -1230,7 +1237,9 @@ class InvestmentContractService
 
             '{capital}' => $ledger->transaction_amount,
             '{profit}' => $ledger->withdrawal_month_profit,
-            '{total_amount}' => $total_amount
+            '{total_amount}' => $total_amount,
+
+            '{date}' =>  Carbon::parse($ledger->withdrawal_date)->format('d/m/Y')
 
             // '{html_eng}' => $this->ledgerPartialWithdrawal($docDetails->investor_id, $companyId, $mudarabahCreatedDate, $docId)['html_eng'],
             // '{html_ar}' => $this->ledgerPartialWithdrawal($docDetails->investor_id, $companyId, $mudarabahCreatedDate, $docId)['html_ar']
