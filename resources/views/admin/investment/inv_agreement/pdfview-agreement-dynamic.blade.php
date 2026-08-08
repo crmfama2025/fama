@@ -499,6 +499,11 @@
             margin-top: 45px;
         }
 
+        /* ANNEXURE SIGNATURE BUTTON */
+        /* .annexure-signature-btn {
+            transform: translate(-5px, -10px);
+        } */
+
         @media print {
             body {
                 background: #fff;
@@ -1535,17 +1540,32 @@
                         const slotRect = slot.getBoundingClientRect();
 
                         const btn = createPlaceButton(page, slotId, spotKey);
-                        if (cfg.signerRole === 'investor') {
-                            btn.style.top = (slotRect.top - pageRect.top + 4) + 'px';
-                        } else {
-                            if (cfg.DocumentTypeId == 3) {
-                                btn.style.top = (slotRect.top - pageRect.top + 20) + 'px';
-                            } else {
-                                btn.style.top = (slotRect.top - pageRect.top + 59) + 'px';
-                            }
 
+                        // Detect annexure signature slot
+                        const isAnnexure = !!page.querySelector('.annexure-signature');
+
+                        if (isAnnexure) { // If it's an annexure signature slot, add a special class for styling
+                            btn.classList.add('annexure-signature-btn');
+
+                            // ANNEXURE:
+                            // Position directly over/near the Signature slot
+                            btn.style.left = (slotRect.left - pageRect.left + 100) + 'px';
+                            btn.style.top = (slotRect.top - pageRect.top - 15) + 'px';
+
+                        } else {
+
+                            if (cfg.signerRole === 'investor') {
+                                btn.style.top = (slotRect.top - pageRect.top + 4) + 'px';
+                            } else {
+                                if (cfg.DocumentTypeId == 3) {
+                                    btn.style.top = (slotRect.top - pageRect.top + 20) + 'px';
+                                } else {
+                                    btn.style.top = (slotRect.top - pageRect.top + 59) + 'px';
+                                }
+
+                            }
+                            btn.style.left = (slotRect.left - pageRect.left + 125) + 'px';
                         }
-                        btn.style.left = (slotRect.left - pageRect.left + 125) + 'px';
 
                         page.appendChild(btn);
                     });
@@ -1608,6 +1628,11 @@
             const cfg = window.AgreementConfig;
             const wrap = document.createElement('div');
             wrap.className = 'sig-placed-wrap';
+
+            if (btn.classList.contains('annexure-signature-btn')) {
+                wrap.classList.add('annexure-signature');
+            }
+
             wrap.dataset.signer = cfg.signerRole;
             if (slotId) wrap.dataset.slotId = slotId;
             wrap.dataset.spotKey = spotKey;
@@ -1728,8 +1753,8 @@
             // console.log(signedHtml);
 
             try {
-                const url = "{{ route('agreements.sign', ['id' => 'PLACEHOLDER_ID']) }}".replace('PLACEHOLDER_ID', cfg
-                    .agreementId);
+                const url = "{{ route('agreements.sign', ['contract' => 'PLACEHOLDER_ID']) }}".replace(
+                    'PLACEHOLDER_ID', cfg.agreementId);
                 // const res = await fetch(`/agreements/${cfg.agreementId}/sign`, {
                 const res = await fetch(url, {
                     method: 'POST',
