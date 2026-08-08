@@ -635,8 +635,8 @@
 
 
             let url = investorId ?
-                `/investor/${investorId}` :
-                `/investor`;
+                "{{ route('investor.show', ':id') }}".replace(':id', investorId) :
+                "{{ route('investor.index') }}";
 
             let method = investorId ? 'PUT' : 'POST';
 
