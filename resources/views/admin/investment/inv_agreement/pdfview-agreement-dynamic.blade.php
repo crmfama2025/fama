@@ -1728,13 +1728,17 @@
             // console.log(signedHtml);
 
             try {
-                const res = await fetch(`/agreements/${cfg.agreementId}/sign`, {
+                const url = "{{ route('agreements.sign', ['id' => 'PLACEHOLDER_ID']) }}".replace('PLACEHOLDER_ID', cfg
+                    .agreementId);
+                // const res = await fetch(`/agreements/${cfg.agreementId}/sign`, {
+                const res = await fetch(url, {
                     method: 'POST',
                     credentials: 'same-origin', // ensure session cookie rides along — avoids silent 302→login
                     headers: {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json', // tells Laravel to return JSON errors, not a Blade page
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                            .content
                     },
                     body: JSON.stringify({
                         signer_role: cfg.signerRole,
@@ -1752,11 +1756,17 @@
                     return;
                 }
 
-                const rawText = await res.text(); // always read as text first, never blind res.json()
+                const rawText = await res
+                    .text(); // always read as text first, never blind res.json()
 
                 if (!res.ok) {
                     console.error('Server responded with error', res.status, rawText);
-                    toastr.error(`Submit failed (HTTP ${res.status}). Check console for details.`);
+                    toastr.error(`
+                            Submit failed(HTTP $ {
+                                res.status
+                            }).Check console
+                            for details.
+                            `);
                     return;
                 }
 
@@ -1772,7 +1782,8 @@
                 toastr.success('Agreement signed and submitted.');
                 window.location.href = "{{ route('investor.sign.success') }}";
                 document.getElementById('sigSubmitBtn').disabled = true;
-                document.querySelectorAll('.sig-placeholder-btn, .sig-placed-remove').forEach(el => el
+                document.querySelectorAll('.sig-placeholder-btn, .sig-placed-remove').forEach(el =>
+                    el
                     .remove()); // lock it down
             } catch (err) {
                 console.error('Network/fetch error:', err);
@@ -1804,7 +1815,8 @@
         async function sendForSignature(channel) {
             closeSendModal();
             try {
-                const res = await fetch(`/agreements/{{ $contractDocument->id }}/send`, {
+                // const res = await fetch(`/agreements/{{ $contractDocument->id }}/send`, {
+                const res = await fetch(`{{ route('agreements.send', $contractDocument->id) }}`, {
                     method: 'POST',
                     credentials: 'same-origin',
                     headers: {
