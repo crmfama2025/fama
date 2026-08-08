@@ -1,94 +1,3 @@
-{{-- <!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Investment Annexure</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"> --}}
-{{-- <style>
-    body {
-        background: #eef0f2;
-        font-family: 'Segoe UI', Arial, sans-serif;
-        color: #222;
-    }
-
-    .letter-sheet {
-        background: #fff;
-        max-width: 800px;
-        margin: 40px auto;
-        padding: 127px 70px;
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.08);
-        border: 1px solid #e0e0e0;
-    }
-
-    .letter-title {
-        text-align: center;
-        font-weight: 700;
-        font-size: 1.4rem;
-        letter-spacing: 0.5px;
-        margin-bottom: 40px;
-    }
-
-    .letter-meta {
-        margin-bottom: 30px;
-    }
-
-    .letter-meta .label {
-        font-weight: 600;
-    }
-
-    .letter-subject {
-        font-weight: 700;
-        margin: 25px 0;
-    }
-
-    .investment-table th {
-        background: #e8eaed;
-        font-weight: 600;
-        border-top: none;
-    }
-
-    .investment-table td,
-    .investment-table th {
-        vertical-align: middle;
-        padding: 12px 16px;
-    }
-
-    .investment-table tfoot td {
-        font-weight: 700;
-        background: #e8eaed;
-        border-top: 2px solid #333;
-    }
-
-    .signature-block {
-        margin-top: 70px;
-    }
-
-    .signature-line {
-        display: inline-block;
-        border-bottom: 1px solid #333;
-        min-width: 260px;
-        margin-top: 45px;
-    }
-
-    @media print {
-        body {
-            background: #fff;
-        }
-
-        .letter-sheet {
-            box-shadow: none;
-            border: none;
-            margin: 0;
-            padding: 20px;
-        }
-    }
-</style> --}}
-{{-- </head> --}}
-
-{{-- <body> --}}
-
 <div class="letter-sheet new-page">
 
     <div class="d-flex justify-content-between align-items-start">
@@ -144,16 +53,12 @@
         </tfoot>
     </table>
 
-    <div class="signature-block" data-own-signature-pad="true">
+    <div class="signature-block annexure-signature" data-own-signature-pad="true">
         <div class="font-weight-bold" id="signee-name">{{ ucfirst($investor->investor_name) }}</div>
         <br>
-        <div data-signature-slot="investor_en" data-signer="investor">
+        <div class="annexure-signature-slot" data-signature-slot="investor_en" data-signer="investor">
             Signature:
         </div>
     </div>
 
 </div>
-
-{{-- </body>
-
-</html> --}}
