@@ -2284,7 +2284,7 @@ namespace App\Models{
  * @property string $investor_mobile
  * @property string $investor_email
  * @property string $investor_address
- * @property string $investor_address_arabic
+ * @property string|null $investor_address_arabic
  * @property int $nationality_id
  * @property int $country_of_residence
  * @property int $payment_mode_id
@@ -2318,8 +2318,8 @@ namespace App\Models{
  * @property string|null $postal_code
  * @property string $country_id
  * @property string|null $address_line2_arabic
- * @property string $city_arabic
- * @property string $state_arabic
+ * @property string|null $city_arabic
+ * @property string|null $state_arabic
  * @property-read \App\Models\Nationality|null $country
  * @property-read \App\Models\Nationality|null $countryOfResidence
  * @property-read \App\Models\User|null $deletedBy
@@ -2563,6 +2563,9 @@ namespace App\Models{
  * @property int $withdrawal_status 0 - Not Partial Withdrawal, 1 - Partial withdrawal requested, 2 - Approved, 3-Partail Withdrawal Done
  * @property int $profit_payout_status 0-Not Paid ,1-partially paid, 2-Fully Paid
  * @property string $withdrawal_month_profit
+ * @property string|null $approved_date
+ * @property int|null $approved_by
+ * @property string|null $approval_remarks
  * @property-read \App\Models\User|null $addedBy
  * @property-read \App\Models\User|null $approvedBy
  * @property-read \App\Models\Company|null $company
@@ -2573,6 +2576,9 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorLedger newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorLedger query()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorLedger whereAddedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorLedger whereApprovalRemarks($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorLedger whereApprovedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorLedger whereApprovedDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorLedger whereCompanyId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorLedger whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorLedger whereDeletedBy($value)
@@ -2667,8 +2673,10 @@ namespace App\Models{
  * @property int $investor_id receiver
  * @property int $payout_type 1-profit, 2-commission, 3-principal
  * @property int|null $payout_reference_id type commission - referal table id
+ * @property int|null $investment_profit_record_id
  * @property int|null $bifurcation_id
  * @property string $payout_release_month
+ * @property string|null $original_profit_date
  * @property string $payout_amount
  * @property string $amount_paid
  * @property string $amount_pending
@@ -2698,8 +2706,10 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorPayout whereDeletedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorPayout whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorPayout whereInvestmentId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorPayout whereInvestmentProfitRecordId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorPayout whereInvestorId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorPayout whereIsProcessed($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorPayout whereOriginalProfitDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorPayout wherePayoutAmount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorPayout wherePayoutReferenceId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorPayout wherePayoutReleaseMonth($value)
