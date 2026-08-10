@@ -53,6 +53,11 @@ function dateFormatChange($value, $format)
     return $value ? Carbon::parse($value)->format($format) : null;
 }
 
+function toFirstCaps($string)
+{
+    return Str::ucfirst($string);
+}
+
 
 function subunitNoGeneration($subUnitData, $key, $i, $subunit_type)
 {
@@ -909,7 +914,7 @@ function calculateNextProfitReleaseDate($grace_period, $profit_interval_id, $inv
 
     switch ($profit_interval_id) {
         case 1: // Monthly
-            // $date->addMonth();
+            $date;
             break;
         case 2: // Quarterly
             $date->addMonths(3);

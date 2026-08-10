@@ -146,6 +146,11 @@ class Investment extends Model
         return $this->hasMany(self::class, 'parent_investment_id');
     }
 
+    public function profitRecords()
+    {
+        return $this->hasMany(InvestmentProfitRecord::class);
+    }
+
 
 
     public function getFormattedInvestmentAmountAttribute()

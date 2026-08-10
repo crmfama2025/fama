@@ -141,7 +141,7 @@ namespace App\Models{
  * @property string|null $issued_date
  * @property string|null $expiry_date
  * @property-read \App\Models\TenantIdentity|null $TenantIdentity
- * @property-read \App\Models\Agreement|null $agreement
+ * @property-read \App\Models\Agreement $agreement
  * @property-read \App\Models\User|null $deletedBy
  * @property-read mixed $document_url
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementDocument newModelQuery()
@@ -184,11 +184,11 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \App\Models\Agreement|null $agreement
+ * @property-read \App\Models\Agreement $agreement
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\AgreementPaymentDetail> $agreementPaymentDetails
  * @property-read int|null $agreement_payment_details_count
  * @property-read \App\Models\User|null $deletedBy
- * @property-read \App\Models\Installment|null $installment
+ * @property-read \App\Models\Installment $installment
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementPayment newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementPayment newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementPayment onlyTrashed()
@@ -242,7 +242,7 @@ namespace App\Models{
  * @property int $terminate_status
  * @property int $transaction_type 1 = Receive, 2 = Pay Back, 3 = Run Away
  * @property int $is_invoice_added 0=pending,1=added
- * @property-read \App\Models\Agreement|null $agreement
+ * @property-read \App\Models\Agreement $agreement
  * @property-read \App\Models\AgreementPayment|null $agreementPayment
  * @property-read \App\Models\AgreementUnit|null $agreementUnit
  * @property-read \App\Models\Bank|null $bank
@@ -329,7 +329,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property int|null $deleted_by
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \App\Models\Agreement|null $agreement
+ * @property-read \App\Models\Agreement $agreement
  * @property-read \App\Models\User|null $deletedBy
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementStatusLogs newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementStatusLogs newQuery()
@@ -364,7 +364,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \App\Models\Agreement|null $agreement
+ * @property-read \App\Models\Agreement $agreement
  * @property-read \App\Models\AgreementUnit|null $agreementUnit
  * @property-read \App\Models\ContractSubunitDetail|null $contractSubunitDetail
  * @property-read \App\Models\ContractUnitDetail|null $contractUnitDetail
@@ -487,7 +487,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \App\Models\Agreement|null $agreement
+ * @property-read \App\Models\Agreement $agreement
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\AgreementSubunitRentBifurcation> $agreementSubunitRentBifurcation
  * @property-read int|null $agreement_subunit_rent_bifurcation_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\AgreementPaymentDetail> $agreement_payment_details
@@ -709,7 +709,7 @@ namespace App\Models{
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Contract> $contracts
  * @property-read int|null $contracts_count
  * @property-read \App\Models\User|null $deletedBy
- * @property-read \App\Models\Industry|null $industry
+ * @property-read \App\Models\Industry $industry
  * @property-write mixed $added_date
  * @property-write mixed $updated_date
  * @property-read \App\Models\User|null $updatedBy
@@ -902,8 +902,8 @@ namespace App\Models{
  * @property string $comment
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Contract|null $contract
- * @property-read \App\Models\User|null $user
+ * @property-read \App\Models\Contract $contract
+ * @property-read \App\Models\User $user
  * @method static \Illuminate\Database\Eloquent\Builder|ContractApprovalComment newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ContractApprovalComment newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ContractApprovalComment query()
@@ -935,7 +935,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \App\Models\Contract|null $contract
+ * @property-read \App\Models\Contract $contract
  * @property-read \App\Models\User|null $deletedBy
  * @method static \Illuminate\Database\Eloquent\Builder|ContractDetail newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ContractDetail newQuery()
@@ -979,7 +979,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \App\Models\Contract|null $contract
+ * @property-read \App\Models\Contract $contract
  * @property-read \App\Models\User|null $deletedBy
  * @property-read \App\Models\DocumentType|null $document_type
  * @method static \Illuminate\Database\Eloquent\Builder|ContractDocument newModelQuery()
@@ -1023,7 +1023,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \App\Models\Contract|null $contract
+ * @property-read \App\Models\Contract $contract
  * @property-read \App\Models\User|null $deletedBy
  * @method static \Illuminate\Database\Eloquent\Builder|ContractOtc newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ContractOtc newQuery()
@@ -1110,7 +1110,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int $has_payment_started
  * @property int $has_fully_paid
- * @property-read \App\Models\Contract|null $contract
+ * @property-read \App\Models\Contract $contract
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ContractPaymentDetail> $contractPaymentDetails
  * @property-read int|null $contract_payment_details_count
  * @property-read \App\Models\User|null $deletedBy
@@ -1166,10 +1166,10 @@ namespace App\Models{
  * @property int $terminate_status 0-Active, 1-Terminated
  * @property-read \App\Models\User|null $addedBy
  * @property-read \App\Models\Bank|null $bank
- * @property-read \App\Models\Contract|null $contract
+ * @property-read \App\Models\Contract $contract
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ContractPayableClear> $contractPayableClears
  * @property-read int|null $contract_payable_clears_count
- * @property-read \App\Models\ContractPayment|null $contract_payment
+ * @property-read \App\Models\ContractPayment $contract_payment
  * @property-read \App\Models\User|null $deletedBy
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ContractPayableClear> $payables
  * @property-read int|null $payables_count
@@ -1222,7 +1222,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \App\Models\Contract|null $contract
+ * @property-read \App\Models\Contract $contract
  * @property-read \App\Models\User|null $deletedBy
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPaymentReceivable newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPaymentReceivable newQuery()
@@ -1272,7 +1272,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $paid_amount
- * @property-read \App\Models\Contract|null $contract
+ * @property-read \App\Models\Contract $contract
  * @property-read \App\Models\User|null $deletedBy
  * @property-read \App\Models\Installment|null $installment
  * @method static \Illuminate\Database\Eloquent\Builder|ContractRental newModelQuery()
@@ -1323,7 +1323,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Contract|null $contract
+ * @property-read \App\Models\Contract $contract
  * @property-read \App\Models\User|null $deletedBy
  * @method static \Illuminate\Database\Eloquent\Builder|ContractScope logs()
  * @method static \Illuminate\Database\Eloquent\Builder|ContractScope newModelQuery()
@@ -1357,7 +1357,7 @@ namespace App\Models{
  * @property array|null $new_values
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\ContractScope|null $contractScope
+ * @property-read \App\Models\ContractScope $contractScope
  * @property-read \App\Models\User|null $user
  * @method static \Illuminate\Database\Eloquent\Builder|ContractScopeLog newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ContractScopeLog newQuery()
@@ -1437,7 +1437,7 @@ namespace App\Models{
  * @property string $changed_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Agreement|null $contract
+ * @property-read \App\Models\Agreement $contract
  * @property-read \App\Models\User|null $deletedBy
  * @method static \Illuminate\Database\Eloquent\Builder|ContractStatusLogs newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ContractStatusLogs newQuery()
@@ -1474,9 +1474,9 @@ namespace App\Models{
  * @property int $is_vacant
  * @property int $is_sales_agreement_added 0-Not Added,1-Added
  * @property string|null $subunit_rent
- * @property-read \App\Models\Contract|null $contract
- * @property-read \App\Models\ContractUnit|null $contract_unit
- * @property-read \App\Models\ContractUnitDetail|null $contract_unit_detail
+ * @property-read \App\Models\Contract $contract
+ * @property-read \App\Models\ContractUnit $contract_unit
+ * @property-read \App\Models\ContractUnitDetail $contract_unit_detail
  * @property-read \App\Models\User|null $deletedBy
  * @method static \Illuminate\Database\Eloquent\Builder|ContractSubunitDetail newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ContractSubunitDetail newQuery()
@@ -1548,7 +1548,7 @@ namespace App\Models{
  * @property string $occupied_rent_per_month
  * @property string $total_payment_pending
  * @property string $total_payment_received
- * @property-read \App\Models\Contract|null $contract
+ * @property-read \App\Models\Contract $contract
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ContractUnitDetail> $contractUnitDetails
  * @property-read int|null $contract_unit_details_count
  * @property-read \App\Models\User|null $deletedBy
@@ -1639,10 +1639,10 @@ namespace App\Models{
  * @property string $discount
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\AgreementUnit> $agreementUnits
  * @property-read int|null $agreement_units_count
- * @property-read \App\Models\Contract|null $contract
+ * @property-read \App\Models\Contract $contract
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ContractSubunitDetail> $contractSubUnitDetails
  * @property-read int|null $contract_sub_unit_details_count
- * @property-read \App\Models\ContractUnit|null $contract_unit
+ * @property-read \App\Models\ContractUnit $contract_unit
  * @property-read \App\Models\User|null $deletedBy
  * @property-read \App\Models\PropertyType|null $property_type
  * @property-read \App\Models\UnitSizeUnit|null $unit_size_unit
@@ -1940,6 +1940,8 @@ namespace App\Models{
  * @property-read Investment|null $parentInvestment
  * @property-read \App\Models\PayoutBatch|null $payoutBatch
  * @property-read \App\Models\ProfitInterval|null $profitInterval
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvestmentProfitRecord> $profitRecords
+ * @property-read int|null $profit_records_count
  * @property-read \App\Models\ReferralCommissionFrequency|null $referralProfitFrequency
  * @method static \Illuminate\Database\Eloquent\Builder|Investment newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Investment newQuery()
@@ -2126,6 +2128,50 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentDocument withoutTrashed()
  */
 	class InvestmentDocument extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property int $id
+ * @property int $investor_id
+ * @property int $investment_id
+ * @property \Illuminate\Support\Carbon $profit_release_month
+ * @property string $profit_amount
+ * @property int $has_profit_amount 0 = dont_have_pofit, 1 = have_profit
+ * @property string $release_status
+ * @property string $released_total_amount
+ * @property \Illuminate\Support\Carbon|null $last_released_at
+ * @property string|null $last_released_by
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $deleted_at
+ * @property-read \App\Models\Investment|null $investment
+ * @property-read \App\Models\Investor|null $investor
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord forInvestment(int $investmentId)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord forInvestor(int $investorId)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord hasProfit(int $investmentId)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord onHold()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord partiallyReleased()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord pending()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord query()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord released()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord whereHasProfitAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord whereInvestmentId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord whereInvestorId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord whereLastReleasedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord whereLastReleasedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord whereProfitAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord whereProfitReleaseMonth($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord whereReleaseStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord whereReleasedTotalAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord whereUpdatedAt($value)
+ */
+	class InvestmentProfitRecord extends \Eloquent {}
 }
 
 namespace App\Models{
@@ -2517,6 +2563,9 @@ namespace App\Models{
  * @property int $withdrawal_status 0 - Not Partial Withdrawal, 1 - Partial withdrawal requested, 2 - Approved, 3-Partail Withdrawal Done
  * @property int $profit_payout_status 0-Not Paid ,1-partially paid, 2-Fully Paid
  * @property string $withdrawal_month_profit
+ * @property-read \App\Models\User|null $addedBy
+ * @property-read \App\Models\User|null $approvedBy
+ * @property-read \App\Models\Company|null $company
  * @property-read \App\Models\Investment|null $investment
  * @property-read \App\Models\Investor|null $investor
  * @property-read \App\Models\InvestorTransactionTypes|null $transactionType
@@ -2618,6 +2667,7 @@ namespace App\Models{
  * @property int $investor_id receiver
  * @property int $payout_type 1-profit, 2-commission, 3-principal
  * @property int|null $payout_reference_id type commission - referal table id
+ * @property int|null $bifurcation_id
  * @property string $payout_release_month
  * @property string $payout_amount
  * @property string $amount_paid
@@ -2642,6 +2692,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorPayout query()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorPayout whereAmountPaid($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorPayout whereAmountPending($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorPayout whereBifurcationId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorPayout whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorPayout whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorPayout whereDeletedBy($value)
@@ -3244,7 +3295,7 @@ namespace App\Models{
  * @property-read \App\Models\ContractSubunitDetail|null $contractSubunitDetail
  * @property-read \App\Models\ContractUnitDetail|null $contractUnitDetail
  * @property-read \App\Models\User|null $deletedBy
- * @property-read \App\Models\SalesTenantAgreement|null $salesAgreement
+ * @property-read \App\Models\SalesTenantAgreement $salesAgreement
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SalesTenantSubunitRent> $salesTenantSubunitRents
  * @property-read int|null $sales_tenant_subunit_rents_count
  * @property-read \App\Models\UnitType|null $unitType
@@ -3293,7 +3344,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read \App\Models\TenantIdentity|null $TenantIdentity
  * @property-read \App\Models\User|null $deletedBy
- * @property-read \App\Models\AgreementTenant|null $tenant
+ * @property-read \App\Models\AgreementTenant $tenant
  * @method static \Illuminate\Database\Eloquent\Builder|TenantDocument newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|TenantDocument newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|TenantDocument onlyTrashed()
@@ -3379,7 +3430,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \App\Models\Agreement|null $agreement
+ * @property-read \App\Models\Agreement $agreement
  * @property-read \App\Models\AgreementPaymentDetail|null $agreementPaymentDetail
  * @property-read \App\Models\AgreementUnit|null $agreementUnit
  * @property-read \App\Models\User|null $approvedBy
@@ -3429,7 +3480,7 @@ namespace App\Models{
  * @property string $comment
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\TenantInvoice|null $tenantInvoice
+ * @property-read \App\Models\TenantInvoice $tenantInvoice
  * @property-read \App\Models\User|null $user
  * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoiceApprovalComments newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|TenantInvoiceApprovalComments newQuery()

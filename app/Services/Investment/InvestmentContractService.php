@@ -634,89 +634,95 @@ class InvestmentContractService
         //     ))->startOfMonth();
         // }
 
+        // commented bcz we created one single function for Annex B
+        // $startDate = Carbon::createFromFormat('M Y', $investmentData->initial_profit_release_month)
+        //     ->startOfMonth();
 
-        $startDate = Carbon::createFromFormat('M Y', $investmentData->initial_profit_release_month)
-            ->startOfMonth();
+        // $profitEng = '';
+        // $profitAr  = '';
 
-        $profitEng = '';
-        $profitAr  = '';
+        // $nextProfitDate = calculateNextProfitReleaseDate(
+        //     0,
+        //     $investmentData->profit_interval_id,
+        //     $investmentData->initial_profit_release_month,
+        //     $investmentData->payoutBatch->batch_name
+        // );
+        // // dump($startDate);
+        // // dump($nextProfitDate);
+        // // dd("test");
+        // //
 
-        $nextProfitDate = calculateNextProfitReleaseDate(
-            0,
-            $investmentData->profit_interval_id,
-            $investmentData->initial_profit_release_month,
-            $investmentData->payoutBatch->batch_name
-        );
-        // dump($startDate);
-        // dump($nextProfitDate);
-        // dd("test");
-        //
+        // for ($i = 0; $i < 12; $i++) {
+        //     $currentMonth = $startDate->copy()->addMonths($i);
+        //     $windowEnd = $startDate->copy()->addMonths(12)->endOfMonth();
+        //     $nextDate = $startDate->copy()->startOfMonth();
+        //     $profitAmount = 0;
+        //     // dd($currentMonth,$windowEnd,$nextDate);
+        //     // dump($nextDate->lessThanOrEqualTo($windowEnd));
+        //     while ($nextDate->lessThanOrEqualTo($windowEnd)) {
+        //         $profitAmount = $investmentData->profit_amount_per_interval;
+        //         if ($nextDate->greaterThanOrEqualTo($startDate)) {
+        //             $contractPayoutMonths[$investmentData->id][] = $nextDate->copy();
+        //         }
 
-        for ($i = 0; $i < 12; $i++) {
-            $currentMonth = $startDate->copy()->addMonths($i);
-            $windowEnd = $startDate->copy()->addMonths(12)->endOfMonth();
-            $nextDate = $startDate->copy()->startOfMonth();
-            $profitAmount = 0;
-            // dd($currentMonth,$windowEnd,$nextDate);
-            // dump($nextDate->lessThanOrEqualTo($windowEnd));
-            while ($nextDate->lessThanOrEqualTo($windowEnd)) {
-                $profitAmount = $investmentData->profit_amount_per_interval;
-                if ($nextDate->greaterThanOrEqualTo($startDate)) {
-                    $contractPayoutMonths[$investmentData->id][] = $nextDate->copy();
-                }
+        //         $nextDate = Carbon::parse(calculateNextProfitReleaseDate(
+        //             0,
+        //             $investmentData->profit_interval_id,
+        //             $nextDate->format('M Y'),
+        //             $investmentData->payoutBatch->batch_name
+        //         ))->startOfMonth();
+        //         // dump($nextDate);
+        //     }
+        //     // dd("test");
+        //     // if ($currentMonth->equalTo($nextProfitDate) || $i === 0) {
+        //     //     $profitAmount = $investmentData->profit_amount_per_interval;
 
-                $nextDate = Carbon::parse(calculateNextProfitReleaseDate(
-                    0,
-                    $investmentData->profit_interval_id,
-                    $nextDate->format('M Y'),
-                    $investmentData->payoutBatch->batch_name
-                ))->startOfMonth();
-                // dump($nextDate);
-            }
-            // dd("test");
-            // if ($currentMonth->equalTo($nextProfitDate) || $i === 0) {
-            //     $profitAmount = $investmentData->profit_amount_per_interval;
+        //     // if ($i > 0) {
+        //     //     $nextProfitDate = calculateNextProfitReleaseDate(
+        //     //         0,
+        //     //         $investmentData->profit_interval_id,
+        //     //         $nextProfitDate,
+        //     //         $investmentData->payoutBatch->batch_name
+        //     //     );
 
-            // if ($i > 0) {
-            //     $nextProfitDate = calculateNextProfitReleaseDate(
-            //         0,
-            //         $investmentData->profit_interval_id,
-            //         $nextProfitDate,
-            //         $investmentData->payoutBatch->batch_name
-            //     );
+        //     //     dump($nextProfitDate);
+        //     // }
+        //     // }
 
-            //     dump($nextProfitDate);
-            // }
-            // }
+        //     $profitEng .= "
+        //     <tr>
+        //         <td width='50%' style='border:1px solid #ccc;'>
+        //             <div class='english'>
+        //                 <p class='text-md'>" . ($i + 1) . ' ' . $currentMonth->format('M Y') . "</p>
+        //             </div>
+        //         </td>
+        //         <td width='50%' style='border:1px solid #ccc;'>
+        //             <div class='english'>
+        //                 <p class='text-md'>AED " . number_format($profitAmount, 2) . "/-</p>
+        //             </div>
+        //         </td>
+        //     </tr>";
 
-            $profitEng .= "
-            <tr>
-                <td width='50%' style='border:1px solid #ccc;'>
-                    <div class='english'>
-                        <p class='text-md'>" . ($i + 1) . ' ' . $currentMonth->format('M Y') . "</p>
-                    </div>
-                </td>
-                <td width='50%' style='border:1px solid #ccc;'>
-                    <div class='english'>
-                        <p class='text-md'>AED " . number_format($profitAmount, 2) . "/-</p>
-                    </div>
-                </td>
-            </tr>";
+        //     $profitAr .= "
+        //     <tr>
+        //         <td width='50%' style='border:1px solid #ccc;'>
+        //             <div class='arabic'>
+        //                 <p class='text-md'>" . ($i + 1) . ' ' . arabicMY($currentMonth->format('M Y')) . "</p>
+        //             </div>
+        //         </td>
+        //         <td width='50%' style='border:1px solid #ccc;'>
+        //             <div class='arabic'>
+        //                 <p class='text-md'>" . number_format($profitAmount, 2) . "/- درهم إماراتي</p>
+        //             </div>
+        //         </td>
+        //     </tr>";
+        // }
 
-            $profitAr .= "
-            <tr>
-                <td width='50%' style='border:1px solid #ccc;'>
-                    <div class='arabic'>
-                        <p class='text-md'>" . ($i + 1) . ' ' . arabicMY($currentMonth->format('M Y')) . "</p>
-                    </div>
-                </td>
-                <td width='50%' style='border:1px solid #ccc;'>
-                    <div class='arabic'>
-                        <p class='text-md'>" . number_format($profitAmount, 2) . "/- درهم إماراتي</p>
-                    </div>
-                </td>
-            </tr>";
-        }
+        $profitData = $this->annextureB($investmentData);
+
+        $profitEng = $profitData['profitEng'];
+        $profitAr = $profitData['profitAr'];
+
         // dd("test");
         $annexureA = $this->buildSingleAnnexureA(
             $companyData,
@@ -837,10 +843,10 @@ class InvestmentContractService
             $CompanyProfitPerc,
             // 'english'
         );
-
+        // dd($annexureA);
         // Annexture B
         $profitData = $this->annextureB($investment);
-
+        // dd($profitData);
 
         $vars = [
             '{investment_long_date_eng}'        => $investmentDate->format('jS \d\a\y \o\f F Y'),
@@ -1307,45 +1313,44 @@ class InvestmentContractService
 
     function annextureB($investmentData)
     {
-
-        $startDate = Carbon::createFromFormat('M Y', $investmentData->initial_profit_release_month)
-            ->startOfMonth();
+        $profitRecord = $investmentData->profitRecords;
+        // dd($profitRecord);
+        // // dd($investmentData);
+        // $startDate = Carbon::createFromFormat('M Y', $investmentData->initial_profit_release_month)
+        //     ->startOfMonth();
 
         $profitEng = '';
         $profitAr  = '';
 
-        $nextProfitDate = calculateNextProfitReleaseDate(
-            0,
-            $investmentData->profit_interval_id,
-            $investmentData->initial_profit_release_month,
-            $investmentData->payoutBatch->batch_name
-        );
 
-        for ($i = 0; $i < 12; $i++) {
-            $currentMonth = $startDate->copy()->addMonths($i);
-            $windowEnd = $startDate->copy()->addMonths(12)->endOfMonth();
-            $nextDate = $startDate->copy()->startOfMonth();
-            $profitAmount = 0;
+        // for ($i = 0; $i < 12; $i++) {
+        //     $currentMonth = $startDate->copy()->addMonths($i);
+        //     $windowEnd = $startDate->copy()->addMonths(12)->endOfMonth();
+        //     $nextDate = $startDate->copy()->startOfMonth();
+        //     $profitAmount = 0;
 
-            while ($nextDate->lessThanOrEqualTo($windowEnd)) {
-                $profitAmount = $investmentData->profit_amount_per_interval;
-                if ($nextDate->greaterThanOrEqualTo($startDate)) {
-                    $contractPayoutMonths[$investmentData->id][] = $nextDate->copy();
-                }
+        //     while ($nextDate->lessThanOrEqualTo($windowEnd)) {
+        //         $profitAmount = $investmentData->profit_amount_per_interval;
+        //         if ($nextDate->greaterThanOrEqualTo($startDate)) {
+        //             $contractPayoutMonths[$investmentData->id][] = $nextDate->copy();
+        //         }
 
-                $nextDate = Carbon::parse(calculateNextProfitReleaseDate(
-                    0,
-                    $investmentData->profit_interval_id,
-                    $nextDate->format('M Y'),
-                    $investmentData->payoutBatch->batch_name
-                ))->startOfMonth();
-            }
+        //         $nextDate = Carbon::parse(calculateNextProfitReleaseDate(
+        //             0,
+        //             $investmentData->profit_interval_id,
+        //             $nextDate->format('M Y'),
+        //             $investmentData->payoutBatch->batch_name
+        //         ))->startOfMonth();
+        //     }
+        foreach ($profitRecord as $key => $profit) {
+            $profitAmount = $profit->profit_amount;
+            $currentMonth = Carbon::parse($profit->profit_release_month);
 
             $profitEng .= "
             <tr>
                 <td width='50%' style='border:1px solid #ccc;'>
                     <div class='english'>
-                        <p class='text-md'>" . ($i + 1) . ' ' . $currentMonth->format('M Y') . "</p>
+                        <p class='text-md'>" . $key + 1 . ' ' . $currentMonth->format('M Y') . "</p>
                     </div>
                 </td>
                 <td width='50%' style='border:1px solid #ccc;'>
@@ -1359,7 +1364,7 @@ class InvestmentContractService
             <tr>
                 <td width='50%' style='border:1px solid #ccc;'>
                     <div class='arabic'>
-                        <p class='text-md'>" . ($i + 1) . ' ' . arabicMY($currentMonth->format('M Y')) . "</p>
+                        <p class='text-md'>" . $key + 1 . ' ' . arabicMY($currentMonth->format('M Y')) . "</p>
                     </div>
                 </td>
                 <td width='50%' style='border:1px solid #ccc;'>
@@ -1368,7 +1373,9 @@ class InvestmentContractService
                     </div>
                 </td>
             </tr>";
+            // }
         }
+
         return [
             'profitEng' => $profitEng,
             'profitAr'  => $profitAr,

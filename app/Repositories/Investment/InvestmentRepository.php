@@ -5,7 +5,10 @@ namespace App\Repositories\Investment;
 use App\Models\Investment;
 use App\Models\InvestmentReceivedPayment;
 use App\Models\InvestmentReferral;
+use App\Models\InvestmentProfitRecord;
+use Carbon\Carbon;
 use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 
 class InvestmentRepository
 {
@@ -159,6 +162,7 @@ class InvestmentRepository
     {
         return Investment::where(array('investor_id' => $investorid, 'investment_status' => 1))->get();
     }
+
     public function getReferralQuery(array $filters = []): Builder
     {
         $permittedCompanyIds = getUserPermittedCompanyIds(auth()->user()->id, 'investment');
@@ -214,4 +218,168 @@ class InvestmentRepository
 
         return $query;
     }
+
+    public function generateInvestorProfitRecords($profits, $investment)
+    {
+        if (InvestmentProfitRecord::where('investment_id', $investment->id)->exists()) {
+            throw new \RuntimeException("Profit records already exist for investment #{$investment->id}");
+        }
+
+        $rows = $this->buildProfitScheduleFromInput($profits, $investment);
+
+        return DB::transaction(fn() => InvestmentProfitRecord::insert($rows));
+    }
+
+    /**
+     * Build insertable rows from frontend-submitted profit_records[] (date: DD-MM-YYYY, amount: numeric).
+     * Replaces buildProfitSchedule() as the source of truth when the schedule was already
+     * edited/confirmed in the UI — no server-side regeneration here, just validation + shaping.
+     */
+    protected function buildProfitScheduleFromInput(array $profits, $investment): array
+    {
+        $now = now();
+        $rows = [];
+
+        foreach ($profits as $record) {
+            if (empty($record['date'])) {
+                continue;
+            }
+
+            $amount = round((float) ($record['amount'] ?? 0), 2);
+
+            $rows[] = [
+                'investor_id'           => $investment->investor_id,
+                'investment_id'         => $investment->id,
+                'profit_release_month'  => Carbon::createFromFormat('d-m-Y', $record['date'])->startOfDay(),
+                'profit_amount'         => $amount,
+                'has_profit_amount'     => $amount > 0 ? 1 : 0,
+                'release_status'        => 'pending',
+                'released_total_amount' => 0,
+                'last_released_at'      => null,
+                'last_released_by'      => null,
+                'created_at'            => $now,
+                'updated_at'            => $now,
+            ];
+        }
+
+        return $rows;
+    }
+
+    /**
+     * Reconcile existing PENDING profit records with a recalculated schedule.
+     * Safe only when is_profit_processed = 0 (guaranteed by caller) — every row is still pending.
+     */
+    // public function syncInvestorProfitRecords($investment)
+    // {
+    //     return DB::transaction(function () use ($investment) {
+    //         $newSchedule = $this->buildProfitSchedule($investment, forInsert: false);
+
+    //         $existing = InvestmentProfitRecord::where('investment_id', $investment->id)
+    //             ->where('release_status', 'pending')
+    //             ->orderBy('profit_release_month')
+    //             ->get();
+
+    //         $existingCount = $existing->count();
+    //         $newCount = count($newSchedule);
+
+    //         foreach ($newSchedule as $index => $row) {
+    //             if ($index < $existingCount) {
+    //                 $existing[$index]->update([
+    //                     'profit_release_month'   => $row['profit_release_month'],
+    //                     'profit_amount' => $row['profit_amount'],
+    //                     'has_profit_amount' => $row['profit_amount'] > 0 ? 1 : 0,
+    //                 ]);
+    //             } else {
+    //                 InvestmentProfitRecord::create([
+    //                     'investor_id'            => $investment->investor_id,
+    //                     'investment_id'          => $investment->id,
+    //                     'profit_release_month'   => $row['profit_release_month'],
+    //                     'profit_amount'          => $row['profit_amount'],
+    //                     'release_status'         => 'pending',
+    //                     'released_total_amount'  => 0,
+    //                     'last_released_at'       => null,
+    //                     'last_released_by'       => null,
+    //                 ]);
+    //             }
+    //         }
+
+    //         if ($newCount < $existingCount) {
+    //             $idsToDelete = $existing->slice($newCount)->pluck('id');
+    //             InvestmentProfitRecord::whereIn('id', $idsToDelete)->delete();
+    //         }
+    //     });
+    // }
+
+    /**
+     * Shared schedule builder used by both generate() and sync().
+     */
+    // protected function buildProfitSchedule($investment, bool $forInsert = true): array
+    // {
+    //     $schedule = [];
+    //     $now = now();
+
+    //     // Schedule starts at investment date + grace period (in days)
+    //     $scheduleStart = $investment->grace_period
+    //         ? Carbon::parse($investment->investment_date)->addDays($investment->grace_period)
+    //         : Carbon::parse($investment->investment_date)->addMonth();
+
+    //     // But actual profit releases only begin from initial_profit_release_month
+    //     $firstReleaseDate = Carbon::createFromFormat('M Y', $investment->initial_profit_release_month)
+    //         ->startOfMonth();
+
+    //     // Tenure end — counted from schedule start, not release start
+    //     $tenureEnd = Carbon::parse($investment->maturity_date)->endOfMonth();
+
+    //     // ---- Step 1: precompute actual release months, starting from firstReleaseDate ----
+    //     $releaseMonths = [];
+    //     $cursor = $firstReleaseDate->copy();
+
+    //     while ($cursor->lessThanOrEqualTo($tenureEnd)) {
+    //         $releaseMonths[$cursor->format('Y-m')] = true;
+
+    //         $cursor = Carbon::parse(calculateNextProfitReleaseDate(
+    //             0,
+    //             $investment->profit_interval_id,
+    //             $cursor->format('M Y'),
+    //             $investment->payout_batch_id
+    //         ))->startOfMonth();
+    //     }
+
+
+    //     $tenure = $investment->grace_period ? $investment->investment_tenure + 1 : $investment->investment_tenure;
+
+    //     // ---- Step 2: generate one row per month across full tenure, amount only where a release lands ----
+    //     for ($i = 0; $i < $tenure; $i++) {
+    //         $currentMonth = $scheduleStart->copy()->addMonths($i);
+    //         $key = $currentMonth->format('Y-m');
+
+    //         $hasRelease = isset($releaseMonths[$key]);
+    //         $profitAmount = $hasRelease ? round($investment->profit_amount_per_interval, 2) : 0;
+
+    //         $row = [
+    //             'profit_release_month' => $currentMonth,
+    //             'profit_amount'        => $profitAmount,
+    //             'has_profit_amount'    => $hasRelease ? 1 : 0,
+    //         ];
+
+    //         if ($forInsert) {
+    //             $row = array_merge([
+    //                 'investor_id'   => $investment->investor_id,
+    //                 'investment_id' => $investment->id,
+    //             ], $row, [
+    //                 'release_status'        => 'pending',
+    //                 'released_total_amount' => 0,
+    //                 'last_released_at'      => null,
+    //                 'last_released_by'      => null,
+    //                 'created_at'            => $now,
+    //                 'updated_at'            => $now,
+    //             ]);
+    //         }
+
+    //         $schedule[] = $row;
+    //     }
+
+
+    //     return $schedule;
+    // }
 }

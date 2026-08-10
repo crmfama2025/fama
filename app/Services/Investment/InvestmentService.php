@@ -33,7 +33,6 @@ class InvestmentService
         protected InvestmentRepository $investmentRepository,
         protected InvestorRepository $investorRepository,
         protected InvestmentDocumentRepository $investmentDocumentRepository,
-        protected InvestmentRepository $investmentReferralRepository,
         protected InvestmentDocumentService $investmentDocumentService,
         protected InvestmentReferralService $investmentReferralService,
         protected InvestmentReceivedPaymentService $investmentReceivedPaymentService,
@@ -137,6 +136,10 @@ class InvestmentService
                 $this->investmentRepository->update($data['parent_investment_id'], $parentInv);
             }
             // dd("test");
+
+            // ----------------- investment profits for -------------
+            $this->investmentRepository->generateInvestorProfitRecords($data['profit_records'], $investment);
+            // dd($profitRecord);
 
             // ---------------- Investment Received Payment ----------------
 
@@ -292,6 +295,14 @@ class InvestmentService
         return DB::transaction(function () use ($id, $data) {
 
             $investment = $this->investmentRepository->find($id);
+
+            // Hard guard — matches UI's edit-button visibility logic
+            if ($investment->is_profit_processed || $investment->has_partial_withdrawal) {
+                throw ValidationException::withMessages([
+                    'investment' => 'This investment cannot be edited — profit has already been processed or a partial withdrawal exists.',
+                ]);
+            }
+
             $userId = auth()->user()->id;
 
             $has_fully_received = investmentStatus(
@@ -341,6 +352,22 @@ class InvestmentService
             $this->validate($investmentData);
 
             $investment = $this->investmentRepository->update($id, $investmentData);
+
+            // ----------------- sync investment profit schedule -------------
+            $scheduleAffectingFields = [
+                'investment_tenure',
+                'profit_amount_per_interval',
+                'initial_profit_release_month',
+                'profit_interval_id',
+                'grace_period',
+                'investment_date',
+                'payout_batch_id',
+            ];
+
+            // ----------------- investment profits for -------------
+            if ($investment->wasChanged($scheduleAffectingFields)) {
+                $this->investmentRepository->generateInvestorProfitRecords($data['profit_records'], $investment);
+            }
 
             // Update Investment Documents
             // if (!empty($data['contract_file'])) {
@@ -408,6 +435,8 @@ class InvestmentService
                 ]);
                 updateReferralCommission($data['referral_id']);
             }
+
+
 
             $receivedPaymentData = [
                 'received_amount' => $investment->received_amount,
@@ -671,7 +700,7 @@ class InvestmentService
 
 
 
-                    if (auth()->user()->hasAnyPermission(['investment.view'], $row->company_id)) {
+                    if (auth()->user()->hasAnyPermission(['investment.add'], $row->company_id)) {
                         $action .= '<a href="' . route('investment.contracts.list', $row->id) . '"
                             class="btn btn-sm btn-warning m-1"
                             title="Documents">

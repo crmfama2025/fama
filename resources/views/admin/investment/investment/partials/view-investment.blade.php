@@ -67,7 +67,70 @@
      </div>
 
  </div>
+
  <div class="card card-outline card-info">
+     <div class="card-header">
+         <h3 class="card-title text-teal text-bold">
+             <i class="fas fa-file-invoice-dollar mr-2"></i> Profit Details
+         </h3>
+     </div>
+
+     <div class="card-body p-0">
+         <div class="table-responsive">
+             <table class="table table-bordered table-striped ">
+                 <thead class="bg-light">
+                     <tr>
+                         <th>Profit Date</th>
+                         <th>Profit Amount</th>
+                         <th>Release Status</th>
+                         <th>Total Released</th>
+                         <th>Released Date</th>
+                     </tr>
+                 </thead>
+
+                 <tbody>
+                     @foreach ($investment->profitRecords->where('has_profit_amount', 1) as $profitRecord)
+                         <tr>
+                             <td>
+                                 <span class="badge badge-light text-sm">
+                                     {{ getFormattedDate($profitRecord->profit_release_month) }}
+                                 </span>
+                             </td>
+                             <td>
+                                 <span class="badge badge-light text-sm">
+                                     {{ number_format($profitRecord->profit_amount, 2) ?? ' - ' }}
+                                 </span>
+                             </td>
+                             <td>
+                                 <span class="badge badge-light text-sm text-danger">
+                                     {{ toFirstCaps($profitRecord->release_status) }}
+                                 </span>
+                             </td>
+                             <td>
+                                 <span class="text-bold text-sm ">
+                                     {{ number_format($profitRecord->released_total_amount, 2) ?? ' - ' }}
+                                 </span>
+                             </td>
+                             <td>
+                                 <span class="text-bold text-sm ">
+                                     {{ $profitRecord->last_released_at }}
+                                 </span>
+                             </td>
+
+                         </tr>
+                     @endforeach
+
+
+                 </tbody>
+             </table>
+         </div>
+
+     </div>
+
+ </div>
+
+
+ {{-- <div class="card card-outline card-info">
      <div class="card-header">
          <h3 class="card-title text-teal text-bold">
              <i class="fas fa-file-invoice-dollar mr-2"></i> Profit Release Details
@@ -79,7 +142,6 @@
              <table class="table table-bordered table-striped ">
                  <thead class="bg-light">
                      <tr>
-                         {{-- <th>#</th> --}}
                          <th>Last Profit Released on</th>
                          <th>Profit Release Due on</th>
                          <th>Outstanding Profit</th>
@@ -125,7 +187,9 @@
 
      </div>
 
- </div>
+ </div> --}}
+
+
  <div class="card card-outline card-info">
      <div class="card-header">
          <h3 class="card-title text-teal text-bold">

@@ -357,6 +357,72 @@
                                         </div>
                                     </div>
 
+                                    <!-- ================== profit record ================= -->
+
+                                    <div class="card card-outline card-info">
+                                        <div class="card-header">
+                                            <h3 class="card-title font-weight-bold">Profit Payout Schedule</h3>
+                                        </div>
+                                        <div class="card-body">
+                                            <table class="table table-bordered table-sm" id="profitScheduleTable">
+                                                <thead>
+                                                    <tr>
+                                                        <th style="width:50px">#</th>
+                                                        <th>Date</th>
+                                                        <th>Amount</th>
+                                                        <th style="width:50px"></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="profitScheduleBody">
+                                                    @if (isset($investment))
+                                                        @foreach ($investment->profitRecords as $i => $record)
+                                                            <tr>
+                                                                <td class="row-index">{{ $i + 1 }}</td>
+                                                                <td>
+                                                                    <div class="input-group date profit-row-date-group"
+                                                                        id="profitRowDate_{{ $i }}"
+                                                                        data-target-input="nearest">
+                                                                        <input type="text"
+                                                                            class="form-control form-control-sm datetimepicker-input profit-row-date"
+                                                                            name="profit_records[{{ $i }}][date]"
+                                                                            value="{{ $record->profit_release_month }}"
+                                                                            placeholder="DD-MM-YYYY"
+                                                                            data-target="#profitRowDate_{{ $i }}">
+                                                                        <div class="input-group-append"
+                                                                            data-target="#profitRowDate_{{ $i }}"
+                                                                            data-toggle="datetimepicker">
+                                                                            <div class="input-group-text"><i
+                                                                                    class="fa fa-calendar"></i></div>
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                                <td>
+                                                                    <input type="number" step="0.01"
+                                                                        class="form-control form-control-sm profit-row-amount"
+                                                                        name="profit_records[{{ $i }}][amount]"
+                                                                        value="{{ $record->profit_amount }}"
+                                                                        placeholder="0.00">
+                                                                </td>
+                                                                <td class="text-center profit-row-delete-cell"></td>
+                                                            </tr>
+                                                        @endforeach
+                                                    @endif
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <th colspan="2" class="text-right">Total</th>
+                                                        <th><span id="profitScheduleTotal">0.00</span></th>
+                                                        <th></th>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                            <small class="text-danger" id="profitScheduleMismatch" style="display:none;">
+
+                                            </small>
+                                        </div>
+                                    </div>
+
+
                                     <!-- ================== Referral ================= -->
                                     @if (isset($investment) && $investment->investmentReferral)
                                         {{-- @dd($investment->investmentReferral); --}}
@@ -691,7 +757,7 @@
 
                                     <!-- ================= Submit ================= -->
                                     <div class="text-right">
-                                        <button type="submit" class="btn btn-info px-4">
+                                        <button type="submit" class="btn btn-info px-4" id="investmentSubmitButton">
                                             <i class="fa fa-save"></i> Save Investment
                                         </button>
                                     </div>
@@ -774,7 +840,7 @@
             $('#profit_amount').val(profitAmount.toFixed(2));
         }
 
-        $('#investment_amount, #profit_perc').on('keyup change', function() {
+        $('#investment_amount').on('keyup change', function() {
             calculateProfit();
         });
 
@@ -806,9 +872,16 @@
 
             let profitPerInterval = profitAmount / divisor;
             $('#profit_amount_per_interval').val(profitPerInterval.toFixed(2));
+            $('.profit-row-amount').attr('max', profitPerInterval.toFixed(2));
         }
 
-        $('#profit_amount, #profit_interval_id, #profit_perc').on('keyup change', function() {
+        $('#profit_perc').on('change', function() {
+            calculateProfit();
+            calculateProfitPerInterval();
+            updateProfitScheduleTotal();
+        });
+
+        $('#profit_amount, #profit_interval_id').on('keyup change', function() {
             calculateProfitPerInterval();
         });
 
@@ -835,12 +908,23 @@
             }
         }
 
-        $('#investment_tenure, #grace_period').on('change keyup', function() {
+        $('#investment_tenure').on('change keyup', function() {
             calculateMaturityDate();
+            syncRowsToTenure();
         });
+
+        $('#grace_period').on('change keyup', function() {
+            calculateMaturityDate();
+            syncRowsToTenure();
+            calculateFirstProfitReleaseDate();
+            regenerateProfitScheduleDates();
+        });
+
+
         $('#investmentdate').on('change.datetimepicker', function() {
             calculateMaturityDate();
             calculateFirstProfitReleaseDate();
+            regenerateProfitScheduleDates();
             let term = $('#payment_terms_id').val();
             if (term) {
                 calculateFirstReferralCommissionReleaseDate();
@@ -873,7 +957,7 @@
             let banks = selectedOption.data('banks');
             let $bankSelect = $('#investor_bank_id');
             let investments = parseInt(selectedOption.data('investments')) || 0;
-            console.log(referenceId, investments);
+            // console.log(referenceId, investments);
 
             if (editPayoutBatch) {
                 $('#payout_batch_id').val(editPayoutBatch || '').trigger('change');
@@ -931,7 +1015,9 @@
         $('#investor_id').on('change', function() {
             investorChange();
         });
-        $('#grace_period, #profit_interval_id').on('change keyup', function() {
+
+
+        $('#profit_interval_id').on('change keyup', function() {
             calculateFirstProfitReleaseDate();
         });
 
@@ -963,7 +1049,7 @@
             }
 
             date.setDate(date.getDate() + gracePeriod);
-            console.log("Date after grace period:", date);
+            // console.log("Date after grace period:", date);
 
             switch (profitIntervalId) {
                 case '1':
@@ -992,8 +1078,6 @@
             $('#first_profit_release_date').val(`${d}-${m}-${y}`);
             // $('#first_referral_commission_release_date').val(`${d}-${m}-${y}`);
         }
-
-
 
 
         // On page load for edit
@@ -1270,7 +1354,7 @@
             let inv_date = $('#investment_date').val();
             let gp = parseInt($('#grace_period').val(), 10);
 
-            console.log('in,gp', inv_date, gp);
+            // console.log('in,gp', inv_date, gp);
 
             // Parse DD-MM-YYYY from datepicker
             let parts = inv_date.split('-'); // ["10", "02", "2026"]
@@ -1309,10 +1393,297 @@
 
             formattedDate = `${day}-${month}-${year}`;
 
-            console.log('Final formatted date:', formattedDate);
-
             // Set the input value
             $('#first_referral_commission_release_date').val(formattedDate);
         }
+    </script>
+
+    {{-- profit record script --}}
+    <script>
+        function regenerateProfitScheduleDates() {
+            let baseDate = calculateProfitEligibleDate();
+
+            if (!baseDate || isNaN(baseDate.getTime())) {
+                return;
+            }
+
+            for (let i = 0; i < profitRowUid; i++) {
+                let $group = $('#profitRowDate_' + i);
+                if (!$group.length) continue; // row may have been deleted
+
+                let d = new Date(baseDate);
+                d.setMonth(d.getMonth() + i); // row 0 = base date, each next row +1 month
+
+                let dp = $group.data('DateTimePicker');
+                if (dp) {
+                    dp.date(moment(formatDMY(d), 'DD-MM-YYYY'));
+                } else {
+                    $group.find('input').val(formatDMY(d));
+                }
+            }
+        }
+
+        function calculateProfitEligibleDate() {
+            let investmentDate = $('#investment_date').val();
+            let grace = parseInt($('#grace_period').val()) || 0;
+
+            if (investmentDate) {
+                let parts = investmentDate.split('-');
+                let dateObj = new Date(parts[2], parts[1] - 1, parts[0]);
+                dateObj.setDate(dateObj.getDate() + grace);
+                // dateObj.setMonth(dateObj.getMonth() + 1);
+
+                return dateObj;
+            }
+
+            return new Date();
+        }
+
+        function parseDMY(str) {
+            let p = str.split('-');
+            return new Date(p[2], p[1] - 1, p[0]);
+        }
+
+        function formatDMY(date) {
+            let day = ("0" + date.getDate()).slice(-2);
+            let month = ("0" + (date.getMonth() + 1)).slice(-2);
+            let year = date.getFullYear();
+
+            return `${day}-${month}-${year}`;
+        }
+
+
+        function nextRowDate() {
+            // let step = getIntervalStepMonths();
+            let $lastRow = $('#profitScheduleBody tr:last');
+
+            if ($lastRow.length) {
+                let lastDate = parseDMY($lastRow.find('.profit-row-date').val());
+                lastDate.setMonth(lastDate.getMonth() + 1);
+                return lastDate;
+            }
+
+            return calculateProfitEligibleDate();
+        }
+
+        function initRowDatePicker($row) {
+            $row.find('.profit-row-date-group').datetimepicker({
+                format: 'DD-MM-YYYY'
+            });
+        }
+
+        function destroyRowDatePicker($row) {
+            let $dp = $row.find('.profit-row-date-group');
+            if ($dp.data('DateTimePicker')) {
+                $dp.data('DateTimePicker').destroy();
+            }
+        }
+
+        let profitRowUid = 0; // unique id counter for dynamically added rows
+
+        function addProfitRow() {
+            let rowDate = nextRowDate();
+            let uid = `profitRowDate_${profitRowUid++}`;
+
+            let $row = $(`
+                <tr>
+                    <td class="row-index"></td>
+                    <td>
+                        <div class="input-group date profit-row-date-group" id="${uid}" data-target-input="nearest">
+                            <input type="text"
+                                class="form-control form-control-sm datetimepicker-input profit-row-date"
+                                name="profit_records[__i__][date]" value="${formatDMY(rowDate)}"
+                                placeholder="DD-MM-YYYY" data-target="#${uid}">
+                            <div class="input-group-append" data-target="#${uid}" data-toggle="datetimepicker">
+                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <input type="number" step="0.01" class="form-control form-control-sm profit-row-amount"
+                            name="profit_records[__i__][amount]" placeholder="0.00">
+                    </td>
+                    <td class="text-center profit-row-delete-cell"></td>
+                </tr>
+            `);
+
+            $('#profitScheduleBody').append($row);
+            initRowDatePicker($row);
+            reindexProfitRows();
+        }
+
+        function reindexProfitRows() {
+            $('#profitScheduleBody tr').each(function(i) {
+                $(this).find('.row-index').text(i + 1);
+                $(this).find('.profit-row-date').attr('name', `profit_records[${i}][date]`);
+                $(this).find('.profit-row-amount').attr('name', `profit_records[${i}][amount]`);
+            });
+        }
+
+        function updateProfitScheduleTotal() {
+            let totalProfit = parseFloat($('#profit_amount').val()) || 0;
+            let sum = 0;
+            $('.profit-row-amount').each(function() {
+                sum += parseFloat($(this).val()) || 0;
+                console.log('sum loop', sum);
+            });
+
+            if (totalProfit != sum) {
+                if (totalProfit < sum) {
+                    toastr.error('Total of profit records ' + sum + ' should not exceed Total Profit amount ' +
+                        totalProfit);
+                    console.log(sum);
+                    console.log(totalProfit);
+                    let diff = Math.abs(sum - totalProfit);
+
+                    $('#profitScheduleMismatch')
+                        .text(`Mismatch: records total differs from Profit Amount by ${diff.toFixed(2)}`)
+                        .toggle(diff > 0.01);
+                }
+
+                $('#investmentSubmitButton').prop('disabled', true);
+            } else {
+                $('#profitScheduleMismatch').toggle(false);
+                $('#investmentSubmitButton').prop('disabled', false);
+            }
+
+            $('#profitScheduleTotal').text(sum.toFixed(2));
+
+        }
+
+        // delete buttons only appear when there are MORE rows than tenure (i.e. tenure was reduced)
+        function updateDeleteButtonsVisibility() {
+            let tenure = parseInt($('#investment_tenure').val()) || 0;
+            let currentCount = $('#profitScheduleBody tr').length;
+
+            if (currentCount > tenure) {
+                $('#profitScheduleBody tr').each(function() {
+                    let $cell = $(this).find('.profit-row-delete-cell');
+                    if (!$cell.find('.remove-profit-row').length) {
+                        $cell.html(`
+                    <button type="button" class="btn btn-danger btn-sm remove-profit-row" title="Delete" data-toggle="tooltip">
+                        <i class="fa fa-trash"></i>
+                    </button>
+                `);
+                    }
+                });
+                showTenureMismatch(currentCount, tenure);
+            } else {
+                $('.profit-row-delete-cell').empty();
+                hideTenureMismatch();
+            }
+        }
+
+        function showTenureMismatch(currentCount, tenure) {
+            let extra = currentCount - tenure;
+            let $msg = $('#profitScheduleTenureMismatch');
+            if (!$msg.length) {
+                // $msg = $(`<small class="text-warning d-block" id="profitScheduleTenureMismatch"></small>`);
+                // $('#profitScheduleMismatch').after($msg);
+                console.log('alert showtenuremistch');
+                toastr.error(`Row total does not match Total Profit Amount.`);
+                $('#investmentSubmitButton').prop('disabled', true);
+            }
+            $msg.text(`Tenure reduced — remove ${extra} row(s) manually using the delete button.`).show();
+        }
+
+        function hideTenureMismatch() {
+            $('#profitScheduleTenureMismatch').remove();
+            $('#investmentSubmitButton').prop('disabled', false);
+        }
+
+        // sync row count to tenure: add rows if increased; on decrease, DON'T auto-remove -
+        // just expose delete buttons so the user picks which row(s) to delete
+        function syncRowsToTenure() {
+            let tenure = parseInt($('#investment_tenure').val()) || 0;
+            let currentCount = $('#profitScheduleBody tr').length;
+
+            if (tenure > currentCount) {
+                for (let i = currentCount; i < tenure; i++) addProfitRow();
+            }
+
+
+            // tenure < currentCount: leave rows/amounts untouched, just reveal delete buttons below
+
+            updateDeleteButtonsVisibility();
+        }
+
+
+        // manual row delete (only visible when tenure was reduced)
+        $(document).on('click', '.remove-profit-row', function() {
+            let $row = $(this).closest('tr');
+            destroyRowDatePicker($row);
+            $row.remove();
+
+            reindexProfitRows();
+            updateProfitScheduleTotal();
+
+            let tenure = parseInt($('#investment_tenure').val()) || 0;
+            let currentCount = $('#profitScheduleBody tr').length;
+
+            if (currentCount < tenure) {
+                // deleted past the target - resync tenure field down rather than silently regenerating
+                $('#investment_tenure').val(currentCount);
+            }
+
+            updateDeleteButtonsVisibility();
+        });
+
+        $(document).on('change.datetimepicker', '#profitRowDate_0', function() {
+            calculateProfitDates();
+        });
+
+        function calculateProfitDates() {
+            for (let i = 1; i < profitRowUid; i++) {
+
+                let startDateVal = $('#profitRowDate_' + (i - 1)).find('input').val();
+                // let step = getIntervalStepMonths();
+                // console.log('startDateVal', parseDMY(startDateVal));
+                let startDate = parseDMY(startDateVal);
+
+                if (!startDate || isNaN(startDate.getTime())) {
+                    return;
+                }
+                let $group = $('#profitRowDate_' + i);
+                if (!$group.length) continue; // row may have been deleted
+
+                let d = new Date(startDate);
+                // console.log('date before month', formatDMY(d));
+                d.setMonth(d.getMonth() + 1);
+                // console.log('date', formatDMY(d));
+                let dp = $group.data('DateTimePicker');
+                if (dp) {
+                    dp.date(moment(formatDMY(d), 'DD-MM-YYYY'));
+                } else {
+                    $group.find('input').val(formatDMY(d));
+                }
+
+            }
+        }
+
+        // manual per-row amount edit - only refresh total/mismatch, don't touch other rows
+        $(document).on('input', '.profit-row-amount', function() {
+            let max = parseFloat($(this).attr('max'));
+            let val = parseFloat($(this).val());
+
+            if (!isNaN(max) && !isNaN(val) && val > max) {
+                $(this).val(max);
+                toastr.error(`Amount cannot exceed ${max.toFixed(2)} for this row.`);
+            }
+
+            updateProfitScheduleTotal();
+        });
+
+        $(function() {
+            let $existingRows = $('#profitScheduleBody tr');
+            if ($existingRows.length) {
+                profitRowUid = $existingRows.length; // continue uid sequence after prefilled rows
+                $existingRows.each(function() {
+                    initRowDatePicker($(this));
+                });
+                updateProfitScheduleTotal();
+                updateDeleteButtonsVisibility();
+            }
+        });
     </script>
 @endsection
