@@ -176,7 +176,7 @@ class InvestorService
             ],
             'investor_email' => 'required',
             'nationality_id' => 'required',
-            'id_number' => 'required',
+            'id_number' => 'required|unique:investors,id_number',
             'payment_mode_id' => 'required',
             'investor_address' => 'required',
             'payout_batch_id' => 'required',
