@@ -952,7 +952,7 @@ function currMonthProfit($colname, $investor_id)
 function getPayoutDate($row)
 {
     return match ($row->payout_type) {
-        1 => optional($row->investment)->next_profit_release_date,
+        1 => $row->original_profit_date ?? '-', //($row->investment)->next_profit_release_date modifed to original_profit_date for profits
         2 => optional($row->investment)->next_referral_commission_release_date,
         // 3 => optional($row->investment)->termination_date,
         // 4 => optional($row->investment)->termination_date,

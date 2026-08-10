@@ -25,7 +25,9 @@ class InvestorPayout extends Model
         'is_processed',
         'updated_by',
         'deleted_by',
-        'bifurcation_id'
+        'bifurcation_id',
+        'original_profit_date',
+        'investment_profit_record_id'
     ];
 
     public function investor()
