@@ -1749,3 +1749,103 @@ function updateInvestorLedgerOnPayout($ledgerId, $payoutType)
         }
     }
 }
+
+if (!function_exists('getBankListByRegion')) {
+    function getBankListByRegion($region = null)
+    {
+        $banks = [
+
+            // Local Banks
+            1 => [
+                [
+                    'name' => 'Emirates Islamic Bank',
+                    'arabic' => 'بنك الإمارات الإسلامي',
+                ],
+                [
+                    'name' => 'Abu Dhabi Commercial Bank',
+                    'arabic' => 'بنك أبوظبي التجاري',
+                ],
+                [
+                    'name' => 'Abu Dhabi Islamic Bank',
+                    'arabic' => 'بنك أبوظبي الإسلامي',
+                ],
+                [
+                    'name' => 'Arab Bank',
+                    'arabic' => 'البنك العربي',
+                ],
+                [
+                    'name' => 'Citibank',
+                    'arabic' => 'سيتي بنك',
+                ],
+                [
+                    'name' => 'Dubai Islamic Bank',
+                    'arabic' => 'بنك دبي الإسلامي',
+                ],
+                [
+                    'name' => 'Emirates NBD Bank',
+                    'arabic' => 'بنك الإمارات دبي الوطني',
+                ],
+                [
+                    'name' => 'First Abu Dhabi Bank',
+                    'arabic' => 'بنك أبوظبي الأول',
+                ],
+                [
+                    'name' => 'Mashreqbank',
+                    'arabic' => 'بنك المشرق',
+                ],
+                [
+                    'name' => 'National Bank of Ras Al-Khaimah',
+                    'arabic' => 'بنك رأس الخيمة الوطني',
+                ],
+                [
+                    'name' => 'Sharjah Islamic Bank',
+                    'arabic' => 'بنك الشارقة الإسلامي',
+                ],
+                [
+                    'name' => 'Wio Bank',
+                    'arabic' => 'بنك ويو',
+                ],
+            ],
+
+            // International Banks
+            2 => [
+                [
+                    'name' => 'Islamic International Arab Bank',
+                    'arabic' => 'البنك العربي الإسلامي الدولي',
+                ],
+                [
+                    'name' => 'Bank Muscat',
+                    'arabic' => 'بنك مسقط',
+                ],
+                [
+                    'name' => 'The Housing Bank for Trade and Finance',
+                    'arabic' => 'بنك الإسكان للتجارة والتمويل',
+                ],
+                [
+                    'name' => 'Safwa Islamic Bank',
+                    'arabic' => 'بنك صفوة الإسلامي',
+                ],
+                [
+                    'name' => 'Jordan Ahli Bank',
+                    'arabic' => 'البنك الأهلي الأردني',
+                ],
+                [
+                    'name' => 'Arab Jordan Investment Bank',
+                    'arabic' => 'بنك الاستثمار العربي الأردني',
+                ],
+                [
+                    'name' => 'Bank Albilad',
+                    'arabic' => 'بنك البلاد',
+                ],
+            ],
+        ];
+
+        // If a specific region is requested
+        if ($region !== null) {
+            return $banks[$region] ?? [];
+        }
+
+        // Return all banks
+        return $banks;
+    }
+}

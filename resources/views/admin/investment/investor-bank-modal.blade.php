@@ -19,27 +19,11 @@
                                  class="form-control" placeholder="Benenficiary Name" required>
                          </div>
                          <div class="form-group row">
-                             <label for="inputEmail3" class="asterisk">Bank
-                                 Name</label>
-                             <input type="text" name="investor_bank_name" id="investor_bank_name"
-                                 class="form-control" placeholder="Bank Name" required>
-                         </div>
-                         <div class="form-group row">
                              <label for="inputEmail3" class="asterisk">Benenficiary
                                  Name Arabic</label>
                              <input type="text" name="investor_beneficiary_arabic" id="investor_beneficiary_arabic"
                                  class="form-control arabic-input" placeholder="Benenficiary Name Arabic" required>
-                         </div>
-                         <div class="form-group row">
-                             <label for="inputEmail3" class="asterisk">Bank
-                                 Name Arabic</label>
-                             <input type="text" name="investor_bank_name_arabic" id="investor_bank_name_arabic"
-                                 class="form-control arabic-input" placeholder="Bank Name Arabic" required>
-                         </div>
-                         <div class="form-group row">
-                             <label for="inputEmail3" class="asterisk">IBAN</label>
-                             <input type="text" name="investor_iban" id="investor_iban" class="form-control"
-                                 id="inputEmail3" placeholder="IBAN" required>
+
                          </div>
                          <div class="form-group row">
                              <label for="inputEmail3" class="asterisk">Banking Region</label>
@@ -51,6 +35,40 @@
                                      International</option>
                              </select>
                          </div>
+
+                         <div class="form-group row">
+
+                             <div class="col-md-12 mt-2">
+                                 <label for="inputEmail3" class=" asterisk">Bank
+                                     Name</label>
+                                 {{-- <input type="text" name="investor_bank_name" id="investor_bank_name"
+                                 class="form-control" placeholder="Bank Name" required> --}}
+                                 <select class=" form-control select2" name="investor_bank_name" id="investor_bank_name"
+                                     required>
+                                     <option value="">Select Bank</option>
+                                 </select>
+                             </div>
+                         </div>
+                         <div class="form-group row">
+                             <div class="col-md-12 mt-2">
+                                 <label for="inputEmail3" class="asterisk">Bank
+                                     Name Arabic</label>
+                                 {{-- <input type="text" name="investor_bank_name_arabic" id="investor_bank_name_arabic"
+                                 class="form-control arabic-input" placeholder="Bank Name Arabic" required> --}}
+                                 <select class=" form-control select2" name="investor_bank_name_arabic"
+                                     id="investor_bank_name_arabic" required>
+                                     <option value="">اختر البنك</option>
+                                 </select>
+                             </div>
+                         </div>
+
+
+                         <div class="form-group row">
+                             <label for="inputEmail3" class="asterisk">IBAN</label>
+                             <input type="text" name="investor_iban" id="investor_iban" class="form-control"
+                                 id="inputEmail3" placeholder="IBAN" required>
+                         </div>
+
                          <input type="hidden" name="is_primary" id="is_primary" value="0">
                      </div>
                      <!-- /.card-body -->
@@ -125,12 +143,17 @@
 
          let method = 'POST';
 
+         // Disable submit button
+         let submitBtn = $('#submitBank');
+         submitBtn.prop('disabled', true);
+
 
          var form = document.getElementById('addInvestorBank');
          var fdata = new FormData(form);
 
          fdata.append('_token', $('meta[name="csrf-token"]').attr('content'));
          fdata.append('_method', method);
+         showLoader();
 
          $.ajax({
              type: "POST",
@@ -141,7 +164,11 @@
              contentType: false,
              success: function(response) {
                  // console.log(response);
+                 hideLoader();
                  toastr.success(response.message);
+
+                 // Close modal
+                 $('#addInvestorBankModal').modal('hide');
                  let redirectUrl = "{{ route('investor.show', ':id') }}";
                  redirectUrl = redirectUrl.replace(':id', $('#investor_id').val());
 
@@ -149,6 +176,8 @@
                  //  window.location.href = "/investor/" + $('#investor_id').val();
              },
              error: function(errors) {
+                 hideLoader();
+                 submitBtn.prop('disabled', false);
                  toastr.error(errors.responseJSON.message);
              }
          });
@@ -181,13 +210,20 @@
                      _token: $('meta[name="csrf-token"]').attr('content') // Only for POST
                  },
                  success: function(response) {
+                     console.log(response);
                      $('#investor_beneficiary').val(response.investor_beneficiary);
                      $('#investor_bank_name').val(response.investor_bank_name);
                      $('#investor_iban').val(response.investor_iban);
                      $('#is_primary').val(response.is_primary);
                      $('#investor_beneficiary_arabic').val(response.investor_beneficiary_arabic);
                      $('#investor_bank_name_arabic').val(response.investor_bank_name_arabic);
-                     $('#banking_region').val(response.banking_region);
+                     $('#banking_region').val(response.banking_region).trigger('change.select2');
+                     bankingRegionOnchange(response.banking_region);
+
+                     $('#investor_bank_name').val(response.investor_bank_name).trigger(
+                         'change.select2');
+                     $('#investor_bank_name_arabic').val(response.investor_bank_name_arabic).trigger(
+                         'change.select2');
                  },
                  error: function(xhr) {
                      console.error('AJAX error:', xhr.responseText);
@@ -197,3 +233,4 @@
          }
      });
  </script>
+ @include('admin.investment.investor-banks-js')
