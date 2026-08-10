@@ -2,12 +2,17 @@
 
 namespace App\Models;
 
+use App\Models\Traits\HasActivityLog;
+// use App\Models\Traits\HasCompanyAccess;
+use App\Models\Traits\HasDeletedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PartialWithdrawalBifurcation extends Model
 {
-    use HasFactory;
+    // use HasFactory;
+    use HasFactory, SoftDeletes, HasActivityLog, HasDeletedBy;
 
     protected $table = 'partial_withdrawal_bifurcations';
 
@@ -27,7 +32,9 @@ class PartialWithdrawalBifurcation extends Model
         'balance_to_pay',
         'payout_status',
         'profit_payout_status',
-        'withdrawal_month_profit'
+        'withdrawal_month_profit',
+        'updated_by',
+        'deleted_by'
     ];
 
     public function investment()

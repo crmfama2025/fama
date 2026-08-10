@@ -275,14 +275,15 @@
                     $.ajax({
                         type: "DELETE",
                         // url: '/investment/' + id,
-                        url: "{{ route('investment.destroy', ':id') }}".replace(':id', id),
+                        url: "{{ route('investor.partial-withdrawals.delete', ['id' => 'ID_PLACEHOLDER']) }}"
+                            .replace('ID_PLACEHOLDER', id),
                         data: {
                             _token: $('meta[name="csrf-token"]').attr('content')
                         },
                         dataType: "json",
                         success: function(response) {
                             toastr.success(response.message);
-                            $('#investmentsTable').DataTable().ajax.reload();
+                            table.ajax.reload();
                         }
                     });
 

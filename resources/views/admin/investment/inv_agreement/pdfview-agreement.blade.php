@@ -48,7 +48,7 @@
          */
             .file-content {
                 position: relative;
-                padding: 29mm 16mm 48mm 16mm;
+                padding: 34mm 16mm 48mm 16mm;
                 box-sizing: border-box;
             }
 
@@ -106,267 +106,273 @@
             p {
                 margin: 4px;
             }
+        }
 
-            .marginClass {
+        .marginClass {
+            margin: 4px !important;
+            margin-bottom: 1rem !important;
+        }
+
+        /* ── SIGNATURE STAMP ── */
+        .signature-stamp {
+            position: absolute;
+            bottom: 14mm;
+            /* tune: distance from page bottom */
+            left: 16mm;
+            /* tune: left side for investor signature */
+            width: 40mm;
+            height: 16mm;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .signature-stamp img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            object-position: left bottom;
+        }
+
+        .signature-label {
+            position: absolute;
+            bottom: 10mm;
+            left: 16mm;
+            font-size: 6.5pt;
+            color: #444;
+            font-family: 'Times New Roman', serif;
+            width: 40mm;
+            text-align: left;
+        }
+
+        /* Modal overlay */
+        .sig-modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sig-modal-overlay.active {
+            display: flex;
+        }
+
+        .sig-modal {
+            background: #fff;
+            border-radius: 10px;
+            padding: 28px 28px 20px;
+            width: 480px;
+            max-width: 95vw;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.25);
+        }
+
+        .sig-modal h5 {
+            margin: 0 0 16px;
+            font-size: 15px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .sig-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        .sig-tab {
+            flex: 1;
+            padding: 8px;
+            border: 1.5px solid #ccc;
+            border-radius: 6px;
+            background: #f8f8f8;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            text-align: center;
+            transition: all .2s;
+        }
+
+        .sig-tab.active {
+            border-color: #007bff;
+            background: #e8f0fe;
+            color: #007bff;
+        }
+
+        .sig-panel {
+            display: none;
+        }
+
+        .sig-panel.active {
+            display: block;
+        }
+
+        #sig-canvas {
+            border: 1.5px solid #ccc;
+            border-radius: 6px;
+            background: #fafafa;
+            cursor: crosshair;
+            display: block;
+            width: 100%;
+            touch-action: none;
+        }
+
+        .sig-canvas-hint {
+            font-size: 11px;
+            color: #aaa;
+            text-align: center;
+            margin-top: 5px;
+        }
+
+        .sig-upload-area {
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 28px 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color .2s;
+        }
+
+        .sig-upload-area:hover {
+            border-color: #007bff;
+        }
+
+        .sig-upload-area input[type="file"] {
+            display: none;
+        }
+
+        .sig-upload-preview {
+            display: none;
+            margin-top: 12px;
+        }
+
+        .sig-upload-preview img {
+            max-height: 80px;
+            max-width: 100%;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            padding: 4px;
+        }
+
+        .sig-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+            justify-content: flex-end;
+        }
+
+        .sig-btn {
+            padding: 8px 18px;
+            border-radius: 6px;
+            border: none;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .sig-btn-clear {
+            background: #f1f1f1;
+            color: #555;
+        }
+
+        .sig-btn-apply {
+            background: #007bff;
+            color: #fff;
+        }
+
+        .sig-btn-apply:disabled {
+            background: #aaa;
+            cursor: not-allowed;
+        }
+
+        .sig-btn-cancel {
+            background: #fff;
+            color: #888;
+            border: 1px solid #ddd;
+        }
+
+        /* ── PRINT ── */
+        @media print {
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                box-sizing: border-box;
+            }
+
+            @page {
+                size: A4 portrait;
+                margin: 0;
+            }
+
+            html,
+            body {
+                width: 210mm;
+                height: 297mm;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: #fff;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            #file-print-area,
+            .content-wrapper,
+            .content,
+            .container-fluid {
+                width: 210mm !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            .new-page {
+                width: 210mm !important;
+                height: 297mm !important;
+                min-height: 297mm !important;
+                margin: 0 !important;
+                box-shadow: none !important;
+                overflow: hidden !important;
+                page-break-after: always;
+                break-after: page;
+                background-image: url("{{ asset('images/investment_letter_head.png') }}") !important;
+                background-size: 210mm 297mm !important;
+                background-repeat: no-repeat !important;
+                background-position: top left !important;
+            }
+
+            .new-page:last-child {
+                page-break-after: auto;
+                break-after: auto;
+            }
+
+            .file-content {
+                padding: 34mm 16mm 48mm 16mm !important;
+            }
+
+            .file-content.page-subsequent {
+                padding-top: 33mm !important;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            td {
+                vertical-align: top;
+            }
+
+            p {
                 margin: 4px !important;
-                margin-bottom: 1rem !important;
             }
 
-            /* ── SIGNATURE STAMP ── */
-            .signature-stamp {
-                position: absolute;
-                bottom: 14mm;
-                /* tune: distance from page bottom */
-                left: 16mm;
-                /* tune: left side for investor signature */
-                width: 40mm;
-                height: 16mm;
-                z-index: 10;
-                pointer-events: none;
+            .underline-date {
+                text-decoration: underline;
+                text-underline-offset: 3px;
             }
-
-            .signature-stamp img {
-                width: 100%;
-                height: 100%;
-                object-fit: contain;
-                object-position: left bottom;
-            }
-
-            .signature-label {
-                position: absolute;
-                bottom: 10mm;
-                left: 16mm;
-                font-size: 6.5pt;
-                color: #444;
-                font-family: 'Times New Roman', serif;
-                width: 40mm;
-                text-align: left;
-            }
-
-            /* Modal overlay */
-            .sig-modal-overlay {
-                display: none;
-                position: fixed;
-                inset: 0;
-                background: rgba(0, 0, 0, 0.55);
-                z-index: 9999;
-                align-items: center;
-                justify-content: center;
-            }
-
-            .sig-modal-overlay.active {
-                display: flex;
-            }
-
-            .sig-modal {
-                background: #fff;
-                border-radius: 10px;
-                padding: 28px 28px 20px;
-                width: 480px;
-                max-width: 95vw;
-                box-shadow: 0 8px 40px rgba(0, 0, 0, 0.25);
-            }
-
-            .sig-modal h5 {
-                margin: 0 0 16px;
-                font-size: 15px;
-                font-weight: 700;
-                color: #333;
-            }
-
-            .sig-tabs {
-                display: flex;
-                gap: 8px;
-                margin-bottom: 14px;
-            }
-
-            .sig-tab {
-                flex: 1;
-                padding: 8px;
-                border: 1.5px solid #ccc;
-                border-radius: 6px;
-                background: #f8f8f8;
-                cursor: pointer;
-                font-size: 13px;
-                font-weight: 600;
-                text-align: center;
-                transition: all .2s;
-            }
-
-            .sig-tab.active {
-                border-color: #007bff;
-                background: #e8f0fe;
-                color: #007bff;
-            }
-
-            .sig-panel {
-                display: none;
-            }
-
-            .sig-panel.active {
-                display: block;
-            }
-
-            #sig-canvas {
-                border: 1.5px solid #ccc;
-                border-radius: 6px;
-                background: #fafafa;
-                cursor: crosshair;
-                display: block;
-                width: 100%;
-                touch-action: none;
-            }
-
-            .sig-canvas-hint {
-                font-size: 11px;
-                color: #aaa;
-                text-align: center;
-                margin-top: 5px;
-            }
-
-            .sig-upload-area {
-                border: 2px dashed #ccc;
-                border-radius: 8px;
-                padding: 28px 16px;
-                text-align: center;
-                cursor: pointer;
-                transition: border-color .2s;
-            }
-
-            .sig-upload-area:hover {
-                border-color: #007bff;
-            }
-
-            .sig-upload-area input[type="file"] {
-                display: none;
-            }
-
-            .sig-upload-preview {
-                display: none;
-                margin-top: 12px;
-            }
-
-            .sig-upload-preview img {
-                max-height: 80px;
-                max-width: 100%;
-                border: 1px solid #eee;
-                border-radius: 4px;
-                padding: 4px;
-            }
-
-            .sig-actions {
-                display: flex;
-                gap: 8px;
-                margin-top: 16px;
-                justify-content: flex-end;
-            }
-
-            .sig-btn {
-                padding: 8px 18px;
-                border-radius: 6px;
-                border: none;
-                font-size: 13px;
-                font-weight: 600;
-                cursor: pointer;
-            }
-
-            .sig-btn-clear {
-                background: #f1f1f1;
-                color: #555;
-            }
-
-            .sig-btn-apply {
-                background: #007bff;
-                color: #fff;
-            }
-
-            .sig-btn-apply:disabled {
-                background: #aaa;
-                cursor: not-allowed;
-            }
-
-            .sig-btn-cancel {
-                background: #fff;
-                color: #888;
-                border: 1px solid #ddd;
-            }
-
-            /* ── PRINT ── */
-            @media print {
-                * {
-                    -webkit-print-color-adjust: exact !important;
-                    print-color-adjust: exact !important;
-                    box-sizing: border-box;
-                }
-
-                @page {
-                    size: A4 portrait;
-                    margin: 0;
-                }
-
-                html,
-                body {
-                    width: 210mm;
-                    height: 297mm;
-                    margin: 0 !important;
-                    padding: 0 !important;
-                    background: #fff;
-                }
-
-                .no-print {
-                    display: none !important;
-                }
-
-                #file-print-area,
-                .content-wrapper,
-                .content,
-                .container-fluid {
-                    width: 210mm !important;
-                    margin: 0 !important;
-                    padding: 0 !important;
-                }
-
-                .new-page {
-                    width: 210mm !important;
-                    height: 297mm !important;
-                    min-height: 297mm !important;
-                    margin: 0 !important;
-                    box-shadow: none !important;
-                    overflow: hidden !important;
-                    page-break-after: always;
-                    break-after: page;
-                    background-image: url("{{ asset('images/investment_letter_head.png') }}") !important;
-                    background-size: 210mm 297mm !important;
-                    background-repeat: no-repeat !important;
-                    background-position: top left !important;
-                }
-
-                .new-page:last-child {
-                    page-break-after: auto;
-                    break-after: auto;
-                }
-
-                .file-content {
-                    padding: 29mm 16mm 48mm 16mm !important;
-                }
-
-                .file-content.page-subsequent {
-                    padding-top: 33mm !important;
-                }
-
-                table {
-                    width: 100%;
-                    border-collapse: collapse;
-                }
-
-                td {
-                    vertical-align: top;
-                }
-
-                p {
-                    margin: 4px !important;
-                }
-            }
+        }
     </style>
 </head>
 
@@ -384,7 +390,7 @@
                 {{-- Pages are injected here by JS --}}
                 <div id="file-print-area"></div>
 
-                <table id="all-rows-source" style="display:none; width:100%; border-collapse:collapse;" border="0"
+                {{-- <table id="all-rows-source" style="display:none; width:100%; border-collapse:collapse;" border="0"
                     cellpadding="0" cellspacing="0">
 
 
@@ -583,7 +589,255 @@
                         </td>
                     </tr>
 
+                </table> --}}
+
+                <table id="all-rows-source" style="width:100%; border-collapse:collapse;" border="0" cellpadding="0"
+                    cellspacing="0">
+
+                    <tr data-row>
+                        <td align="center">
+                            <p class="text-lg" style="text-decoration:underline;">MUDARABAH COMPLETION AND SETTLEMENT
+                                AGREEMENT</p>
+                        </td>
+                    </tr>
+
+                    <tr data-row>
+                        <td style="border:1px solid #ccc;">
+                            <div class="english">
+                                <p class="text-sm">This Mudarabah Completion and Settlement Agreement ("Settlement
+                                    Agreement") is made on {settlement_day} day of {settlement_month}
+                                    {settlement_year}</p>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr data-row>
+                        <td style="border:1px solid #ccc;">
+                            <div class="english">
+                                <p class="text-sm"><strong>BY AND BETWEEN</strong></p>
+                                <p class="text-sm"><strong>{company_name_eng}</strong>, a company incorporated under
+                                    the laws of the United Arab Emirates, holding Licence No.
+                                    <strong>{company_licence_no}</strong>
+                                    and Registration No. <strong>{company_reg_no}</strong> (hereinafter referred to
+                                    as the
+                                    "Company" or "Mudarib");
+                                </p>
+                                <p class="text-sm"><strong>AND</strong></p>
+                                <p class="text-sm">Mr./Ms. <strong>{investor_name_eng}</strong>, holder of Emirates
+                                    ID/Passport No. <strong>{investor_id}</strong> (hereinafter referred to as
+                                    the
+                                    "Investor" or <strong>"Rabb-ul-Maal"</strong>).</p>
+                                <p class="text-sm">The Company and the Investor are hereinafter collectively referred
+                                    to
+                                    as the "Parties".</p>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr data-row style="background-color:#F2F2F2">
+                        <td height="20" style="border:1px solid #ccc;">
+                            <div class="english text-md">RECITALS</div>
+                        </td>
+                    </tr>
+
+                    <tr data-row>
+                        <td style="border:1px solid #ccc;">
+                            <div class="english">
+                                <p class="text-sm">
+                                    A. The Parties entered into a Profit-Sharing Investment Agreement
+                                    (Mudarabah Agreement) dated
+                                    <span class="underline-date">{mudarabah_created_date}</span>
+                                    ("Original Agreement") and Additional capital contribution document(s)
+                                    ("Addendum(s)") dated
+                                    {addendum_dates}
+                                    (Collectively referred to as the "Investment Documents").
+                                </p>
+                                <p class="text-sm">C. On <span
+                                        class="underline-date">{termination_requested_date}</span>, the Investor
+                                    requested withdrawal and
+                                    settlement of the entire investment relationship under the Investment Documents.</p>
+                                <p class="text-sm">D. The Company has completed the settlement process and has paid all
+                                    amounts due to the Investor in accordance with the Investment Documents.</p>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr data-row>
+                        <td style="border:1px solid #ccc;">
+                            <div class="english">
+                                <p class="text-sm"><strong>NOW THEREFORE</strong>, the Parties agree as follows:</p>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr data-row style="background-color:#F2F2F2">
+                        <td height="20" style="border:1px solid #ccc;">
+                            <div class="english text-md">1. ACKNOWLEDGEMENT OF SETTLEMENT</div>
+                        </td>
+                    </tr>
+
+                    <tr data-row>
+                        <td style="border:1px solid #ccc;">
+                            <div class="english">
+                                <p class="text-sm">1.1 The Parties acknowledge that at the time of termination notice
+                                    from the Investor, the total capital amount invested with the Company was under the
+                                    Investment Documents amounted to AED {capital}.</p>
+                                <p class="text-sm">1.2 The Parties further acknowledge that the Company has completed
+                                    the final reconciliation of accounts and determined the amounts payable to the
+                                    Investor.</p>
+                                <p class="text-sm">1.3 The Investor confirms that the Company has paid and the Investor
+                                    has received the following:</p>
+                                <p class="text-sm">(a) Capital Returned: AED {capital}.<br>
+                                    (b) Profit Paid: AED {profit}.<br>
+                                    (c) Total Settlement Amount: AED {total_amount}.</p>
+                                <p class="text-sm">1.4 The Investor confirms that the above amounts have been received
+                                    in full and to his/her complete satisfaction.</p>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr data-row style="background-color:#F2F2F2">
+                        <td height="20" style="border:1px solid #ccc;">
+                            <div class="english text-md">2. COMPLETION OF MUDARABAH RELATIONSHIP</div>
+                        </td>
+                    </tr>
+
+                    <tr data-row>
+                        <td style="border:1px solid #ccc;">
+                            <div class="english">
+                                <p class="text-sm">2.1 Upon execution of this Settlement Agreement, all investments
+                                    made
+                                    by the Investor under the Investment Documents shall be deemed fully settled,
+                                    completed and concluded.</p>
+                                <p class="text-sm">2.2 The Original Agreement and all related addendums or additional
+                                    capital contribution documents shall stand terminated by performance and mutual
+                                    settlement.</p>
+                                <p class="text-sm">2.3 Neither Party shall have any continuing obligation under the
+                                    Investment Documents.</p>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr data-row style="background-color:#F2F2F2">
+                        <td height="20" style="border:1px solid #ccc;">
+                            <div class="english text-md">3. FULL AND FINAL RELEASE</div>
+                        </td>
+                    </tr>
+
+                    <tr data-row>
+                        <td style="border:1px solid #ccc;">
+                            <div class="english">
+                                <p class="text-sm">3.1 The Investor irrevocably acknowledges that:</p>
+                                <p class="text-sm">(a) no Capital remains outstanding;<br>
+                                    (b) no profit remains outstanding;<br>
+                                    (c) no payment remains due from the Company under the Investment Documents; and<br>
+                                    (d) all obligations of the Company arising from the Investment Documents have been
+                                    fully satisfied and discharged.</p>
+                                <p class="text-sm">3.2 The Investor releases and forever discharges the Company, its
+                                    shareholders, directors, managers, employees, representatives, successors and
+                                    assigns from any and all claims, demands, actions, liabilities, costs or disputes
+                                    arising out of or relating to the Investment Documents up to the date of this
+                                    Settlement Agreement.</p>
+                                <p class="text-sm">3.3 The Company similarly releases the Investor from any obligations
+                                    arising under the Investment Documents except obligations expressly stated to
+                                    survive therein.</p>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr data-row style="background-color:#F2F2F2">
+                        <td height="20" style="border:1px solid #ccc;">
+                            <div class="english text-md">4. CONFIDENTIALITY</div>
+                        </td>
+                    </tr>
+
+                    <tr data-row>
+                        <td style="border:1px solid #ccc;">
+                            <div class="english">
+                                <p class="text-sm">The Parties shall keep the terms of this Settlement Agreement
+                                    confidential except where disclosure is required by law, court order, regulator,
+                                    auditor, tax authority or professional adviser.</p>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr data-row style="background-color:#F2F2F2">
+                        <td height="20" style="border:1px solid #ccc;">
+                            <div class="english text-md">5. GOVERNING LAW AND DISPUTE RESOLUTION</div>
+                        </td>
+                    </tr>
+
+                    <tr data-row>
+                        <td style="border:1px solid #ccc;">
+                            <div class="english">
+                                <p class="text-sm">This Settlement Agreement shall be governed by the laws applicable
+                                    in the Emirate of Dubai and the federal laws of the United Arab Emirates.</p>
+                                <p class="text-sm">Any dispute arising out of or in connection with this Settlement
+                                    Agreement shall be referred to arbitration in accordance with the Arbitration Rules
+                                    of the Dubai International Arbitration Centre (DIAC). The seat of arbitration shall
+                                    be Dubai, United Arab Emirates, and the language of arbitration shall be English.
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr data-row style="background-color:#F2F2F2">
+                        <td height="20" style="border:1px solid #ccc;">
+                            <div class="english text-md">6. ENTIRE AGREEMENT</div>
+                        </td>
+                    </tr>
+
+                    <tr data-row>
+                        <td style="border:1px solid #ccc;">
+                            <div class="english">
+                                <p class="text-sm">This Settlement Agreement constitutes the entire understanding
+                                    between the Parties concerning the settlement of the Investment Documents and
+                                    supersedes all prior discussions relating to such settlement.</p>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr data-row>
+                        <td style="border:1px solid #ccc;">
+                            <div class="english">
+                                <p class="text-sm"><strong>IN WITNESS WHEREOF</strong>, the Parties have executed this
+                                    Settlement Agreement on the date first written above.</p>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr data-row style="background-color:#F2F2F2">
+                        <td width="100%" height="20" style="border:1px solid #ccc;">
+                            <div class="english text-md">Signatures</div>
+                        </td>
+                    </tr>
+
+                    <tr data-row>
+                        <td style="border:1px solid #ccc;">
+                            <div class="english">
+                                <p class="text-sm">For the Company<br>
+                                    Signature: ______________________<br>
+                                    Date: ______________________
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr data-row>
+                        <td style="border:1px solid #ccc;">
+                            <div class="english">
+                                <p class="text-sm">Investor<br>
+                                    Signature: ______________________<br>
+                                    Date: ______________________
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+
                 </table>
+
+
+
 
                 <div class="mt-4 mb-5 text-center no-print">
                     <a href="{{ route('invoices.generated') }}" class="btn btn-secondary mr-2">
@@ -778,7 +1032,7 @@
             background-size: 210mm 297mm !important; background-repeat: no-repeat !important; background-position: top left !important;
         }
         .new-page:last-child { page-break-after: auto; break-after: auto; }
-        .file-content { padding: 29mm 16mm 48mm 16mm !important; }
+        .file-content { padding: 34mm 16mm 48mm 16mm !important; }
         .file-content.page-subsequent { padding-top: 33mm !important; }
         .no-print { display: none !important; }
         table { width: 100%; border-collapse: collapse; }

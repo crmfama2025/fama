@@ -69,6 +69,7 @@ class InvestorController extends Controller
         $investor = $this->investorService->getById($id);
         $investorsLists = $this->investorService->getAllActive();
         $relations  = InvestorRelation::all();
+        // dd($investor);
 
 
         return view("admin.investment.investor-create", compact(
@@ -292,5 +293,30 @@ class InvestorController extends Controller
             ->setPaper('a4', 'portrait');
 
         return $pdf->download('Investment-Annexure-' . $investor->investor_name . '.pdf');
+    }
+
+    public function deleteTermination($ledgerId)
+    {
+
+        try {
+
+            $this->investorService->deleteTermination($ledgerId);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Termination deleted successfully.'
+            ]);
+        } catch (\Throwable $e) {
+
+            \Log::error('Delete termination failed', [
+                'ledger_id' => $ledgerId,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Unable to delete termination.'
+            ], 500);
+        }
     }
 }
