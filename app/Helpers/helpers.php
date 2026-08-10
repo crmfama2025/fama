@@ -1842,6 +1842,10 @@ if (!function_exists('getBankListByRegion')) {
                     'name' => 'Bank Albilad',
                     'arabic' => 'بنك البلاد',
                 ],
+                [
+                    'name' => 'Housing Bank',
+                    'arabic' => 'بنك الإسكان'
+                ]
             ],
         ];
 
