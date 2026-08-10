@@ -9,7 +9,8 @@ class NationalityRepository
 {
     public function all()
     {
-        return Nationality::all();
+        // return Nationality::all();
+        return Nationality::orderBy('nationality_name', 'asc')->get();
     }
 
     public function find($id)
