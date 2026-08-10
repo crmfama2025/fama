@@ -14,7 +14,7 @@ class PayoutBatchSeeder extends Seeder
     public function run(): void
     {
         PayoutBatch::updateOrCreate([
-            "batch_name" => "0-10",
+            "batch_name" => "1-10",
             "status" => 1
         ]);
 
