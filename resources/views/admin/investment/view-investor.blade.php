@@ -189,6 +189,7 @@
                                             <thead>
                                                 <tr>
                                                     <th>#</th>
+                                                    <th>Banking Region</th>
                                                     <th>Bank name</th>
                                                     <th>Bank Name Arabic</th>
                                                     <th>Beneficiary</th>
@@ -201,6 +202,8 @@
                                                 @foreach ($investorBanks as $investorBank)
                                                     <tr>
                                                         <td>{{ $loop->iteration }}</td>
+                                                        <td>{{ $investorBank->banking_region == 1 ? 'Local' : 'International' }}
+                                                        </td>
                                                         <td>{{ $investorBank->investor_bank_name }}</td>
                                                         <td>{{ $investorBank->investor_bank_name_arabic }}</td>
                                                         <td>{{ $investorBank->investor_beneficiary }}</td>

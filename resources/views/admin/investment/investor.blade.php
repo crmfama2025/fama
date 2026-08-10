@@ -55,6 +55,8 @@
                                             <th>#</th>
                                             <th>Action</th>
                                             <th>Investor Details</th>
+                                            <th>Added By</th>
+
                                             <th>Nationality</th>
                                             <th>Country of Recidence</th>
                                             <th>Reference</th>
@@ -62,6 +64,7 @@
                                             {{-- <th>Address</th> --}}
                                             <th>Emirates ID/ Passport No</th>
                                             <th>Payment Mode</th>
+
                                             {{-- <th>Bank Details</th> --}}
                                             <!-- <th>IBAN</th> -->
                                             {{-- <th>Mobile</th> --}}
@@ -201,6 +204,10 @@
                         name: 'investor_name',
                     },
                     {
+                        data: 'added_by',
+                        name: 'added_by',
+                    },
+                    {
                         data: 'nationality_name',
                         name: 'nationality.nationality_name',
                     },
@@ -228,6 +235,7 @@
                         data: 'payment_mode',
                         name: 'paymentMode.payment_mode_name',
                     },
+
                     // {
                     //     data: 'investor_bank_name',
                     //     name: 'investorBanks.investor_bank_name',

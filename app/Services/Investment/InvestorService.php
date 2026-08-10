@@ -228,12 +228,12 @@ class InvestorService
                 if (!empty($row->address_line2)) {
                     $address .= ', ' . $row->address_line2;
                 }
-                if (!empty($row->city)) {
-                    $address .= ', ' . $row->city;
-                }
-                if (!empty($row->country_id)) {
-                    $address .= ', ' . $row->country?->nationality_name;
-                }
+                // if (!empty($row->city)) {
+                //     $address .= ', ' . $row->city;
+                // }
+                // if (!empty($row->country_id)) {
+                //     $address .= ', ' . $row->country?->nationality_name;
+                // }
                 if (!empty($row->postal_code)) {
                     $address .= ' - ' . $row->postal_code;
                 }
@@ -259,6 +259,24 @@ class InvestorService
                     return $row->paymentMode->payment_mode_name . ' - ' . $bankName;
                 }
                 // dump($row->paymentMode->payment_mode_name);
+
+                return '-';
+            })
+            ->addColumn('added_by', function ($row) {
+                if ($row->addedBy) {
+                    $name = $row->addedBy->first_name . ' ' . $row->addedBy->last_name;
+                    $image = $row->addedBy->profile_path
+                        ? asset('storage/' . $row->addedBy->profile_path)
+                        : asset('images/default-avatar.png');
+
+                    return '
+            <div style="display:flex; align-items:center; gap:8px;">
+                <img src="' . $image . '"
+                     style="width:30px; height:30px; border-radius:50%; object-fit:cover;">
+                <span>' . $name . '</span>
+            </div>
+        ';
+                }
 
                 return '-';
             })
@@ -293,7 +311,7 @@ class InvestorService
 
                 return $action;
             })
-            ->rawColumns(['investor_name', 'action', 'payment_mode'])
+            ->rawColumns(['investor_name', 'action', 'payment_mode', 'added_by'])
             ->with(['columns' => $columns])
             ->toJson();
     }

@@ -69,7 +69,8 @@ class InvestorRepository
                 'countryOfResidence',
                 'payoutBatch',
                 'referral',
-                'investorBanks'
+                'investorBanks',
+                'addedBy'
             ]);
 
         if (!empty($filters['search'])) {
@@ -87,6 +88,11 @@ class InvestorRepository
 
                     ->orWhereHas('nationality', function ($q) use ($search) {
                         $q->where('nationality_name', 'like', "%{$search}%");
+                    })
+
+                    ->orWhereHas('addedBy', function ($q) use ($search) {
+                        $q->where('first_name', 'like', '%' . $search . '%')
+                            ->orWhere('last_name', 'like', '%' . $search . '%');
                     })
 
                     ->orWhereHas('payoutBatch', function ($q) use ($search) {
@@ -208,6 +214,7 @@ class InvestorRepository
             'investorLedgers.transactionType',
             'investorLedgers.investment'
         ])->find($investor_id);
+        // dd($investor);
 
         if (!$investor) {
             return collect(); // safety check
@@ -226,6 +233,7 @@ class InvestorRepository
             // ->sortBy('transaction_date')
             ->sortBy('id')
             ->groupBy('company_id');
+        // dump($ledgerByCompany);
 
         // 4. Attach financial data to each company
         foreach ($companies as $company) {
