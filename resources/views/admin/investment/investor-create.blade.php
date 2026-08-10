@@ -123,7 +123,7 @@
                                                         <option value="">Select Payment Method</option>
                                                         @foreach ($paymentModes as $paymentMode)
                                                             <option value="{{ $paymentMode->id }}"
-                                                                {{ $paymentMode->id == $investor?->payment_mode_id ? 'selected' : '' }}>
+                                                                {{ $paymentMode->id == ($investor?->payment_mode_id ?? 2) ? 'selected' : '' }}>
                                                                 {{ $paymentMode->payment_mode_name }}</option>
                                                         @endforeach
                                                     </select>

@@ -176,7 +176,10 @@ class InvestorService
             ],
             'investor_email' => 'required',
             'nationality_id' => 'required',
-            'id_number' => 'required|unique:investors,id_number',
+            'id_number' => [
+                'required',
+                Rule::unique('investors', 'id_number')->ignore($id),
+            ],
             'payment_mode_id' => 'required',
             'investor_address' => 'required',
             'payout_batch_id' => 'required',
@@ -673,6 +676,7 @@ class InvestorService
 
             // --- 3. Create the bifurcation records against whichever ledger was just made ---
             foreach ($investmentUpdates as $investmentId => $vals) {
+                // dd($vals);
                 $partialWithdrawalData = [
                     'investment_id' => $investmentId,
                     'ledger_id' => $ledger->id,
@@ -684,7 +688,7 @@ class InvestorService
                     'requested_date' => parseDate($data['requested_date']),
                     'withdrawal_date' => parseDate($data['withdrawal_date']),
                     'duration_days' => $data['duration_days'],
-                    'withdrawal_month_profit' => $vals['withdrawal_month_profit'],
+                    'withdrawal_month_profit' => $vals['withdrawal_month_profit'] ?? 0,
                     'balance_to_pay' => $vals['withdrawalAmount']
                 ];
                 $this->investorLedgerRepo->createPartialWithdrawal($partialWithdrawalData);
@@ -1112,7 +1116,7 @@ class InvestorService
             )->get();
 
             foreach ($partialWithdrawals as $withdrawal) {
-                dd($withdrawal);
+                // dd($withdrawal);
 
                 $investment = $this->investmentRepository->find($withdrawal->investment_id);
 
