@@ -33,8 +33,8 @@
                              <label for="inputEmail3" class="col-sm-4 col-form-label asterisk">Payment mode in
                                  Arabic</label>
                              <input type="text" name="payment_mode_arabic_name" id="payment_mode_arabic_name"
-                                 class="col-sm-8 form-control" id="inputEmail3" placeholder="Payment mode in Arabic"
-                                 required>
+                                 class="col-sm-8 form-control arabic-input" id="inputEmail3"
+                                 placeholder="Payment mode in Arabic" required>
                          </div>
 
                          <div class="form-group row">

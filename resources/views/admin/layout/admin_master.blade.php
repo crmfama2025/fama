@@ -25,6 +25,12 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
     @yield('custom_css')
+    <style>
+        .arabic-input {
+            direction: rtl;
+            text-align: right;
+        }
+    </style>
 
     <!-- Theme style -->
     <link rel="stylesheet" href="{{ asset('css/adminlte.css') }}">
