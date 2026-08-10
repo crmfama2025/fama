@@ -3,6 +3,7 @@
 namespace App\Services\Investment;
 
 use App\Models\Investment;
+use App\Models\InvestmentContractDocuments;
 use App\Models\PartialWithdrawalBifurcation;
 use App\Models\WhatsappMessage;
 use App\Repositories\Investment\InvestmentContractDocumentRepository;
@@ -263,7 +264,7 @@ class InvestorService
                 if (auth()->user()->hasAnyPermission(['investor.edit'], $row->company_id)) {
                     $action .= '<a href="' . route('investor.edit', $row->id) . '" class="btn btn-info btn-sm" title="Edit Investor"><i class="fas fa-pencil-alt"></i></a>';
                 }
-                if (auth()->user()->hasAnyPermission(['investor.show'], $row->company_id)) {
+                if (auth()->user()->hasAnyPermission(['investor.view'], $row->company_id)) {
                     $action .= '
                 <a href="' . route('investor.show', $row->id) . '" class="btn btn-primary btn-sm" title="View Investor"><i class="fas fa-eye"></i></a>';
                 }
@@ -764,7 +765,7 @@ class InvestorService
             })
 
             ->addColumn('action', function ($row) {
-                $action = '-';
+                $action = ' ';
                 if (auth()->user()->hasAnyPermission(['investor.withdrawal'], $row->company_id) && $row->investor_transaction_type_id == 3 && $row->withdrawal_status == 1) {
                     $action .= '<a href="' . route('investor.partial-withdrawals.edit', $row->id) . '" class="btn btn-info btn-sm mr-1" ><i class="fas fa-pencil-alt"></i></a>';
                 }
@@ -774,6 +775,19 @@ class InvestorService
                     data-id="' . $row->id . '">
                     <i class="fas fa-check"></i>
                 </button>';
+                }
+                // Delete termination / withdrawal
+                if (
+                    $row->investor_transaction_type_id == 4
+                    && $row->withdrawal_status == 1
+                ) {
+                    $action .= '<button
+                        type="button"
+                        class="btn btn-danger btn-sm delete-withdrawal"
+                        title="Delete Termination"  onclick="confirmDelete(' . $row->id . ')"
+                        data-id="' . $row->id . '">
+                        <i class="fas fa-trash"></i>
+                    </button>';
                 }
                 return $action;
             })
@@ -1080,5 +1094,80 @@ class InvestorService
         ];
         // dd($test);
         // return $test;
+    }
+    public function deleteTermination($ledgerId)
+    {
+        return DB::transaction(function () use ($ledgerId) {
+
+            $ledger = $this->investorLedgerRepo->find($ledgerId);
+
+            // Make sure this is a termination
+            if ($ledger->investor_transaction_type_id != 4) {
+                throw new \Exception('This is not a termination transaction.');
+            }
+
+            $partialWithdrawals = PartialWithdrawalBifurcation::where(
+                'ledger_id',
+                $ledger->id
+            )->get();
+
+            foreach ($partialWithdrawals as $withdrawal) {
+                dd($withdrawal);
+
+                $investment = $this->investmentRepository->find($withdrawal->investment_id);
+
+                if (!$investment) {
+                    continue;
+                }
+
+                // Restore investment amount
+                $investment->investment_amount = $withdrawal->previous_amount;
+
+                // Reverse withdrawn amount
+                $investment->total_withdrawn_amount =
+                    max(
+                        0,
+                        $investment->total_withdrawn_amount
+                            - $withdrawal->withdrawal_amount
+                    );
+
+                // Check if this investment has another withdrawal
+                $hasOtherWithdrawal = PartialWithdrawalBifurcation::where(
+                    'investment_id',
+                    $investment->id
+                )
+                    ->where('ledger_id', '!=', $ledger->id)
+                    ->exists();
+
+                $investment->has_partial_withdrawal =
+                    $hasOtherWithdrawal ? 1 : 0;
+
+                // Remove termination status
+                $investment->terminate_status = 0;
+                $investment->termination_requested_date = null;
+                $investment->termination_date = null;
+                $investment->termination_duration = null;
+                $investment->termination_requested_by = null;
+
+                // Restore active status
+                $investment->investment_status = 0;
+
+                $investment->save();
+            }
+
+            // Delete bifurcation records
+            PartialWithdrawalBifurcation::where('ledger_id', $ledger->id)->delete();
+
+            // Delete ledger
+            $ledger->delete();
+
+            // Optionally delete/cancel document
+            if ($ledger->investment_contract_document_id) {
+                InvestmentContractDocuments::where(
+                    'id',
+                    $ledger->investment_contract_document_id
+                )->delete();
+            }
+        });
     }
 }
