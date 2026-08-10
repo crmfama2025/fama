@@ -303,11 +303,11 @@ class InvestorService
                     <i class="fas fa-wallet"></i>
                 </a>';
                 }
-                $action .= ' <a href="' . route('investor.investment_annexture', $row->id) . '"
-                    title="Investment Annexture"
-                    class="btn bg-pink btn-sm">
-                    <i class="fas fa-file"></i>
-                </a>';
+                // $action .= ' <a href="' . route('investor.investment_annexture', $row->id) . '"
+                //     title="Investment Annexture"
+                //     class="btn bg-pink btn-sm">
+                //     <i class="fas fa-file"></i>
+                // </a>';
 
                 return $action;
             })
