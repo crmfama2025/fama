@@ -90,7 +90,8 @@
                             <div class="col-sm-6">
                                 <label for="inputEmail3" class="col-form-label asterisk">Company Arabic Name</label>
                                 <input type="text" name="company_arabic_name" id="company_arabic_name"
-                                    class="form-control" id="inputEmail3" placeholder="Company Arabic Name" required>
+                                    class="form-control arabic-input" id="inputEmail3"
+                                    placeholder="Company Arabic Name" required>
                             </div>
                             <div class="col-sm-6">
                                 <label for="inputEmail3" class="col-form-label ">Company Letter Head</label>
