@@ -49,7 +49,7 @@
                             </div>
                             <!-- /.card-header -->
                             <div class="card-body">
-                                <table id="InvestorList" class="table table-bordered table-hover display nowrap">
+                                <table id="InvestorList" class="table table-striped table-hover display nowrap">
                                     <thead>
                                         <tr>
                                             <th>#</th>
