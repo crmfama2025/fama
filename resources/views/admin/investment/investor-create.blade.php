@@ -334,7 +334,7 @@
                                                 <div class="col-sm-4">
                                                     <label for="inputEmail3" class="asterisk">Banking Region</label>
                                                     <select class="form-control select2"
-                                                        name="investor_bank[banking_region]" required>
+                                                        name="investor_bank[banking_region]" id="banking_region" required>
                                                         <option value="">Select Region</option>
                                                         <option value="1"
                                                             {{ $investor?->primaryBank->banking_region == 1 ? 'selected' : '' }}>
@@ -370,20 +370,30 @@
                                                 <div class="col-md-4">
                                                     <label for="inputEmail3" class="asterisk">Benenficiary Bank
                                                         Name</label>
-                                                    <input type="text" name="investor_bank[investor_bank_name]"
+                                                    {{-- <input type="text" name="investor_bank[investor_bank_name]"
                                                         id="investor_bank_name" class="form-control "
                                                         placeholder="Bank Name"
                                                         value="{{ $investor->primaryBank->investor_bank_name ?? '' }}"
+                                                        required> --}}
+                                                    <select class="form-control select2"
+                                                        name="investor_bank[investor_bank_name]" id="investor_bank_name"
                                                         required>
+                                                        <option value="">Select Bank</option>
+                                                    </select>
                                                 </div>
                                                 <div class="col-md-4">
                                                     <label for="inputEmail3" class="asterisk">Benenficiary Bank
                                                         Name Arabic</label>
-                                                    <input type="text" name="investor_bank[investor_bank_name_arabic]"
+                                                    {{-- <input type="text" name="investor_bank[investor_bank_name_arabic]"
                                                         id="investor_bank_name_arabic" class="form-control arabic-input"
                                                         placeholder="Bank Name"
                                                         value="{{ $investor->primaryBank->investor_bank_name_arabic ?? '' }}"
-                                                        required>
+                                                        required> --}}
+                                                    <select class="form-control select2"
+                                                        name="investor_bank[investor_bank_name_arabic]"
+                                                        id="investor_bank_name_arabic" required>
+                                                        <option value="">اختر البنك</option>
+                                                    </select>
                                                 </div>
                                                 <div class="col-md-4">
                                                     <label for="inputEmail3" class="asterisk">IBAN</label>
@@ -669,4 +679,23 @@
             });
         }
     </script>
+    <script>
+        window.investorData = @json($investor ?? null);
+
+        $(document).ready(function() {
+
+            // check if edit mode has value
+            let region = window.investorData?.primary_bank?.banking_region;
+
+            if (region) {
+
+                // set region dropdown
+                $('#banking_region').val(region).trigger('change');
+
+                // OR directly call function (better)
+                bankingRegionOnchange(region);
+            }
+        });
+    </script>
+    @include('admin.investment.investor-banks-js')
 @endsection
