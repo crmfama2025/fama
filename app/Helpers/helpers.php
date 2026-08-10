@@ -1845,6 +1845,10 @@ if (!function_exists('getBankListByRegion')) {
                 [
                     'name' => 'Housing Bank',
                     'arabic' => 'بنك الإسكان'
+                ],
+                [
+                    'name' => 'Arab Bank',
+                    'arabic' => 'البنك العربي'
                 ]
             ],
         ];
