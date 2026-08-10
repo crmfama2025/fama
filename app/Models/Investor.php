@@ -182,4 +182,8 @@ class Investor extends Model
     {
         return $this->hasMany(InvestorLedger::class, 'investor_id');
     }
+    public function addedBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 }
