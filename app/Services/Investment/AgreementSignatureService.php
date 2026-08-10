@@ -123,7 +123,7 @@ class AgreementSignatureService
         });
 
         return $imageUrl;
-    } 
+    }
 
     // ── Private helpers ─────────────────────────────────────────────
 
@@ -206,7 +206,7 @@ class AgreementSignatureService
             'templateVariable-documentName-2' => $variables['document_name'],
             'templateVariable-investorName-3' => $variables['investor_name_ar'],
             'templateVariable-documentName-4' => $variables['document_name_ar'],
-            // 'templateVariable-documentLink-4' => $signLink,
+            'templateVariable-documentLink-5' => $signLink,
         ];
         $response = $this->whatsApp->sendTemplateById($payload);
 

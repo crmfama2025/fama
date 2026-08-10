@@ -603,6 +603,7 @@ class InvestmentContractService
      */
     private function buildMudarabahPayload($invDocDetails, $documentDetail, $investorData, $investmentData): array
     {
+
         $companyData = Company::find($investmentData->company_id);
         $html        = $documentDetail->template;
 
@@ -824,6 +825,23 @@ class InvestmentContractService
 
         $html        = $documentDetail->template;
 
+        // Annexture A
+        $InvestorProfitPerc = $investment->profit_perc * 100 / 50;
+        $CompanyProfitPerc  = 100 - $InvestorProfitPerc;
+        $annexureA = $this->buildSingleAnnexureA(
+            $company,
+            $investment,
+            $investor,
+            1,
+            $InvestorProfitPerc,
+            $CompanyProfitPerc,
+            // 'english'
+        );
+
+        // Annexture B
+        $profitData = $this->annextureB($investment);
+
+
         $vars = [
             '{investment_long_date_eng}'        => $investmentDate->format('jS \d\a\y \o\f F Y'),
             '{mudarabah_created_long_date_eng}' => $mudarabahCreatedDate->format('jS \d\a\y \o\f F Y'),
@@ -852,7 +870,20 @@ class InvestmentContractService
             '{new_total_investment_amount_ar}'  => numberToArabicWords($currentTotal),
 
             '{annexA}' => $this->buildAnnexureARows($docDetails->investor_id, $companyId, $mudarabahCreatedDate, $docId),
-            '{date}' =>  Carbon::parse($investment->investment_date)->format('d/m/Y')
+            '{date}' =>  Carbon::parse($investment->investment_date)->format('d/m/Y'),
+
+            '{annexA1}' => $annexureA,
+
+
+            '{total_invested_amount}' => $investment->investment_amount,
+            '{total_profit}'          => $investment->profit_amount,
+            '{monthly_estimate}'      => $investment->profit_amount_per_interval,
+            '{profit_month_eng}'      => $profitData['profitEng'],
+            '{profit_month_ar}'       => $profitData['profitAr'],
+
+            // profit
+            '{inv_profit_perc}' => $InvestorProfitPerc,
+            '{company_profit_perc}' => $CompanyProfitPerc,
         ];
 
 
@@ -1090,7 +1121,7 @@ class InvestmentContractService
                 'serial'          => $serial++,
                 'particulars_eng' => $key == 0 ? 'Original Investment' : 'Additional Investment',
                 'particulars_ar'  => $key == 0 ? 'الاستثمار الأصلي'    : 'استثمار إضافي',
-                'amount'          => number_format($inv->investment_amount, 2),
+                'amount'          => number_format($inv->total_invested_amount, 2),
                 'received_on'     => Carbon::parse($inv->investment_date)->format('d/m/Y'),
                 'doc_date'        => Carbon::parse($mudarabahCreatedDate)->format('d/m/Y'),
                 'type'            => 'investment',
@@ -1130,7 +1161,7 @@ class InvestmentContractService
         // $partial_withdrawal = PartialWithdrawalBifurcation::
 
         // Total row
-        $totalInvested  = Investment::where('investor_id', $investorId)->where('company_id', $companyId)->sum('investment_amount');
+        $totalInvested  = Investment::where('investor_id', $investorId)->where('company_id', $companyId)->sum('total_invested_amount');
         $totalWithdrawn = PartialWithdrawalBifurcation::whereIn(
             'investment_id',
             Investment::where('investor_id', $investorId)->where('company_id', $companyId)->pluck('id')
@@ -1271,5 +1302,76 @@ class InvestmentContractService
         $andWord = $arabic ? 'و' : 'and';
 
         return implode(', ', $items) . ' ' . $andWord . ' ' . $last;
+    }
+
+
+    function annextureB($investmentData)
+    {
+
+        $startDate = Carbon::createFromFormat('M Y', $investmentData->initial_profit_release_month)
+            ->startOfMonth();
+
+        $profitEng = '';
+        $profitAr  = '';
+
+        $nextProfitDate = calculateNextProfitReleaseDate(
+            0,
+            $investmentData->profit_interval_id,
+            $investmentData->initial_profit_release_month,
+            $investmentData->payoutBatch->batch_name
+        );
+
+        for ($i = 0; $i < 12; $i++) {
+            $currentMonth = $startDate->copy()->addMonths($i);
+            $windowEnd = $startDate->copy()->addMonths(12)->endOfMonth();
+            $nextDate = $startDate->copy()->startOfMonth();
+            $profitAmount = 0;
+
+            while ($nextDate->lessThanOrEqualTo($windowEnd)) {
+                $profitAmount = $investmentData->profit_amount_per_interval;
+                if ($nextDate->greaterThanOrEqualTo($startDate)) {
+                    $contractPayoutMonths[$investmentData->id][] = $nextDate->copy();
+                }
+
+                $nextDate = Carbon::parse(calculateNextProfitReleaseDate(
+                    0,
+                    $investmentData->profit_interval_id,
+                    $nextDate->format('M Y'),
+                    $investmentData->payoutBatch->batch_name
+                ))->startOfMonth();
+            }
+
+            $profitEng .= "
+            <tr>
+                <td width='50%' style='border:1px solid #ccc;'>
+                    <div class='english'>
+                        <p class='text-md'>" . ($i + 1) . ' ' . $currentMonth->format('M Y') . "</p>
+                    </div>
+                </td>
+                <td width='50%' style='border:1px solid #ccc;'>
+                    <div class='english'>
+                        <p class='text-md'>AED " . number_format($profitAmount, 2) . "/-</p>
+                    </div>
+                </td>
+            </tr>";
+
+            $profitAr .= "
+            <tr>
+                <td width='50%' style='border:1px solid #ccc;'>
+                    <div class='arabic'>
+                        <p class='text-md'>" . ($i + 1) . ' ' . arabicMY($currentMonth->format('M Y')) . "</p>
+                    </div>
+                </td>
+                <td width='50%' style='border:1px solid #ccc;'>
+                    <div class='arabic'>
+                        <p class='text-md'>" . number_format($profitAmount, 2) . "/- درهم إماراتي</p>
+                    </div>
+                </td>
+            </tr>";
+        }
+        return [
+            'profitEng' => $profitEng,
+            'profitAr'  => $profitAr,
+        ];
     }
 }
