@@ -1796,10 +1796,6 @@ if (!function_exists('getBankListByRegion')) {
             // Local Banks
             1 => [
                 [
-                    'name' => 'Emirates Islamic Bank',
-                    'arabic' => 'بنك الإمارات الإسلامي',
-                ],
-                [
                     'name' => 'Abu Dhabi Commercial Bank',
                     'arabic' => 'بنك أبوظبي التجاري',
                 ],
@@ -1818,6 +1814,10 @@ if (!function_exists('getBankListByRegion')) {
                 [
                     'name' => 'Dubai Islamic Bank',
                     'arabic' => 'بنك دبي الإسلامي',
+                ],
+                [
+                    'name' => 'Emirates Islamic Bank',
+                    'arabic' => 'بنك الإمارات الإسلامي',
                 ],
                 [
                     'name' => 'Emirates NBD Bank',
@@ -1848,24 +1848,8 @@ if (!function_exists('getBankListByRegion')) {
             // International Banks
             2 => [
                 [
-                    'name' => 'Islamic International Arab Bank',
-                    'arabic' => 'البنك العربي الإسلامي الدولي',
-                ],
-                [
-                    'name' => 'Bank Muscat',
-                    'arabic' => 'بنك مسقط',
-                ],
-                [
-                    'name' => 'Housing Bank for Trade and Finance',
-                    'arabic' => 'بنك الإسكان للتجارة والتمويل',
-                ],
-                [
-                    'name' => 'Safwa Islamic Bank',
-                    'arabic' => 'بنك صفوة الإسلامي',
-                ],
-                [
-                    'name' => 'Jordan Ahli Bank',
-                    'arabic' => 'البنك الأهلي الأردني',
+                    'name' => 'Arab Bank',
+                    'arabic' => 'البنك العربي',
                 ],
                 [
                     'name' => 'Arab Jordan Investment Bank',
@@ -1876,13 +1860,29 @@ if (!function_exists('getBankListByRegion')) {
                     'arabic' => 'بنك البلاد',
                 ],
                 [
-                    'name' => 'Housing Bank',
-                    'arabic' => 'بنك الإسكان'
+                    'name' => 'Bank Muscat',
+                    'arabic' => 'بنك مسقط',
                 ],
                 [
-                    'name' => 'Arab Bank',
-                    'arabic' => 'البنك العربي'
-                ]
+                    'name' => 'Housing Bank',
+                    'arabic' => 'بنك الإسكان',
+                ],
+                [
+                    'name' => 'Housing Bank for Trade and Finance',
+                    'arabic' => 'بنك الإسكان للتجارة والتمويل',
+                ],
+                [
+                    'name' => 'Islamic International Arab Bank',
+                    'arabic' => 'البنك العربي الإسلامي الدولي',
+                ],
+                [
+                    'name' => 'Jordan Ahli Bank',
+                    'arabic' => 'البنك الأهلي الأردني',
+                ],
+                [
+                    'name' => 'Safwa Islamic Bank',
+                    'arabic' => 'بنك صفوة الإسلامي',
+                ],
             ],
         ];
 
