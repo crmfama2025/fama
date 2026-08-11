@@ -239,6 +239,7 @@
                                                 <tr>
                                                     <th>#</th>
                                                     <th>Action</th>
+                                                    <th>Company</th>
                                                     <th>Investment</th>
                                                     <th>Investment Amount</th>
                                                     <th>Date</th>
@@ -316,6 +317,10 @@
                         name: 'action',
                         orderable: false,
                         searchable: false
+                    },
+                    {
+                        data: 'company_name',
+                        name: 'company.company_name'
                     },
                     {
                         data: 'investment_code',

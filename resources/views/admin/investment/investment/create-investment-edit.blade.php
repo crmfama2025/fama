@@ -847,10 +847,15 @@
         function calculateProfitPerInterval() {
             let profitAmount = parseFloat($('#profit_amount').val()) || 0;
             let interval = $('#profit_interval_id').val();
+            let tenure = $('#investment_tenure').val();
             let divisor = 0;
             switch (interval) {
                 case '1':
-                    divisor = 12;
+                    if (tenure != 12) {
+                        divisor = tenure;
+                    } else {
+                        divisor = 12;
+                    }
                     break;
                 case '2':
                     divisor = 4;

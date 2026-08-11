@@ -733,6 +733,11 @@ class InvestmentContractService
             $CompanyProfitPerc,
             // 'english'
         );
+
+        $clauseFive = $this->clauseFive($investmentData);
+        $clauseThree = $this->clauseThree($investmentData);
+
+
         // dd($investmentData->investment_date);
 
 
@@ -763,7 +768,10 @@ class InvestmentContractService
             '{mode_of_payment_eng}'      => $investorData->paymentMode->payment_mode_name,
             '{mode_of_payment_ar}'       => $investorData->paymentMode->payment_mode_arabic_name,
             '{tenure_eng}'               => $investmentData->profitInterval->profit_interval_name,
-            '{tenure_ar}'                => 'tenure_ar',
+            '{tenure_ar}'                => profitInterval_ar($investmentData->profitInterval->profit_interval_name),
+
+            '{clause_three}' => $clauseThree,
+            '{clause_five}' => $clauseFive,
 
             '{beneficiary_name_eng}'     => $investorData->investorBanks[0]->investor_beneficiary,
             '{beneficiary_bankname_eng}' => $investorData->investorBanks[0]->investor_bank_name,
@@ -789,8 +797,9 @@ class InvestmentContractService
             '{total_invested_amount}' => $investmentData->investment_amount,
             '{total_profit}'          => $investmentData->profit_amount,
             '{monthly_estimate}'      => $investmentData->profit_amount_per_interval,
-            '{profit_month_eng}'      => $profitEng,
-            '{profit_month_ar}'       => $profitAr,
+            '{profit_month_eng}'      => $profitData['profitEng'],
+            '{profit_month_ar}'       => $profitData['profitAr'],
+            '{total_count_annexB}' => $profitData['totalCount'],
             '{date}' => Carbon::parse($investmentData->investment_date)->format('d/m/Y'),
         ];
 
@@ -886,6 +895,7 @@ class InvestmentContractService
             '{monthly_estimate}'      => $investment->profit_amount_per_interval,
             '{profit_month_eng}'      => $profitData['profitEng'],
             '{profit_month_ar}'       => $profitData['profitAr'],
+            '{total_count_annexB}' => $profitData['totalCount'],
 
             // profit
             '{inv_profit_perc}' => $InvestorProfitPerc,
@@ -1379,6 +1389,363 @@ class InvestmentContractService
         return [
             'profitEng' => $profitEng,
             'profitAr'  => $profitAr,
+            'totalCount' => count($profitRecord) + 1
         ];
+    }
+
+
+    function clauseFive($investmentData)
+    {
+
+        if ($investmentData->investment_tenure != 12) {
+
+            if ($investmentData->investment_tenure == 6) {
+                $tenure['months_en'] = 'six (6) months';
+                $tenure['months_ar'] = 'ستة (6) أشهر';
+                $tenure['return_en'] = 'One hundred twenty (120) days';
+                $tenure['return_ar'] = 'مائة وعشرون (120) يومًا';
+            } elseif ($investmentData->investment_tenure == 3) {
+                $tenure['months_en'] = 'Three (3) months';
+                $tenure['months_ar'] = 'ثلاثة (3) أشهر';
+                $tenure['return_en'] = 'ninety (90) days';
+                $tenure['return_ar'] = 'تسعون (90) يومًا';
+            } else {
+                $returnDays = 60 + ($investmentData->investment_tenure * 10);
+                $tenure['months_en'] = numberToEnglishWords($investmentData->investment_tenure) . ' (' . $investmentData->investment_tenure . ') months';
+                $tenure['months_ar'] = numberToArabicWords($investmentData->investment_tenure) . ' (' . $investmentData->investment_tenure . ') أشهر';
+                $tenure['return_en'] = numberToEnglishWords($returnDays) . ' (' . $returnDays . ') days';
+                $tenure['return_ar'] = numberToArabicWords($returnDays) . ' (' . $returnDays . ') يومًا';
+            }
+
+            $fifthClause = '<tr data-row>
+                        <td width="50%" style="border:1px solid #ccc;">
+                            <div class="english">
+                                <p class="marginClass text-sm">5.1 This Agreement shall remain valid for an initial period of ' . $tenure['months_en'] . ' from the date the Company receives the Investment Capital. </p>
+                            </div>
+                        </td>
+                        <td width="50%" style="border:1px solid #ccc;">
+                            <div class="arabic">
+                                <p class="marginClass text-sm"> <span>1-5 </span>تسري هذه الاتفاقية لمدة أولية قدرها أربعة عشرتظل هذه الاتفاقية سارية لمدة أولية قدرها ' . $tenure['months_ar'] . ' من تاريخ استلام الشركة لرأس مال الاستثمار. </p>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr data-row>
+                        <td width="50%" style="border:1px solid #ccc;">
+                            <div class="english">
+                                <p class="marginClass text-sm">5.2 The Investor may terminate this Agreement by giving the Company not less than thirty (30) days\' written notice prior to expiry of the current term. Upon such termination, the Company shall settle the accounts and pay the Investor the Capital together with any profit due under this Agreement within One hundred twenty (120) days from the effective date of termination.</p>
+                            </div>
+                        </td>
+                        <td width="50%" style="border:1px solid #ccc;">
+                            <div class="arabic">
+                                <p class="marginClass text-sm"><span>2-5 </span>يحق للمستثمر إنهاء هذه الاتفاقية من خلال توجيه إشعار خطي إلى الشركة قبل انتهاء المدة السارية وقتها، بما لايقل عن ثلاثين (30) يوماً. وعند إنهاء هذه الاتفاقية، تلتزم الشركة بإجراء التسوية النهائية للحسابات، وسداد رأس المال للمستثمر، بالإضافة إلى أي أرباح مستحقة له بموجب هذه الاتفاقية، وذلك خلال مائة وعشرون (120) يوماً من تاريخ سريان الإنهاء.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <tr data-row>
+                        <td width="50%" style="border:1px solid #ccc;">
+                            <div class="english">
+                                <p class="marginClass text-sm">5.3 Pre-mature Termination - The Investor may request for premature termination of the investment by giving the Company not less than thirty (30) days’ prior written notice. The Company shall use reasonable commercial efforts to complete settlement as early as practicable and shall not delay settlement without genuine operational, commercial, or liquidation necessity.</p>
+                                <p class="marginClass text-sm">Where the Capital has already been deployed, the Company may defer settlement until orderly liquidation, replacement of the Investor’s Capital, completion of the relevant rental or commercial cycle, or final reconciliation of accounts, provided that the repayment of the Investor\'s Capital and any profit due under this Agreement shall be completed within One hundred twenty (120) days from the date of the Investor\'s withdrawal notice, unless otherwise mutually agreed by the Parties. In case of premature termination, the Investor shall bear actual and reasonable operational costs, liquidation expenses, Mudarib’s service compensation, third-party charges, or direct costs necessarily incurred due to pre-mature withdrawal, in accordance with prevailing market practice and subject to mutual settlement.</p>
+                            </div>
+                        </td>
+                        <td width="50%" style="border:1px solid #ccc;">
+                            <div class="arabic">
+                                <p class="marginClass text-sm"><span>3-5 </span>الإنهاء المبكر - يجوز للمستثمر طلب الإنهاء المبكر للاستثمار من خلال تقديم إشعار كتابي مسبق إلى الشركة قبل مدة لا تقل عن ثلاثين (30) يوماً. تبذل الشركة جهوداً تجارية معقولة لإتمام التسوية في أقرب وقت عملي ممكن، ولا يجوز لها تأخير التسوية دون وجود ضرورة تشغيلية أو تجارية أو متعلقة بالتصفية.</p>
+                                <p class="marginClass text-sm">إذا كان رأس المال قد تم استثماره بالفعل، فيجوز للشركة تأجيل التسوية إلى حين التصفية المنظمة، أو استبدال رأس مال المستثمر، أو استكمال الدورة الإيجارية أو التجارية ذات الصلة، أو إجراء التسوية النهائية للحسابات، على أن يتم سداد رأس مال المستثمر وأي أرباح مستحقة له بموجب هالاتفاقية خلال مائة وعشرون (120) يومًا من تاريخ إشعار المستثمر بالانسحاب، ما لم يتفق الطرفين على خلاف ذلك. وفي حال الإنهاء قبل انتهاء مدة هالاتفاقية، يتحمل المستثمر التكاليف التشغيلية الفعلية والمعقولة، ومصاريف التصفية، ومقابل خدمات المضارب، وأي رسوم مستحقة للغير، أو أي تكاليف مباشرة تم تكبدها بشكل ضروري بسبب الانسحاب المبكر، وذلك وفقًا للممارسات السائدة في السوق وبعد إجراء التسوية بين الطرفين.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <tr data-row>
+                        <td width="50%" style="border:1px solid #ccc;">
+                            <div class="english">
+                                <p class="marginClass text-sm">5.4 Termination by Company - The Company may terminate this Agreement by giving written notice to the Investor. Upon such termination, the Company shall settle the accounts and pay the Investor the Capital together with any profit due under this Agreement within ninety (90) days from the date of the termination notice.</p>
+                            </div>
+                        </td>
+                        <td width="50%" style="border:1px solid #ccc;">
+                            <div class="arabic">
+                                <p class="marginClass text-sm"><span>4-5 </span>إنهاء هذه الاتفاقية من قبل الشركة: يحق للشركة إنهاء هذه الاتفاقية من خلال توجيه إشعار خطي إلى المستثمر. وعند إنهاء هذه الاتفاقية، تلتزم الشركة بإجراء التسوية النهائية للحسابات، وسداد رأس المال للمستثمر، بالإضافة إلى أي أرباح مستحقة له بموجب هذه الاتفاقية، وذلك خلال تسعين (90) يومًا من تاريخ إشعار الإنهاء.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <tr data-row>
+                        <td width="50%" style="border:1px solid #ccc;">
+                            <div class="english">
+                                <p class="marginClass text-sm">5.5 Termination Upon Breach - Either Party may terminate this Agreement immediately if the other Party commits a material breach of its obligations and fails to remedy such breach within 30 days of receiving written notice thereof.</p>
+                            </div>
+                        </td>
+                        <td width="50%" style="border:1px solid #ccc;">
+                            <div class="arabic">
+                                <p class="marginClass text-sm"><span>5-5 </span>الإنهاء عند الإخلال - يجوز لأي من الطرفين إنهاء هذه الاتفاقية فوراً إذا ارتكب الطرف الآخر إخلالاً جوهرياً بالتزاماته ولم يقم بمعالجة ذلك الإخلال خلال ثلاثين (30) يوماً من استلام إشعار كتابي بذلك.</p>
+                            </div>
+                        </td>
+                    </tr>';
+        } else {
+            $fifthClause = '<tr data-row>
+                        <td width="50%" style="border:1px solid #ccc;">
+                            <div class="english">
+                                <p class="marginClass text-sm">5.1 This Agreement is valid for an initial period of 14 months from
+                                    the date
+                                    of the receipt of investment amount to the Company. If not terminated by either
+                                    Party, the
+                                    Agreement shall automatically renew for further term(s) of twelve (12) months each
+                                    and shall
+                                    continue to remain in force unless terminated by either Party in accordance with the
+                                    provisions of this Agreement.</p>
+                            </div>
+                        </td>
+                        <td width="50%" style="border:1px solid #ccc;">
+                            <div class="arabic">
+                                <p class="marginClass text-sm"> <span>1-5 </span>تسري هذه الاتفاقية لمدة أولية قدرها أربعة عشر (14)
+                                    شهراً
+                                    من تاريخ استلام الشركة لمبلغ الاستثمار. وإذا لم ينهيها أي طرف من الطرفين فتتجدد
+                                    الاتفاقية
+                                    تلقائياً لمدة أو مدد إضافية، كل منها اثنا عشر (12) شهراً، وتظل نافذة ما لم ينهيها أي
+                                    طرف من
+                                    الطرفين وفقاً لما نصت عليه هذه الاتفاقية من أحكام. </p>
+                            </div>
+                        </td>
+                    </tr>
+
+
+                    <tr data-row>
+                        <td width="50%" style="border:1px solid #ccc;">
+                            <div class="english">
+                                <p class="marginClass text-sm">5.2 Termination by Investor - The Investor may terminate this
+                                    Agreement by
+                                    issuing a termination notice/non-renewal notice to the Company thirty (30) days
+                                    prior to the
+                                    renewal date of the Agreement. In such case, the Company shall settle the accounts
+                                    and pay
+                                    the Investor the due profit and principal amount as per this Agreement within six
+                                    (6) months
+                                    of such termination notice.</p>
+                            </div>
+                        </td>
+                        <td width="50%" style="border:1px solid #ccc;">
+                            <div class="arabic">
+                                <p class="marginClass text-sm"> <span>2-5 </span>الإنهاء من جانب المستثمر - يجوز للمستثمر إنهاء هذه
+                                    الاتفاقية من خلال تقديم إشعار إنهاء أو إشعار بعدم التجديد إلى الشركة قبل ثلاثين (30)
+                                    يوماً
+                                    من تاريخ تجديد الاتفاقية .في هذه الحالة، تقوم الشركة بتسوية الحسابات ودفع الأرباح
+                                    المستحقة
+                                    ومبلغ رأس المال للمستثمر وفقاً لهذه الاتفاقية خلال ستة (6) أشهر من تاريخ إشعار
+                                    الإنهاء .
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+
+
+                    <tr data-row>
+                        <td width="50%" style="border:1px solid #ccc;">
+                            <div class="english">
+                                <p class="marginClass text-sm">5.3 Pre-mature Termination - The Investor may request for premature
+                                    termination of the investment by giving the Company not less than thirty (30) days’
+                                    prior
+                                    written notice. The Company shall use reasonable commercial efforts to complete
+                                    settlement
+                                    as early as practicable and shall not delay settlement without genuine operational,
+                                    commercial, or liquidation necessity.</p>
+
+                                <p class="marginClass text-sm">Where the Capital has already been deployed, the Company may defer
+                                    settlement until orderly liquidation, replacement of the Investor’s Capital,
+                                    completion of
+                                    the relevant rental or commercial cycle, or final reconciliation of accounts,
+                                    provided that
+                                    such period shall not exceed twelve (12) months from the date of the Investor’s
+                                    withdrawal
+                                    notice unless otherwise mutually agreed by the Parties. In case of premature
+                                    termination,
+                                    the Investor shall bear actual and reasonable operational costs, liquidation
+                                    expenses,
+                                    Mudarib’s service compensation, third-party charges, or direct costs necessarily
+                                    incurred
+                                    due to pre-mature withdrawal, in accordance with prevailing market practice and
+                                    subject to
+                                    mutual settlement.</p>
+                            </div>
+                        </td>
+                        <td width="50%" style="border:1px solid #ccc;">
+                            <div class="arabic">
+                                <p class="marginClass text-sm"> <span>3-5 </span> الإنهاء المبكر - يجوز للمستثمر طلب الإنهاء المبكر
+                                    للاستثمار من خلال تقديم إشعار كتابي مسبق إلى الشركة قبل مدة لا تقل عن ثلاثين (30)
+                                    يوماً.
+                                    تبذل الشركة جهوداً تجارية معقولة لإتمام التسوية في أقرب وقت عملي ممكن، ولا يجوز لها
+                                    تأخير
+                                    التسوية دون وجود ضرورة تشغيلية أو تجارية أو متعلقة بالتصفية .
+                                </p>
+
+                                <p class="marginClass text-sm"> إذا كان رأس المال قد تم توظيفه بالفعل، فيجوز للشركة تأجيل التسوية
+                                    إلى حين
+                                    التصفية المنظمة أو استبدال رأس مال المستثمر أو إتمام دورة الإيجار أو الدورة التجارية
+                                    ذات
+                                    الصلة أو التسوية النهائية للحسابات، على ألا تتجاوز هذه المدة اثني عشر (12) شهراً من
+                                    تاريخ
+                                    إشعار السحب المقدم من المستثمر ما لم يتفق الطرفان على خلاف ذلك. في حالة الإنهاء
+                                    المبكر،
+                                    يتحمل المستثمر التكاليف التشغيلية الفعلية والمعقولة ومصاريف التصفية وتعويض خدمات
+                                    المضارب
+                                    ورسوم الأطراف الثالثة أو أي تكاليف مباشرة تنشأ بالضرورة بسبب السحب المبكر، وذلك
+                                    وفقاً
+                                    للممارسات السوقية السائدة وبما يخضع للتسوية المتبادلة .</p>
+                            </div>
+                        </td>
+                    </tr>
+
+
+                    <tr data-row>
+                        <td width="50%" style="border:1px solid #ccc;">
+                            <div class="english">
+                                <p class="marginClass text-sm">5.4 Termination by Company - The Company may terminate this
+                                    Agreement at any
+                                    time by providing written notice to the Investor. In such case, the Company shall
+                                    settle the
+                                    accounts and pay the Investor the due profit and principal amount as per this
+                                    Agreement
+                                    within six (6) months of such termination notice.</p>
+                            </div>
+                        </td>
+                        <td width="50%" style="border:1px solid #ccc;">
+                            <div class="arabic">
+                                <p class="marginClass text-sm"> <span>4-5 </span>الإنهاء من جانب الشركة - يجوز للشركة إنهاء هذه
+                                    الاتفاقية
+                                    في أي وقت عن طريق تقديم إشعار كتابي إلى المستثمر. في هذه الحالة، تقوم الشركة بتسوية
+                                    الحسابات
+                                    ودفع الأرباح المستحقة ومبلغ رأس المال للمستثمر وفقاً لهذه الاتفاقية خلال ستة (6)
+                                    أشهر من
+                                    تاريخ إشعار الإنهاء .</p>
+                            </div>
+                        </td>
+                    </tr>
+
+
+                    <tr data-row>
+                        <td width="50%" style="border:1px solid #ccc;">
+                            <div class="english">
+                                <p class="marginClass text-sm">5.5 Termination Upon Breach - Either Party may terminate this
+                                    Agreement
+                                    immediately if the other Party commits a material breach of its obligations and
+                                    fails to
+                                    remedy such breach within 30 days of receiving written notice thereof.</p>
+                            </div>
+                        </td>
+                        <td width="50%" style="border:1px solid #ccc;">
+                            <div class="arabic">
+                                <p class="marginClass text-sm"> <span>5-5 </span>الإنهاء عند الإخلال - يجوز لأي من الطرفين إنهاء
+                                    هذه
+                                    الاتفاقية فوراً إذا ارتكب الطرف الآخر إخلالاً جوهرياً بالتزاماته ولم يقم بمعالجة ذلك
+                                    الإخلال
+                                    خلال ثلاثين (30) يوماً من استلام إشعار كتابي بذلك .</p>
+                            </div>
+                        </td>
+                    </tr>';
+        }
+
+        return $fifthClause;
+    }
+
+    function clauseThree($investmentData)
+    {
+        if ($investmentData->investment_tenure != 12) {
+            $thirdClause = '<tr data-row style="background-color:#F2F2F2">
+                        <td width="50%" style="border:1px solid #ccc;">
+                            <div class="english">
+                                <p class="marginClass text-md" style="font-weight:700 !important;">3. Profit Disbursement:</p>
+                            </div>
+                        </td>
+                        <td width="50%" style="border:1px solid #ccc;">
+                            <div class="arabic">
+                                <p class="marginClass text-md" style="font-weight:700 !important;"><strong>3 - </strong> فترة توظيف رأس المال وصرف الأرباح:</p>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <tr data-row>
+                        <td width="50%" style="border:1px solid #ccc;">
+                            <div class="english">
+                                <p class="marginClass text-sm">3.1 The Company shall calculate and disburse the Investor\'s share of actual realised profits monthly, or as otherwise mutually agreed between the Parties, subject to final reconciliation of accounts.</p>
+                            </div>
+                        </td>
+                        <td width="50%" style="border:1px solid #ccc;">
+                            <div class="arabic">
+                                <p class="marginClass text-sm"><span>1-3</span> تلتزم الشركة بحساب وصرف حصة المستثمر من الأرباح الفعلية المحققة بشكل شهري، أو بأي طريقة أو فترة ثانية يتفق عليها الطرفين ، وذلك مع مراعاة التسوية النهائية للحسابات </p>
+                            </div>
+                        </td>
+                    </tr>';
+        } else {
+            $thirdClause = ' <tr data-row style="background-color:#F2F2F2">
+                        <td width="50%" style="border:1px solid #ccc;">
+                            <div class="english">
+                                <p class="marginClass text-md" style="font-weight:700 !important;">3. Deployment Period and Profit
+                                    Disbursement:</p>
+                            </div>
+                        </td>
+                        <td width="50%" style="border:1px solid #ccc;">
+                            <div class="arabic">
+                                <p class="marginClass text-md" style="font-weight:700 !important;"><strong>3 - </strong> فترة
+                                    توظيف رأس المال وصرف الأرباح:</p>
+                            </div>
+                        </td>
+                    </tr>
+
+
+                    <tr data-row>
+                        <td width="50%" style="border:1px solid #ccc;">
+                            <div class="english">
+                                <p class="marginClass text-sm">3.1 A deployment period of up to forty-five (45) days shall apply
+                                    from the date the Capital is received by the Company for purposes of identifying,
+                                    structuring, and deploying the Capital. The deployment period is not absolute and
+                                    may, where reasonably necessary, be extended for an additional period not exceeding
+                                    fifteen (15) days. During any period in which the Capital remains undeployed, no
+                                    profit-sharing shall be applicable.</p>
+                                <p class="marginClass text-sm">If the Company deploys all or any portion of the Capital before
+                                    expiry of the deployment period and actual profits are realized from such
+                                    deployment, the Investor shall be entitled to the agreed share of actual realized
+                                    profits from the date of such deployment. However, the Investor acknowledges that
+                                    these realized profits, if any, shall be paid only after completion of the
+                                    deployment period mentioned in Clause 3.1.</p>
+                            </div>
+                        </td>
+                        <td width="50%" style="border:1px solid #ccc;">
+                            <div class="arabic">
+                                <p class="marginClass text-sm"><span>1-3</span> تطبق فترة توظيف تصل إلى خمسة وأربعين (45) يوماً من
+                                    تاريخ استلام الشركة لرأس المال، وذلك لأغراض تحديد وهيكلة وتوظيف رأس المال. لا تعتبر
+                                    فترة التوظيف مطلقة، ويجوز، عند الضرورة المعقولة تمديدها لمدة إضافية لا تتجاوز خمسة
+                                    عشر (15) يوماً . خلال أي فترة يبقى فيها رأس المال غير موظف، لاتسري أي مشاركة في
+                                    الأرباح.</p>
+                                <p class="marginClass text-sm">إذا قامت الشركة بتوظيف كامل رأس المال أو أي جزء منه قبل انتهاء فترة
+                                    التوظيف وتم تحقيق أرباح فعلية من ذلك التوظيف، فيحق للمستثمر الحصول على حصته المتفق
+                                    عليها من الأرباح الفعلية المحققة اعتباراً من تاريخ ذلك التوظيف.</p>
+                                <p class="marginClass text-sm">و مع ذلك ، يقر المستثمر بأن هذه الأرباح المحققة، إن وجدت، لن يتم
+                                    دفعها إلا بعد انتهاء فترة التوظيف المشار إليها في البند 3-1.</p>
+                            </div>
+                        </td>
+                    </tr>
+
+
+                    <tr data-row>
+                        <td width="50%" style="border:1px solid #ccc;">
+                            <div class="english">
+                                <p class="marginClass text-sm">3.2 After deployment of the Capital, the Company shall calculate and
+                                    disburse the Investor\'s share of actual realized profits on a monthly basis, or as
+                                    otherwise mutually agreed between the Parties, subject to final reconciliation of
+                                    accounts.</p>
+                            </div>
+                        </td>
+                        <td width="50%" style="border:1px solid #ccc;">
+                            <div class="arabic">
+                                <p class="marginClass text-sm">2-3 بعد توظيف رأس المال، تقوم الشركة باحتساب وصرف حصة المستثمر من
+                                    الأرباح الفعلية المحققة على أساس شهري، أو وفقاً لما يتفق عليه الطرفان خلاف ذلك، وذلك
+                                    مع مراعاة التسوية النهائية للحسابات.</p>
+                            </div>
+                        </td>
+                    </tr>';
+        }
+
+        return $thirdClause;
     }
 }
