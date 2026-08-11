@@ -12,6 +12,7 @@ use App\Models\ContractSubunitDetail;
 use App\Models\ContractUnitDetail;
 use App\Models\Installment;
 use App\Models\Investment;
+use App\Models\InvestmentProfitRecord;
 use App\Models\InvestmentReceivedPayment;
 use App\Models\InvestmentReferral;
 use App\Models\Investor;
@@ -902,6 +903,32 @@ function updateInvestmentBalance($investmentId)
 
     return $investment;
 }
+
+function calculateNextProfitDateFromRecord($investmentId, $profitRecordId)
+{
+    // $currentProfitRecord = InvestmentProfitRecord::find($profitRecordId);
+
+    $nextProfitRecord = InvestmentProfitRecord::where('investment_id', $investmentId)
+        ->where('id', '>', $profitRecordId)
+        ->where('has_profit_amount', 1)
+        ->orderBy('profit_release_month', 'asc')
+        ->first();
+    // dd($nextProfitRecord ? Carbon::parse($nextProfitRecord->profit_release_month) : null);
+    // $currentMonth = Carbon::parse($currentMonth);
+
+    // $profitRecords = InvestmentProfitRecord::where('investment_id', $investmentId)
+    //     ->whereRaw(
+    //         "DATE_FORMAT(profit_release_month, '%Y-%m') <= ?",
+    //         [$currentMonth->format('Y-m')]
+    //     )
+    //     ->where('has_profit_amount', 1)
+    //     ->orderBy('profit_release_month', 'asc')
+    //     ->first();
+
+    return $nextProfitRecord ? Carbon::parse($nextProfitRecord->profit_release_month) : null;
+}
+
+
 function calculateNextProfitReleaseDate($grace_period, $profit_interval_id, $investment_date, $batch_name)
 {
     $date = Carbon::parse($investment_date)
@@ -1086,15 +1113,18 @@ function  updateInvestmentOnDistribution($payoutData, $distributedData)
         $principalReleased = toNumeric($distributedData->amount_paid);
     } else {
         // dd("test4");
-        if ($payoutData->amount_pending != 0) {
-            // dd("test5");
-            $nextProfitRelDate = calculateNextProfitReleaseDate(0, $investment->profit_interval_id, $distributedData->paid_date, $investment->payoutBatch->batch_name);
-        }
 
         $lastProfitReleased = Carbon::parse($distributedData->paid_date)->format('Y-m-d');
         $profitReleased = toNumeric($distributedData->amount_paid);
         $nextProfitRelDate = null;
         $nextCommDate = null;
+
+        if ($payoutData->amount_pending != 0) {
+            // dd("test5");
+            $nextProfitRelDate = calculateNextProfitDateFromRecord($investment->id, $payoutData->investment_profit_record_id);
+            // $nextProfitRelDate = calculateNextProfitReleaseDate(0, $investment->profit_interval_id, $distributedData->paid_date, $investment->payoutBatch->batch_name);
+            $nextProfitRelDate = $nextProfitRelDate ? $nextProfitRelDate->format('Y-m-d') : null;
+        }
     }
 
     $investmentArr = array(
@@ -1106,7 +1136,7 @@ function  updateInvestmentOnDistribution($payoutData, $distributedData)
         'next_referral_commission_release_date' => $nextCommDate,
         'updated_by' => auth()->user()->id,
     );
-
+    // dd($investmentArr);
     // if ($payoutData->amount_pending == 0) {
     //     terminateStatusChange($investmentId);
     // }
