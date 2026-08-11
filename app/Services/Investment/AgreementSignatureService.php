@@ -46,9 +46,10 @@ class AgreementSignatureService
             'uniqueId' => $contract->sign_token,
             'docId' => $docIdHash,
         ]);
+        $signLink_whatsap = str_replace('https://famacrm.cloud/', '', $signLink);
 
         $channel === 'whatsapp'
-            ? $this->sendViaWhatsApp($contract, $signerRole, $signLink)
+            ? $this->sendViaWhatsApp($contract, $signerRole, $signLink_whatsap)
             : $this->sendViaEmail($contract, $signerRole, $signLink);
     }
 
