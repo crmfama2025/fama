@@ -66,6 +66,8 @@ class PermissionSeeder extends Seeder
                 }
                 if (in_array($module, ['investor'])) {
                     $subModule[] = 'withdrawal';
+                    $subModule[] = 'withdrawal-approve';
+                    $subModule[] = 'withdrawal-delete';
                 }
             }
 
