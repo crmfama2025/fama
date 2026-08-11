@@ -764,7 +764,8 @@ class InvestmentContractService
             '{investment_date_ar}'       => arabicShortDate($investmentData->investment_date),
             '{invested_amount}'          => $investmentData->investment_amount,
             '{invested_amount_eng}' => numberToEnglishWords($investmentData->investment_amount) . ' Only',
-            '{invested_amount_ar}' => numberToArabicWords($investmentData->investment_amount) . ' فقط',
+            '{invested_amount_ar}' => numberToArabicWords($investmentData->investment_amount) . ' درهم
+                                    إماراتي فقط',
             '{grace_period}'             => $investmentData->grace_period,
             '{mode_of_payment_eng}'      => $investorData->paymentMode->payment_mode_name,
             '{mode_of_payment_ar}'       => $investorData->paymentMode->payment_mode_arabic_name,
