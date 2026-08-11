@@ -1823,7 +1823,7 @@ if (!function_exists('getBankListByRegion')) {
                     'arabic' => 'بنك مسقط',
                 ],
                 [
-                    'name' => 'The Housing Bank for Trade and Finance',
+                    'name' => 'Housing Bank for Trade and Finance',
                     'arabic' => 'بنك الإسكان للتجارة والتمويل',
                 ],
                 [
