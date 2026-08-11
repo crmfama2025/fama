@@ -193,8 +193,8 @@ class InvestmentContractService
 
             '{company_bank_eng}' => $firstInv->companyBank->bank_name,
             '{company_bank_ar}' => $firstInv->companyBank->bank_arabic_name,
-            '{company_account_no}' => $firstInv->companyBank->account_number,
-            '{company_iban}'       => $firstInv->companyBank->iban,
+            '{company_account_no}' => $firstInv->company_bank_account_number,
+            '{company_iban}'       => $firstInv->company_bank_iban,
 
             // profit
             '{inv_profit_perc}' => $InvestorProfitPerc,
@@ -213,6 +213,7 @@ class InvestmentContractService
             // '{annexure_a_ar}'  => $annexureA_Ar,
             '{profit_month_eng}' => $annexureB_Eng,
             '{profit_month_ar}'  => $annexureB_Ar,
+            '{total_count_annexB}' => $annexureBCounter,
             // '{date}' =>  now()->format('d/m/Y')
         ];
         // dump($annexureAMulti);
@@ -789,8 +790,8 @@ class InvestmentContractService
             '{company_email}'    => $companyData->email,
             '{company_bank_eng}' => $investmentData->companyBank->bank_name,
             '{company_bank_ar}'  => $investmentData->companyBank->bank_arabic_name,
-            '{company_account_no}' => $investmentData->companyBank->account_number,
-            '{company_iban}'       => $investmentData->companyBank->iban,
+            '{company_account_no}' => $investmentData->company_bank_account_number,
+            '{company_iban}'       => $investmentData->company_bank_iban,
 
             '{annexA}' => $annexureA,
 
