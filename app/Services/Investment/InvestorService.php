@@ -791,7 +791,7 @@ class InvestorService
                 if (auth()->user()->hasAnyPermission(['investor.withdrawal'], $row->company_id) && $row->investor_transaction_type_id == 3 && $row->withdrawal_status == 1) {
                     $action .= '<a href="' . route('investor.partial-withdrawals.edit', $row->id) . '" class="btn btn-info btn-sm mr-1" ><i class="fas fa-pencil-alt"></i></a>';
                 }
-                if ($row->withdrawal_status == 1 &&  $row->investor_transaction_type_id == 3) {
+                if (auth()->user()->hasAnyPermission(['investor.withdrawal-approve'], $row->company_id) && $row->withdrawal_status == 1 &&  $row->investor_transaction_type_id == 3) {
                     $action .= '<button
                     class="btn btn-success btn-sm open-approval-modal" title="Approve Withdrawal"
                     data-id="' . $row->id . '">
@@ -800,6 +800,7 @@ class InvestorService
                 }
                 // Delete termination / withdrawal
                 if (
+                    auth()->user()->hasAnyPermission(['investor.withdrawal-delete'], $row->company_id) &&
                     $row->investor_transaction_type_id == 4
                     && $row->withdrawal_status == 1
                 ) {
