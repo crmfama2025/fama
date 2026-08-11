@@ -1509,7 +1509,10 @@ function getSubModuleArray()
         'rent_split',
         'edit_after_approval',
         'make-agreement',
-        'admin-view'
+        'admin-view',
+        'withdrawal',
+        'withdrawal-approve',
+        'withdrawal-delete'
     ];
 }
 
