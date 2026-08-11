@@ -201,7 +201,7 @@
                     },
                     {
                         data: 'investor_name',
-                        name: 'investor_name',
+                        name: 'investors.investor_name',
                     },
                     {
                         data: 'added_by',
