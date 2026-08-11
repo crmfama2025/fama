@@ -89,24 +89,29 @@ class PropertyService
             'locality_id' => 'required|exists:localities,id',
             // 'property_type_id' => 'required|exists:property_types,id',
             'plot_no' => 'required',
-            'property_name' => [
-                'required',
-                'string',
-                Rule::unique('properties')->ignore($id)->where(function ($query) use ($data) {
-                    $query->where('area_id', $data['area_id'] ?? null)
-                        // ->where('company_id', $data['company_id'] ?? null)
-                        ->where('locality_id', $data['locality_id'] ?? null)
-                        ->where('plot_no', $data['plot_no'] ?? null)
-                        ->whereNull('deleted_at');
-                }),
-            ],
+            // 'property_name' => [
+            //     'required',
+            //     'string',
+            //     Rule::unique('properties')->ignore($id)->where(function ($query) use ($data) {
+            //         $query->where('area_id', $data['area_id'] ?? null)
+            //             // ->where('company_id', $data['company_id'] ?? null)
+            //             ->where('locality_id', $data['locality_id'] ?? null)
+            //             ->where('plot_no', $data['plot_no'] ?? null)
+            //             ->whereNull('deleted_at');
+            //     }),
+            // ],
 
             // Property Size and Unit
             // 'property_size' => 'required|numeric|min:0',
             // 'property_size_unit' => 'required|exists:property_size_units,id',
             'status' => 'required|in:0,1',
             // 'makani_number' => ['nullable', 'digits:10'],
-            'makani_number' => ['nullable', 'regex:/^\d{5}\s\d{5}$/'],
+            // 'makani_number' => ['nullable', 'regex:/^\d{5}\s\d{5}$/'],
+            'makani_number' => [
+                'nullable',
+                'regex:/^\d{5}\s\d{5}$/',
+                Rule::unique('properties', 'makani_number')->ignore($id),
+            ],
 
             'location' => 'nullable|url',
         ], [
@@ -120,6 +125,7 @@ class PropertyService
             // 'makani_number.digits' => 'Makani Number must be exactly 10 digits and cannot contain letters or symbols.',
             // 'property_type_id.required' => 'Please select a propert type.',
             'location.url' => 'Please enter a valid URL in the Location field (starting with http:// or https://).',
+            'makani_number.unique' => 'This makani number already exists. Please choose another.',
 
 
 
