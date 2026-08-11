@@ -1864,6 +1864,10 @@ if (!function_exists('getBankListByRegion')) {
                     'arabic' => 'بنك مسقط',
                 ],
                 [
+                    'name' => 'Bank Of Jordan',
+                    'arabic' => 'بنك الأردن',
+                ],
+                [
                     'name' => 'Housing Bank',
                     'arabic' => 'بنك الإسكان',
                 ],
