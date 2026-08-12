@@ -353,7 +353,7 @@ class InvestmentContractService
                             </td>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='arabic'>
-                                    <p class='marginClass text-sm'>العنوان: {$investorData->investor_address}</p>
+                                    <p class='marginClass text-sm'>العنوان: {$investorData->investor_address_arabic}</p>
                                 </div>
                             </td>
                         </tr>
@@ -882,7 +882,7 @@ class InvestmentContractService
             '{investor_name_eng}' => $investor->investor_name,
             '{investor_name_ar}'  => $investor->investor_name_arabic,
             '{id_number}'         => $investor->id_number,
-            '{id_number_reversed}' => strrev($investor->id_number),
+
 
             '{tot_prev_invested_amount}'     => number_format($prevAmount, 2),
             '{tot_prev_invested_amount_eng}' => numberToEnglishWords($prevAmount),
@@ -913,7 +913,6 @@ class InvestmentContractService
             '{inv_profit_perc}' => $InvestorProfitPerc,
             '{company_profit_perc}' => $CompanyProfitPerc,
         ];
-        dd($vars);
 
 
 
