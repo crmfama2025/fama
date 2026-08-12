@@ -166,8 +166,8 @@ class InvestmentContractService
             // Investor
             '{investor_name_eng}'        => $investorData->investor_name,
             '{investor_name_ar}'         => $investorData->investor_name_arabic,
-            '{resident_state_eng}'     => $investorData->countryOfResidence->state,
-            '{resident_state_ar}'      => $investorData->countryOfResidence->state_arabic,
+            '{resident_state_eng}'     => $investorData->state,
+            '{resident_state_ar}'      => $investorData->state_arabic,
             '{resident_country_eng}'     => $investorData->countryOfResidence->nationality_name,
             '{resident_country_ar}'      => $investorData->countryOfResidence->nationality_arabic_name,
             '{id_number}'                => $investorData->id_number,
