@@ -882,6 +882,7 @@ class InvestmentContractService
             '{investor_name_eng}' => $investor->investor_name,
             '{investor_name_ar}'  => $investor->investor_name_arabic,
             '{id_number}'         => $investor->id_number,
+            '{id_number_reversed}' => strrev($investor->id_number),
 
             '{tot_prev_invested_amount}'     => number_format($prevAmount, 2),
             '{tot_prev_invested_amount_eng}' => numberToEnglishWords($prevAmount),
