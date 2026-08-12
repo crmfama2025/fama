@@ -141,6 +141,8 @@ class InvestmentContractService
         $grandTotalProfit      = $investmentsCollection->sum('profit_amount');
         $grandTotalPerInterval = $investmentsCollection->sum('profit_amount_per_interval');
 
+        // dd($grandTotalInvested);
+
         $firstInv    = $investmentsCollection->first();
         $companyData = Company::find($firstInv->company_id);
 
@@ -201,8 +203,8 @@ class InvestmentContractService
             '{company_profit_perc}' => $CompanyProfitPerc,
 
             // Grand totals
-            '{invested_amount}' => number_format($grandTotalInvested, 0),
-            '{invested_amount_eng}' => numberToEnglishWords($grandTotalInvested) . ' Only',
+            '{invested_amount}' => number_format($grandTotalInvested, 2),
+            '{invested_amount_eng}' => numberToEnglishWords($grandTotalInvested) . 'Dirhams Only',
             '{invested_amount_ar}' => numberToArabicWords($grandTotalInvested) . ' فقط',
             '{total_invested_amount}' => number_format($grandTotalInvested, 2),
             '{total_profit}'          => number_format($grandTotalProfit, 2),
