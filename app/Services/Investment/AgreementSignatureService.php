@@ -179,11 +179,11 @@ class AgreementSignatureService
     private function sendViaWhatsApp($contract, string $signerRole, string $signLink): void
     {
         // dump($contract->toArray());
-        // $recipient = $signerRole === 'investor'
-        //     ? $contract->investor->investor_mobile
-        //     : $contract->company->phone;
+        $recipient = $signerRole === 'investor'
+            ? $contract->investor->investor_mobile
+            : $contract->company->phone;
 
-        $recipient = '971567623806';
+        // $recipient = '971567623806';
         // dd($recipient);
         $variables = [
             'investor_name' => $contract->investor->investor_name ?? 'Investor',
@@ -323,7 +323,9 @@ class AgreementSignatureService
         if ($signerRole == 'investor') {
             $result = $this->brevoService->sendEmail(
                 [
-                    ['email' => 'crmfama2025@gmail.com', 'name' => 'Test User']
+                    // ['email' => 'crmfama2025@gmail.com', 'name' => 'Test User']
+                    ['email' => $recipientEmail, 'name' => 'Test User']
+
                 ],
                 'Investment Document Signature Request',
                 'admin.emails.investment-document-signature-email',
