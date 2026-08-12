@@ -322,12 +322,12 @@ class InvestmentContractService
                         <tr>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='english'>
-                                    <p class='marginClass text-sm'>Mobile No: {$investorData->investor_mobile}</p>
+                                    <p class='marginClass text-sm'>Mobile No: +{$investorData->investor_mobile}</p>
                                 </div>
                             </td>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='arabic'>
-                                    <p class='marginClass text-sm'>رقم الهاتف المتحرك: {$investorData->investor_mobile}</p>
+                                    <p class='marginClass text-sm'>رقم الهاتف المتحرك: +{$investorData->investor_mobile}</p>
                                 </div>
                             </td>
                         </tr>
@@ -366,7 +366,7 @@ class InvestmentContractService
                             </td>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='arabic'>
-                                    <p class='marginClass text-sm'>هوية المستثمر/جواز السفر: {$investorData->id_number}</p>
+                                    <p class='marginClass text-sm'>هوية المستثمر/جواز السفر:<span class='ltr-number'> {$investorData->id_number}</span></p>
                                 </div>
                             </td>
                         </tr>
