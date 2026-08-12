@@ -76,6 +76,10 @@
                 margin-bottom: 120px !important;
             }
 
+            .customsignInvestor {
+                margin-bottom: 100px !important;
+            }
+
             .ltr-number {
                 direction: ltr;
                 unicode-bidi: isolate;
