@@ -862,7 +862,9 @@ class InvestmentContractService
 
         $vars = [
             '{investment_long_date_eng}'        => $investmentDate->format('jS \d\a\y \o\f F Y'),
-            '{mudarabah_created_long_date_eng}' => $mudarabahCreatedDate->format('jS \d\a\y \o\f F Y'),
+            // '{mudarabah_created_long_date_eng}' => $mudarabahCreatedDate->format('jS \d\a\y \o\f F Y'),
+            '{mudarabah_created_long_date_eng}'        => $investmentDate->format('jS \d\a\y \o\f F Y'),
+
             '{investment_long_date_ar}'         => arabicLongDate($investmentDate),
             '{mudarabah_created_long_date_ar}'  => arabicLongDate($mudarabahCreatedDate),
 
