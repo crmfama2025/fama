@@ -913,6 +913,7 @@ class InvestmentContractService
             '{inv_profit_perc}' => $InvestorProfitPerc,
             '{company_profit_perc}' => $CompanyProfitPerc,
         ];
+        dd($vars);
 
 
 
