@@ -1264,7 +1264,9 @@
 
 
             let investmentId = $('#investment_id').val();
-            let url = investmentId ? `/investment/${investmentId}` : "{{ route('investment.store') }}";
+            let url = investmentId ?
+                "{{ route('investment.update', ':id') }}".replace(':id', investmentId) :
+                "{{ route('investment.store') }}";
 
             let formData = new FormData(this);
             if (investmentId) {
