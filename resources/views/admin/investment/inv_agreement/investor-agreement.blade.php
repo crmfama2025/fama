@@ -212,9 +212,12 @@
 
             let id = $('#template_id').val(); // hidden field for edit
             console.log(id);
+            // let url = id ?
+            //     `/legal_template/${id}` :
+            //     `/legal_template`;
             let url = id ?
-                `/legal_template/${id}` :
-                `/legal_template`;
+                "{{ route('legal_template.update', ':id') }}".replace(':id', id) :
+                "{{ route('legal_template.store') }}";
 
             let method = id ? 'PUT' : 'POST';
 
