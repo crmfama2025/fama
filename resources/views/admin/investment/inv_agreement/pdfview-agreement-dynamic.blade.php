@@ -396,7 +396,7 @@
                 overflow: hidden !important;
                 page-break-after: always;
                 break-after: page;
-                background-image: url("{{ asset('images/investment_letter_head.png') }}") !important;
+                /* ──  background-image: url("{{ asset('images/investment_letter_head.png') }}") !important;── */
                 background-size: 210mm 297mm !important;
                 background-repeat: no-repeat !important;
                 background-position: top left !important;
