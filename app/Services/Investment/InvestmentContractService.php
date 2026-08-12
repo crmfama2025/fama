@@ -803,12 +803,12 @@ class InvestmentContractService
 
             '{annexA}' => $annexureA,
 
-            '{total_invested_amount}' => $investmentData->investment_amount,
-            '{total_profit}'          => $investmentData->profit_amount,
-            '{monthly_estimate}'      => $investmentData->profit_amount_per_interval,
+            '{total_invested_amount}' => number_format($investmentData->investment_amount, 2),
+            '{total_profit}'          => number_format($investmentData->profit_amount, 2),
+            '{monthly_estimate}'      => number_format($investmentData->profit_amount_per_interval, 2),
             '{profit_month_eng}'      => $profitData['profitEng'],
             '{profit_month_ar}'       => $profitData['profitAr'],
-            '{total_count_annexB}' => $profitData['totalCount'],
+            '{total_count_annexB}' => number_format($profitData['totalCount'], 2),
             '{date}' => Carbon::parse($investmentData->investment_date)->format('d/m/Y'),
         ];
 
