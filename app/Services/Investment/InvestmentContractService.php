@@ -770,7 +770,7 @@ class InvestmentContractService
             '{passport_no}'              => $investorData->passport_number,
             '{investment_date_eng}'      => date('d M Y', strtotime($investmentData->investment_date)),
             '{investment_date_ar}'       => arabicShortDate($investmentData->investment_date),
-            '{invested_amount}'          => $investmentData->investment_amount,
+            '{invested_amount}'          => number_format($investmentData->investment_amount, 2),
             '{invested_amount_eng}' => numberToEnglishWords($investmentData->investment_amount) . ' Dirhams Only',
             '{invested_amount_ar}' => numberToArabicWords($investmentData->investment_amount) . ' فقط',
             '{grace_period}'             => $investmentData->grace_period,
