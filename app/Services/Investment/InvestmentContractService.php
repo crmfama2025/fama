@@ -765,14 +765,8 @@ class InvestmentContractService
             '{investment_date_eng}'      => date('d M Y', strtotime($investmentData->investment_date)),
             '{investment_date_ar}'       => arabicShortDate($investmentData->investment_date),
             '{invested_amount}'          => $investmentData->investment_amount,
-<<<<<<< HEAD
-            '{invested_amount_eng}' => numberToEnglishWords($investmentData->investment_amount) . ' Only',
-            '{invested_amount_ar}' => numberToArabicWords($investmentData->investment_amount) . ' درهم
-                                    إماراتي فقط',
-=======
             '{invested_amount_eng}' => numberToEnglishWords($investmentData->investment_amount) . 'Dirhams Only',
             '{invested_amount_ar}' => numberToArabicWords($investmentData->investment_amount) . ' فقط',
->>>>>>> geethu
             '{grace_period}'             => $investmentData->grace_period,
             '{mode_of_payment_eng}'      => $investorData->paymentMode->payment_mode_name,
             '{mode_of_payment_ar}'       => $investorData->paymentMode->payment_mode_arabic_name,
@@ -1451,7 +1445,7 @@ class InvestmentContractService
                             </div>
                         </td>
                     </tr>
-                    
+
                     <tr data-row>
                         <td width="50%" style="border:1px solid #ccc;">
                             <div class="english">
@@ -1466,7 +1460,7 @@ class InvestmentContractService
                             </div>
                         </td>
                     </tr>
-                    
+
                     <tr data-row>
                         <td width="50%" style="border:1px solid #ccc;">
                             <div class="english">
@@ -1479,7 +1473,7 @@ class InvestmentContractService
                             </div>
                         </td>
                     </tr>
-                    
+
                     <tr data-row>
                         <td width="50%" style="border:1px solid #ccc;">
                             <div class="english">
@@ -1672,7 +1666,7 @@ class InvestmentContractService
                             </div>
                         </td>
                     </tr>
-                    
+
                     <tr data-row>
                         <td width="50%" style="border:1px solid #ccc;">
                             <div class="english">
