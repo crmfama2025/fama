@@ -882,7 +882,8 @@
 
             let profitPerInterval = profitAmount / divisor;
             $('#profit_amount_per_interval').val(profitPerInterval.toFixed(2));
-            $('.profit-row-amount').attr('max', profitPerInterval.toFixed(2));
+            // Commended because not able to adjust if the toatal of row amount is not matching
+            // $('.profit-row-amount').attr('max', profitPerInterval.toFixed(2));
         }
 
         $('#profit_perc').on('change', function() {
@@ -1682,10 +1683,16 @@
         $(document).on('input', '.profit-row-amount', function() {
             let max = parseFloat($(this).attr('max'));
             let val = parseFloat($(this).val());
+            let total_prof = $('#profit_amount').val();
+            let total_prof_interval = $('#profitScheduleTotal').val();
 
             if (!isNaN(max) && !isNaN(val) && val > max) {
                 $(this).val(max);
-                toastr.error(`Amount cannot exceed ${max.toFixed(2)} for this row.`);
+                // if toatl of rows is not matching sometimes need to exceed the amount
+                if (total_pro == total_prof_interval) {
+                    toastr.error(`Amount cannot exceed ${max.toFixed(2)} for this row.`);
+
+                }
             }
 
             updateProfitScheduleTotal();
