@@ -1532,6 +1532,9 @@
                 sum += parseFloat($(this).val()) || 0;
                 console.log('sum loop', sum);
             });
+            // Round to 2 decimal places
+            totalProfit = Math.round((totalProfit + Number.EPSILON) * 100) / 100;
+            sum = Math.round((sum + Number.EPSILON) * 100) / 100;
 
             if (totalProfit != sum) {
                 if (totalProfit < sum) {
@@ -1546,7 +1549,7 @@
                         .toggle(diff > 0.01);
                 }
 
-                // $('#investmentSubmitButton').prop('disabled', true);
+                $('#investmentSubmitButton').prop('disabled', true);
             } else {
                 $('#profitScheduleMismatch').toggle(false);
                 $('#investmentSubmitButton').prop('disabled', false);
