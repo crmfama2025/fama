@@ -73,7 +73,7 @@
             }
 
             .customsign {
-                margin-bottom: 120px;
+                margin-bottom: 120px !important;
             }
 
             .ltr-number {
