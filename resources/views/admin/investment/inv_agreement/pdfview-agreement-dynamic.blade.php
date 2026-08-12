@@ -72,6 +72,10 @@
                 font-family: amiri;
             }
 
+            .customsign {
+                margin-bottom: 120px;
+            }
+
             .ltr-number {
                 direction: ltr;
                 unicode-bidi: isolate;
