@@ -327,7 +327,7 @@ class InvestmentContractService
                             </td>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='arabic'>
-                                    <p class='marginClass text-sm'>رقم الهاتف المتحرك: +{$investorData->investor_mobile}</p>
+                                    <p class='marginClass text-sm'>رقم الهاتف المتحرك: {$investorData->investor_mobile}+</p>
                                 </div>
                             </td>
                         </tr>
