@@ -1410,7 +1410,7 @@ class InvestmentContractService
             } elseif ($investmentData->investment_tenure == 3) {
                 $tenure['months_en'] = 'Three (3) months';
                 $tenure['months_ar'] = 'ثلاثة (3) أشهر';
-                $tenure['return_en'] = 'ninety (90) days';
+                $tenure['return_en'] = 'Ninety (90) days';
                 $tenure['return_ar'] = 'تسعون (90) يومًا';
             } else {
                 $returnDays = 60 + ($investmentData->investment_tenure * 10);
