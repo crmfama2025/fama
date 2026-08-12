@@ -72,6 +72,13 @@
                 font-family: amiri;
             }
 
+            .ltr-number {
+                direction: ltr;
+                unicode-bidi: isolate;
+                display: inline-block;
+                text-align: left;
+            }
+
             .english {
                 direction: ltr;
                 padding-left: 3px;
