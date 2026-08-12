@@ -183,7 +183,7 @@ class AgreementSignatureService
         //     ? $contract->investor->investor_mobile
         //     : $contract->company->phone;
 
-        $recipient = '971502255388';
+        $recipient = '971567623806';
         // dd($recipient);
         $variables = [
             'investor_name' => $contract->investor->investor_name ?? 'Investor',
