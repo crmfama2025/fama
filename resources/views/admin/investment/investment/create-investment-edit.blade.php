@@ -1546,7 +1546,7 @@
                         .toggle(diff > 0.01);
                 }
 
-                $('#investmentSubmitButton').prop('disabled', true);
+                // $('#investmentSubmitButton').prop('disabled', true);
             } else {
                 $('#profitScheduleMismatch').toggle(false);
                 $('#investmentSubmitButton').prop('disabled', false);
