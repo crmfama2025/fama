@@ -835,14 +835,24 @@
             let investmentAmount = parseFloat($('#investment_amount').val()) || 0;
             let profitPerc = parseFloat($('#profit_perc').val()) || 0;
 
+            let tenure = parseInt($('#investment_tenure').val()) || 0;
+
             let profitAmount = (investmentAmount * profitPerc) / 100;
 
-            $('#profit_amount').val(profitAmount.toFixed(2));
+            let actual_profit = profitAmount / 12 * tenure;
+
+            // $('#profit_amount').val(profitAmount.toFixed(2));
+            $('#profit_amount').val(actual_profit.toFixed(2));
+
         }
 
         $('#investment_amount').on('keyup change', function() {
             calculateProfit();
         });
+
+        // $('#investment_tenure').on('keyup change', function() {
+        //     calculateProfit();
+        // });
 
         function calculateProfitPerInterval() {
             let profitAmount = parseFloat($('#profit_amount').val()) || 0;
@@ -911,6 +921,8 @@
         $('#investment_tenure').on('change keyup', function() {
             calculateMaturityDate();
             syncRowsToTenure();
+            calculateProfit();
+            calculateProfitPerInterval();
         });
 
         $('#grace_period').on('change keyup', function() {
