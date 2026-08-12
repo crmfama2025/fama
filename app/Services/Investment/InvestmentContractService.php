@@ -746,7 +746,8 @@ class InvestmentContractService
 
         $placeholders = [
             // '{mudarabah_created_long_date_eng}'  => date('j \d\a\y \o\f F Y', strtotime($invDocDetails->generated_date)),
-            '{mudarabah_created_long_date_eng}'        => date('d M Y', strtotime($investmentData->investment_date)),
+            '{mudarabah_created_long_date_eng}'  => date('j \d\a\y \o\f F Y', strtotime($investmentData->investment_date)),
+            // '{mudarabah_created_long_date_eng}'        => date('d M Y', strtotime($investmentData->investment_date)),
             '{mudarabah_created_long_date_ar}'   => arabicLongDate($invDocDetails->generated_date),
             '{mudarabah_created_short_date_eng}' => date('d M Y', strtotime($invDocDetails->generated_date)),
             '{mudarabah_created_short_date_ar}'  => arabicShortDate($invDocDetails->generated_date),
