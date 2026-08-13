@@ -230,7 +230,7 @@ class AgreementSignatureService
     {
 
         $recipientEmail = $signerRole === 'investor'
-            ? $contract->investor->email
+            ? $contract->investor->investor_email
             : $contract->company->owner_email;
 
         $investorhtml = '<p>
@@ -324,7 +324,7 @@ class AgreementSignatureService
             $result = $this->brevoService->sendEmail(
                 [
                     // ['email' => 'crmfama2025@gmail.com', 'name' => 'Test User']
-                    ['email' => $recipientEmail, 'name' => 'Test User']
+                    ['email' => $recipientEmail, 'name' => $contract->investor->investor_name]
 
                 ],
                 'Investment Document Signature Request',
