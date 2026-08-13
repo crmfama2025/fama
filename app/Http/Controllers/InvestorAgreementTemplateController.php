@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\GenerateAndSendSignedAgreementPdf;
 use App\Models\AgreementSignatureEvent;
 use App\Models\InvestmentContractDocuments;
 use App\Models\InvestorAgreementType;
 use App\Services\Investment\AgreementSignatureService;
 use App\Services\Investment\InvestmentContractService;
+use App\Services\Investment\InvestmentService;
 use App\Services\Investment\InvestorAgreementService;
 use App\Services\Investment\InvestorService;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -25,6 +27,7 @@ class InvestorAgreementTemplateController extends Controller
         protected InvestmentContractService $invContractServ,
         protected AgreementSignatureService $signatureService,
         protected InvestorService $investorService,
+        protected InvestmentService $investmentService
     ) {}
 
     /**
@@ -114,7 +117,14 @@ class InvestorAgreementTemplateController extends Controller
     public function contract_view($docId, $companyId)
     {
         $data = $this->invContractServ->sendContractDocument($docId, $companyId);
+        // dd($data);
         $contractDocument = InvestmentContractDocuments::find($docId);
+        // $contractDocument->investment_id = 0;
+        $investment = null;
+        if ($contractDocument->investment_id != 0) {
+            $investment = $this->investmentService->getById($contractDocument->investment_id);
+        }
+        // dd($investment);
         // dd($contractDocument);
         $investor = $this->investorService->getById($contractDocument->investor_id);
         $investments = $this->investorService->getCompanyTotalInvestments($contractDocument->investor_id);
@@ -125,7 +135,7 @@ class InvestorAgreementTemplateController extends Controller
             $signerRole = 'company';
         }
 
-        return view('admin.investment.inv_agreement.pdfview-agreement-dynamic', compact('data', 'contractDocument', 'signerRole', 'investor', 'investments'));
+        return view('admin.investment.inv_agreement.pdfview-agreement-dynamic', compact('data', 'contractDocument', 'signerRole', 'investor', 'investments', 'investment'));
     }
 
     public function doc_view()
@@ -231,6 +241,12 @@ class InvestorAgreementTemplateController extends Controller
                 'channel' => 'web',
                 'occurred_at' => now(),
             ]);
+
+            // Fully executed once both parties have signed — company signs last
+            // if ($validated['signer_role'] === 'company' && $contract->is_investor_signed) {
+            //     // dd("test");
+            //     GenerateAndSendSignedAgreementPdf::dispatch($contract->id)->afterCommit();
+            // }
         });
 
         return response()->json(['message' => 'Signed successfully.', 'status' => 'success']);

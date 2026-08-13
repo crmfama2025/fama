@@ -91,7 +91,8 @@ class Investment extends Model
         'investment_amount_arabic',
         'total_invested_amount',
         'total_withdrawn_amount',
-        'has_partial_withdrawal'
+        'has_partial_withdrawal',
+        'investment_term_type'
     ];
     protected $casts = [
         'company_bank_iban' => CustomEncrypted::class,

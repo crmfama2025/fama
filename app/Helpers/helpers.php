@@ -1899,3 +1899,11 @@ if (!function_exists('getBankListByRegion')) {
         return $banks;
     }
 }
+function getTermType($tenure)
+{
+    if ($tenure == 6 || $tenure == 3) {
+        return 2;
+    } elseif ($tenure >= 12) {
+        return 1;
+    }
+}

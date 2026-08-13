@@ -341,6 +341,7 @@ class InvestmentContractDocumentService
             // } else {
             $companyInvestmentCount = Investment::where('investor_id', $investorId)
                 ->where('company_id', $companyId)
+                ->where('investment_term_type', 1)
                 ->count();
             // dd($companyInvestmentCount);
 
@@ -373,6 +374,7 @@ class InvestmentContractDocumentService
         // dd("test");
         $companyInvestmentCount = Investment::where('investor_id', $investorId)
             ->where('company_id', $companyId)
+            ->where('investment_term_type', 1)
             ->count();
         $contract_doc = InvestmentContractDocuments::where('investment_id', $docInsertData['investment_id'])
             ->whereIn('investor_agreement_type_id', [1, 2])

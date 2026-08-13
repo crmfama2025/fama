@@ -79,6 +79,7 @@ class InvestmentService
 
             $investmentType = InvestmentTypestatus($data['investor_id']);
             $balance_amount = $data['investment_amount'] - $data['received_amount'];
+            $termtype = getTermType($data['investment_tenure']);
 
             // dd("test");
             // ---------------- Investment ----------------
@@ -119,6 +120,7 @@ class InvestmentService
                 'initial_profit_release_month' => Carbon::parse($data['next_profit_release_date'])->format('M Y'),
                 'invested_company_id' => $data['invested_company_id'],
                 'total_invested_amount' => $data['investment_amount'],
+                'investment_term_type' => $termtype
             ];
             $this->validate($investmentData);
             // dd($investmentData);
@@ -363,11 +365,21 @@ class InvestmentService
                 'investment_date',
                 'payout_batch_id',
             ];
+            // dd($scheduleAffectingFields);
+            // dd($data['profit_records']);
 
             // ----------------- investment profits for -------------
             if ($investment->wasChanged($scheduleAffectingFields)) {
+                // dd($data['profit_records']);
                 $this->investmentRepository->generateInvestorProfitRecords($data['profit_records'], $investment);
             }
+
+            // Profit record update
+            // $this->investmentRepository->updateInvestorProfitRecords(
+            //     $data['profit_records'] ?? [],
+            //     $investment
+            // );
+
 
             // Update Investment Documents
             // if (!empty($data['contract_file'])) {
