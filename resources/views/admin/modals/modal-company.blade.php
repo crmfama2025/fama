@@ -101,6 +101,13 @@
 
 
                         </div>
+                        <div class="form-group row">
+                            <div class="col-sm-6">
+                                <label for="inputEmail3" class="col-form-label asterisk">Qwner Email</label>
+                                <input type="email" name="owner_email" id="owner_email" class="form-control"
+                                    id="inputEmail3" placeholder="Company Owner Email" required>
+                            </div>
+                        </div>
 
                     </div>
                     <!-- /.card-body -->

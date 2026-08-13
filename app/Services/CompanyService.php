@@ -116,6 +116,7 @@ class CompanyService
                     ->where(fn($q) => $q->whereNull('deleted_at'))
             ],
             'email' => 'required|email',
+            'owner_email' => 'required|email',
             'industry_id' => 'required|exists:industries,id',
             'phone' => [
                 'required',
