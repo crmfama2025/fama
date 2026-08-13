@@ -83,6 +83,7 @@
                                             <th>Company Name</th>
                                             <th>Investor Name</th>
                                             <th>Status</th>
+                                            <th>Signed Status</th>
                                             <th>Contract Type</th>
                                             <th>Version</th>
                                             <th>Document</th>
@@ -174,6 +175,10 @@
                     {
                         data: 'status',
                         name: 'status'
+                    },
+                    {
+                        data: 'signed_status',
+                        name: 'signed_status'
                     },
 
                     {
