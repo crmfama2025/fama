@@ -31,7 +31,7 @@ class InvestmentContractsController extends Controller
         if ($request->ajax()) {
             $filters = [
                 'investor_id' => $request->investorid,
-                'company_id' => auth()->user()->company_id,
+                // 'company_id' => auth()->user()->company_id,
                 'search' => $request->search['value'] ?? null,
                 'status' => $request->status ?? 'all',
             ];
