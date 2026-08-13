@@ -117,6 +117,10 @@
                                             <td>{{ $company->email ?? '-' }}</td>
                                         </tr>
                                         <tr>
+                                            <th>Owner Email</th>
+                                            <td>{{ $company->owner_email ?? '-' }}</td>
+                                        </tr>
+                                        <tr>
                                             <th>Website</th>
                                             <td>
                                                 @if ($company->website)
