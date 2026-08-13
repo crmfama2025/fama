@@ -113,6 +113,16 @@ class InvestmentContractDocumentService
                     return '<span class="badge badge-warning">Pending</span>';
                 }
             })
+
+            ->addColumn('signed_status', function ($row) {
+                if ($row->is_investor_signed == 0 && $row->is_company_signed == 0) {
+                    return '<span class="badge badge-warning">Pending</span>';
+                } elseif ($row->is_investor_signed == 1 && $row->is_company_signed == 0) {
+                    return '<span class="badge badge-info">Investor Signed</span>';
+                } elseif ($row->is_investor_signed == 1 && $row->is_company_signed == 1) {
+                    return '<span class="badge badge-success">Both Signed</span>';
+                }
+            })
             // Main Document View
             ->addColumn('main_doc_view', function ($row) {
                 if ($row->contract_file_path) {
@@ -177,7 +187,7 @@ class InvestmentContractDocumentService
 
                 return $action;
             })
-            ->rawColumns(['action', 'investor_agreement_type', 'main_doc_view', 'additional_doc_view', 'generated_date', 'investor_agreement_template', 'status'])
+            ->rawColumns(['action', 'signed_status', 'investor_agreement_type', 'main_doc_view', 'additional_doc_view', 'generated_date', 'investor_agreement_template', 'status'])
             ->toJson();
     }
     public function documentsFormData()
