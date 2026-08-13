@@ -173,6 +173,7 @@ class AgreementSignatureService
             'event_type' => $eventType,
             'channel' => $channel,
             'occurred_at' => now(),
+            'send_by' => auth()->user()->id
         ]);
     }
 
