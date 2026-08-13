@@ -7,6 +7,7 @@ use App\Exports\WithdrawalExport;
 use App\Models\DocumentType;
 use App\Models\Investment;
 use App\Models\Investor;
+use App\Models\InvestorDocument;
 use App\Models\InvestorRelation;
 use App\Models\PaymentMode;
 use App\Models\PayoutBatch;
@@ -44,6 +45,7 @@ class InvestorController extends Controller
         $paymentModes = PaymentMode::all();
         $investorsLists = $this->investorService->getAllActive();
         $investor = null;
+        $investorDocuments = null;
         $relations  = InvestorRelation::all();
 
 
@@ -55,7 +57,8 @@ class InvestorController extends Controller
             "paymentModes",
             "investorsLists",
             "investor",
-            "relations"
+            "relations",
+            "investorDocuments"
         ));
     }
 
@@ -69,7 +72,8 @@ class InvestorController extends Controller
         $investor = $this->investorService->getById($id);
         $investorsLists = $this->investorService->getAllActive();
         $relations  = InvestorRelation::all();
-        // dd($investor);
+        $investorDocuments = InvestorDocument::where('investor_id', $id)->get();
+        // dd($investorDocuments);
 
 
         return view("admin.investment.investor-create", compact(
@@ -80,7 +84,8 @@ class InvestorController extends Controller
             "paymentModes",
             "investorsLists",
             "investor",
-            "relations"
+            "relations",
+            "investorDocuments"
         ));
     }
 
@@ -112,6 +117,7 @@ class InvestorController extends Controller
 
     public function update(Request $request, $id)
     {
+        // dd($request->all());
         try {
             $investor = $this->investorService->update($id, $request->all());
 
@@ -175,7 +181,7 @@ class InvestorController extends Controller
     }
     public function partialWithdrawal($id)
     {
-        $title = 'Withdrawal';
+        $title = 'Withdrawal/Settlement';
         $companies = $this->investorService->getInvestedCompanies($id);
         // dd($companies);
         $investor = $this->investorService->getById($id);
