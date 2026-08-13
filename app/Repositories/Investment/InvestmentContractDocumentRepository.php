@@ -97,6 +97,22 @@ class InvestmentContractDocumentRepository
                 ->orWhereRaw("CAST(investment_contract_documents.id AS CHAR) LIKE ?", ['%' . $filters['search'] . '%']);
         }
 
+        if (isset($filters['status']) && $filters['status'] !== 'all') {
+            switch ($filters['status']) {
+                case 1:
+                    $query->where('investment_contract_documents.is_investor_signed', 0)
+                        ->where('investment_contract_documents.is_company_signed', 0);
+                    break;
+                case 2:
+                    $query->where('investment_contract_documents.is_investor_signed', 1)
+                        ->where('investment_contract_documents.is_company_signed', 0);
+                    break;
+                case 3:
+                    $query->where('investment_contract_documents.is_investor_signed', 1)
+                        ->where('investment_contract_documents.is_company_signed', 1);
+                    break;
+            }
+        }
         // if (!empty($filters['company_id'])) {
         //     $query->Where('company_id', $filters['company_id']);
         // }

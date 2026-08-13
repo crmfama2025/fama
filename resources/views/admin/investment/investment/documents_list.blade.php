@@ -50,6 +50,27 @@
 
                             <!-- /.card-header -->
                             <div class="card-body table-responsive">
+                                <div class="mb-3 text-center">
+                                    <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                        <label class="btn btn-outline-primary active">
+                                            <input type="radio" name="agreementFilter" value="all" autocomplete="off"
+                                                checked> All
+                                        </label>
+                                        <label class="btn btn-outline-success">
+                                            <input type="radio" name="agreementFilter" value="1" autocomplete="off">
+                                            Pending
+                                        </label>
+                                        <label class="btn btn-outline-warning">
+                                            <input type="radio" name="agreementFilter" value="2" autocomplete="off">
+                                            Investor Signed
+                                        </label>
+                                        <label class="btn btn-outline-danger">
+                                            <input type="radio" name="agreementFilter" value="3" autocomplete="off">
+                                            Both Signed
+                                        </label>
+                                    </div>
+                                </div>
+
                                 <table id="investmentContractsTable" class="table table-striped  nowrap"width="100%">
                                     <thead>
                                         <tr>
@@ -124,6 +145,7 @@
                     data: function(d) {
                         // You can add filters here if needed
                         d.investment_id = "{{ $investment->id }}";
+                        d.status = $('input[name="agreementFilter"]:checked').val();
                     },
                 },
                 columns: [{
@@ -205,6 +227,12 @@
                 // }]
             });
 
+        });
+        $('input[name="agreementFilter"]').on('change', function() {
+            table.ajax.reload();
+            setTimeout(function() {
+                table.columns.adjust().responsive.recalc();
+            }, 200);
         });
 
         $('#receiveddate').datetimepicker({

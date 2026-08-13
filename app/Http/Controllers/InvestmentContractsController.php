@@ -32,7 +32,8 @@ class InvestmentContractsController extends Controller
             $filters = [
                 'investor_id' => $request->investorid,
                 'company_id' => auth()->user()->company_id,
-                'search' => $request->search['value'] ?? null
+                'search' => $request->search['value'] ?? null,
+                'status' => $request->status ?? 'all',
             ];
 
             return $this->investmentContractService->getDataTable($filters);

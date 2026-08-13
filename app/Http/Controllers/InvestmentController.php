@@ -170,9 +170,10 @@ class InvestmentController extends Controller
         if ($request->ajax()) {
             $filters = [
                 'investor_id' => $request->investorid,
-                // 'company_id' => auth()->user()->company_id,
+                'company_id' => auth()->user()->company_id,
                 'investment_id' => $request->investment_id,
-                'search' => $request->search['value'] ?? null
+                'search' => $request->search['value'] ?? null,
+                'status' => $request->status ?? 'all',
             ];
 
             return $this->investmentContractService->getDataTable($filters);
