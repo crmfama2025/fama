@@ -231,7 +231,7 @@ class AgreementSignatureService
 
         $recipientEmail = $signerRole === 'investor'
             ? $contract->investor->email
-            : $contract->company->email;
+            : $contract->company->owner_email;
 
         $investorhtml = '<p>
                     Dear ' . $contract->investor->investor_name . ',
