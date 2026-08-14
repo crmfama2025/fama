@@ -52,7 +52,7 @@
          */
             .file-content {
                 position: relative;
-                padding: 34mm 16mm 48mm 16mm;
+                padding: 29mm 16mm 48mm 16mm;
                 box-sizing: border-box;
             }
 
