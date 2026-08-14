@@ -1425,7 +1425,7 @@ class InvestmentContractService
     {
 
         if ($investmentData->investment_tenure != 12) {
-            dd($investmentData->investment_tenure);
+            // dd($investmentData->investment_tenure);
 
             if ($investmentData->investment_tenure == 6) {
                 $tenure['months_en'] = 'six (6) months';
