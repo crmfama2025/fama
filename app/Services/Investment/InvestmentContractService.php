@@ -627,6 +627,19 @@ class InvestmentContractService
         // $CompanyProfitPerc  = 100 - $InvestorProfitPerc;
         $CompanyProfitPerc  = (100 / 12 * $investmentData->investment_tenure) - $InvestorProfitPerc;
 
+        $InvestorProfitPerctext = $investmentData->investment_tenure == 3
+            ? "Investor's profit share ratio for " . $investmentData->investment_tenure . " months:"
+            : ($investmentData->investment_tenure == 6
+                ? "Investor's profit share ratio for " . $investmentData->investment_tenure . " months:"
+                : ($investmentData->investment_tenure == 12
+                    ? "Investor's profit share ratio:"
+                    : "Investor's profit share ratio:"));
+        $InvestorProfitPerctext_ar = $investmentData->investment_tenure == 3
+            ? " نسبة حصة المستثمر من الربح مدة " . $investmentData->investment_tenure . " أشهر:"
+            : ($investmentData->investment_tenure == 6
+                ? " نسبة حصة المستثمر من الربح مدة" . $investmentData->investment_tenure . " أشهر:"
+                : "نسبة حصة المستثمر من الربح :");
+
         // // ── Start from next month of mudarabah created date ──────────────────────
         // $startDate = Carbon::now()->addMonth()->startOfMonth();
         // $firstPayoutDate = Carbon::createFromFormat('M Y', $inv->initial_profit_release_month)
@@ -806,7 +819,8 @@ class InvestmentContractService
             '{beneficiary_bankname_ar}'  => $investorData->investorBanks[0]->investor_bank_name_arabic,
             '{beneficiary_iban}'         => $investorData->investorBanks[0]->investor_iban,
 
-            '{inv_profit_perc}'     => $InvestorProfitPerc,
+            '{inv_profit_perc}'     => $InvestorProfitPerctext . $InvestorProfitPerc,
+            '{inv_profit_perc_ar}'     => $InvestorProfitPerctext_ar . $InvestorProfitPerc,
             '{company_profit_perc}' => $CompanyProfitPerc,
 
             '{company_name_eng}' => $companyData->company_name,
