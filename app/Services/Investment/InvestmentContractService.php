@@ -1412,7 +1412,7 @@ class InvestmentContractService
             <tr>
                 <td width='50%' style='border:1px solid #ccc;'>
                     <div class='english'>
-                        <p class='text-md'>" . $key + 1 . ' ' . $currentMonth->format('M Y') . "</p>
+                        <p class='text-md'>" . $key + 1 . ' . ' . $currentMonth->format('M Y') . "</p>
                     </div>
                 </td>
                 <td width='50%' style='border:1px solid #ccc;'>
@@ -1426,7 +1426,7 @@ class InvestmentContractService
             <tr>
                 <td width='50%' style='border:1px solid #ccc;'>
                     <div class='arabic'>
-                        <p class='text-md'>" . $key + 1 . ' ' . arabicMY($currentMonth->format('M Y')) . "</p>
+                        <p class='text-md'>" . $key + 1 . ' . ' . arabicMY($currentMonth->format('M Y')) . "</p>
                     </div>
                 </td>
                 <td width='50%' style='border:1px solid #ccc;'>
