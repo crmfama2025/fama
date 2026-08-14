@@ -849,6 +849,7 @@ class InvestmentContractService
 
         // dd($docDetails);
         dd([
+            'doc' => $docDetails,
             'investment' => $investment,
             'investment_id' => $investmentId ?? null,
         ]);
