@@ -265,9 +265,9 @@ class InvestmentContractService
             ? 'Profit Sharing Ratio for 3 months :'
             : ($inv->investment_tenure == 6 ? 'Profit Sharing Ratio for 6 months :' : 'Profit Sharing Ratio:');
         $term_ar = $inv->investment_tenure == 3
-            ? 'نسبة مشاركة الأرباح لمدة 3 أشهر:'
+            ? 'نسبة توزيع الربح  مدة 3 أشهر:'
             : ($inv->investment_tenure == 6
-                ? 'نسبة مشاركة الأرباح لمدة 6 أشهر:'
+                ? 'نسبة توزيع الربح  مدة 6 أشهر:'
                 : 'نسبة مشاركة الأرباح:');
 
         return "
