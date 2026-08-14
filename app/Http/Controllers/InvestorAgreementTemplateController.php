@@ -296,6 +296,10 @@ class InvestorAgreementTemplateController extends Controller
         if (!$contractDocument) {
             abort(404, 'Contract not found or invalid unique key.');
         }
+        $investment = null;
+        if ($contractDocument->investment_id != 0) {
+            $investment = $this->investmentService->getById($contractDocument->investment_id);
+        }
 
         $data = $this->invContractServ->sendContractDocument($contractDocument->id, $contractDocument->company_id);
 
@@ -313,7 +317,7 @@ class InvestorAgreementTemplateController extends Controller
         $investor = $this->investorService->getById($contractDocument->investor_id);
         $investments = $this->investorService->getCompanyTotalInvestments($contractDocument->investor_id);
 
-        return view('admin.investment.inv_agreement.pdfview-agreement-dynamic', compact('data', 'contractDocument', 'signerRole', 'investor', 'investments'));
+        return view('admin.investment.inv_agreement.pdfview-agreement-dynamic', compact('data', 'contractDocument', 'signerRole', 'investor', 'investments', 'investment'));
     }
 
     /**
