@@ -35,8 +35,19 @@ class AgreementSignatureService
         $contract = $this->InvContractDocRepo->find($contract);
         $signerRole = $this->currentSignerRole($contract);
 
+        // keep the record of who and time of sending from crm
+        if ($signerRole === 'investor') {
+            $contract->sendto_investor_by = auth()->user()->id;
+            $contract->sendto_investor_date = now();
+        } else {
+            $contract->sendto_management_by = auth()->user()->id;
+            $contract->sendto_investor_date = now();
+        }
+
         $contract->investor_sign_channel = $channel;
         $contract->sign_token = str()->random(8);
+
+
         $contract->save();
 
         $this->logEvent($contract, $signerRole, 'sent', $channel);

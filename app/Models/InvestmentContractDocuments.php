@@ -32,7 +32,11 @@ class InvestmentContractDocuments extends Model
         'generated_date',
         'has_additional_doc',
         'action_type',
-        'generated_by'
+        'generated_by',
+        'sendto_investor_by',
+        'sendto_management_by',
+        'sendto_investor_date',
+        'sendto_management_date',
     ];
 
     public function investment()
