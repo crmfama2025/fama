@@ -146,7 +146,7 @@ class InvestmentContractService
         $firstInv    = $investmentsCollection->first();
         $companyData = Company::find($firstInv->company_id);
 
-        $InvestorProfitPerc = ($firstInv->profit_perc * (100 / 50) * $firstInv->invetsment_tenure) / 12;
+        $InvestorProfitPerc = ($firstInv->profit_perc * (100 / 50) * $firstInv->investment_tenure) / 12;
         $CompanyProfitPerc  = 100 - $InvestorProfitPerc;
 
         $htmlMulti = $documentDetail->template;
@@ -611,8 +611,10 @@ class InvestmentContractService
 
         $companyData = Company::find($investmentData->company_id);
         $html        = $documentDetail->template;
+        // dd($investmentData->invetsment_tenure);
 
-        $InvestorProfitPerc = $investmentData->profit_perc * 100 / 50;
+        // $InvestorProfitPerc = $investmentData->profit_perc * 100 / 50;
+        $InvestorProfitPerc = ($investmentData->profit_perc * (100 / 50) * $investmentData->investment_tenure) / 12;
         $CompanyProfitPerc  = 100 - $InvestorProfitPerc;
 
         // // ── Start from next month of mudarabah created date ──────────────────────
@@ -811,10 +813,12 @@ class InvestmentContractService
 
             '{total_invested_amount}' => number_format($investmentData->investment_amount, 2),
             '{total_profit}'          => number_format($investmentData->profit_amount, 2),
-            '{monthly_estimate}'      => number_format($investmentData->profit_amount_per_interval, 2),
+            '{monthly_estimate_en}'      => ($investmentData->profit_interval_id == 1) ? '· Equivalent monthly estimate for investor: AED ' . number_format($investmentData->profit_amount_per_interval, 2) . '/-' : '',
             '{profit_month_eng}'      => $profitData['profitEng'],
             '{profit_month_ar}'       => $profitData['profitAr'],
             '{total_count_annexB}' => $profitData['totalCount'],
+            '{monthly_estimate_ar}'      => ($investmentData->profit_interval_id == 1) ? '· التقدير الشهري المعادل للمستثمر' . number_format($investmentData->profit_amount_per_interval, 2) . '/- درهم إماراتي' : '',
+
             '{date}' => Carbon::parse($investmentData->investment_date)->format('d/m/Y'),
         ];
 
