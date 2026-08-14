@@ -848,11 +848,11 @@ class InvestmentContractService
         }
 
         // dd($docDetails);
-        dd([
-            'doc' => $docDetails,
-            'investment' => $investment,
-            'investment_id' => $investmentId ?? null,
-        ]);
+        // dd([
+        //     'doc' => $docDetails,
+        //     'investment' => $investment,
+        //     'investment_id' => $investmentId ?? null,
+        // ]);
 
         $currentTotal = $prevAmount + $investment->investment_amount;
         $investmentDate       = Carbon::parse($investment->investment_date);
