@@ -1428,13 +1428,13 @@ class InvestmentContractService
             // dd($investmentData->investment_tenure);
 
             if ($investmentData->investment_tenure == 6) {
-                dump("test1");
+                // dump("test1");
                 $tenure['months_en'] = 'six (6) months';
                 $tenure['months_ar'] = 'ستة (6) أشهر';
                 $tenure['return_en'] = 'One hundred twenty (120) days';
                 $tenure['return_ar'] = 'مائة وعشرون (120) يومًا';
             } elseif ($investmentData->investment_tenure == 3) {
-                dump("test2");
+                // dump("test2");
                 $tenure['months_en'] = 'Three (3) months';
                 $tenure['months_ar'] = 'ثلاثة (3) أشهر';
                 $tenure['return_en'] = 'Ninety (90) days';
@@ -1446,7 +1446,7 @@ class InvestmentContractService
                 $tenure['return_en'] = numberToEnglishWords($returnDays) . ' (' . $returnDays . ') days';
                 $tenure['return_ar'] = numberToArabicWords($returnDays) . ' (' . $returnDays . ') يومًا';
             }
-            dd($tenure);
+            // dd($tenure);
 
             $fifthClause = '<tr data-row>
                         <td width="50%" style="border:1px solid #ccc;">
@@ -1464,12 +1464,12 @@ class InvestmentContractService
                     <tr data-row>
                         <td width="50%" style="border:1px solid #ccc;">
                             <div class="english">
-                                <p class="marginClass text-sm">5.2 The Investor may terminate this Agreement by giving the Company not less than thirty (30) days\' written notice prior to expiry of the current term. Upon such termination, the Company shall settle the accounts and pay the Investor the Capital together with any profit due under this Agreement within One hundred twenty (120) days from the effective date of termination.</p>
+                                <p class="marginClass text-sm">5.2 The Investor may terminate this Agreement by giving the Company not less than thirty (30) days\' written notice prior to expiry of the current term. Upon such termination, the Company shall settle the accounts and pay the Investor the Capital together with any profit due under this Agreement within ' . $tenure['months_en'] . ' from the effective date of termination.</p>
                             </div>
                         </td>
                         <td width="50%" style="border:1px solid #ccc;">
                             <div class="arabic">
-                                <p class="marginClass text-sm"><span>2-5 </span>يحق للمستثمر إنهاء هذه الاتفاقية من خلال توجيه إشعار خطي إلى الشركة قبل انتهاء المدة السارية وقتها، بما لايقل عن ثلاثين (30) يوماً. وعند إنهاء هذه الاتفاقية، تلتزم الشركة بإجراء التسوية النهائية للحسابات، وسداد رأس المال للمستثمر، بالإضافة إلى أي أرباح مستحقة له بموجب هذه الاتفاقية، وذلك خلال مائة وعشرون (120) يوماً من تاريخ سريان الإنهاء.</p>
+                                <p class="marginClass text-sm"><span>2-5 </span>يحق للمستثمر إنهاء هذه الاتفاقية من خلال توجيه إشعار خطي إلى الشركة قبل انتهاء المدة السارية وقتها، بما لايقل عن ثلاثين (30) يوماً. وعند إنهاء هذه الاتفاقية، تلتزم الشركة بإجراء التسوية النهائية للحسابات، وسداد رأس المال للمستثمر، بالإضافة إلى أي أرباح مستحقة له بموجب هذه الاتفاقية، وذلك خلال ' . $tenure['months_ar'] . '  من تاريخ سريان الإنهاء.</p>
                             </div>
                         </td>
                     </tr>
