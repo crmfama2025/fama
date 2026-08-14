@@ -146,7 +146,7 @@ class InvestmentContractService
         $firstInv    = $investmentsCollection->first();
         $companyData = Company::find($firstInv->company_id);
 
-        $InvestorProfitPerc = $firstInv->profit_perc * 100 / 50;
+        $InvestorProfitPerc = ($firstInv->profit_perc * (100 / 50) * $firstInv->invetsment_tenure) / 12;
         $CompanyProfitPerc  = 100 - $InvestorProfitPerc;
 
         $htmlMulti = $documentDetail->template;
