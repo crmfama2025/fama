@@ -1425,16 +1425,14 @@ class InvestmentContractService
     {
 
         if ($investmentData->investment_tenure != 12) {
-            // dd($investmentData->investment_tenure);
+            dd($investmentData->investment_tenure);
 
             if ($investmentData->investment_tenure == 6) {
-                // dump("test1");
                 $tenure['months_en'] = 'six (6) months';
                 $tenure['months_ar'] = 'ستة (6) أشهر';
                 $tenure['return_en'] = 'One hundred twenty (120) days';
                 $tenure['return_ar'] = 'مائة وعشرون (120) يومًا';
             } elseif ($investmentData->investment_tenure == 3) {
-                // dump("test2");
                 $tenure['months_en'] = 'Three (3) months';
                 $tenure['months_ar'] = 'ثلاثة (3) أشهر';
                 $tenure['return_en'] = 'Ninety (90) days';
@@ -1446,7 +1444,6 @@ class InvestmentContractService
                 $tenure['return_en'] = numberToEnglishWords($returnDays) . ' (' . $returnDays . ') days';
                 $tenure['return_ar'] = numberToArabicWords($returnDays) . ' (' . $returnDays . ') يومًا';
             }
-            // dd($tenure);
 
             $fifthClause = '<tr data-row>
                         <td width="50%" style="border:1px solid #ccc;">
@@ -1464,12 +1461,12 @@ class InvestmentContractService
                     <tr data-row>
                         <td width="50%" style="border:1px solid #ccc;">
                             <div class="english">
-                                <p class="marginClass text-sm">5.2 The Investor may terminate this Agreement by giving the Company not less than thirty (30) days\' written notice prior to expiry of the current term. Upon such termination, the Company shall settle the accounts and pay the Investor the Capital together with any profit due under this Agreement within ' . $tenure['months_en'] . ' from the effective date of termination.</p>
+                                <p class="marginClass text-sm">5.2 The Investor may terminate this Agreement by giving the Company not less than thirty (30) days\' written notice prior to expiry of the current term. Upon such termination, the Company shall settle the accounts and pay the Investor the Capital together with any profit due under this Agreement within ' . $tenure['return_en'] . ' from the effective date of termination.</p>
                             </div>
                         </td>
                         <td width="50%" style="border:1px solid #ccc;">
                             <div class="arabic">
-                                <p class="marginClass text-sm"><span>2-5 </span>يحق للمستثمر إنهاء هذه الاتفاقية من خلال توجيه إشعار خطي إلى الشركة قبل انتهاء المدة السارية وقتها، بما لايقل عن ثلاثين (30) يوماً. وعند إنهاء هذه الاتفاقية، تلتزم الشركة بإجراء التسوية النهائية للحسابات، وسداد رأس المال للمستثمر، بالإضافة إلى أي أرباح مستحقة له بموجب هذه الاتفاقية، وذلك خلال ' . $tenure['months_ar'] . '  من تاريخ سريان الإنهاء.</p>
+                                <p class="marginClass text-sm"><span>2-5 </span>يحق للمستثمر إنهاء هذه الاتفاقية من خلال توجيه إشعار خطي إلى الشركة قبل انتهاء المدة السارية وقتها، بما لايقل عن ثلاثين (30) يوماً. وعند إنهاء هذه الاتفاقية، تلتزم الشركة بإجراء التسوية النهائية للحسابات، وسداد رأس المال للمستثمر، بالإضافة إلى أي أرباح مستحقة له بموجب هذه الاتفاقية، وذلك خلال مائة وعشرون (120) يوماً من تاريخ سريان الإنهاء.</p>
                             </div>
                         </td>
                     </tr>
@@ -1478,7 +1475,7 @@ class InvestmentContractService
                         <td width="50%" style="border:1px solid #ccc;">
                             <div class="english">
                                 <p class="marginClass text-sm">5.3 Pre-mature Termination - The Investor may request for premature termination of the investment by giving the Company not less than thirty (30) days’ prior written notice. The Company shall use reasonable commercial efforts to complete settlement as early as practicable and shall not delay settlement without genuine operational, commercial, or liquidation necessity.</p>
-                                <p class="marginClass text-sm">Where the Capital has already been deployed, the Company may defer settlement until orderly liquidation, replacement of the Investor’s Capital, completion of the relevant rental or commercial cycle, or final reconciliation of accounts, provided that the repayment of the Investor\'s Capital and any profit due under this Agreement shall be completed within One hundred twenty (120) days from the date of the Investor\'s withdrawal notice, unless otherwise mutually agreed by the Parties. In case of premature termination, the Investor shall bear actual and reasonable operational costs, liquidation expenses, Mudarib’s service compensation, third-party charges, or direct costs necessarily incurred due to pre-mature withdrawal, in accordance with prevailing market practice and subject to mutual settlement.</p>
+                                <p class="marginClass text-sm">Where the Capital has already been deployed, the Company may defer settlement until orderly liquidation, replacement of the Investor’s Capital, completion of the relevant rental or commercial cycle, or final reconciliation of accounts, provided that the repayment of the Investor\'s Capital and any profit due under this Agreement shall be completed within ' . $tenure['return_en'] . ' from the date of the Investor\'s withdrawal notice, unless otherwise mutually agreed by the Parties. In case of premature termination, the Investor shall bear actual and reasonable operational costs, liquidation expenses, Mudarib’s service compensation, third-party charges, or direct costs necessarily incurred due to pre-mature withdrawal, in accordance with prevailing market practice and subject to mutual settlement.</p>
                             </div>
                         </td>
                         <td width="50%" style="border:1px solid #ccc;">
