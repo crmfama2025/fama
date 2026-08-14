@@ -71,7 +71,7 @@ class AgreementSignatureService
         libxml_clear_errors();
 
         $xpath = new \DOMXPath($dom);
-
+logEvent
         $namedSlots = $xpath->query("//*[@data-signature-slot][@data-signer='{$signerRole}']");
         $namedCount = $namedSlots->length;
 
@@ -173,7 +173,7 @@ class AgreementSignatureService
             'event_type' => $eventType,
             'channel' => $channel,
             'occurred_at' => now(),
-            'send_by' => auth()->user()->id
+            'send_by' => auth()->user()->id ?? null
         ]);
     }
 
@@ -268,7 +268,7 @@ class AgreementSignatureService
                 <p>Kind Regards,</p>
 
                 <p>عزيزي/تي
-                    ' . $contract->investor->investor_name_arabic . '،</p>
+                    ' . $contract->investor->investor_name_arabic . '</p>
 
                 <p> تحية طيبة وبعد </p>
 
