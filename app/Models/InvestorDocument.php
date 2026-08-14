@@ -20,6 +20,7 @@ class InvestorDocument extends Model
         'added_by',
         'updated_by',
         'deleted_by',
+        'expiry_date'
     ];
 
     public function investor()

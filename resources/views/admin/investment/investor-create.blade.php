@@ -411,6 +411,7 @@
                                             <h4>Investor Documents</h4>
                                             <hr>
                                             <div class="form-group row">
+                                                {{-- {{ dd($investorDocuments) }} --}}
                                                 @foreach ($documentTypes as $key => $documentType)
                                                     @php
                                                         $class = $req = '';
@@ -418,6 +419,15 @@
                                                             $class = 'asterisk';
                                                             $req = 'required';
                                                         }
+                                                        $existingDocument = null;
+                                                        if ($investorDocuments != null) {
+                                                            $existingDocument = $investorDocuments->firstWhere(
+                                                                'document_type_id',
+                                                                $documentType->id,
+                                                            );
+                                                        }
+                                                        // dd($documentType->id);
+                                                        // dd($existingDocument);
                                                     @endphp
                                                     <div class="col-md-6">
                                                         <label for="inputEmail3"
@@ -443,6 +453,39 @@
                                                             name="investor_doc[{{ $documentType->id }}][{{ $documentType->field_name }}]"
                                                             id="{{ $documentType->field_name }}" class="form-control"
                                                             placeholder="Identity File"> --}}
+
+                                                        {{-- Existing file --}}
+                                                        @if ($existingDocument)
+                                                            <small class="d-block mt-1">
+                                                                Current file:
+                                                                <a href="{{ Storage::url($existingDocument->document_path) }}"
+                                                                    target="_blank">
+                                                                    View File
+                                                                </a>
+                                                            </small>
+                                                        @endif
+                                                    </div>
+                                                    <div class="col-md-6"> <label class="col-form-label">
+                                                            {{ $documentType->label_name }} Expiry Date </label>
+                                                        <div class="input-group date" id="expiryDate{{ $key }}"
+                                                            data-target-input="nearest"> <input type="text"
+                                                                name="inv_doc[{{ $key }}][expiry_date]"
+                                                                class="form-control datetimepicker-input"
+                                                                data-target="#expiryDate{{ $key }}"
+                                                                value="{{ old(
+                                                                    'inv_doc.' . $key . '.expiry_date',
+                                                                    $existingDocument && $existingDocument->expiry_date
+                                                                        ? \Carbon\Carbon::parse($existingDocument->expiry_date)->format('d-m-Y')
+                                                                        : '',
+                                                                ) }}"
+                                                                placeholder="dd-mm-YYYY">
+                                                            <div class="input-group-append"
+                                                                data-target="#expiryDate{{ $key }}"
+                                                                data-toggle="datetimepicker">
+                                                                <div class="input-group-text"> <i
+                                                                        class="fa fa-calendar"></i> </div>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 @endforeach
                                                 {{-- <div class="col-md-6">
@@ -528,6 +571,12 @@
         $('#investor_mobile').on('blur', function() {
             phoneValidation(this, 'phone');
         });
+
+        @foreach ($documentTypes as $key => $documentType)
+            $('#expiryDate{{ $key }}').datetimepicker({
+                format: 'DD-MM-YYYY'
+            });
+        @endforeach
 
         $('#investorsubmitbutton').click(function(e) {
             e.preventDefault();

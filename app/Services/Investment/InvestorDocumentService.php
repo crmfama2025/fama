@@ -77,6 +77,30 @@ class InvestorDocumentService
                 }
             }
 
+            /*
+         * UPDATE EXISTING DOCUMENT
+         * No file is sent during update.
+         */
+            if ($documentExist && !isset($value['file'])) {
+
+                $Arr = [
+                    'investor_id' => $investor->id,
+                    'document_type_id' => $value['document_type_id'],
+                    'expiry_date' => parseDate($value['expiry_date'] ?? null),
+                    'doc_id' => $documentExist->id,
+                    'updated_by' => auth()->id(),
+                ];
+
+                $this->investorFlagUpdate(
+                    $investor->id,
+                    $value['status_change'] ?? null
+                );
+
+                $dataArr[] = $Arr;
+
+                continue;
+            }
+
             if (isset($value["file"])) {
                 $filename = time() . '_' . $value["file"]->getClientOriginalName();
                 // $path = $value["file"]->storeAs('investments/' . $investor->investor_code . '/investor', $filename, 'public');
@@ -102,7 +126,9 @@ class InvestorDocumentService
                     'document_type_id' => $value['document_type_id'],
                     'document_name' => $filename,
                     'document_path' => $path,
+                    'expiry_date' =>  parseDate($value['expiry_date']),
                 );
+                // dd($Arr);
 
                 if ($documentExist) {
                     $Arr['doc_id'] = $documentExist->id;
@@ -115,6 +141,23 @@ class InvestorDocumentService
                 // $this->validate($Arr);
                 $dataArr[] = $Arr;
             }
+            // else {
+            //     $Arr = array(
+            //         'investor_id' => $investor->id,
+            //         'document_type_id' => $value['document_type_id'],
+            //         // 'document_name' => $filename,
+            //         // 'document_path' => $path,
+            //         'expiry_date' =>  parseDate($value['expiry_date']),
+
+            //     );
+            //     if ($documentExist) {
+            //         $Arr['doc_id'] = $documentExist->id;
+            //         $Arr['updated_by'] = auth()->user()->id;
+            //     }
+            //     $this->investorFlagUpdate($investor->id, $value['status_change']);
+            //     // $this->validate($Arr);
+            //     $dataArr[] = $Arr;
+            // }
         }
 
         return $dataArr;
