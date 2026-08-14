@@ -875,7 +875,8 @@ class InvestmentContractService
 
         // Annexture A
         $InvestorProfitPerc = $investment->profit_perc * 100 / 50;
-        $CompanyProfitPerc  = 100 - $InvestorProfitPerc;
+        // $CompanyProfitPerc  = 100 - $InvestorProfitPerc;
+        $CompanyProfitPerc  = (100 / 12 * $investment->investment_tenure) - $InvestorProfitPerc;
         $annexureA = $this->buildSingleAnnexureA(
             $company,
             $investment,
