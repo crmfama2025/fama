@@ -261,6 +261,15 @@ class InvestmentContractService
         $companyNameEng = $companyData->company_name;
         $companyNameAr  = $companyData->company_arabic_name;
 
+        $term = $inv->investment_tenure == 3
+            ? 'Profit Sharing Ratio for 3 months= :'
+            : ($inv->investment_tenure == 6 ? 'Profit Sharing Ratio for 6 months :' : 'Profit Sharing Ratio:');
+        $term_ar = $inv->investment_tenure == 3
+            ? 'نسبة مشاركة الأرباح لمدة 3 أشهر:'
+            : ($inv->investment_tenure == 6
+                ? 'نسبة مشاركة الأرباح لمدة 6 أشهر:'
+                : 'نسبة مشاركة الأرباح:');
+
         return "
             <tr data-row data-force-page='true'>
                 <td colspan='2' style='padding:0;'>
@@ -428,12 +437,12 @@ class InvestmentContractService
                         <tr>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='english'>
-                                    <p class='marginClass text-sm'>Profit Sharing Ratio: Investor {$invProfitPerc}% and Company {$companyProfitPerc}%</p>
+                                    <p class='marginClass text-sm'>{$term} Investor {$invProfitPerc}% and Company {$companyProfitPerc}%</p>
                                 </div>
                             </td>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='arabic'>
-                                    <p class='marginClass text-sm'>نسبة توزيع الربح: المستثمر {$invProfitPerc}% و الشركة {$companyProfitPerc}%</p>
+                                    <p class='marginClass text-sm'>{$term_ar} المستثمر {$invProfitPerc}% و الشركة {$companyProfitPerc}%</p>
                                 </div>
                             </td>
                         </tr>
