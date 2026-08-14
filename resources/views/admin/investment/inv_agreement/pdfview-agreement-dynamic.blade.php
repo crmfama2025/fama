@@ -916,7 +916,7 @@
                     {{-- Not signed yet: JS paginates this raw row source into #file-print-area --}}
                     <div id="file-print-area"></div>
                     {!! $data['html'] !!}
-                    @if ($investments['grand_total'] != 0 && $investment->investment_term_type == 1)
+                    @if ($investments['grand_total'] != 0 && $investment?->investment_term_type == 1)
                         @include('admin.investment.inv_agreement.investment_annexture', [
                             'investor' => $investor,
                             'investments' => $investments,
