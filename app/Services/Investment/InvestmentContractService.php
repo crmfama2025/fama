@@ -262,7 +262,7 @@ class InvestmentContractService
         $companyNameAr  = $companyData->company_arabic_name;
 
         $term = $inv->investment_tenure == 3
-            ? 'Profit Sharing Ratio for 3 months= :'
+            ? 'Profit Sharing Ratio for 3 months :'
             : ($inv->investment_tenure == 6 ? 'Profit Sharing Ratio for 6 months :' : 'Profit Sharing Ratio:');
         $term_ar = $inv->investment_tenure == 3
             ? 'نسبة مشاركة الأرباح لمدة 3 أشهر:'
