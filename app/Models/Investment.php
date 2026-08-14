@@ -194,6 +194,10 @@ class Investment extends Model
     {
         return $this->hasOne(InvestmentDocument::class, 'investment_id');
     }
+    public function investmentContractDocument()
+    {
+        return $this->hasOne(InvestmentContractDocuments::class, 'investment_id');
+    }
     public function getType()
     {
         return match ($this->investment_type) {
@@ -213,6 +217,7 @@ class Investment extends Model
             $hasOneRelations = [
                 'investmentDocument',
                 'investmentReferral',
+                'investmentContractDocument'
             ];
 
             // hasMany relations
