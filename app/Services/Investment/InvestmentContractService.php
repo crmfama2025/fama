@@ -624,7 +624,8 @@ class InvestmentContractService
 
         // $InvestorProfitPerc = $investmentData->profit_perc * 100 / 50;
         $InvestorProfitPerc = ($investmentData->profit_perc * (100 / 50) * $investmentData->investment_tenure) / 12;
-        $CompanyProfitPerc  = 100 - $InvestorProfitPerc;
+        // $CompanyProfitPerc  = 100 - $InvestorProfitPerc;
+        $CompanyProfitPerc  = (100 / 12 * $investmentData->investment_tenure) - $InvestorProfitPerc;
 
         // // ── Start from next month of mudarabah created date ──────────────────────
         // $startDate = Carbon::now()->addMonth()->startOfMonth();
