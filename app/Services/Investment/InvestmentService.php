@@ -167,6 +167,7 @@ class InvestmentService
             $docInsertData = [
                 'investment_id' => $investment->id,
                 'investor_id' => $investment->investor_id,
+                'term' => $investment->investment_term_type
             ];
 
             // dd($docInsertData);
@@ -467,6 +468,7 @@ class InvestmentService
             $docInsertData = [
                 'investment_id' => $investment->id,
                 'investor_id' => $investment->investor_id,
+                'term' => $investment->investment_term_type
             ];
 
             // Investment contract document updation
