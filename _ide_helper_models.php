@@ -303,6 +303,7 @@ namespace App\Models{
  * @property string $occurred_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int|null $send_by
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementSignatureEvent newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementSignatureEvent newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementSignatureEvent query()
@@ -312,6 +313,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementSignatureEvent whereEventType($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementSignatureEvent whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementSignatureEvent whereOccurredAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AgreementSignatureEvent whereSendBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementSignatureEvent whereSignerRole($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementSignatureEvent whereUpdatedAt($value)
  */
@@ -701,6 +703,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property string|null $owner_email
  * @property-read \App\Models\User|null $addedBy
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Area> $areas
  * @property-read int|null $areas_count
@@ -732,6 +735,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereIndustryId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereLetterHeadPath($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Company whereOwnerEmail($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company wherePhone($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereRegistrationNo($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereStatus($value)
@@ -1922,6 +1926,7 @@ namespace App\Models{
  * @property string $total_invested_amount
  * @property string $total_withdrawn_amount
  * @property int $has_partial_withdrawal 0-No ,1-Yes
+ * @property int $investment_term_type 1-Long Term, 2-short term
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Investment> $childInvestments
  * @property-read int|null $child_investments_count
  * @property-read \App\Models\Company|null $company
@@ -1970,6 +1975,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereInvestmentDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereInvestmentStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereInvestmentTenure($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Investment whereInvestmentTermType($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereInvestmentType($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereInvestorBankId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereInvestorId($value)
@@ -2046,6 +2052,10 @@ namespace App\Models{
  * @property string|null $company_sign
  * @property string|null $company_sign_channel
  * @property string|null $sign_token
+ * @property int|null $sendto_investor_by
+ * @property int|null $sendto_management_by
+ * @property string|null $sendto_investor_date
+ * @property string|null $sendto_management_date
  * @property-read \App\Models\InvestorAgreementTemplate|null $agreementTemplate
  * @property-read \App\Models\InvestorAgreementType|null $agreementType
  * @property-read \App\Models\Company|null $company
@@ -2085,6 +2095,10 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereIsCompanySigned($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereIsInvestorSigned($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereReferenceMudarabahId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereSendtoInvestorBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereSendtoInvestorDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereSendtoManagementBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereSendtoManagementDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereSignToken($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereUpdatedAt($value)
@@ -2511,6 +2525,7 @@ namespace App\Models{
  * @property int $document_type_id
  * @property string $document_name
  * @property string $document_path
+ * @property string|null $expiry_date
  * @property int $added_by
  * @property int|null $updated_by
  * @property int|null $deleted_by
@@ -2531,6 +2546,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocument whereDocumentName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocument whereDocumentPath($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocument whereDocumentTypeId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocument whereExpiryDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocument whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocument whereInvestorId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocument whereUpdatedAt($value)
@@ -2680,8 +2696,10 @@ namespace App\Models{
  * @property int $investor_id receiver
  * @property int $payout_type 1-profit, 2-commission, 3-principal
  * @property int|null $payout_reference_id type commission - referal table id
+ * @property int|null $investment_profit_record_id
  * @property int|null $bifurcation_id
  * @property string $payout_release_month
+ * @property string|null $original_profit_date
  * @property string $payout_amount
  * @property string $amount_paid
  * @property string $amount_pending
@@ -2711,8 +2729,10 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorPayout whereDeletedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorPayout whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorPayout whereInvestmentId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorPayout whereInvestmentProfitRecordId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorPayout whereInvestorId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorPayout whereIsProcessed($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorPayout whereOriginalProfitDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorPayout wherePayoutAmount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorPayout wherePayoutReferenceId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorPayout wherePayoutReleaseMonth($value)

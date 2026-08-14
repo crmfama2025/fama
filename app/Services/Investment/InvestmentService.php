@@ -315,6 +315,8 @@ class InvestmentService
             // $investmentType = InvestmentTypestatus($data['investor_id']);
             // $next_profit_release_date = calculateNextProfitReleaseDate($data['grace_period'], $data['profit_interval_id'], $data['investment_date']);
 
+            $termtype = getTermType($data['investment_tenure']);
+
             $investmentData = [
                 'investor_id' => $data['investor_id'],
                 'investment_amount' => $data['investment_amount'],
@@ -349,6 +351,7 @@ class InvestmentService
                 'initial_profit_release_month' => Carbon::parse($data['next_profit_release_date'])->format('M Y'),
                 'invested_company_id' => $data['invested_company_id'],
                 'total_invested_amount' => $data['investment_amount'],
+                'investment_term_type' => $termtype
             ];
 
             $this->validate($investmentData);
