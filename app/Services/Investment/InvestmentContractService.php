@@ -1428,13 +1428,13 @@ class InvestmentContractService
             // dd($investmentData->investment_tenure);
 
             if ($investmentData->investment_tenure == 6) {
-                dd("test1");
+                dump("test1");
                 $tenure['months_en'] = 'six (6) months';
                 $tenure['months_ar'] = 'ستة (6) أشهر';
                 $tenure['return_en'] = 'One hundred twenty (120) days';
                 $tenure['return_ar'] = 'مائة وعشرون (120) يومًا';
             } elseif ($investmentData->investment_tenure == 3) {
-                dd("test2");
+                dump("test2");
                 $tenure['months_en'] = 'Three (3) months';
                 $tenure['months_ar'] = 'ثلاثة (3) أشهر';
                 $tenure['return_en'] = 'Ninety (90) days';
@@ -1446,6 +1446,7 @@ class InvestmentContractService
                 $tenure['return_en'] = numberToEnglishWords($returnDays) . ' (' . $returnDays . ') days';
                 $tenure['return_ar'] = numberToArabicWords($returnDays) . ' (' . $returnDays . ') يومًا';
             }
+            dd($tenure);
 
             $fifthClause = '<tr data-row>
                         <td width="50%" style="border:1px solid #ccc;">
