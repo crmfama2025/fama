@@ -310,7 +310,7 @@ class InvestmentContractDocumentService
         // dd($docInsertData);
         $docInsertData['generated_date'] = now()->format('Y-m-d H:i:s');
         $docInsertData['generated_by'] = auth()->user()->id;
-        // dd($docInsertData);
+        dd($docInsertData);
 
         $lastMudarabah = InvestmentContractDocuments::where('investor_id', $investorId)
             ->where('company_id', $companyId)
@@ -364,7 +364,7 @@ class InvestmentContractDocumentService
         $data['investor_agreement_type_id'] = $agreementTypeId;
         $data['investor_agreement_template_id'] = $this->InvestorAgreementRepository
             ->getActiveIdBytype($agreementTypeId);
-        // dd($data['investor_agreement_template_id']);
+        dd($data['investor_agreement_template_id']);
 
         return $this->create($data);
     }
