@@ -896,11 +896,11 @@ class InvestmentContractService
 
             '{current_invested_amount}'     => number_format($investment->investment_amount, 2),
             '{current_invested_amount_eng}' => numberToEnglishWords($investment->investment_amount),
-            '{current_invested_amount_ar}'  => numberToArabicWords($investment->investment_amount),
+            '{current_invested_amount_ar}'  => numberToArabicWords($investment->investment_amount) . ' درهم إماراتي فقط',
 
             '{new_total_investment_amount}'     => number_format($currentTotal, 2),
             '{new_total_investment_amount_eng}' => numberToEnglishWords($currentTotal),
-            '{new_total_investment_amount_ar}'  => numberToArabicWords($currentTotal),
+            '{new_total_investment_amount_ar}'  => numberToArabicWords($currentTotal) . ' درهم إماراتي فقط',
 
             '{annexA}' => $this->buildAnnexureARows($docDetails->investor_id, $companyId, $mudarabahCreatedDate, $docId),
             '{date}' =>  Carbon::parse($investment->investment_date)->format('d/m/Y'),
@@ -1065,7 +1065,7 @@ class InvestmentContractService
 
             '{withdrawal_amount}' => number_format($ledger->transaction_amount, 2),
             '{withdrawal_amount_eng}' => numberToEnglishWords($ledger->transaction_amount) . ' Only',
-            '{withdrawal_amount_ar}' => numberToArabicWords($ledger->transaction_amount),
+            '{withdrawal_amount_ar}' => numberToArabicWords($ledger->transaction_amount) . ' درهم إماراتي فقط',
 
             '{company_name_eng}'  => $company->company_name,
             '{company_name_ar}'  => $company->company_name_arabic,
