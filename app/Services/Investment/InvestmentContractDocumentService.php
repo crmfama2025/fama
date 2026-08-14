@@ -345,7 +345,7 @@ class InvestmentContractDocumentService
                 ->count();
             // dd($companyInvestmentCount);
 
-            if ($companyInvestmentCount == 1) {
+            if ($companyInvestmentCount == 1 || $docInsertData['term'] == 2) {
                 // dd('inv');
                 return $this->createAgreement($docInsertData, $companyId, 1); // Mudarabah
             } elseif ($companyInvestmentCount > 1) {
@@ -381,7 +381,7 @@ class InvestmentContractDocumentService
             ->first();
         // dd($companyInvestmentCount);
         if (
-            $companyInvestmentCount == 1
+            $companyInvestmentCount == 1 || $docInsertData['term'] == 2
         ) {
             // Mudaraba contract
             $docInsertData['company_id'] = $companyId;
