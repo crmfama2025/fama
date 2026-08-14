@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\GenerateAndSendSignedAgreementPdf;
 use App\Models\AgreementSignatureEvent;
 use App\Models\InvestmentContractDocuments;
 use App\Models\InvestorAgreementType;
@@ -241,12 +240,6 @@ class InvestorAgreementTemplateController extends Controller
                 'channel' => 'web',
                 'occurred_at' => now(),
             ]);
-
-            // Fully executed once both parties have signed — company signs last
-            // if ($validated['signer_role'] === 'company' && $contract->is_investor_signed) {
-            //     // dd("test");
-            //     GenerateAndSendSignedAgreementPdf::dispatch($contract->id)->afterCommit();
-            // }
         });
 
         return response()->json(['message' => 'Signed successfully.', 'status' => 'success']);
