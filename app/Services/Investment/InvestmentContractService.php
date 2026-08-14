@@ -363,12 +363,12 @@ class InvestmentContractService
                         <tr>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='english'>
-                                    <p class='marginClass text-sm'>Investor ID/ Passport: {$investorData->id_number}</p>
+                                    <p class='marginClass text-sm'>Investor ID {$investorData->id_number}</p>
                                 </div>
                             </td>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='arabic'>
-                                    <p class='marginClass text-sm'>هوية المستثمر/جواز السفر:<span class='ltr-number'> {$investorData->id_number}</span></p>
+                                    <p class='marginClass text-sm'>هوية المستثمر:<span class='ltr-number'> {$investorData->id_number}</span></p>
                                 </div>
                             </td>
                         </tr>
@@ -814,7 +814,7 @@ class InvestmentContractService
             '{monthly_estimate}'      => number_format($investmentData->profit_amount_per_interval, 2),
             '{profit_month_eng}'      => $profitData['profitEng'],
             '{profit_month_ar}'       => $profitData['profitAr'],
-            '{total_count_annexB}' => number_format($profitData['totalCount'], 2),
+            '{total_count_annexB}' => $profitData['totalCount'],
             '{date}' => Carbon::parse($investmentData->investment_date)->format('d/m/Y'),
         ];
 
