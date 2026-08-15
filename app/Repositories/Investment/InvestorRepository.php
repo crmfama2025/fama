@@ -302,7 +302,9 @@ class InvestorRepository
     {
         $query = InvestorLedger::query()
             ->with(['transactionType', 'investment'])
-            ->where('status', 1);
+            ->where('status', 1)->whereHas('investment', function ($q) {
+                $q->where('investment_term_type', 1);  // take only for long term investments
+            });
 
         // Filter by investor
         if (!empty($filters['investor_id'])) {
