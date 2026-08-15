@@ -379,6 +379,7 @@ class InvestorService
     {
         $query = Investment::where('investor_id', $investorId)
             ->where('company_id', $companyId)
+            ->where('investment_term_type', 1)
             ->with('latestBifurcation');
 
         if ($editLedgerId) {
@@ -1041,6 +1042,7 @@ class InvestorService
     {
         $investments = $this->investmentRepository->getAllByCondition([
             'investor_id' => $investorId,
+            'investment_term_type' => 1,
             'company_id' => $companyId,
         ]);
         $allTerminated = true;
@@ -1106,6 +1108,7 @@ class InvestorService
             ->join('companies', 'companies.id', '=', 'investments.company_id')
             ->where('investments.investor_id', $investorId)
             ->where('investments.terminate_status', '!=', 2)
+            ->where('investments.investment_term_type', 1)
             ->groupBy('investments.company_id', 'companies.company_name')
             ->get();
 
