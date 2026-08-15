@@ -1179,7 +1179,7 @@ class InvestmentContractService
         $ledger = $this->ledgerRepository->getfirstbyCond(['investor_id' => $investorId, 'company_id' => $companyId]);
         // dd($ledger);
 
-        $investments = Investment::where(['investor_id' => $investorId, 'company_id' => $companyId])
+        $investments = Investment::where(['investor_id' => $investorId, 'company_id' => $companyId, 'investment_term_type' => 1])
             // ->orderBy('investment_date')
             ->get();
 
@@ -1229,10 +1229,10 @@ class InvestmentContractService
         // $partial_withdrawal = PartialWithdrawalBifurcation::
 
         // Total row
-        $totalInvested  = Investment::where('investor_id', $investorId)->where('company_id', $companyId)->sum('total_invested_amount');
+        $totalInvested  = Investment::where('investor_id', $investorId)->where('company_id', $companyId)->where('investment_term_type', 1)->sum('total_invested_amount');
         $totalWithdrawn = PartialWithdrawalBifurcation::whereIn(
             'investment_id',
-            Investment::where('investor_id', $investorId)->where('company_id', $companyId)->pluck('id')
+            Investment::where('investor_id', $investorId)->where('company_id', $companyId)->where('tinvestment_term_type', 1)->pluck('id')
         )->where('ledger_id', $ledger_id)->sum('withdrawal_amount');
         // $totalWithdrawn = 0;
 
