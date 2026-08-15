@@ -770,17 +770,17 @@ class InvestmentContractService
 
         // dd($investmentData->investment_date);
 
-        $expectedProfittext_en = $investment->investment_tenure == 3
-            ? "Expected Profit for " . $investment->investment_tenure . " months:"
-            : ($investment->investment_tenure == 6
-                ? "Expected Profit for " . $investment->investment_tenure . " months:"
-                : ($investment->investment_tenure == 12
+        $expectedProfittext_en = $investmentData->investment_tenure == 3
+            ? "Expected Profit for " . $investmentData->investment_tenure . " months:"
+            : ($investmentData->investment_tenure == 6
+                ? "Expected Profit for " . $investmentData->investment_tenure . " months:"
+                : ($investmentData->investment_tenure == 12
                     ? "Expected annual profit:"
                     : "Expected annual profit:"));
-        $expectedProfittext_ar = $investment->investment_tenure == 3
-            ? " الربح المتوقع لمدة " . $investment->investment_tenure . " أشهر:"
-            : ($investment->investment_tenure == 6
-                ? " الربح المتوقع لمدة " . $investment->investment_tenure . " أشهر:"
+        $expectedProfittext_ar = $investmentData->investment_tenure == 3
+            ? " الربح المتوقع لمدة " . $investmentData->investment_tenure . " أشهر:"
+            : ($investmentData->investment_tenure == 6
+                ? " الربح المتوقع لمدة " . $investmentData->investment_tenure . " أشهر:"
                 : "الربح السنوي المتوقع:");
 
 
