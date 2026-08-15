@@ -962,7 +962,7 @@ class InvestmentContractService
             '{profit_month_ar}'       => $profitData['profitAr'],
             '{total_count_annexB}' => $profitData['totalCount'],
 
-            '{profit_text_en}' => $expectedProfittext_en,
+            '{profit_text}' => $expectedProfittext_en,
             '{profit_text_ar}' => $expectedProfittext_ar,
 
             // profit
