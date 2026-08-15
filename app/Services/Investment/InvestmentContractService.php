@@ -770,6 +770,19 @@ class InvestmentContractService
 
         // dd($investmentData->investment_date);
 
+        $expectedProfittext_en = $investment->investment_tenure == 3
+            ? "Expected Profit for " . $investment->investment_tenure . " months:"
+            : ($investment->investment_tenure == 6
+                ? "Expected Profit for " . $investment->investment_tenure . " months:"
+                : ($investment->investment_tenure == 12
+                    ? "Expected annual profit:"
+                    : "Expected annual profit:"));
+        $expectedProfittext_ar = $investment->investment_tenure == 3
+            ? " الربح المتوقع لمدة " . $investment->investment_tenure . " أشهر:"
+            : ($investment->investment_tenure == 6
+                ? " الربح المتوقع لمدة " . $investment->investment_tenure . " أشهر:"
+                : "الربح السنوي المتوقع:");
+
 
         $placeholders = [
             // '{mudarabah_created_long_date_eng}'  => date('j \d\a\y \o\f F Y', strtotime($invDocDetails->generated_date)),
@@ -843,6 +856,9 @@ class InvestmentContractService
             '{total_count_annexB}' => $profitData['totalCount'],
             '{monthly_estimate_ar}'      => ($investmentData->profit_interval_id == 1) ? '· التقدير الشهري المعادل للمستثمر' . number_format($investmentData->profit_amount_per_interval, 2) . '/- درهم إماراتي' : '',
 
+
+            '{profit_text}' => $expectedProfittext_en,
+            '{profit_text_ar}' => $expectedProfittext_ar,
             '{date}' => Carbon::parse($investmentData->investment_date)->format('d/m/Y'),
         ];
 
