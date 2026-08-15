@@ -157,9 +157,10 @@ class InvestorLedgerService
     {
         $companyInvestmentCount = Investment::where('investor_id', $investorId)
             ->where('company_id', $companyId)
+            ->where('investment_term_type', 1)
             ->count();
         if (
-            $companyInvestmentCount == 1
+            $companyInvestmentCount == 1 || $investment->investment_term_type == 2
         ) {
             // Mudaraba contract
             $ledgerInsertData['investor_transaction_type_id'] = 1;
@@ -183,12 +184,13 @@ class InvestorLedgerService
     {
         $companyInvestmentCount = Investment::where('investor_id', $investorId)
             ->where('company_id', $companyId)
+            ->where('investment_term_type', 1)
             ->count();
         $ledger = InvestorLedger::where('investment_id', $investment->id)
             ->whereIn('investor_transaction_type_id', [1, 2])
             ->first();
         if (
-            $companyInvestmentCount == 1
+            $companyInvestmentCount == 1 || $investment->investment_term_type == 2
         ) {
             // Mudaraba contract
             $ledgerInsertData['investor_transaction_type_id'] = 1;
