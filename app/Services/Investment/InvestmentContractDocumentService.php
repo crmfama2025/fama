@@ -315,6 +315,9 @@ class InvestmentContractDocumentService
         $lastMudarabah = InvestmentContractDocuments::where('investor_id', $investorId)
             ->where('company_id', $companyId)
             ->where('investor_agreement_type_id', 1) // Mudarabah
+            ->whereHas('investment', function ($query) {
+                $query->where('investment_term_type', 1); // take only short term investments
+            })
             ->latest('id') // or latest('created_at')
             ->first();
         // dd($lastMudarabah);
