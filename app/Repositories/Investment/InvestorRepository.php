@@ -222,6 +222,7 @@ class InvestorRepository
 
         // 2. Get unique companies from investments
         $companies = $investor->investments
+            ->where('investment_term_type', 1)
             ->pluck('company')     // extract company
             ->filter()             // remove nulls (important)
             ->unique('id')         // remove duplicates
