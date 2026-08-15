@@ -906,6 +906,19 @@ class InvestmentContractService
         $profitData = $this->annextureB($investment);
         // dd($profitData);
 
+        $expectedProfittext_en = $investment->investment_tenure == 3
+            ? "Expected Profit for " . $investment->investment_tenure . " months:"
+            : ($investment->investment_tenure == 6
+                ? "Expected Profit for " . $investment->investment_tenure . " months:"
+                : ($investment->investment_tenure == 12
+                    ? "Expected annual profit:"
+                    : "Expected annual profit:"));
+        $expectedProfittext_ar = $investment->investment_tenure == 3
+            ? " الربح المتوقع لمدة " . $investment->investment_tenure . " أشهر:"
+            : ($investment->investment_tenure == 6
+                ? " الربح المتوقع لمدة " . $investment->investment_tenure . " أشهر:"
+                : "الربح السنوي المتوقع:");
+
         $vars = [
             '{investment_long_date_eng}'        => $investmentDate->format('jS \d\a\y \o\f F Y'),
             // '{mudarabah_created_long_date_eng}' => $mudarabahCreatedDate->format('jS \d\a\y \o\f F Y'),
@@ -943,11 +956,14 @@ class InvestmentContractService
 
 
             '{total_invested_amount}' => $investment->investment_amount,
-            '{total_profit}'          => $investment->profit_amount,
+            // '{total_profit}'          => $investment->profit_amount,
             '{monthly_estimate}'      => $investment->profit_amount_per_interval,
             '{profit_month_eng}'      => $profitData['profitEng'],
             '{profit_month_ar}'       => $profitData['profitAr'],
             '{total_count_annexB}' => $profitData['totalCount'],
+
+            '{profit_text_en}' => $expectedProfittext_en,
+            '{profit_text_ar}' => $expectedProfittext_ar,
 
             // profit
             '{inv_profit_perc}' => $InvestorProfitPerc,
