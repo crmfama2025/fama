@@ -193,7 +193,7 @@ logEvent
         // dump($contract->toArray());
         $recipient = $signerRole === 'investor'
             ? $contract->investor->investor_mobile
-            : $contract->company->phone;
+            : $contract->company->owner_number;
 
         // $recipient = '971567623806';
         // dd($recipient);
