@@ -129,6 +129,17 @@
                 text-decoration: underline;
                 text-underline-offset: 3px;
             }
+
+            #file-print-area .signature-table {
+                width: 100% !important;
+                table-layout: fixed !important;
+                border-collapse: collapse !important;
+            }
+
+            #file-print-area .signature-table td {
+                width: 50% !important;
+                vertical-align: top !important;
+            }
         }
 
         /* ── SIGNATURE STAMP ── */
@@ -441,6 +452,7 @@
 
             p {
                 margin: 4px !important;
+
             }
         }
     </style>
@@ -934,6 +946,9 @@
                                 <i class="fas fa-paper-plane"></i> Send
                             </button>
                         @endif
+                        {{-- <button onclick="downloadPdfServer()" class="btn btn-outline-primary">
+                            <i class="fas fa-file-pdf"></i> Download PDF
+                        </button> --}}
                     @else
                         @if (
                             (!$contractDocument->is_investor_signed && $currentRole == 'investor') ||
@@ -1138,75 +1153,384 @@
 
         // ── PRINT ────────────────────────────────────────────────────────────────
         function printInvoice() {
-            const invoiceHtml = document.getElementById('file-print-area').innerHTML;
-            const styles = Array.from(document.querySelectorAll('style'))
-                .map(s => s.innerHTML).join('\n');
+            const printArea = document.getElementById('file-print-area');
 
-            const win = window.open('', '_blank');
-            win.document.write(`<!DOCTYPE html>
-<html>
+            if (!printArea) {
+                console.error('Print area not found.');
+                return;
+            }
+
+            // Clone so print-only controls never appear in the popup.
+            const clone = printArea.cloneNode(true);
+            clone.querySelectorAll(
+                '.no-print, .sig-placeholder-btn, .sig-placed-remove'
+            ).forEach(el => el.remove());
+
+            const invoiceHtml = clone.innerHTML;
+
+            console.log(invoiceHtml)
+
+            const win = window.open('', '_blank', 'width=900,height=700');
+
+            if (!win) {
+                alert('Please allow popups to print the agreement.');
+                return;
+            }
+
+            win.document.open();
+            win.document.write(`
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Investment Agreement</title>
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+
+    <link href="https://fonts.googleapis.com/css2?family=Amiri&display=swap" rel="stylesheet">
+
     <style>
-        ${styles}
-        * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; box-sizing: border-box; }
-        @page { size: A4 portrait; margin: 0; }
-        html, body { width: 210mm; margin: 0 !important; padding: 0 !important; }
-        #file-print-area { width: 210mm !important; margin: 0 !important; padding: 0 !important; }
-        .new-page {
-            width: 210mm !important; height: 297mm !important; min-height: 297mm !important;
-            margin: 0 !important; box-shadow: none !important; overflow: hidden !important;
-            page-break-after: always; break-after: page;
-            background-size: 210mm 297mm !important; background-repeat: no-repeat !important; background-position: top left !important;
+        @page {
+            size: A4 portrait;
+            margin: 0;
         }
-        .new-page:last-child { page-break-after: auto; break-after: auto; }
-        .file-content { padding: 34mm 16mm 48mm 16mm !important; }
-        .file-content.page-subsequent { padding-top: 35mm !important; }
-        .no-print { display: none !important; }
-        table { width: 100%; border-collapse: collapse; }
-        td { vertical-align: top; }
-        p { margin: 4px !important; }
-        .signature-stamp {
-            position: absolute !important;
-            bottom: 14mm !important;
-            left: 16mm !important;
-            width: 40mm !important;
-            height: 16mm !important;
-            z-index: 10 !important;
-            pointer-events: none !important;
-        }
-        .signature-stamp img {
-            width: 100% !important;
-            height: 100% !important;
-            object-fit: contain !important;
-            object-position: left bottom !important;
+
+        * {
+            box-sizing: border-box;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
         }
-        .signature-label {
-            position: absolute !important;
-            bottom: 10mm !important;
-            left: 16mm !important;
-            font-size: 6.5pt !important;
-            color: #444 !important;
-            font-family: 'Times New Roman', serif !important;
-            width: 40mm !important;
-            text-align: left !important;
+
+        html,
+        body {
+            width: 210mm;
+            margin: 0;
+            padding: 0;
+            background: #fff;
+            font-family: "Times New Roman", Times, serif;
         }
+
+        .no-print,
+        .sig-placeholder-btn,
+        .sig-placed-remove {
+            display: none !important;
+        }
+
+        #file-print-area {
+            width: 210mm;
+            margin: 0;
+            padding: 0;
+        }
+
+        /*
+         * Every generated .new-page is one physical A4 page.
+         * Do not change these dimensions.
+         */
+        #file-print-area > .new-page {
+            position: relative;
+            display: flow-root;
+            width: 210mm;
+            height: 297mm;
+            min-height: 297mm;
+            max-height: 297mm;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #fff;
+            background-repeat: no-repeat;
+            background-position: top left;
+            background-size: 210mm 297mm;
+            page-break-after: always;
+            break-after: page;
+        }
+
+        #file-print-area > .new-page:last-child {
+            page-break-after: auto;
+            break-after: auto;
+        }
+
+        /*
+         * Must match CFG in buildPages():
+         * First page: 29mm top, 38mm bottom
+         * Other pages: 33mm top, 38mm bottom
+         */
+        #file-print-area .file-content {
+            position: relative;
+            width: 100%;
+            height: 297mm;
+            margin: 0;
+            padding: 29mm 16mm 38mm;
+            overflow: hidden;
+            font-family: "Times New Roman", Times, serif;
+        }
+
+        #file-print-area .file-content.page-subsequent {
+            padding-top: 33mm;
+        }
+
+        #file-print-area table {
+            width: 100%;
+            border-collapse: collapse;
+            border-spacing: 0;
+        }
+
+        #file-print-area tr,
+        #file-print-area td,
+        #file-print-area th {
+            vertical-align: top;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        #file-print-area p {
+            margin: 10px 3px !important;
+        }
+
+        #file-print-area .text-sm {
+            font-size: 8pt !important;
+            line-height: 1.15 !important;
+        }
+
+        #file-print-area .text-md {
+            margin-top: 4px !important;
+            font-size: 8.5pt !important;
+            line-height: 1.15 !important;
+            font-weight: 700 !important;
+        }
+
+        #file-print-area .text-lg {
+            font-size: 12pt !important;
+            line-height: 1.15 !important;
+            font-weight: 700 !important;
+        }
+
+        #file-print-area .english {
+            direction: ltr;
+            text-align: left;
+            font-family: "Times New Roman", Times, serif;
+        }
+
+        #file-print-area .arabic {
+            direction: rtl;
+            text-align: right;
+            font-family: Amiri, serif;
+        }
+
+        #file-print-area strong {
+            font-weight: 700 !important;
+        }
+
+        #file-print-area .underline-date {
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        /* Named investor/company signature slots */
+        #file-print-area .signature-slot {
+            position: relative;
+            min-height: 16mm;
+            padding-right: 42mm;
+        }
+
+        #file-print-area .sig-placed-wrap {
+            position: absolute !important;
+            z-index: 20;
+            width: 28mm !important;
+            height: 10mm !important;
+            cursor: default !important;
+        }
+
+        #file-print-area .sig-placed-wrap img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            object-position: left bottom;
+        }
+
+        @media print {
+            html,
+            body,
+            #file-print-area {
+                width: 210mm !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+        }
+
+        /* =========================================================
+   INVESTMENT ANNEXURE PRINT STYLES
+   ========================================================= */
+
+#file-print-area > .letter-sheet.new-page {
+    width: 210mm;
+    height: 297mm;
+    min-height: 297mm;
+    max-width: none;
+    margin: 0;
+    padding: 28mm 18mm;
+    overflow: hidden;
+    background-color: #fff;
+    background-image: none !important;
+    border: none;
+    box-shadow: none;
+    font-family: "Segoe UI", Arial, sans-serif;
+    color: #222;
+}
+
+/* Bootstrap helpers used by the annexure HTML */
+#file-print-area .d-flex {
+    display: flex !important;
+}
+
+#file-print-area .justify-content-between {
+    justify-content: space-between !important;
+}
+
+#file-print-area .align-items-start {
+    align-items: flex-start !important;
+}
+
+#file-print-area .flex-grow-1 {
+    flex-grow: 1 !important;
+}
+
+#file-print-area .text-right {
+    text-align: right !important;
+}
+
+#file-print-area .font-weight-bold {
+    font-weight: 700 !important;
+}
+
+#file-print-area .mt-4 {
+    margin-top: 1.5rem !important;
+}
+
+#file-print-area .mb-3 {
+    margin-bottom: 1rem !important;
+}
+
+/* Annexure heading and body */
+#file-print-area .letter-title {
+    margin: 0 0 12mm;
+    text-align: center;
+    font-size: 16pt;
+    line-height: 1.2;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+#file-print-area .letter-meta {
+    margin-bottom: 7mm;
+    font-size: 10pt;
+    line-height: 1.4;
+}
+
+#file-print-area .letter-meta .label {
+    font-weight: 600;
+}
+
+#file-print-area .letter-subject {
+    margin: 8mm 0;
+    font-size: 10pt;
+    font-weight: 700;
+}
+
+#file-print-area .letter-sheet p {
+    margin: 0 0 4mm !important;
+    font-size: 10pt;
+    line-height: 1.45;
+}
+
+/* Investment table */
+#file-print-area .investment-table {
+    width: 100%;
+    margin-top: 3mm;
+    border-collapse: collapse;
+    font-size: 9.5pt;
+}
+
+#file-print-area .investment-table th,
+#file-print-area .investment-table td {
+    padding: 3.5mm 4mm;
+    vertical-align: middle;
+    border: 1px solid #aaa;
+}
+
+#file-print-area .investment-table th {
+    background: #e8eaed !important;
+    border-top: 0;
+    font-weight: 600;
+}
+
+#file-print-area .investment-table tfoot td {
+    background: #e8eaed !important;
+    border-top: 2px solid #333;
+    font-weight: 700;
+}
+
+/* Investor signature area in the annexure */
+#file-print-area .signature-block {
+    position: relative;
+    min-height: 30mm;
+    margin-top: 25mm;
+    font-size: 10pt;
+}
+
+#file-print-area .annexure-signature-slot {
+    position: relative;
+    min-height: 16mm;
+    padding-top: 3mm;
+    padding-right: 42mm;
+}
+
+/* Signature image inserted by your existing JavaScript */
+#file-print-area .annexure-signature.sig-placed-wrap,
+#file-print-area .sig-placed-wrap.annexure-signature {
+    position: absolute !important;
+    z-index: 20;
+    width: 28mm !important;
+    height: 10mm !important;
+}
+
+#file-print-area .sig-placed-wrap.annexure-signature img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: left bottom;
+}
+    #file-print-area .customsign {
+                margin-bottom: 120px !important;
+            }
     </style>
 </head>
 <body>
     <div id="file-print-area">${invoiceHtml}</div>
+
     <script>
-        window.onload = function () {
-            setTimeout(function () { window.print(); }, 1000);
-            window.onafterprint = function () { window.close(); };
+        window.onload = async function () {
+            try {
+                if (document.fonts && document.fonts.ready) {
+                    await document.fonts.ready;
+                }
+            } catch (error) {
+                console.warn('Fonts could not be fully loaded before print.', error);
+            }
+
+            setTimeout(function () {
+                window.print();
+            }, 300);
+        };
+
+        window.onafterprint = function () {
+            window.close();
         };
     <\/script>
 </body>
-</html>`);
+</html>
+    `);
+
             win.document.close();
         }
     </script>
@@ -1574,6 +1898,8 @@
                             } else {
                                 if (cfg.DocumentTypeId == 3) {
                                     btn.style.top = (slotRect.top - pageRect.top + 20) + 'px';
+                                } else if (cfg.DocumentTypeId == 5) {
+                                    btn.style.top = (slotRect.top - pageRect.top + 45) + 'px';
                                 } else {
                                     btn.style.top = (slotRect.top - pageRect.top + 59) + 'px';
                                 }
@@ -1877,6 +2203,7 @@
             }
         }
     </script>
+
 </body>
 
 </html>
