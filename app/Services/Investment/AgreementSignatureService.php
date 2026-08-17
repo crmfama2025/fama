@@ -195,12 +195,24 @@ logEvent
             ? $contract->investor->investor_mobile
             : $contract->company->owner_number;
 
+        $recipientName = $signerRole === 'investor'
+            ? $contract->investor->investor_name
+            : $contract->company->company_name;
+        $recipientName_arabic = $signerRole === 'investor'
+            ? $contract->investor->investor_name_arabic
+            : $contract->company->company_arabic_name;
+
+
         // $recipient = '971567623806';
         // dd($recipient);
         $variables = [
-            'investor_name' => $contract->investor->investor_name ?? 'Investor',
+            // 'investor_name' => $contract->investor->investor_name ?? 'Investor',
+            'investor_name' => $recipientName,
+
             'document_name' => $contract->agreementType->investor_agreement_type ?? 'Document',
-            'investor_name_ar' => $contract->investor->investor_name_arabic ?? 'Investor',
+            // 'investor_name_ar' => $contract->investor->investor_name_arabic ?? 'Investor',
+            'investor_name_ar' => $recipientName_arabic,
+
             'document_name_ar' => document_name_ar($contract->agreementType->short_code) ?? 'Document',
         ];
 
