@@ -103,9 +103,14 @@
                         </div>
                         <div class="form-group row">
                             <div class="col-sm-6">
-                                <label for="inputEmail3" class="col-form-label asterisk">Qwner Email</label>
+                                <label for="inputEmail3" class="col-form-label asterisk">Owner Email</label>
                                 <input type="email" name="owner_email" id="owner_email" class="form-control"
                                     id="inputEmail3" placeholder="Company Owner Email" required>
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="inputEmail3" class="col-form-label asterisk">Owner Phone</label>
+                                <input type="number" name="owner_number" id="owner_number" class="form-control"
+                                    id="inputEmail3" placeholder="Phone" required>
                             </div>
                         </div>
 

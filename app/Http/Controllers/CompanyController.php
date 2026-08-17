@@ -26,7 +26,7 @@ class CompanyController extends Controller
     }
     public function store(Request $request)
     {
-        // dd($request);
+        // dd($request->all());
         try {
             if ($request->id != 0) {
                 $company = $this->companyService->update($request->id, $request->all());
