@@ -103,7 +103,7 @@
                         </div>
                         <div class="form-group row">
                             <div class="col-sm-4">
-                                <label for="inputEmail3" class="col-form-label asterisk">Owner Email</label>
+                                <label for="inputEmail3" class="col-form-label asterisk">Owner Name</label>
                                 <input type="text" name="owner_name" id="owner_name" class="form-control"
                                     id="inputEmail3" placeholder="Company Owner Name" required>
                             </div>
