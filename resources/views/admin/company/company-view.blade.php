@@ -117,6 +117,10 @@
                                             <td>{{ $company->email ?? '-' }}</td>
                                         </tr>
                                         <tr>
+                                            <th>Owner Name</th>
+                                            <td>{{ $company->owner_name ?? '-' }}</td>
+                                        </tr>
+                                        <tr>
                                             <th>Owner Email</th>
                                             <td>{{ $company->owner_email ?? '-' }}</td>
                                         </tr>

@@ -37,7 +37,8 @@ class Company extends Model
         'registration_no',
         'letter_head_path',
         'owner_email',
-        'owner_number'
+        'owner_number',
+        'owner_name'
     ];
 
     public function areas()
