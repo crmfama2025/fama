@@ -233,6 +233,10 @@ class InvestorAgreementTemplateController extends Controller
             // dd($contract->toArray());
             $contract->save();
 
+            // sending email to th owner and the accountant who initiated the contract sending
+            if ($validated['signer_role'] === 'investor') {
+                $this->signatureService->sendSignedNotification($contract);
+            }
             AgreementSignatureEvent::create([
                 'contract_id' => $contract->id,
                 'signer_role' => $validated['signer_role'],
