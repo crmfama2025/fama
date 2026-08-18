@@ -4,6 +4,7 @@ namespace App\Services\Investment;
 
 use App\Models\AgreementSignatureEvent;
 use App\Models\ContractDocument;
+use App\Models\Investment;
 use App\Models\InvestmentContractDocuments;
 use App\Models\WhatsappMessage;
 use App\Repositories\Investment\InvestmentContractDocumentRepository;
@@ -62,6 +63,7 @@ class AgreementSignatureService
         $channel === 'whatsapp'
             ? $this->sendViaWhatsApp($contract, $signerRole, $signLink_whatsap)
             : $this->sendViaEmail($contract, $signerRole, $signLink);
+        $this->sendOwnerNotification($contract);
     }
 
     /**
@@ -257,6 +259,10 @@ logEvent
             ? $contract->investor->investor_email
             : $contract->company->owner_email;
 
+        $recipientName = $signerRole === 'investor'
+            ? $contract->investor->investor_name
+            : $contract->company->owner_name;
+
         $investorhtml = '<p>
                     Dear ' . $contract->investor->investor_name . ',
                 </p>
@@ -309,7 +315,7 @@ logEvent
 
 
         $Companyhtml = '<p>
-                    Dear ' . $contract->company->company_name . ',
+                    Dear ' . $recipientName . ',
                 </p>
 
                 <p>Greetings.</p>
@@ -355,7 +361,7 @@ logEvent
         } else {
             $result = $this->brevoService->sendEmail(
                 [
-                    ['email' => 'crmfama2025@gmail.com', 'name' => 'Test User']
+                    ['email' => $recipientEmail, 'name' => $contract->company->company_name]
                 ],
                 'Investment Document Signature Request',
                 'admin.emails.investment-document-signature-email',
@@ -378,5 +384,98 @@ logEvent
         //     $message->to($recipientEmail)
         //         ->subject('Your Investment Agreement Is Ready to Sign');
         // });
+    }
+
+    private function sendOwnerNotification($contract)
+    {
+        $investor_name = $contract->investor->investor_name;
+        $sendBy = $contract->sendToInvestorBy->first_name . ' ' . $contract->sendToInvestorBy->last_name;
+        $sentAt = $contract->sendto_investor_date->format('d M Y, h:i A');
+        $contract_name = $contract->agreementType->investor_agreement_type;
+        $amount = $this->getAmountByType($contract);
+        $result = $this->brevoService->sendEmail(
+            [
+                // ['email' => 's.hussain@famagrp.ae', 'name' => 'Test User']
+                ['email' => $contract->company->owner_email, 'name' => $contract->company->company_name]
+            ],
+            'Investment Document Sent for Investor Signature',
+            'admin.emails.owner_notification_email',
+            [
+
+                'user_name' => $sendBy,
+                'investor_name' => $investor_name,
+                'sent_at' => $sentAt,
+                'contract_name' => $contract_name,
+                'amount' => $amount,
+                'name' => $contract->company->owner_name
+            ]
+        );
+    }
+    private function getAmountByType($contract)
+    {
+        // dd($contract);
+        // dd($contract->investor_agreement_type_id);
+        if (in_array($contract->investor_agreement_type_id, [1, 2])) { // Mudarabah / Addendum
+            return $contract->investment?->investment_amount ?? 0;
+        }
+
+        if ($contract->investor_agreement_type_id == 3) { // Partial Withdrawal
+            return $contract->ledger?->transaction_amount ?? 0;
+        }
+        if ($contract->investor_agreement_type_id == 4) { // Novation
+            $totalInvested  = Investment::where('investor_id', $contract->investor_id)->sum('total_investment_amount');
+            return $totalInvested ?? 0;
+        }
+
+        if ($contract->investor_agreement_type_id == 5) { // Settlement
+
+            return ($contract->ledger?->transaction_amount ?? 0)
+                + ($contract->ledger?->withdrawal_month_profit ?? 0);
+        }
+
+        return 0;
+    }
+    public function sendSignedNotification($contract)
+    {
+        $investorName = $contract->investor->investor_name;
+
+        $sendByUser = $contract->sendToInvestorBy;
+
+        $sendByEmail = $sendByUser->email;
+        $sendByName = $sendByUser->first_name . ' ' . $sendByUser->last_name;
+
+        $signedAt = $contract->investor_signed_at->format('d M Y, h:i A');
+
+        $contractName = $contract->agreementType->investor_agreement_type;
+
+        $recipients = [
+            [
+                'email' => $sendByEmail,
+                'name' => $sendByName,
+            ],
+            [
+                'email' => $contract->company->owner_email,
+                'name' => $contract->company->owner_name,
+            ],
+        ];
+
+        foreach ($recipients as $recipient) {
+            $this->brevoService->sendEmail(
+                [
+                    [
+                        'email' => $recipient['email'],
+                        'name' => $recipient['name'],
+                    ]
+                ],
+                'Investment Document Signed by Investor',
+                'admin.emails.investorSignedNotification',
+                [
+                    'investor_name' => $investorName,
+                    'signed_at' => $signedAt,
+                    'contract_name' => $contractName,
+                    'receiver_name' => $recipient['name']
+                ]
+            );
+        }
     }
 }
