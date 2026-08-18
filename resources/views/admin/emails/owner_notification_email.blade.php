@@ -66,7 +66,7 @@
                                                                                         class="esd-block-image es-p10t es-p10b"
                                                                                         style="font-size:0px">
                                                                                         <a target="_blank">
-                                                                                            <img src="https://famacrm.cloud/images/fg.png"
+                                                                                            <img src="https://famacrm.cloud/test/images/fg.png"
                                                                                                 alt=""
                                                                                                 width="150"
                                                                                                 style="display:block">
@@ -78,47 +78,141 @@
                                                                                         class="esd-block-text es-p10b">
                                                                                         <h1 class="es-m-txt-c"
                                                                                             style="font-size:36px;line-height:100%;padding: 0px !important;">
-                                                                                            New Investment Added
+                                                                                            Investment Document Sent for
+                                                                                            Investor Signature
                                                                                         </h1>
                                                                                     </td>
                                                                                 </tr>
                                                                                 <tr>
                                                                                     <td align="center"
                                                                                         class="esd-block-text es-p5t es-p5b es-p40r es-p40l es-m-p0r es-m-p0l">
-                                                                                        <p>
-                                                                                            We would like to inform you
-                                                                                            that a new investment has
-                                                                                            been
-                                                                                            successfully added to the
-                                                                                            system.
-                                                                                            The investment made by
-                                                                                            <strong>{{ $name }}</strong>
-                                                                                            has been entered into the
-                                                                                            system.
+                                                                                        <p
+                                                                                            style="font-size:16px; line-height:150%; margin:0 0 20px 0;">
+                                                                                            Dear {{ $name }},
                                                                                         </p>
+
+                                                                                        <p
+                                                                                            style="font-size:16px; line-height:150%; margin:0 0 20px 0;">
+                                                                                            This is to inform you that
+                                                                                            <strong>{{ $user_name }}</strong>
+                                                                                            has sent
+                                                                                            the investment contract to
+                                                                                            <strong>{{ $investor_name }}</strong>
+                                                                                            for review and signature.
+                                                                                        </p>
+
+                                                                                        <table cellpadding="0"
+                                                                                            cellspacing="0"
+                                                                                            width="100%"
+                                                                                            style="border-collapse:collapse; margin:10px 0 20px 0;">
+                                                                                            <tr>
+                                                                                                <td
+                                                                                                    style="padding:10px 0; font-size:15px; color:#555555;">
+                                                                                                    <strong>Sent
+                                                                                                        By:</strong>
+                                                                                                </td>
+                                                                                                <td
+                                                                                                    style="padding:10px 0; font-size:15px; color:#222222;">
+                                                                                                    {{ $user_name }}
+                                                                                                </td>
+                                                                                            </tr>
+                                                                                            <tr>
+                                                                                                <td
+                                                                                                    style="padding:10px 0; font-size:15px; color:#555555;">
+                                                                                                    <strong>Investor:</strong>
+                                                                                                </td>
+                                                                                                <td
+                                                                                                    style="padding:10px 0; font-size:15px; color:#222222;">
+                                                                                                    {{ $investor_name }}
+                                                                                                    - AED
+                                                                                                    {{ number_format($amount, 2) }}
+                                                                                                </td>
+                                                                                            </tr>
+                                                                                            <tr>
+                                                                                                <td
+                                                                                                    style="padding:10px 0; font-size:15px; color:#555555;">
+                                                                                                    <strong>Document:</strong>
+                                                                                                </td>
+                                                                                                <td
+                                                                                                    style="padding:10px 0; font-size:15px; color:#222222;">
+                                                                                                    {{ $contract_name }}
+                                                                                                </td>
+                                                                                            </tr>
+                                                                                            <tr>
+                                                                                                <td
+                                                                                                    style="padding:10px 0; font-size:15px; color:#555555;">
+                                                                                                    <strong>Date &amp;
+                                                                                                        Time:</strong>
+                                                                                                </td>
+                                                                                                <td
+                                                                                                    style="padding:10px 0; font-size:15px; color:#222222;">
+                                                                                                    {{ $sent_at }}
+                                                                                                </td>
+                                                                                            </tr>
+                                                                                        </table>
+
+                                                                                        <p
+                                                                                            style="font-size:16px; line-height:150%; margin:0 0 20px 0;">
+                                                                                            The investor has been
+                                                                                            notified and can now review
+                                                                                            and sign the
+                                                                                            investment contract.
+                                                                                        </p>
+
+                                                                                        <p
+                                                                                            style="font-size:16px; line-height:150%; margin:0;">
+                                                                                            This email is for your
+                                                                                            information and records.
+                                                                                        </p>
+
+                                                                                        <p
+                                                                                            style="font-size:16px; line-height:150%; margin:25px 0 0 0;">
+                                                                                            Regards,<br>
+                                                                                            <strong>Fama Group Of
+                                                                                                Companies</strong>
+                                                                                        </p>
+
                                                                                     </td>
                                                                                 </tr>
-                                                                                <tr>
+                                                                                {{-- <tr>
                                                                                     <td align="center"
                                                                                         class="esd-block-text es-p10t es-p5b">
                                                                                         <p>
-                                                                                            Investment Amount:
-                                                                                            <strong>AED
-                                                                                                {{ number_format($amount) }}</strong>
-                                                                                            <br>
-                                                                                            You may click the button
-                                                                                            below to view the investment
-                                                                                            details.
+                                                                                        <p>
+                                                                                            <strong>Investment
+                                                                                                Details:</strong><br><br>
+                                                                                            <strong>Amount:</strong>
+                                                                                            {{ number_format($amount, 2) }}<br>
+                                                                                            <strong>Requested
+                                                                                                Date:</strong>
+                                                                                            {{ \Carbon\Carbon::parse($requested_date)->format('d M Y') }}<br>
+                                                                                            <strong>Termination
+                                                                                                Duration:</strong>
+                                                                                            {{ $duration }}<br>
+                                                                                            <strong>Termination
+                                                                                                Date:</strong>
+                                                                                            {{ \Carbon\Carbon::parse($termination_date)->format('d M Y') }}
+                                                                                        </p>
 
                                                                                         </p>
                                                                                     </td>
-                                                                                </tr>
+                                                                                </tr> --}}
+                                                                                {{-- <tr>
+                                                                                    <td align="center"
+                                                                                        class="esd-block-text es-p5t es-p5b es-p40r es-p40l es-m-p0r es-m-p0l">
+                                                                                        <p>
+                                                                                            Please review and sign the
+                                                                                            document by
+                                                                                            clicking the button below:
+                                                                                        </p>
+                                                                                    </td>
+                                                                                </tr> --}}
 
-                                                                                <td align="center"
+                                                                                {{-- <td align="center"
                                                                                     class="esd-block-button es-p10t es-p10b">
                                                                                     <span class="es-button-border"
                                                                                         style="border-radius: 6px;">
-                                                                                        <a href="{{ $url }}"
+                                                                                        <a href="{{ $document_path }}"
                                                                                             target="_blank"
                                                                                             class="es-button"
                                                                                             style="
@@ -131,10 +225,10 @@
                                                                                                     background: #baa360;
                                                                                                     background: linear-gradient(90deg, #baa360 0%, #d4bf7a 100%);
                                                                                                 ">
-                                                                                            VIEW INVESTMENT
+                                                                                            Open Document
                                                                                         </a>
                                                                                     </span>
-                                                                                </td>
+                                                                                </td> --}}
 
                                                                                 {{-- <tr>
                                                                                     <td align="center"

@@ -66,7 +66,7 @@
                                                                                         class="esd-block-image es-p10t es-p10b"
                                                                                         style="font-size:0px">
                                                                                         <a target="_blank">
-                                                                                            <img src="https://famacrm.cloud/images/fama-dark.png"
+                                                                                            <img src="https://famacrm.cloud/images/fg.png"
                                                                                                 alt=""
                                                                                                 width="150"
                                                                                                 style="display:block">
