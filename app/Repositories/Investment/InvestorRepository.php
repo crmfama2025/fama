@@ -222,7 +222,9 @@ class InvestorRepository
 
         // 2. Get unique companies from investments
         $companies = $investor->investments
-            ->where('investment_term_type', 1)
+            ->filter(function ($investment) {
+                return (int) $investment->investment_term_type === 1;
+            })
             ->pluck('company')     // extract company
             ->filter()             // remove nulls (important)
             ->unique('id')         // remove duplicates
@@ -232,6 +234,18 @@ class InvestorRepository
         $ledgerByCompany = $investor->investorLedgers
             ->where('status', 1) // only active records
             // ->sortBy('transaction_date')
+            ->filter(function ($ledger) {
+
+                // For transaction type 1,
+                // investment must have term type 1
+                if ((int) $ledger->investor_transaction_type_id === 1) {
+                    return $ledger->investment
+                        && (int) $ledger->investment->investment_term_type === 1;
+                }
+
+                // Other transaction types are included normally
+                return true;
+            })
             ->sortBy('id')
             ->groupBy('company_id');
         // dump($ledgerByCompany);

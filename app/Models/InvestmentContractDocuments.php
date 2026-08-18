@@ -72,4 +72,12 @@ class InvestmentContractDocuments extends Model
     {
         return $this->belongsTo(User::class, 'generated_by');
     }
+    public function sendToInvestorBy()
+    {
+        return $this->belongsTo(User::class, 'sendto_investor_by');
+    }
+    public function ledger()
+    {
+        return $this->hasOne(InvestorLedger::class, 'investment_contract_document_id');
+    }
 }
