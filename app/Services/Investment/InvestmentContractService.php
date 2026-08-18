@@ -137,7 +137,7 @@ class InvestmentContractService
         // dump($annexureAMulti);
         // ── Grand totals ─────────────────────────────────────────────────────────
         $investmentsCollection = collect($investments);
-        $grandTotalInvested    = $investmentsCollection->sum('investment_amount');
+        $grandTotalInvested    = $investmentsCollection->sum('total_invested_amount');
         $grandTotalProfit      = $investmentsCollection->sum('profit_amount');
         $grandTotalPerInterval = $investmentsCollection->sum('profit_amount_per_interval');
 
@@ -562,7 +562,7 @@ class InvestmentContractService
             }
         }
         // dd($contractPayoutMonths);
-        $totalInvested = collect($companyInvestments)->sum('investment_amount');
+        $totalInvested = collect($companyInvestments)->sum('total_invested_amount');
 
         $rowsEng = '';
         $rowsAr  = '';
@@ -1045,7 +1045,7 @@ class InvestmentContractService
             ->orderBy('investment_date')
             ->get();
 
-        $totalInvested  = Investment::where('investor_id', $docDetails->investor_id)->sum('investment_amount');
+        $totalInvested  = Investment::where('investor_id', $docDetails->investor_id)->sum('total_invested_amount');
 
 
         // $investor   = $this->investorRepository->find($investorId);

@@ -833,7 +833,7 @@ function updateInvestor($investorId, $investmentId)
 {
     $investmentCount = Investment::where('investor_id', $investorId)->count();
 
-    $investedAmount = Investment::where('investor_id', $investorId)->sum('investment_amount');
+    $investedAmount = Investment::where('investor_id', $investorId)->sum('total_invested_amount');
 
 
     Investor::where('id', $investorId)->update([

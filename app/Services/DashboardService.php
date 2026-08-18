@@ -74,7 +74,7 @@ class DashboardService
             $totalCountQuery->where('company_id', $companyId);
         }
 
-        $totalInvestment = $totalInvestmentQuery->sum('investment_amount');
+        $totalInvestment = $totalInvestmentQuery->sum('total_invested_amount');
         $totalCount = $totalCountQuery->count();
 
         $percentageChange = 0;
