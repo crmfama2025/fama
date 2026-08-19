@@ -382,4 +382,60 @@ class InvestmentRepository
 
     //     return $schedule;
     // }
+
+    public function updateInvestorProfitRecords(array $profits, $investment): void
+    {
+        DB::transaction(function () use ($profits, $investment) {
+            foreach ($profits as $record) {
+                $amount = round((float) ($record['amount'] ?? 0), 2);
+
+                if (empty($record['date'])) {
+                    continue; // can't create/update without a date
+                }
+
+                $releaseMonth = Carbon::createFromFormat('d-m-Y', $record['date'])->startOfDay();
+
+                if (!empty($record['id'])) {
+                    $existing = InvestmentProfitRecord::where('id', $record['id'])
+                        ->where('investment_id', $investment->id)
+                        ->first();
+
+                    if (!$existing) {
+                        continue;
+                    }
+
+                    $existingDate = Carbon::createFromFormat('d-m-Y', $existing->profit_release_month)->startOfDay();
+
+                    $dateChanged   = !$existingDate->equalTo($releaseMonth);
+                    $amountChanged = round((float) $existing->profit_amount, 2) !== $amount;
+
+                    if ($dateChanged || $amountChanged) {
+                        $existing->update([
+                            'investor_id'           => $investment->investor_id,
+                            'profit_release_month'  => $releaseMonth,
+                            'profit_amount'         => $amount,
+                            'has_profit_amount'     => $amount > 0 ? 1 : 0,
+                            // 'updated_at'            => now(),
+                            // 'released_total_amount' => 0,
+                            // 'last_released_at'      => null,
+                            // 'last_released_by'      => null,
+                        ]);
+                    }
+                } else {
+                    // No id - new row added on the frontend - create
+                    InvestmentProfitRecord::create([
+                        'investor_id'           => $investment->investor_id,
+                        'investment_id'         => $investment->id,
+                        'profit_release_month'  => $releaseMonth,
+                        'profit_amount'         => $amount,
+                        'has_profit_amount'     => $amount > 0 ? 1 : 0,
+                        'release_status'        => 'pending',
+                        'released_total_amount' => 0,
+                        'last_released_at'      => null,
+                        'last_released_by'      => null,
+                    ]);
+                }
+            }
+        });
+    }
 }

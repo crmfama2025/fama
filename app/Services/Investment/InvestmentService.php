@@ -354,35 +354,36 @@ class InvestmentService
                 'total_invested_amount' => $data['investment_amount'],
                 'investment_term_type' => $termtype
             ];
+            // dd($investmentData);
 
             $this->validate($investmentData);
 
             $investment = $this->investmentRepository->update($id, $investmentData);
 
             // ----------------- sync investment profit schedule -------------
-            $scheduleAffectingFields = [
-                'investment_tenure',
-                'profit_amount_per_interval',
-                'initial_profit_release_month',
-                'profit_interval_id',
-                'grace_period',
-                'investment_date',
-                'payout_batch_id',
-            ];
+            // $scheduleAffectingFields = [
+            //     'investment_tenure',
+            //     'profit_amount_per_interval',
+            //     'initial_profit_release_month',
+            //     'profit_interval_id',
+            //     'grace_period',
+            //     'investment_date',
+            //     'payout_batch_id',
+            // ];
             // dd($scheduleAffectingFields);
             // dd($data['profit_records']);
 
             // ----------------- investment profits for -------------
-            if ($investment->wasChanged($scheduleAffectingFields)) {
-                // dd($data['profit_records']);
-                $this->investmentRepository->generateInvestorProfitRecords($data['profit_records'], $investment);
-            }
+            // if ($investment->wasChanged($scheduleAffectingFields)) {
+            //     // dd($data['profit_records']);
+            //     $this->investmentRepository->generateInvestorProfitRecords($data['profit_records'], $investment);
+            // }
 
             // Profit record update
-            // $this->investmentRepository->updateInvestorProfitRecords(
-            //     $data['profit_records'] ?? [],
-            //     $investment
-            // );
+            $this->investmentRepository->updateInvestorProfitRecords(
+                $data['profit_records'] ?? [],
+                $investment
+            );
 
 
             // Update Investment Documents

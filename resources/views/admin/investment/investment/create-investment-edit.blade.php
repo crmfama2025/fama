@@ -316,6 +316,7 @@
                                                         </select>
                                                     </div>
                                                 </div>
+                                                {{-- @dump($investment->next_profit_release_date) --}}
                                                 <div class="col-md-4">
                                                     <div class="form-group">
                                                         <label class="asterisk">First Profit Release Date</label>
@@ -378,6 +379,9 @@
                                                         @foreach ($investment->profitRecords as $i => $record)
                                                             <tr>
                                                                 <td class="row-index">{{ $i + 1 }}</td>
+                                                                <input type="hidden"
+                                                                    name="profit_records[{{ $i }}][id]"
+                                                                    class="profit-row-id" value="{{ $record->id }}">
                                                                 <td>
                                                                     <div class="input-group date profit-row-date-group"
                                                                         id="profitRowDate_{{ $i }}"
@@ -924,11 +928,14 @@
             }
         }
 
-        $('#investment_tenure').on('change keyup', function() {
+        $('#investment_tenure').on('change', function() {
+
             calculateMaturityDate();
             syncRowsToTenure();
             calculateProfit();
             calculateProfitPerInterval();
+            // Finally validate schedule total
+            updateProfitScheduleTotal();
         });
 
         $('#grace_period').on('change keyup', function() {
@@ -939,7 +946,16 @@
         });
 
 
+        const savedInvestmentDate = @json(isset($investment) && $investment->investment_date
+                ? \Carbon\Carbon::parse($investment->investment_date)->format('d-m-Y')
+                : '');
+        const isEditMode = {{ isset($investment) ? 'true' : 'false' }};
+
         $('#investmentdate').on('change.datetimepicker', function() {
+
+            if (isEditMode && $('#investment_date').val() === savedInvestmentDate) {
+                return;
+            }
             calculateMaturityDate();
             calculateFirstProfitReleaseDate();
             regenerateProfitScheduleDates();
@@ -1052,7 +1068,8 @@
                 return;
             }
 
-            // Only calculate if the input is empty
+            // Only calculate
+            // if the input is empty
             // let firstProfitInput = $('#first_profit_release_date');
             // if (firstProfitInput.val().trim() !== '') {
             //     return; // keep existing value
@@ -1541,6 +1558,7 @@
         }
 
         function updateProfitScheduleTotal() {
+            console.log('updateProfitScheduleTotal');
             let totalProfit = parseFloat($('#profit_amount').val()) || 0;
             let sum = 0;
             $('.profit-row-amount').each(function() {
@@ -1550,6 +1568,28 @@
             // Round to 2 decimal places
             totalProfit = Math.round((totalProfit + Number.EPSILON) * 100) / 100;
             sum = Math.round((sum + Number.EPSILON) * 100) / 100;
+
+            let tenure = parseInt($('#investment_tenure').val()) || 0;
+            let currentCount = $('#profitScheduleBody tr').length;
+
+            // First validate tenure / row count
+            if (currentCount !== tenure) {
+                $('#investmentSubmitButton').prop('disabled', true);
+
+                if (currentCount > tenure) {
+                    let extra = currentCount - tenure;
+
+                    $('#profitScheduleMismatch')
+                        .text(
+                            `Tenure is ${tenure} months, but there are ${currentCount} profit records. Remove ${extra} row(s).`
+                        )
+                        .show();
+                }
+
+                $('#profitScheduleTotal').text(sum.toFixed(2));
+                return;
+            }
+
 
             if (totalProfit != sum) {
                 if (totalProfit < sum) {
@@ -1580,6 +1620,7 @@
             let currentCount = $('#profitScheduleBody tr').length;
 
             if (currentCount > tenure) {
+                // console.log(currentCount, tenure)
                 $('#profitScheduleBody tr').each(function() {
                     let $cell = $(this).find('.profit-row-delete-cell');
                     if (!$cell.find('.remove-profit-row').length) {
@@ -1592,28 +1633,34 @@
                 });
                 showTenureMismatch(currentCount, tenure);
             } else {
+                // console.log("hide called");
+                // console.log(currentCount, tenure)
                 $('.profit-row-delete-cell').empty();
-                hideTenureMismatch();
+                // hideTenureMismatch();
+                $('#profitScheduleTenureMismatch').remove();
             }
+            updateProfitScheduleTotal();
+
         }
 
         function showTenureMismatch(currentCount, tenure) {
             let extra = currentCount - tenure;
             let $msg = $('#profitScheduleTenureMismatch');
             if (!$msg.length) {
+                // alert("test");
                 // $msg = $(`<small class="text-warning d-block" id="profitScheduleTenureMismatch"></small>`);
                 // $('#profitScheduleMismatch').after($msg);
-                console.log('alert showtenuremistch');
+                // console.log('alert showtenuremistch');
                 toastr.error(`Row total does not match Total Profit Amount.`);
                 $('#investmentSubmitButton').prop('disabled', true);
             }
             $msg.text(`Tenure reduced — remove ${extra} row(s) manually using the delete button.`).show();
         }
 
-        function hideTenureMismatch() {
-            $('#profitScheduleTenureMismatch').remove();
-            $('#investmentSubmitButton').prop('disabled', false);
-        }
+        // function hideTenureMismatch() {
+        //     $('#profitScheduleTenureMismatch').remove();
+        //     $('#investmentSubmitButton').prop('disabled', false);
+        // }
 
         // sync row count to tenure: add rows if increased; on decrease, DON'T auto-remove -
         // just expose delete buttons so the user picks which row(s) to delete
@@ -1635,6 +1682,33 @@
         // manual row delete (only visible when tenure was reduced)
         $(document).on('click', '.remove-profit-row', function() {
             let $row = $(this).closest('tr');
+            // destroyRowDatePicker($row);
+
+            let $idInput = $row.find('.profit-row-id');
+            let recordId = $idInput.length ? $idInput.val() : null;
+            // alert(recordId);
+            if (recordId) {
+                removeProfitRecordFromTable(recordId, $row);
+            } else {
+                removeRowFromDom($row);
+                return;
+            }
+
+            // reindexProfitRows();
+            // updateProfitScheduleTotal();
+
+            // let tenure = parseInt($('#investment_tenure').val()) || 0;
+            // let currentCount = $('#profitScheduleBody tr').length;
+
+            // if (currentCount < tenure) {
+            //     // deleted past the target - resync tenure field down rather than silently regenerating
+            //     $('#investment_tenure').val(currentCount);
+            // }
+
+            // updateDeleteButtonsVisibility();
+        });
+
+        function removeRowFromDom($row) {
             destroyRowDatePicker($row);
             $row.remove();
 
@@ -1645,12 +1719,11 @@
             let currentCount = $('#profitScheduleBody tr').length;
 
             if (currentCount < tenure) {
-                // deleted past the target - resync tenure field down rather than silently regenerating
                 $('#investment_tenure').val(currentCount);
             }
 
             updateDeleteButtonsVisibility();
-        });
+        }
 
         $(document).on('change.datetimepicker', '#profitRowDate_0', function() {
             calculateProfitDates();
@@ -1694,7 +1767,7 @@
             if (!isNaN(max) && !isNaN(val) && val > max) {
                 $(this).val(max);
                 // if toatl of rows is not matching sometimes need to exceed the amount
-                if (total_pro == total_prof_interval) {
+                if (total_prof == total_prof_interval) {
                     toastr.error(`Amount cannot exceed ${max.toFixed(2)} for this row.`);
 
                 }
@@ -1705,6 +1778,7 @@
 
         $(function() {
             let $existingRows = $('#profitScheduleBody tr');
+            console.log($existingRows);
             if ($existingRows.length) {
                 profitRowUid = $existingRows.length; // continue uid sequence after prefilled rows
                 $existingRows.each(function() {
@@ -1714,5 +1788,45 @@
                 updateDeleteButtonsVisibility();
             }
         });
+
+        function removeProfitRecordFromTable(recordId, $row) {
+            // Existing DB record - confirm, then delete via AJAX
+            Swal.fire({
+                icon: 'warning',
+                title: 'Delete this profit record?',
+                text: 'This will permanently remove the payout record from the database.',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, delete it',
+                cancelButtonText: 'Cancel',
+                confirmButtonColor: '#dc3545',
+            }).then((result) => {
+                if (!result.isConfirmed) return;
+
+                showLoader();
+
+                $.ajax({
+                    url: "{{ route('investment.profitRecord.destroy', ':id') }}".replace(':id',
+                        recordId),
+                    type: 'POST', // Laravel method-spoofed DELETE
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        _method: 'DELETE'
+                    },
+                    success: function(response) {
+                        hideLoader();
+                        toastr.success(response.message || 'Profit record deleted.');
+                        removeRowFromDom($row);
+                    },
+                    error: function(xhr) {
+                        hideLoader();
+                        let errMsg = 'Failed to delete profit record.';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errMsg = xhr.responseJSON.message;
+                        }
+                        toastr.error(errMsg);
+                    }
+                });
+            });
+        }
     </script>
 @endsection

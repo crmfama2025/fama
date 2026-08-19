@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exports\InvestmentExport;
 use App\Models\Investment;
+use App\Models\InvestmentProfitRecord;
 use App\Models\InvestmentReceivedPayment;
 use App\Repositories\Investment\InvestmentRepository;
 use App\Services\Investment\InvestmentContractDocumentService;
@@ -201,5 +202,16 @@ class InvestmentController extends Controller
 
             return $this->investorLedgerService->getDataTable($filters);
         }
+    }
+    // InvestmentController.php
+    public function destroyProfitRecord($id)
+    {
+        // dd($id);
+        $record = InvestmentProfitRecord::findOrFail($id);
+        $record->delete();
+
+        return response()->json([
+            'message' => 'Profit record deleted successfully.'
+        ]);
     }
 }
