@@ -408,6 +408,9 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
     Route::delete('investor/partial-withdrawal/delete/{id}', [InvestorController::class, 'deleteTermination'])
         ->name('investor.partial-withdrawals.delete');
 
+    // routes/web.php
+    Route::delete('investment/profit-record/{id}', [InvestmentController::class, 'destroyProfitRecord'])
+        ->name('investment.profitRecord.destroy');
 
     Route::get('/sendpdf/{contract}', [InvestorAgreementTemplateController::class, 'sendPDFEmail'])
         ->name('agreements.sendpdf');

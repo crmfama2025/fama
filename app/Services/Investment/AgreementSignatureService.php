@@ -63,7 +63,9 @@ class AgreementSignatureService
         $channel === 'whatsapp'
             ? $this->sendViaWhatsApp($contract, $signerRole, $signLink_whatsap)
             : $this->sendViaEmail($contract, $signerRole, $signLink);
-        $this->sendOwnerNotification($contract);
+        if ($signerRole === 'investor') {
+            $this->sendOwnerNotification($contract);
+        }
     }
 
     /**
