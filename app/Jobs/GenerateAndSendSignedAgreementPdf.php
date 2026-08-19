@@ -49,7 +49,8 @@ class GenerateAndSendSignedAgreementPdf implements ShouldQueue
             ->showBackground()
             ->margins(0, 0, 0, 0)
             ->waitUntilNetworkIdle()
-            ->timeout(60);
+            ->timeout(60)
+            ->noSandbox();
 
         if ($nodeBinary = config('services.browsershot.node_binary')) {
             $browsershot->setNodeBinary($nodeBinary);
