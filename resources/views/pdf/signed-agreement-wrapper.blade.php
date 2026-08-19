@@ -6,14 +6,14 @@
     <style>
         @font-face {
             font-family: 'Amiri';
-            src: url('{{ str_replace('\\', '/', public_path('assets/Amiri/Amiri-Regular.ttf')) }}');
+            src: url('{{ asset('assets/Amiri/Amiri-Regular.ttf') }}');
             font-weight: normal;
             font-style: normal;
         }
 
         @font-face {
             font-family: 'Amiri';
-            src: url('{{ str_replace('\\', '/', public_path('assets/Amiri/Amiri-Bold.ttf')) }}');
+            src: url('{{ asset('assets/Amiri/Amiri-Bold.ttf') }}');
             font-weight: bold;
             font-style: normal;
         }
