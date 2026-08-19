@@ -45,3 +45,25 @@ Stack trace:
 Stack trace:
 #0 {main}
   thrown in /home/famacrm/crmfama/artisan on line 11
+[14-Jul-2026 07:53:16 UTC] PHP Fatal error:  Uncaught Error: Class "Normalizer" not found in /usr/share/php/Symfony/Component/String/AbstractUnicodeString.php:31
+Stack trace:
+#0 /usr/share/php/Symfony/Component/Console/Helper/Helper.php(51): [constant expression]()
+#1 /usr/share/php/Symfony/Component/Console/Application.php(872): Symfony\Component\Console\Helper\Helper::width('  [Error]  ')
+#2 /usr/share/php/Symfony/Component/Console/Application.php(857): Symfony\Component\Console\Application->doRenderThrowable(Object(Error), Object(Symfony\Component\Console\Output\StreamOutput))
+#3 /usr/share/php/Symfony/Component/Console/Application.php(158): Symfony\Component\Console\Application->renderThrowable(Object(Error), Object(Symfony\Component\Console\Output\StreamOutput))
+#4 /usr/share/php/Symfony/Component/Console/Application.php(184): Symfony\Component\Console\Application->Symfony\Component\Console\{closure}(Object(Error))
+#5 /usr/share/php/Composer/Console/Application.php(145): Symfony\Component\Console\Application->run(Object(Symfony\Component\Console\Input\ArgvInput), Object(Symfony\Component\Console\Output\ConsoleOutput))
+#6 /usr/bin/composer(94): Composer\Console\Application->run()
+#7 {main}
+  thrown in /usr/share/php/Symfony/Component/String/AbstractUnicodeString.php on line 31
+[15-Jul-2026 09:24:07 UTC] PHP Fatal error:  Uncaught Error: Class "Normalizer" not found in /usr/share/php/Symfony/Component/String/AbstractUnicodeString.php:31
+Stack trace:
+#0 /usr/share/php/Symfony/Component/Console/Helper/Helper.php(51): [constant expression]()
+#1 /usr/share/php/Symfony/Component/Console/Application.php(872): Symfony\Component\Console\Helper\Helper::width('  [Error]  ')
+#2 /usr/share/php/Symfony/Component/Console/Application.php(857): Symfony\Component\Console\Application->doRenderThrowable(Object(Error), Object(Symfony\Component\Console\Output\StreamOutput))
+#3 /usr/share/php/Symfony/Component/Console/Application.php(158): Symfony\Component\Console\Application->renderThrowable(Object(Error), Object(Symfony\Component\Console\Output\StreamOutput))
+#4 /usr/share/php/Symfony/Component/Console/Application.php(184): Symfony\Component\Console\Application->Symfony\Component\Console\{closure}(Object(Error))
+#5 /usr/share/php/Composer/Console/Application.php(145): Symfony\Component\Console\Application->run(Object(Symfony\Component\Console\Input\ArgvInput), Object(Symfony\Component\Console\Output\ConsoleOutput))
+#6 /usr/bin/composer(94): Composer\Console\Application->run()
+#7 {main}
+  thrown in /usr/share/php/Symfony/Component/String/AbstractUnicodeString.php on line 31
