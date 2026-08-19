@@ -42,5 +42,8 @@ return [
     'brevo' => [
         'api_key' => env('BREVO_API_KEY'),
     ],
-
+    'browsershot' => [
+        'node_binary' => env('NODE_BINARY_PATH'),
+        'npm_binary' => env('NPM_BINARY_PATH'),
+    ],
 ];

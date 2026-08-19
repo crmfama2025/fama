@@ -34,13 +34,32 @@ class GenerateAndSendSignedAgreementPdf implements ShouldQueue
 
         $url = route('debug.contract-html', ['contractId' => $contract->id]);
 
-        $pdfBinary = Browsershot::url($url)
+        // $pdfBinary = Browsershot::url($url)
+        //     ->setNodeBinary('/usr/bin/node')
+        //     ->setNpmBinary('/usr/bin/npm')
+        //     ->format('A4')
+        //     ->showBackground()
+        //     ->margins(0, 0, 0, 0)
+        //     ->waitUntilNetworkIdle()
+        //     ->timeout(60)
+        //     ->pdf();
+
+        $browsershot = Browsershot::url($url)
             ->format('A4')
             ->showBackground()
             ->margins(0, 0, 0, 0)
             ->waitUntilNetworkIdle()
-            ->timeout(60)
-            ->pdf();
+            ->timeout(60);
+
+        if ($nodeBinary = config('services.browsershot.node_binary')) {
+            $browsershot->setNodeBinary($nodeBinary);
+        }
+
+        if ($npmBinary = config('services.browsershot.npm_binary')) {
+            $browsershot->setNpmBinary($npmBinary);
+        }
+
+        $pdfBinary = $browsershot->pdf();
 
         // if we want to store the pdf in storage, uncomment the following lines
         $fileName = 'contracts/' . $contract->id . '/signed-agreement-' . now()->format('Ymd-His') . '.pdf';
