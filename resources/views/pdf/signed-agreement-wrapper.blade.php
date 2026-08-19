@@ -6,21 +6,21 @@
     <style>
         @font-face {
             font-family: 'Amiri';
-            src: url('{{ storage_path('fonts/Amiri/Amiri-Regular.ttf') }}') format('truetype');
+            src: url('file://{{ storage_path('fonts/Amiri/Amiri-Regular.ttf') }}') format('truetype');
             font-weight: normal;
             font-style: normal;
         }
 
         @font-face {
             font-family: 'Amiri';
-            src: url('{{ storage_path('fonts/Amiri/Amiri-Bold.ttf') }}') format('truetype');
+            src: url('file://{{ storage_path('fonts/Amiri/Amiri-Bold.ttf') }}') format('truetype');
             font-weight: bold;
             font-style: normal;
         }
 
         @font-face {
             font-family: 'Times New Roman';
-            src: url('{{ storage_path('fonts/times.ttf') }}') format('truetype');
+            src: url('file://{{ storage_path('fonts/times.ttf') }}') format('truetype');
             font-weight: normal;
             font-style: normal;
         }
