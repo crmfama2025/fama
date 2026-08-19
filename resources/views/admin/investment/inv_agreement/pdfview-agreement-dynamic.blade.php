@@ -351,8 +351,9 @@
             width: 100%;
             height: 100%;
             object-fit: contain;
-            object-position: left bottom;
+            /* object-position: left bottom; */
             pointer-events: none;
+            display: block;
         }
 
         .sig-placed-remove {
@@ -1028,6 +1029,22 @@
             <p style="font-size:12px;color:#888;margin:-8px 0 14px;">
                 Choose how to deliver the signing link.
             </p>
+
+            <div class="sig-recipient-info"
+                style="background:#f7f8fa;border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:13px;">
+                @if (!$contractDocument->investor_signed_at)
+                    <div style="font-weight:600;margin-bottom:4px;">Sending to: Investor</div>
+                    <div style="color:#444;">Name: {{ $contractDocument->investor->investor_name }}</div>
+                    <div style="color:#444;">Mobile: {{ $contractDocument->investor->investor_mobile }}</div>
+                    <div style="color:#444;">Email: {{ $contractDocument->investor->investor_email }}</div>
+                @else
+                    <div style="font-weight:600;margin-bottom:4px;">Sending to: Company</div>
+                    <div style="color:#444;">Name: {{ $contractDocument->company->company_name }}</div>
+                    <div style="color:#444;">Mobile: {{ $contractDocument->company->owner_number }}</div>
+                    <div style="color:#444;">Email: {{ $contractDocument->company->owner_email }}</div>
+                @endif
+            </div>
+
             <div class="sig-actions" style="justify-content:center;gap:12px;">
                 <button class="sig-btn" style="background:#25D366;color:#fff;"
                     onclick="sendForSignature('whatsapp')">
@@ -1041,6 +1058,11 @@
                 <button class="sig-btn sig-btn-cancel" onclick="closeSendModal()">Cancel</button>
             </div>
         </div>
+    </div>
+
+    <!-- Global Loader -->
+    <div id="global-loader" style="display:none;">
+        <img src="{{ asset('images/fama-loader-new.gif') }}" alt="Loading..." />
     </div>
 
     <script src="{{ asset('assets/jquery/jquery.min.js') }}"></script>
@@ -1344,7 +1366,7 @@
             width: 100%;
             height: 100%;
             object-fit: contain;
-            object-position: left bottom;
+            // object-position: left bottom;
         }
 
         @media print {
@@ -1802,7 +1824,8 @@
             toastr.success('Updated your signature on all previously signed pages.');
         }
 
-        function clearPlacedSignatures() {
+        // placing sig with button
+        /* function clearPlacedSignatures() {
             const cfg = window.AgreementConfig;
             document.querySelectorAll(`.new-page`).forEach(page => {
                 const wraps = page.querySelectorAll(`.sig-placed-wrap[data-signer="${cfg.signerRole}"]`);
@@ -1823,6 +1846,14 @@
             });
             updateSubmitButtonState();
             toastr.info('Cleared your previous signatures — click "Sign" again on each spot.');
+        } */
+
+        // placing sig everywere
+        function clearPlacedSignatures() {
+            const cfg = window.AgreementConfig;
+            document.querySelectorAll(`.sig-placed-wrap[data-signer="${cfg.signerRole}"]`).forEach(wrap => wrap.remove());
+            updateSubmitButtonState();
+            toastr.info('Cleared your previous signatures. Re-placing with the new signature...');
         }
 
         // ════════════════════════════════════════════════
@@ -1871,7 +1902,8 @@
                     slots.forEach((slot) => {
                         const slotId = slot.dataset.signatureSlot;
                         const spotKey = `${pageIndex}-${slotId}`;
-
+                        // placing place signature button
+                        /* 
                         if (page.querySelector(`.sig-placed-wrap[data-spot-key="${spotKey}"]`)) return;
                         if (page.querySelector(`.sig-placeholder-btn[data-spot-key="${spotKey}"]`)) return;
 
@@ -1880,35 +1912,67 @@
 
                         const btn = createPlaceButton(page, slotId, spotKey);
 
-                        // Detect annexure signature slot
+                         // Detect annexure signature slot
+                         const isAnnexure = !!page.querySelector('.annexure-signature');
+
+                         if (isAnnexure) { // If it's an annexure signature slot, add a special class for styling
+                             btn.classList.add('annexure-signature-btn');
+
+                             // ANNEXURE:
+                             // Position directly over/near the Signature slot
+                             btn.style.left = (slotRect.left - pageRect.left + 100) + 'px';
+                             btn.style.top = (slotRect.top - pageRect.top - 15) + 'px';
+
+                         } else {
+
+                             if (cfg.signerRole === 'investor') {
+                                 btn.style.top = (slotRect.top - pageRect.top + 4) + 'px';
+                             } else {
+                                 if (cfg.DocumentTypeId == 3) {
+                                     btn.style.top = (slotRect.top - pageRect.top + 20) + 'px';
+                                 } else if (cfg.DocumentTypeId == 5) {
+                                     btn.style.top = (slotRect.top - pageRect.top + 45) + 'px';
+                                 } else {
+                                     btn.style.top = (slotRect.top - pageRect.top + 59) + 'px';
+                                 }
+
+                             }
+                             btn.style.left = (slotRect.left - pageRect.left + 125) + 'px';
+                         }
+
+                         page.appendChild(btn);   */
+
+
+                        if (page.querySelector(`.sig-placed-wrap[data-spot-key="${spotKey}"]`)) return;
+
+                        const pageRect = page.getBoundingClientRect();
+                        const slotRect = slot.getBoundingClientRect();
                         const isAnnexure = !!page.querySelector('.annexure-signature');
+                        const styles = {};
 
-                        if (isAnnexure) { // If it's an annexure signature slot, add a special class for styling
-                            btn.classList.add('annexure-signature-btn');
-
-                            // ANNEXURE:
-                            // Position directly over/near the Signature slot
-                            btn.style.left = (slotRect.left - pageRect.left + 100) + 'px';
-                            btn.style.top = (slotRect.top - pageRect.top - 15) + 'px';
-
+                        if (isAnnexure) {
+                            styles.annexure = true;
+                            styles.left = (slotRect.left - pageRect.left + 45) + 'px';
+                            styles.top = (slotRect.top - pageRect.top - 43) + 'px';
                         } else {
-
                             if (cfg.signerRole === 'investor') {
-                                btn.style.top = (slotRect.top - pageRect.top + 4) + 'px';
+                                styles.top = (slotRect.top - pageRect.top + 22) + 'px';
+
+                                console.log('style.tp', styles.top);
                             } else {
                                 if (cfg.DocumentTypeId == 3) {
-                                    btn.style.top = (slotRect.top - pageRect.top + 20) + 'px';
+                                    styles.top = (slotRect.top - pageRect.top + 20) + 'px';
                                 } else if (cfg.DocumentTypeId == 5) {
-                                    btn.style.top = (slotRect.top - pageRect.top + 45) + 'px';
+                                    styles.top = (slotRect.top - pageRect.top + 45) + 'px';
                                 } else {
-                                    btn.style.top = (slotRect.top - pageRect.top + 59) + 'px';
+                                    styles.top = (slotRect.top - pageRect.top + 59) + 'px';
                                 }
-
                             }
-                            btn.style.left = (slotRect.left - pageRect.left + 125) + 'px';
+                            styles.left = (slotRect.left - pageRect.left + 73) + 'px';
+                            console.log('style.lft', styles.left);
                         }
 
-                        page.appendChild(btn);
+                        placeSignatureDirect(page, slotId, spotKey, styles);
                     });
                 }
 
@@ -1919,6 +1983,8 @@
                 // Default per-page stamp — every OTHER page gets one, positioned per role.
                 const spotKey = `${pageIndex}-default-${cfg.signerRole}`;
 
+                // placing sig with button
+                /* 
                 if (page.querySelector(`.sig-placed-wrap[data-spot-key="${spotKey}"]`)) return;
                 if (page.querySelector(`.sig-placeholder-btn[data-spot-key="${spotKey}"]`)) return;
 
@@ -1929,7 +1995,21 @@
                 } else {
                     btn.style.left = '16mm';
                 }
-                page.appendChild(btn);
+                page.appendChild(btn); */
+
+                // REPLACE WITH:
+                if (page.querySelector(`.sig-placed-wrap[data-spot-key="${spotKey}"]`)) return;
+
+                const styles = {
+                    bottom: '31mm'
+                };
+                if (cfg.signerRole === 'investor') {
+                    styles.right = '5mm';
+                } else {
+                    styles.left = '5mm';
+                }
+                placeSignatureDirect(page, null, spotKey, styles);
+
             });
 
             updateSubmitButtonState();
@@ -1982,8 +2062,8 @@
             wrap.style.left = btn.style.left || '';
             wrap.style.right = btn.style.right || '';
             wrap.style.bottom = btn.style.bottom || '';
-            wrap.style.width = slotId ? '28mm' : '40mm';
-            wrap.style.height = slotId ? '10mm' : '16mm';
+            wrap.style.width = slotId ? '61mm' : '60mm';
+            wrap.style.height = slotId ? '28mm' : '28mm';
 
             const img = document.createElement('img');
             img.src = signatureDataUrl;
@@ -2009,6 +2089,53 @@
             makeDraggable(wrap, page);
 
             btn.remove();
+            page.appendChild(wrap);
+            updateSubmitButtonState();
+        }
+
+
+        function placeSignatureDirect(page, slotId, spotKey, styles) {
+            const cfg = window.AgreementConfig;
+            const wrap = document.createElement('div');
+            wrap.className = 'sig-placed-wrap';
+            if (styles.annexure) wrap.classList.add('annexure-signature');
+
+            wrap.dataset.signer = cfg.signerRole;
+            if (slotId) wrap.dataset.slotId = slotId;
+            wrap.dataset.spotKey = spotKey;
+
+            wrap.style.top = styles.top || '';
+            wrap.style.left = styles.left || '';
+            wrap.style.right = styles.right || '';
+            wrap.style.bottom = styles.bottom || '';
+            wrap.style.width = slotId ? '61mm' : '60mm';
+            wrap.style.height = slotId ? '28mm' : '28mm';
+
+            const img = document.createElement('img');
+            img.src = signatureDataUrl;
+            wrap.appendChild(img);
+
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'sig-placed-remove no-print';
+            removeBtn.textContent = '×';
+            removeBtn.addEventListener('click', (e) => {
+                // e.stopPropagation();
+                // wrap.remove();
+                // updateSubmitButtonState();
+                e.stopPropagation();
+                wrap.remove();
+                const newBtn = createPlaceButton(page, slotId, spotKey);
+                newBtn.style.top = wrap.style.top;
+                newBtn.style.left = wrap.style.left;
+                newBtn.style.right = wrap.style.right;
+                newBtn.style.bottom = wrap.style.bottom;
+                page.appendChild(newBtn);
+                updateSubmitButtonState();
+            });
+            wrap.appendChild(removeBtn);
+
+            makeDraggable(wrap, page);
             page.appendChild(wrap);
             updateSubmitButtonState();
         }
@@ -2094,6 +2221,9 @@
             // console.log(signedHtml);
 
             try {
+
+                showLoader();
+
                 const url = "{{ route('agreements.sign', ['contract' => 'PLACEHOLDER_ID']) }}".replace(
                     'PLACEHOLDER_ID', cfg.agreementId);
                 // const res = await fetch(`/agreements/${cfg.agreementId}/sign`, {
@@ -2116,6 +2246,7 @@
 
                 // Catch redirects explicitly — if this is true, res.url is likely the login page
                 if (res.status == 'success') {
+                    hideLoader();
                     console.error('Request was redirected to:', res.url);
                     window.location.href = "{{ route('investor.sign.success') }}";
                     // toastr.error('Your session may have expired. Please refresh and try again.');
@@ -2126,6 +2257,7 @@
                     .text(); // always read as text first, never blind res.json()
 
                 if (!res.ok) {
+                    hideLoader();
                     console.error('Server responded with error', res.status, rawText);
                     toastr.error(`
                             Submit failed(HTTP $ {
@@ -2140,6 +2272,7 @@
                 try {
                     data = JSON.parse(rawText);
                 } catch (parseErr) {
+                    hideLoader();
                     console.error('Response was not valid JSON:', rawText);
                     toastr.error('Server returned an unexpected response. Check console.');
                     return;
@@ -2181,6 +2314,7 @@
         async function sendForSignature(channel) {
             closeSendModal();
             try {
+                showLoader();
                 // const res = await fetch(`/agreements/{{ $contractDocument->id }}/send`, {
                 const res = await fetch(`{{ route('agreements.send', $contractDocument->id) }}`, {
                     method: 'POST',
@@ -2200,7 +2334,20 @@
             } catch (err) {
                 console.error(err);
                 toastr.error('Could not send the agreement. Please try again.');
+            } finally {
+                hideLoader(); // always runs — success, thrown error, or network failure
             }
+        }
+
+
+        function showLoader() {
+
+            $('#global-loader').fadeIn(150);
+        }
+
+        function hideLoader() {
+            // Swal.close();
+            $('#global-loader').fadeOut(150);
         }
     </script>
 </body>

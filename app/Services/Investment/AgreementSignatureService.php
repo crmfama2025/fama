@@ -46,7 +46,7 @@ class AgreementSignatureService
         }
 
         $contract->investor_sign_channel = $channel;
-        $contract->sign_token = str()->random(8);
+        $contract->sign_token = ($contract->sign_token) ? $contract->sign_token : str()->random(8);
 
 
         $contract->save();

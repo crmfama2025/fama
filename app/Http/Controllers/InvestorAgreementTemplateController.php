@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\GenerateAndSendSignedAgreementPdf;
 use App\Models\AgreementSignatureEvent;
 use App\Models\InvestmentContractDocuments;
 use App\Models\InvestorAgreementType;
@@ -244,9 +245,23 @@ class InvestorAgreementTemplateController extends Controller
                 'channel' => 'web',
                 'occurred_at' => now(),
             ]);
+
+            // dump($contract->id);
+            // auto email pdf to investor and company once company signed
+            // // Fully executed once both parties have signed — company signs last
+            // if ($validated['signer_role'] === 'company' && $contract->is_investor_signed) {
+            //     GenerateAndSendSignedAgreementPdf::dispatch($contract->id)->onQueue('pdfs')->afterCommit();
+            // }
         });
 
         return response()->json(['message' => 'Signed successfully.', 'status' => 'success']);
+    }
+
+    public function sendPDFEmail(InvestmentContractDocuments $contract)
+    {
+        GenerateAndSendSignedAgreementPdf::dispatch($contract->id)->onQueue('pdfs')->afterCommit();
+
+        return response()->json(['message' => 'Email dispatch initiated.', 'status' => 'success']);
     }
 
     private function expectedSignatureCountFor(InvestmentContractDocuments $contract, string $signerRole): int

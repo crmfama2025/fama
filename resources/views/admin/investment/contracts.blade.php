@@ -276,5 +276,37 @@
             $('#companyFilter').val('').trigger('change');
             table.ajax.reload();
         });
+
+
+
+        $(document).on('click', '.send-signed-pdf-btn', function(e) {
+            e.preventDefault();
+
+            const btn = $(this);
+            const url = btn.data('url');
+            const originalHtml = btn.html();
+
+            // prevent double-clicks while sending
+            btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i>');
+
+            $.ajax({
+                url: url,
+                type: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    btn.prop('disabled', false).html(originalHtml);
+                    toastr.success(response.message || 'Email dispatch initiated.');
+                    // or: alert(response.message);
+                },
+                error: function(xhr) {
+                    btn.prop('disabled', false).html(originalHtml);
+                    const msg = xhr.responseJSON?.message || 'Something went wrong.';
+                    toastr.error(msg);
+                    // or: alert(msg);
+                }
+            });
+        });
     </script>
 @endsection

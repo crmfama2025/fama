@@ -407,8 +407,11 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
         ->name('investor.investment-annexure');
     Route::delete('investor/partial-withdrawal/delete/{id}', [InvestorController::class, 'deleteTermination'])
         ->name('investor.partial-withdrawals.delete');
-});
 
+
+    Route::get('/sendpdf/{contract}', [InvestorAgreementTemplateController::class, 'sendPDFEmail'])
+        ->name('agreements.sendpdf');
+});
 
 
 // Route::get('/download-scope/{id}', [ContractController::class, 'downloadScope']);
@@ -420,3 +423,20 @@ Route::get('/investor-sign-success', function () {
 // Route::get('/investment_annexture', function () {
 //     return view('admin.investment.inv_agreement.investment_annexture');
 // })->name('investment.annexture');
+
+// pdf sending html view for debugging
+Route::get('/debug/contract-html/{contractId}', function (int $contractId) {
+    $contract = \App\Models\InvestmentContractDocuments::with(['investor', 'company'])
+        ->findOrFail($contractId);
+
+    $bodyHtml = $contract->contract_document_html;
+
+    // same URL-normalization the job does, so what you see matches what DomPDF sees
+    $bodyHtml = str_replace(
+        ['http://127.0.0.1:8000', 'https://famacrm.cloud/test', 'http://famacrm.cloud/test', 'https://famacrm.cloud', 'http://famacrm.cloud'],
+        rtrim(config('app.url'), '/'),
+        $bodyHtml
+    );
+
+    return view('pdf.signed-agreement-wrapper', ['bodyHtml' => $bodyHtml]);
+})->name('debug.contract-html'); // add ->middleware('auth') if you want it gated

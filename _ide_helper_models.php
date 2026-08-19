@@ -1935,6 +1935,7 @@ namespace App\Models{
  * @property-read mixed $formatted_investment_amount
  * @property-read mixed $is_active
  * @property-read \App\Models\Company|null $investedCompany
+ * @property-read \App\Models\InvestmentContractDocuments|null $investmentContractDocument
  * @property-read \App\Models\InvestmentDocument|null $investmentDocument
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvestmentReceivedPayment> $investmentReceivedPayments
  * @property-read int|null $investment_received_payments_count
@@ -2287,6 +2288,41 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentReferral withoutTrashed()
  */
 	class InvestmentReferral extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property int $id
+ * @property int $investment_contract_document_id
+ * @property string $recipient_type
+ * @property string $recipient_email
+ * @property string|null $recipient_name
+ * @property string $subject
+ * @property string|null $template
+ * @property string $status
+ * @property string|null $response
+ * @property int $attempt_count
+ * @property string|null $sent_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentSignatureEmailLog newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentSignatureEmailLog newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentSignatureEmailLog query()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentSignatureEmailLog whereAttemptCount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentSignatureEmailLog whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentSignatureEmailLog whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentSignatureEmailLog whereInvestmentContractDocumentId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentSignatureEmailLog whereRecipientEmail($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentSignatureEmailLog whereRecipientName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentSignatureEmailLog whereRecipientType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentSignatureEmailLog whereResponse($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentSignatureEmailLog whereSentAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentSignatureEmailLog whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentSignatureEmailLog whereSubject($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentSignatureEmailLog whereTemplate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentSignatureEmailLog whereUpdatedAt($value)
+ */
+	class InvestmentSignatureEmailLog extends \Eloquent {}
 }
 
 namespace App\Models{

@@ -184,6 +184,16 @@ class InvestmentContractDocumentService
                                 </a>';
                 }
 
+                if (auth()->user()->hasAnyPermission(['investment.add'], $row->company_id) && $row->is_investor_signed == 1 && $row->is_company_signed == 1) {
+                    $action .= '<button type="button"
+                                    class="btn btn-sm btn-info m-1 send-signed-pdf-btn"
+                                    data-contract-id="' . $row->id . '"
+                                    data-url="' . route('agreements.sendpdf', ['contract' => $row->id]) . '"
+                                    title="Send Signed PDF">
+                                <i class="fas fa-file-export"></i>
+                                </button>';
+                }
+
 
                 return $action;
             })

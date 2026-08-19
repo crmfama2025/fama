@@ -38,7 +38,7 @@ class BrevoService
      * @param array $viewData Data to pass to Blade template
      * @return string "true" if sent, or error message
      */
-    public function sendEmail(array $to, string $subject, string $bladeViewName, array $viewData)
+    public function sendEmail(array $to, string $subject, string $bladeViewName, array $viewData, array $attachments = [])
     {
         // dd("test");
         $emailLog = new EmailLog();
@@ -74,6 +74,11 @@ class BrevoService
                 "subject" => $subject,
                 "htmlContent" => $htmlContent
             ];
+
+            // Attach files if provided (each: ['content' => base64, 'name' => 'file.pdf'])
+            if (!empty($attachments)) {
+                $payload['attachment'] = $attachments;
+            }
 
             // dd($payload);
 
