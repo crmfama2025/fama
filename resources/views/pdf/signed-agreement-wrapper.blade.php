@@ -243,6 +243,22 @@
 
 <body>
     {!! $bodyHtml !!}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var pages = document.querySelectorAll('.new-page');
+            var sigWraps = document.querySelectorAll('.sig-placed-wrap');
+
+            sigWraps.forEach(function(wrap) {
+                var spotKey = wrap.getAttribute('data-spot-key');
+                if (!spotKey) return;
+
+                var pageIndex = parseInt(spotKey.split('-')[0], 10);
+                if (isNaN(pageIndex) || !pages[pageIndex]) return;
+
+                pages[pageIndex].appendChild(wrap);
+            });
+        });
+    </script>
 </body>
 
 </html>
