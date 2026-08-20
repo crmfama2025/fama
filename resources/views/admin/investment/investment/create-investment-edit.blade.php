@@ -1082,8 +1082,16 @@
                 $('#first_profit_release_date').val('');
                 return;
             }
+            // console.log('grace period', gracePeriod);
 
-            date.setDate(date.getDate() + gracePeriod);
+            if (gracePeriod == 0) {
+                date.setDate(date.getDate() + 30);
+
+            } else {
+                date.setDate(date.getDate() + gracePeriod);
+
+            }
+
             // console.log("Date after grace period:", date);
 
             switch (profitIntervalId) {
@@ -1439,6 +1447,7 @@
     <script>
         function regenerateProfitScheduleDates() {
             let baseDate = calculateProfitEligibleDate();
+            console.log('calculateProfitEligibleDate', baseDate);
 
             if (!baseDate || isNaN(baseDate.getTime())) {
                 return;
@@ -1463,6 +1472,12 @@
         function calculateProfitEligibleDate() {
             let investmentDate = $('#investment_date').val();
             let grace = parseInt($('#grace_period').val()) || 0;
+
+            if (grace == 0) {
+                grace = 30;
+            } else {
+                grace = grace;
+            }
 
             if (investmentDate) {
                 let parts = investmentDate.split('-');
