@@ -5,6 +5,7 @@ use App\Models\AgreementDocument;
 use App\Models\AgreementPaymentDetail;
 use App\Models\AgreementSubunitRentBifurcation;
 use App\Models\ClearedReceivable;
+use App\Models\Company;
 use App\Models\Contract;
 use App\Models\ContractPayableClear;
 use App\Models\ContractPaymentDetail;
@@ -1906,4 +1907,20 @@ function getTermType($tenure)
     } elseif ($tenure >= 12) {
         return 1;
     }
+}
+
+
+
+// Report Helpers
+function getInvsetmentCompanies()
+{
+    return Company::whereHas('investments')
+        ->orderBy('company_name')
+        ->get();
+}
+function getInvestorsHaveInvestment()
+{
+    return Investor::whereHas('investments')
+        ->orderBy('investor_name', 'asc')
+        ->get();
 }
