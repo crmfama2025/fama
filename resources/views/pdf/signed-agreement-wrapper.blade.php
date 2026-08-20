@@ -6,16 +6,30 @@
     <style>
         @font-face {
             font-family: 'Amiri';
-            src: url('{{ asset('assets/fonts/Amiri-Regular.ttf') }}') format('truetype');
+            src: url('{{ asset('assets/fonts/Amiri/Amiri-Regular.ttf') }}') format('truetype');
             font-weight: normal;
             font-style: normal;
         }
 
         @font-face {
             font-family: 'Amiri';
-            src: url('{{ asset('assets/fonts/Amiri-Bold.ttf') }}') format('truetype');
+            src: url('{{ asset('assets/fonts/Amiri/Amiri-Bold.ttf') }}') format('truetype');
             font-weight: bold;
             font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'Amiri';
+            src: url('{{ asset('assets/fonts/Amiri/Amiri-Italic.ttf') }}') format('truetype');
+            font-weight: normal;
+            font-style: italic;
+        }
+
+        @font-face {
+            font-family: 'Amiri';
+            src: url('{{ asset('assets/fonts/Amiri/Amiri-BoldItalic.ttf') }}') format('truetype');
+            font-weight: bold;
+            font-style: italic;
         }
 
         @font-face {
