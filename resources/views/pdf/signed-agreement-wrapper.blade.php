@@ -74,7 +74,7 @@
         /* Page 1 clearance */
         .file-content {
             position: relative;
-            padding: 34mm 16mm 48mm 16mm;
+            padding: 34mm 16mm 58mm 16mm;
         }
 
         /* Pages 2+ clearance */
@@ -88,7 +88,7 @@
             padding-right: 3px;
             unicode-bidi: embed;
             font-family: 'Amiri', serif;
-            line-height: 16px;
+            line-height: 15px;
             /* Arabic script needs slightly more than Latin */
         }
 
@@ -97,7 +97,7 @@
             padding-left: 3px;
             text-align: left;
             font-family: 'Times New Roman', Times, serif;
-            line-height: 16px;
+            line-height: 15px;
         }
 
         .ltr-number {
