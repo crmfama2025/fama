@@ -261,7 +261,7 @@
                         // build query string
                         let queryString = $.param(params);
 
-                        let url = "{{ route('payout.pending.export') }}?" + queryString;
+                        let url = "{{ route('payout-report.export') }}?" + queryString;
                         window.location.href = url;
                     }
                 }]

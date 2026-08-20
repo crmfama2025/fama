@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\reports;
 
+
+use App\Exports\GenericExport;
 use App\Http\Controllers\Controller;
 use App\Models\PayoutBatch;
 use App\Repositories\Reports\InvestmentReportRepository;
@@ -9,8 +11,9 @@ use App\Services\BankService;
 use App\Services\CompanyService;
 use App\Services\Investment\InvestorService;
 use App\Services\PaymentModeService;
-use App\Services\Reports\InvestmentReportService;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Services\Reports\InvestmentReportService;
 
 class InvestmentReportController extends Controller
 {
@@ -83,5 +86,60 @@ class InvestmentReportController extends Controller
 
             return $this->investmentReportService->getPendingList($filters);
         }
+    }
+    public function exportInvestments(Request $request)
+    {
+        $filters = [
+            'date_from'            => $request->date_from ?? null,
+            'date_to'              => $request->date_to ?? null,
+            'investor_id'          => $request->investor_id ?? null,
+            'company_id'           => $request->company_id ?? null,
+            'investment_term_type' => $request->investment_term_type ?? null,
+            'investment_status'    => $request->investment_status ?? null,
+            'search'               => $request->search['value'] ?? null,
+        ];
+
+        $data = $this->investmentReportService->getInvestmentExportData($filters);
+
+        return Excel::download(
+            new GenericExport(
+                $data,
+                $this->investmentReportService->investmentExportHeadings()
+            ),
+            'investments.xlsx'
+        );
+    }
+    public function exportPending(Request $request)
+    {
+        $filterData = [];
+
+        if (
+            $request->month ||
+            $request->batch_id ||
+            $request->investor_id ||
+            $request->investment_id
+        ) {
+            $filterData = [
+                'month'         => $request->month,
+                'batch_id'      => $request->batch_id,
+                'investor_id'   => $request->investor_id,
+                'investment_id' => $request->investment_id,
+            ];
+        }
+
+        $filters = [
+            'search' => $request->search['value'] ?? null,
+            'filter' => $filterData,
+        ];
+
+        $data = $this->investmentReportService->getPendingExportData($filters);
+
+        return Excel::download(
+            new GenericExport(
+                $data,
+                $this->investmentReportService->pendingExportHeadings()
+            ),
+            'pending-payouts.xlsx'
+        );
     }
 }

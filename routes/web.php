@@ -431,6 +431,8 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
     // Investor payout
     Route::get('report/payout-report', [InvestmentReportController::class, 'payoutIndex'])->name('investment-payout.index');
     Route::get('report/payout-report-list', [InvestmentReportController::class, 'getPayoutDatatable'])->name('investment-payout.list');
+    Route::get('report/investment-report-export', [InvestmentReportController::class, 'exportInvestments'])->name('investment-report.export');
+    Route::get('report/payout-report-export', [InvestmentReportController::class, 'exportPending'])->name('payout-report.export');
 });
 
 

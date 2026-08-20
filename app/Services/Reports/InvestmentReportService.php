@@ -2,8 +2,8 @@
 
 namespace App\Services\Reports;
 
-
 use App\Repositories\Reports\InvestmentReportRepository;
+use Carbon\Carbon;
 
 class InvestmentReportService
 {
@@ -183,5 +183,134 @@ class InvestmentReportService
             ->rawColumns(['investor_name', 'payout_type', 'checkbox', 'investment_code', 'company_name'])
             ->with(['columns' => $columns])
             ->toJson();
+    }
+
+
+    public function getInvestmentExportData(array $filters = [])
+    {
+        $query = $this->investmentReportRepository
+            ->getInvestmentQuery($filters);
+
+        return $query->get()->map(function ($row) {
+            return [
+                $row->id,
+                $row->company->company_name ?? '-',
+                $row->investedCompany->company_name ?? '-',
+                $row->investor->investor_name ?? '-',
+                $row->investor->investor_email ?? '-',
+                $row->investor->investor_mobile ?? '-',
+                $row->getType(),
+                $row->investment_amount ?? '-',
+                $row->total_received_amount ?? '-',
+                $row->payoutBatch
+                    ? 'Batch - ' . $row->payoutBatch->id .
+                    ' (' . $row->payoutBatch->batch_name . ')'
+                    : '-',
+                $row->investment_date
+                    ? Carbon::parse($row->investment_date)->format('d-m-Y')
+                    : '-',
+                $row->maturity_date
+                    ? Carbon::parse($row->maturity_date)->format('d-m-Y')
+                    : '-',
+                $row->profit_perc ?? '-',
+                $row->profit_release_date ?? '-',
+                $row->profitInterval->profit_interval_name ?? '-',
+                $row->nominee_name ?? '-',
+                $row->nominee_email ?? '-',
+                "'" . ($row->nominee_phone ?? '-'),
+                $row->investmentReferral?->referrer?->investor_name ?? '-',
+                $row->investmentReferral?->referral_commission_amount ?? '-',
+                $row->investmentReferral?->referral_commission_perc ?? '-',
+                $row->investmentReferral?->commissionFrequency?->commission_frequency_name ?? '-',
+                $row->investmentReferral?->paymentTerm?->term_name ?? '-',
+            ];
+        });
+    }
+    public function investmentExportHeadings(): array
+    {
+        return [
+            'ID',
+            'Company Name',
+            'Invested Company',
+            'Investor Name',
+            'Investor Email',
+            'Investor Mobile',
+            'Investment Type',
+            'Investment Amount',
+            'Received Amount',
+            'Payout Batch',
+            'Investment Date',
+            'Maturity Date',
+            'Profit Percentage',
+            'Profit Release Date',
+            'Profit Release Frequency',
+            'Nominee Name',
+            'Nominee Email',
+            'Nominee Phone',
+            'Referral Name',
+            'Referral Commission Amount',
+            'Referral Commission %',
+            'Referral Commission Frequency',
+            'Payment Terms',
+        ];
+    }
+    public function getPendingExportData(array $filters = [])
+    {
+        $query = $this->investmentReportRepository
+            ->getPendings($filters);
+
+        return $query->get()->map(function ($row) {
+
+            $investor = $row->investor;
+
+            $paymentMode = '-';
+
+            if ($investor && $investor->paymentMode) {
+
+                if (in_array($investor->paymentMode->id, [1, 4])) {
+                    $paymentMode = $investor->paymentMode->payment_mode_name;
+                } elseif ($investor->paymentMode->id == 2) {
+
+                    $bankName = $investor->primaryBank->investor_bank_name ?? '-';
+
+                    $paymentMode =
+                        $investor->paymentMode->payment_mode_name .
+                        ' - ' .
+                        $bankName;
+                }
+            }
+
+            $payoutType = match ($row->payout_type) {
+                1 => 'Profit',
+                2 => 'Commission',
+                6 => ($row->investment &&
+                    $row->investment->terminate_status == 1)
+                    ? 'Settlement'
+                    : 'Withdrawal',
+                default => '-',
+            };
+
+            return [
+                $investor?->investor_name ?? '-',
+                $row->investment?->company?->company_name ?? '-',
+                $row->investment?->investment_code ?? '-',
+                getPayoutDate($row),
+                $payoutType,
+                number_format($row->amount_pending, 2),
+                $paymentMode,
+            ];
+        });
+    }
+    public function pendingExportHeadings(): array
+    {
+        return [
+            'Investor Name',
+            'Company Name',
+            'Investment Code',
+            'Payout Date',
+            'Payout Type',
+            'Payout Amount',
+            'Payment Mode',
+        ];
     }
 }
