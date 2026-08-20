@@ -187,7 +187,7 @@
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
                         data-accordion="false">
                         <!-- Add icons to the links using the .nav-icon class
-               with font-awesome or any other icon font library -->
+                         with font-awesome or any other icon font library -->
                         <li class="nav-item">
                             <a href="{{ route('dashboard.index') }}"
                                 class="nav-link {{ request()->is('dashboard') ? 'active bg-gradient-projects' : '' }}">
@@ -197,6 +197,7 @@
                         </li>
                         @php
                             $master = $project = $finance = $invest = 0;
+                            $report = 0;
                             if (
                                 request()->is([
                                     'areas*',
@@ -223,8 +224,15 @@
                                 $finance = 1;
                             }
 
-                            if (request()->is(['invest*']) || request()->is(['payout/*'])) {
+                            if (
+                                (request()->is(['invest*']) && !request()->is(['investmentReport*'])) ||
+                                request()->is(['payout/*'])
+                            ) {
                                 $invest = 1;
+                            }
+
+                            if (request()->is(['report*']) || request()->is(['investmentReport*'])) {
+                                $report = 1;
                             }
                         @endphp
                         @if (auth()->user()->hasPermissionInRange(1, 45) || auth()->user()->hasPermissionInRange(98, 102))
@@ -439,7 +447,7 @@
                                     @if (hasPermission(auth()->id(), ['investment'], $companyId = null))
                                         <li class="nav-item">
                                             <a href="{{ route('investment.index') }}"
-                                                class="nav-link {{ request()->is('investment*') && !request()->is('investments/referrals*') && !request()->is('investments/investment-soa') && !request()->is('investment_contracts*') ? 'active' : '' }}">
+                                                class="nav-link {{ request()->is('investment*') && !request()->is('investments/referrals*') && !request()->is('investments/investment-soa') && !request()->is('investment_contracts*') && !request()->is('investmentReport*') ? 'active' : '' }}">
                                                 <i class="far fa-circle nav-icon"></i>
                                                 <p>Investments</p>
                                             </a>
@@ -488,6 +496,41 @@
                                             </a>
                                         </li>
                                     @endif
+                                </ul>
+                            </li>
+                        @endif
+                        @if (hasPermission(auth()->id(), ['report'], $companyId = null))
+                            <li class="nav-item {{ $report ? 'menu-open' : '' }}">
+                                <a href="#"
+                                    class="nav-link {{ $report ? 'active bg-gradient-projects' : '' }}">
+                                    <i class="nav-icon fas fa-chart-line"></i>
+                                    <p>
+                                        Reports
+                                        <i class="fas fa-angle-left right"></i>
+                                    </p>
+                                </a>
+                                <ul class="nav nav-treeview">
+                                    @if (hasPermission(auth()->id(), ['investor'], $companyId = null))
+                                        <li class="nav-item ">
+                                            <a href="{{ route('investmentReport.index') }}"
+                                                class="nav-link {{ request()->is('investmentReport*') ? 'active' : '' }}">
+                                                <i class="far fa-circle nav-icon"></i>
+                                                <p>Investment Report</p>
+                                            </a>
+                                        </li>
+                                    @endif
+                                    @if (hasPermission(auth()->id(), ['investor'], $companyId = null))
+                                        <li class="nav-item ">
+                                            <a href="{{ route('investment-payout.index') }}"
+                                                class="nav-link {{ request()->is('report/payout-report*') ? 'active' : '' }}">
+                                                <i class="far fa-circle nav-icon"></i>
+                                                <p>Payout Report</p>
+                                            </a>
+                                        </li>
+                                    @endif
+
+
+
                                 </ul>
                             </li>
                         @endif
@@ -670,9 +713,23 @@
     <script src="{{ asset('js/adminlte.js') }}"></script>
 
     <script>
+        function initSelect2AutoFocus() {
+            $(document).on('select2:open', function() {
+                setTimeout(function() {
+                    const searchField = document.querySelector(
+                        '.select2-container--open .select2-search__field'
+                    );
+
+                    if (searchField) {
+                        searchField.focus();
+                    }
+                }, 0);
+            });
+        }
         $(function() {
 
             $('.select2').select2()
+            initSelect2AutoFocus();
         });
 
         function signoutConf() {

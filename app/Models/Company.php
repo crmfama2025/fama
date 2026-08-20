@@ -102,4 +102,8 @@ class Company extends Model
             $q->whereNotNull('up.company_id');
         });
     }
+    public function investments()
+    {
+        return $this->hasMany(Investment::class, 'company_id');
+    }
 }
