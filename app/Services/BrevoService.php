@@ -17,7 +17,7 @@ class BrevoService
     {
         $this->apiKey = config('services.brevo.api_key');
         $this->senderEmail = 'noreply@famacrm.cloud';
-        $this->senderName = 'Fama Real Estate';
+        $this->senderName = 'Fama Group of Companies';
 
         $this->client = new Client([
             'base_uri' => 'https://api.brevo.com/v3/',
