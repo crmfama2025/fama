@@ -46,7 +46,7 @@ class GenerateAndSendSignedAgreementPdf implements ShouldQueue
 
         $browsershot = Browsershot::url($url)
             ->windowSize(1240, 1754)
-            ->deviceScaleFactor(2) // renders at 2x then downsamples - sharper text
+            ->deviceScaleFactor(1) // renders at 2x then downsamples - sharper text
             ->format('A4')
             ->showBackground()
             ->margins(0, 0, 0, 0)
