@@ -353,7 +353,7 @@
                     title: 'Investments Data',
                     action: function(e, dt, node, config) {
                         let searchValue = dt.search();
-                        let url = "{{ route('investment.export') }}" + "?search=" +
+                        let url = "{{ route('investment-report.export') }}" + "?search=" +
                             encodeURIComponent(searchValue);
                         window.location.href = url;
                     }
