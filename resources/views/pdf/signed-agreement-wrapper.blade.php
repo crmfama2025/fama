@@ -39,16 +39,32 @@
             font-style: normal;
         }
 
+
         * {
             box-sizing: border-box;
         }
 
+        @page {
+            size: A4 portrait;
+            margin: 0;
+        }
+
+        html,
         body {
+            width: 210mm;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: #fff;
+        }
+
+        #pdf-pages-container {
+            width: 210mm;
             margin: 0;
             padding: 0;
         }
 
-        .new-page {
+
+        /* .new-page {
             position: relative;
             width: 210mm;
             height: 297mm;
@@ -65,21 +81,67 @@
 
         .new-page:last-of-type {
             page-break-after: auto;
+        } */
+
+        .new-page {
+            position: relative;
+
+            width: 210mm;
+            height: 297mm;
+            min-height: 297mm;
+
+            margin: 0;
+            padding: 0;
+
+            background-color: #fff;
+            background-size: 210mm 297mm !important;
+            background-repeat: no-repeat !important;
+            background-position: top left !important;
+
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 12px;
+
+            overflow: hidden;
+
+            page-break-after: always;
+            break-after: page;
         }
 
-        .new-page.annexure-page {
+        #pdf-pages-container>.new-page:last-child {
+            page-break-after: auto;
+            break-after: auto;
+        }
+
+        .new-page.annexure-page,
+        .new-page.letter-sheet {
             background-image: none !important;
+            background-color: #fff !important;
         }
 
-        /* Page 1 clearance */
         .file-content {
             position: relative;
+            width: 100%;
+            height: 100%;
+
+            /*
+            * Content ends at 239mm:
+            * 297mm - 58mm bottom clearance.
+            *
+            * This protects the signatures and letterhead footer.
+            */
             padding: 34mm 16mm 58mm 16mm;
+
+            box-sizing: border-box;
         }
 
-        /* Pages 2+ clearance */
         .file-content.page-subsequent {
             padding-top: 35mm;
+        }
+
+        #pdf-pages-container {
+            width: 210mm;
+            margin: 0;
+            padding: 0;
         }
 
         .arabic {
@@ -244,57 +306,195 @@
 <body>
     {!! $bodyHtml !!}
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
+            /*
+             * Wait for Arabic and custom fonts before measuring table rows.
+             * Row heights can change after fonts finish loading.
+             */
+            if (document.fonts && document.fonts.ready) {
+                await document.fonts.ready;
+            }
+
             var MM_TO_PX = 96 / 25.4;
             var PAGE_H_MM = 297;
-            var PAD_TOP_P1_MM = 34; // must match .file-content padding-top (first page)
-            var PAD_TOP_PN_MM = 35; // must match .file-content.page-subsequent padding-top
-            var PAD_BOT_MM = 58; // must match .file-content padding-bottom
 
-            var maxH_p1 = (PAGE_H_MM - PAD_TOP_P1_MM - PAD_BOT_MM) * MM_TO_PX;
-            var maxH_pn = (PAGE_H_MM - PAD_TOP_PN_MM - PAD_BOT_MM) * MM_TO_PX;
+            /*
+             * These values must exactly match the PDF wrapper CSS.
+             */
+            var PAD_TOP_P1_MM = 34;
+            var PAD_TOP_PN_MM = 35;
+            var PAD_BOT_MM = 58;
 
-            var oldPages = Array.from(document.querySelectorAll('.new-page'));
-            if (oldPages.length === 0) return;
+            var maxH_p1 =
+                (PAGE_H_MM - PAD_TOP_P1_MM - PAD_BOT_MM) *
+                MM_TO_PX;
 
+            var maxH_pn =
+                (PAGE_H_MM - PAD_TOP_PN_MM - PAD_BOT_MM) *
+                MM_TO_PX;
+
+            /*
+             * Remove a previous generated container if this script is
+             * accidentally executed more than once.
+             */
+            var existingContainer =
+                document.getElementById('pdf-pages-container');
+
+            if (existingContainer) {
+                existingContainer.remove();
+            }
+
+            var allOldPages = Array.from(
+                document.querySelectorAll('.new-page')
+            );
+
+            /*
+             * Preserve annexure pages. They have their own structure and
+             * must not be flattened into agreement table rows.
+             *
+             * This supports either:
+             *   .new-page.annexure-page
+             * or:
+             *   .new-page.letter-sheet
+             */
+            var annexurePages = allOldPages.filter(function(page) {
+                return (
+                    page.classList.contains('annexure-page') ||
+                    page.classList.contains('letter-sheet')
+                );
+            });
+
+            /*
+             * Only normal agreement pages should be repaginated.
+             */
+            var oldPages = allOldPages.filter(function(page) {
+                return (
+                    !page.classList.contains('annexure-page') &&
+                    !page.classList.contains('letter-sheet')
+                );
+            });
+
+            if (oldPages.length === 0) {
+                await waitForPdfImages();
+                document.body.dataset.pdfReady = 'true';
+                return;
+            }
+
+            /*
+             * Capture the letterhead before removing the original pages.
+             */
             var bgUrl = null;
-            var m = (oldPages[0].getAttribute('style') || '').match(/background-image:\s*url\((["']?)(.*?)\1\)/);
-            if (m) bgUrl = m[2];
 
-            var investorImg = document.querySelector('.sig-placed-wrap[data-signer="investor"] img');
-            var companyImg = document.querySelector('.sig-placed-wrap[data-signer="company"] img');
-            var investorSrc = investorImg ? investorImg.src : null;
-            var companySrc = companyImg ? companyImg.src : null;
+            var inlineStyle =
+                oldPages[0].getAttribute('style') || '';
 
-            // Flatten every row across all saved pages, preserving original order.
+            var backgroundMatch = inlineStyle.match(
+                /background-image:\s*url\((["']?)(.*?)\1\)/
+            );
+
+            if (backgroundMatch) {
+                bgUrl = backgroundMatch[2];
+            }
+
+            /*
+             * Fall back to computed CSS if the letterhead is not inline.
+             */
+            if (!bgUrl) {
+                var computedBackground = window
+                    .getComputedStyle(oldPages[0])
+                    .backgroundImage;
+
+                var computedMatch = computedBackground.match(
+                    /^url\((["']?)(.*?)\1\)$/
+                );
+
+                if (computedMatch) {
+                    bgUrl = computedMatch[2];
+                }
+            }
+
+            /*
+             * Save the original signature image sources before rebuilding
+             * and removing the old pages.
+             */
+            var investorImg = document.querySelector(
+                '.sig-placed-wrap[data-signer="investor"] img'
+            );
+
+            var companyImg = document.querySelector(
+                '.sig-placed-wrap[data-signer="company"] img'
+            );
+
+            var investorSrc = investorImg ?
+                investorImg.src :
+                null;
+
+            var companySrc = companyImg ?
+                companyImg.src :
+                null;
+
+            /*
+             * Flatten all agreement rows while preserving their order.
+             *
+             * table.rows is safer than requiring an explicit tbody because
+             * browsers may insert tbody automatically.
+             */
             var rows = [];
+
             oldPages.forEach(function(page) {
-                var tbody = page.querySelector('.file-content > table > tbody');
-                if (!tbody) return;
-                Array.from(tbody.children).forEach(function(tr) {
-                    rows.push(tr);
+                var table = page.querySelector(
+                    '.file-content > table'
+                );
+
+                if (!table) {
+                    return;
+                }
+
+                Array.from(table.rows).forEach(function(row) {
+                    rows.push(row);
                 });
             });
 
+            var parent = oldPages[0].parentNode;
+
+            /*
+             * This container must be attached before row measurement.
+             * Detached elements return a height of zero.
+             */
             var container = document.createElement('div');
+            container.id = 'pdf-pages-container';
+
+            parent.insertBefore(container, oldPages[0]);
+
             var pages = [];
-            var currentTbody, usedH, maxH;
+            var currentTbody = null;
+            var maxH = 0;
 
             function newPage(isFirst) {
                 var page = document.createElement('div');
                 page.className = 'new-page';
-                if (bgUrl) page.style.backgroundImage = "url('" + bgUrl + "')";
                 page.style.position = 'relative';
 
+                if (bgUrl) {
+                    page.style.backgroundImage =
+                        "url('" + bgUrl + "')";
+                }
+
                 var content = document.createElement('div');
-                content.className = 'file-content' + (isFirst ? '' : ' page-subsequent');
+
+                content.className =
+                    'file-content' +
+                    (isFirst ? '' : ' page-subsequent');
 
                 var table = document.createElement('table');
+
                 table.setAttribute('width', '100%');
                 table.setAttribute('border', '0');
                 table.setAttribute('cellpadding', '0');
                 table.setAttribute('cellspacing', '0');
+
                 var tbody = document.createElement('tbody');
+
                 table.appendChild(tbody);
                 content.appendChild(table);
                 page.appendChild(content);
@@ -302,104 +502,307 @@
 
                 pages.push(page);
                 currentTbody = tbody;
-                usedH = 0;
-                maxH = isFirst ? maxH_p1 : maxH_pn;
+
+                maxH = isFirst ?
+                    maxH_p1 :
+                    maxH_pn;
+
                 return page;
             }
 
+            /*
+             * Start agreement page 1.
+             */
             newPage(true);
 
             rows.forEach(function(row) {
-                var forcePage = row.getAttribute('data-force-page') === 'true';
-                var ownSigPad = row.hasAttribute('data-own-signature-pad');
+                var forcePage =
+                    row.getAttribute('data-force-page') ===
+                    'true';
 
-                if ((forcePage || ownSigPad) && usedH > 0) newPage(false);
+                var ownSignaturePad =
+                    row.hasAttribute(
+                        'data-own-signature-pad'
+                    );
+
+                /*
+                 * Force special rows onto a fresh page.
+                 */
+                if (
+                    (forcePage || ownSignaturePad) &&
+                    currentTbody.children.length > 0
+                ) {
+                    newPage(false);
+                }
 
                 currentTbody.appendChild(row);
-                var rowH = row.getBoundingClientRect().height;
 
-                if (usedH + rowH > maxH && usedH > 0 && !forcePage && !ownSigPad) {
+                /*
+                 * The container is attached to the DOM, so this now returns
+                 * the real rendered table height.
+                 */
+                var measuredHeight = currentTbody
+                    .closest('table')
+                    .getBoundingClientRect()
+                    .height;
+
+                /*
+                 * If the new row causes overflow, move it to a fresh page.
+                 *
+                 * Do not move a force-page or own-signature-pad row again.
+                 */
+                if (
+                    measuredHeight > maxH &&
+                    currentTbody.children.length > 1 &&
+                    !forcePage &&
+                    !ownSignaturePad
+                ) {
                     currentTbody.removeChild(row);
+
                     newPage(false);
                     currentTbody.appendChild(row);
-                    usedH = row.getBoundingClientRect().height;
-                } else {
-                    usedH += rowH;
                 }
             });
 
-            var parent = oldPages[0].parentNode;
-            oldPages.forEach(function(p) {
-                parent.removeChild(p);
+            /*
+             * Remove only the original agreement pages.
+             * Annexures are deliberately preserved.
+             */
+            oldPages.forEach(function(page) {
+                page.remove();
             });
-            pages.forEach(function(p) {
-                parent.appendChild(p);
+
+            /*
+             * Add signatures to all newly generated agreement pages.
+             */
+            pages.forEach(function(page, pageIndex) {
+                var hasOwnSignaturePad = Boolean(
+                    page.querySelector(
+                        '[data-own-signature-pad]'
+                    )
+                );
+
+                if (hasOwnSignaturePad) {
+                    addSlotSignatures(page, pageIndex);
+                } else {
+                    addDefaultSignatures(page, pageIndex);
+                }
             });
 
-            pages.forEach(function(page, i) {
-                var hasOwnPad = !!page.querySelector('[data-own-signature-pad]');
+            /*
+             * Move preserved annexures after all generated agreement pages.
+             */
+            annexurePages.forEach(function(annexurePage) {
+                container.appendChild(annexurePage);
+            });
 
-                if (hasOwnPad) {
-                    var slots = page.querySelectorAll('[data-signature-slot]');
-                    slots.forEach(function(slot) {
-                        var slotId = slot.getAttribute('data-signature-slot');
-                        var signer = slot.getAttribute('data-signer');
-                        var src = signer === 'investor' ? investorSrc : companySrc;
-                        if (!src) return;
+            /*
+             * Wait until newly restored signature images and all other
+             * document images finish loading.
+             */
+            await waitForPdfImages();
 
-                        var pageRect = page.getBoundingClientRect();
-                        var slotRect = slot.getBoundingClientRect();
+            /*
+             * Let the browser finish one additional layout/paint cycle.
+             */
+            await nextAnimationFrame();
+            await nextAnimationFrame();
 
-                        var wrap = document.createElement('div');
-                        wrap.className = 'sig-placed-wrap';
-                        wrap.setAttribute('data-signer', signer);
-                        wrap.setAttribute('data-slot-id', slotId);
-                        wrap.setAttribute('data-spot-key', i + '-' + slotId);
-                        wrap.style.position = 'absolute';
-                        wrap.style.width = '61mm';
-                        wrap.style.height = '28mm';
-                        wrap.style.top = (slotRect.top - pageRect.top + (signer === 'investor' ?
-                            22 : 59)) + 'px';
-                        wrap.style.left = (slotRect.left - pageRect.left + 73) + 'px';
+            /*
+             * Browsershot waits for this marker before creating the PDF.
+             */
+            document.body.dataset.pdfReady = 'true';
 
-                        var img = document.createElement('img');
-                        img.src = src;
-                        wrap.appendChild(img);
-                        page.appendChild(wrap);
+            /*
+             * Place signatures relative to their explicit slots.
+             */
+            function addSlotSignatures(page, pageIndex) {
+                var slots = page.querySelectorAll(
+                    '[data-signature-slot]'
+                );
+
+                slots.forEach(function(slot) {
+                    var slotId = slot.getAttribute(
+                        'data-signature-slot'
+                    );
+
+                    var signer = slot.getAttribute(
+                        'data-signer'
+                    );
+
+                    var src = signer === 'investor' ?
+                        investorSrc :
+                        companySrc;
+
+                    if (!src) {
+                        return;
+                    }
+
+                    var pageRect =
+                        page.getBoundingClientRect();
+
+                    var slotRect =
+                        slot.getBoundingClientRect();
+
+                    var wrap = createSignatureWrap(
+                        signer,
+                        src
+                    );
+
+                    wrap.setAttribute(
+                        'data-slot-id',
+                        slotId || ''
+                    );
+
+                    wrap.setAttribute(
+                        'data-spot-key',
+                        pageIndex + '-' + (slotId || signer)
+                    );
+
+                    wrap.style.width = '61mm';
+                    wrap.style.height = '28mm';
+
+                    /*
+                     * Retains your current custom slot offsets.
+                     */
+                    var topAdjustment =
+                        signer === 'investor' ?
+                        22 :
+                        59;
+
+                    wrap.style.top =
+                        (
+                            slotRect.top -
+                            pageRect.top +
+                            topAdjustment
+                        ) + 'px';
+
+                    wrap.style.left =
+                        (
+                            slotRect.left -
+                            pageRect.left +
+                            73
+                        ) + 'px';
+
+                    page.appendChild(wrap);
+                });
+            }
+
+            /*
+             * Place signatures in the default footer positions.
+             */
+            function addDefaultSignatures(
+                page,
+                pageIndex
+            ) {
+                if (investorSrc) {
+                    var investorWrap =
+                        createSignatureWrap(
+                            'investor',
+                            investorSrc
+                        );
+
+                    investorWrap.setAttribute(
+                        'data-spot-key',
+                        pageIndex + '-default-investor'
+                    );
+
+                    investorWrap.style.right = '5mm';
+                    investorWrap.style.bottom = '31mm';
+                    investorWrap.style.width = '60mm';
+                    investorWrap.style.height = '28mm';
+
+                    page.appendChild(investorWrap);
+                }
+
+                if (companySrc) {
+                    var companyWrap =
+                        createSignatureWrap(
+                            'company',
+                            companySrc
+                        );
+
+                    companyWrap.setAttribute(
+                        'data-spot-key',
+                        pageIndex + '-default-company'
+                    );
+
+                    companyWrap.style.left = '5mm';
+                    companyWrap.style.bottom = '31mm';
+                    companyWrap.style.width = '60mm';
+                    companyWrap.style.height = '28mm';
+
+                    page.appendChild(companyWrap);
+                }
+            }
+
+            /*
+             * Create a standard absolute signature element.
+             */
+            function createSignatureWrap(
+                signer,
+                imageSource
+            ) {
+                var wrap = document.createElement('div');
+
+                wrap.className = 'sig-placed-wrap';
+                wrap.setAttribute(
+                    'data-signer',
+                    signer
+                );
+
+                wrap.style.position = 'absolute';
+
+                var image = document.createElement('img');
+                image.src = imageSource;
+                image.alt = signer + ' signature';
+
+                image.style.width = '100%';
+                image.style.height = '100%';
+                image.style.objectFit = 'contain';
+
+                wrap.appendChild(image);
+
+                return wrap;
+            }
+
+            /*
+             * Resolve only after all img elements finish loading or fail.
+             * Error handling prevents one missing image from hanging the job.
+             */
+            function waitForPdfImages() {
+                var imagePromises = Array.from(
+                    document.images
+                ).map(function(image) {
+                    if (image.complete) {
+                        return Promise.resolve();
+                    }
+
+                    return new Promise(function(resolve) {
+                        image.addEventListener(
+                            'load',
+                            resolve, {
+                                once: true
+                            }
+                        );
+
+                        image.addEventListener(
+                            'error',
+                            resolve, {
+                                once: true
+                            }
+                        );
                     });
-                } else {
-                    if (investorSrc) {
-                        var iw = document.createElement('div');
-                        iw.className = 'sig-placed-wrap';
-                        iw.setAttribute('data-signer', 'investor');
-                        iw.setAttribute('data-spot-key', i + '-default-investor');
-                        iw.style.position = 'absolute';
-                        iw.style.right = '5mm';
-                        iw.style.bottom = '31mm';
-                        iw.style.width = '60mm';
-                        iw.style.height = '28mm';
-                        var iimg = document.createElement('img');
-                        iimg.src = investorSrc;
-                        iw.appendChild(iimg);
-                        page.appendChild(iw);
-                    }
-                    if (companySrc) {
-                        var cw = document.createElement('div');
-                        cw.className = 'sig-placed-wrap';
-                        cw.setAttribute('data-signer', 'company');
-                        cw.setAttribute('data-spot-key', i + '-default-company');
-                        cw.style.position = 'absolute';
-                        cw.style.left = '5mm';
-                        cw.style.bottom = '31mm';
-                        cw.style.width = '60mm';
-                        cw.style.height = '28mm';
-                        var cimg = document.createElement('img');
-                        cimg.src = companySrc;
-                        cw.appendChild(cimg);
-                        page.appendChild(cw);
-                    }
-                }
-            });
+                });
+
+                return Promise.all(imagePromises);
+            }
+
+            function nextAnimationFrame() {
+                return new Promise(function(resolve) {
+                    window.requestAnimationFrame(resolve);
+                });
+            }
         });
     </script>
 </body>
