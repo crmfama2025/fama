@@ -201,6 +201,16 @@
         line-height: var(--agreement-line-height);
     }
 
+    /*
+    * General Arabic fallback.
+    */
+    #file-print-area [lang="ar"],
+    #file-print-area [dir="rtl"],
+    #pdf-pages-container [lang="ar"],
+    #pdf-pages-container [dir="rtl"] {
+        font-family: 'Agreement Arabic', serif;
+    }
+
     #file-print-area .ltr-number,
     #pdf-pages-container .ltr-number {
         direction: ltr;
