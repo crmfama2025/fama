@@ -245,17 +245,160 @@
     {!! $bodyHtml !!}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            var pages = document.querySelectorAll('.new-page');
-            var sigWraps = document.querySelectorAll('.sig-placed-wrap');
+            var MM_TO_PX = 96 / 25.4;
+            var PAGE_H_MM = 297;
+            var PAD_TOP_P1_MM = 34; // must match .file-content padding-top (first page)
+            var PAD_TOP_PN_MM = 35; // must match .file-content.page-subsequent padding-top
+            var PAD_BOT_MM = 58; // must match .file-content padding-bottom
 
-            sigWraps.forEach(function(wrap) {
-                var spotKey = wrap.getAttribute('data-spot-key');
-                if (!spotKey) return;
+            var maxH_p1 = (PAGE_H_MM - PAD_TOP_P1_MM - PAD_BOT_MM) * MM_TO_PX;
+            var maxH_pn = (PAGE_H_MM - PAD_TOP_PN_MM - PAD_BOT_MM) * MM_TO_PX;
 
-                var pageIndex = parseInt(spotKey.split('-')[0], 10);
-                if (isNaN(pageIndex) || !pages[pageIndex]) return;
+            var oldPages = Array.from(document.querySelectorAll('.new-page'));
+            if (oldPages.length === 0) return;
 
-                pages[pageIndex].appendChild(wrap);
+            var bgUrl = null;
+            var m = (oldPages[0].getAttribute('style') || '').match(/background-image:\s*url\((["']?)(.*?)\1\)/);
+            if (m) bgUrl = m[2];
+
+            var investorImg = document.querySelector('.sig-placed-wrap[data-signer="investor"] img');
+            var companyImg = document.querySelector('.sig-placed-wrap[data-signer="company"] img');
+            var investorSrc = investorImg ? investorImg.src : null;
+            var companySrc = companyImg ? companyImg.src : null;
+
+            // Flatten every row across all saved pages, preserving original order.
+            var rows = [];
+            oldPages.forEach(function(page) {
+                var tbody = page.querySelector('.file-content > table > tbody');
+                if (!tbody) return;
+                Array.from(tbody.children).forEach(function(tr) {
+                    rows.push(tr);
+                });
+            });
+
+            var container = document.createElement('div');
+            var pages = [];
+            var currentTbody, usedH, maxH;
+
+            function newPage(isFirst) {
+                var page = document.createElement('div');
+                page.className = 'new-page';
+                if (bgUrl) page.style.backgroundImage = "url('" + bgUrl + "')";
+                page.style.position = 'relative';
+
+                var content = document.createElement('div');
+                content.className = 'file-content' + (isFirst ? '' : ' page-subsequent');
+
+                var table = document.createElement('table');
+                table.setAttribute('width', '100%');
+                table.setAttribute('border', '0');
+                table.setAttribute('cellpadding', '0');
+                table.setAttribute('cellspacing', '0');
+                var tbody = document.createElement('tbody');
+                table.appendChild(tbody);
+                content.appendChild(table);
+                page.appendChild(content);
+                container.appendChild(page);
+
+                pages.push(page);
+                currentTbody = tbody;
+                usedH = 0;
+                maxH = isFirst ? maxH_p1 : maxH_pn;
+                return page;
+            }
+
+            newPage(true);
+
+            rows.forEach(function(row) {
+                var forcePage = row.getAttribute('data-force-page') === 'true';
+                var ownSigPad = row.hasAttribute('data-own-signature-pad');
+
+                if ((forcePage || ownSigPad) && usedH > 0) newPage(false);
+
+                currentTbody.appendChild(row);
+                var rowH = row.getBoundingClientRect().height;
+
+                if (usedH + rowH > maxH && usedH > 0 && !forcePage && !ownSigPad) {
+                    currentTbody.removeChild(row);
+                    newPage(false);
+                    currentTbody.appendChild(row);
+                    usedH = row.getBoundingClientRect().height;
+                } else {
+                    usedH += rowH;
+                }
+            });
+
+            var parent = oldPages[0].parentNode;
+            oldPages.forEach(function(p) {
+                parent.removeChild(p);
+            });
+            pages.forEach(function(p) {
+                parent.appendChild(p);
+            });
+
+            pages.forEach(function(page, i) {
+                var hasOwnPad = !!page.querySelector('[data-own-signature-pad]');
+
+                if (hasOwnPad) {
+                    var slots = page.querySelectorAll('[data-signature-slot]');
+                    slots.forEach(function(slot) {
+                        var slotId = slot.getAttribute('data-signature-slot');
+                        var signer = slot.getAttribute('data-signer');
+                        var src = signer === 'investor' ? investorSrc : companySrc;
+                        if (!src) return;
+
+                        var pageRect = page.getBoundingClientRect();
+                        var slotRect = slot.getBoundingClientRect();
+
+                        var wrap = document.createElement('div');
+                        wrap.className = 'sig-placed-wrap';
+                        wrap.setAttribute('data-signer', signer);
+                        wrap.setAttribute('data-slot-id', slotId);
+                        wrap.setAttribute('data-spot-key', i + '-' + slotId);
+                        wrap.style.position = 'absolute';
+                        wrap.style.width = '61mm';
+                        wrap.style.height = '28mm';
+                        wrap.style.top = (slotRect.top - pageRect.top + (signer === 'investor' ?
+                            22 : 59)) + 'px';
+                        wrap.style.left = (slotRect.left - pageRect.left + 73) + 'px';
+
+                        var img = document.createElement('img');
+                        img.src = src;
+                        wrap.appendChild(img);
+                        page.appendChild(wrap);
+                    });
+                } else {
+                    if (investorSrc) {
+                        var iw = document.createElement('div');
+                        iw.className = 'sig-placed-wrap';
+                        iw.setAttribute('data-signer', 'investor');
+                        iw.setAttribute('data-spot-key', i + '-default-investor');
+                        iw.style.position = 'absolute';
+                        iw.style.right = '5mm';
+                        iw.style.bottom = '31mm';
+                        iw.style.width = '60mm';
+                        iw.style.height = '28mm';
+                        var iimg = document.createElement('img');
+                        iimg.src = investorSrc;
+                        iw.appendChild(iimg);
+                        page.appendChild(iw);
+                    }
+                    if (companySrc) {
+                        var cw = document.createElement('div');
+                        cw.className = 'sig-placed-wrap';
+                        cw.setAttribute('data-signer', 'company');
+                        cw.setAttribute('data-spot-key', i + '-default-company');
+                        cw.style.position = 'absolute';
+                        cw.style.left = '5mm';
+                        cw.style.bottom = '31mm';
+                        cw.style.width = '60mm';
+                        cw.style.height = '28mm';
+                        var cimg = document.createElement('img');
+                        cimg.src = companySrc;
+                        cw.appendChild(cimg);
+                        page.appendChild(cw);
+                    }
+                }
             });
         });
     </script>
