@@ -46,7 +46,7 @@
                             <!-- /.card -->
 
                             <div class="card-header">
-                                <div class="card card-info">
+                                {{-- <div class="card card-info">
                                     <!-- /.card-header -->
                                     <!-- form start -->
                                     <form class="form-horizontal">
@@ -89,10 +89,133 @@
                                                 <button type="button" class="btn btn-info searchbtnchq">Search</button>
                                             </div>
                                     </form>
+                                </div> --}}
+                                <!-- From Date -->
+                                <div class="card card-df card-outline">
+                                    <div class="card-header shadow-sm">
+                                        <h5 class="card-title mb-0">Filter</h5>
+                                    </div>
+                                    <div class="d-flex justify-content-end mx-4 my-2">
+                                        <button type="button" class="btn btn-secondary reset">
+                                            <i class="fa fa-undo-alt"></i> Reset
+                                        </button>
+                                    </div>
+
+                                    <div class="card-body">
+                                        <form class="form-row align-items-end fileterform ">
+                                            <!-- From Date -->
+                                            {{-- <div class="form-group col-md-2">
+                                                <label for="dateFrom">Payout Date From</label>
+                                                <div class="input-group date" id="dateFrom" data-target-input="nearest">
+                                                    <input type="text" class="form-control datetimepicker-input"
+                                                        data-target="#dateFrom" placeholder="dd-mm-YYYY" />
+                                                    <div class="input-group-append" data-target="#dateFrom"
+                                                        data-toggle="datetimepicker">
+                                                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                                    </div>
+                                                </div>
+                                            </div> --}}
+
+                                            <!-- To Date -->
+                                            {{-- <div class="form-group col-md-2">
+                                                <label for="dateTo">Payout Date To</label>
+                                                <div class="input-group date" id="dateTo" data-target-input="nearest">
+                                                    <input type="text" class="form-control datetimepicker-input"
+                                                        data-target="#dateTo" placeholder="dd-mm-YYYY" />
+                                                    <div class="input-group-append" data-target="#dateTo"
+                                                        data-toggle="datetimepicker">
+                                                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                                    </div>
+                                                </div>
+                                            </div> --}}
+
+                                            <div class="form-group col-lg-3 col-md-4">
+                                                <label for="inputPassword3">Month</label>
+                                                <select class="form-control select2" name="month" id="month">
+                                                    <option value="">Select Month</option>
+                                                    <?php for ($m = 1; $m <= 12; ++$m) { ?>
+                                                    <option value="{{ $m }}">
+                                                        <?= date('F', mktime(0, 0, 0, $m, 1)) ?></option>
+                                                    <?php } ?>
+                                                </select>
+                                            </div>
+                                            <!-- Property -->
+                                            <div class="form-group col-lg-3 col-md-4">
+                                                <label for="propertySelect">Investor</label>
+                                                <select class="form-control select2" id="investorSelect" name="investor_id">
+                                                    <option value="">Select Investor</option>
+                                                    @foreach ($investors as $investor)
+                                                        <option value="{{ $investor->id }}">
+                                                            {{ $investor->investor_name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="form-group col-lg-3 col-md-4">
+                                                <label for="projectSelect">Company</label>
+                                                <select class="form-control select2" id="companySelect" name="company_id">
+                                                    <option value="">Select Company</option>
+                                                    @foreach ($companies as $com)
+                                                        <option value="{{ $com->id }}">
+                                                            {{ $com->company_name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="form-group col-lg-3 col-md-4">
+                                                <label for="investmentTermTypeSelect">Investment Term</label>
+                                                <select class="form-control select2" id="investmentTermTypeSelect"
+                                                    name="investment_term_type">
+                                                    <option value="">All Terms</option>
+                                                    <option value="1">Long Term</option>
+                                                    <option value="2">Short Term</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group col-lg-3 col-md-4">
+                                                <label for="investmentStatusSelect">Investment Status</label>
+                                                <select class="form-control select2" id="investmentStatusSelect"
+                                                    name="investment_status">
+                                                    <option value="">All Status</option>
+                                                    <option value="1">Active</option>
+                                                    <option value="0">Inactive</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group col-lg-3 col-md-4">
+                                                <label for="projectSelect">Payout Batch</label>
+                                                <select class="form-control select2" id="batchSelect"
+                                                    name="payout_batch_id">
+                                                    <option value="">Select Batch</option>
+                                                    @foreach ($payoutbatches as $batch)
+                                                        <option value="{{ $batch->id }}">
+                                                            {{ $batch->batch_name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="form-group col-lg-3 col-md-4">
+                                                <label for="investmentStatusSelect">Payout Status</label>
+                                                <select class="form-control select2" id="payoutSelect" name="is_processed">
+                                                    <option value="">All Status</option>
+                                                    <option value="1">Paid</option>
+                                                    <option value="0">Not Paid</option>
+                                                </select>
+                                            </div>
+
+
+
+                                            <!-- Search Button -->
+                                            <div class="form-group col-md-2">
+                                                <button type="button" class="btn btn-primary btn-block searchbtnchq">
+                                                    <i class="fa fa-search"></i> Search
+                                                </button>
+                                            </div>
+
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
                             <div class="card-body">
-                                <table id="payoutPendingTable" class="table table-bordered table-hover">
+                                <table id="payoutPendingTable" class="table table-striped table-hover">
                                     <thead>
                                         <tr>
                                             <th>#</th>
@@ -102,7 +225,15 @@
                                             <th>Payout Date</th>
                                             <th>Payout Type</th>
                                             <th>payout Amount</th>
+                                            <th>Paid Amount</th>
+                                            <th>Amount Pending</th>
                                             <th width="188">Payment Mode</th>
+                                            <th>Paid Date</th>
+                                            <th width="188">Paid Mode</th>
+                                            <th>Paid Company </th>
+                                            <th>Paid Bank</th>
+                                            <th>Paid Cheque Number</th>
+                                            <th>Status</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -150,6 +281,13 @@
 
 
     <script>
+        $('#dateFrom').datetimepicker({
+            format: 'DD-MM-YYYY'
+        });
+
+        $('#dateTo').datetimepicker({
+            format: 'DD-MM-YYYY'
+        });
         $(function() {
             let table = $('#payoutPendingTable').DataTable({
                 processing: true,
@@ -159,9 +297,21 @@
                 ajax: {
                     url: "{{ route('investment-payout.list') }}",
                     data: function(d) {
+                        // d.month = $('#month').val();
+                        // d.batch_id = $('#batch_id').val();
+                        // d.investor_id = $('#investor_id').val();
+                        // Current visible filters
+                        d.date_from = $('#dateFrom input').val();
+                        d.date_to = $('#dateTo input').val();
+
+                        d.investor_id = $('#investorSelect').val();
+                        d.company_id = $('#companySelect').val();
+
+                        d.investment_term_type = $('#investmentTermTypeSelect').val();
+                        d.investment_status = $('#investmentStatusSelect').val();
                         d.month = $('#month').val();
-                        d.batch_id = $('#batch_id').val();
-                        d.investor_id = $('#investor_id').val();
+                        d.payout_batch_id = $('#batchSelect').val();
+                        d.is_processed = $('#payoutSelect').val();
                     }
                 },
                 columns: [{
@@ -196,36 +346,42 @@
                         name: 'payout_amount',
                     },
                     {
+                        data: 'amount_paid',
+                        name: 'ivestor_payment_distributions.amount_paid',
+                    },
+                    {
+                        data: 'amount_pending',
+                        name: 'amount_pending',
+                    },
+                    {
                         data: 'payment_mode',
                         name: 'payment_mode',
                     },
-                    // {
-                    //     data: 'cheque_no',
-                    //     name: 'contract_payment_details.cheque_no',
-                    // },
-                    // {
-                    //     data: 'payment_amount',
-                    //     name: 'payment_amount',
-                    // },
-                    // {
-                    //     data: 'composition',
-                    //     name: 'composition',
-                    // },
-                    // {
-                    //     data: 'has_returned',
-                    //     name: 'has_returned',
-                    //     render: function(data, type, row) {
-                    //         if (data == 1) {
-                    //             return '<span class="badge bg-danger text-white">Returned</span><i class="far fa-comments loadReason pl-1" onclick="loadReason(this)" data-reason="' +
-                    //                 row.returned_reason + '"></i>';
+                    {
+                        data: 'paid_date',
+                        name: 'paid_date',
+                    },
+                    {
+                        data: 'paid_mode',
+                        name: 'paid_mode',
+                    },
+                    {
+                        data: 'paid_company',
+                        name: 'paidCompany.company_name',
+                    },
+                    {
+                        data: 'paid_bank',
+                        name: 'paid_bank',
+                    },
+                    {
+                        data: 'paid_cheque_number',
+                        name: 'paid_cheque_number',
+                    },
+                    {
+                        data: 'status',
+                        name: 'status',
+                    },
 
-
-
-                    //         }
-                    //         return '-';
-
-                    //     },
-                    // },
 
 
                 ],
@@ -248,198 +404,79 @@
                     title: 'Contract Data',
                     action: function(e, dt, node, config) {
                         // redirect to your Laravel export route
-                        let searchValue = dt.search();
 
-                        let params = dt.ajax.params();
+                        let params = {
 
-                        // add your custom filters manually (important)
-                        params.month = $('#month').val();
-                        params.batch_id = $('#batch_id').val();
-                        params.investor_id = $('#investor_id').val();
-                        params.search = dt.search();
+                            // DataTables global search
+                            search: dt.search(),
 
-                        // build query string
-                        let queryString = $.param(params);
+                            // Current filters
+                            date_from: $('#dateFrom input').val(),
+                            date_to: $('#dateTo input').val(),
 
-                        let url = "{{ route('payout-report.export') }}?" + queryString;
+                            investor_id: $('#investorSelect').val(),
+                            company_id: $('#companySelect').val(),
+                            month: $('#month').val(),
+
+                            investment_term_type: $('#investmentTermTypeSelect').val(),
+
+                            investment_status: $('#investmentStatusSelect').val(),
+                            payout_batch_id: $('#batchSelect').val(),
+                            is_processed: $('#payoutSelect').val()
+                        };
+
+                        console.log('Export Filters:', params);
+
+                        let url =
+                            "{{ route('payout-report.export') }}" +
+                            '?' +
+                            $.param(params);
                         window.location.href = url;
                     }
                 }]
             });
 
-            // Filter buttons
-            $('.filter-btn').on('click', function() {
-                let filterValue = $(this).data('filter');
-
-                // Reset ALL buttons
-                $('.filter-btn').each(function() {
-                    let solidClass = $(this).attr('add-class'); // btn-warning
-                    let outlineClass = solidClass ? 'btn-outline-' + solidClass.replace('btn-',
-                        '') : '';
-
-                    if (solidClass) {
-                        $(this).removeClass(solidClass).addClass(outlineClass);
-                    }
-                });
-
-                // Apply ACTIVE state to clicked button
-                let solidClass = $(this).attr('add-class'); // e.g. btn-warning
-                let outlineClass = solidClass ? 'btn-outline-' + solidClass.replace('btn-', '') : '';
-
-
-                if (solidClass) {
-                    $(this).removeClass(outlineClass).addClass(solidClass);
-                }
-
-                // Apply DataTable search column filter (status = column index 1)
-                table.column(2).search(filterValue).draw();
-            });
-
             $('.searchbtnchq').on('click', function(e) {
+
                 e.preventDefault();
-                table.ajax.reload();
+
+                table.ajax.reload(null, true);
             });
 
+
+            /*
+            |--------------------------------------------------------------------------
+            | Reset
+            |--------------------------------------------------------------------------
+            */
+
+            /*
+            |--------------------------------------------------------------------------
+            | Reset
+            |--------------------------------------------------------------------------
+            */
+
+            $('.reset').on('click', function() {
+
+                // Clear date fields
+                $('#dateFrom input').val('');
+                $('#dateTo input').val('');
+
+                // Reset Select2 fields
+                $('#month').val('').trigger('change');
+                $('#investorSelect').val('').trigger('change');
+                $('#companySelect').val('').trigger('change');
+                $('#investmentTermTypeSelect').val('').trigger('change');
+                $('#investmentStatusSelect').val('').trigger('change');
+                $('#batchSelect').val('').trigger('change');
+                $('#payoutSelect').val('').trigger('change');
+
+                // Clear DataTable search
+                table.search('').draw();
+
+                // Reload table with cleared filters
+                table.ajax.reload(null, true);
+            });
         });
-    </script>
-
-
-    <script>
-        $('#submitBtn').click(function(e) {
-            e.preventDefault();
-
-            let isValid = true;
-            $(".error-text").remove(); // clear old errors
-
-            // validate ALL required fields
-            $("#PayoutSubmitForm").find("[required]:visible").each(function() {
-                const value = $(this).val()?.trim();
-
-                if (!value) {
-                    isValid = false;
-                    setInvalid(this, "This field is required");
-                } else {
-                    setValid(this);
-                }
-            });
-
-            // Validate Select2 fields
-            $("#PayoutSubmitForm").find('[required]select.select2').each(function() {
-                const value = $(this).val();
-                const container = $(this).next('.select2-container');
-
-                // Skip validation if hidden (either the select or its container)
-                if (!$(this).is(':visible') || container.css('display') === 'none') {
-                    container.removeClass('is-invalid is-valid');
-                    return; // skip hidden selects
-                }
-
-
-                if (!value || value.length === 0) {
-                    container.addClass('is-invalid').removeClass('is-valid');
-                    isValid = false;
-                } else {
-                    container.addClass('is-valid').removeClass('is-invalid');
-                }
-            });
-
-
-
-            if (!isValid) return;
-
-            submitForm(); // everything passed
-
-
-        });
-
-        // helper: invalid
-        function setInvalid(input, message) {
-            $(input).addClass("is-invalid").removeClass("is-valid");
-
-            // // append error message
-            // if ($(input).parent().next(".invalid-feedback").length === 0) {
-            //     $(input).parent().after(
-            //         `<div class="invalid-feedback" style="display:block;">${message}</div>`
-            //     );
-            // }
-        }
-
-        // helper: valid
-        function setValid(input) {
-            $(input).addClass("is-valid").removeClass("is-invalid");
-        }
-
-        function showError(input, message) {
-            $(input).addClass("is-invalid").removeClass("is-valid");
-
-            // append error message
-            $(input).after(
-                `<div class="invalid-feedback" style="display:block;">${message}</div>`
-            );
-        }
-
-        function submitForm() {
-            var form = document.getElementById('PayoutSubmitForm');
-            var fdata = new FormData(form);
-
-            fdata.append('_token', $('meta[name="csrf-token"]').attr('content'));
-
-            var selectedValues = [];
-
-            if ($('#method').val() == 'single') {
-                selectedValues.push($('#payoutId').val());
-            } else {
-                $('.groupCheckbox:checked').each(function() {
-                    selectedValues.push($(this).val());
-                });
-            }
-
-            fdata.append('payout_ids', selectedValues);
-
-            showLoader();
-
-            $.ajax({
-                type: "POST",
-                url: "{{ route('payout.distribute.save') }}",
-                data: fdata,
-                dataType: "json",
-                processData: false,
-                contentType: false,
-                success: function(response) {
-                    console.log(response);
-                    $('#modal-payout').modal('hide');
-                    hideLoader();
-                    toastr.success(response.message);
-
-                    if ($('#reinvest').val() == 1) {
-                        let params = {};
-
-                        // add your custom filters manually (important)
-                        params.reinvestment = $('#reinvest').val();
-                        params.parent_id = response.data[0].investment_id;
-                        params.investor_id = response.data[0].investor_id;
-                        params.amount = response.data[0].amount_paid;
-                        params.date = response.data[0].paid_date;
-
-                        // build query string
-                        let queryString = $.param(params);
-
-                        let url = "{{ route('investment.create') }}?" + queryString;
-                        window.location.href = url;
-                        // window.location.href = "/investment/create?" + queryString;
-
-
-                    } else {
-                        $('#payoutPendingTable').DataTable().ajax.reload();
-                    }
-
-                    // window.location.href = "{{ route('investorPayout.index') }}";
-                },
-                error: function(errors) {
-                    hideLoader();
-                    toastr.error(errors.responseJSON.message);
-                }
-            });
-        }
     </script>
 @endsection

@@ -103,8 +103,11 @@ class InvestmentReportService
             ['data' => 'investment_code', 'name' => 'investment.investment_code'],
             ['data' => 'payout_date', 'name' => 'payout_date'],
             ['data' => 'payout_type', 'name' => 'payout_type'],
-            ['data' => 'payout_amount', 'name' => 'amount_pending'],
+            ['data' => 'payout_amount', 'name' => 'payout_amount'],
+            ['data' => 'amount_paid', 'name' => 'amount_paid'],
+            ['data' => 'amount_pending', 'name' => 'amount_pending'],
             ['data' => 'payment_mode', 'name' => 'payment_mode'],
+            ['data' => 'paid_company', 'name' => 'paidCompany.company_name'],
             ['data' => 'action', 'name' => 'action', 'orderable' => false, 'searchable' => false],
         ];
 
@@ -128,11 +131,7 @@ class InvestmentReportService
                 return "
                 <a href='" . route('investor.show', $investor->id) . "' target='_blank'>
             <strong class='text-capitalize'>{$investor->investor_name}</strong>
-            <p class='mb-0 text-primary'>{$investor->investor_email}</p>
-            <p class='text-muted small'>
-                <i class='fa fa-phone-alt text-danger'></i>
-                <span class='font-weight-bold'>{$investor->investor_mobile}</span>
-            </p>
+
             </a>
         ";
             })
@@ -147,9 +146,7 @@ class InvestmentReportService
                 return match ($row->payout_type) {
                     1 => '<span class="badge badge-success">Profit</span>',
                     2 => '<span class="badge badge-info">Commission</span>',
-                    // 3 => '<span class="badge badge-warning">Principal</span>',
-                    // 4 => '<span class="badge badge-secondary">Pending Profit</span>',
-                    // 6 => '<span class="badge bg-orange">Withdrawal/Settlement</span>',
+
                     6 => ($row->investment && $row->investment->terminate_status == 1)
                         ? '<span class="badge bg-danger">Settlement</span>'
                         : '<span class="badge bg-orange">Withdrawal</span>',
@@ -158,7 +155,13 @@ class InvestmentReportService
             })
 
             ->addColumn('payout_amount', function ($row) {
-                return number_format($row->amount_pending, 2);
+                return number_format($row->payout_amount, 2);
+            })
+            ->addColumn('amount_paid', function ($row) {
+                return number_format($row->amount_paid, 2);
+            })
+            ->addColumn('paid_date', function ($row) {
+                return $row->latestPaymentDistribution?->paid_date ?? '-';
             })
 
             ->addColumn('payment_mode', function ($row) {
@@ -177,10 +180,41 @@ class InvestmentReportService
 
                 return '-';
             })
+            ->addColumn('paid_mode', function ($row) {
+
+                $distribution = $row->latestPaymentDistribution;
+
+                if (!$distribution || !$distribution->paymentMode) {
+                    return '-';
+                }
+
+                return $distribution->paymentMode->payment_mode_name;
+            })
+            ->addColumn('paid_bank', function ($row) {
+                return $row->latestPaymentDistribution?->paidBank->bank_name ?? '-';
+            })
+
+            ->addColumn('paid_cheque_number', function ($row) {
+                return $row->latestPaymentDistribution?->paid_cheque_number ?? '-';
+            })
+
+            ->addColumn('paid_company', function ($row) {
+                return $row->latestPaymentDistribution?->paidCompany?->company_name ?? '-';
+            })
+
+            ->addColumn('paid_date', function ($row) {
+                return $row->latestPaymentDistribution?->paid_date ?? '-';
+            })
+            ->addColumn('status', function ($row) {
+                if ($row->is_processed == 1) {
+                    return '<span class="badge badge-success">Paid</span>';
+                }
+
+                return '<span class="badge badge-warning">Not Paid</span>';
+            })
 
 
-
-            ->rawColumns(['investor_name', 'payout_type', 'checkbox', 'investment_code', 'company_name'])
+            ->rawColumns(['investor_name', 'paid_mode', 'status', 'paid_date', 'payout_type', 'checkbox', 'investment_code', 'company_name'])
             ->with(['columns' => $columns])
             ->toJson();
     }
@@ -191,9 +225,9 @@ class InvestmentReportService
         $query = $this->investmentReportRepository
             ->getInvestmentQuery($filters);
 
-        return $query->get()->map(function ($row) {
+        return $query->get()->map(function ($row, $index) {
             return [
-                $row->id,
+                $index + 1,
                 $row->company->company_name ?? '-',
                 $row->investedCompany->company_name ?? '-',
                 $row->investor->investor_name ?? '-',
@@ -213,6 +247,7 @@ class InvestmentReportService
                     ? Carbon::parse($row->maturity_date)->format('d-m-Y')
                     : '-',
                 $row->profit_perc ?? '-',
+                $row->investment_tenure ?? '-',
                 $row->profit_release_date ?? '-',
                 $row->profitInterval->profit_interval_name ?? '-',
                 $row->nominee_name ?? '-',
@@ -223,13 +258,14 @@ class InvestmentReportService
                 $row->investmentReferral?->referral_commission_perc ?? '-',
                 $row->investmentReferral?->commissionFrequency?->commission_frequency_name ?? '-',
                 $row->investmentReferral?->paymentTerm?->term_name ?? '-',
+                ($row->investment_term_type == 1) ? 'Long Term' : 'Short Term',
             ];
         });
     }
     public function investmentExportHeadings(): array
     {
         return [
-            'ID',
+            '#',
             'Company Name',
             'Invested Company',
             'Investor Name',
@@ -239,9 +275,11 @@ class InvestmentReportService
             'Investment Amount',
             'Received Amount',
             'Payout Batch',
+
             'Investment Date',
             'Maturity Date',
             'Profit Percentage',
+            'Tenure',
             'Profit Release Date',
             'Profit Release Frequency',
             'Nominee Name',
@@ -252,6 +290,7 @@ class InvestmentReportService
             'Referral Commission %',
             'Referral Commission Frequency',
             'Payment Terms',
+            'Investment Term'
         ];
     }
     public function getPendingExportData(array $filters = [])
@@ -259,7 +298,7 @@ class InvestmentReportService
         $query = $this->investmentReportRepository
             ->getPendings($filters);
 
-        return $query->get()->map(function ($row) {
+        return $query->get()->map(function ($row, $index) {
 
             $investor = $row->investor;
 
@@ -289,28 +328,50 @@ class InvestmentReportService
                     : 'Withdrawal',
                 default => '-',
             };
+            $payoutStatus = $row->is_processed == 1
+                ? 'Paid'
+                : 'Not Paid';
 
             return [
+                $index + 1,
                 $investor?->investor_name ?? '-',
                 $row->investment?->company?->company_name ?? '-',
                 $row->investment?->investment_code ?? '-',
                 getPayoutDate($row),
                 $payoutType,
+                number_format($row->payout_pending, 2),
+                number_format($row->latestPaymentDistribution?->amount_paid, 2),
                 number_format($row->amount_pending, 2),
                 $paymentMode,
+                $row->latestPaymentDistribution?->paid_date ?? '-',
+                $row->latestPaymentDistribution?->paymentMode->payment_mode_name ?? '-',
+                $row->latestPaymentDistribution?->paidBank->bank_name ?? '-',
+                $row->latestPaymentDistribution?->paid_cheque_number ?? '-',
+                $row->latestPaymentDistribution?->paidCompany?->company_name ?? '-',
+                $payoutStatus
             ];
         });
     }
     public function pendingExportHeadings(): array
     {
         return [
+            '#',
             'Investor Name',
             'Company Name',
             'Investment Code',
             'Payout Date',
             'Payout Type',
             'Payout Amount',
+            'Paid Amount',
+            'Amount Pending',
             'Payment Mode',
+            'Paid date',
+            'Paid Mode',
+            'Paid Bank',
+            'Paid Cheque Number',
+            'Paid Company',
+            'Payout Status'
+
         ];
     }
 }

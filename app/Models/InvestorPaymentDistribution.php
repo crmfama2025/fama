@@ -80,4 +80,9 @@ class InvestorPaymentDistribution extends Model
     {
         return $value ? Carbon::parse($value)->format('d-m-Y') : null;
     }
+
+    public function paidCompany()
+    {
+        return $this->belongsTo(Company::class, 'paid_company_id');
+    }
 }
