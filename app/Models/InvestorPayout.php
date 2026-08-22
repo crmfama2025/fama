@@ -54,4 +54,13 @@ class InvestorPayout extends Model
     {
         return $this->belongsTo(PartialWithdrawalBifurcation::class, 'bifurcation_id');
     }
+    public function latestPaymentDistribution()
+    {
+        return $this->hasOne(
+            InvestorPaymentDistribution::class,
+            'payout_id',
+            'id'
+        )->whereNotNull('amount_paid')
+            ->orderByDesc('id');
+    }
 }

@@ -26,6 +26,7 @@ use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\PropertyTypeController;
 use App\Http\Controllers\ReceivablesClearingController;
 use App\Http\Controllers\ReferralController;
+use App\Http\Controllers\reports\InvestmentReportController;
 use App\Http\Controllers\TenantController;
 use App\Http\Controllers\TenantregistrationController;
 use App\Http\Controllers\UserController;
@@ -84,6 +85,7 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
     Route::resource('tenant-registration', TenantregistrationController::class);
     Route::resource('invoices', InvoiceController::class);
     Route::resource('legal_template', InvestorAgreementTemplateController::class);
+    Route::resource('investmentReport', InvestmentReportController::class);
 
 
 
@@ -408,13 +410,31 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
     Route::delete('investor/partial-withdrawal/delete/{id}', [InvestorController::class, 'deleteTermination'])
         ->name('investor.partial-withdrawals.delete');
 
-    // routes/web.php
+
     Route::delete('investment/profit-record/{id}', [InvestmentController::class, 'destroyProfitRecord'])
         ->name('investment.profitRecord.destroy');
 
+
     Route::get('/sendpdf/{contract}', [InvestorAgreementTemplateController::class, 'sendPDFEmail'])
         ->name('agreements.sendpdf');
+
+
+
+
+
+
+    // Reports
+
+    // investment list
+    Route::get('report/investment-report', [InvestmentReportController::class, 'getInvestmentDatatable'])->name('investment-report.list');
+
+    // Investor payout
+    Route::get('report/payout-report', [InvestmentReportController::class, 'payoutIndex'])->name('investment-payout.index');
+    Route::get('report/payout-report-list', [InvestmentReportController::class, 'getPayoutDatatable'])->name('investment-payout.list');
+    Route::get('report/investment-report-export', [InvestmentReportController::class, 'exportInvestments'])->name('investment-report.export');
+    Route::get('report/payout-report-export', [InvestmentReportController::class, 'exportPending'])->name('payout-report.export');
 });
+
 
 
 // Route::get('/download-scope/{id}', [ContractController::class, 'downloadScope']);
