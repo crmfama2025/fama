@@ -30,6 +30,19 @@
             margin: 0 !important;
         }
     </style>
+
+    @if ($isLegacyDocument && filled($letterheadUrl))
+        <style>
+            .new-page {
+                background-image: url('{{ $letterheadUrl }}') !important;
+                background-size: 210mm 297mm !important;
+                background-position: top left !important;
+                background-repeat: no-repeat !important;
+                print-color-adjust: exact !important;
+                -webkit-print-color-adjust: exact !important;
+            }
+        </style>
+    @endif
 </head>
 
 {{-- Recommended PDF wrapper body: do not repaginate saved HTML. --}}

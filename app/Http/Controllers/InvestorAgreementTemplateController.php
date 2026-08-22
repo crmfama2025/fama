@@ -12,6 +12,7 @@ use App\Services\Investment\InvestmentService;
 use App\Services\Investment\InvestorAgreementService;
 use App\Services\Investment\InvestorService;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -351,5 +352,52 @@ class InvestorAgreementTemplateController extends Controller
         $this->signatureService->sendForSignature($contract->id, $validated['channel']);
 
         return response()->json(['message' => 'Sent for signature via ' . $validated['channel'] . '.']);
+    }
+
+
+    public function contractHtml(int $contractId): View
+    {
+        $contract = InvestmentContractDocuments::with([
+            'investor',
+            'company',
+        ])->findOrFail($contractId);
+
+        $bodyHtml = $contract->contract_document_html;
+
+        abort_if(
+            blank($bodyHtml),
+            422,
+            'This legacy contract does not have saved HTML.'
+        );
+
+        $bodyHtml = $this->normalizeStorageUrls($bodyHtml);
+
+        $isLegacyDocument = ! preg_match(
+            '/background-image\s*:/i',
+            $bodyHtml
+        );
+
+        $letterheadUrl = data_get(
+            $contract,
+            'company.letterhead_url'
+        );
+
+        return view('pdf.signed-agreement-wrapper', [
+            'bodyHtml' => $bodyHtml,
+            'contract' => $contract,
+            'isLegacyDocument' => $isLegacyDocument,
+            'letterheadUrl' => $letterheadUrl,
+        ]);
+    }
+
+    private function normalizeStorageUrls(string $html): string
+    {
+        $baseUrl = rtrim(config('app.url'), '/');
+
+        return preg_replace(
+            '#https?://(?:127\.0\.0\.1:8000|famacrm\.cloud)(?:/test)?(?=/storage/)#i',
+            $baseUrl,
+            $html
+        ) ?? $html;
     }
 }

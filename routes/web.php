@@ -427,19 +427,21 @@ Route::get('/investor-sign-success', function () {
 //     return view('admin.investment.inv_agreement.investment_annexture');
 // })->name('investment.annexture');
 
-// pdf sending html view for debugging
-Route::get('/debug/contract-html/{contractId}', function (int $contractId) {
-    $contract = \App\Models\InvestmentContractDocuments::with(['investor', 'company'])
-        ->findOrFail($contractId);
+// // pdf sending html view for debugging
+// Route::get('/debug/contract-html/{contractId}', function (int $contractId) {
+//     $contract = \App\Models\InvestmentContractDocuments::with(['investor', 'company'])
+//         ->findOrFail($contractId);
 
-    $bodyHtml = $contract->contract_document_html;
+//     $bodyHtml = $contract->contract_document_html;
 
-    // same URL-normalization the job does, so what you see matches what DomPDF sees
-    $bodyHtml = str_replace(
-        ['http://127.0.0.1:8000', 'https://famacrm.cloud/test', 'http://famacrm.cloud/test', 'https://famacrm.cloud', 'http://famacrm.cloud'],
-        rtrim(config('app.url'), '/'),
-        $bodyHtml
-    );
+//     // same URL-normalization the job does, so what you see matches what DomPDF sees
+//     $bodyHtml = str_replace(
+//         ['http://127.0.0.1:8000', 'https://famacrm.cloud/test', 'http://famacrm.cloud/test', 'https://famacrm.cloud', 'http://famacrm.cloud'],
+//         rtrim(config('app.url'), '/'),
+//         $bodyHtml
+//     );
 
-    return view('pdf.signed-agreement-wrapper', ['bodyHtml' => $bodyHtml]);
-})->name('debug.contract-html'); // add ->middleware('auth') if you want it gated
+//     return view('pdf.signed-agreement-wrapper', ['bodyHtml' => $bodyHtml]);
+// })->name('debug.contract-html'); // add ->middleware('auth') if you want it gated
+
+Route::get('/debug/contract-html/{contractId}',  [InvestorAgreementTemplateController::class, 'contractHtml'])->name('debug.contract-html');
