@@ -62,7 +62,13 @@ class GenerateAndSendSignedAgreementPdf implements ShouldQueue
             $browsershot->setNpmBinary($npmBinary);
         }
 
-        $pdfBinary = $browsershot->pdf();
+        $pdfBinary = $browsershot
+            ->waitForFunction(
+                "document.body.dataset.pdfReady === 'true'",
+                null,
+                15000
+            )
+            ->pdf();
 
         // if we want to store the pdf in storage, uncomment the following lines
         $fileName = 'contracts/' . $contract->id . '/signed-agreement-' . now()->format('Ymd-His') . '.pdf';

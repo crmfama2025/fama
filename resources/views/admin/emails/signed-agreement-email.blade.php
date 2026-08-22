@@ -90,13 +90,15 @@
                                                                                             Dear {{ $name }},
                                                                                         </p>
                                                                                         <p>
-                                                                                            Please find attached your
-                                                                                            signed investment
-                                                                                            agreement.
+                                                                                            Please find attached a copy
+                                                                                            of your signed investment
+                                                                                            agreement for your records.
                                                                                         </p>
                                                                                         <p>
-                                                                                            Thank you for your
-                                                                                            investment.
+                                                                                            Thank you for choosing to
+                                                                                            invest with us. We truly
+                                                                                            appreciate your trust and
+                                                                                            confidence.
                                                                                         </p>
                                                                                         <p>
                                                                                             Best regards,<br>
