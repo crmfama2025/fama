@@ -100,7 +100,7 @@ class GenerateAndSendSignedAgreementPdf implements ShouldQueue
             $contract,
             'investor',
             $contract->investor->investor_name,
-            'rahmathrasmiya@gmail.com',
+            $contract->investor->investor_email,
             $pdfBinary,
             $investorName,
             $companyname
@@ -112,7 +112,7 @@ class GenerateAndSendSignedAgreementPdf implements ShouldQueue
             $contract,
             'company',
             $contract->company->company_name,
-            'crmfama2025@gmail.com',
+            $contract->company->owner_email,
             $pdfBinary,
             $investorName,
             $companyname
