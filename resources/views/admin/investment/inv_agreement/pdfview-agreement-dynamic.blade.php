@@ -88,10 +88,12 @@
                         <a href="{{ route('investmentContracts') }}" class="btn btn-secondary mr-2">
                             <i class="fas fa-arrow-left"></i> Back
                         </a>
-                        @if (!$contractDocument->is_investor_signed || !$contractDocument->is_company_signed)
-                            <button onclick="openSendModal()" class="btn btn-success mr-2">
-                                <i class="fas fa-paper-plane"></i> Send
-                            </button>
+                        @if (auth()->user()->hasAnyPermission(['investment.add'], $row->company_id))
+                            @if (!$contractDocument->is_investor_signed || !$contractDocument->is_company_signed)
+                                <button onclick="openSendModal()" class="btn btn-success mr-2">
+                                    <i class="fas fa-paper-plane"></i> Send
+                                </button>
+                            @endif
                         @endif
                         {{-- <button onclick="downloadPdfServer()" class="btn btn-outline-primary">
                             <i class="fas fa-file-pdf"></i> Download PDF
