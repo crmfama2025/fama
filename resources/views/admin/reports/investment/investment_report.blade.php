@@ -46,16 +46,16 @@
                                     <div class="card-header shadow-sm">
                                         <h5 class="card-title mb-0">Filter</h5>
                                     </div>
-                                    <div class="d-flex justify-content-end mx-4">
+                                    <div class="d-flex justify-content-end mx-4 my-2">
                                         <button type="button" class="btn btn-secondary reset">
                                             <i class="fa fa-undo-alt"></i> Reset
                                         </button>
                                     </div>
 
                                     <div class="card-body">
-                                        <form class="form-row align-items-end fileterform justify-content-end">
+                                        <form class="form-row align-items-end fileterform ">
                                             <!-- From Date -->
-                                            <div class="form-group col-md-2">
+                                            <div class="form-group col-lg-3 col-md-4">
                                                 <label for="dateFrom">Investment Date From</label>
                                                 <div class="input-group date" id="dateFrom" data-target-input="nearest">
                                                     <input type="text" class="form-control datetimepicker-input"
@@ -68,7 +68,7 @@
                                             </div>
 
                                             <!-- To Date -->
-                                            <div class="form-group col-md-2">
+                                            <div class="form-group col-lg-3 col-md-4">
                                                 <label for="dateTo">Investment Date To</label>
                                                 <div class="input-group date" id="dateTo" data-target-input="nearest">
                                                     <input type="text" class="form-control datetimepicker-input"
@@ -81,7 +81,7 @@
                                             </div>
 
                                             <!-- Property -->
-                                            <div class="form-group col-md-2">
+                                            <div class="form-group col-lg-3 col-md-4">
                                                 <label for="propertySelect">Investor</label>
                                                 <select class="form-control select2" id="investorSelect" name="investor_id">
                                                     <option value="">Select Investor</option>
@@ -92,7 +92,7 @@
                                                     @endforeach
                                                 </select>
                                             </div>
-                                            <div class="form-group col-md-2">
+                                            <div class="form-group col-lg-3 col-md-4">
                                                 <label for="projectSelect">Company</label>
                                                 <select class="form-control select2" id="companySelect" name="company_id">
                                                     <option value="">Select Company</option>
@@ -103,7 +103,7 @@
                                                     @endforeach
                                                 </select>
                                             </div>
-                                            <div class="form-group col-md-2">
+                                            <div class="form-group col-lg-3 col-md-4">
                                                 <label for="investmentTermTypeSelect">Investment Term</label>
                                                 <select class="form-control select2" id="investmentTermTypeSelect"
                                                     name="investment_term_type">
@@ -112,7 +112,7 @@
                                                     <option value="2">Short Term</option>
                                                 </select>
                                             </div>
-                                            <div class="form-group col-md-2">
+                                            <div class="form-group col-lg-3 col-md-4">
                                                 <label for="investmentStatusSelect">Investment Status</label>
                                                 <select class="form-control select2" id="investmentStatusSelect"
                                                     name="investment_status">
@@ -121,11 +121,88 @@
                                                     <option value="0">Inactive</option>
                                                 </select>
                                             </div>
+                                            <!-- From Date -->
+                                            <div class="form-group col-lg-3 col-md-4">
+                                                <label for="dateFrom">Maturity Date From</label>
+                                                <div class="input-group date" id="maturityDateFrom"
+                                                    data-target-input="nearest">
+                                                    <input type="text" class="form-control datetimepicker-input"
+                                                        data-target="#maturityDateFrom" placeholder="dd-mm-YYYY" />
+                                                    <div class="input-group-append" data-target="#maturityDateFrom"
+                                                        data-toggle="datetimepicker">
+                                                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                                    </div>
+                                                </div>
+                                            </div>
 
+                                            <!-- To Date -->
+                                            <div class="form-group col-lg-3 col-md-4">
+                                                <label for="dateTo">Maturity Date To</label>
+                                                <div class="input-group date" id="maturityDateTo"
+                                                    data-target-input="nearest">
+                                                    <input type="text" class="form-control datetimepicker-input"
+                                                        data-target="#maturityDateTo" placeholder="dd-mm-YYYY" />
+                                                    <div class="input-group-append" data-target="#maturityDateTo"
+                                                        data-toggle="datetimepicker">
+                                                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group col-lg-3 col-md-4">
+                                                <label for="propertySelect">Profit Interval</label>
+                                                <select class="form-control select2" id="intervalSelect"
+                                                    name="profit_interval_id">
+                                                    <option value="">Select Interval</option>
+                                                    @foreach ($profitInterval as $intv)
+                                                        <option value="{{ $intv->id }}">
+                                                            {{ $intv->profit_interval_name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="form-group col-lg-3 col-md-4">
+                                                <label for="projectSelect">Payout Batch</label>
+                                                <select class="form-control select2" id="batchSelect"
+                                                    name="payout_batch_id">
+                                                    <option value="">Select Batch</option>
+                                                    @foreach ($payoutbatches as $batch)
+                                                        <option value="{{ $batch->id }}">
+                                                            {{ $batch->batch_name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="form-group col-lg-3 col-md-4">
+                                                <label for="tenureSelect">Investment Tenure</label>
+                                                <select class="form-control select2" id="tenureSelect"
+                                                    name="investment_tenure">
+                                                    <option value="">Select Tenure</option>
+
+                                                    @foreach ($tenures as $ten)
+                                                        <option value="{{ $ten }}">
+                                                            {{ $ten }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+
+                                            <div class="form-group col-lg-3 col-md-4">
+                                                <label for="profitPercSelect">Profit Perc</label>
+                                                <select class="form-control select2" id="profitPercSelect"
+                                                    name="profit_percentage">
+                                                    <option value="">Select Perc</option>
+
+                                                    @foreach ($profitPerc as $perc)
+                                                        <option value="{{ $perc }}">
+                                                            {{ $perc }}%
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
 
 
                                             <!-- Search Button -->
-                                            <div class="form-group col-md-2">
+                                            <div class="form-group col-lg-3 col-md-4">
                                                 <button type="button" class="btn btn-primary btn-block searchbtnchq">
                                                     <i class="fa fa-search"></i> Search
                                                 </button>
@@ -224,6 +301,12 @@
                         d.investor_id = $('#investorSelect').val();
                         d.investment_term_type = $('#investmentTermTypeSelect').val();
                         d.investment_status = $('#investmentStatusSelect').val();
+                        d.maturitydate_from = $('#maturityDateFrom input').val();
+                        d.maturitydate_to = $('#maturityDateTo input').val();
+                        d.profit_interval_id = $('#intervalSelect').val();
+                        d.payout_batch_id = $('#batchSelect').val();
+                        d.investment_tenure = $('#tenureSelect').val();
+                        d.profit_perc = $('#profitPercSelect').val();
 
                     },
                 },
@@ -352,9 +435,35 @@
                     text: 'Export Excel',
                     title: 'Investments Data',
                     action: function(e, dt, node, config) {
-                        let searchValue = dt.search();
-                        let url = "{{ route('investment-report.export') }}" + "?search=" +
-                            encodeURIComponent(searchValue);
+                        let params = {
+                            search: dt.search(),
+
+                            date_from: $('#dateFrom input').val(),
+                            date_to: $('#dateTo input').val(),
+
+                            company_id: $('#companySelect').val(),
+                            investor_id: $('#investorSelect').val(),
+
+                            investment_term_type: $('#investmentTermTypeSelect').val(),
+                            investment_status: $('#investmentStatusSelect').val(),
+
+                            maturitydate_from: $('#maturityDateFrom input').val(),
+                            maturitydate_to: $('#maturityDateTo input').val(),
+
+                            profit_interval_id: $('#intervalSelect').val(),
+                            payout_batch_id: $('#batchSelect').val(),
+
+
+                            investment_tenure: $('#tenureSelect').val(),
+                            profit_perc: $('#profitPercSelect').val(),
+
+
+                        };
+
+                        console.log(params);
+
+                        let url = "{{ route('investment-report.export') }}" +
+                            '?' + $.param(params);
                         window.location.href = url;
                     }
                 }]
@@ -367,6 +476,13 @@
         });
 
         $('#dateTo').datetimepicker({
+            format: 'DD-MM-YYYY'
+        });
+        $('#maturityDateTo').datetimepicker({
+            format: 'DD-MM-YYYY'
+        });
+
+        $('#maturityDateFrom').datetimepicker({
             format: 'DD-MM-YYYY'
         });
         $('#terminationdate').datetimepicker({
@@ -390,6 +506,35 @@
             //     return;
             // }
             table.ajax.reload();
+        });
+
+        $(document).on('click', '.reset', function() {
+
+            // Reset normal form fields
+            $('.fileterform')[0].reset();
+
+            // Reset Select2 fields
+            $('#investorSelect').val(null).trigger('change');
+            $('#companySelect').val(null).trigger('change');
+            $('#investmentTermTypeSelect').val(null).trigger('change');
+            $('#investmentStatusSelect').val(null).trigger('change');
+            $('#intervalSelect').val(null).trigger('change');
+            $('#batchSelect').val(null).trigger('change');
+            $('#tenureSelect').val(null).trigger('change');
+            $('#profitPercSelect').val(null).trigger('change');
+
+            // Clear date fields
+            $('#dateFrom input').val('');
+            $('#dateTo input').val('');
+            $('#maturityDateFrom input').val('');
+            $('#maturityDateTo input').val('');
+
+
+            // Clear DataTable search
+            table.search('').draw();
+
+            // Reload table with cleared filters
+            table.ajax.reload(null, true);
         });
     </script>
 @endsection

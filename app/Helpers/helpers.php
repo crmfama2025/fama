@@ -1733,11 +1733,16 @@ function updateBifuractionOnWithdrawal($bifurcation, $balance, $paidAmount)
     return true;
 }
 
-function updateBifuractionOnProfitPayout($bifucationId, $balance, $paidAmount)
+function updateBifuractionOnProfitPayout($bifurcation, $balance, $paidAmount)
 {
-    $bifurcation = PartialWithdrawalBifurcation::find($bifucationId);
+    // dd("test");
+    // dd($bifucationId);
+
+    // $bifurcation = PartialWithdrawalBifurcation::find($bifucationId);
+    // dd($bifurcation);
     $updateArr = [];
     $totalPaid = ($bifurcation->total_paid ?? 0) + $paidAmount;
+    // dd($totalPaid);
     if ($balance == 0) {
         $updateArr = [
             'profit_payout_status' => 2,
@@ -1923,4 +1928,21 @@ function getInvestorsHaveInvestment()
     return Investor::whereHas('investments')
         ->orderBy('investor_name', 'asc')
         ->get();
+}
+function getInvestmentTenures()
+{
+    return Investment::whereNotNull('investment_tenure')
+        ->distinct()
+        ->orderBy('investment_tenure')
+        ->pluck('investment_tenure')
+        ->toArray();
+}
+
+function getInvestmentProfitPerc()
+{
+    return Investment::whereNotNull('profit_perc')
+        ->distinct()
+        ->orderBy('profit_perc')
+        ->pluck('profit_perc')
+        ->toArray();
 }

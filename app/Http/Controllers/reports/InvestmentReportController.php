@@ -6,6 +6,7 @@ namespace App\Http\Controllers\reports;
 use App\Exports\GenericExport;
 use App\Http\Controllers\Controller;
 use App\Models\PayoutBatch;
+use App\Models\ProfitInterval;
 use App\Repositories\Reports\InvestmentReportRepository;
 use App\Services\BankService;
 use App\Services\CompanyService;
@@ -34,7 +35,12 @@ class InvestmentReportController extends Controller
         $title = "Investment Report";
         $companies = getInvsetmentCompanies();
         $investors = getInvestorsHaveInvestment();
-        return view('admin.reports.investment.investment_report', compact('title', 'companies', 'investors'));
+        $payoutbatches = PayoutBatch::where('status', 1)->get();
+        $profitInterval = ProfitInterval::where('status', 1)->get();
+        $tenures = getInvestmentTenures();
+        $profitPerc = getInvestmentProfitPerc();
+        // dd($tenures, $profitPerc);
+        return view('admin.reports.investment.investment_report', compact('title', 'companies', 'investors', 'payoutbatches', 'profitInterval', 'tenures', 'profitPerc', 'tenures', 'profitPerc'));
     }
     public function getInvestmentDatatable(Request $request)
     {
@@ -49,8 +55,16 @@ class InvestmentReportController extends Controller
                 'company_id' => $request->company_id,
                 'investment_term_type' => $request->investment_term_type ?? null,
                 'investment_status'    => $request->investment_status ?? null,
-                'search' => $request->search['value'] ?? null
+                'search' => $request->search['value'] ?? null,
+                'maturitydate_from' => $request->input('maturitydate_from'),
+                'maturitydate_to' => $request->input('maturitydate_to'),
+                'profit_interval_id' => $request->input('profit_interval_id'),
+                'payout_batch_id' => $request->input('payout_batch_id'),
+                'investment_tenure' => $request->input('investment_tenure'),
+                'profit_perc' => $request->input('profit_perc'),
+
             ];
+            // dd($filters);
 
             return $this->investmentReportService->getInvestmentDataTable($filters);
         }
@@ -59,46 +73,51 @@ class InvestmentReportController extends Controller
     {
         $title = "Investor Payouts";
         $banks = $this->bankService->getAll();
-        $companies = $this->companyService->getAll('finance', 'payout');
         $paymentmodes = $this->paymentModeService->getAll()->where('id', '!=', 4);
         $payoutbatches = PayoutBatch::where('status', 1)->get();
-        $investors = $this->investorService->getAllActive();
+        $companies = getInvsetmentCompanies();
+        $investors = getInvestorsHaveInvestment();
         return view("admin.reports.investment.payout_report", compact("title", "paymentmodes", "banks", "payoutbatches", "investors", "companies"));
     }
     public function getPayoutDatatable(Request $request)
     {
-        if ($request->ajax()) {
-            $filterData = [];
-            if ($request->month || $request->batch_id || $request->investor_id || $request->investment_id) {
-                $filterData = array(
-                    'month' => $request->month,
-                    'batch_id' => $request->batch_id,
-                    'investor_id' => $request->investor_id,
-                    'investment_id' => $request->investment_id
-                );
-            }
+        $filters = [
+            'search' => $request->input('search.value'),
+            'date_from' => $request->input('date_from'),
+            'date_to' => $request->input('date_to'),
+            'company_id' => $request->input('company_id'),
+            'investor_id' => $request->input('investor_id'),
+            'investment_term_type' => $request->input('investment_term_type'),
+            'investment_status' => $request->input('investment_status'),
+            'month' => $request->input('month'),
+            'payout_batch_id' => $request->input('payout_batch_id'),
+            'is_processed' => $request->input('is_processed'),
+
+        ];
 
 
-            $filters = [
-                'search' => $request->search['value'] ?? null,
-                'filter' => $filterData,
-            ];
-
-            return $this->investmentReportService->getPendingList($filters);
-        }
+        return $this->investmentReportService
+            ->getPendingList($filters);
     }
     public function exportInvestments(Request $request)
     {
+        // dd($request);
         $filters = [
-            'date_from'            => $request->date_from ?? null,
-            'date_to'              => $request->date_to ?? null,
-            'investor_id'          => $request->investor_id ?? null,
-            'company_id'           => $request->company_id ?? null,
-            'investment_term_type' => $request->investment_term_type ?? null,
-            'investment_status'    => $request->investment_status ?? null,
-            'search'               => $request->search['value'] ?? null,
+            'search' => $request->input('search'),
+            'date_from' => $request->input('date_from'),
+            'date_to' => $request->input('date_to'),
+            'company_id' => $request->input('company_id'),
+            'investor_id' => $request->input('investor_id'),
+            'investment_term_type' => $request->input('investment_term_type'),
+            'investment_status' => $request->input('investment_status'),
+            'maturitydate_from' => $request->input('maturitydate_from'),
+            'maturitydate_to' => $request->input('maturitydate_to'),
+            'profit_interval_id' => $request->input('profit_interval_id'),
+            'payout_batch_id' => $request->input('payput_batch_id'),
+            'investment_tenure' => $request->input('investment_tenure'),
+            'profit_perc' => $request->input('profit_perc'),
         ];
-
+        // dd($filters);
         $data = $this->investmentReportService->getInvestmentExportData($filters);
 
         return Excel::download(
@@ -111,25 +130,17 @@ class InvestmentReportController extends Controller
     }
     public function exportPending(Request $request)
     {
-        $filterData = [];
-
-        if (
-            $request->month ||
-            $request->batch_id ||
-            $request->investor_id ||
-            $request->investment_id
-        ) {
-            $filterData = [
-                'month'         => $request->month,
-                'batch_id'      => $request->batch_id,
-                'investor_id'   => $request->investor_id,
-                'investment_id' => $request->investment_id,
-            ];
-        }
-
         $filters = [
-            'search' => $request->search['value'] ?? null,
-            'filter' => $filterData,
+            'search'              => $request->input('search'),
+            'date_from'           => $request->input('date_from'),
+            'date_to'             => $request->input('date_to'),
+            'investor_id'         => $request->input('investor_id'),
+            'company_id'          => $request->input('company_id'),
+            'month'               => $request->input('month'),
+            'investment_term_type' => $request->input('investment_term_type'),
+            'investment_status'   => $request->input('investment_status'),
+            'payout_batch_id' => $request->input('payout_batch_id'),
+            'is_processed' => $request->input('is_processed'),
         ];
 
         $data = $this->investmentReportService->getPendingExportData($filters);
