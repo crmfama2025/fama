@@ -460,9 +460,8 @@
                                             </a>
                                         </li>
                                     @endif
-                                    @if (auth()->user()->hasAnyPermission(
-                                                ['investment.add'] ||
-                                                    auth()->user()->hasAnyPermission(['investment.view'])))
+                                    @if (auth()->user()->hasAnyPermission(['investment.add']) ||
+                                            auth()->user()->hasAnyPermission(['investment.view']))
                                         <li class="nav-item">
                                             <a href="{{ route('investmentContracts') }}"
                                                 class="nav-link {{ request()->is('investment_contracts*') && !request()->is('investment/*') ? 'active' : '' }}">
