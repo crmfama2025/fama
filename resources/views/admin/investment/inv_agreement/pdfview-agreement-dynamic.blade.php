@@ -178,7 +178,7 @@
 
             <div class="sig-recipient-info"
                 style="background:#f7f8fa;border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:13px;">
-                @if (!$contractDocument->investor_signed_at)
+                @if (!$contractDocument->is_investor_signed)
                     <div style="font-weight:600;margin-bottom:4px;">Sending to: Investor</div>
                     <div style="color:#444;">Name: {{ $contractDocument->investor->investor_name }}</div>
                     <div style="color:#444;">Mobile: {{ $contractDocument->investor->investor_mobile }}</div>
