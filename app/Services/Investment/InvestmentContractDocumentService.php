@@ -173,7 +173,10 @@ class InvestmentContractDocumentService
                 //             <i class="fas fa-eye"></i>
                 //         </a>';
                 // }
-                if (auth()->user()->hasAnyPermission(['investment.add'], $row->company_id)) {
+                if (
+                    auth()->user()->hasAnyPermission(['investment.add'], $row->company_id) ||
+                    auth()->user()->hasAnyPermission(['investment.view'], $row->company_id)
+                ) {
                     $action .= '<a href="' . route('legal_template.contractview', [
                         'docId' => $row->id,
                         'companyId' => $row->company_id,

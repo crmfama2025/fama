@@ -460,7 +460,9 @@
                                             </a>
                                         </li>
                                     @endif
-                                    @if (auth()->user()->hasAnyPermission(['investment.add']))
+                                    @if (auth()->user()->hasAnyPermission(
+                                                ['investment.add'] ||
+                                                    auth()->user()->hasAnyPermission(['investment.view'])))
                                         <li class="nav-item">
                                             <a href="{{ route('investmentContracts') }}"
                                                 class="nav-link {{ request()->is('investment_contracts*') && !request()->is('investment/*') ? 'active' : '' }}">
@@ -496,6 +498,8 @@
                                             </a>
                                         </li>
                                     @endif
+
+
                                 </ul>
                             </li>
                         @endif
@@ -528,6 +532,14 @@
                                             </a>
                                         </li>
                                     @endif
+
+                                    {{-- <li class="nav-item ">
+                                        <a href="{{ route('receivable-report.index') }}"
+                                            class="nav-link {{ request()->is('report/receivable-report*') ? 'active' : '' }}">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>Receivable Report</p>
+                                        </a>
+                                    </li> --}}
 
 
 
