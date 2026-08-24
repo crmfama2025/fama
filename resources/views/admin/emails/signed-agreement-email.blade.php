@@ -102,7 +102,7 @@
                                                                                         </p>
                                                                                         <p>
                                                                                             Best regards,<br>
-                                                                                            {{ config('mail.from.name') }}
+                                                                                            Fama Group Of Companies
                                                                                         </p>
                                                                                     </td>
                                                                                 </tr>
