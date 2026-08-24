@@ -102,7 +102,8 @@
                                                                                         </p>
                                                                                         <p>
                                                                                             Best regards,<br>
-                                                                                            Fama Group Of Companies
+                                                                                            <strong>Fama Group Of
+                                                                                                Companies</strong>
                                                                                         </p>
                                                                                     </td>
                                                                                 </tr>
