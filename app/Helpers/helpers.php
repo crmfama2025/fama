@@ -4,6 +4,7 @@ use App\Models\Agreement;
 use App\Models\AgreementDocument;
 use App\Models\AgreementPaymentDetail;
 use App\Models\AgreementSubunitRentBifurcation;
+use App\Models\Area;
 use App\Models\ClearedReceivable;
 use App\Models\Company;
 use App\Models\Contract;
@@ -19,6 +20,7 @@ use App\Models\InvestmentReferral;
 use App\Models\Investor;
 use App\Models\InvestorLedger;
 use App\Models\InvestorPayout;
+use App\Models\Locality;
 use App\Models\PartialWithdrawalBifurcation;
 use App\Models\PaymentMode;
 use App\Models\Property;
@@ -1945,4 +1947,23 @@ function getInvestmentProfitPerc()
         ->orderBy('profit_perc')
         ->pluck('profit_perc')
         ->toArray();
+}
+
+// payable report
+function getAreasHaveContract()
+{
+    $areas = Area::where('status', 1)
+        ->whereHas('contracts')
+        ->get();
+
+    return $areas;
+}
+
+function getLocalitiesHaveContract()
+{
+    $localities = Locality::where('status', 1)
+        ->whereHas('contracts')
+        ->get();
+
+    return $localities;
 }

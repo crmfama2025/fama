@@ -559,6 +559,8 @@ namespace App\Models{
  * @mixin \Eloquent
  * @property int|null $deleted_by
  * @property-read \App\Models\User|null $addedBy
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Contract> $contracts
+ * @property-read int|null $contracts_count
  * @property-read \App\Models\User|null $deletedBy
  * @property-read \App\Models\User|null $updatedBy
  * @method static \Illuminate\Database\Eloquent\Builder|Area whereDeletedBy($value)
@@ -706,6 +708,8 @@ namespace App\Models{
  * @property string|null $owner_email
  * @property string|null $owner_number
  * @property string|null $owner_name
+ * @property string|null $owner_number
+ * @property string|null $owner_name
  * @property-read \App\Models\User|null $addedBy
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Area> $areas
  * @property-read int|null $areas_count
@@ -715,6 +719,8 @@ namespace App\Models{
  * @property-read int|null $contracts_count
  * @property-read \App\Models\User|null $deletedBy
  * @property-read \App\Models\Industry|null $industry
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Investment> $investments
+ * @property-read int|null $investments_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Investment> $investments
  * @property-read int|null $investments_count
  * @property-write mixed $added_date
@@ -740,6 +746,8 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereIndustryId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereLetterHeadPath($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereOwnerEmail($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Company whereOwnerName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Company whereOwnerNumber($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereOwnerName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereOwnerNumber($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company wherePhone($value)
@@ -2071,7 +2079,9 @@ namespace App\Models{
  * @property-read \App\Models\Investment|null $investment
  * @property-read \App\Models\Investor|null $investor
  * @property-read \App\Models\InvestorLedger|null $ledger
+ * @property-read \App\Models\InvestorLedger|null $ledger
  * @property-read InvestmentContractDocuments|null $mudarabahReference
+ * @property-read \App\Models\User|null $sendToInvestorBy
  * @property-read \App\Models\User|null $sendToInvestorBy
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments newQuery()
@@ -2168,6 +2178,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read \App\Models\Investment|null $investment
  * @property-read \App\Models\Investor|null $investor
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord forInvestment(int $investmentId)
@@ -2176,6 +2187,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord onHold()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord partiallyReleased()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord pending()
@@ -2194,6 +2206,8 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord whereReleaseStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord whereReleasedTotalAmount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord withoutTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord withoutTrashed()
  */
@@ -2303,6 +2317,20 @@ namespace App\Models{
 
 namespace App\Models{
 /**
+ * @property int $id
+ * @property int $investment_contract_document_id
+ * @property string $recipient_type
+ * @property string $recipient_email
+ * @property string|null $recipient_name
+ * @property string $subject
+ * @property string|null $template
+ * @property string $status
+ * @property string|null $response
+ * @property int $attempt_count
+ * @property \Illuminate\Support\Carbon|null $sent_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\InvestmentContractDocuments|null $investmentContractDocument
  * @property-read \App\Models\InvestmentContractDocuments|null $investmentContractDocument
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentSignatureEmailLog newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentSignatureEmailLog newQuery()

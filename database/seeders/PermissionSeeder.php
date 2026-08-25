@@ -26,6 +26,7 @@ class PermissionSeeder extends Seeder
                 $subModule = ['payout', 'payable_cheque_clearing', 'receivable_cheque_clearing'];
             } elseif ($module == 'report') {
                 $subModule = ['view'];
+                $subModule = ['payable_report'];
             } else {
                 $subModule = ['add', 'view', 'edit', 'delete'];
                 if (in_array($module, ['contract'])) {

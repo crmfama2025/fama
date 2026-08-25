@@ -82,6 +82,12 @@ class Area extends Model
     {
         return $this->hasMany(Locality::class);
     }
+
+    public function contracts()
+    {
+        return $this->hasMany(Contract::class);
+    }
+
     public function addedBy()
     {
         return $this->belongsTo(User::class, 'added_by');

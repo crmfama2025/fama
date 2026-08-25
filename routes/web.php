@@ -26,6 +26,7 @@ use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\PropertyTypeController;
 use App\Http\Controllers\ReceivablesClearingController;
 use App\Http\Controllers\ReferralController;
+use App\Http\Controllers\reports\ContractReportController;
 use App\Http\Controllers\reports\InvestmentReportController;
 use App\Http\Controllers\TenantController;
 use App\Http\Controllers\TenantregistrationController;
@@ -86,6 +87,7 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
     Route::resource('invoices', InvoiceController::class);
     Route::resource('legal_template', InvestorAgreementTemplateController::class);
     Route::resource('investmentReport', InvestmentReportController::class);
+    Route::resource('contractReport', ContractReportController::class);
 
 
 
@@ -433,6 +435,11 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
     Route::get('report/payout-report-list', [InvestmentReportController::class, 'getPayoutDatatable'])->name('investment-payout.list');
     Route::get('report/investment-report-export', [InvestmentReportController::class, 'exportInvestments'])->name('investment-report.export');
     Route::get('report/payout-report-export', [InvestmentReportController::class, 'exportPending'])->name('payout-report.export');
+
+
+    Route::get('report/payable-report', [ContractReportController::class, 'payableReport'])->name('payable-report.index');
+    Route::get('report/payable-data', [ContractReportController::class, 'payableReportData'])->name('payable-report.data');
+    Route::get('report/payable-export', [ContractReportController::class, 'payableReportExport'])->name('payable-report.export');
 });
 
 
