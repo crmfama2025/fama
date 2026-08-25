@@ -14,7 +14,7 @@ class MoveSignedAgreementPdfs extends Command
      *
      * @var string
      */
-    protected $signature = 'app:move-signed-agreement-pdfs';
+    protected $signature = 'agreements:move-signed-pdfs';
 
     /**
      * The console command description.
