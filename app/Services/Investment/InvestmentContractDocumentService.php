@@ -188,13 +188,28 @@ class InvestmentContractDocumentService
                 }
 
                 if (auth()->user()->hasAnyPermission(['investment.add'], $row->company_id) && $row->is_investor_signed == 1 && $row->is_company_signed == 1) {
-                    $action .= '<button type="button"
-                                    class="btn btn-sm btn-info m-1 send-signed-pdf-btn"
+
+                    if ($row->signed_pdf_path) {
+                        $action .= '
+                            <a
+                                href="' . e(route('agreements.viewpdf', ['contract' => $row->id])) . '"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="btn btn-sm btn-info m-1"
+                                title="View Signed PDF"
+                            >
+                                <i class="fas fa-file-pdf"></i>
+                            </a>
+                        ';
+                    } else {
+                        $action .= '<button type="button"
+                                    class="btn btn-sm btn-primary m-1 send-signed-pdf-btn"
                                     data-contract-id="' . $row->id . '"
                                     data-url="' . route('agreements.sendpdf', ['contract' => $row->id]) . '"
                                     title="Send Signed PDF">
                                 <i class="fas fa-file-export"></i>
                                 </button>';
+                    }
                 }
 
 

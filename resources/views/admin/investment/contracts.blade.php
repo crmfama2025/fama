@@ -279,7 +279,7 @@
 
 
 
-        $(document).on('click', '.send-signed-pdf-btn', function(e) {
+        /*$(document).on('click', '.send-signed-pdf-btn', function(e) {
             e.preventDefault();
 
             const btn = $(this);
@@ -305,6 +305,69 @@
                     const msg = xhr.responseJSON?.message || 'Something went wrong.';
                     toastr.error(msg);
                     // or: alert(msg);
+                }
+            });
+        }); */
+        $(document).on('click', '.send-signed-pdf-btn', async function(e) {
+            e.preventDefault();
+
+            const btn = $(this);
+            const url = btn.data('url');
+            const originalHtml = btn.html();
+
+            /*
+             * Ask for confirmation before continuing.
+             */
+            const result = await Swal.fire({
+                title: 'Send signed PDF?',
+                text: 'The signed agreement PDF will be emailed to both the investor and the company.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, send PDF',
+                cancelButtonText: 'Cancel',
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#6c757d',
+                reverseButtons: true,
+                allowOutsideClick: false,
+                allowEscapeKey: true
+            });
+
+            /*
+             * User cancelled: stop without sending.
+             */
+            if (!result.isConfirmed) {
+                return;
+            }
+
+            /*
+             * Prevent duplicate clicks while processing.
+             */
+            btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i>');
+
+            $.ajax({
+                url: url,
+
+                /*
+                 * Sending emails changes application state,
+                 * so POST is more appropriate than GET.
+                 */
+                type: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                    'Accept': 'application/json'
+                },
+                success: function(response) {
+                    btn.prop('disabled', false).html(originalHtml);
+                    toastr.success(response.message || 'Signed PDF email dispatch initiated.');
+
+
+                    $('#investmentContractsTable').DataTable().ajax.reload(null, false);
+                },
+
+                error: function(xhr) {
+                    btn.prop('disabled', false).html(originalHtml);
+                    const message = xhr.responseJSON?.message || 'Unable to send the signed PDF.';
+                    toastr.error(message);
                 }
             });
         });

@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Exports\InvestmentContractsExport;
+use App\Models\InvestmentContractDocuments;
 use App\Services\Investment\InvestmentContractDocumentService;
 use App\Services\Investment\InvestmentService;
 use Illuminate\Http\Request;
 use App\Services\CompanyService;
+use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 
 class InvestmentContractsController extends Controller
@@ -77,5 +79,39 @@ class InvestmentContractsController extends Controller
         $search = request('search') ?? null;
 
         return Excel::download(new InvestmentContractsExport($search), 'investment_contracts.xlsx');
+    }
+
+    public function viewSignedPdf(InvestmentContractDocuments $contract)
+    {
+        abort_if(
+            blank($contract->signed_pdf_path),
+            404,
+            'Signed PDF has not been generated.'
+        );
+
+        $disk = Storage::disk('public');
+        $pdfPath = $contract->signed_pdf_path;
+
+        abort_unless(
+            $disk->exists($pdfPath),
+            404,
+            'Signed PDF file was not found.'
+        );
+
+        return response()->file(
+            $disk->path($pdfPath),
+            [
+                'Content-Type' => 'application/pdf',
+
+                /*
+                * "inline" tells the browser to display the PDF
+                * instead of immediately downloading it.
+                */
+                'Content-Disposition' =>
+                'inline; filename="' .
+                    basename($pdfPath) .
+                    '"',
+            ]
+        );
     }
 }

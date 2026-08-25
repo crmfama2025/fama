@@ -419,6 +419,7 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
 
     Route::get('/sendpdf/{contract}', [InvestorAgreementTemplateController::class, 'sendPDFEmail'])
         ->name('agreements.sendpdf');
+    Route::get('/agreements/{contract}/signed-pdf', [InvestmentContractsController::class, 'viewSignedPdf'])->name('agreements.viewpdf');
 
 
 
