@@ -14,7 +14,7 @@ class MoveSignedAgreementPdfs extends Command
      *
      * @var string
      */
-    protected $signature = 'agreements:move-signed-pdfs';
+    protected $signature = 'agreements:move-signed-pdfs {--dry-run}';
 
     /**
      * The console command description.
@@ -51,7 +51,7 @@ class MoveSignedAgreementPdfs extends Command
             function ($contracts) use ($disk, $dryRun, &$moved, &$skipped, &$failed) {
                 foreach ($contracts as $contract) {
                     $oldPath = $this->normalizeStoragePath($contract->contract_file_path);
-                    dd($oldPath);
+
                     if (!$disk->exists($oldPath)) {
                         $this->warn("Contract {$contract->id}: source file missing: {$oldPath}");
                         $skipped++;
