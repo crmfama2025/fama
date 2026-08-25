@@ -204,6 +204,7 @@ class InvestorService
         $columns = [
             ['data' => 'DT_RowIndex', 'name' => 'id'],
             ['data' => 'investor_name', 'name' => 'investor_name'],
+            ['data' => 'investor_code', 'name' => 'investor_code'],
             ['data' => 'investor_mobile', 'name' => 'investor_mobile'],
             ['data' => 'investor_email', 'name' => 'investor_email'],
             ['data' => 'nationality_name', 'name' => 'nationality_name'],
@@ -219,6 +220,7 @@ class InvestorService
         return datatables()
             ->of($query)
             ->addIndexColumn()
+            ->addColumn('investor_code', fn($row) => $row->investor_code ?? '-')
             ->addColumn('investor_name', function ($row) {
                 $name = $row->investor_name ?? '-';
                 $email = $row->investor_email ?? '-';

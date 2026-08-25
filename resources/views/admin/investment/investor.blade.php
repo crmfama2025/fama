@@ -54,6 +54,7 @@
                                         <tr>
                                             <th>#</th>
                                             <th>Action</th>
+                                            <th>Investor Code</th>
                                             <th>Investor Details</th>
                                             <th>Added By</th>
 
@@ -198,6 +199,10 @@
                         name: 'action',
                         orderable: false,
                         searchable: false
+                    },
+                    {
+                        data: 'investor_code',
+                        name: 'investors.investor_code',
                     },
                     {
                         data: 'investor_name',
