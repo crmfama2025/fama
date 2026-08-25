@@ -50,21 +50,51 @@ class MoveSignedAgreementPdfs extends Command
             100,
             function ($contracts) use ($disk, $dryRun, &$moved, &$skipped, &$failed) {
                 foreach ($contracts as $contract) {
-                    $oldPath = $this->normalizeStoragePath($contract->contract_file_path);
+                    $oldDirectory = 'contracts/' . $contract->id;
 
-                    if (!$disk->exists($oldPath)) {
-                        $this->warn("Contract {$contract->id}: source file missing: {$oldPath}");
+                    $pdfFiles = collect(
+                        $disk->files($oldDirectory)
+                    )
+                        ->filter(function (string $filePath) {
+                            $fileName = basename($filePath);
+
+                            return
+                                strtolower(
+                                    pathinfo(
+                                        $fileName,
+                                        PATHINFO_EXTENSION
+                                    )
+                                ) === 'pdf' &&
+                                str_starts_with(
+                                    strtolower($fileName),
+                                    'signed-agreement-'
+                                );
+                        })
+                        ->values();
+
+                    if ($pdfFiles->isEmpty()) {
+                        $this->warn(
+                            "Contract {$contract->id}: no signed PDF found in {$oldDirectory}"
+                        );
+
                         $skipped++;
+
                         continue;
                     }
 
                     /*
-                     * Process only PDF files.
-                     */
-                    if (strtolower(pathinfo($oldPath, PATHINFO_EXTENSION)) !== 'pdf') {
-                        $this->warn("Contract {$contract->id}: source is not a PDF: {$oldPath}");
-                        $skipped++;
-                        continue;
+                    * Select only the most recently modified PDF.
+                    */
+                    $oldPath = $pdfFiles
+                        ->sortByDesc(function (string $filePath) use ($disk) {
+                            return $disk->lastModified($filePath);
+                        })
+                        ->first();
+
+                    if ($pdfFiles->count() > 1) {
+                        $this->line(
+                            "Contract {$contract->id}: {$pdfFiles->count()} PDFs found; using latest: {$oldPath}"
+                        );
                     }
 
                     $originalFileName = basename($oldPath);
