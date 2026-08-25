@@ -32,67 +32,99 @@ class GenerateAndSendSignedAgreementPdf implements ShouldQueue
         $contract = InvestmentContractDocuments::with(['investor', 'company'])
             ->findOrFail($this->contractId);
 
-        $url = route('debug.contract-html', ['contractId' => $contract->id]);
 
-        // $pdfBinary = Browsershot::url($url)
-        //     ->setNodeBinary('/usr/bin/node')
-        //     ->setNpmBinary('/usr/bin/npm')
-        //     ->format('A4')
-        //     ->showBackground()
-        //     ->margins(0, 0, 0, 0)
-        //     ->waitUntilNetworkIdle()
-        //     ->timeout(60)
-        //     ->pdf();
+        $investorName = preg_replace(
+            '/[^\p{L}\p{N}]+/u',
+            '',
+            $contract->investor->investor_name
+        );
 
-        $browsershot = Browsershot::url($url)
-            ->windowSize(1240, 1754)
-            ->deviceScaleFactor(1) // renders at 2x then downsamples - sharper text
-            ->format('A4')
-            ->showBackground()
-            ->margins(0, 0, 0, 0)
-            ->waitUntilNetworkIdle()
-            ->timeout(60)
-            ->noSandbox();
+        $companyName = preg_replace(
+            '/[^\p{L}\p{N}]+/u',
+            '',
+            $contract->company->company_name
+        );
+        $disk = Storage::disk('public');
 
-        if ($nodeBinary = config('services.browsershot.node_binary')) {
-            $browsershot->setNodeBinary($nodeBinary);
+        if (
+            filled($contract->signed_pdf_path) &&
+            $disk->exists($contract->signed_pdf_path)
+        ) {
+            $fileName = $contract->signed_pdf_path;
+            $pdfBinary = $disk->get($fileName);
+
+            if ($pdfBinary === '') {
+                throw new \RuntimeException(
+                    "Stored signed PDF is empty: {$fileName}"
+                );
+            }
+        } else {
+            $url = route('debug.contract-html', ['contractId' => $contract->id]);
+
+            // $pdfBinary = Browsershot::url($url)
+            //     ->setNodeBinary('/usr/bin/node')
+            //     ->setNpmBinary('/usr/bin/npm')
+            //     ->format('A4')
+            //     ->showBackground()
+            //     ->margins(0, 0, 0, 0)
+            //     ->waitUntilNetworkIdle()
+            //     ->timeout(60)
+            //     ->pdf();
+
+            $browsershot = Browsershot::url($url)
+                ->windowSize(1240, 1754)
+                ->deviceScaleFactor(1) // renders at 2x then downsamples - sharper text
+                ->format('A4')
+                ->showBackground()
+                ->margins(0, 0, 0, 0)
+                ->waitUntilNetworkIdle()
+                ->timeout(60)
+                ->noSandbox();
+
+            if ($nodeBinary = config('services.browsershot.node_binary')) {
+                $browsershot->setNodeBinary($nodeBinary);
+            }
+
+            if ($npmBinary = config('services.browsershot.npm_binary')) {
+                $browsershot->setNpmBinary($npmBinary);
+            }
+
+            $pdfBinary = $browsershot
+                ->waitForFunction(
+                    "document.body.dataset.pdfReady === 'true'",
+                    null,
+                    15000
+                )
+                ->pdf();
+
+            if ($pdfBinary === '') {
+                throw new \RuntimeException(
+                    "Browsershot generated an empty PDF for contract {$contract->id}."
+                );
+            }
+
+            // if we want to store the pdf in storage, uncomment the following lines
+            $fileName = 'investments/' . $contract->investment->investment_code . '/' . $investorName . '-' . $companyName . '-Signed-Agreement.pdf';
+            // $fileName = 'contracts/' . $contract->id . '/signed-agreement-' . now()->format('Ymd-His') . '.pdf';
+            // Storage::disk('public')->put($fileName, $pdfBinary);
+            $stored = $disk->put($fileName, $pdfBinary);
+
+            if (!$stored) {
+                throw new \RuntimeException(
+                    "Unable to store signed PDF: {$fileName}"
+                );
+            }
+
+            $contract->forceFill([
+                'signed_pdf_path' => $fileName,
+            ])->save();
         }
 
-        if ($npmBinary = config('services.browsershot.npm_binary')) {
-            $browsershot->setNpmBinary($npmBinary);
-        }
 
-        $pdfBinary = $browsershot
-            ->waitForFunction(
-                "document.body.dataset.pdfReady === 'true'",
-                null,
-                15000
-            )
-            ->pdf();
+        // $investorName = preg_replace('/[^A-Za-z0-9 ]/', ' ', $contract->investor->investor_name);
+        // $investorName = preg_replace('/\s+/', ' ', trim($investorName));
 
-        // if we want to store the pdf in storage, uncomment the following lines
-        $fileName = 'contracts/' . $contract->id . '/signed-agreement-' . now()->format('Ymd-His') . '.pdf';
-        Storage::disk('public')->put($fileName, $pdfBinary);
-
-        // $response = Http::withHeaders([
-        //     'api-key'      => config('services.brevo.api_key'),
-        //     'Content-Type' => 'application/json',
-        // ])->post('https://api.brevo.com/v3/smtp/email', [
-        //     'sender'      => ['name' => config('mail.from.name'), 'email' => config('mail.from.address')],
-        //     'to'          => [['email' => 'rahmathrasmiya@gmail.com', 'name' => $contract->investor->investor_name]],
-        //     'subject'     => 'Your Signed Investment Agreement',
-        //     'htmlContent' => view('admin.emails.signed-agreement-email', [
-        //         'name' => $contract->investor->investor_name,
-        //     ])->render(),
-        //     'attachment'  => [
-        //         ['content' => base64_encode($pdfBinary), 'name' => 'Signed-Agreement.pdf'],
-        //     ],
-        // ]);
-
-        $investorName = preg_replace('/[^A-Za-z0-9 ]/', ' ', $contract->investor->investor_name);
-        $investorName = preg_replace('/\s+/', ' ', trim($investorName));
-
-        $companyname = preg_replace('/[^A-Za-z0-9 ]/', ' ', $contract->company->company_name);
+        // $companyname = preg_replace('/[^A-Za-z0-9 ]/', ' ', $contract->company->company_name);
 
         // --- send to investor ---
         $this->sendAndLog(
@@ -103,7 +135,7 @@ class GenerateAndSendSignedAgreementPdf implements ShouldQueue
             $contract->investor->investor_email,
             $pdfBinary,
             $investorName,
-            $companyname
+            $companyName
         );
 
         // --- send to company ---
@@ -115,7 +147,7 @@ class GenerateAndSendSignedAgreementPdf implements ShouldQueue
             $contract->company->owner_email,
             $pdfBinary,
             $investorName,
-            $companyname
+            $companyName
         );
 
         // dd($response->successful());
@@ -127,9 +159,9 @@ class GenerateAndSendSignedAgreementPdf implements ShouldQueue
         //     ]);
         // }
 
-        // $contract->signed_pdf_path = $fileName;
-        // $contract->investor_notified_at = now();
-        // $contract->save();
+        $contract->forceFill([
+            'both_notified_at' => now(),
+        ])->save();
     }
 
     /**

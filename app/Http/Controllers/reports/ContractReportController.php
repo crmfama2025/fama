@@ -21,6 +21,7 @@ class ContractReportController extends Controller
         protected ContractReportService $ContractReportService
     ) {}
 
+    // payable report
     public function payableReport(Request $request)
     {
         $title = 'Payable Report';
@@ -49,16 +50,16 @@ class ContractReportController extends Controller
         abort_unless($request->ajax(), 404);
 
         return $this->ContractReportService->getPayableDataTable(
-            $this->filters($request)
+            $this->Payablefilters($request)
         );
     }
 
     public function payableReportExport(Request $request)
     {
-        return $this->ContractReportService->export($this->filters($request));
+        return $this->ContractReportService->export($this->Payablefilters($request));
     }
 
-    private function filters(Request $request): array
+    private function Payablefilters(Request $request): array
     {
         return [
             'company_id' => $request->company_id,
@@ -68,4 +69,5 @@ class ContractReportController extends Controller
             'search' => $request->keyword,
         ];
     }
+    // payable report
 }
