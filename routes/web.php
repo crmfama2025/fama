@@ -28,6 +28,7 @@ use App\Http\Controllers\ReceivablesClearingController;
 use App\Http\Controllers\ReferralController;
 use App\Http\Controllers\reports\ContractReportController;
 use App\Http\Controllers\reports\InvestmentReportController;
+use App\Http\Controllers\reports\ReceivableReportController;
 use App\Http\Controllers\TenantController;
 use App\Http\Controllers\TenantregistrationController;
 use App\Http\Controllers\UserController;
@@ -441,6 +442,10 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
     Route::get('report/payable-report', [ContractReportController::class, 'payableReport'])->name('payable-report.index');
     Route::get('report/payable-data', [ContractReportController::class, 'payableReportData'])->name('payable-report.data');
     Route::get('report/payable-export', [ContractReportController::class, 'payableReportExport'])->name('payable-report.export');
+    //Receivable Report
+    Route::get('report/receivable-report', [ReceivableReportController::class, 'index'])->name('receivable-report.index');
+    Route::get('report/receivable-report-list', [ReceivableReportController::class, 'getReceivables'])->name('receivable-report.list');
+    Route::get('report/receivable-report-export', [ReceivableReportController::class, 'exportReceivables'])->name('receivable-report.export');
 });
 
 

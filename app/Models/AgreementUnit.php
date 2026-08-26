@@ -64,4 +64,9 @@ class AgreementUnit extends Model
     {
         return $this->hasMany(AgreementSubunitRentBifurcation::class, 'agreement_unit_id', 'id');
     }
+    public function paymentDetails()
+    {
+        return $this->hasMany(AgreementPaymentDetail::class, 'agreement_unit_id')
+            ->orderBy('payment_date');
+    }
 }
