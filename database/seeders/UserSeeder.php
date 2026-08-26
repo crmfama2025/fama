@@ -28,7 +28,7 @@ class UserSeeder extends Seeder
         }
 
         $user_id = User::updateOrCreate(
-            ['email' => 'superadmin@demo.com'],
+            ['email' => 'crmfama2025@demo.com'],
             [
                 'user_code' => 'USR0001',
                 'first_name' => 'Super',
