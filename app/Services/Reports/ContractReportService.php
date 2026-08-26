@@ -4,6 +4,7 @@ namespace App\Services\Reports;
 
 use App\Repositories\Reports\ContractReportRepository;
 use Carbon\Carbon;
+use RuntimeException;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ContractReportService
@@ -12,6 +13,7 @@ class ContractReportService
         protected ContractReportRepository $contractReportRepository,
     ) {}
 
+    // payable report
     public function getPayableDataTable(array $filters)
     {
         $query = $this->contractReportRepository->getPayablesReport($filters);
@@ -224,4 +226,208 @@ class ContractReportService
             'Content-Type' => 'text/csv; charset=UTF-8',
         ]);
     }
+    // payable report
+
+
+    // inventory report
+    public function getInventoryDataTable(array $filters)
+    {
+        $query = $this->contractReportRepository
+            ->getInventoryReport($filters);
+
+        return datatables()
+            ->query($query)
+            ->filter(function ($query) {
+                // Searching is handled by the repository.
+            })
+            ->addIndexColumn()
+            ->editColumn(
+                'project_number',
+                fn($row) => 'P-' . $row->project_number
+            )
+            ->editColumn(
+                'contract_start_date',
+                fn($row) => filled($row->contract_start_date)
+                    ? dateFormatChange($row->contract_start_date, 'd/m/Y')
+                    : ''
+            )
+            ->editColumn(
+                'contract_end_date',
+                fn($row) => filled($row->contract_end_date)
+                    ? dateFormatChange($row->contract_end_date, 'd/m/Y')
+                    : ''
+            )
+            ->editColumn(
+                'maid_room',
+                fn($row) => $row->maid_room ? 'Yes' : 'No'
+            )
+            ->editColumn(
+                'unit_rent_per_annum',
+                fn($row) => number_format(
+                    (float) $row->unit_rent_per_annum,
+                    2
+                )
+            )
+            ->editColumn(
+                'unit_rent_per_month',
+                fn($row) => number_format(
+                    (float) $row->unit_rent_per_month,
+                    2
+                )
+            )
+            ->editColumn(
+                'rent_per_partition_bedspace_room',
+                fn($row) => $row->rent_per_partition_bedspace_room
+            )
+            ->editColumn(
+                'rent_per_flat',
+                fn($row) => number_format(
+                    (float) $row->rent_per_flat,
+                    2
+                )
+            )
+            ->editColumn(
+                'unit_profit_percentage',
+                fn($row) => number_format(
+                    (float) $row->unit_profit_percentage,
+                    2
+                ) . '%'
+            )
+            ->editColumn(
+                'unit_profit',
+                fn($row) => number_format(
+                    (float) $row->unit_profit,
+                    2
+                )
+            )
+            ->editColumn(
+                'unit_revenue',
+                fn($row) => number_format(
+                    (float) $row->unit_revenue,
+                    2
+                )
+            )
+            ->toJson();
+    }
+
+    public function exportInventory(array $filters = []): StreamedResponse
+    {
+        $filename = 'contract-inventory-'
+            . now()->format('Y-m-d-His')
+            . '.csv';
+
+        return response()->streamDownload(
+            function () use ($filters) {
+                set_time_limit(0);
+
+                $output = fopen('php://output', 'wb');
+
+                if ($output === false) {
+                    throw new RuntimeException(
+                        'Unable to open the CSV output stream.'
+                    );
+                }
+
+                fwrite($output, "\xEF\xBB\xBF");
+
+                fputcsv($output, [
+                    'Project Number',
+                    'Project Code',
+                    'Renewal Status',
+                    'Company',
+                    'Vendor',
+                    'Property',
+                    'Area',
+                    'Locality',
+                    'Contract Start',
+                    'Contract End',
+                    'Unit Number',
+                    'Unit Type',
+                    'Maid Room',
+                    'Property Type',
+                    'Floor Number',
+                    'Unit Status',
+                    'Unit Rent Per Annum',
+                    'Unit Rent Per Month',
+                    'Partition / Bedspace / Room',
+                    'No. of Partition / Bedspace / Room',
+                    'Rent per Partition / Bedspace / Room',
+                    'Rent per Flat',
+                    'Unit Profit %',
+                    'Unit Profit',
+                    'Unit Revenue',
+                ]);
+
+                $rows = $this->contractReportRepository
+                    ->getInventoryReport($filters)
+                    ->reorder()
+                    ->lazyById(
+                        1000,
+                        'cu.id',
+                        'contract_unit_detail_id'
+                    );
+
+                foreach ($rows as $row) {
+                    fputcsv($output, [
+                        'P-' . $row->project_number,
+                        $row->project_code,
+                        $row->renewal_status,
+                        $row->company_name,
+                        $row->vendor_name,
+                        $row->property_name,
+                        $row->area_name,
+                        $row->locality_name,
+
+                        filled($row->contract_start_date)
+                            ? dateFormatChange(
+                                $row->contract_start_date,
+                                'd/m/Y'
+                            )
+                            : '',
+
+                        filled($row->contract_end_date)
+                            ? dateFormatChange(
+                                $row->contract_end_date,
+                                'd/m/Y'
+                            )
+                            : '',
+
+                        $row->unit_number,
+                        $row->unit_type,
+                        $row->maid_room ? 'Yes' : 'No',
+                        $row->property_type,
+                        $row->floor_number,
+                        $row->unit_status,
+                        $row->unit_rent_per_annum,
+                        $row->unit_rent_per_month,
+                        $row->partition_bedspace_room,
+                        $row->no_of_partition_bedspace_room,
+                        $row->rent_per_partition_bedspace_room,
+                        $row->rent_per_flat,
+                        $row->unit_profit_percentage,
+                        $row->unit_profit,
+                        $row->unit_revenue,
+                    ]);
+
+                    /*
+                 * Send data periodically instead of retaining the output
+                 * in PHP/server buffers.
+                 */
+                    if (($row->contract_unit_detail_id % 500) === 0) {
+                        fflush($output);
+                        flush();
+                    }
+                }
+
+                fclose($output);
+            },
+            $filename,
+            [
+                'Content-Type' => 'text/csv; charset=UTF-8',
+                'Cache-Control' => 'no-store, no-cache',
+                'X-Accel-Buffering' => 'no',
+            ]
+        );
+    }
+    // inventory report
 }
