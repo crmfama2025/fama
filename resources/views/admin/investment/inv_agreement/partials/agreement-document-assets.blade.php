@@ -65,7 +65,7 @@
         --agreement-first-top: 34mm;
         --agreement-next-top: 35mm;
         --agreement-side-padding: 16mm;
-        --agreement-bottom-padding: 58mm;
+        --agreement-bottom-padding: 45mm; //58
         --agreement-font-size: 12px;
         --agreement-line-height: 15px;
         --agreement-signature-width: 60mm;
@@ -263,7 +263,7 @@
         padding-top: 15px;
     }
 
-    #file-print-area .customsign,
+    /* #file-print-area .customsign,
     #pdf-pages-container .customsign {
         margin-bottom: 120px !important;
     }
@@ -271,6 +271,13 @@
     #file-print-area .customsignInvestor,
     #pdf-pages-container .customsignInvestor {
         margin-bottom: 100px !important;
+    } */
+
+    #file-print-area .customsign,
+    #pdf-pages-container .customsign,
+    #file-print-area .customsignInvestor,
+    #pdf-pages-container .customsignInvestor {
+        margin-bottom: 14mm !important;
     }
 
     #file-print-area .text-medium,
@@ -513,7 +520,7 @@
         var PAGE_H_MM = 297;
         var PAD_TOP_P1_MM = 34;
         var PAD_TOP_PN_MM = 35;
-        var PAD_BOT_MM = 58;
+        var PAD_BOT_MM = 45; //58
 
         function config() {
             return window.AgreementDocumentConfig || {};

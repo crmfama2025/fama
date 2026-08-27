@@ -129,4 +129,57 @@ class ContractReportController extends Controller
         ];
     }
     // inventory report
+
+
+    // Occupancy report
+    public function occupancyReport(Request $request)
+    {
+        $title = 'Occupancy Report';
+        $companies = $this->companyService->getAll('finance', 'payable_cheque_clearing');
+        $vendors = getVendorsHaveContract();
+        $properties = getPropertiesHaveContract();
+        $areas = getAreasHaveContract();
+        $localities = getLocalitiesHaveContract();
+
+        return view('admin.reports.contract.occupancy_report', compact(
+            'title',
+            'companies',
+            'vendors',
+            'properties',
+            'areas',
+            'localities'
+        ));
+    }
+
+    public function occupancyReportData(Request $request)
+    {
+        abort_unless($request->ajax(), 404);
+
+        return $this->ContractReportService->getOccupancyDataTable(
+            $this->occupancyFilters($request)
+        );
+    }
+
+    public function occupancyReportExport(Request $request)
+    {
+        return $this->ContractReportService->exportOccupancy(
+            $this->occupancyFilters($request)
+        );
+    }
+
+    private function occupancyFilters(Request $request): array
+    {
+        return $request->only([
+            'company_id',
+            'vendor_id',
+            'property_id',
+            'area_id',
+            'locality_id',
+            'occupancy_status',
+            'subunit_type',
+            'date_from',
+            'date_to',
+        ]) + ['search' => $request->keyword];
+    }
+    // Occupancy report
 }

@@ -430,4 +430,124 @@ class ContractReportService
         );
     }
     // inventory report
+
+
+    // Occupancy report
+    public function getOccupancyDataTable(array $filters)
+    {
+        return datatables()
+            ->query($this->contractReportRepository->getOccupancyReport($filters))
+            ->filter(function ($query) {})
+            ->addIndexColumn()
+            ->editColumn('project_number', fn($row) => 'P-' . $row->project_number)
+            ->editColumn('contract_start_date', fn($row) => filled($row->contract_start_date)
+                ? dateFormatChange($row->contract_start_date, 'd/m/Y') : '')
+            ->editColumn('contract_end_date', fn($row) => filled($row->contract_end_date)
+                ? dateFormatChange($row->contract_end_date, 'd/m/Y') : '')
+            ->editColumn('maid_room', fn($row) => $row->maid_room ? 'Yes' : 'No')
+            ->editColumn('is_sales_agreement_added', fn($row) => $row->is_sales_agreement_added ? 'Yes' : 'No')
+            ->editColumn('unit_rent_per_annum', fn($row) => number_format((float) $row->unit_rent_per_annum, 2))
+            ->editColumn('unit_rent_per_month', fn($row) => number_format((float) $row->unit_rent_per_month, 2))
+            ->editColumn('rent_per_flat', fn($row) => number_format((float) $row->rent_per_flat, 2))
+            ->editColumn('unit_profit_percentage', fn($row) => number_format((float) $row->unit_profit_percentage, 2) . '%')
+            ->editColumn('unit_profit', fn($row) => number_format((float) $row->unit_profit, 2))
+            ->editColumn('unit_revenue', fn($row) => number_format((float) $row->unit_revenue, 2))
+            ->toJson();
+    }
+
+    public function exportOccupancy(array $filters = []): StreamedResponse
+    {
+        $filename = 'occupancy-report-' . now()->format('Y-m-d-His') . '.csv';
+        $headings = [
+            'Project Number',
+            'Unit Number',
+            'Unit Type',
+            'Subunit Number',
+            'Subunit Code',
+            'Subunit Type',
+            'Occupancy Status',
+            'Maid Room',
+            'Property Type',
+            'Floor Number',
+            'Unit Status',
+            'Unit Rent Per Annum',
+            'Unit Rent Per Month',
+            'Rent Per Flat',
+            'Unit Profit %',
+            'Unit Profit',
+            'Unit Revenue',
+            'Project Code',
+            'Company',
+            'Vendor',
+            'Property Code',
+            'Property',
+            'Area',
+            'Locality',
+            'Contract Start',
+            'Contract End'
+        ];
+
+        return response()->streamDownload(function () use ($filters, $headings) {
+            set_time_limit(0);
+            $output = fopen('php://output', 'wb');
+            if ($output === false) {
+                throw new RuntimeException('Unable to open CSV output stream.');
+            }
+            try {
+                fwrite($output, "\xEF\xBB\xBF");
+                fputcsv($output, $headings);
+                $rows = $this->contractReportRepository
+                    ->getOccupancyReport($filters)
+                    ->reorder('su.id')
+                    ->cursor();
+
+                $processed = 0;
+
+                foreach ($rows as $row) {
+                    fputcsv($output, [
+                        'P-' . $row->project_number,
+                        $row->unit_number,
+                        $row->unit_type,
+                        $row->subunit_no,
+                        $row->subunit_code,
+                        $row->subunit_type_name,
+                        $row->occupancy_status,
+                        $row->maid_room ? 'Yes' : 'No',
+                        $row->property_type,
+                        $row->floor_number,
+                        $row->unit_status,
+                        $row->unit_rent_per_annum,
+                        $row->unit_rent_per_month,
+                        $row->rent_per_flat,
+                        $row->unit_profit_percentage,
+                        $row->unit_profit,
+                        $row->unit_revenue,
+                        $row->project_code,
+                        $row->company_name,
+                        $row->vendor_name,
+                        $row->property_code,
+                        $row->property_name,
+                        $row->area_name,
+                        $row->locality_name,
+                        filled($row->contract_start_date)
+                            ? dateFormatChange($row->contract_start_date, 'd/m/Y') : '',
+                        filled($row->contract_end_date)
+                            ? dateFormatChange($row->contract_end_date, 'd/m/Y') : '',
+                    ]);
+
+                    if (++$processed % 500 === 0) {
+                        fflush($output);
+                        flush();
+                    }
+                }
+            } finally {
+                fclose($output);
+            }
+        }, $filename, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Cache-Control' => 'no-store, no-cache',
+            'X-Accel-Buffering' => 'no'
+        ]);
+    }
+    // Occupancy report
 }

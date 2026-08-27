@@ -532,6 +532,15 @@
                                             </a>
                                         </li>
                                     @endif
+                                    @if (hasPermission(auth()->id(), ['report', 'report.occupancy_report'], $companyId = null))
+                                        <li class="nav-item ">
+                                            <a href="{{ route('occupancy-report') }}"
+                                                class="nav-link {{ request()->is('report/occupancy*') ? 'active' : '' }}">
+                                                <i class="far fa-circle nav-icon"></i>
+                                                <p>Occupancy Report</p>
+                                            </a>
+                                        </li>
+                                    @endif
 
                                     @if (hasPermission(auth()->id(), ['investor'], $companyId = null))
                                         <li class="nav-item ">

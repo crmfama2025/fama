@@ -446,6 +446,11 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
     Route::get('reports/contracts/inventory', [ContractReportController::class, 'inventoryReport'])->name('inventory-report.index');
     Route::get('reports/contracts/inventory/data', [ContractReportController::class, 'inventoryReportData'])->name('inventory-report.data');
     Route::get('reports/contracts/inventory/export', [ContractReportController::class, 'inventoryReportExport'])->name('inventory-report.export');
+
+    // occupancy report
+    Route::get('/reports/contracts/occupancy', [ContractReportController::class, 'occupancyReport'])->name('occupancy-report');
+    Route::get('/reports/contracts/occupancy/data', [ContractReportController::class, 'occupancyReportData'])->name('occupancy-report.data');
+    Route::get('/reports/contracts/occupancy/export', [ContractReportController::class, 'occupancyReportExport'])->name('occupancy-report.export');
 });
 
 
