@@ -167,7 +167,7 @@
             const table = $('#occupancyTable').DataTable({
                 processing: true,
                 serverSide: true,
-                responsive: false,
+                responsive: true,
                 scrollX: true,
                 pageLength: 25,
                 lengthMenu: [25, 50, 100, 250],
