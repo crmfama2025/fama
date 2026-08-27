@@ -95,6 +95,14 @@
                                                     @endforeach
                                                 </select>
                                             </div>
+                                            <!-- Project Number -->
+                                            <div class="form-group col-lg-3 col-md-4">
+                                                <label for="projectSelect">Project Number</label>
+                                                <select class="form-control select2" id="projectSelect" name="contract_id">
+                                                    <option value="">Select Project Number</option>
+                                                </select>
+                                            </div>
+
 
                                             <!-- Property -->
                                             <div class="form-group col-lg-3 col-md-4">
@@ -135,7 +143,7 @@
                                                 <label for="unitSelect">Payment Mode</label>
                                                 <select class="form-control select2" id="modeSelect" name="mode_id">
                                                     <option value="">Select PaymentMode</option>
-                                                    @foreach ($agpaymentmodes as $mode)
+                                                    @foreach ($payment_modes as $mode)
                                                         <option value="{{ $mode->id }}">
                                                             {{ $mode->payment_mode_name }}
                                                         </option>
@@ -229,7 +237,7 @@
                                     <div class="card-body">
 
                                         <!-- Company Filter Buttons -->
-                                        <div class="card card-info mb-3">
+                                        {{-- <div class="card card-info mb-3">
                                             <div class="card-body text-center">
                                                 <div class="btn-group btn-group-toggle" data-toggle="buttons">
                                                     <label class="btn btn-outline-info active">
@@ -246,7 +254,7 @@
                                                     @endforeach
                                                 </div>
                                             </div>
-                                        </div>
+                                        </div> --}}
 
                                         <!-- Table -->
                                         <div class="card">
@@ -267,8 +275,8 @@
                                                             <th>Due Date</th>
                                                             <th>Payment Mode</th>
                                                             <th>Amount</th>
-                                                            <th>Installment Number</th>
-                                                            <th>Total Installments</th>
+                                                            <th>Composition</th>
+                                                            {{-- <th>Total Installments</th> --}}
                                                             <th>Paid Amount</th>
                                                             <th>Pending Amount</th>
                                                             <th>Paid Date</th>
@@ -276,8 +284,11 @@
                                                             <th>Paid Bank</th>
                                                             <th>Paid Cheque Number</th>
                                                             <th>Paid Company Name</th>
-
+                                                            <th>Has Bounced</th>
+                                                            <th>Bounced Reason</th>
+                                                            <th>Bounced Date</th>
                                                             <th>Status</th>
+                                                            <th>Terminate Status</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
@@ -419,11 +430,11 @@
                 ajax: {
                     url: "{{ route('receivable-report.list') }}",
                     data: function(d) {
-                        let companyId = $('.companyFilter:checked').val() || 'all';
-                        if (companyId === 'all') {
-                            companyId = null;
-                        }
-                        d.company_id = companyId;
+                        // let companyId = $('.companyFilter:checked').val() || 'all';
+                        // if (companyId === 'all') {
+                        //     companyId = null;
+                        // }
+                        d.company_id = $('#companySelect').val() || null;
                         d.date_from = $('#dateFrom input').val();
                         d.date_to = $('#dateTo input').val();
                         d.property_id = $('#propertySelect').val();
@@ -433,6 +444,7 @@
                         // Paid Date
                         d.paid_date_from = $('#paiddateFrom input').val();
                         d.paid_date_to = $('#paiddateTo input').val();
+                        d.contract_id = $('#projectSelect').val() || null;
 
                         // Payment Status
                         d.is_payment_received =
@@ -450,7 +462,7 @@
                 },
                 columns: [{
                         data: 'DT_RowIndex',
-                        name: 'agreement_payment_details.id',
+                        name: 'apd.id',
                         orderable: true,
                         searchable: false
                     },
@@ -504,18 +516,29 @@
                         data: 'payment_mode_name',
                         name: 'paymentMode.payment_mode_name',
                     },
+                    // {
+                    //     data: 'payment_amount',
+                    //     name: 'agreement_payment_details.payment_amount',
+                    // },
+                    // {
+                    //     data: 'installment',
+                    //     name: 'installment',
+                    // },
+
+                    // {
+                    //     data: 'installment_name',
+                    //     name: 'agreementPayment.installment.installment_name',
+                    // },
                     {
-                        data: 'payment_amount',
-                        name: 'agreement_payment_details.payment_amount',
-                    },
-                    {
-                        data: 'installment',
-                        name: 'installment',
+                        data: 'composition',
+                        name: 'composition.installment_position',
+                        orderable: true,
+                        searchable: false
                     },
 
                     {
                         data: 'installment_name',
-                        name: 'agreementPayment.installment.installment_name',
+                        name: 'installment.installment_name',
                     },
                     {
                         data: 'paid_amount',
@@ -576,6 +599,71 @@
                         orderable: true,
                         searchable: true
                     },
+                    {
+                        data: 'has_bounced',
+                        name: 'has_bounced',
+                        render: function(data, type, row) {
+                            if (data == 1) {
+                                return '<span class="badge bg-danger">Bounced</span>';
+                            }
+
+                            if (data == 0) {
+                                return '<span class="badge bg-success">Not Bounced</span>';
+                            }
+
+                            return '<span class="badge bg-secondary">-</span>';
+                        },
+                        orderable: true,
+                        searchable: true
+                    },
+                    {
+                        data: 'bounced_date',
+                        name: 'bounced_date',
+                        defaultContent: '-',
+                        render: function(data, type, row) {
+                            if (row.has_bounced != 1 || !data) {
+                                return '-';
+                            }
+
+                            return data;
+                        },
+                        orderable: true,
+                        searchable: false
+                    },
+                    {
+                        data: 'bounced_reason',
+                        name: 'bounced_reason',
+                        defaultContent: '-',
+                        render: function(data, type, row) {
+                            if (row.has_bounced != 1 || !data) {
+                                return '-';
+                            }
+
+                            return data;
+                        },
+                        orderable: true,
+                        searchable: true
+                    },
+                    {
+                        data: 'terminate_status',
+                        name: 'apd.terminate_status',
+                        render: function(data, type, row) {
+
+                            if (data == 1) {
+                                return '<span class="badge bg-danger">Terminated</span>';
+                            }
+
+                            if (data == 0) {
+                                return '<span class="badge bg-success">Not Terminated</span>';
+                            }
+
+                            return '<span class="badge bg-secondary">-</span>';
+                        },
+                        orderable: true,
+                        searchable: true
+                    }
+
+
 
 
 
@@ -642,7 +730,8 @@
                             paid_company_id: $('#paidCompanySelect').val() || '',
 
                             // Invoice Status
-                            is_invoice_added: $('#invoiceSelect').val() || ''
+                            is_invoice_added: $('#invoiceSelect').val() || '',
+                            contract_id: $('#projectSelect').val() || null
                         };
 
                         console.log('Receivables Export Filters:', params);
@@ -664,6 +753,7 @@
         let units = @json($units);
         // let tenants = @json($tenants);
         let agreements = @json($agreements);
+        let contracts = @json($contracts);
         // let banks = @json($banks);
         // console.log('units', units)
         console.log(agreements);
@@ -732,20 +822,86 @@
             table.ajax.reload();
         });
         $(document).on('click', '.reset', function() {
-            $('.fileterform').trigger('reset');
 
-            $('#propertySelect').val(null).trigger('change');
-            $('#unitSelect').val(null).trigger('change');
-            $('#modeSelect').val(null).trigger('change');
+            // Clear Company
+            $('#companySelect')
+                .val('')
+                .trigger('change');
 
+            // Clear Property
+            $('#propertySelect')
+                .val('')
+                .trigger('change');
+
+            // Clear Unit
+            $('#unitSelect')
+                .empty()
+                .append('<option value="">Select Unit</option>')
+                .val('')
+                .trigger('change');
+
+            // Clear Tenant
+            $('#tenantSelect')
+                .empty()
+                .append('<option value="">Select Tenant</option>')
+                .val('')
+                .trigger('change');
+
+            // Clear Payment Mode
+            $('#modeSelect')
+                .val('')
+                .trigger('change');
+
+            // Clear Payment Status
+            $('#paymentStatusSelect')
+                .val('')
+                .trigger('change');
+
+            // Clear Paid Company
+            $('#paidCompanySelect')
+                .val('')
+                .trigger('change');
+
+            // Clear Invoice Status
+            $('#invoiceSelect')
+                .val('')
+                .trigger('change');
+
+            // Clear dates
             $('#dateFrom input').val('');
             $('#dateTo input').val('');
-            $('#tenantSelect').val(null).trigger('change');
-            showLoader();
+            $('#paiddateFrom input').val('');
+            $('#paiddateTo input').val('');
 
-            setTimeout(() => {
-                window.location.reload();
-            }, 1000);
+            // Reload DataTable
+            table.ajax.reload(null, true);
+        });
+        $(document).on('change', '#companySelect', function() {
+
+            let companyId = $(this).val();
+            let projectSelect = $('#projectSelect');
+
+            projectSelect.empty();
+            projectSelect.append(
+                '<option value="">Select Project Number</option>'
+            );
+
+            if (!companyId) {
+                return;
+            }
+
+            contracts
+                .filter(contract => contract.company_id == companyId)
+                .forEach(contract => {
+
+                    projectSelect.append(
+                        `<option value="${contract.id}">
+                    ${contract.project_number}
+                </option>`
+                    );
+                });
+
+            projectSelect.trigger('change');
         });
     </script>
 @endsection
