@@ -561,13 +561,13 @@
                                         </li>
                                     @endif
 
-                                    {{-- <li class="nav-item ">
+                                    <li class="nav-item ">
                                         <a href="{{ route('receivable-report.index') }}"
                                             class="nav-link {{ request()->is('report/receivable-report*') ? 'active' : '' }}">
                                             <i class="far fa-circle nav-icon"></i>
                                             <p>Receivable Report</p>
                                         </a>
-                                    </li> --}}
+                                    </li>
 
 
 

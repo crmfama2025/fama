@@ -99,4 +99,13 @@ class AgreementPaymentDetail extends Model
     {
         return $this->hasMany(ClearedReceivable::class, 'agreement_payment_details_id', 'id');
     }
+
+    public function latestClearedReceivable()
+    {
+        return $this->hasOne(
+            ClearedReceivable::class,
+            'agreement_payment_details_id',
+            'id'
+        )->latestOfMany();
+    }
 }
