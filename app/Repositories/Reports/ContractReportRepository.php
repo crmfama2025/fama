@@ -499,4 +499,129 @@ class ContractReportRepository
         return $query;
     }
     // inventory report
+
+
+
+
+    // Occupancy report
+    public function getOccupancyReport(array $filters = []): Builder
+    {
+        $permittedCompanyIds = getUserPermittedCompanyIds(
+            auth()->id(),
+            'finance.payable_cheque_clearing'
+        );
+
+        $occupancyStatusSql = "CASE WHEN su.is_vacant = 1 THEN 'Vacant' ELSE 'Occupied' END";
+        $subunitTypeSql = "CASE su.subunit_type
+                                WHEN 1 THEN 'Partition'
+                                WHEN 2 THEN 'Bedspace'
+                                WHEN 3 THEN 'Room'
+                                WHEN 4 THEN 'Full Flat'
+                                ELSE 'Unknown'
+                            END";
+
+        $query = DB::table('contract_subunit_details as su')
+            ->join('contract_unit_details as cu', 'cu.id', '=', 'su.contract_unit_detail_id')
+            ->join('contracts as c', 'c.id', '=', 'su.contract_id')
+            ->join('contract_details as cd', 'cd.contract_id', '=', 'c.id')
+            ->join('companies as co', 'co.id', '=', 'c.company_id')
+            ->leftJoin('vendors as v', 'v.id', '=', 'c.vendor_id')
+            ->leftJoin('properties as p', 'p.id', '=', 'c.property_id')
+            ->leftJoin('areas as a', 'a.id', '=', 'c.area_id')
+            ->leftJoin('localities as l', 'l.id', '=', 'c.locality_id')
+            ->leftJoin('unit_types as ut', 'ut.id', '=', 'cu.unit_type_id')
+            ->leftJoin('property_types as pt', 'pt.id', '=', 'cu.property_type_id')
+            ->leftJoin('unit_statuses as us', 'us.id', '=', 'cu.unit_status_id')
+            ->select([
+                'su.id as subunit_id',
+                'su.contract_id',
+                'su.contract_unit_id',
+                'su.contract_unit_detail_id',
+                'c.project_number',
+                'c.project_code',
+                'co.company_name',
+                'v.vendor_name',
+                'p.property_code',
+                'p.property_name',
+                'a.area_name',
+                'l.locality_name',
+                'cd.start_date as contract_start_date',
+                'cd.end_date as contract_end_date',
+                'cu.unit_number',
+                'ut.unit_type',
+                'cu.maid_room',
+                'pt.property_type',
+                'cu.floor_no as floor_number',
+                'us.unit_status',
+                'cu.unit_rent_per_annum',
+                'cu.rent_per_unit_per_month as unit_rent_per_month',
+                'cu.rent_per_flat',
+                'cu.unit_profit_perc as unit_profit_percentage',
+                'cu.unit_profit',
+                'cu.unit_revenue',
+                'su.subunit_no',
+                'su.subunit_code',
+                'su.subunit_type',
+                DB::raw("{$subunitTypeSql} AS subunit_type_name"),
+                'su.is_vacant',
+                DB::raw("{$occupancyStatusSql} AS occupancy_status"),
+                'su.is_sales_agreement_added',
+                'su.added_by',
+                'su.updated_by',
+                'su.deleted_by',
+                'su.created_at as subunit_created_at',
+                'su.updated_at as subunit_updated_at',
+            ])
+            ->whereIn('c.company_id', $permittedCompanyIds)
+            ->whereNull('cu.deleted_at')
+            ->whereNull('su.deleted_at')
+            ->orderByDesc('c.project_number')
+            ->orderBy('cu.unit_number')
+            ->orderBy('su.subunit_no');
+
+        foreach (
+            [
+                'company_id' => 'c.company_id',
+                'vendor_id' => 'c.vendor_id',
+                'property_id' => 'c.property_id',
+                'area_id' => 'c.area_id',
+                'locality_id' => 'c.locality_id',
+                'subunit_type' => 'su.subunit_type'
+            ] as $filter => $column
+        ) {
+            if (isset($filters[$filter]) && $filters[$filter] !== '') {
+                $query->where($column, $filters[$filter]);
+            }
+        }
+
+        if (isset($filters['occupancy_status']) && $filters['occupancy_status'] !== '') {
+            $query->where('su.is_vacant', $filters['occupancy_status'] === 'vacant' ? 1 : 0);
+        }
+        if (!empty($filters['date_from'])) {
+            $query->whereDate('cd.end_date', '>=', $filters['date_from']);
+        }
+        if (!empty($filters['date_to'])) {
+            $query->whereDate('cd.start_date', '<=', $filters['date_to']);
+        }
+        if (!empty($filters['search'])) {
+            $search = '%' . mb_strtolower(trim($filters['search'])) . '%';
+            $query->where(function (Builder $query) use ($search, $occupancyStatusSql, $subunitTypeSql) {
+                $query->whereRaw("LOWER(CONCAT('P-', c.project_number)) LIKE ?", [$search])
+                    ->orWhereRaw('LOWER(c.project_code) LIKE ?', [$search])
+                    ->orWhereRaw('LOWER(co.company_name) LIKE ?', [$search])
+                    ->orWhereRaw('LOWER(v.vendor_name) LIKE ?', [$search])
+                    ->orWhereRaw('LOWER(p.property_name) LIKE ?', [$search])
+                    ->orWhereRaw('LOWER(a.area_name) LIKE ?', [$search])
+                    ->orWhereRaw('LOWER(l.locality_name) LIKE ?', [$search])
+                    ->orWhereRaw('LOWER(cu.unit_number) LIKE ?', [$search])
+                    ->orWhereRaw('LOWER(su.subunit_no) LIKE ?', [$search])
+                    ->orWhereRaw('LOWER(su.subunit_code) LIKE ?', [$search])
+                    ->orWhereRaw("LOWER({$subunitTypeSql}) LIKE ?", [$search])
+                    ->orWhereRaw("LOWER({$occupancyStatusSql}) LIKE ?", [$search]);
+            });
+        }
+
+        return $query;
+    }
+    // Occupancy report
 }
