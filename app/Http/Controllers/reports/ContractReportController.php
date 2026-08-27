@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\reports;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\GenerateInventoryExport;
 use App\Models\ContractType;
 use App\Models\Vendor;
 use App\Services\CompanyService;
@@ -70,4 +71,62 @@ class ContractReportController extends Controller
         ];
     }
     // payable report
+
+
+
+
+    // inventory report
+    public function inventoryReport(Request $request)
+    {
+        $title = 'Inventory Report';
+
+        $companies  = $this->companyService
+            ->getAll('finance', 'payable_cheque_clearing');
+
+        $vendors    = getVendorsHaveContract();
+        $properties = getPropertiesHaveContract();
+        $areas      = getAreasHaveContract();
+        $localities = getLocalitiesHaveContract();
+
+        return view('admin.reports.contract.inventory_report', compact(
+            'title',
+            'companies',
+            'vendors',
+            'properties',
+            'areas',
+            'localities'
+        ));
+    }
+
+    public function inventoryReportData(Request $request)
+    {
+        abort_unless($request->ajax(), 404);
+
+        return $this->ContractReportService->getInventoryDataTable(
+            $this->inventoryFilters($request)
+        );
+    }
+
+    public function inventoryReportExport(Request $request)
+    {
+        return $this->ContractReportService->exportInventory(
+            $this->inventoryFilters($request)
+        );
+    }
+
+    private function inventoryFilters(Request $request): array
+    {
+        return [
+            'company_id'      => $request->company_id,
+            'vendor_id'       => $request->vendor_id,
+            'property_id'     => $request->property_id,
+            'area_id'         => $request->area_id,
+            'locality_id'     => $request->locality_id,
+            'contract_status' => $request->contract_status,
+            'date_from'       => $request->date_from,
+            'date_to'         => $request->date_to,
+            'search'          => $request->keyword,
+        ];
+    }
+    // inventory report
 }

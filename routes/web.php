@@ -438,14 +438,20 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
     Route::get('report/investment-report-export', [InvestmentReportController::class, 'exportInvestments'])->name('investment-report.export');
     Route::get('report/payout-report-export', [InvestmentReportController::class, 'exportPending'])->name('payout-report.export');
 
-
+    // payable report
     Route::get('report/payable-report', [ContractReportController::class, 'payableReport'])->name('payable-report.index');
     Route::get('report/payable-data', [ContractReportController::class, 'payableReportData'])->name('payable-report.data');
     Route::get('report/payable-export', [ContractReportController::class, 'payableReportExport'])->name('payable-report.export');
+
     //Receivable Report
     Route::get('report/receivable-report', [ReceivableReportController::class, 'index'])->name('receivable-report.index');
     Route::get('report/receivable-report-list', [ReceivableReportController::class, 'getReceivables'])->name('receivable-report.list');
     Route::get('report/receivable-report-export', [ReceivableReportController::class, 'exportReceivables'])->name('receivable-report.export');
+
+    // inventory report
+    Route::get('reports/contracts/inventory', [ContractReportController::class, 'inventoryReport'])->name('inventory-report.index');
+    Route::get('reports/contracts/inventory/data', [ContractReportController::class, 'inventoryReportData'])->name('inventory-report.data');
+    Route::get('reports/contracts/inventory/export', [ContractReportController::class, 'inventoryReportExport'])->name('inventory-report.export');
 });
 
 
