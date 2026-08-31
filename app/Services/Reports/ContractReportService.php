@@ -173,6 +173,8 @@ class ContractReportService
 
                                     if ($column === 'project_number') {
                                         $value = filled($value) ? 'P-' . $value : '';
+                                    } elseif ($column === 'installment_payment_progress' && filled($value)) {
+                                        $value = '="' . $value . '"';
                                     } elseif (in_array($column, $dateColumns, true) && filled($value)) {
                                         $value = dateFormatChange($value, 'd/m/Y');
                                     }
