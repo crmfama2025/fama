@@ -25,11 +25,13 @@ class PermissionSeeder extends Seeder
             if ($module == 'finance') {
                 $subModule = ['payout', 'payable_cheque_clearing', 'receivable_cheque_clearing'];
             } elseif ($module == 'report') {
-                $subModule = ['view'];
-                $subModule = ['payable_report'];
-                $subModule = ['inventory_report'];
-                $subModule = ['occupancy_report'];
-                $subModule = ['project_report'];
+                $subModule = [
+                    'view',
+                    'payable_report',
+                    'inventory_report',
+                    'occupancy_report',
+                    'project_report'
+                ];
             } else {
                 $subModule = ['add', 'view', 'edit', 'delete'];
                 if (in_array($module, ['contract'])) {
