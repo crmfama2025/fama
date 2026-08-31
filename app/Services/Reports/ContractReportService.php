@@ -131,7 +131,6 @@ class ContractReportService
             'Expected Profit' => 'expected_profit',
             'Profit %' => 'profit_percentage',
             'ROI %' => 'roi_perc',
-            'Paid Amount' => 'paid_amount',
             'No. of Units' => 'no_of_units',
             'Unit Numbers' => 'unit_numbers',
             'No. of Floors' => 'no_of_floors',
