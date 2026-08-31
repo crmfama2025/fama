@@ -17,6 +17,7 @@ use App\Http\Controllers\InvestorAgreementTemplateController;
 use App\Http\Controllers\InvestorController;
 use App\Http\Controllers\InvestorPaymentDistributionController;
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\LeadController;
 use App\Http\Controllers\LocalityController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\NationalityController;
@@ -89,6 +90,7 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
     Route::resource('legal_template', InvestorAgreementTemplateController::class);
     Route::resource('investmentReport', InvestmentReportController::class);
     Route::resource('contractReport', ContractReportController::class);
+    Route::resource('lead', LeadController::class);
 
 
 
@@ -443,6 +445,11 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
     Route::get('report/payable-data', [ContractReportController::class, 'payableReportData'])->name('payable-report.data');
     Route::get('report/payable-export', [ContractReportController::class, 'payableReportExport'])->name('payable-report.export');
 
+    //Receivable Report
+    Route::get('report/receivable-report', [ReceivableReportController::class, 'index'])->name('receivable-report.index');
+    Route::get('report/receivable-report-list', [ReceivableReportController::class, 'getReceivables'])->name('receivable-report.list');
+    Route::get('report/receivable-report-export', [ReceivableReportController::class, 'exportReceivables'])->name('receivable-report.export');
+
     // inventory report
     Route::get('reports/contracts/inventory', [ContractReportController::class, 'inventoryReport'])->name('inventory-report.index');
     Route::get('reports/contracts/inventory/data', [ContractReportController::class, 'inventoryReportData'])->name('inventory-report.data');
@@ -461,6 +468,13 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
     Route::get('/reports/contracts/projects', [ContractReportController::class, 'projectReport'])->name('project-report');
     Route::get('/reports/contracts/projects/data', [ContractReportController::class, 'projectReportData'])->name('project-report.data');
     Route::get('/reports/contracts/projects/export', [ContractReportController::class, 'projectReportExport'])->name('project-report.export');
+    Route::get('lead-list', [LeadController::class, 'getData'])->name('lead.list');
+    Route::get('lead-export', [LeadController::class, 'export'])->name('lead.export');
+
+    Route::get(
+        'receivable-report/projects-by-company',
+        [ReceivableReportController::class, 'projectsByCompany']
+    )->name('receivable-report.projects-by-company');
 });
 
 
