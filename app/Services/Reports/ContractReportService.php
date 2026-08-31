@@ -159,26 +159,33 @@ class ContractReportService
             try {
                 fwrite($output, "\xEF\xBB\xBF");
                 fputcsv($output, array_keys($columns));
-                $rows = $this->contractReportRepository->getProjectReport($filters)
-                    ->reorder('c.id')->cursor();
-                $processed = 0;
-                foreach ($rows as $row) {
-                    $values = [];
-                    foreach ($columns as $column) {
-                        $value = $row->{$column};
-                        if ($column === 'project_number') {
-                            $value = 'P-' . $value;
-                        } elseif (in_array($column, $dateColumns, true) && filled($value)) {
-                            $value = dateFormatChange($value, 'd/m/Y');
-                        }
-                        $values[] = $value;
-                    }
-                    fputcsv($output, $values);
-                    if (++$processed % 500 === 0) {
-                        fflush($output);
-                        flush();
-                    }
-                }
+                $this->contractReportRepository
+                    ->getProjectReport($filters)
+                    ->reorder()
+                    ->chunkById(
+                        500,
+                        function ($rows) use ($output, $columns, $dateColumns) {
+                            foreach ($rows as $row) {
+                                $values = [];
+
+                                foreach ($columns as $column) {
+                                    $value = $row->{$column} ?? '';
+
+                                    if ($column === 'project_number') {
+                                        $value = filled($value) ? 'P-' . $value : '';
+                                    } elseif (in_array($column, $dateColumns, true) && filled($value)) {
+                                        $value = dateFormatChange($value, 'd/m/Y');
+                                    }
+
+                                    $values[] = $value;
+                                }
+
+                                fputcsv($output, $values);
+                            }
+                        },
+                        'c.id',
+                        'contract_id'
+                    );
             } finally {
                 fclose($output);
             }
