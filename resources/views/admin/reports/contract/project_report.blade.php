@@ -130,6 +130,7 @@
                                     <th>Duration Months</th>
                                     <th>Contract Fee</th>
                                     <th>Rent Payable / Annum</th>
+                                    <th>Total Payment to Vendor</th>
                                     <th>Paid to Vendor</th>
                                     <th>Vendor Balance</th>
                                     <th>Rent Receivable / Annum</th>
@@ -275,6 +276,7 @@
                     },
                     amount('contract_fee', 'cd.contract_fee'),
                     amount('rent_per_annum_payable', 'cr.rent_per_annum_payable'),
+                    amount('total_payment_to_vendor', 'cr.total_payment_to_vendor'),
                     amount('paid_amount', 'pay.paid_to_vendor'),
                     amount('vendor_balance', 'vendor_balance'),
                     amount('rent_receivable_per_annum', 'cr.rent_receivable_per_annum'),
