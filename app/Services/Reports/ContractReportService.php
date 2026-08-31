@@ -13,6 +13,184 @@ class ContractReportService
         protected ContractReportRepository $contractReportRepository,
     ) {}
 
+
+    // project report
+    public function getProjectDataTable(array $filters)
+    {
+        $dataTable = datatables()
+            ->query($this->contractReportRepository->getProjectReport($filters))
+            ->filter(function ($query) {})
+            ->addIndexColumn()
+            ->editColumn('project_number', fn($row) => 'P-' . $row->project_number);
+
+        foreach (
+            [
+                'start_date',
+                'end_date',
+                'closing_date',
+                'terminated_date',
+                'receivable_start_date'
+            ] as $column
+        ) {
+            $dataTable->editColumn($column, fn($row) => filled($row->{$column})
+                ? dateFormatChange($row->{$column}, 'd/m/Y') : '');
+        }
+
+        foreach (
+            [
+                'contract_fee',
+                'rent_per_annum_payable',
+                'rent_receivable_per_month',
+                'rent_receivable_per_annum',
+                'commission',
+                'deposit',
+                'cost_of_development',
+                'cost_of_bed',
+                'cost_of_matress',
+                'appliances',
+                'decoration',
+                'dewa_deposit',
+                'cost_of_cabinets',
+                'total_otc',
+                'final_cost',
+                'initial_investment',
+                'expected_profit',
+                'paid_amount',
+                'total_payment_to_vendor',
+                'occupied_rent_per_month',
+                'total_payment_pending',
+                'total_payment_received',
+                'balance_amount'
+            ] as $column
+        ) {
+            $dataTable->editColumn($column, fn($row) => number_format((float) $row->{$column}, 2));
+        }
+
+        $dataTable->editColumn(
+            'vendor_balance',
+            fn($row) => number_format((float) $row->vendor_balance, 2, '.', ',')
+        );
+
+        foreach (
+            [
+                'commission_percentage',
+                'deposit_percentage',
+                'roi_perc',
+                'profit_percentage'
+            ] as $column
+        ) {
+            $dataTable->editColumn($column, fn($row) => number_format((float) $row->{$column}, 2) . '%');
+        }
+
+        return $dataTable->toJson();
+    }
+
+    public function exportProject(array $filters = []): StreamedResponse
+    {
+        $filename = 'project-report-' . now()->format('Y-m-d-His') . '.csv';
+        $columns = [
+            'Project Number' => 'project_number',
+            'Project Code' => 'project_code',
+            'Project Type' => 'project_type',
+            'Contract Status' => 'contract_status_name',
+            'Company' => 'company_name',
+            'Vendor' => 'vendor_name',
+            'Contract Type' => 'contract_type',
+            'Contract Number' => 'contract_number',
+            'Contract Person' => 'contract_person',
+            'Property Code' => 'property_code',
+            'Property' => 'property_name',
+            'Area' => 'area_name',
+            'Locality' => 'locality_name',
+            'Start Date' => 'start_date',
+            'End Date' => 'end_date',
+            'Duration Months' => 'duration_in_months',
+            'Duration Days' => 'duration_in_days',
+            'Contract Fee' => 'contract_fee',
+            'Grace Period' => 'grace_period',
+            'Rent Payable / Annum' => 'rent_per_annum_payable',
+            'Rent Receivable / Month' => 'rent_receivable_per_month',
+            'Rent Receivable / Annum' => 'rent_receivable_per_annum',
+            'Commission %' => 'commission_percentage',
+            'Commission' => 'commission',
+            'Deposit %' => 'deposit_percentage',
+            'Deposit' => 'deposit',
+            'Development Cost' => 'cost_of_development',
+            'Bed Cost' => 'cost_of_bed',
+            'Mattress Cost' => 'cost_of_mattress',
+            'Appliances' => 'appliances',
+            'Decoration' => 'decoration',
+            'DEWA Deposit' => 'dewa_deposit',
+            'Cabinets Cost' => 'cost_of_cabinets',
+            'Total OTC' => 'total_otc',
+            'Final Cost' => 'final_cost',
+            'Initial Investment' => 'initial_investment',
+            'Expected Profit' => 'expected_profit',
+            'Profit %' => 'profit_percentage',
+            'ROI %' => 'roi_perc',
+            'Paid Amount' => 'paid_amount',
+            'Unit Code' => 'contract_unit_code',
+            'No. of Units' => 'no_of_units',
+            'Unit Numbers' => 'unit_numbers',
+            'No. of Floors' => 'no_of_floors',
+            'Floor Numbers' => 'floor_numbers',
+            'Subunit Count' => 'total_subunit_count_per_contract',
+            'Occupied Rent / Month' => 'occupied_rent_per_month',
+            'Payment Pending' => 'total_payment_pending',
+            'Payment Received' => 'total_payment_received',
+            'Installments' => 'installment_name',
+            'Installment Payment Progress' => 'installment_payment_progress',
+            'Renewal Count' => 'renewal_count',
+            'Parent Project Number' => 'parent_project_number',
+            'Terminated Date' => 'terminated_date',
+            'Termination Reason' => 'terminated_reason',
+            'Balance Amount' => 'balance_amount',
+            'Balance Received' => 'balance_received',
+            'Direct / Indirect' => 'direct_status',
+        ];
+        $dateColumns = ['start_date', 'end_date', 'terminated_date'];
+
+        return response()->streamDownload(function () use ($filters, $columns, $dateColumns) {
+            set_time_limit(0);
+            $output = fopen('php://output', 'wb');
+            if ($output === false) {
+                throw new RuntimeException('Unable to open CSV output stream.');
+            }
+            try {
+                fwrite($output, "\xEF\xBB\xBF");
+                fputcsv($output, array_keys($columns));
+                $rows = $this->contractReportRepository->getProjectReport($filters)
+                    ->reorder('c.id')->cursor();
+                $processed = 0;
+                foreach ($rows as $row) {
+                    $values = [];
+                    foreach ($columns as $column) {
+                        $value = $row->{$column};
+                        if ($column === 'project_number') {
+                            $value = 'P-' . $value;
+                        } elseif (in_array($column, $dateColumns, true) && filled($value)) {
+                            $value = dateFormatChange($value, 'd/m/Y');
+                        }
+                        $values[] = $value;
+                    }
+                    fputcsv($output, $values);
+                    if (++$processed % 500 === 0) {
+                        fflush($output);
+                        flush();
+                    }
+                }
+            } finally {
+                fclose($output);
+            }
+        }, $filename, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Cache-Control' => 'no-store, no-cache',
+            'X-Accel-Buffering' => 'no'
+        ]);
+    }
+
+    // project report
+
     // payable report
     public function getPayableDataTable(array $filters)
     {

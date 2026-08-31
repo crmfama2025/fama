@@ -29,6 +29,7 @@ class PermissionSeeder extends Seeder
                 $subModule = ['payable_report'];
                 $subModule = ['inventory_report'];
                 $subModule = ['occupancy_report'];
+                $subModule = ['project_report'];
             } else {
                 $subModule = ['add', 'view', 'edit', 'delete'];
                 if (in_array($module, ['contract'])) {

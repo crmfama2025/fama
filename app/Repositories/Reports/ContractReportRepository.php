@@ -8,6 +8,186 @@ use Illuminate\Support\Facades\DB;
 
 class ContractReportRepository
 {
+
+    // project report
+    public function getProjectReport(array $filters = []): Builder
+    {
+        $permittedCompanyIds = getUserPermittedCompanyIds(
+            auth()->id(),
+            'finance.payable_cheque_clearing'
+        );
+
+        $statusSql = "CASE c.contract_status
+        WHEN 0 THEN 'Pending' WHEN 1 THEN 'Processing' WHEN 2 THEN 'Approved'
+        WHEN 3 THEN 'Rejected' WHEN 4 THEN 'Sent for Approval'
+        WHEN 5 THEN 'Approval on Hold' WHEN 6 THEN 'Sign Pending'
+        WHEN 7 THEN 'Signed' WHEN 8 THEN 'Expired' WHEN 9 THEN 'Terminated'
+        WHEN 10 THEN 'Dropped' ELSE 'Unknown' END";
+
+        /*
+        * Table names inferred from the supplied schemas. Change only these four
+        * names if your migrations use different physical table names:
+        * contract_costs, contract_installments, contract_rentals, contract_units.
+        */
+        $installments = DB::table('contract_payments as cp')
+            ->leftJoin('installments as ins', 'ins.id', '=', 'cp.installment_id')
+            ->select('cp.contract_id')
+            ->selectRaw('MAX(CAST(ins.installment_name AS UNSIGNED)) AS installment_name')
+            ->selectRaw('SUM(CASE WHEN cp.has_fully_paid = 1 THEN 1 ELSE 0 END) AS installments_fully_paid')
+            ->whereNull('cp.deleted_at')
+            ->groupBy('cp.contract_id');
+
+
+        $payableClears = DB::table('contract_payable_clears')
+            ->select('contract_id')
+            ->selectRaw('SUM(COALESCE(paid_amount, 0)) AS paid_to_vendor')
+            ->groupBy('contract_id');
+
+        $query = DB::table('contracts as c')
+            ->join('companies as co', 'co.id', '=', 'c.company_id')
+            ->leftJoin('vendors as v', 'v.id', '=', 'c.vendor_id')
+            ->leftJoin('contract_types as ct', 'ct.id', '=', 'c.contract_type_id')
+            ->leftJoin('properties as p', 'p.id', '=', 'c.property_id')
+            ->leftJoin('areas as a', 'a.id', '=', 'c.area_id')
+            ->leftJoin('localities as l', 'l.id', '=', 'c.locality_id')
+            ->leftJoin('contracts as pc', 'pc.id', '=', 'c.parent_contract_id')
+            ->leftJoinSub($payableClears, 'pay', 'pay.contract_id', '=', 'c.id')
+            ->leftJoin('contract_details as cd', function ($join) {
+                $join->on('cd.contract_id', '=', 'c.id')->whereNull('cd.deleted_at');
+            })
+            ->leftJoin('contract_otc as cc', function ($join) {
+                $join->on('cc.contract_id', '=', 'c.id')->whereNull('cc.deleted_at');
+            })
+            ->leftJoin('contract_rentals as cr', function ($join) {
+                $join->on('cr.contract_id', '=', 'c.id')->whereNull('cr.deleted_at');
+            })
+            ->leftJoin('contract_units as cu', function ($join) {
+                $join->on('cu.contract_id', '=', 'c.id')->whereNull('cu.deleted_at');
+            })
+            ->leftJoinSub($installments, 'ci', 'ci.contract_id', '=', 'c.id')
+            ->select([
+                'c.id as contract_id',
+                'c.project_number',
+                'c.project_code',
+                'co.company_name',
+                'v.vendor_name',
+                'ct.contract_type',
+                'p.property_code',
+                'p.property_name',
+                'a.area_name',
+                'l.locality_name',
+                DB::raw("{$statusSql} AS contract_status_name"),
+                DB::raw("CASE WHEN c.parent_contract_id > 0 THEN 'Renewal' ELSE 'New' END AS project_type"),
+                DB::raw('COALESCE(c.renewal_count, 0) AS renewal_count'),
+                DB::raw("CASE WHEN pc.project_number IS NOT NULL THEN CONCAT('P-', pc.project_number) END AS parent_project_number"),
+                'c.approved_date',
+                'c.rejected_date',
+                'c.terminated_date',
+                'c.terminated_reason',
+                'c.balance_amount',
+                'c.balance_received',
+                DB::raw("CASE WHEN c.indirect_status = 1 THEN 'Indirect' ELSE 'Direct' END AS direct_status"),
+
+                'cd.contract_fee',
+                'cd.ejari',
+                'cd.start_date',
+                'cd.end_date',
+                'cd.duration_in_months',
+                'cd.duration_in_days',
+                'cd.closing_date',
+                'cd.grace_period',
+
+                'cc.cost_of_development',
+                'cc.cost_of_bed',
+                'cc.cost_of_matress',
+                'cc.appliances',
+                'cc.decoration',
+                'cc.dewa_deposit',
+                'cc.cost_of_cabinets',
+
+                'cr.contract_rental_code',
+                'cr.rent_per_annum_payable',
+                'cr.commission_percentage',
+                'cr.commission',
+                'cr.deposit_percentage',
+                'cr.deposit',
+                'cr.rent_receivable_per_month',
+                'cr.rent_receivable_per_annum',
+                'cr.roi_perc',
+                'cr.expected_profit',
+                'cr.profit_percentage',
+                'cr.receivable_start_date',
+                'cr.receivable_installments',
+                'cr.total_payment_to_vendor',
+                'cr.total_otc',
+                'cr.final_cost',
+                'cr.initial_investment',
+                DB::raw('COALESCE(pay.paid_to_vendor, 0) AS paid_amount'),
+                DB::raw('(COALESCE(cr.total_payment_to_vendor, 0) - COALESCE(pay.paid_to_vendor, 0)) AS vendor_balance'),
+
+                'cu.contract_unit_code',
+                'cu.building_type',
+                'cu.floor_type',
+                'cu.business_type',
+                'cu.watchman_room',
+                'cu.no_of_units',
+                'cu.unit_numbers',
+                'cu.unit_type_count',
+                'cu.unit_property_type',
+                'cu.no_of_floors',
+                'cu.floor_numbers',
+                'cu.total_subunit_count_per_contract',
+                'cu.occupied_rent_per_month',
+                'cu.total_payment_pending',
+                'cu.total_payment_received',
+
+                'ci.installment_name',
+                DB::raw('COALESCE(ci.installments_fully_paid, 0) AS installments_fully_paid'),
+                DB::raw("CONCAT(COALESCE(ci.installments_fully_paid, 0), '/', COALESCE(ci.installment_name, 0)) AS installment_payment_progress"),
+            ])
+            ->whereIn('c.company_id', $permittedCompanyIds)
+            ->whereNull('c.deleted_at');
+
+        foreach (
+            [
+                'company_id' => 'c.company_id',
+                'vendor_id' => 'c.vendor_id',
+                'property_id' => 'c.property_id',
+                'area_id' => 'c.area_id',
+                'locality_id' => 'c.locality_id',
+                'contract_status' => 'c.contract_status'
+            ] as $key => $column
+        ) {
+            if (isset($filters[$key]) && $filters[$key] !== '') {
+                $query->where($column, $filters[$key]);
+            }
+        }
+        if (!empty($filters['date_from'])) {
+            $query->whereDate('cd.end_date', '>=', $filters['date_from']);
+        }
+        if (!empty($filters['date_to'])) {
+            $query->whereDate('cd.start_date', '<=', $filters['date_to']);
+        }
+        if (!empty($filters['search'])) {
+            $search = '%' . mb_strtolower(trim($filters['search'])) . '%';
+            $query->where(function (Builder $query) use ($search, $statusSql) {
+                $query->whereRaw("LOWER(CONCAT('P-', c.project_number)) LIKE ?", [$search])
+                    ->orWhereRaw('LOWER(c.project_code) LIKE ?', [$search])
+                    ->orWhereRaw('LOWER(co.company_name) LIKE ?', [$search])
+                    ->orWhereRaw("LOWER(CONCAT('P-', pc.project_number)) LIKE ?", [$search])
+                    ->orWhereRaw('LOWER(v.vendor_name) LIKE ?', [$search])
+                    ->orWhereRaw('LOWER(p.property_name) LIKE ?', [$search])
+                    ->orWhereRaw('LOWER(a.area_name) LIKE ?', [$search])
+                    ->orWhereRaw('LOWER(l.locality_name) LIKE ?', [$search])
+                    ->orWhereRaw("LOWER({$statusSql}) LIKE ?", [$search]);
+            });
+        }
+
+        return $query;
+    }
+    // project report
+
+
     // payable report
     public function getPayablesReport(array $filters = []): Builder
     {

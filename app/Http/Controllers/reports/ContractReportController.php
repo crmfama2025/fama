@@ -22,6 +22,55 @@ class ContractReportController extends Controller
         protected ContractReportService $ContractReportService
     ) {}
 
+
+    // project report
+    public function projectReport(Request $request)
+    {
+        $title = 'Project Report';
+        $companies = $this->companyService->getAll('finance', 'payable_cheque_clearing');
+        $vendors = getVendorsHaveContract();
+        $properties = getPropertiesHaveContract();
+        $areas = getAreasHaveContract();
+        $localities = getLocalitiesHaveContract();
+
+        return view('admin.reports.contract.project_report', compact(
+            'title',
+            'companies',
+            'vendors',
+            'properties',
+            'areas',
+            'localities'
+        ));
+    }
+
+    public function projectReportData(Request $request)
+    {
+        abort_unless($request->ajax(), 404);
+        return $this->ContractReportService->getProjectDataTable($this->projectFilters($request));
+    }
+
+    public function projectReportExport(Request $request)
+    {
+        return $this->ContractReportService->exportProject($this->projectFilters($request));
+    }
+
+    private function projectFilters(Request $request): array
+    {
+        return $request->only([
+            'company_id',
+            'vendor_id',
+            'property_id',
+            'area_id',
+            'locality_id',
+            'contract_status',
+            'date_from',
+            'date_to'
+        ])
+            + ['search' => $request->keyword];
+    }
+    // project report
+
+
     // payable report
     public function payableReport(Request $request)
     {

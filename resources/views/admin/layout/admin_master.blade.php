@@ -502,7 +502,15 @@
                                 </ul>
                             </li>
                         @endif
-                        @if (hasPermission(auth()->id(), ['report'], $companyId = null))
+                        @if (hasPermission(auth()->id(),
+                                [
+                                    'report',
+                                    'report.project_report',
+                                    'report.payable_report',
+                                    'report.inventory_report',
+                                    'report.occupancy_report',
+                                ],
+                                $companyId = null))
                             <li class="nav-item {{ $report ? 'menu-open' : '' }}">
                                 <a href="#"
                                     class="nav-link {{ $report ? 'active bg-gradient-projects' : '' }}">
@@ -513,7 +521,16 @@
                                     </p>
                                 </a>
                                 <ul class="nav nav-treeview">
-                                    @if (hasPermission(auth()->id(), ['report', 'report.payable_report'], $companyId = null))
+                                    @if (auth()->user()->hasAnyPermission(['report.project_report']))
+                                        <li class="nav-item ">
+                                            <a href="{{ route('project-report') }}"
+                                                class="nav-link {{ request()->is('report/project*') ? 'active' : '' }}">
+                                                <i class="far fa-circle nav-icon"></i>
+                                                <p>Project Report</p>
+                                            </a>
+                                        </li>
+                                    @endif
+                                    @if (auth()->user()->hasAnyPermission(['report.payable_report']))
                                         <li class="nav-item ">
                                             <a href="{{ route('payable-report.index') }}"
                                                 class="nav-link {{ request()->is('report/payable*') ? 'active' : '' }}">
@@ -523,7 +540,7 @@
                                         </li>
                                     @endif
 
-                                    @if (hasPermission(auth()->id(), ['report', 'report.inventory_report'], $companyId = null))
+                                    @if (auth()->user()->hasAnyPermission(['report.inventory_report']))
                                         <li class="nav-item ">
                                             <a href="{{ route('inventory-report.index') }}"
                                                 class="nav-link {{ request()->is('report/inventory*') ? 'active' : '' }}">
@@ -532,7 +549,7 @@
                                             </a>
                                         </li>
                                     @endif
-                                    @if (hasPermission(auth()->id(), ['report', 'report.occupancy_report'], $companyId = null))
+                                    @if (auth()->user()->hasAnyPermission(['report.occupancy_report']))
                                         <li class="nav-item ">
                                             <a href="{{ route('occupancy-report') }}"
                                                 class="nav-link {{ request()->is('report/occupancy*') ? 'active' : '' }}">

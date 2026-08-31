@@ -456,6 +456,11 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
     Route::get('report/receivable-report', [ReceivableReportController::class, 'index'])->name('receivable-report.index');
     Route::get('report/receivable-report-list', [ReceivableReportController::class, 'getReceivables'])->name('receivable-report.list');
     Route::get('report/receivable-report-export', [ReceivableReportController::class, 'exportReceivables'])->name('receivable-report.export');
+
+    // Project Report
+    Route::get('/reports/contracts/projects', [ContractReportController::class, 'projectReport'])->name('project-report');
+    Route::get('/reports/contracts/projects/data', [ContractReportController::class, 'projectReportData'])->name('project-report.data');
+    Route::get('/reports/contracts/projects/export', [ContractReportController::class, 'projectReportExport'])->name('project-report.export');
 });
 
 
