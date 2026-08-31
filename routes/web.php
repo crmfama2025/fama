@@ -451,23 +451,23 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
     Route::get('report/receivable-report-export', [ReceivableReportController::class, 'exportReceivables'])->name('receivable-report.export');
 
     // inventory report
-    Route::get('reports/contracts/inventory', [ContractReportController::class, 'inventoryReport'])->name('inventory-report.index');
-    Route::get('reports/contracts/inventory/data', [ContractReportController::class, 'inventoryReportData'])->name('inventory-report.data');
-    Route::get('reports/contracts/inventory/export', [ContractReportController::class, 'inventoryReportExport'])->name('inventory-report.export');
+    Route::get('reports/inventory', [ContractReportController::class, 'inventoryReport'])->name('inventory-report.index');
+    Route::get('reports/inventory/data', [ContractReportController::class, 'inventoryReportData'])->name('inventory-report.data');
+    Route::get('reports/inventory/export', [ContractReportController::class, 'inventoryReportExport'])->name('inventory-report.export');
 
     // occupancy report
-    Route::get('/reports/contracts/occupancy', [ContractReportController::class, 'occupancyReport'])->name('occupancy-report');
-    Route::get('/reports/contracts/occupancy/data', [ContractReportController::class, 'occupancyReportData'])->name('occupancy-report.data');
-    Route::get('/reports/contracts/occupancy/export', [ContractReportController::class, 'occupancyReportExport'])->name('occupancy-report.export');
+    Route::get('/reports/occupancy', [ContractReportController::class, 'occupancyReport'])->name('occupancy-report');
+    Route::get('/reports/occupancy/data', [ContractReportController::class, 'occupancyReportData'])->name('occupancy-report.data');
+    Route::get('/reports/occupancy/export', [ContractReportController::class, 'occupancyReportExport'])->name('occupancy-report.export');
     //Receivable Report
     Route::get('report/receivable-report', [ReceivableReportController::class, 'index'])->name('receivable-report.index');
     Route::get('report/receivable-report-list', [ReceivableReportController::class, 'getReceivables'])->name('receivable-report.list');
     Route::get('report/receivable-report-export', [ReceivableReportController::class, 'exportReceivables'])->name('receivable-report.export');
 
     // Project Report
-    Route::get('/reports/contracts/projects', [ContractReportController::class, 'projectReport'])->name('project-report');
-    Route::post('/reports/contracts/projects/data', [ContractReportController::class, 'projectReportData'])->name('project-report.data');
-    Route::get('/reports/contracts/projects/export', [ContractReportController::class, 'projectReportExport'])->name('project-report.export');
+    Route::get('/reports/projects', [ContractReportController::class, 'projectReport'])->name('project-report');
+    Route::post('/reports/projects/data', [ContractReportController::class, 'projectReportData'])->name('project-report.data');
+    Route::get('/reports/projects/export', [ContractReportController::class, 'projectReportExport'])->name('project-report.export');
 
     Route::get('lead-list', [LeadController::class, 'getData'])->name('lead.list');
     Route::get('lead-export', [LeadController::class, 'export'])->name('lead.export');
