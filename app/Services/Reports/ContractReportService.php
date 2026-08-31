@@ -109,6 +109,8 @@ class ContractReportService
             'Contract Fee' => 'contract_fee',
             'Grace Period' => 'grace_period',
             'Rent Payable / Annum' => 'rent_per_annum_payable',
+            'Payable Paid to Vendor' => 'paid_amount',
+            'Payable Pending to Vendor' => 'vendor_balance',
             'Rent Receivable / Month' => 'rent_receivable_per_month',
             'Rent Receivable / Annum' => 'rent_receivable_per_annum',
             'Commission %' => 'commission_percentage',
