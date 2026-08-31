@@ -204,7 +204,9 @@
                 lengthMenu: [25, 50, 100, 250],
                 ajax: {
                     url: "{{ route('project-report.data') }}",
+                    type: 'POST',
                     data: data => {
+                        data._token = "{{ csrf_token() }}";
                         data.keyword = data.search.value;
                         data.search.value = '';
                         Object.assign(data, params());

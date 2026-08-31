@@ -466,8 +466,9 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
 
     // Project Report
     Route::get('/reports/contracts/projects', [ContractReportController::class, 'projectReport'])->name('project-report');
-    Route::get('/reports/contracts/projects/data', [ContractReportController::class, 'projectReportData'])->name('project-report.data');
+    Route::post('/reports/contracts/projects/data', [ContractReportController::class, 'projectReportData'])->name('project-report.data');
     Route::get('/reports/contracts/projects/export', [ContractReportController::class, 'projectReportExport'])->name('project-report.export');
+
     Route::get('lead-list', [LeadController::class, 'getData'])->name('lead.list');
     Route::get('lead-export', [LeadController::class, 'export'])->name('lead.export');
 
