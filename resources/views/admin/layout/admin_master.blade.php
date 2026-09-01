@@ -470,6 +470,7 @@
                                             </a>
                                         </li>
                                     @endif
+                                    {{-- {{ dd(auth()->user()->permissions()->pluck('permission_name')->toArray()) }} --}}
                                     @if (auth()->user()->hasAnyPermission(['investor.withdrawal']))
                                         <li class="nav-item">
                                             <a href="{{ route('investor.partial-withdrawal-list') }}"
@@ -559,7 +560,7 @@
                                         </li>
                                     @endif
 
-                                    @if (hasPermission(auth()->id(), ['investor'], $companyId = null))
+                                    @if (auth()->user()->hasAnyPermission(['report.investment_report']))
                                         <li class="nav-item ">
                                             <a href="{{ route('investmentReport.index') }}"
                                                 class="nav-link {{ request()->is('investmentReport*') ? 'active' : '' }}">
@@ -568,7 +569,7 @@
                                             </a>
                                         </li>
                                     @endif
-                                    @if (hasPermission(auth()->id(), ['investor'], $companyId = null))
+                                    @if (auth()->user()->hasAnyPermission(['report.payout_report']))
                                         <li class="nav-item ">
                                             <a href="{{ route('investment-payout.index') }}"
                                                 class="nav-link {{ request()->is('report/payout-report*') ? 'active' : '' }}">
@@ -577,20 +578,33 @@
                                             </a>
                                         </li>
                                     @endif
-
-                                    <li class="nav-item ">
-                                        <a href="{{ route('receivable-report.index') }}"
-                                            class="nav-link {{ request()->is('report/receivable-report*') ? 'active' : '' }}">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>Receivable Report</p>
-                                        </a>
-                                    </li>
+                                    @if (auth()->user()->hasAnyPermission(['report.receivable_report']))
+                                        <li class="nav-item ">
+                                            <a href="{{ route('receivable-report.index') }}"
+                                                class="nav-link {{ request()->is('report/receivable-report*') ? 'active' : '' }}">
+                                                <i class="far fa-circle nav-icon"></i>
+                                                <p>Receivable Report</p>
+                                            </a>
+                                        </li>
+                                    @endif
 
 
 
                                 </ul>
                             </li>
                         @endif
+                        {{-- Leads --}}
+                        {{-- {{ dd(auth()->user()->permissions()->pluck('permission_name')->toArray()) }} --}}
+                        {{-- @if (auth()->user()->hasAnyPermission(['Leads', 'leads.add', 'leads.view', 'leads.edit', 'leads.delete']))
+                            <li class="nav-item {{ request()->is('lead') ? 'menu-open' : '' }}">
+                                <a href="{{ route('lead.index') }}"
+                                    class="nav-link {{ request()->is('lead*') ? 'active bg-gradient-projects' : '' }}">
+                                    <i class="nav-icon fas fa-user-tie"></i>
+                                    <p>
+                                        Lead
+                                    </p>
+                                </a>
+                        @endif --}}
 
                         @if (auth()->user()->hasAnyPermission(['User', 'user.add', 'user.view', 'user.edit', 'user.delete']))
                             <li class="nav-item {{ request()->is('user') ? 'menu-open' : '' }}">
