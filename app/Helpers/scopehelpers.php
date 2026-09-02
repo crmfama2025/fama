@@ -35,6 +35,7 @@ function renderSummary($sheet, $contract, $title)
     $renewalNumber = (is_object($parent)) ? $parent->project_number : null;
 
     $summaryArr = [
+        ['Company Name', '', $contract['company_name'], '', '', '', '', '', '', ''],
         ['Building Name', '', $contract['property_name'], '', '', '', 'OTC', '', 'Furniture', ''],
         ['Number of Houses', '', $contract['total_units'] . ' Houses', '', '', '', 'Cost of Development', '', toNumeric($contract['cost_of_development']), ''],
         ['Vendor Name', '', $contract['vendor_name'], '', '', '', 'Cost of Beds', '', toNumeric($contract['cost_of_beds']), ''],
@@ -94,6 +95,19 @@ function renderSummary($sheet, $contract, $title)
     $sheet->getStyle('I3:I11')
         ->getNumberFormat()
         ->setFormatCode(NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
+
+    // Company Name - separate style
+    $sheet->getStyle('A2:E2')->applyFromArray([
+        'font' => [
+            'bold' => true,
+        ],
+        'fill' => [
+            'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+            'color' => [
+                'rgb' => 'FFFF00',
+            ],
+        ],
+    ]);
 }
 
 function renderUnitDetails($sheet, $contract)
@@ -363,9 +377,9 @@ function renderUnitDetails($sheet, $contract)
 function renderPayables($sheet, $contract, $title)
 {
     // Apply to A18:J18
-    $sheet->mergeCells('A18:J18');
-    $sheet->setCellValue('A18', $title);
-    $sheet->getStyle('A18')->applyFromArray(DirectScopeStyles::header());
+    $sheet->mergeCells('A19:J19');
+    $sheet->setCellValue('A19', $title);
+    $sheet->getStyle('A19')->applyFromArray(DirectScopeStyles::header());
 
     // Left scope payables
     $payableArr = [
@@ -391,16 +405,16 @@ function renderPayables($sheet, $contract, $title)
     ];
 
     // Write the array starting at row 2
-    $sheet->fromArray($payableArr, null, 'A19');
+    $sheet->fromArray($payableArr, null, 'A20');
 
     // Apply style for all rows in the summary table
     $lastPayableRow = 2 + count($payableArr) - 1;
 
-    $sheet->mergeCells("A19:A20");
-    $sheet->mergeCells("B19:C20");
-    $sheet->mergeCells("D19:D20");
+    $sheet->mergeCells("A20:A21");
+    $sheet->mergeCells("B20:C21");
+    $sheet->mergeCells("D20:D21");
 
-    $sheet->getStyle('A19:D20')->applyFromArray([
+    $sheet->getStyle('A20:D21')->applyFromArray([
         'font' => [
             'bold' => true,
         ],
@@ -408,12 +422,12 @@ function renderPayables($sheet, $contract, $title)
 
     // Merge the third value (column C) across C, D, E for each row
     foreach ($payableArr as $i => $row) {
-        $currentRow = $i + 19; // because array starts at row 2
+        $currentRow = $i + 20; // because array starts at row 2
         // Merge columns C (3), D (4), E (5) for this row
         $sheet->mergeCells("B{$currentRow}:C{$currentRow}");
     }
 
-    $sheet->getStyle("A19:C35")->applyFromArray([
+    $sheet->getStyle("A20:C35")->applyFromArray([
         'alignment' => ['horizontal' => 'center', 'vertical' => 'center'],
         'borders' => ['allBorders' => [
             'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN
@@ -424,7 +438,7 @@ function renderPayables($sheet, $contract, $title)
         ],
     ]);
 
-    $sheet->getStyle("D19:D35")->applyFromArray([
+    $sheet->getStyle("D20:D35")->applyFromArray([
         'alignment' => ['horizontal' => 'right', 'vertical' => 'center'],
         'borders' => ['allBorders' => [
             'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN
@@ -434,7 +448,7 @@ function renderPayables($sheet, $contract, $title)
             'color' => ['rgb' => 'F8CBAD'], // background color (blue)
         ],
     ]);
-    $sheet->getStyle("D19:D35")
+    $sheet->getStyle("D20:D35")
         ->getNumberFormat()
         ->setFormatCode(NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);
 }
