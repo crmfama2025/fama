@@ -88,17 +88,7 @@ class LeadController extends Controller
     {
         if ($request->ajax()) {
 
-            $filters = [
-                'search' => $request->search['value'] ?? null,
-                'status' => $request->follow_up_status,
-                'lead_source' => $request->lead_source,
-                'follow_up_date_from' => $request->follow_up_date_from,
-                'follow_up_date_to' => $request->follow_up_date_to,
-                'next_follow_up_from' => $request->next_follow_up_from,
-                'next_follow_up_to' => $request->next_follow_up_to,
-                'assigned_to' => $request->followed_up_by,
-            ];
-            // dd($filters);
+            $filters = $this->getFilters($request);
 
             return $this->leadService->getDataTable($filters);
         }
@@ -142,16 +132,7 @@ class LeadController extends Controller
     {
         try {
 
-            $filters = [
-                'search' => $request->search ?? null,
-                'status' => $request->follow_up_status,
-                'lead_source' => $request->lead_source,
-                'follow_up_date_from' => $request->follow_up_date_from,
-                'follow_up_date_to' => $request->follow_up_date_to,
-                'next_follow_up_from' => $request->next_follow_up_from,
-                'next_follow_up_to' => $request->next_follow_up_to,
-                'assigned_to' => $request->followed_up_by,
-            ];
+            $filters = $this->getFilters($request);
 
             $data = $this->leadService->getLeadExportData($filters);
 
@@ -237,5 +218,21 @@ class LeadController extends Controller
                 'message' => $e->getMessage(),
             ], 500);
         }
+    }
+    private function getFilters(Request $request): array
+    {
+        return [
+            'search' => is_array($request->search)
+                ? ($request->search['value'] ?? null)
+                : $request->search,
+            'status' => $request->follow_up_status,
+            'lead_source' => $request->lead_source,
+            'follow_up_date_from' => $request->follow_up_date_from,
+            'follow_up_date_to' => $request->follow_up_date_to,
+            'next_follow_up_from' => $request->next_follow_up_from,
+            'next_follow_up_to' => $request->next_follow_up_to,
+            'assigned_to' => $request->followed_up_by,
+
+        ];
     }
 }
