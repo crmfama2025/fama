@@ -90,7 +90,7 @@
 
                                         {{-- Company --}}
                                         <div class=" col-lg-3 ">
-                                            <label for="companySelect">
+                                            <label for="companySelect" class="font-weight-bold">
                                                 Select Company
                                             </label>
 
@@ -107,7 +107,7 @@
 
                                         {{-- Project --}}
                                         <div class=" col-lg-3 ">
-                                            <label for="projectSelect">
+                                            <label for="projectSelect" class="font-weight-bold">
                                                 Select Project
                                             </label>
 
