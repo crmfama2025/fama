@@ -97,4 +97,9 @@ class UserRepository
     {
         return User::insert($rows); // bulk insert
     }
+
+    public function findByType($type)
+    {
+        return User::where('user_type_id', $type)->get();
+    }
 }

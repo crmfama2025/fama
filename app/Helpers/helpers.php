@@ -731,6 +731,34 @@ function getUnitshaveAgreement()
 
     return $units;
 }
+function getUnitsHaveAgreementForReport()
+{
+
+    return ContractUnitDetail::query()
+        ->select([
+            'contract_unit_details.id',
+            'contract_unit_details.unit_number',
+            'contracts.property_id',
+        ])
+        ->join(
+            'contracts',
+            'contracts.id',
+            '=',
+            'contract_unit_details.contract_id'
+        )
+        ->whereNull('contract_unit_details.deleted_at')
+        ->whereNull('contracts.deleted_at')
+        ->whereExists(function ($query) {
+            $query->select(DB::raw(1))
+                ->from('agreement_units')
+                ->whereColumn(
+                    'agreement_units.contract_unit_details_id',
+                    'contract_unit_details.id'
+                )
+                ->whereNull('agreement_units.deleted_at');
+        })
+        ->get();
+}
 function getUnitshaveAgreementB2b()
 {
     // $cunits = ContractUnitDetail::with('contract')->whereHas('agreementUnits')
@@ -1483,7 +1511,8 @@ function getModuleArray()
         'tenant',
         'tenant-registration',
         'invoice',
-        'investor_legal_documents'
+        'investor_legal_documents',
+        'leads'
     ];
 }
 

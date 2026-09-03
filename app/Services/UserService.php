@@ -240,4 +240,9 @@ class UserService
             ->with(['columns' => $columns]) // send columns too
             ->toJson();
     }
+
+    public function getUserByType($type)
+    {
+        return $this->userRepository->findByType($type);
+    }
 }
