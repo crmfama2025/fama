@@ -341,21 +341,27 @@ class LeadService
             if (!$lead) {
                 throw new \Exception('Lead not found.');
             }
+            $followUpData = $this->getFollowUpData($data);
 
-            $followUp = LeadFollowUp::create([
-                'lead_id' => $lead->id,
-                'follow_up_status' => $data['follow_up_status'],
-                'follow_up_type' => $data['follow_up_type'],
-                'not_interested_reason' => $data['not_interested_reason'] ?? null,
-                'meeting_date' => $data['meeting_date'] ?? null,
-                'meeting_time' => $data['meeting_time'] ?? null,
-                'meeting_location' => $data['meeting_location'] ?? null,
-                'notes' => $data['notes'] ?? null,
-                'next_follow_up_date' => $data['next_follow_up_date'] ?? null,
-                'next_follow_up_time' => $data['next_follow_up_time'] ?? null,
-                'follow_up_date' => $data['follow_up_date'] ?? null,
-                'created_by' => auth()->id(),
-            ]);
+            $followUpData['lead_id'] = $lead->id;
+            $followUpData['created_by'] = auth()->id();
+
+            $followUp = LeadFollowUp::create($followUpData);
+            // $followUp = LeadFollowUp::create([
+            //     'lead_id' => $lead->id,
+            //     'follow_up_status' => $data['follow_up_status'],
+            //     'follow_up_type' => $data['follow_up_type'],
+            //     'not_interested_reason' => $data['not_interested_reason'] ?? null,
+            //     'meeting_date' => $data['meeting_date'] ?? null,
+            //     'meeting_time' => $data['meeting_time'] ?? null,
+            //     'meeting_location' => $data['meeting_location'] ?? null,
+            //     'notes' => $data['notes'] ?? null,
+            //     'next_follow_up_date' => $data['next_follow_up_date'] ?? null,
+            //     'next_follow_up_time' => $data['next_follow_up_time'] ?? null,
+            //     'follow_up_date' => $data['follow_up_date'] ?? null,
+            //     'created_by' => auth()->id(),
+            // ]);
+            // dd($followUp);
 
             $lead->status = $data['follow_up_status'];
             $lead->updated_by = auth()->id();
@@ -391,19 +397,8 @@ class LeadService
                 throw new \Exception('Only the latest follow-up can be edited.');
             }
 
-            $updateData = [
-                'follow_up_status' => $data['follow_up_status'],
-                'follow_up_type' => $data['follow_up_type'],
-                'follow_up_date' => $data['follow_up_date'] ?? null,
-                'not_interested_reason' => $data['not_interested_reason'] ?? null,
-                'meeting_date' => $data['meeting_date'] ?? null,
-                'meeting_time' => $data['meeting_time'] ?? null,
-                'meeting_location' => $data['meeting_location'] ?? null,
-                'notes' => $data['notes'] ?? null,
-                'next_follow_up_date' => $data['next_follow_up_date'] ?? null,
-                'next_follow_up_time' => $data['next_follow_up_time'] ?? null,
-                'updated_by' => auth()->id(),
-            ];
+            $updateData = $this->getFollowUpData($data);
+            $updateData['updated_by'] = auth()->id();
 
             $status = (int) $data['follow_up_status'];
 
@@ -417,7 +412,7 @@ class LeadService
                 $updateData['meeting_location'] = null;
             }
 
-            if (in_array($status, [9, 10, 6])) {
+            if (in_array($status, [9, 10])) {
                 $updateData['next_follow_up_date'] = null;
                 $updateData['next_follow_up_time'] = null;
             }
@@ -541,5 +536,20 @@ class LeadService
                 ? '<span class="badge bg-secondary">Pending</span>'
                 : 'Pending',
         };
+    }
+    private function getFollowUpData(array $data): array
+    {
+        return [
+            'follow_up_status' => $data['follow_up_status'],
+            'follow_up_type' => $data['follow_up_type'],
+            'follow_up_date' => $data['follow_up_date'] ?? null,
+            'not_interested_reason' => $data['not_interested_reason'] ?? null,
+            'meeting_date' => $data['meeting_date'] ?? null,
+            'meeting_time' => $data['meeting_time'] ?? null,
+            'meeting_location' => $data['meeting_location'] ?? null,
+            'notes' => $data['notes'] ?? null,
+            'next_follow_up_date' => $data['next_follow_up_date'] ?? null,
+            'next_follow_up_time' => $data['next_follow_up_time'] ?? null,
+        ];
     }
 }
