@@ -40,6 +40,62 @@
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-12">
+                        <div class="card card-df card-outline">
+
+                            <div class="card-header shadow-sm">
+                                <h5 class="card-title mb-0">Filter</h5>
+                            </div>
+
+                            <div class="d-flex justify-content-end mx-4 my-2">
+                                <button type="button" class="btn btn-secondary reset">
+                                    <i class="fa fa-undo-alt"></i> Reset
+                                </button>
+                            </div>
+                            <form class="filterform">
+                                <div class="card-body">
+                                    <div class="row align-items-end">
+
+                                        {{-- Company --}}
+                                        <div class="form-group col-lg-3 col-md-4">
+                                            <label for="companySelect">
+                                                Select Company
+                                            </label>
+
+                                            <select class="form-control select2" id="companySelect" name="company_id">
+                                                <option value="">All Companies</option>
+
+                                                @foreach ($companies as $com)
+                                                    <option value="{{ $com->id }}">
+                                                        {{ $com->company_name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+                                        {{-- Project --}}
+                                        <div class="form-group col-lg-3 col-md-4">
+                                            <label for="projectSelect">
+                                                Select Project
+                                            </label>
+
+                                            <select class="form-control select2" id="projectSelect" name="contract_id">
+                                                <option value="">All Projects</option>
+                                            </select>
+                                        </div>
+
+                                        {{-- Search --}}
+                                        <div class="form-group col-lg-3 col-md-4 ml-auto">
+                                            <button type="button" class="btn btn-primary btn-block searchbtn">
+                                                <i class="fa fa-search"></i>
+                                                Search
+                                            </button>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </form>
+
+                        </div>
                         <div class="card">
                             <div class="card-header">
                                 <!-- <h3 class="card-title">Agreement Details</h3> -->
@@ -311,6 +367,8 @@
                     url: "{{ route('agreement.list') }}",
                     data: function(d) {
                         d.status = $('input[name="agreementFilter"]:checked').val();
+                        d.companyId = $('#companySelect').val();
+                        d.contractId = $('#projectSelect').val();
                     },
                 },
                 columns: [{
@@ -458,8 +516,15 @@
                     action: function(e, dt, node, config) {
                         // redirect to your Laravel export route
                         let searchValue = dt.search();
-                        let url = "{{ route('agreement.export') }}" + "?search=" +
-                            encodeURIComponent(searchValue);
+                        let companyId = $('#companySelect').val() || '';
+                        let contractId = $('#projectSelect').val() || '';
+                        let status = $('input[name="agreementFilter"]:checked').val() || '';
+
+                        let url = "{{ route('agreement.export') }}" +
+                            "?search=" + encodeURIComponent(searchValue) +
+                            "&companyId=" + encodeURIComponent(companyId) +
+                            "&contractId=" + encodeURIComponent(contractId) +
+                            "&status=" + encodeURIComponent(status);
                         window.location.href = url;
                     }
                 }],
@@ -469,6 +534,12 @@
                 // scrollCollapse: true,
                 paging: true, // keep pagination
                 fixedHeader: true // optional: fixes header while scrolling
+            });
+
+            $('.searchbtn').on('click', function() {
+
+                table.ajax.reload(null, true);
+
             });
         });
 
@@ -570,6 +641,38 @@
             }
 
             // cash / credit → nothing shown
+        });
+    </script>
+    <script>
+        const contracts = @json($contracts);
+
+        $('#companySelect').on('change', function() {
+
+            let companyId = $(this).val();
+
+            $('#projectSelect').html('<option value="">Select Project</option>');
+
+            if (!companyId) {
+                return;
+            }
+
+            let companyContracts = contracts.filter(function(contract) {
+                return contract.company_id == companyId;
+            });
+
+            $.each(companyContracts, function(index, contract) {
+                $('#projectSelect').append(
+                    '<option value="' + contract.id + '">' +
+                    contract.project_number +
+                    '</option>'
+                );
+            });
+        });
+        $('.reset').click(function() {
+            $('#companySelect').val('').trigger('change');
+            $('#projectSelect').html('<option value="">All Projects</option>');
+            $('input[name="agreementFilter"][value="all"]').prop('checked', true);
+            table.ajax.reload();
         });
     </script>
 @endsection

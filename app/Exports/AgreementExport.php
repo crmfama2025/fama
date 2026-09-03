@@ -91,8 +91,21 @@ class AgreementExport implements FromCollection, WithHeadings
             });
         }
         // dd($this->filter);
-        if ($this->filter) {
-            $query->where('agreements.id', $this->filter);
+        // if ($this->filter) {
+        //     $query->where('agreements.id', $this->filter);
+        // }
+        if (
+            !empty($this->filter['companyId']) || !empty($this->filter['contractId'])
+        ) {
+            // dd($this->filter);
+            $query->where(function ($q) {
+                if (!empty($this->filter['companyId'])) {
+                    $q->where('agreements.company_id', $this->filter['companyId']);
+                }
+                if (!empty($this->filter['contractId'])) {
+                    $q->where('agreements.contract_id', $this->filter['contractId']);
+                }
+            });
         }
         // dd($query->get()->toArray());
         return $query->get()

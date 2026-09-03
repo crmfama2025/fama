@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Exports\AgreementDocumentExport;
 use App\Exports\AgreementExport;
+use App\Exports\AgreementExpiryExport;
 use App\Models\Agreement;
 use App\Models\Bank;
+use App\Models\Company;
+use App\Models\Contract;
 use App\Models\ContractType;
 use App\Models\Emirate;
 use App\Models\Installment;
@@ -52,7 +55,9 @@ class AgreementController extends Controller
         $title = 'Agreemants';
         $paymentmodes = $this->paymentModeService->getAll();
         $banks = $this->bankService->getAll();
-        return view("admin.projects.agreement.agreement", compact("title", 'paymentmodes', 'banks'));
+        $companies = Company::where('industry_id', 1)->get();
+        $contracts = Contract::select('id', 'project_number', 'company_id')->get();
+        return view("admin.projects.agreement.agreement", compact("title", 'paymentmodes', 'banks', 'companies', 'contracts'));
     }
     public function create()
     {
@@ -111,16 +116,20 @@ class AgreementController extends Controller
                 'company_id' => auth()->user()->company_id,
                 'search' => $request->search['value'] ?? null,
                 'status' => $request->status ?? 'all',
+                'companyId' => $request->companyId ?? null,
+                'contractId' => $request->contractId ?? null,
             ];
             return $this->agreementService->getDataTable($filters);
         }
     }
-    public function exportAgreement(Agreement $agreement)
+    public function exportAgreement(Request $request, Agreement $agreement)
     {
-        $search = request('search');
+        $search = $request->input('search');
         $filters = auth()->user()->company_id ? [
-            // 'company_id' => auth()->user()->company_id,
+            'companyId'  => $request->input('companyId'),
+            'contractId' => $request->input('contractId'),
         ] : null;
+
         return Excel::download(new AgreementExport($search, $filters), 'agreements.xlsx');
     }
     public function edit(Agreement $agreement)
@@ -276,7 +285,9 @@ class AgreementController extends Controller
     {
         $title = 'Agreement Pendings';
 
-        return view("admin.projects.agreement.agreement-expiring-list", compact("title"));
+        $companies = Company::where('industry_id', 1)->get();
+        $contracts = Contract::select('id', 'project_number', 'company_id')->get();
+        return view("admin.projects.agreement.agreement-expiring-list", compact("title", "companies", "contracts"));
     }
     public function getAgreementsExpiringTable(Request $request)
     {
@@ -288,6 +299,8 @@ class AgreementController extends Controller
                 'search' => $request->search['value'] ?? null,
                 'end_date_from' => $request->end_date_from ?? null,
                 'end_date_to' => $request->end_date_to ?? null,
+                'companyId' => $request->companyId ?? null,
+                'contractId' => $request->contractId ?? null,
             ];
             return $this->agreementService->getExpired($filters);
         }
@@ -375,6 +388,22 @@ class AgreementController extends Controller
         return Excel::download(
             new AgreementDocumentExport($search),
             'expiring-documents.xlsx'
+        );
+    }
+    public function exportExpiryAgreement(Request $request)
+    {
+        $filters = [
+            'search'        => $request->search,
+            'status'        => $request->status ?? 'all',
+            'end_date_from' => $request->end_date_from,
+            'end_date_to'   => $request->end_date_to,
+            'companyId'     => $request->companyId,
+            'contractId'    => $request->contractId,
+        ];
+
+        return Excel::download(
+            new AgreementExpiryExport($filters),
+            'agreement_expiry.xlsx'
         );
     }
 }

@@ -197,6 +197,12 @@ class AgreementRepository
         if (isset($filters['status']) && $filters['status'] !== 'all') {
             $query->where('agreements.agreement_status', $filters['status']);
         }
+        if (!empty($filters['companyId'])) {
+            $query->where('agreements.company_id', $filters['companyId']);
+        }
+        if (!empty($filters['contractId'])) {
+            $query->where('agreements.contract_id', $filters['contractId']);
+        }
 
 
         // if (!empty($filters['company_id'])) {
@@ -487,18 +493,21 @@ class AgreementRepository
         // dd($search);
 
         if (!empty($search)) {
-            $query->where(function ($q) use ($search) {
-                $q->where('agreements.agreement_code', 'like', "%{$search}%")
-                    ->orWhere('contracts.project_number', 'like', "%{$search}%")
+            // $query->where(function ($q) use ($search) {
+            $query->where('agreements.agreement_code', 'like', "%{$search}%")
+                ->orWhereHas('contract', function ($q) use ($search) {
+                    $q->where('project_number', 'like', "%{$search}%");
+                })
+                ->orWhere('contracts.project_number', 'like', "%{$search}%")
 
-                    ->orWhere('companies.company_name', 'like', "%{$search}%")
-                    ->orWhere('agreement_tenants.tenant_name', 'like', "%{$search}%")
-                    ->orWhere('agreement_tenants.tenant_email', 'like', "%{$search}%")
-                    ->orWhere('agreement_tenants.tenant_mobile', 'like', "%{$search}%")
-                    ->orWhere('contract_types.contract_type', 'like', "%{$search}%")
-                    ->orWhere('contract_units.business_type', 'like', "%{$search}%")
-                    ->orWhereRaw("CAST(agreements.id AS CHAR) LIKE ?", ["%{$search}%"]);
-            });
+                ->orWhere('companies.company_name', 'like', "%{$search}%")
+                ->orWhere('agreement_tenants.tenant_name', 'like', "%{$search}%")
+                ->orWhere('agreement_tenants.tenant_email', 'like', "%{$search}%")
+                ->orWhere('agreement_tenants.tenant_mobile', 'like', "%{$search}%")
+                ->orWhere('contract_types.contract_type', 'like', "%{$search}%")
+                ->orWhere('contract_units.business_type', 'like', "%{$search}%")
+                ->orWhereRaw("CAST(agreements.id AS CHAR) LIKE ?", ["%{$search}%"]);
+            // });
         }
 
 
@@ -516,7 +525,13 @@ class AgreementRepository
             $query->whereDate('agreements.end_date', '<=', $to);
         }
 
+        if (!empty($filters['companyId'])) {
+            $query->where('agreements.company_id', $filters['companyId']);
+        }
 
+        if (!empty($filters['contractId'])) {
+            $query->where('agreements.contract_id', $filters['contractId']);
+        }
 
         // if (!empty($filters['company_id'])) {
         //     $query->Where('contracts.company_id', $filters['company_id']);

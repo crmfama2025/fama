@@ -426,7 +426,10 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
 
 
 
-
+    Route::get(
+        'agreements/export-expiry',
+        [AgreementController::class, 'exportExpiryAgreement']
+    )->name('agreement.export.expired');
 
 
     // Reports
@@ -468,9 +471,23 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
     Route::get('/report/projects', [ContractReportController::class, 'projectReport'])->name('project-report');
     Route::post('/report/projects/data', [ContractReportController::class, 'projectReportData'])->name('project-report.data');
     Route::get('/report/projects/export', [ContractReportController::class, 'projectReportExport'])->name('project-report.export');
+    Route::get('/reports/contracts/projects', [ContractReportController::class, 'projectReport'])->name('project-report');
+    Route::get('/reports/contracts/projects/data', [ContractReportController::class, 'projectReportData'])->name('project-report.data');
+    Route::get('/reports/contracts/projects/export', [ContractReportController::class, 'projectReportExport'])->name('project-report.export');
 
     Route::get('lead-list', [LeadController::class, 'getData'])->name('lead.list');
     Route::get('lead-export', [LeadController::class, 'export'])->name('lead.export');
+    Route::post('lead-assign/{id}', [LeadController::class, 'assign'])->name('lead.assign');
+    Route::post('lead/{id}/follow-up', [LeadController::class, 'storeFollowUp'])
+        ->name('lead.follow-up.store');
+
+    Route::post(
+        'lead/{lead}/follow-up/{followUp}',
+        [LeadController::class, 'updateFollowUp']
+    )->name('lead.follow-up.update');
+
+    Route::delete('/lead-follow-up/{id}', [LeadController::class, 'destroyFollowup'])
+        ->name('lead-follow-up.destroy');
 
     Route::get(
         'receivable-report/projects-by-company',

@@ -88,15 +88,44 @@
                                             </div>
                                         </div>
 
+                                        {{-- Company --}}
+                                        <div class=" col-lg-3 ">
+                                            <label for="companySelect">
+                                                Select Company
+                                            </label>
+
+                                            <select class="form-control select2" id="companySelect" name="company_id">
+                                                <option value="">All Companies</option>
+
+                                                @foreach ($companies as $com)
+                                                    <option value="{{ $com->id }}">
+                                                        {{ $com->company_name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+                                        {{-- Project --}}
+                                        <div class=" col-lg-3 ">
+                                            <label for="projectSelect">
+                                                Select Project
+                                            </label>
+
+                                            <select class="form-control select2" id="projectSelect" name="contract_id">
+                                                <option value="">All Projects</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-3 justify-content-end">
                                         <!-- Filter Button -->
-                                        <div class="col-md-3">
+                                        <div class="col-md-2">
                                             <button class="btn btn-primary btn-block mt-2 mt-md-0" id="filterEndDateBtn">
                                                 <i class="fas fa-filter mr-1"></i> Filter
                                             </button>
                                         </div>
 
                                         <!-- Reset Button -->
-                                        <div class="col-md-3">
+                                        <div class="col-md-2">
                                             <button class="btn btn-outline-secondary btn-block mt-2 mt-md-0"
                                                 id="resetEndDateBtn">
                                                 <i class="fas fa-undo-alt mr-1"></i> Reset
@@ -262,6 +291,8 @@
                         d.status = $('input[name="agreementFilter"]:checked').val();
                         d.end_date_from = $('#end_date_from').val();
                         d.end_date_to = $('#end_date_to').val();
+                        d.companyId = $('#companySelect').val();
+                        d.contractId = $('#projectSelect').val();
                     },
                 },
                 columns: [{
@@ -372,14 +403,26 @@
                 ],
                 dom: 'Bfrtip',
                 buttons: [{
-                    extend: 'excelHtml5',
-                    text: 'Export Excel',
-                    title: 'Contract Data',
+                    text: 'Export Expiry',
+                    className: 'btn btn-warning',
                     action: function(e, dt, node, config) {
-                        // redirect to your Laravel export route
+
                         let searchValue = dt.search();
-                        let url = "{{ route('agreement.export') }}" + "?search=" +
-                            encodeURIComponent(searchValue);
+                        let companyId = $('#companySelect').val() || '';
+                        let contractId = $('#projectSelect').val() || '';
+                        let status = $('input[name="agreementFilter"]:checked').val() || 'all';
+
+                        let endDateFrom = $('#end_date_from').val() || '';
+                        let endDateTo = $('#end_date_to').val() || '';
+
+                        let url = "{{ route('agreement.export.expired') }}" +
+                            "?search=" + encodeURIComponent(searchValue) +
+                            "&companyId=" + encodeURIComponent(companyId) +
+                            "&contractId=" + encodeURIComponent(contractId) +
+                            "&status=" + encodeURIComponent(status) +
+                            "&end_date_from=" + encodeURIComponent(endDateFrom) +
+                            "&end_date_to=" + encodeURIComponent(endDateTo);
+
                         window.location.href = url;
                     }
                 }],
@@ -400,7 +443,35 @@
         $('#resetEndDateBtn').click(function() {
             $('#end_date_from').val('');
             $('#end_date_to').val('');
+            $('#companySelect').val('');
+            $('#projectSelect').html('<option value="">All Projects</option>');
             table.ajax.reload();
+        });
+    </script>
+    <script>
+        const contracts = @json($contracts);
+
+        $('#companySelect').on('change', function() {
+
+            let companyId = $(this).val();
+
+            $('#projectSelect').html('<option value="">Select Project</option>');
+
+            if (!companyId) {
+                return;
+            }
+
+            let companyContracts = contracts.filter(function(contract) {
+                return contract.company_id == companyId;
+            });
+
+            $.each(companyContracts, function(index, contract) {
+                $('#projectSelect').append(
+                    '<option value="' + contract.id + '">' +
+                    contract.project_number +
+                    '</option>'
+                );
+            });
         });
     </script>
 @endsection
