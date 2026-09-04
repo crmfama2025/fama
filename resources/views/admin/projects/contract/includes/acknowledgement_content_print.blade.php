@@ -2,12 +2,13 @@
     body {
 
         /* color: #000 !important; */
-        background: url('{{ public_path('images/fama-letterhead.png') }}') no-repeat center center;
+        /* background: url('{{ public_path('images/fama-letterhead.png') }}') no-repeat center center; */
         /* @if (!empty($company->letter_head_path))
-        background: url('{{ public_path('storage/' . $company->letter_head_path) }}') no-repeat center center;
-    @else
+        */ background: url('{{ public_path('storage/' . $company->letter_head_path) }}') no-repeat center center;
+        /* @else
         background: url('{{ public_path('images/fama-letterhead.png') }}') no-repeat center center;
     @endif
+    */
     /* */
     /* background: url("{{ public_path('storage/' . $company->letter_head_path) }}") no-repeat center center; */
     /* background-image: url('{{ asset('storage/' . $company->letter_head_path) }}'); */
