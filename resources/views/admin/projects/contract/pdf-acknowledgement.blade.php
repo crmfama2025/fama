@@ -95,15 +95,15 @@
         <img src="{{ str_replace('\\', '/', public_path('storage/' . $company->letter_head_path)) }}"
             style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;">
     @endif --}}
-    {{-- @php
+    @php
         $imagePath = public_path('storage/' . $company->letter_head_path);
     @endphp
-    @dump($imagePath);
+    {{-- @dump($imagePath); --}}
 
     @if (!empty($company->letter_head_path) && file_exists($imagePath))
         <img src="{{ str_replace('\\', '/', $imagePath) }}"
             style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;">
-    @endif --}}
+    @endif
     {{-- Same contract tables as your normal view --}}
     @if ($page == 0)
         {{-- <div style="padding-bottom:60px; margin-left:20px;margin-right:20px;"> --}}
