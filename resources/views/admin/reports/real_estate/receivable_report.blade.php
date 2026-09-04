@@ -211,7 +211,7 @@
                                             </div>
 
                                             <!-- Search Button -->
-                                            <div class="form-group col-lg-3 col-md-4">
+                                            <div class="form-group col-lg-2">
                                                 <button type="button" class="btn btn-primary btn-block searchbtnchq">
                                                     <i class="fa fa-search"></i> Search
                                                 </button>
