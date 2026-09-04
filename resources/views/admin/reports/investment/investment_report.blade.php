@@ -432,8 +432,10 @@
                 dom: 'Bfrtip',
                 buttons: [{
                     extend: 'excelHtml5',
-                    text: 'Export Excel',
+                    text: '<i class="fas fa-file-excel"></i> Export Excel',
                     title: 'Investments Data',
+                    className: 'btn btn-success',
+
                     action: function(e, dt, node, config) {
                         let params = {
                             search: dt.search(),

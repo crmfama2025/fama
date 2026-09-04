@@ -128,16 +128,11 @@ class InvestmentReportService
 
                 if (!$investor) return '-';
 
-                return "
-                <a href='" . route('investor.show', $investor->id) . "' target='_blank'>
-            <strong class='text-capitalize'>{$investor->investor_name}</strong>
-
-            </a>
-        ";
+                return $investor->investor_name . " - " . $investor->investor_code;
             })
-            ->addColumn('company_name', fn($row) => ($row->investment->company->company_name) ? "<a href='" . route('company.show', $row->investment->company->id) . "' target='_blank'>" . $row->investment->company->company_name . "</a>" : '-')
+            ->addColumn('company_name', fn($row) => ($row->investment->company->company_name) ? $row->investment->company->company_name : '-')
 
-            ->addColumn('investment_code', fn($row) => ($row->investment->investment_code) ? "<a href='" . route('investment.show', $row->investment->id) . "' target='_blank'>" . $row->investment->investment_code . "</a>" : '-')
+            ->addColumn('investment_code', fn($row) => ($row->investment->investment_code) ? $row->investment->investment_code  : '-')
             ->addColumn('payout_date', function ($row) {
                 return getPayoutDate($row);
             })

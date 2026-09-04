@@ -400,8 +400,10 @@
                 dom: 'Bfrtip', // This is important for buttons
                 buttons: [{
                     extend: 'excelHtml5',
-                    text: 'Export Excel',
-                    title: 'Contract Data',
+                    text: '<i class="fas fa-file-excel"></i> Export Excel',
+                    title: 'Payout Data',
+                    className: 'btn btn-success',
+
                     action: function(e, dt, node, config) {
                         // redirect to your Laravel export route
 

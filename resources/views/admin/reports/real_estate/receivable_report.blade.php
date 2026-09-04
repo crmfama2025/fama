@@ -269,16 +269,18 @@
                                                             <th>Project</th>
                                                             <th>Company</th>
                                                             <th>Tenant</th>
+                                                            <th>Status</th>
                                                             <th>Building</th>
                                                             <th>Unit</th>
                                                             <th>Subunit</th>
                                                             <th>Due Date</th>
                                                             <th>Payment Mode</th>
                                                             <th>Amount</th>
-                                                            <th>Composition</th>
                                                             {{-- <th>Total Installments</th> --}}
                                                             <th>Paid Amount</th>
                                                             <th>Pending Amount</th>
+                                                            <th>Composition</th>
+
                                                             <th>Paid Date</th>
                                                             <th>Paid Mode</th>
                                                             <th>Paid Bank</th>
@@ -287,7 +289,6 @@
                                                             <th>Has Bounced</th>
                                                             <th>Bounced Reason</th>
                                                             <th>Bounced Date</th>
-                                                            <th>Status</th>
                                                             <th>Terminate Status</th>
                                                         </tr>
                                                     </thead>
@@ -488,6 +489,29 @@
                         },
                         orderable: false,
                         searchable: true
+                    },
+                    {
+                        data: 'is_payment_received',
+                        name: 'is_payment_received',
+                        render: function(data, type, row) {
+                            // Priority: Bounced
+                            if (row.has_bounced) {
+                                return '<span class="badge bg-danger">Bounced</span>';
+                            }
+
+                            switch (data) {
+                                case 0:
+                                    return '<span class="badge bg-warning">Pending</span>';
+                                case 2:
+                                    return '<span class="badge bg-info">Partially Paid</span>';
+                                case 1:
+                                    return '<span class="badge bg-success">Paid</span>';
+                                default:
+                                    return '<span class="badge bg-secondary">-</span>';
+                            }
+                        },
+                        orderable: true,
+                        searchable: true
                     }, {
                         data: 'property_name',
                         name: 'agreement.contract.property.property_name',
@@ -516,10 +540,10 @@
                         data: 'payment_mode_name',
                         name: 'paymentMode.payment_mode_name',
                     },
-                    // {
-                    //     data: 'payment_amount',
-                    //     name: 'agreement_payment_details.payment_amount',
-                    // },
+                    {
+                        data: 'payment_amount',
+                        name: 'agreement_payment_details.payment_amount',
+                    },
                     // {
                     //     data: 'installment',
                     //     name: 'installment',
@@ -529,17 +553,12 @@
                     //     data: 'installment_name',
                     //     name: 'agreementPayment.installment.installment_name',
                     // },
-                    {
-                        data: 'composition',
-                        name: 'composition.installment_position',
-                        orderable: true,
-                        searchable: false
-                    },
 
-                    {
-                        data: 'installment_name',
-                        name: 'installment.installment_name',
-                    },
+
+                    // {
+                    //     data: 'installment_name',
+                    //     name: 'installment.installment_name',
+                    // },
                     {
                         data: 'paid_amount',
                         name: 'paid_amount',
@@ -549,6 +568,12 @@
                         data: 'pending_amount',
                         name: 'pending_amount',
                         defaultContent: '0.00'
+                    },
+                    {
+                        data: 'composition',
+                        name: 'composition.installment_position',
+                        orderable: true,
+                        searchable: false
                     },
                     {
                         data: 'paid_date',
@@ -576,29 +601,7 @@
                         defaultContent: '-'
                     },
 
-                    {
-                        data: 'is_payment_received',
-                        name: 'is_payment_received',
-                        render: function(data, type, row) {
-                            // Priority: Bounced
-                            if (row.has_bounced) {
-                                return '<span class="badge bg-danger">Bounced</span>';
-                            }
 
-                            switch (data) {
-                                case 0:
-                                    return '<span class="badge bg-warning">Pending</span>';
-                                case 2:
-                                    return '<span class="badge bg-info">Partially Paid</span>';
-                                case 1:
-                                    return '<span class="badge bg-success">Paid</span>';
-                                default:
-                                    return '<span class="badge bg-secondary">-</span>';
-                            }
-                        },
-                        orderable: true,
-                        searchable: true
-                    },
                     {
                         data: 'has_bounced',
                         name: 'has_bounced',
@@ -617,20 +620,6 @@
                         searchable: true
                     },
                     {
-                        data: 'bounced_date',
-                        name: 'bounced_date',
-                        defaultContent: '-',
-                        render: function(data, type, row) {
-                            if (row.has_bounced != 1 || !data) {
-                                return '-';
-                            }
-
-                            return data;
-                        },
-                        orderable: true,
-                        searchable: false
-                    },
-                    {
                         data: 'bounced_reason',
                         name: 'bounced_reason',
                         defaultContent: '-',
@@ -644,6 +633,21 @@
                         orderable: true,
                         searchable: true
                     },
+                    {
+                        data: 'bounced_date',
+                        name: 'bounced_date',
+                        defaultContent: '-',
+                        render: function(data, type, row) {
+                            if (row.has_bounced != 1 || !data) {
+                                return '-';
+                            }
+
+                            return data;
+                        },
+                        orderable: true,
+                        searchable: false
+                    },
+
                     {
                         data: 'terminate_status',
                         name: 'apd.terminate_status',
@@ -683,8 +687,9 @@
                 dom: 'Bfrtip',
                 buttons: [{
                     extend: 'excelHtml5',
-                    text: 'Export Excel',
+                    text: '<i class="fas fa-file-excel"></i> Export Excel',
                     title: 'Receivables Data',
+                    className: 'btn btn-success',
 
                     action: function(e, dt, node, config) {
 

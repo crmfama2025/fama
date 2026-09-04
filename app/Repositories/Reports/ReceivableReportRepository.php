@@ -202,6 +202,7 @@ class ReceivableReportRepository
     //     return $query;
     // }
 
+
     public function getQuery(array $filters = [])
     {
         $userId = auth()->id();
@@ -211,12 +212,7 @@ class ReceivableReportRepository
             'finance.receivable_cheque_clearing'
         );
 
-        /*
-            |--------------------------------------------------------------------------
-            | Cleared receivables summary
-            |--------------------------------------------------------------------------
-            */
-
+        // Cleared receivables summary
         $cleared = DB::table('cleared_receivables')
             ->selectRaw('
             agreement_payment_details_id,
@@ -225,13 +221,7 @@ class ReceivableReportRepository
         ')
             ->groupBy('agreement_payment_details_id');
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Latest cleared receivable
-        |--------------------------------------------------------------------------
-        */
-
+        // Latest cleared receivable
         $latestClearIds = DB::table('cleared_receivables')
             ->selectRaw('
             agreement_payment_details_id,
@@ -239,20 +229,7 @@ class ReceivableReportRepository
         ')
             ->groupBy('agreement_payment_details_id');
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Installment position
-        |--------------------------------------------------------------------------
-        |
-        | Replaces the query inside DataTable:
-        |
-        | AgreementPaymentDetail::where(...)
-        |     ->where("id", "<=", $row->id)
-        |     ->count();
-        |
-        */
-
+        // Installment position
         $composition = DB::table('agreement_payment_details')
             ->select([
                 'id as payment_detail_id',
@@ -271,130 +248,67 @@ class ReceivableReportRepository
         ');
         // ->where('terminate_status', 0);
 
-
-        /*
-            |--------------------------------------------------------------------------
-            | Main query
-            |--------------------------------------------------------------------------
-            */
-
+        // Main query
         $query = DB::table('agreement_payment_details as apd')
             ->whereNull('apd.deleted_at')
-
-            /*
-            |--------------------------------------------------------------------------
-            | Agreement
-            |--------------------------------------------------------------------------
-            */
-
             ->leftJoin('agreements as a', function ($join) {
                 $join->on('a.id', '=', 'apd.agreement_id')
                     ->whereNull('a.deleted_at');
             })
-
-            /*
-            |--------------------------------------------------------------------------
-            | Agreement Payment
-            |--------------------------------------------------------------------------
-            */
-
             ->leftJoin('agreement_payments as ap', function ($join) {
                 $join->on('ap.id', '=', 'apd.agreement_payment_id')
                     ->whereNull('ap.deleted_at');
             })
-
-            /*
-            |--------------------------------------------------------------------------
-            | Contract
-            |--------------------------------------------------------------------------
-            */
-
             ->leftJoin('contracts as c', function ($join) {
                 $join->on('c.id', '=', 'a.contract_id')
                     ->whereNull('c.deleted_at');
             })
-
             ->leftJoin('companies as co', function ($join) {
                 $join->on('co.id', '=', 'c.company_id')
                     ->whereNull('co.deleted_at');
             })
-
             ->leftJoin(
                 'contract_types as ct',
                 'ct.id',
                 '=',
                 'c.contract_type_id'
             )
-
             ->leftJoin('contract_units as cu', function ($join) {
                 $join->on('cu.contract_id', '=', 'c.id')
                     ->whereNull('cu.deleted_at');
             })
-
             ->leftJoin('properties as p', function ($join) {
                 $join->on('p.id', '=', 'c.property_id')
                     ->whereNull('p.deleted_at');
             })
-
-            /*
-            |--------------------------------------------------------------------------
-            | Tenant
-            |--------------------------------------------------------------------------
-            */
-
             ->leftJoin('agreement_tenants as t', function ($join) {
                 $join->on('t.id', '=', 'a.tenant_id')
                     ->whereNull('t.deleted_at');
             })
-
-            /*
-            |--------------------------------------------------------------------------
-            | Agreement Unit
-            |--------------------------------------------------------------------------
-            */
-
             ->leftJoin('agreement_units as au', function ($join) {
                 $join->on('au.id', '=', 'apd.agreement_unit_id')
                     ->whereNull('au.deleted_at');
             })
-
-
             ->leftJoin('contract_unit_details as cud', function ($join) {
                 $join->on('cud.id', '=', 'au.contract_unit_details_id')
                     ->whereNull('cud.deleted_at');
             })
-
             ->leftJoin('contract_subunit_details as cusd', function ($join) {
                 $join->on('cusd.id', '=', 'au.contract_subunit_details_id')
                     ->whereNull('cusd.deleted_at');
             })
-
-            /*
-            |--------------------------------------------------------------------------
-            | Original payment mode / bank
-            |--------------------------------------------------------------------------
-            */
-
             ->leftJoin(
                 'payment_modes as pm',
                 'pm.id',
                 '=',
                 'apd.payment_mode_id'
             )
-
             ->leftJoin(
                 'banks as b',
                 'b.id',
                 '=',
                 'apd.bank_id'
             )
-
-            /*
-            |--------------------------------------------------------------------------
-            | Cleared amount summary
-            |--------------------------------------------------------------------------
-            */
-
             ->leftJoinSub(
                 $cleared,
                 'cleared',
@@ -406,13 +320,6 @@ class ReceivableReportRepository
                     );
                 }
             )
-
-            /*
-            |--------------------------------------------------------------------------
-            | Latest cleared record ID
-            |--------------------------------------------------------------------------
-            */
-
             ->leftJoinSub(
                 $latestClearIds,
                 'latest',
@@ -424,66 +331,36 @@ class ReceivableReportRepository
                     );
                 }
             )
-
-            /*
-            |--------------------------------------------------------------------------
-            | Latest cleared record
-            |--------------------------------------------------------------------------
-            */
-
             ->leftJoin(
                 'cleared_receivables as last_clear',
                 'last_clear.id',
                 '=',
                 'latest.latest_clear_id'
             )
-
-            /*
-            |--------------------------------------------------------------------------
-            | Paid mode / bank / company
-            |--------------------------------------------------------------------------
-            */
-
             ->leftJoin(
                 'payment_modes as paid_pm',
                 'paid_pm.id',
                 '=',
                 'last_clear.paid_mode_id'
             )
-
             ->leftJoin(
                 'banks as paid_bank',
                 'paid_bank.id',
                 '=',
                 'last_clear.paid_bank_id'
             )
-
             ->leftJoin(
                 'companies as paid_company',
                 'paid_company.id',
                 '=',
                 'last_clear.paid_company_id'
             )
-
-            /*
-            |--------------------------------------------------------------------------
-            | Installment
-            |--------------------------------------------------------------------------
-            */
-
             ->leftJoin(
                 'installments as installment',
                 'installment.id',
                 '=',
                 'ap.installment_id'
             )
-
-            /*
-            |--------------------------------------------------------------------------
-            | Installment position
-            |--------------------------------------------------------------------------
-            */
-
             ->leftJoinSub(
                 $composition,
                 'composition',
@@ -495,35 +372,16 @@ class ReceivableReportRepository
                     );
                 }
             )
-
-            /*
-            |--------------------------------------------------------------------------
-            | Select
-            |--------------------------------------------------------------------------
-            */
-
             ->select([
                 'apd.id',
-
-                // Project
                 'c.project_number',
-
-                // Company
                 'co.company_name',
-
-                // Tenant
                 't.tenant_name',
                 't.tenant_email',
                 't.tenant_mobile',
-
-                // Property
                 'p.property_name',
-
-                // Unit
                 'cud.unit_number',
                 'cusd.subunit_no',
-
-                // Payment
                 'apd.payment_date',
                 'apd.payment_amount',
                 'apd.payment_mode_id',
@@ -531,187 +389,87 @@ class ReceivableReportRepository
                 'apd.cheque_number',
                 'apd.bounced_date',
                 'apd.bounced_reason',
-
                 'pm.payment_mode_name',
                 'b.bank_name',
-
-                // Installment
                 'installment.installment_name',
                 'composition.installment_position',
                 'composition.installment_count',
-
-                // Status
                 'apd.is_payment_received',
                 'apd.is_invoice_added',
                 'apd.terminate_status',
                 'apd.has_bounced',
-
-                // Cleared
                 DB::raw('
                 COALESCE(
                     cleared.paid_amount_total,
                     0
                 ) AS paid_amount_total
             '),
-
                 'last_clear.pending_amount',
                 'last_clear.paid_date',
-
                 'paid_pm.payment_mode_name AS paid_mode_name',
                 'paid_bank.bank_name AS paid_bank_name',
                 'paid_company.company_name AS paid_company_name',
-
                 'last_clear.paid_cheque_number',
             ])
+            // Base conditions
+            // ->where('apd.terminate_status', 0)
+            ->whereIn('c.company_id', $permittedCompanyIds);
 
-            /*
-            |--------------------------------------------------------------------------
-            | Base conditions
-            |--------------------------------------------------------------------------
-            */
-
-            // ->where(
-            //     'apd.terminate_status',
-            //     0
-            // )
-
-            ->whereIn(
-                'c.company_id',
-                $permittedCompanyIds
-            );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Company
-        |--------------------------------------------------------------------------
-        */
-
+        // Company
         if (
             isset($filters['company_id']) &&
             $filters['company_id'] !== null &&
             $filters['company_id'] !== ''
         ) {
-
-            // dd("test");
-            $query->where(
-                'c.company_id',
-                $filters['company_id']
-            );
+            $query->where('c.company_id', $filters['company_id']);
         }
 
-
+        // Contract
         if (!empty($filters['contract_id'])) {
-            $query->where(
-                'c.id',
-                $filters['contract_id']
-            );
+            $query->where('c.id', $filters['contract_id']);
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Date From
-        |--------------------------------------------------------------------------
-        */
-
+        // Date from
         if (!empty($filters['date_from'])) {
-
             $dateFrom = Carbon::createFromFormat(
                 'd-m-Y',
                 $filters['date_from']
             )->format('Y-m-d');
 
-            $query->where(
-                'apd.payment_date',
-                '>=',
-                $dateFrom
-            );
+            $query->where('apd.payment_date', '>=', $dateFrom);
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Date To
-        |--------------------------------------------------------------------------
-        */
-
+        // Date to
         if (!empty($filters['date_to'])) {
-
             $dateTo = Carbon::createFromFormat(
                 'd-m-Y',
                 $filters['date_to']
             )->format('Y-m-d');
 
-            $query->where(
-                'apd.payment_date',
-                '<=',
-                $dateTo
-            );
+            $query->where('apd.payment_date', '<=', $dateTo);
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Unit
-        |--------------------------------------------------------------------------
-        */
-
+        // Unit
         if (!empty($filters['unit_id'])) {
-            $query->where(
-                'cud.id',
-                $filters['unit_id']
-            );
+            $query->where('cud.id', $filters['unit_id']);
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Property
-        |--------------------------------------------------------------------------
-        */
-
+        // Property
         if (!empty($filters['property_id'])) {
-            $query->where(
-                'p.id',
-                $filters['property_id']
-            );
+            $query->where('p.id', $filters['property_id']);
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Tenant
-        |--------------------------------------------------------------------------
-        */
-
+        // Tenant
         if (!empty($filters['tenant_id'])) {
-            $query->where(
-                't.id',
-                $filters['tenant_id']
-            );
+            $query->where('t.id', $filters['tenant_id']);
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Payment Mode
-        |--------------------------------------------------------------------------
-        */
-
+        // Payment mode
         if (!empty($filters['mode_id'])) {
-            $query->where(
-                'apd.payment_mode_id',
-                $filters['mode_id']
-            );
+            $query->where('apd.payment_mode_id', $filters['mode_id']);
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Payment Received
-        |--------------------------------------------------------------------------
-        */
-
+        // Payment received
         if (
             isset($filters['is_payment_received']) &&
             $filters['is_payment_received'] !== ''
@@ -722,13 +480,7 @@ class ReceivableReportRepository
             );
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Invoice Added
-        |--------------------------------------------------------------------------
-        */
-
+        // Invoice added
         if (
             isset($filters['is_invoice_added']) &&
             $filters['is_invoice_added'] !== ''
@@ -739,13 +491,7 @@ class ReceivableReportRepository
             );
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Paid Company
-        |--------------------------------------------------------------------------
-        */
-
+        // Paid company
         if (!empty($filters['paid_company_id'])) {
             $query->where(
                 'last_clear.paid_company_id',
@@ -753,76 +499,55 @@ class ReceivableReportRepository
             );
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Search
-        |--------------------------------------------------------------------------
-        */
-
+        // Search
         if (!empty($filters['search'])) {
-
-            $search = '%' . mb_strtolower(
-                trim($filters['search'])
-            ) . '%';
+            $search = '%' . mb_strtolower(trim($filters['search'])) . '%';
 
             $query->where(function ($q) use ($search) {
-
                 $q->whereRaw(
                     "LOWER(CAST(c.project_number AS CHAR)) LIKE ?",
                     [$search]
                 )
-
                     ->orWhereRaw(
                         "LOWER(CONCAT('P - ', c.project_number)) LIKE ?",
                         [$search]
                     )
-
                     ->orWhereRaw(
                         'LOWER(co.company_name) LIKE ?',
                         [$search]
                     )
-
                     ->orWhereRaw(
                         'LOWER(t.tenant_name) LIKE ?',
                         [$search]
                     )
-
                     ->orWhereRaw(
                         'LOWER(t.tenant_email) LIKE ?',
                         [$search]
                     )
-
                     ->orWhereRaw(
                         'LOWER(t.tenant_mobile) LIKE ?',
                         [$search]
                     )
-
                     ->orWhereRaw(
                         'LOWER(p.property_name) LIKE ?',
                         [$search]
                     )
-
                     ->orWhereRaw(
                         'LOWER(cud.unit_number) LIKE ?',
                         [$search]
                     )
-
                     ->orWhereRaw(
                         'LOWER(cusd.subunit_no) LIKE ?',
                         [$search]
                     )
-
                     ->orWhereRaw(
                         'LOWER(pm.payment_mode_name) LIKE ?',
                         [$search]
                     )
-
                     ->orWhereRaw(
                         'LOWER(CAST(apd.payment_amount AS CHAR)) LIKE ?',
                         [$search]
                     )
-
                     ->orWhereRaw(
                         'LOWER(CAST(apd.id AS CHAR)) LIKE ?',
                         [$search]
@@ -830,13 +555,7 @@ class ReceivableReportRepository
             });
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Order
-        |--------------------------------------------------------------------------
-        */
-
+        // Order
         $query->orderByDesc('apd.payment_date')
             ->orderByDesc('apd.id');
 
