@@ -77,6 +77,7 @@ class PermissionSeeder extends Seeder
                     $subModule[] = 'withdrawal';
                     $subModule[] = 'withdrawal-approve';
                     $subModule[] = 'withdrawal-delete';
+                    $subModule[] = 'novation';
                 }
             }
 

@@ -173,9 +173,21 @@ class InvestmentContractDocumentService
                 //             <i class="fas fa-eye"></i>
                 //         </a>';
                 // }
+
+                $investmentDateAllowed =
+                    (int) $row->investment_id === 0 ||
+                    \Carbon\Carbon::parse($row->investment_date)
+                    ->startOfDay()
+                    ->greaterThanOrEqualTo(
+                        \Carbon\Carbon::create(2026, 8, 31)->startOfDay()
+                    );
+
                 if (
-                    auth()->user()->hasAnyPermission(['investment.add'], $row->company_id) ||
-                    auth()->user()->hasAnyPermission(['investment.view'], $row->company_id)
+                    $investmentDateAllowed &&
+                    (
+                        auth()->user()->hasAnyPermission(['investment.add'], $row->company_id) ||
+                        auth()->user()->hasAnyPermission(['investment.view'], $row->company_id)
+                    )
                 ) {
                     $action .= '<a href="' . route('legal_template.contractview', [
                         'docId' => $row->id,
@@ -353,15 +365,17 @@ class InvestmentContractDocumentService
         $docInsertData['reference_mudarabah_id'] = $lastMudarabah ? $lastMudarabah->id : null;
         // dd($docInsertData);
         if ($docInsertData['investment_id'] == 0) {
-            if ($docInsertData['investor_agreement_type_id'] == 3) {
-                return $this->createAgreement($docInsertData, $companyId, 3); //Partial Withdrawal
-            } elseif ($docInsertData['investor_agreement_type_id'] == 5) {
-                return  $this->createAgreement($docInsertData, $companyId, 5); //Settlement Or Termination
+            if (isset($docInsertData['investor_agreement_type_id'])) {
+                if ($docInsertData['investor_agreement_type_id'] == 3) {
+                    return $this->createAgreement($docInsertData, $companyId, 3); //Partial Withdrawal
+                } elseif ($docInsertData['investor_agreement_type_id'] == 5) {
+                    return  $this->createAgreement($docInsertData, $companyId, 5); //Settlement Or Termination
+                }
+            } else {
+                $docData = $this->createAgreement($docInsertData, $companyId, 4); // Novation
+                return $this->createAgreement($docInsertData, $companyId, 1); // Mudarabah
+
             }
-
-            $this->createAgreement($docInsertData, $companyId, 4); // Novation
-            $this->createAgreement($docInsertData, $companyId, 1); // Mudarabah
-
         } else {
             // dd("test1");
 

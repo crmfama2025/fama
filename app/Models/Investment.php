@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Casts\CustomEncrypted;
 use App\Models\Traits\HasActivityLog;
 use App\Models\Traits\HasDeletedBy;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -92,7 +93,9 @@ class Investment extends Model
         'total_invested_amount',
         'total_withdrawn_amount',
         'has_partial_withdrawal',
-        'investment_term_type'
+        'investment_term_type',
+
+        'last_renewed_maturity_date',
     ];
     protected $casts = [
         'company_bank_iban' => CustomEncrypted::class,
@@ -288,5 +291,13 @@ class Investment extends Model
     {
         return $this->hasOne(PartialWithdrawalBifurcation::class, 'investment_id')
             ->latestOfMany();
+    }
+
+    public function scopeActiveLongTerm(Builder $query): Builder
+    {
+        return $query
+            ->where('investment_status', 1) //active investments only
+            ->where('investment_term_type', 1) //long term investments only
+            ->where('terminate_status', 0); //not terminated
     }
 }

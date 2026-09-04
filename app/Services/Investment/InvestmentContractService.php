@@ -92,13 +92,13 @@ class InvestmentContractService
         $annexureB_Ar     = '';
         $annexureACounter = 1;
         $annexureBCounter = 1;
-
+        // dd('befre frch');
         foreach ($byCompany as $companyId => $companyInvestments) {
             $companyData = Company::find($companyId);
-
+            // dd($companyData);
             // ── Annexure A: one block per contract ───────────────────────────────
             foreach ($companyInvestments as $inv) {
-                // dump($inv);
+                // dd($inv);
                 $InvestorProfitPerc = $inv->profit_perc * 100 / 50;
                 $CompanyProfitPerc  = 100 - $InvestorProfitPerc;
 
@@ -125,16 +125,17 @@ class InvestmentContractService
             }
 
             // ── Annexure B: one profit schedule per company ──────────────────────
-            [$bEng, $bAr, $totalFmtEng, $totalFmtAr] = $this->buildCompanyProfitSchedule(
+            [$bEng, $bAr, $totalFmtEng, $totalFmtAr, $totalCountB] = $this->buildCompanyProfitSchedule(
                 $companyInvestments,
-                $annexureBCounter
+                $annexureBCounter,
+                $invDocDetails
             );
             $annexureB_Eng .= $bEng;
             $annexureB_Ar  .= $bAr;
 
             $annexureBCounter++;
         }
-        // dump($annexureAMulti);
+
         // ── Grand totals ─────────────────────────────────────────────────────────
         $investmentsCollection = collect($investments);
         $grandTotalInvested    = $investmentsCollection->sum('total_invested_amount');
@@ -150,6 +151,16 @@ class InvestmentContractService
         $CompanyProfitPerc  = 100 - $InvestorProfitPerc;
 
         $htmlMulti = $documentDetail->template;
+
+        $expectedProfittext_en = "Expected annual profit:";
+        $expectedProfittext_ar = "الربح السنوي المتوقع:";
+
+        $InvestorProfitPerctext = "Investor's profit share ratio:";
+        $InvestorProfitPerctext_ar = "نسبة حصة المستثمر من الربح :";
+
+        $clauseFive = $this->clauseFive($firstInv);
+        $clauseThree = $this->clauseThree($firstInv);
+
 
         $placeholdersMulti = [
             // Dates
@@ -201,8 +212,12 @@ class InvestmentContractService
             '{company_iban}'       => $firstInv->company_bank_iban,
 
             // profit
-            '{inv_profit_perc}' => $InvestorProfitPerc,
+            '{inv_profit_perc}'     => $InvestorProfitPerctext . $InvestorProfitPerc,
+            '{inv_profit_perc_ar}'     => $InvestorProfitPerctext_ar . $InvestorProfitPerc,
             '{company_profit_perc}' => $CompanyProfitPerc,
+
+            '{clause_three}' => $clauseThree,
+            '{clause_five}' => $clauseFive,
 
             // Grand totals
             '{invested_amount}' => number_format($grandTotalInvested, 2),
@@ -217,7 +232,15 @@ class InvestmentContractService
             // '{annexure_a_ar}'  => $annexureA_Ar,
             '{profit_month_eng}' => $annexureB_Eng,
             '{profit_month_ar}'  => $annexureB_Ar,
-            '{total_count_annexB}' => $annexureBCounter,
+            '{total_count_annexB}' => $totalCountB,
+
+
+            '{monthly_estimate_en}'      => '· Equivalent monthly estimate for investor: AED ' . number_format($firstInv->profit_amount_per_interval, 2) . '/-',
+            '{monthly_estimate_ar}'      => '· التقدير الشهري المعادل للمستثمر' . number_format($firstInv->profit_amount_per_interval, 2) . '/- درهم إماراتي',
+
+
+            '{profit_text}' => $expectedProfittext_en,
+            '{profit_text_ar}' => $expectedProfittext_ar,
             // '{date}' =>  now()->format('d/m/Y')
         ];
         // dump($annexureAMulti);
@@ -523,93 +546,197 @@ class InvestmentContractService
      * summing all its contracts per month.
      * Called once per company.
      */
+    // private function buildCompanyProfitSchedule(
+    //     array $companyInvestments,
+    //     int $annexureNo
+    // ): array {
+
+    //     // ── Start from next month of mudarabah created date ──────────────────────
+    //     $startDate = Carbon::now()->addMonth()->startOfMonth();
+
+    //     // ── Pre-calculate ALL upcoming profit dates for each contract ─────────────
+    //     // Instead of just storing "next date", we build a full list of
+    //     // payout months for each contract within the 12-month window.
+    //     $contractPayoutMonths = [];
+
+    //     foreach ($companyInvestments as $inv) {
+    //         $contractPayoutMonths[$inv->id] = [];
+
+    //         $firstPayoutDate = Carbon::createFromFormat('M Y', $inv->initial_profit_release_month)
+    //             ->startOfMonth();
+
+    //         // ── Use endOfMonth on windowEnd to avoid any startOfMonth boundary issues ─
+    //         $windowEnd = $startDate->copy()->addMonths(12)->endOfMonth();
+
+    //         $nextDate = $firstPayoutDate->copy()->startOfMonth();
+    //         dump($nextDate);
+    //         dump($windowEnd);
+    //         while ($nextDate->lessThanOrEqualTo($windowEnd)) {
+
+    //             if ($nextDate->greaterThanOrEqualTo($startDate)) {
+    //                 $contractPayoutMonths[$inv->id][] = $nextDate->copy();
+    //             }
+
+    //             $nextDate = Carbon::parse(calculateNextProfitReleaseDate(
+    //                 0,
+    //                 $inv->profit_interval_id,
+    //                 $nextDate->format('M Y'),
+    //                 $inv->payoutBatch->batch_name
+    //             ))->startOfMonth();
+    //             dump($nextDate);
+    //         }
+    //     }
+    //     // dd($contractPayoutMonths);
+    //     $totalInvested = collect($companyInvestments)->sum('total_invested_amount');
+
+    //     $rowsEng = '';
+    //     $rowsAr  = '';
+
+    //     for ($i = 0; $i < 12; $i++) {
+    //         $currentMonth = $startDate->copy()->addMonths($i);
+    //         $monthTotal   = 0;
+
+    //         foreach ($companyInvestments as $inv) {
+    //             // Check if any of this contract's payout months match current month
+    //             foreach ($contractPayoutMonths[$inv->id] as $payoutDate) {
+    //                 if ($currentMonth->equalTo($payoutDate)) {
+    //                     $monthTotal += $inv->profit_amount_per_interval;
+    //                     break; // No need to check further for this contract
+    //                 }
+    //             }
+    //         }
+
+    //         $amtFmt   = number_format($monthTotal, 2);
+    //         $monthEng = ($i + 1) . ' ' . $currentMonth->format('M Y');
+    //         $monthAr  = ($i + 1) . ' ' . arabicMY($currentMonth->format('M Y'));
+
+    //         $rowsEng .= "
+    //         <tr>
+    //             <td width='50%' style='border:1px solid #ccc; padding:6px;'>
+    //                 <div class='english'><p class='marginClass text-md'>{$monthEng}</p></div>
+    //             </td>
+    //             <td width='50%' style='border:1px solid #ccc; padding:6px;'>
+    //                 <div class='english'><p class='marginClass text-md'>AED {$amtFmt}/-</p></div>
+    //             </td>
+    //         </tr>";
+
+    //         $rowsAr .= "
+    //         <tr>
+    //             <td width='50%' style='border:1px solid #ccc; padding:6px;'>
+    //                 <div class='arabic'><p class='marginClass text-md'>{$monthAr}</p></div>
+    //             </td>
+    //             <td width='50%' style='border:1px solid #ccc; padding:6px;'>
+    //                 <div class='arabic'><p class='marginClass text-md'>{$amtFmt}/- درهم إماراتي</p></div>
+    //             </td>
+    //         </tr>";
+    //     }
+
+    //     $totalFmtEng = 'AED ' . number_format($totalInvested, 2);
+    //     $totalFmtAr  = number_format($totalInvested, 2) . '/- درهم إماراتي';
+
+    //     return [$rowsEng, $rowsAr, $totalFmtEng, $totalFmtAr];
+    // }
+
+
     private function buildCompanyProfitSchedule(
         array $companyInvestments,
-        int $annexureNo
+        int $annexureNo,
+        $invDocDetails
     ): array {
+        $windowStart = Carbon::parse($invDocDetails->created_at)->startOfDay();
 
-        // ── Start from next month of mudarabah created date ──────────────────────
-        $startDate = Carbon::now()->addMonth()->startOfMonth();
+        // Exactly one year, with an exclusive upper boundary.
+        $windowEndExclusive = $windowStart->copy()->addYear();
 
-        // ── Pre-calculate ALL upcoming profit dates for each contract ─────────────
-        // Instead of just storing "next date", we build a full list of
-        // payout months for each contract within the 12-month window.
-        $contractPayoutMonths = [];
+        $monthlyProfits = collect();
 
-        foreach ($companyInvestments as $inv) {
-            $contractPayoutMonths[$inv->id] = [];
+        foreach ($companyInvestments as $investment) {
+            foreach ($investment->profitRecords as $profitRecord) {
+                $profitDate = Carbon::parse(
+                    $profitRecord->profit_release_month
+                );
 
-            $firstPayoutDate = Carbon::createFromFormat('M Y', $inv->initial_profit_release_month)
-                ->startOfMonth();
-
-            // ── Use endOfMonth on windowEnd to avoid any startOfMonth boundary issues ─
-            $windowEnd = $startDate->copy()->addMonths(12)->endOfMonth();
-
-            $nextDate = $firstPayoutDate->copy()->startOfMonth();
-
-            while ($nextDate->lessThanOrEqualTo($windowEnd)) {
-
-                if ($nextDate->greaterThanOrEqualTo($startDate)) {
-                    $contractPayoutMonths[$inv->id][] = $nextDate->copy();
+                if (
+                    $profitDate->lessThan($windowStart) ||
+                    $profitDate->greaterThanOrEqualTo($windowEndExclusive)
+                ) {
+                    continue;
                 }
 
-                $nextDate = Carbon::parse(calculateNextProfitReleaseDate(
-                    0,
-                    $inv->profit_interval_id,
-                    $nextDate->format('M Y'),
-                    $inv->payoutBatch->batch_name
-                ))->startOfMonth();
+                $monthKey = $profitDate->format('Y-m');
+
+                $monthlyProfits[$monthKey] =
+                    ($monthlyProfits[$monthKey] ?? 0)
+                    + (float) $profitRecord->profit_amount;
             }
         }
-        // dd($contractPayoutMonths);
-        $totalInvested = collect($companyInvestments)->sum('total_invested_amount');
+
+        $monthlyProfits = $monthlyProfits->sortKeys();
+
 
         $rowsEng = '';
         $rowsAr  = '';
+        $rowNumber = 1;
 
-        for ($i = 0; $i < 12; $i++) {
-            $currentMonth = $startDate->copy()->addMonths($i);
-            $monthTotal   = 0;
+        foreach ($monthlyProfits as $monthKey => $profitAmount) {
+            $currentMonth = Carbon::createFromFormat('!Y-m', $monthKey);
 
-            foreach ($companyInvestments as $inv) {
-                // Check if any of this contract's payout months match current month
-                foreach ($contractPayoutMonths[$inv->id] as $payoutDate) {
-                    if ($currentMonth->equalTo($payoutDate)) {
-                        $monthTotal += $inv->profit_amount_per_interval;
-                        break; // No need to check further for this contract
-                    }
-                }
-            }
-
-            $amtFmt   = number_format($monthTotal, 2);
-            $monthEng = ($i + 1) . ' ' . $currentMonth->format('M Y');
-            $monthAr  = ($i + 1) . ' ' . arabicMY($currentMonth->format('M Y'));
+            $amount   = number_format($profitAmount, 2);
+            $monthEng = $currentMonth->format('M Y');
+            $monthAr  = arabicMY($monthEng);
 
             $rowsEng .= "
             <tr>
                 <td width='50%' style='border:1px solid #ccc; padding:6px;'>
-                    <div class='english'><p class='marginClass text-md'>{$monthEng}</p></div>
+                    <div class='english'>
+                        <p class='marginClass text-md'>
+                            {$rowNumber}. {$monthEng}
+                        </p>
+                    </div>
                 </td>
                 <td width='50%' style='border:1px solid #ccc; padding:6px;'>
-                    <div class='english'><p class='marginClass text-md'>AED {$amtFmt}/-</p></div>
+                    <div class='english'>
+                        <p class='marginClass text-md'>
+                            AED {$amount}/-
+                        </p>
+                    </div>
                 </td>
             </tr>";
 
             $rowsAr .= "
             <tr>
                 <td width='50%' style='border:1px solid #ccc; padding:6px;'>
-                    <div class='arabic'><p class='marginClass text-md'>{$monthAr}</p></div>
+                    <div class='arabic'>
+                        <p class='marginClass text-md'>
+                            {$rowNumber}. {$monthAr}
+                        </p>
+                    </div>
                 </td>
                 <td width='50%' style='border:1px solid #ccc; padding:6px;'>
-                    <div class='arabic'><p class='marginClass text-md'>{$amtFmt}/- درهم إماراتي</p></div>
+                    <div class='arabic'>
+                        <p class='marginClass text-md'>
+                            {$amount}/- درهم إماراتي
+                        </p>
+                    </div>
                 </td>
             </tr>";
+
+            $rowNumber++;
         }
 
-        $totalFmtEng = 'AED ' . number_format($totalInvested, 2);
-        $totalFmtAr  = number_format($totalInvested, 2) . '/- درهم إماراتي';
+        // Total profit across every profit record for this company.
+        $totalProfit = $monthlyProfits->sum();
 
-        return [$rowsEng, $rowsAr, $totalFmtEng, $totalFmtAr];
+        $totalFmtEng = 'AED ' . number_format($totalProfit, 2) . '/-';
+        $totalFmtAr  = number_format($totalProfit, 2) . '/- درهم إماراتي';
+
+        return [
+            $rowsEng,
+            $rowsAr,
+            $totalFmtEng,
+            $totalFmtAr,
+            $rowNumber,
+        ];
     }
 
     /**

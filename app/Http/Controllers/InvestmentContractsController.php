@@ -3,11 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Exports\InvestmentContractsExport;
+use App\Models\Investment;
 use App\Models\InvestmentContractDocuments;
 use App\Services\Investment\InvestmentContractDocumentService;
 use App\Services\Investment\InvestmentService;
 use Illuminate\Http\Request;
 use App\Services\CompanyService;
+use App\Services\Investment\InvestorAgreementService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -18,6 +21,7 @@ class InvestmentContractsController extends Controller
         protected InvestmentContractDocumentService $investmentContractService,
         protected InvestmentService $investmentService,
         protected CompanyService $companyService,
+        protected InvestorAgreementService $InvestorAgreementService,
     ) {}
 
     public function index()
@@ -113,5 +117,49 @@ class InvestmentContractsController extends Controller
                     '"',
             ]
         );
+    }
+
+    public function novationInvestments(int $investorId): JsonResponse
+    {
+        $investments = Investment::query()
+            ->activeLongTerm()
+            ->where('investor_id', $investorId)
+            ->with('company:id,company_name')
+            ->orderByDesc('id')
+            ->get(['id', 'investor_id', 'company_id', 'investment_date', 'investment_amount', 'investment_code'])
+            ->map(function ($investment) {
+                return [
+                    'id' => $investment->id,
+                    'company_id' => $investment->company_id,
+                    'investment_code' => $investment->investment_code,
+                    'investment_date' => $investment->investment_date,
+                    'investment_amount' => $investment->investment_amount,
+                    'company_name' => optional($investment->company)->company_name,
+                ];
+            });
+
+        return response()->json([
+            'status' => true,
+            'data' => $investments,
+        ]);
+    }
+
+    public function applyNovation(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'investor_id' => ['required', 'integer', 'exists:investors,id'],
+            'investment_ids' => ['required', 'array', 'min:1'],
+            'investment_ids.*' => ['required', 'integer', 'distinct', 'exists:investments,id'],
+        ]);
+
+        $this->InvestorAgreementService->novationOfSelectedInvestorInvestments(
+            (int) $validated['investor_id'],
+            $validated['investment_ids']
+        );
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Novation applied to the selected investments.',
+        ]);
     }
 }

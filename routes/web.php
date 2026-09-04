@@ -493,6 +493,11 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
         'receivable-report/projects-by-company',
         [ReceivableReportController::class, 'projectsByCompany']
     )->name('receivable-report.projects-by-company');
+
+
+    Route::get('/investors/{investor}/novation-investments', [InvestmentContractsController::class, 'novationInvestments'])->name('investor.novation.investments');
+
+    Route::post('/investors/apply-selected-novation', [InvestmentContractsController::class, 'applyNovation'])->name('investor.novation.apply');
 });
 
 

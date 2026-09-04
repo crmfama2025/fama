@@ -305,6 +305,14 @@ class InvestorService
                     <i class="fas fa-wallet"></i>
                 </a>';
                 }
+
+                if (auth()->user()->hasAnyPermission(['investor.novation'], $row->company_id)) {
+                    $action .= ' <button class="btn btn-sm" data-id="" data-investor-id="' . $row->id . '" data-investor-name="' . $row->investor_name . '"
+                    data-target="#modal-apply-novation" 
+                    data-toggle="modal" 
+                    title="Apply Novation" style="background: #b700b7"><i class="fas fa-redo" style="color: white;"></i></button>';
+                }
+
                 // $action .= ' <a href="' . route('investor.investment_annexture', $row->id) . '"
                 //     title="Investment Annexture"
                 //     class="btn bg-pink btn-sm">
