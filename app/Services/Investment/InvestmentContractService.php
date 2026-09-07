@@ -1044,7 +1044,7 @@ class InvestmentContractService
             $CompanyProfitPerc,
             // 'english'
         );
-        // dd($annexureA);
+        dd($annexureA);
         // Annexture B
         $profitData = $this->annextureB($investment);
         // dd($profitData);
