@@ -96,6 +96,9 @@ class Investment extends Model
         'investment_term_type',
 
         'last_renewed_maturity_date',
+        'renewed_at',
+        'investor_novation_applied_at',
+        'investor_novation_applied_by',
     ];
     protected $casts = [
         'company_bank_iban' => CustomEncrypted::class,

@@ -1939,6 +1939,9 @@ namespace App\Models{
  * @property int $has_partial_withdrawal 0-No ,1-Yes
  * @property int $investment_term_type 1-Long Term, 2-short term
  * @property string|null $last_renewed_maturity_date
+ * @property string|null $renewed_at
+ * @property string|null $investor_novation_applied_at
+ * @property int|null $investor_novation_applied_by
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Investment> $childInvestments
  * @property-read int|null $child_investments_count
  * @property-read \App\Models\Company|null $company
@@ -1993,6 +1996,8 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereInvestmentType($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereInvestorBankId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereInvestorId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Investment whereInvestorNovationAppliedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Investment whereInvestorNovationAppliedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereIsProfitProcessed($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereLastProfitReleasedDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereLastRenewedMaturityDate($value)
@@ -2013,6 +2018,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereReceivedAmount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereReinvestedCount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereReinvestmentOrNot($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Investment whereRenewedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereTerminateStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereTerminatedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereTerminationDate($value)
