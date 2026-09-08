@@ -150,11 +150,13 @@ class InvestmentContractsController extends Controller
             'investor_id' => ['required', 'integer', 'exists:investors,id'],
             'investment_ids' => ['required', 'array', 'min:1'],
             'investment_ids.*' => ['required', 'integer', 'distinct', 'exists:investments,id'],
+            'novation_date' => ['required', 'date_format:Y-m-d'],
         ]);
 
         $this->InvestorAgreementService->novationOfSelectedInvestorInvestments(
             (int) $validated['investor_id'],
-            $validated['investment_ids']
+            $validated['investment_ids'],
+            $validated['novation_date']
         );
 
         return response()->json([

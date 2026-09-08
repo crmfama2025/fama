@@ -4,8 +4,9 @@
 
              <div class="modal-header">
                  <div>
-                     <h4 class="modal-title">Apply Investment Novation</h4>
-                     <small id="novation-investor-name" class="text-muted"></small>
+                     <h3 class="modal-title"><span id="novation-investor-name" class="text-maroon"></span> <small
+                             class="text-muted"> - Apply Novation</small></h3>
+
                  </div>
 
                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -19,6 +20,21 @@
                  <input type="hidden" name="investor_id" id="novation_investor_id">
 
                  <div class="modal-body">
+                     <div class="col-4">
+                         <div class="form-group">
+                             <label for="novation_date">
+                                 Novation Date <span class="text-danger">*</span>
+                             </label>
+
+                             <input type="date" name="novation_date" id="novation_date" class="form-control"
+                                 value="{{ old('novation_date', now()->toDateString()) }}" required>
+
+                             <div id="novation-date-error" class="text-danger mt-1" style="display: none;">
+                                 Please select the novation date.
+                             </div>
+                         </div>
+                     </div>
+
 
                      <div id="novation-investments-loader" class="text-center py-4" style="display: none;">
                          <i class="fas fa-spinner fa-spin"></i>

@@ -8,6 +8,7 @@ use App\Models\InvestorAgreementType;
 use App\Repositories\Investment\InvestmentContractDocumentRepository;
 use App\Repositories\Investment\InvestorAgreementRepository;
 use App\Services\PdfCompressionService;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -348,7 +349,9 @@ class InvestmentContractDocumentService
         // dump($investorId);
         // dd($docInsertData);
         // dd($docInsertData);
-        $docInsertData['generated_date'] = now()->format('Y-m-d H:i:s');
+        $docInsertData['generated_date'] = isset($docInsertData['generated_date']) ?
+            Carbon::parse($docInsertData['generated_date'])->format('Y-m-d H:i:s') : now()->format('Y-m-d H:i:s');
+
         $docInsertData['generated_by'] = auth()->user()->id;
         // dd($docInsertData);
 
@@ -356,7 +359,7 @@ class InvestmentContractDocumentService
             ->where('company_id', $companyId)
             ->where('investor_agreement_type_id', 1) // Mudarabah
             ->whereHas('investment', function ($query) {
-                $query->where('investment_term_type', 1); // take only short term investments
+                $query->where('investment_term_type', 1); // take only long term investments
             })
             ->latest('id') // or latest('created_at')
             ->first();
@@ -364,6 +367,14 @@ class InvestmentContractDocumentService
 
         $docInsertData['reference_mudarabah_id'] = $lastMudarabah ? $lastMudarabah->id : null;
         // dd($docInsertData);
+        /*
+         Explicit agreement type:
+         3 = Partial Withdrawal
+         5 = Settlement/Termination
+         4 = Novation
+         1 = Mudarabah
+         2 = Addendum
+         */
         if ($docInsertData['investment_id'] == 0) {
             if (isset($docInsertData['investor_agreement_type_id'])) {
                 if ($docInsertData['investor_agreement_type_id'] == 3) {

@@ -386,7 +386,8 @@ class InvestorAgreementService
 
     public function novationOfSelectedInvestorInvestments(
         int $investorId,
-        array $selectedInvestmentIds
+        array $selectedInvestmentIds,
+        string $novationDate
     ): void {
         $selectedInvestmentIds = array_values(
             array_unique(
@@ -397,6 +398,8 @@ class InvestorAgreementService
             )
         );
 
+        $novationDate = Carbon::createFromFormat('Y-m-d', $novationDate)->startOfDay();
+
         if (empty($selectedInvestmentIds)) {
             throw ValidationException::withMessages([
                 'investment_ids' => 'Please select at least one investment.',
@@ -404,7 +407,7 @@ class InvestorAgreementService
         }
 
 
-        DB::transaction(function () use ($investorId, $selectedInvestmentIds) {
+        DB::transaction(function () use ($investorId, $selectedInvestmentIds, $novationDate) {
             $investments = Investment::query()
                 ->activeLongTerm()
                 ->where('investor_id', $investorId)
@@ -437,6 +440,7 @@ class InvestorAgreementService
                 $docInsertData = [
                     'investment_id' => 0,
                     'investor_id' => $investorId,
+                    'generated_date' => $novationDate->toDateString(),
                     'applied_investments' => json_encode(
                         $companyInvestments
                             ->pluck('id')
@@ -460,7 +464,7 @@ class InvestorAgreementService
                 foreach ($companyInvestments as $investment) {
                     $this->refreshProfitRecordsAfterNovation(
                         $investment,
-                        $document->generated_date
+                        $novationDate
                     );
                 }
             }
