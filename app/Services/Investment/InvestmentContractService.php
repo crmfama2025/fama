@@ -643,7 +643,7 @@ class InvestmentContractService
         int $annexureNo,
         $invDocDetails
     ): array {
-        $windowStart = Carbon::parse($invDocDetails->created_at)->startOfDay();
+        $windowStart = Carbon::parse($invDocDetails->generated_date)->startOfDay();
 
         // Exactly one year, with an exclusive upper boundary.
         $windowEndExclusive = $windowStart->copy()->addYear();
