@@ -337,7 +337,8 @@
                                     <thead>
                                         <tr>
                                             <th>#</th>
-                                            <th>Lead Code</th>
+                                            <th>Action</th>
+                                            {{-- <th>Lead Code</th> --}}
                                             <th>Company Name</th>
                                             <th>Contact Person</th>
                                             <th>Phone Number</th>
@@ -345,9 +346,10 @@
                                             <th>Lead Source</th>
                                             <th>Total Staff</th>
                                             <th>Required Location</th>
+                                            <th>Added By</th>
                                             {{-- <th>Requirement</th> --}}
                                             <th>Status</th>
-                                            <th>Action</th>
+
                                         </tr>
                                     </thead>
 
@@ -459,9 +461,16 @@
                         searchable: false
                     },
                     {
-                        data: 'lead_code',
-                        name: 'leads.lead_code'
+                        data: 'action',
+                        name: 'action',
+                        orderable: false,
+                        searchable: false
                     },
+
+                    //  {
+                    //     data: 'lead_code',
+                    //     name: 'leads.lead_code'
+                    // },
 
 
                     {
@@ -498,18 +507,18 @@
                         data: 'required_location',
                         name: 'leads.required_location'
                     },
+                    {
+                        data: 'added_by',
+                        name: 'added_by',
 
+                    },
                     {
                         data: 'status',
                         name: 'leads.status',
                     },
 
-                    {
-                        data: 'action',
-                        name: 'action',
-                        orderable: false,
-                        searchable: false
-                    }
+
+
 
                 ],
 

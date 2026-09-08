@@ -174,6 +174,24 @@ class LeadService
             ->addColumn('status', function ($row) {
                 return $this->getLeadStatus($row->status, true);
             })
+            ->addColumn('added_by', function ($row) {
+                if ($row->createdBy) {
+                    $name = $row->createdBy->first_name . ' ' . $row->createdBy->last_name;
+                    $image = $row->createdBy->profile_path
+                        ? asset('storage/' . $row->createdBy->profile_path)
+                        : asset('images/default-avatar.png');
+
+                    return '
+            <div style="display:flex; align-items:center; gap:8px;">
+                <img src="' . $image . '"
+                     style="width:30px; height:30px; border-radius:50%; object-fit:cover;">
+                <span>' . $name . '</span>
+            </div>
+        ';
+                }
+
+                return '-';
+            })
             ->addColumn('action', function ($row) {
                 $action = '<div class="d-flex flex-column flex-md-row">';
 
@@ -193,13 +211,13 @@ class LeadService
                 }
 
                 // Converted lead
-                if ((int) $row->status === 9) {
-                    $action .= '<a href="' . route('tenant.create', ['lead_id' => $row->id]) . '" class="btn btn-success btn-sm mb-1" title="Create Tenant" data-toggle="tooltip"><i class="fas fa-user-plus"></i></a>';
+                if ((int) $row->status === 9 && auth()->user()->hasAnyPermission(['leads.convert']) && !$row->tenant) {
+                    $action .= '<a href="' . route('tenant-registration.create', ['lead_id' => $row->id]) . '" class="btn btn-success btn-sm mb-1" title="Create Tenant" target="_blank" data-toggle="tooltip"><i class="fas fa-user-plus"></i></a>';
                 }
 
                 return $action . '</div>';
             })
-            ->rawColumns(['status', 'action'])
+            ->rawColumns(['status', 'action', 'added_by'])
             ->with(['columns' => $columns])
             ->toJson();
     }
@@ -347,21 +365,6 @@ class LeadService
             $followUpData['created_by'] = auth()->id();
 
             $followUp = LeadFollowUp::create($followUpData);
-            // $followUp = LeadFollowUp::create([
-            //     'lead_id' => $lead->id,
-            //     'follow_up_status' => $data['follow_up_status'],
-            //     'follow_up_type' => $data['follow_up_type'],
-            //     'not_interested_reason' => $data['not_interested_reason'] ?? null,
-            //     'meeting_date' => $data['meeting_date'] ?? null,
-            //     'meeting_time' => $data['meeting_time'] ?? null,
-            //     'meeting_location' => $data['meeting_location'] ?? null,
-            //     'notes' => $data['notes'] ?? null,
-            //     'next_follow_up_date' => $data['next_follow_up_date'] ?? null,
-            //     'next_follow_up_time' => $data['next_follow_up_time'] ?? null,
-            //     'follow_up_date' => $data['follow_up_date'] ?? null,
-            //     'created_by' => auth()->id(),
-            // ]);
-            // dd($followUp);
 
             $lead->status = $data['follow_up_status'];
             $lead->updated_by = auth()->id();

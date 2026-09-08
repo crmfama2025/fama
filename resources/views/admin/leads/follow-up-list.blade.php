@@ -423,7 +423,10 @@
                                     <span class="follow-up-number">
                                         #{{ $lead->followUps->count() - $loop->iteration + 1 }}
                                     </span>
-                                    @if ($followUp->id === $latestFollowUpId && auth()->user()->id === $lead->assigned_to)
+                                    @if (
+                                        $followUp->id === $latestFollowUpId &&
+                                            auth()->user()->id === $lead->assigned_to &&
+                                            !in_array($lead->status, [5, 9, 10]))
                                         <div>
                                             <button type="button"
                                                 class="btn btn-sm btn-outline-primary editFollowUpBtn"
