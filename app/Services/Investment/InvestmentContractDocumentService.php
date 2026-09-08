@@ -8,6 +8,7 @@ use App\Models\InvestorAgreementType;
 use App\Repositories\Investment\InvestmentContractDocumentRepository;
 use App\Repositories\Investment\InvestorAgreementRepository;
 use App\Services\PdfCompressionService;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -173,9 +174,21 @@ class InvestmentContractDocumentService
                 //             <i class="fas fa-eye"></i>
                 //         </a>';
                 // }
+
+                $investmentDateAllowed =
+                    (int) $row->investment_id === 0 ||
+                    \Carbon\Carbon::parse($row->investment_date)
+                    ->startOfDay()
+                    ->greaterThanOrEqualTo(
+                        \Carbon\Carbon::create(2026, 8, 31)->startOfDay()
+                    );
+
                 if (
-                    auth()->user()->hasAnyPermission(['investment.add'], $row->company_id) ||
-                    auth()->user()->hasAnyPermission(['investment.view'], $row->company_id)
+                    $investmentDateAllowed &&
+                    (
+                        auth()->user()->hasAnyPermission(['investment.add'], $row->company_id) ||
+                        auth()->user()->hasAnyPermission(['investment.view'], $row->company_id)
+                    )
                 ) {
                     $action .= '<a href="' . route('legal_template.contractview', [
                         'docId' => $row->id,
@@ -336,7 +349,9 @@ class InvestmentContractDocumentService
         // dump($investorId);
         // dd($docInsertData);
         // dd($docInsertData);
-        $docInsertData['generated_date'] = now()->format('Y-m-d H:i:s');
+        $docInsertData['generated_date'] = isset($docInsertData['generated_date']) ?
+            Carbon::parse($docInsertData['generated_date'])->format('Y-m-d H:i:s') : now()->format('Y-m-d H:i:s');
+
         $docInsertData['generated_by'] = auth()->user()->id;
         // dd($docInsertData);
 
@@ -344,7 +359,7 @@ class InvestmentContractDocumentService
             ->where('company_id', $companyId)
             ->where('investor_agreement_type_id', 1) // Mudarabah
             ->whereHas('investment', function ($query) {
-                $query->where('investment_term_type', 1); // take only short term investments
+                $query->where('investment_term_type', 1); // take only long term investments
             })
             ->latest('id') // or latest('created_at')
             ->first();
@@ -352,16 +367,26 @@ class InvestmentContractDocumentService
 
         $docInsertData['reference_mudarabah_id'] = $lastMudarabah ? $lastMudarabah->id : null;
         // dd($docInsertData);
+        /*
+         Explicit agreement type:
+         3 = Partial Withdrawal
+         5 = Settlement/Termination
+         4 = Novation
+         1 = Mudarabah
+         2 = Addendum
+         */
         if ($docInsertData['investment_id'] == 0) {
-            if ($docInsertData['investor_agreement_type_id'] == 3) {
-                return $this->createAgreement($docInsertData, $companyId, 3); //Partial Withdrawal
-            } elseif ($docInsertData['investor_agreement_type_id'] == 5) {
-                return  $this->createAgreement($docInsertData, $companyId, 5); //Settlement Or Termination
+            if (isset($docInsertData['investor_agreement_type_id'])) {
+                if ($docInsertData['investor_agreement_type_id'] == 3) {
+                    return $this->createAgreement($docInsertData, $companyId, 3); //Partial Withdrawal
+                } elseif ($docInsertData['investor_agreement_type_id'] == 5) {
+                    return  $this->createAgreement($docInsertData, $companyId, 5); //Settlement Or Termination
+                }
+            } else {
+                $docData = $this->createAgreement($docInsertData, $companyId, 4); // Novation
+                return $this->createAgreement($docInsertData, $companyId, 1); // Mudarabah
+
             }
-
-            $this->createAgreement($docInsertData, $companyId, 4); // Novation
-            $this->createAgreement($docInsertData, $companyId, 1); // Mudarabah
-
         } else {
             // dd("test1");
 

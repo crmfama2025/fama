@@ -170,6 +170,7 @@
     <script src="{{ asset('assets/datatables-buttons/js/buttons.colVis.min.js') }}"></script>
 
     @include('admin.investment.investor-bank-modal')
+    @include('admin.investment.investor-novation-modal')
 
     <script>
         $(function() {
