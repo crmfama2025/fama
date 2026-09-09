@@ -613,11 +613,31 @@ class InvestmentService
             ->of($query)
             ->addIndexColumn()
             ->addColumn('company_name', fn($row) => $row->company->company_name ?? '-')
-            ->addColumn(
-                'invested_company_name',
-                fn($row) =>
-                $row->investedCompany->company_name ?? '-'
-            )
+            // ->addColumn(
+            //     'invested_company_name',
+            //     fn($row) =>
+            //     $row->investedCompany->company_name ?? '-'
+            // )
+            ->addColumn('invested_company_name', function ($row) {
+                if ($row->companyAllocations->isNotEmpty()) {
+                    return $row->companyAllocations
+                        ->map(function ($allocation) {
+                            return ($allocation->company?->company_name ?? '-')
+                                . ' - '
+                                . number_format($allocation->allocated_amount, 2);
+                        })
+                        ->implode(', <br>');
+                }
+
+                // Fallback for older investments.
+                if ($row->invested_company_id) {
+                    return ($row->investedCompany?->company_name ?? '-')
+                        . ' - '
+                        . number_format($row->investment_amount, 2);
+                }
+
+                return '-';
+            })
             ->addColumn('investor_name', fn($row) => $row->investor->investor_name . " - " . $row->investor->investor_code ?? '-')
 
             ->addColumn('investment_amount', fn($row) => number_format($row->investment_amount, 2))
@@ -742,7 +762,7 @@ class InvestmentService
 
                 return $action;
             })
-            ->rawColumns(['action', 'nominee_details'])
+            ->rawColumns(['action', 'nominee_details', 'invested_company_name'])
             ->toJson();
     }
     public function getFormData()

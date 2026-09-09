@@ -7,8 +7,10 @@ use Carbon\Carbon;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithStyles;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class InvestmentExport implements FromCollection, WithHeadings, ShouldAutoSize
+class InvestmentExport implements FromCollection, WithHeadings, ShouldAutoSize, WithStyles
 {
     protected $search;
     protected $filters;
@@ -24,10 +26,12 @@ class InvestmentExport implements FromCollection, WithHeadings, ShouldAutoSize
      */
     public function collection()
     {
+        $filters = $this->filters;
+
         $permittedCompanyIds = getUserPermittedCompanyIds(auth()->user()->id, 'investment');
 
         //
-        $query = Investment::with('investor', 'payoutBatch', 'profitInterval', 'company', 'investmentReferral');
+        $query = Investment::with('investor', 'payoutBatch', 'profitInterval', 'company', 'companyAllocations.company', 'investmentReferral', 'investedCompany');
 
         $query->whereHas('company', function ($q) use ($permittedCompanyIds) {
             $q->whereIn('company_id', $permittedCompanyIds);
@@ -38,40 +42,59 @@ class InvestmentExport implements FromCollection, WithHeadings, ShouldAutoSize
         }
         // dd($result);
         if (!empty($filters['search'])) {
-            $query->orWhere('investment_amount', 'like', '%' . $filters['search'] . '%')
-                ->orWhere('investment_date', 'like', '%' . $filters['search'] . '%')
-                ->orWhere('maturity_date', 'like', '%' . $filters['search'] . '%')
-                ->orWhere('profit_perc', 'like', '%' . $filters['search'] . '%')
-                ->orWhere('received_amount', 'like', '%' . $filters['search'] . '%')
-                ->orWhere('profit_release_date', 'like', '%' . $filters['search'] . '%')
-                ->orWhere('nominee_name', 'like', '%' . $filters['search'] . '%')
-                ->orWhere('nominee_email', 'like', '%' . $filters['search'] . '%')
-                ->orWhere('nominee_phone', 'like', '%' . $filters['search'] . '%')
-                ->orWhereHas('investor', function ($q) use ($filters) {
-                    $q->where('investor_name', 'like', '%' . $filters['search'] . '%');
-                })
-                ->orWhereHas('profitInterval', function ($q) use ($filters) {
-                    $q->where('profit_interval_name', 'like', '%' . $filters['search'] . '%');
-                })
-                ->orWhereHas('payoutBatch', function ($q) use ($filters) {
-                    $q->where('batch_name', 'like', '%' . $filters['search'] . '%');
-                })
-                ->orWhereHas('company', function ($q) use ($filters) {
-                    $q->where('company_name', 'like', '%' . $filters['search'] . '%');
-                })->orWhereHas('investmentReferral', function ($q) use ($filters) {
-                    $q->where('referral_commission_amount', 'like', '%' . $filters['search'] . '%');
-                    $q->whereHas('referrer', function ($qr) use ($filters) {
-                        $qr->where('investor_name', 'like', '%' . $filters['search'] . '%');
-                    });
-                })
-                ->orWhereRaw("CAST(investments.id AS CHAR) LIKE ?", ['%' . $filters['search'] . '%']);
+            $query->where(function ($q) use ($filters) {
+                $q->where('investment_amount', 'like', '%' . $filters['search'] . '%')
+                    ->orWhere('investment_date', 'like', '%' . $filters['search'] . '%')
+                    ->orWhere('maturity_date', 'like', '%' . $filters['search'] . '%')
+                    ->orWhere('profit_perc', 'like', '%' . $filters['search'] . '%')
+                    ->orWhere('received_amount', 'like', '%' . $filters['search'] . '%')
+                    ->orWhere('profit_release_date', 'like', '%' . $filters['search'] . '%')
+                    ->orWhere('nominee_name', 'like', '%' . $filters['search'] . '%')
+                    ->orWhere('nominee_email', 'like', '%' . $filters['search'] . '%')
+                    ->orWhere('nominee_phone', 'like', '%' . $filters['search'] . '%')
+                    ->orWhereHas('investor', function ($q) use ($filters) {
+                        $q->where('investor_name', 'like', '%' . $filters['search'] . '%');
+                    })
+                    ->orWhereHas('profitInterval', function ($q) use ($filters) {
+                        $q->where('profit_interval_name', 'like', '%' . $filters['search'] . '%');
+                    })
+                    ->orWhereHas('payoutBatch', function ($q) use ($filters) {
+                        $q->where('batch_name', 'like', '%' . $filters['search'] . '%');
+                    })
+                    ->orWhereHas('company', function ($q) use ($filters) {
+                        $q->where('company_name', 'like', '%' . $filters['search'] . '%');
+                    })->orWhereHas('investmentReferral', function ($q) use ($filters) {
+                        $q->where('referral_commission_amount', 'like', '%' . $filters['search'] . '%');
+                        $q->whereHas('referrer', function ($qr) use ($filters) {
+                            $qr->where('investor_name', 'like', '%' . $filters['search'] . '%');
+                        });
+                    })
+                    ->orWhereRaw("CAST(investments.id AS CHAR) LIKE ?", ['%' . $filters['search'] . '%']);
+            });
         }
         $results = $query->get();
 
         return $results->map(function ($row) {
+            $investedCompanies = '-';
+
+            if ($row->companyAllocations->isNotEmpty()) {
+                $investedCompanies = $row->companyAllocations
+                    ->map(function ($allocation) {
+                        return ($allocation->company?->company_name ?? '-')
+                            . ' - '
+                            . number_format($allocation->allocated_amount, 2);
+                    })
+                    ->implode(",\n");
+            } elseif ($row->invested_company_id) {
+                $investedCompanies = ($row->investedCompany?->company_name ?? '-')
+                    . ' - '
+                    . number_format($row->investment_amount, 2);
+            }
+
             return [
                 'ID' => $row->id,
                 'Company Name' => $row->company->company_name ?? '-',
+                'Invested Companies' => $investedCompanies,
                 'Investor Name' => $row->investor->investor_name ?? '-',
                 'Investor Email' => $row->investor->investor_email ?? '-',
                 'Investor Mobile' => $row->investor->investor_mobile ?? '-',
@@ -101,6 +124,7 @@ class InvestmentExport implements FromCollection, WithHeadings, ShouldAutoSize
         return [
             'ID',
             'Company Name',
+            'Invested Companies',
             'Investor Name',
             'Investor Email',
             'Investor Mobile',
@@ -122,5 +146,12 @@ class InvestmentExport implements FromCollection, WithHeadings, ShouldAutoSize
             'Referral Commission Frequncy',
             'Payment Terms'
         ];
+    }
+
+    public function styles(Worksheet $sheet)
+    {
+        $sheet->getStyle('C1:C' . $sheet->getHighestRow())
+            ->getAlignment()
+            ->setWrapText(true);
     }
 }

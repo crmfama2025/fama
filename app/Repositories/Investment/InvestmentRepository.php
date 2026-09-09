@@ -86,7 +86,7 @@ class InvestmentRepository
     {
         $permittedCompanyIds = getUserPermittedCompanyIds(auth()->user()->id, 'investment');
 
-        $query = Investment::with('investor', 'payoutBatch', 'profitInterval', 'company', 'investmentReferral', 'investedCompany');
+        $query = Investment::with('investor', 'payoutBatch', 'profitInterval', 'company', 'investmentReferral', 'companyAllocations.company', 'investedCompany');
 
         $query->whereHas('company', function ($q) use ($permittedCompanyIds) {
             $q->whereIn('company_id', $permittedCompanyIds);

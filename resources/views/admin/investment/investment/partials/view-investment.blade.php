@@ -69,6 +69,58 @@
  </div>
 
  <div class="card card-outline card-info">
+
+
+     <div class="card-header">
+         <h3 class="card-title text-teal text-bold">
+             <i class="fas fa-file-invoice-dollar mr-2"></i> Allocated Company
+         </h3>
+     </div>
+
+     <div class="card-body p-0">
+         <div class="table-responsive">
+             <table class="table table-bordered table-striped ">
+                 <thead class="bg-light">
+                     <tr>
+                         <th>#</th>
+                         <th>Invested Company</th>
+                         <th>Allocated Amount</th>
+                     </tr>
+                 </thead>
+
+                 <tbody>
+                     @forelse ($investment->companyAllocations as $item)
+                         <tr>
+                             <td>{{ $loop->iteration }}</td>
+                             <td>{{ $item->company?->company_name ?? '-' }}</td>
+                             <td>{{ number_format($item->allocated_amount, 2) }}</td>
+                         </tr>
+                     @empty
+                         @if ($investment->invested_company_id)
+                             <tr>
+                                 <td>1</td>
+                                 <td>
+                                     {{ $investment->investedCompany?->company_name ?? '-' }}
+                                 </td>
+                                 <td>{{ number_format($investment->investment_amount, 2) }}</td>
+                             </tr>
+                         @else
+                             <tr>
+                                 <td colspan="3" class="text-center text-muted">
+                                     No company allocation recorded.
+                                 </td>
+                             </tr>
+                         @endif
+                     @endforelse
+                 </tbody>
+             </table>
+         </div>
+
+     </div>
+
+ </div>
+
+ <div class="card card-outline card-info">
      <div class="card-header">
          <h3 class="card-title text-teal text-bold">
              <i class="fas fa-file-invoice-dollar mr-2"></i> Profit Details
