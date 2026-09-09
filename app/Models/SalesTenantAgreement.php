@@ -42,7 +42,8 @@ class SalesTenantAgreement extends Model
         'approved_by',
         'approved_date',
         'approved_comments',
-        'is_agreement_added'
+        'is_agreement_added',
+        'lead_id'
     ];
     public function tenant()
     {

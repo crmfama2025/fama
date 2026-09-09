@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\SalesTenantExport;
+use App\Models\AgreementTenant;
 use App\Models\ContractType;
 use App\Models\Emirate;
 use App\Models\SalesTenantAgreement;
@@ -18,6 +19,7 @@ use App\Services\BankService;
 use App\Services\CompanyService;
 use App\Services\Contracts\ContractService;
 use App\Services\InstallmentService;
+use App\Services\LeadService;
 use App\Services\NationalityService;
 use App\Services\PaymentModeService;
 use App\Services\Sales\TenantRegistrationService;
@@ -41,7 +43,8 @@ class TenantregistrationController extends Controller
         protected AgreementUnitService $agreementUnitService,
         protected InvoiceService $invoiceService,
         protected AgreementRepository $agreementRepository,
-        protected AgreementTenantService $tenantService
+        protected AgreementTenantService $tenantService,
+        protected LeadService $leadService
 
     ) {}
     public function index()
@@ -49,12 +52,21 @@ class TenantregistrationController extends Controller
         $title = 'Tenant Registration';
         return view('admin.sales.tenant-registration', compact('title'));
     }
-    public function create()
+    public function create(Request $request)
     {
         $title = 'Tenant Registration';
         $formData = $this->tenantRegistrationService->getTenantRegistrationFormData();
+        $lead = null;
+        $leadTenantId = null;
+        if ($request->filled('lead_id')) {
+            $lead = $this->leadService->getById($request->lead_id);
+            if ($lead) {
+                $leadTenantId = AgreementTenant::where('lead_id', $lead->id)->value('id');
+            }
+        }
+        // dd($lead);
         // dd($formData);
-        return view('admin.sales.tenant-registration-create', compact('title', 'formData'));
+        return view('admin.sales.tenant-registration-create', compact('title', 'formData', 'lead', 'leadTenantId'));
     }
     public function store(Request $request)
     {
@@ -85,6 +97,7 @@ class TenantregistrationController extends Controller
         $agreement = $this->tenantRegistrationService->getDetails($id);
 
         $tenant = $agreement->tenant;
+        // dd($agreement, $tenant);
 
         // ── Owner docs (B2B only) ──
         $ownerDocs = $agreement->business_type == 1
@@ -127,7 +140,7 @@ class TenantregistrationController extends Controller
     }
     public function update(Request $request, $id)
     {
-        // dd($request);
+        dd($request->all());
         try {
             $agreement = $this->tenantRegistrationService->update($id, $request);
 

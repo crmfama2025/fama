@@ -22,6 +22,10 @@
             text-overflow: ellipsis;
             display: block;
         }
+
+        .counts {
+            font-size: 14px;
+        }
     </style>
 @endsection
 
@@ -277,56 +281,65 @@
                             {{-- @endcan --}}
 
                             <!-- /.card-header -->
-                            {{-- <div class="card-body border-bottom">
-                                <div class="d-flex flex-wrap align-items-center">
+                            <div class="card-body border-bottom">
+                                <div class="d-flex flex-wrap align-items-center justify-content-center">
 
-                                    <span class="badge bg-info mr-2 mb-2 px-3 py-2">
-                                        Processing <span id="countProcessing">0</span>
+                                    <span class="badge bg-secondary mr-2 mb-2 px-3 py-2 status-count" data-status="0"
+                                        style="cursor:pointer;">
+                                        Pending <span id="countPending" class="counts p-1 p-1"></span>
                                     </span>
 
-                                    <span class="badge bg-success mr-2 mb-2 px-3 py-2">
-                                        Interested <span id="countInterested">0</span>
+                                    <span class="badge bg-primary mr-2 mb-2 px-3 py-2 status-count" data-status="1"
+                                        style="cursor:pointer;">
+                                        Processing <span id="countProcessing" class="counts p-1"></span>
                                     </span>
 
-                                    <span class="badge bg-primary mr-2 mb-2 px-3 py-2">
+                                    <span class="badge bg-info mr-2 mb-2 px-3 py-2 status-count" data-status="2"
+                                        style="cursor:pointer;">
+                                        Interested <span id="countInterested" class="counts p-1"></span>
+                                    </span>
+
+                                    {{-- <span class="badge bg-primary mr-2 mb-2 px-3 py-2">
                                         Call Back <span id="countCallBack">0</span>
-                                    </span>
+                                    </span> --}}
 
-                                    <span class="badge bg-secondary mr-2 mb-2 px-3 py-2">
+                                    {{-- <span class="badge bg-secondary mr-2 mb-2 px-3 py-2">
                                         No Answer <span id="countNoAnswer">0</span>
+                                    </span> --}}
+
+                                    <span class="badge bg-warning text-dark mr-2 mb-2 px-3 py-2 status-count"
+                                        data-status="5" style="cursor:pointer;">
+                                        Not Interested <span id="countNotInterested" class="counts p-1"></span>
                                     </span>
 
-                                    <span class="badge bg-danger mr-2 mb-2 px-3 py-2">
-                                        Not Interested <span id="countNotInterested">0</span>
+                                    {{-- <span class="badge bg-purple mr-2 mb-2 px-3 py-2">
+                                            Meeting Scheduled <span id="countMeeting">0</span>
+                                        </span>
+
+                                        <span class="badge bg-info mr-2 mb-2 px-3 py-2">
+                                            Proposal Sent <span id="countProposal">0</span>
+                                        </span>
+
+                                        <span class="badge bg-warning text-dark mr-2 mb-2 px-3 py-2">
+                                            Negotiation <span id="countNegotiation">0</span>
+                                        </span> --}}
+
+                                    <span class="badge bg-success mr-2 mb-2 px-3 py-2 status-count" data-status="9"
+                                        style="cursor:pointer;">
+                                        Converted <span id="countConverted" class="counts p-1"></span>
                                     </span>
 
-                                    <span class="badge bg-purple mr-2 mb-2 px-3 py-2">
-                                        Meeting Scheduled <span id="countMeeting">0</span>
+                                    <span class="badge bg-danger mr-2 mb-2 px-3 py-2 status-count" data-status="10"
+                                        style="cursor:pointer;">
+                                        Lost <span id="countLost" class="counts p-1"></span>
                                     </span>
 
-                                    <span class="badge bg-info mr-2 mb-2 px-3 py-2">
-                                        Proposal Sent <span id="countProposal">0</span>
-                                    </span>
-
-                                    <span class="badge bg-warning text-dark mr-2 mb-2 px-3 py-2">
-                                        Negotiation <span id="countNegotiation">0</span>
-                                    </span>
-
-                                    <span class="badge bg-success mr-2 mb-2 px-3 py-2">
-                                        Converted <span id="countConverted">0</span>
-                                    </span>
-
-                                    <span class="badge bg-danger mr-2 mb-2 px-3 py-2">
-                                        Lost <span id="countLost">0</span>
-                                    </span>
-
-                                    <span class="badge bg-dark mr-2 mb-2 px-3 py-2">
+                                    {{-- <span class="badge bg-dark mr-2 mb-2 px-3 py-2">
                                         Others <span id="countOthers">0</span>
-                                    </span>
+                                    </span> --}}
 
                                 </div>
-                            </div> --}}
-
+                            </div>
 
 
 
@@ -345,6 +358,7 @@
                                             <th>Email</th>
                                             <th>Lead Source</th>
                                             <th>Total Staff</th>
+                                            <th>Total Allocation</th>
                                             <th>Required Location</th>
                                             <th>Added By</th>
                                             {{-- <th>Requirement</th> --}}
@@ -449,6 +463,28 @@
                         d.next_follow_up_to = $('#nextFollowUpTo input').val();
                         d.followed_up_by = $('#followedUpBySelect').val();
                     },
+                    dataSrc: function(json) {
+
+
+                        console.log('Full DataTable Response:', json);
+                        console.log('Status Counts:', json.status_counts);
+
+                        console.log('Pending:', json.status_counts?.pending);
+                        console.log('Processing:', json.status_counts?.processing);
+                        console.log('Interested:', json.status_counts?.interested);
+                        console.log('Not Interested:', json.status_counts?.not_interested);
+                        console.log('Converted:', json.status_counts?.converted);
+                        console.log('Lost:', json.status_counts?.lost);
+
+                        $('#countPending').text(json.status_counts.pending);
+                        $('#countProcessing').text(json.status_counts.processing);
+                        $('#countInterested').text(json.status_counts.interested);
+                        $('#countNotInterested').text(json.status_counts.not_interested);
+                        $('#countConverted').text(json.status_counts.converted);
+                        $('#countLost').text(json.status_counts.lost);
+
+                        return json.data;
+                    },
 
                 },
 
@@ -501,6 +537,10 @@
                     {
                         data: 'total_staff',
                         name: 'leads.total_staff'
+                    },
+                    {
+                        data: 'total_allocation',
+                        name: 'leads.total_allocation'
                     },
 
                     {
@@ -563,6 +603,17 @@
             });
             $('.searchbtn').on('click', function() {
 
+                table.ajax.reload(null, true);
+
+            });
+            $('.status-count').on('click', function() {
+
+                let status = $(this).data('status');
+
+                // Set the status filter
+                $('#followUpStatusSelect').val(status).trigger('change');
+
+                // Reload DataTable
                 table.ajax.reload(null, true);
 
             });

@@ -79,6 +79,10 @@ class PermissionSeeder extends Seeder
                     $subModule[] = 'withdrawal-delete';
                     $subModule[] = 'novation';
                 }
+                if (in_array($module, ['leads'])) {
+                    $subModule[] = 'assign';
+                    $subModule[] = 'convert';
+                }
             }
 
             foreach ($subModule as $action) {

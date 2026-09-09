@@ -30,6 +30,18 @@
             direction: rtl;
             text-align: right;
         }
+
+        /* Remove number input spinner arrows (Chrome, Safari, Edge) */
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Firefox */
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
     </style>
 
     <!-- Theme style -->
@@ -595,7 +607,7 @@
                         @endif
                         {{-- Leads --}}
                         {{-- {{ dd(auth()->user()->permissions()->pluck('permission_name')->toArray()) }} --}}
-                        {{-- @if (auth()->user()->hasAnyPermission(['Leads', 'leads.add', 'leads.view', 'leads.edit', 'leads.delete']))
+                        @if (auth()->user()->hasAnyPermission(['Leads', 'leads.add', 'leads.view', 'leads.edit', 'leads.delete']))
                             <li class="nav-item {{ request()->is('lead') ? 'menu-open' : '' }}">
                                 <a href="{{ route('lead.index') }}"
                                     class="nav-link {{ request()->is('lead*') ? 'active bg-gradient-projects' : '' }}">
@@ -604,7 +616,7 @@
                                         Lead
                                     </p>
                                 </a>
-                        @endif --}}
+                        @endif
 
                         @if (auth()->user()->hasAnyPermission(['User', 'user.add', 'user.view', 'user.edit', 'user.delete']))
                             <li class="nav-item {{ request()->is('user') ? 'menu-open' : '' }}">
@@ -1020,6 +1032,26 @@
                 return true;
             }
         }
+
+        // Prevent mouse-wheel scroll from changing number input values (project-wide)
+        document.addEventListener('wheel', function(e) {
+            if (document.activeElement && document.activeElement.type === 'number') {
+                document.activeElement.blur();
+            }
+        }, {
+            passive: true
+        });
+        // Prevent Up/Down arrow keys from changing number input values (project-wide)
+        document.addEventListener('keydown', function(e) {
+            if (
+                e.target &&
+                e.target.tagName === 'INPUT' &&
+                e.target.type === 'number' &&
+                (e.key === 'ArrowUp' || e.key === 'ArrowDown')
+            ) {
+                e.preventDefault();
+            }
+        });
     </script>
     {{-- <script>
         $(window).on('load', function() {

@@ -37,6 +37,7 @@
                             </div>
                         </div>
                     </div>
+                    {{-- @dump($lead) --}}
 
                     {{-- Outcome --}}
                     <div class="form-group">
@@ -54,6 +55,14 @@
                             <option value="10">Lost</option>
                             <option value="11">Others</option>
                         </select>
+                    </div>
+
+                    {{-- Number of Staff - Only for Converted --}}
+                    <div class="form-group d-none" id="convertedStaffWrapper">
+                        <label for="convertedStaff" class="asterisk">Number of Staff</label>
+                        <input type="number" name="total_staff" id="convertedStaff" class="form-control" min="1"
+                            value="{{ old('total_staff', $lead->total_staff ?? '') }}"
+                            placeholder="Enter number of staff">
                     </div>
 
                     {{-- Follow Up Type + Date --}}

@@ -140,6 +140,24 @@ class LeadService
         }
 
         $query = $this->leadRepository->getQuery($filters);
+        // Clone before DataTable modifies the query
+        $countQuery = clone $query;
+
+        $statusCounts = [
+            'pending'        => (clone $countQuery)->where('status', 0)->count(),
+            'processing'     => (clone $countQuery)->where('status', 1)->count(),
+            'interested'     => (clone $countQuery)->where('status', 2)->count(),
+            'call_back'      => (clone $countQuery)->where('status', 3)->count(),
+            'no_answer'      => (clone $countQuery)->where('status', 4)->count(),
+            'not_interested' => (clone $countQuery)->where('status', 5)->count(),
+            'meeting'        => (clone $countQuery)->where('status', 6)->count(),
+            'proposal'       => (clone $countQuery)->where('status', 7)->count(),
+            'negotiation'    => (clone $countQuery)->where('status', 8)->count(),
+            'converted'      => (clone $countQuery)->where('status', 9)->count(),
+            'lost'           => (clone $countQuery)->where('status', 10)->count(),
+            'others'         => (clone $countQuery)->where('status', 11)->count(),
+        ];
+
 
         $columns = [
             ['data' => 'DT_RowIndex', 'name' => 'id'],
@@ -169,6 +187,7 @@ class LeadService
             ->addColumn('email', fn($row) => $row->email ?? '-')
             ->addColumn('lead_source', fn($row) => $row->lead_source ?? '-')
             ->addColumn('total_staff', fn($row) => $row->total_staff ?? '-')
+            ->addColumn('total_allocation', fn($row) => $row->total_allocation ?? '-')
             ->addColumn('required_location', fn($row) => $row->required_location ?? '-')
             ->addColumn('requirement', fn($row) => $row->requirement ?? '-')
             ->addColumn('status', function ($row) {
@@ -211,14 +230,14 @@ class LeadService
                 }
 
                 // Converted lead
-                if ((int) $row->status === 9 && auth()->user()->hasAnyPermission(['leads.convert']) && !$row->tenant) {
+                if ((int) $row->status === 9 && auth()->user()->hasAnyPermission(['leads.convert']) && ($row->total_staff != $row->total_allocation)) {
                     $action .= '<a href="' . route('tenant-registration.create', ['lead_id' => $row->id]) . '" class="btn btn-success btn-sm mb-1" title="Create Tenant" target="_blank" data-toggle="tooltip"><i class="fas fa-user-plus"></i></a>';
                 }
 
                 return $action . '</div>';
             })
             ->rawColumns(['status', 'action', 'added_by'])
-            ->with(['columns' => $columns])
+            ->with(['columns' => $columns, 'status_counts' => $statusCounts,])
             ->toJson();
     }
 
@@ -341,6 +360,7 @@ class LeadService
 
             'next_follow_up_date' => 'nullable|date',
             'next_follow_up_time' => 'nullable',
+            'total_staff' => 'nullable|integer|min:1',
         ]);
 
         if ($validator->fails()) {
@@ -366,7 +386,11 @@ class LeadService
 
             $followUp = LeadFollowUp::create($followUpData);
 
+            // dd($data);
             $lead->status = $data['follow_up_status'];
+            if ($data['follow_up_status'] == 9) {
+                $lead->total_staff = $data['total_staff'];
+            }
             $lead->updated_by = auth()->id();
             $lead->save();
 
@@ -423,6 +447,9 @@ class LeadService
             $followUp->update($updateData);
 
             $lead->status = $status;
+            if ($data['follow_up_status'] == 9) {
+                $lead->total_staff = $data['total_staff'];
+            }
             $lead->updated_by = auth()->id();
             $lead->save();
 
