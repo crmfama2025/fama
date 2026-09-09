@@ -133,4 +133,8 @@ class Lead extends Model
             }
         });
     }
+    public function tenant()
+    {
+        return $this->hasOne(AgreementTenant::class, 'lead_id');
+    }
 }

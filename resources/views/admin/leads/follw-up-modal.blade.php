@@ -28,11 +28,11 @@
                             </div>
                             <div>
                                 <div class="follow-up-lead-name">
-                                    {{ $lead->contact_person_name ?: 'Lead' }}
+                                    {{ !empty($lead->contact_person_name) ? ucfirst($lead->contact_person_name) : 'Lead' }}
                                 </div>
                                 <div class="follow-up-lead-company">
                                     <i class="fas fa-building mr-1"></i>
-                                    {{ $lead->company_name ?: 'Individual Lead' }}
+                                    {{ !empty($lead->company_name) ? ucfirst($lead->company_name) : 'Individual Lead' }}
                                 </div>
                             </div>
                         </div>

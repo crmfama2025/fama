@@ -335,5 +335,8 @@
                 }
             });
         });
+        $('#phone_number').on('blur', function() {
+            phoneValidation('#phone_number', 'phone_number');
+        });
     </script>
 @endsection
