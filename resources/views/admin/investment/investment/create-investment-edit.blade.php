@@ -681,7 +681,7 @@
                                                         </select>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-4">
+                                                {{-- <div class="col-md-4">
                                                     <div class="form-group">
                                                         <label class="asterisk">Invested Company</label>
                                                         <select class="form-control select2" name="invested_company_id"
@@ -696,13 +696,12 @@
                                                             @endforeach
                                                         </select>
                                                     </div>
-                                                </div>
+                                                </div> --}}
 
                                                 <div class="col-md-4">
 
                                                     <div class="form-group ">
-                                                        <label for="iban"
-                                                            class=" col-form-label asterisk">IBAN</label>
+                                                        <label for="iban" class="asterisk">IBAN</label>
                                                         <input type="text" name="company_bank_iban"
                                                             id="company_bank_iban" class=" form-control"
                                                             placeholder="IBAN" required>
@@ -711,14 +710,198 @@
                                                 <div class="col-md-4">
 
                                                     <div class="form-group ">
-                                                        <label for="account_number"
-                                                            class=" col-form-label asterisk">Account Number</label>
+                                                        <label for="account_number" class="asterisk">Account
+                                                            Number</label>
                                                         <input type="text" name="company_bank_account_number"
                                                             id="company_bank_account_number" class=" form-control"
                                                             placeholder="Account Number" required>
                                                     </div>
                                                 </div>
 
+
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    @php
+                                                        $allocationRows = old('company_allocations');
+
+                                                        if ($allocationRows === null) {
+                                                            $allocationRows = isset($investment)
+                                                                ? $investment->companyAllocations
+                                                                    ->map(function ($allocation) {
+                                                                        return [
+                                                                            'company_id' => $allocation->company_id,
+                                                                            'allocated_amount' =>
+                                                                                $allocation->allocated_amount,
+                                                                        ];
+                                                                    })
+                                                                    ->values()
+                                                                    ->all()
+                                                                : [];
+
+                                                            // Existing investments using the previous single-company field.
+                                                            if (
+                                                                empty($allocationRows) &&
+                                                                isset($investment) &&
+                                                                $investment->invested_company_id
+                                                            ) {
+                                                                $allocationRows = [
+                                                                    [
+                                                                        'company_id' =>
+                                                                            $investment->invested_company_id,
+                                                                        'allocated_amount' =>
+                                                                            $investment->investment_amount,
+                                                                    ],
+                                                                ];
+                                                            }
+                                                        }
+
+                                                        $allocationRows = array_values(
+                                                            $allocationRows ?: [
+                                                                [
+                                                                    'company_id' => '',
+                                                                    'allocated_amount' => '',
+                                                                ],
+                                                            ],
+                                                        );
+                                                    @endphp
+
+                                                    <div class="card card-outline card-info">
+                                                        {{-- <div class="card-header">
+                                                            <h3 class="card-title">Company Allocations</h3>
+                                                        </div> --}}
+
+                                                        <div class="card-body">
+                                                            <div class="table-responsive">
+                                                                <table class="table table-bordered">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th class="asterisk">Invested Company </th>
+                                                                            <th style="width: 30%" class="asterisk">
+                                                                                Allocated Amount</th>
+                                                                            <th style="width: 100px">Action</th>
+                                                                        </tr>
+                                                                    </thead>
+
+                                                                    <tbody id="allocationRows">
+                                                                        @foreach ($allocationRows as $index => $allocation)
+                                                                            <tr>
+                                                                                <td>
+                                                                                    <select
+                                                                                        name="company_allocations[{{ $index }}][company_id]"
+                                                                                        class="form-control allocation-company"
+                                                                                        aria-label="Invested company"
+                                                                                        required>
+                                                                                        <option value="">Select
+                                                                                            company
+                                                                                        </option>
+
+                                                                                        @foreach ($data['investedCompanyBanks'] as $company)
+                                                                                            <option
+                                                                                                value="{{ $company->id }}"
+                                                                                                {{ (string) ($allocation['company_id'] ?? '') === (string) $company->id ? 'selected' : '' }}>
+                                                                                                {{ $company->company_name }}
+                                                                                            </option>
+                                                                                        @endforeach
+                                                                                    </select>
+                                                                                </td>
+
+                                                                                <td>
+                                                                                    <input type="number"
+                                                                                        name="company_allocations[{{ $index }}][allocated_amount]"
+                                                                                        class="form-control allocation-amount"
+                                                                                        aria-label="Allocated amount"
+                                                                                        value="{{ $allocation['allocated_amount'] ?? '' }}"
+                                                                                        min="0.01"
+                                                                                        max="999999999999.99"
+                                                                                        step="0.01" placeholder="0.00"
+                                                                                        required>
+                                                                                </td>
+
+                                                                                <td>
+                                                                                    <button type="button"
+                                                                                        class="btn btn-outline-danger btn-sm remove-allocation">
+                                                                                        Remove
+                                                                                    </button>
+                                                                                </td>
+                                                                            </tr>
+                                                                        @endforeach
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+
+                                                            <button type="button" id="addAllocation"
+                                                                class="btn btn-info btn-sm">
+                                                                <i class="fas fa-plus"></i> Add Company
+                                                            </button>
+
+                                                            <div class="row mt-3" aria-live="polite">
+                                                                <div class="col-md-4">
+                                                                    <strong>Investment Amount:</strong>
+                                                                    <span id="allocationInvestmentTotal">0.00</span>
+                                                                </div>
+
+                                                                <div class="col-md-4">
+                                                                    <strong>Total Allocated:</strong>
+                                                                    <span id="allocationTotal">0.00</span>
+                                                                </div>
+
+                                                                <div class="col-md-4">
+                                                                    <strong>Unallocated Amount:</strong>
+                                                                    <span id="allocationRemaining">0.00</span>
+                                                                </div>
+                                                            </div>
+
+                                                            <div id="allocationClientError" class="text-danger mt-2"
+                                                                role="alert"></div>
+
+                                                            <div id="allocationServerErrors" class="text-danger mt-2"
+                                                                role="alert">
+                                                                @foreach ($errors->getMessages() as $field => $messages)
+                                                                    @if ($field === 'company_allocations' || strpos($field, 'company_allocations.') === 0)
+                                                                        @foreach ($messages as $message)
+                                                                            <div>{{ $message }}</div>
+                                                                        @endforeach
+                                                                    @endif
+                                                                @endforeach
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <template id="allocationRowTemplate">
+                                                        <tr>
+                                                            <td>
+                                                                <select name="company_allocations[__INDEX__][company_id]"
+                                                                    class="form-control allocation-company"
+                                                                    aria-label="Invested company" required>
+                                                                    <option value="">Select company</option>
+
+                                                                    @foreach ($data['investedCompanyBanks'] as $company)
+                                                                        <option value="{{ $company->id }}">
+                                                                            {{ $company->company_name }}
+                                                                        </option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </td>
+
+                                                            <td>
+                                                                <input type="number"
+                                                                    name="company_allocations[__INDEX__][allocated_amount]"
+                                                                    class="form-control allocation-amount"
+                                                                    aria-label="Allocated amount" min="0.01"
+                                                                    max="999999999999.99" step="0.01"
+                                                                    placeholder="0.00" required>
+                                                            </td>
+
+                                                            <td>
+                                                                <button type="button"
+                                                                    class="btn btn-outline-danger btn-sm remove-allocation">
+                                                                    Remove
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    </template>
+                                                </div>
 
                                             </div>
                                         </div>
@@ -1245,6 +1428,10 @@
         $('#investmentForm').on('submit', function(e) {
             e.preventDefault();
 
+            if (!window.validateInvestmentAllocations()) {
+                return;
+            }
+
             // HTML5 validation
             // if (!this.checkValidity()) {
             //     // Trigger native browser validation UI
@@ -1331,6 +1518,22 @@
                     let errMsg = 'Something went wrong!';
                     if (xhr.responseJSON && xhr.responseJSON.message) {
                         errMsg = xhr.responseJSON.message;
+                    }
+
+                    if (xhr.status === 422) {
+                        const container = $('#allocationServerErrors').empty();
+                        const errors = xhr.responseJSON?.errors || {};
+
+                        Object.entries(errors).forEach(function([field, messages]) {
+                            if (
+                                field === 'company_allocations' ||
+                                field.startsWith('company_allocations.')
+                            ) {
+                                messages.forEach(function(message) {
+                                    $('<div>').text(message).appendTo(container);
+                                });
+                            }
+                        });
                     }
                     toastr.error(errMsg);
                 },
@@ -1843,5 +2046,163 @@
                 });
             });
         }
+    </script>
+
+    <script>
+        $(function() {
+            const rows = document.getElementById('allocationRows');
+            const form = rows.closest('form');
+            const investmentInput = form.querySelector('[name="investment_amount"]');
+            const template = document.getElementById('allocationRowTemplate');
+
+            let nextIndex = rows.rows.length;
+
+            function toCents(value) {
+                const text = String(value ?? '').trim();
+
+                if (!/^\d{1,12}(?:\.\d{1,2})?$/.test(text)) {
+                    return null;
+                }
+
+                const [whole, fraction = ''] = text.split('.');
+
+                return Number(whole) * 100 +
+                    Number(fraction.padEnd(2, '0'));
+            }
+
+            function formatCents(cents) {
+                return (cents / 100).toLocaleString('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+            }
+
+            function refreshAllocations() {
+                const investmentCents = toCents(investmentInput.value);
+                let totalCents = 0;
+                let invalidAmount = false;
+                let duplicateCompany = false;
+                const selectedCompanies = new Set();
+
+                rows.querySelectorAll('.allocation-company').forEach(function(select) {
+                    select.setCustomValidity('');
+
+                    if (!select.value) {
+                        return;
+                    }
+
+                    if (selectedCompanies.has(select.value)) {
+                        duplicateCompany = true;
+                        select.setCustomValidity('This company is already selected.');
+                    }
+
+                    selectedCompanies.add(select.value);
+                });
+
+                const amountInputs = rows.querySelectorAll('.allocation-amount');
+
+                amountInputs.forEach(function(input) {
+                    input.setCustomValidity('');
+
+                    const cents = toCents(input.value);
+
+                    if (cents === null || cents <= 0) {
+                        invalidAmount = true;
+
+                        if (input.value !== '') {
+                            input.setCustomValidity(
+                                'Enter a positive amount with up to two decimal places.'
+                            );
+                        }
+
+                        return;
+                    }
+
+                    totalCents += cents;
+                });
+
+                const overAllocated =
+                    investmentCents !== null && totalCents > investmentCents;
+
+                const underAllocated =
+                    investmentCents !== null && totalCents < investmentCents;
+
+                if (overAllocated && amountInputs.length) {
+                    amountInputs[amountInputs.length - 1].setCustomValidity(
+                        'Total allocations cannot exceed the investment amount.'
+                    );
+                }
+
+                $('#allocationInvestmentTotal').text(
+                    investmentCents === null ? '—' : formatCents(investmentCents)
+                );
+
+                $('#allocationTotal').text(formatCents(totalCents));
+
+                $('#allocationRemaining')
+                    .text(
+                        investmentCents === null ?
+                        '—' :
+                        formatCents(investmentCents - totalCents)
+                    )
+                    .toggleClass('text-danger', overAllocated || underAllocated);
+
+                let message = '';
+
+                if (duplicateCompany) {
+                    message = 'Each company can only be selected once.';
+                } else if (overAllocated) {
+                    message = 'Total allocations cannot exceed the investment amount.';
+                } else if (invalidAmount) {
+                    message = 'Enter a positive amount for every allocation.';
+                } else if (underAllocated) {
+                    message =
+                        'Allocate the full investment amount before submitting. Unallocated amount: ' +
+                        formatCents(investmentCents - totalCents) + '.';
+                }
+
+                $('#allocationClientError').text(message);
+
+                $(rows).find('.remove-allocation')
+                    .prop('disabled', rows.rows.length <= 1);
+
+                return !duplicateCompany &&
+                    !invalidAmount &&
+                    amountInputs.length > 0 &&
+                    investmentCents !== null &&
+                    investmentCents >= 100 &&
+                    totalCents === investmentCents;
+            }
+
+            $('#addAllocation').on('click', function() {
+                rows.insertAdjacentHTML(
+                    'beforeend',
+                    template.innerHTML.replace(/__INDEX__/g, String(nextIndex++))
+                );
+
+                refreshAllocations();
+                rows.lastElementChild.querySelector('select').focus();
+            });
+
+            $(rows).on('click', '.remove-allocation', function() {
+                if (rows.rows.length > 1) {
+                    $(this).closest('tr').remove();
+                    refreshAllocations();
+                }
+            });
+
+            $(rows).on('input change', 'input, select', refreshAllocations);
+            $(investmentInput).on('input change', refreshAllocations);
+
+            // Call this at the beginning of your existing AJAX submit handler.
+            window.validateInvestmentAllocations = function() {
+                const validAllocations = refreshAllocations();
+                const validForm = form.reportValidity();
+
+                return validAllocations && validForm;
+            };
+
+            refreshAllocations();
+        });
     </script>
 @endsection

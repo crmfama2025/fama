@@ -303,4 +303,9 @@ class Investment extends Model
             ->where('investment_term_type', 1) //long term investments only
             ->where('terminate_status', 0); //not terminated
     }
+
+    public function companyAllocations()
+    {
+        return $this->hasMany(InvestmentCompanyAllocation::class, 'investment_id', 'id');
+    }
 }

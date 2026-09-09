@@ -2042,6 +2042,19 @@ namespace App\Models{
 
 namespace App\Models{
 /**
+ * @property-read \App\Models\User|null $deletedBy
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentCompanyAllocation newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentCompanyAllocation newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentCompanyAllocation onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentCompanyAllocation query()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentCompanyAllocation withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentCompanyAllocation withoutTrashed()
+ */
+	class InvestmentCompanyAllocation extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
  * @property int $id
  * @property int $investment_id
  * @property int $investor_id
@@ -2216,6 +2229,41 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord withoutTrashed()
  */
 	class InvestmentProfitRecord extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property int $id
+ * @property int $investment_id
+ * @property int $investor_id
+ * @property string $old_maturity_date
+ * @property string $new_maturity_date
+ * @property string|null $first_profit_date
+ * @property string|null $last_profit_date
+ * @property int $created_profit_records
+ * @property int $updated_profit_records
+ * @property string $renewal_type
+ * @property string $processed_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecordRenewalLog newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecordRenewalLog newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecordRenewalLog query()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecordRenewalLog whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecordRenewalLog whereCreatedProfitRecords($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecordRenewalLog whereFirstProfitDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecordRenewalLog whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecordRenewalLog whereInvestmentId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecordRenewalLog whereInvestorId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecordRenewalLog whereLastProfitDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecordRenewalLog whereNewMaturityDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecordRenewalLog whereOldMaturityDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecordRenewalLog whereProcessedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecordRenewalLog whereRenewalType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecordRenewalLog whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecordRenewalLog whereUpdatedProfitRecords($value)
+ */
+	class InvestmentProfitRecordRenewalLog extends \Eloquent {}
 }
 
 namespace App\Models{

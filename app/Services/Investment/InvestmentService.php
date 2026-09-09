@@ -62,8 +62,10 @@ class InvestmentService
 
     public function createOrRestore(array $data, $user_id = null)
     {
+        $allocations = $this->validateCompanyAllocations($data);
+
         // dd($data);
-        return DB::transaction(function () use ($data, $user_id) {
+        return DB::transaction(function () use ($data, $user_id, $allocations) {
 
 
             $userId = $user_id ?: auth()->user()->id;
@@ -118,7 +120,7 @@ class InvestmentService
                 'next_profit_release_date' => parseDate($data['next_profit_release_date']),
                 // 'next_referral_commission_release_date' => $next_profit_release_date,
                 'initial_profit_release_month' => Carbon::parse($data['next_profit_release_date'])->format('M Y'),
-                'invested_company_id' => $data['invested_company_id'],
+                // 'invested_company_id' => $data['invested_company_id'],
                 'total_invested_amount' => $data['investment_amount'],
                 'investment_term_type' => $termtype
             ];
@@ -128,6 +130,9 @@ class InvestmentService
 
 
             $investment = $this->investmentRepository->create($investmentData);
+
+            // allocations of money to companies
+            $this->syncCompanyAllocations($investment, $allocations);
 
             if ($data['parent_investment_id']) {
                 $parent = $this->investmentRepository->find($data['parent_investment_id']);
@@ -294,8 +299,9 @@ class InvestmentService
 
     public function update($id, array $data)
     {
+        $allocations = $this->validateCompanyAllocations($data);
         // dd($data);
-        return DB::transaction(function () use ($id, $data) {
+        return DB::transaction(function () use ($id, $data, $allocations) {
 
             $investment = $this->investmentRepository->find($id);
 
@@ -350,7 +356,7 @@ class InvestmentService
                 'next_profit_release_date' => parseDate($data['next_profit_release_date']),
                 // 'next_referral_commission_release_date' => $data['next_profit_release_date'],
                 'initial_profit_release_month' => Carbon::parse($data['next_profit_release_date'])->format('M Y'),
-                'invested_company_id' => $data['invested_company_id'],
+                // 'invested_company_id' => $data['invested_company_id'],
                 'total_invested_amount' => $data['investment_amount'],
                 'investment_term_type' => $termtype
             ];
@@ -359,6 +365,8 @@ class InvestmentService
             $this->validate($investmentData);
 
             $investment = $this->investmentRepository->update($id, $investmentData);
+
+            $this->syncCompanyAllocations($investment, $allocations);
 
             // ----------------- sync investment profit schedule -------------
             // $scheduleAffectingFields = [
@@ -1106,5 +1114,102 @@ class InvestmentService
             'investorPayouts.investorPayoutDistribution'
 
         ])->findOrFail($id);
+    }
+
+    private function syncCompanyAllocations(Investment $investment, array $allocations): void
+    {
+        $companyIds = array_column($allocations, 'company_id');
+
+        // Soft-delete allocations removed from the form.
+        $investment->companyAllocations()
+            ->whereNotIn('company_id', $companyIds)
+            ->get()
+            ->each(function ($allocation) {
+                $allocation->delete();
+            });
+
+        foreach ($allocations as $row) {
+            $allocation = $investment->companyAllocations()
+                ->withTrashed()
+                ->where('company_id', $row['company_id'])
+                ->first();
+
+            if (!$allocation) {
+                $investment->companyAllocations()->create($row);
+                continue;
+            }
+
+            $allocation->allocated_amount = $row['allocated_amount'];
+
+            if ($allocation->trashed()) {
+                // Restores the existing row and saves its updated amount.
+                $allocation->restore();
+            } else {
+                $allocation->save();
+            }
+        }
+
+        $investment->unsetRelation('companyAllocations');
+    }
+
+    private function validateCompanyAllocations(array $data): array
+    {
+        $moneyRules = ['required', 'numeric', 'regex:/^\d{1,12}(?:\.\d{1,2})?$/',];
+
+        $validated = Validator::make($data, [
+            'investment_amount' => array_merge($moneyRules, ['min:1']),
+            'company_allocations' => ['required', 'array', 'min:1', 'max:1000',],
+            'company_allocations.*' => ['required', 'array'],
+            'company_allocations.*.company_id' => [
+                'required',
+                'integer',
+                'distinct',
+                Rule::exists(Company::class, 'id')->whereNull('deleted_at'),
+            ],
+            'company_allocations.*.allocated_amount' => array_merge($moneyRules, ['min:0.01']),
+        ], [
+            'company_allocations.required' => 'Please add at least one company allocation.',
+            'company_allocations.*.company_id.distinct' => 'Each company can only be selected once.',
+            'company_allocations.*.company_id.exists' => 'The selected company is unavailable.',
+            'company_allocations.*.allocated_amount.min' => 'The allocated amount must be greater than zero.',
+            'company_allocations.*.allocated_amount.regex' => 'Enter an amount with no more than two decimal places.',
+        ])->validate();
+
+        $allocations = [];
+        $allocatedCents = 0;
+
+        foreach ($validated['company_allocations'] as $row) {
+            $cents = $this->allocationMoneyToCents($row['allocated_amount']);
+            $allocatedCents += $cents;
+
+            $allocations[] = [
+                'company_id' => (int) $row['company_id'],
+                'allocated_amount' => intdiv($cents, 100) . '.' .
+                    str_pad((string) ($cents % 100), 2, '0', STR_PAD_LEFT),
+            ];
+        }
+
+        $investmentCents = $this->allocationMoneyToCents($validated['investment_amount']);
+
+        if ($allocatedCents > $investmentCents) {
+            throw ValidationException::withMessages([
+                'company_allocations' =>
+                'Total company allocations cannot exceed the investment amount.',
+            ]);
+        }
+
+        return $allocations;
+    }
+
+    private function allocationMoneyToCents($amount): int
+    {
+        [$whole, $fraction] = array_pad(
+            explode('.', (string) $amount, 2),
+            2,
+            ''
+        );
+
+        return ((int) $whole * 100)
+            + (int) str_pad($fraction, 2, '0', STR_PAD_RIGHT);
     }
 }

@@ -30,7 +30,8 @@ class InvestmentRepository
             'payoutBatch',
             'investmentReferral',
             'investmentDocument',
-            'investmentReceivedPayments'
+            'investmentReceivedPayments',
+            'companyAllocations.company',
         ])->findOrFail($id);
     }
 
