@@ -423,6 +423,7 @@ namespace App\Models{
  * @property int $security_cheque_status 0-No, 1-Yes
  * @property int $no_of_owners
  * @property int $tenant_source 1=System, 2=Sales
+ * @property int|null $lead_id
  * @property-read \App\Models\User|null $addedBy
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Agreement> $agreement
  * @property-read int|null $agreement_count
@@ -450,6 +451,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementTenant whereDeletedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementTenant whereEmirateId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementTenant whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AgreementTenant whereLeadId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementTenant whereNationalityId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementTenant whereNoOfOwners($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementTenant wherePaymentFrequencyId($value)
@@ -1938,10 +1940,6 @@ namespace App\Models{
  * @property string $total_withdrawn_amount
  * @property int $has_partial_withdrawal 0-No ,1-Yes
  * @property int $investment_term_type 1-Long Term, 2-short term
- * @property string|null $last_renewed_maturity_date
- * @property string|null $renewed_at
- * @property string|null $investor_novation_applied_at
- * @property int|null $investor_novation_applied_by
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Investment> $childInvestments
  * @property-read int|null $child_investments_count
  * @property-read \App\Models\Company|null $company
@@ -1996,11 +1994,8 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereInvestmentType($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereInvestorBankId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereInvestorId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Investment whereInvestorNovationAppliedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Investment whereInvestorNovationAppliedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereIsProfitProcessed($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereLastProfitReleasedDate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Investment whereLastRenewedMaturityDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereMaturityDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereNextProfitReleaseDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereNextReferralCommissionReleaseDate($value)
@@ -2018,7 +2013,6 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereReceivedAmount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereReinvestedCount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereReinvestmentOrNot($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Investment whereRenewedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereTerminateStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereTerminatedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereTerminationDate($value)
@@ -2229,6 +2223,15 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord withoutTrashed()
  */
 	class InvestmentProfitRecord extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecordRenewalLog newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecordRenewalLog newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecordRenewalLog query()
+ */
+	class InvestmentProfitRecordRenewalLog extends \Eloquent {}
 }
 
 namespace App\Models{
@@ -2899,6 +2902,26 @@ namespace App\Models{
 
 namespace App\Models{
 /**
+ * @property int $id
+ * @property string $lead_code
+ * @property string|null $company_name
+ * @property string $contact_person_name
+ * @property string $phone_number
+ * @property string|null $email
+ * @property string $lead_source
+ * @property int|null $total_staff
+ * @property string|null $required_location
+ * @property string $requirement
+ * @property int $status 0 = Pending, 1 = processing
+ * @property int|null $assigned_to
+ * @property int|null $assigned_by
+ * @property \Illuminate\Support\Carbon|null $assigned_at
+ * @property int|null $updated_by
+ * @property int|null $deleted_by
+ * @property int $created_by
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read \App\Models\User|null $assignedBy
  * @property-read \App\Models\User|null $assignedTo
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\LeadAssignment> $assignments
@@ -2908,11 +2931,32 @@ namespace App\Models{
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\LeadFollowUp> $followUps
  * @property-read int|null $follow_ups_count
  * @property-read \App\Models\LeadFollowUp|null $latestFollowUp
+ * @property-read \App\Models\AgreementTenant|null $tenant
  * @property-read \App\Models\User|null $updatedBy
  * @method static \Illuminate\Database\Eloquent\Builder|Lead newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Lead newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Lead onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|Lead query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Lead whereAssignedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Lead whereAssignedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Lead whereAssignedTo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Lead whereCompanyName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Lead whereContactPersonName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Lead whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Lead whereCreatedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Lead whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Lead whereDeletedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Lead whereEmail($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Lead whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Lead whereLeadCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Lead whereLeadSource($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Lead wherePhoneNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Lead whereRequiredLocation($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Lead whereRequirement($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Lead whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Lead whereTotalStaff($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Lead whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Lead whereUpdatedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Lead withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|Lead withoutTrashed()
  */
@@ -2921,13 +2965,33 @@ namespace App\Models{
 
 namespace App\Models{
 /**
+ * @property int $id
+ * @property int $lead_id
+ * @property int|null $assigned_to
+ * @property int|null $assigned_by
+ * @property string|null $remarks
+ * @property \Illuminate\Support\Carbon|null $assigned_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int|null $deleted_by
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read \App\Models\User|null $assignedBy
  * @property-read \App\Models\User|null $assignedTo
- * @property-read \App\Models\Lead|null $lead
+ * @property-read \App\Models\Lead $lead
  * @method static \Illuminate\Database\Eloquent\Builder|LeadAssignment newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|LeadAssignment newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|LeadAssignment onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|LeadAssignment query()
+ * @method static \Illuminate\Database\Eloquent\Builder|LeadAssignment whereAssignedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LeadAssignment whereAssignedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LeadAssignment whereAssignedTo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LeadAssignment whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LeadAssignment whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LeadAssignment whereDeletedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LeadAssignment whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LeadAssignment whereLeadId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LeadAssignment whereRemarks($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LeadAssignment whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|LeadAssignment withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|LeadAssignment withoutTrashed()
  */
@@ -2936,14 +3000,48 @@ namespace App\Models{
 
 namespace App\Models{
 /**
+ * @property int $id
+ * @property int $lead_id
+ * @property int|null $followed_up_by
+ * @property int|null $follow_up_type 1=Phone Call, 2=WhatsApp, 3=Email, 4=Meeting, 5=SMS, 6=Other
+ * @property int|null $follow_up_status 2=Interested, 3=Call Back, 4=No Answer, 5=Not Interested, 6=Meeting Scheduled, 7=Proposal Sent, 8=Negotiation, 9=Converted, 10=Lost, 11=Others
+ * @property \Illuminate\Support\Carbon|null $follow_up_date
+ * @property \Illuminate\Support\Carbon|null $next_follow_up_date
+ * @property string|null $next_follow_up_time
+ * @property \Illuminate\Support\Carbon|null $meeting_date
+ * @property string|null $meeting_time
+ * @property string|null $meeting_location
+ * @property string|null $not_interested_reason
+ * @property string|null $notes
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int|null $deleted_by
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read \App\Models\User|null $followedUpBy
  * @property-read mixed $follow_up_type_name
  * @property-read mixed $outcome_name
- * @property-read \App\Models\Lead|null $lead
+ * @property-read \App\Models\Lead $lead
  * @method static \Illuminate\Database\Eloquent\Builder|LeadFollowUp newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|LeadFollowUp newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|LeadFollowUp onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|LeadFollowUp query()
+ * @method static \Illuminate\Database\Eloquent\Builder|LeadFollowUp whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LeadFollowUp whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LeadFollowUp whereDeletedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LeadFollowUp whereFollowUpDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LeadFollowUp whereFollowUpStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LeadFollowUp whereFollowUpType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LeadFollowUp whereFollowedUpBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LeadFollowUp whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LeadFollowUp whereLeadId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LeadFollowUp whereMeetingDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LeadFollowUp whereMeetingLocation($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LeadFollowUp whereMeetingTime($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LeadFollowUp whereNextFollowUpDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LeadFollowUp whereNextFollowUpTime($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LeadFollowUp whereNotInterestedReason($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LeadFollowUp whereNotes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LeadFollowUp whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|LeadFollowUp withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|LeadFollowUp withoutTrashed()
  */
