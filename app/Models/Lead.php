@@ -32,7 +32,8 @@ class Lead extends Model
         'deleted_by',
         'assigned_to',
         'assigned_by',
-        'assigned_at'
+        'assigned_at',
+        'total_allocation'
     ];
 
     protected $casts = [

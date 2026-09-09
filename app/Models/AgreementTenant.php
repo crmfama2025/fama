@@ -49,7 +49,8 @@ class AgreementTenant extends Model
         'no_of_owners',
         'tenant_code',
         // 'sales_tenant_agreement_id',
-        'tenant_source'
+        'tenant_source',
+        'lead_id'
     ];
 
     /**

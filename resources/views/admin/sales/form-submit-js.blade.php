@@ -81,6 +81,10 @@
         const form = document.getElementById('tenancyForm');
         const formData = new FormData(form);
 
+        @if (request()->has('lead_id'))
+            formData.append('lead_id', @json(request('lead_id')));
+        @endif
+
         // Determine if we are editing
         const agreementId = $(form).data('agreement-id'); // Set this in your blade if editing
         let url = '{{ route('tenant-registration.store') }}';

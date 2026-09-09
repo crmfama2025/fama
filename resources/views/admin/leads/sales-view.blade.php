@@ -667,6 +667,17 @@
             } else {
                 $('#nextFollowUpWrapper').removeClass('d-none');
             }
+            // Number of Staff - Only for Converted
+            if (outcome === '9') {
+
+                $('#convertedStaffWrapper').removeClass('d-none');
+                $('#convertedStaff').prop('required', true);
+
+            } else {
+
+                $('#convertedStaffWrapper').addClass('d-none');
+                $('#convertedStaff').prop('required', false);
+            }
         });
 
         $('#followUpForm').on('submit', function(e) {
