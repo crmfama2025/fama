@@ -104,6 +104,7 @@ class GenerateAndSendSignedAgreementPdf implements ShouldQueue
             }
 
             $path = 'investments/' .  $contract->investor->investor_code . '/investments';
+            dd($contract);
             // if we want to store the pdf in storage, uncomment the following lines
             $fileName = $path . '/' . $contract->investment->investment_code . '/' . $investorName . '-' . $companyName . '-Signed-Agreement.pdf';
             // $fileName = 'contracts/' . $contract->id . '/signed-agreement-' . now()->format('Ymd-His') . '.pdf';
