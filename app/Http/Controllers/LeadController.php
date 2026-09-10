@@ -99,6 +99,9 @@ class LeadController extends Controller
 
         $lead = $this->leadService->getById($id);
         $salesPerson = $this->userService->getUserByType(3);
+        $allocations = $lead->salesAgreement()
+            ->orderBy('created_at', 'asc')
+            ->get();
 
         $user = auth()->user();
 
@@ -122,11 +125,11 @@ class LeadController extends Controller
             // Salesperson-specific view
             return view(
                 'admin.leads.sales-view',
-                compact('title', 'lead')
+                compact('title', 'lead', 'allocations')
             );
         }
 
-        return view('admin.leads.view-lead', compact('title', 'lead', 'salesPerson'));
+        return view('admin.leads.view-lead', compact('title', 'lead', 'salesPerson', 'allocations'));
     }
     public function export(Request $request)
     {

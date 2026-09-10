@@ -140,7 +140,7 @@ class TenantregistrationController extends Controller
     }
     public function update(Request $request, $id)
     {
-        dd($request->all());
+        // dd($request->all());
         try {
             $agreement = $this->tenantRegistrationService->update($id, $request);
 

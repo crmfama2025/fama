@@ -8,6 +8,7 @@ use App\Models\Agreement;
 use App\Models\Contract;
 use App\Models\ContractSubunitDetail;
 use App\Models\ContractUnitDetail;
+use App\Models\Lead;
 use App\Models\SalesTenantSubunitRent;
 use App\Models\SalesTenantUnit;
 use App\Models\TenantDocument;
@@ -473,10 +474,10 @@ class TenantRegistrationService
                         // dd($unitsByContract);
 
                         foreach ($unitsByContract as $contractId => $units) {
-                            // ✅ Get all sales unit IDs for this contract
+                            //  Get all sales unit IDs for this contract
                             $salesUnitIds = $units->pluck('contract_unit_details_id')->toArray();
 
-                            // ✅ Get already created agreement unit IDs for this contract
+                            //  Get already created agreement unit IDs for this contract
                             $agreementUnitIds = \App\Models\AgreementUnit::whereHas('agreement', function ($q) use ($row) {
                                 $q->where('sales_tenant_agreement_id', $row->id);
                             })
@@ -485,10 +486,10 @@ class TenantRegistrationService
                                 ->unique()
                                 ->toArray();
 
-                            // ✅ Check if ALL units already have agreement
+                            //  Check if ALL units already have agreement
                             $missingUnits = array_diff($salesUnitIds, $agreementUnitIds);
 
-                            // ❌ If no missing units → skip button
+                            //  If no missing units → skip button
                             if (empty($missingUnits)) {
                                 continue;
                             }
@@ -564,7 +565,8 @@ class TenantRegistrationService
                         'tenant_type'                => $data->business_type,
                         'added_by'                   => $userId,
                         'tenant_source'              => 2,
-                        'no_of_owners'               => $data->no_of_owners
+                        'no_of_owners'               => $data->no_of_owners,
+                        'lead_id'                    => $data->lead_id ?? null
                     ];
                     $tenant = $this->tenantService->create($tenantData);
 
@@ -658,6 +660,7 @@ class TenantRegistrationService
                             'added_by'               => $userId,
                         ];
                         $this->validateTenantDocs($doc_data_tl);
+                        // dd("test");
                         $tenant->tenantDocuments()->create($doc_data_tl);
                     }
                 }
@@ -740,6 +743,7 @@ class TenantRegistrationService
                 'added_by'             => $userId,
                 'sales_agreement_code' => $this->setProjectCode(),
                 'tenant_id'            => $tenant->id,
+                'lead_id'              => $data->lead_id ?? null,
             ];
 
             $salesAgreement = $this->tenantRegistrationRepository->createSalesAgreement($agreementData);
@@ -765,20 +769,20 @@ class TenantRegistrationService
                     'contract_id'                 => $contractUnit->contract_id,
                 ]);
 
-                // ✅ 1. Mark selected subunit as assigned
+                //  1. Mark selected subunit as assigned
                 if (!empty($data->contract_subunit_details_id)) {
                     \App\Models\ContractSubunitDetail::where('id', $data->contract_subunit_details_id)
                         ->update(['is_sales_agreement_added' => 1]);
                 }
 
-                // ✅ 2. Check if ALL subunits under this unit are assigned
+                //  2. Check if ALL subunits under this unit are assigned
                 $totalSubunits = \App\Models\ContractSubunitDetail::where('contract_unit_detail_id', $data->contract_unit_details_id)->count();
 
                 $assignedSubunits = \App\Models\ContractSubunitDetail::where('contract_unit_detail_id', $data->contract_unit_details_id)
                     ->where('is_sales_agreement_added', 1)
                     ->count();
 
-                // ✅ 3. If all assigned → mark unit as assigned
+                //  3. If all assigned → mark unit as assigned
                 if ($totalSubunits > 0 && $totalSubunits === $assignedSubunits) {
                     \App\Models\ContractUnitDetail::where('id', $data->contract_unit_details_id)
                         ->update(['is_sales_agreement_added' => 1]);
@@ -786,6 +790,7 @@ class TenantRegistrationService
             } elseif ($isB2B) {
                 $unitRents    = $data->input('unit_rent', []);
                 $subunitRents = $data->input('subunit_rent', []);
+                $total_subunits = 0;
 
                 foreach ($unitRents as $key => $rents) {
                     [$floor, $typeId, $unitId] = explode('_', $key);
@@ -794,6 +799,7 @@ class TenantRegistrationService
 
                     $contractUnit = ContractUnitDetail::find((int)$unitId);
                     if (!$contractUnit) continue;
+                    $total_subunits += $contractUnit->subunitcount_per_unit;
 
                     // ── Collect subunit IDs for this unit first ──
                     $subunitIds = [];
@@ -818,11 +824,11 @@ class TenantRegistrationService
                     ]);
                     $units[] = $unit;
 
-                    // ✅ Mark all subunits under this unit as assigned
+                    //  Mark all subunits under this unit as assigned
                     ContractSubunitDetail::where('contract_unit_detail_id', (int)$unitId)
                         ->update(['is_sales_agreement_added' => 1]);
 
-                    // ✅ Mark the unit itself as assigned
+                    //  Mark the unit itself as assigned
                     ContractUnitDetail::where('id', (int)$unitId)
                         ->update(['is_sales_agreement_added' => 1]);
 
@@ -840,6 +846,24 @@ class TenantRegistrationService
                             'added_by'                    => $userId,
                         ]);
                     }
+                }
+                if (!empty($data['lead_id']) && $total_subunits > 0) {
+
+                    $lead = Lead::find($data['lead_id']);
+
+                    if (!$lead) {
+                        throw new \Exception('Lead not found.');
+                    }
+
+                    $newTotalAllocation = $lead->total_allocation + $total_subunits;
+
+                    if ($newTotalAllocation > $lead->total_staff) {
+                        throw new \Exception(
+                            "Total allocation ({$newTotalAllocation}) exceeds total staff count ({$lead->total_staff})."
+                        );
+                    }
+                    $lead->total_allocation = $newTotalAllocation;
+                    $lead->save();
                 }
             }
 
@@ -1241,7 +1265,7 @@ class TenantRegistrationService
                                 }
 
                                 if ($docId) {
-                                    // ✅ Update by id directly — no query needed
+                                    //  Update by id directly — no query needed
                                     $existingDoc = $tenant->tenantDocuments()->find($docId);
                                     if ($existingDoc) {
 
@@ -1257,7 +1281,7 @@ class TenantRegistrationService
                                         $existingDoc->update($updatePayload);
                                     }
                                 } else {
-                                    // ✅ New doc — must have file
+                                    //  New doc — must have file
                                     if (!empty($docData[$fileKey]) && $docData[$fileKey] instanceof \Illuminate\Http\UploadedFile) {
                                         // $path = $docData[$fileKey]->store(
                                         //     "tenants/{$tenant->tenant_code}/owner_{$ownerIndex}",
@@ -1327,7 +1351,7 @@ class TenantRegistrationService
                     }
 
                     if ($tlId) {
-                        // ✅ Update existing by id
+                        //  Update existing by id
                         $existingTl = $tenant->tenantDocuments()->find($tlId);
                         if ($existingTl) {
 
@@ -1347,7 +1371,7 @@ class TenantRegistrationService
                             $existingTl->update($tlPayload);
                         }
                     } else {
-                        // ✅ Create new — must have file
+                        //  Create new — must have file
                         if (!empty($data->tl_file) && $data->tl_file instanceof \Illuminate\Http\UploadedFile) {
                             $newTlPayload = array_merge($tlPayload, [
                                 'tenant_id'     => $tenant->id,
@@ -1497,7 +1521,7 @@ class TenantRegistrationService
             // Recreate units (same logic as create)
             if ($isB2C) {
                 $contractUnit = ContractUnitDetail::find($data->contract_unit_details_id);
-                // ✅ 1. Get existing unit record
+                //  1. Get existing unit record
                 $existingUnit = \App\Models\SalesTenantUnit::find($data->agreement_unit_id);
 
                 $oldUnitId = $existingUnit->contract_unit_details_id ?? null;
@@ -1531,20 +1555,20 @@ class TenantRegistrationService
                 }
 
 
-                // ✅ 1. Mark selected subunit as assigned
+                //  1. Mark selected subunit as assigned
                 if (!empty($data->contract_subunit_details_id)) {
                     \App\Models\ContractSubunitDetail::where('id', $data->contract_subunit_details_id)
                         ->update(['is_sales_agreement_added' => 1]);
                 }
 
-                // ✅ 2. Check if ALL subunits under this unit are assigned
+                //  2. Check if ALL subunits under this unit are assigned
                 $totalSubunits = \App\Models\ContractSubunitDetail::where('contract_unit_detail_id', $data->contract_unit_details_id)->count();
 
                 $assignedSubunits = \App\Models\ContractSubunitDetail::where('contract_unit_detail_id', $data->contract_unit_details_id)
                     ->where('is_sales_agreement_added', 1)
                     ->count();
 
-                // ✅ 3. If all assigned → mark unit as assigned
+                //  3. If all assigned → mark unit as assigned
                 if ($totalSubunits > 0 && $totalSubunits === $assignedSubunits) {
                     \App\Models\ContractUnitDetail::where('id', $data->contract_unit_details_id)
                         ->update(['is_sales_agreement_added' => 1]);
@@ -1553,6 +1577,7 @@ class TenantRegistrationService
                 // dd($data->unit_rent);
                 $unitRents    = $data->input('unit_rent', []);
                 $subunitRents = $data->input('subunit_rent', []);
+                $total_subunits = 0;
 
                 foreach ($unitRents as $key => $rents) {
                     [$floor, $typeId, $unitId] = explode('_', $key);
@@ -1590,11 +1615,11 @@ class TenantRegistrationService
                         // dd($existingUnitId);
                         $unit = SalesTenantUnit::find($existingUnitId);
                         if ($unit->contract_unit_details_id != $unitId) {
-                            // 🔴 1. Unassign OLD unit
+                            //  1. Unassign OLD unit
                             ContractUnitDetail::where('id', $unit->contract_unit_details_id)
                                 ->update(['is_sales_agreement_added' => 0]);
 
-                            // 🔴 2. Unassign OLD subunits
+                            //  2. Unassign OLD subunits
                             if (!empty($unit->subunit_ids)) {
                                 $oldSubunitIds = json_decode($unit->subunit_ids, true);
 
@@ -1604,11 +1629,11 @@ class TenantRegistrationService
                                 }
                             }
 
-                            // 🟢 3. Assign NEW unit
+                            //  3. Assign NEW unit
                             ContractUnitDetail::where('id', (int)$unitId)
                                 ->update(['is_sales_agreement_added' => 1]);
 
-                            // 🟢 4. Assign NEW subunits
+                            //  4. Assign NEW subunits
                             if (!empty($subunitIds)) {
                                 ContractSubunitDetail::whereIn('id', $subunitIds)
                                     ->update(['is_sales_agreement_added' => 1]);
@@ -1622,15 +1647,16 @@ class TenantRegistrationService
                         }
                     } else {
                         $unit = $this->tenantRegistrationRepository->createUnit($unitPayload);
-                        // 🟢 3. Assign NEW unit
+                        //  3. Assign NEW unit
                         ContractUnitDetail::where('id', (int)$unitId)
                             ->update(['is_sales_agreement_added' => 1]);
 
-                        // 🟢 4. Assign NEW subunits
+                        //  4. Assign NEW subunits
                         if (!empty($subunitIds)) {
                             ContractSubunitDetail::whereIn('id', $subunitIds)
                                 ->update(['is_sales_agreement_added' => 1]);
                         }
+                        $total_subunits += $contractUnit->subunitcount_per_unit;
                     }
 
                     // ── Handle subunit rents ──
@@ -1663,6 +1689,25 @@ class TenantRegistrationService
                         }
                     }
                 }
+                if ($agreement->lead_id != null) {
+
+                    $lead = Lead::find($agreement->lead_id);
+
+                    if (!$lead) {
+                        throw new \Exception('Lead not found.');
+                    }
+
+                    $newTotalAllocation = $lead->total_allocation + $total_subunits;
+                    // dd($newTotalAllocation);
+
+                    if ($newTotalAllocation > $lead->total_staff) {
+                        throw new \Exception(
+                            "Total allocation ({$newTotalAllocation}) exceeds total staff count ({$lead->total_staff})."
+                        );
+                    }
+                    $lead->total_allocation = $newTotalAllocation;
+                    $lead->save();
+                }
             }
 
             return [
@@ -1680,13 +1725,13 @@ class TenantRegistrationService
                 ->where('sales_tenant_agreement_id', $agreementId)
                 ->firstOrFail();
 
-            // 🔴 1. Unassign UNIT
+            //  1. Unassign UNIT
             if (!empty($unit->contract_unit_details_id)) {
                 ContractUnitDetail::where('id', $unit->contract_unit_details_id)
                     ->update(['is_sales_agreement_added' => 0]);
             }
 
-            // 🔴 2. Unassign SUBUNITS
+            //  2. Unassign SUBUNITS
             if (!empty($unit->subunit_ids)) {
                 $oldSubunitIds = json_decode($unit->subunit_ids, true);
 

@@ -92,16 +92,16 @@
         }
 
         /* .lead-status.active {
-                            background: rgba(34, 197, 94, .12);
-                            border: 1px solid rgba(34, 197, 94, .25);
-                            color: #15803d;
-                        }
+                                            background: rgba(34, 197, 94, .12);
+                                            border: 1px solid rgba(34, 197, 94, .25);
+                                            color: #15803d;
+                                        }
 
-                        .lead-status.pending {
-                            background: rgba(217, 155, 27, .14);
-                            border: 1px solid rgba(217, 155, 27, .3);
-                            color: #92650b;
-                        } */
+                                        .lead-status.pending {
+                                            background: rgba(217, 155, 27, .14);
+                                            border: 1px solid rgba(217, 155, 27, .3);
+                                            color: #92650b;
+                                        } */
 
         .lead-header-actions {
             white-space: nowrap;
@@ -990,6 +990,8 @@
                             </div>
 
                         </div>
+
+                        @include('admin.leads.allocations', ['allocations' => $allocations])
 
 
                         @include('admin.leads.follow-up-list', ['followUps' => $lead->followUps])

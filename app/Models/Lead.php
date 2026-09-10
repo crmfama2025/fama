@@ -138,4 +138,8 @@ class Lead extends Model
     {
         return $this->hasOne(AgreementTenant::class, 'lead_id');
     }
+    public function salesAgreement()
+    {
+        return $this->hasMany(SalesTenantAgreement::class, 'lead_id');
+    }
 }

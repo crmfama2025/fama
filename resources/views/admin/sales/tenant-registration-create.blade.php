@@ -1159,12 +1159,13 @@
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label id="tenantNameLabel">
-                                                    Name as per Emirates ID / Passport
+                                                    Company Name as per Emirates ID / Passport
                                                     <span class="text-danger">*</span>
                                                 </label>
                                                 <input type="text" name="tenant_name" id="tenantPassportName"
                                                     class="form-control @error('tenant_name') is-invalid @enderror"
-                                                    value="{{ isset($tenant) ? $tenant->tenant_name : old('tenant_name') }}"
+                                                    {{-- value="{{ isset($tenant) ? $tenant->tenant_name : old('tenant_name') }}" --}}
+                                                    value="{{ isset($tenant) ? $tenant->tenant_name : old('tenant_name', $lead->company_name ?? '') }}"
                                                     placeholder="Exactly as shown on document" required>
                                                 @error('tenant_name')
                                                     <span class="invalid-feedback">{{ $message }}</span>
@@ -1176,8 +1177,9 @@
                                                 <label>Mobile Number <span class="text-danger">*</span></label>
                                                 <input type="number" name="tenant_mobile" id="tenantMobile"
                                                     class="form-control @error('tenant_mobile') is-invalid @enderror"
-                                                    value="{{ isset($tenant) ? $tenant->tenant_mobile : old('tenant_mobile') }}"
-                                                    placeholder="+971 50 000 0000" required>
+                                                    {{-- value="{{ isset($tenant) ? $tenant->tenant_mobile : old('tenant_mobile') }}" --}}
+                                                    value="{{ isset($tenant) ? $tenant->tenant_mobile : old('tenant_mobile', $lead->phone_number ?? '') }}"
+                                                    placeholder="971 50 000 0000" required>
                                                 @error('tenant_mobile')
                                                     <span class="invalid-feedback">{{ $message }}</span>
                                                 @enderror
@@ -1188,7 +1190,8 @@
                                                 <label>Email Address <span class="text-danger">*</span></label>
                                                 <input type="email" name="tenant_email"
                                                     class="form-control @error('tenant_email') is-invalid @enderror"
-                                                    value="{{ isset($tenant) ? $tenant->tenant_email : old('tenant_email') }}"
+                                                    {{-- value="{{ isset($tenant) ? $tenant->tenant_email : old('tenant_email') }}" --}}
+                                                    value="{{ isset($tenant) ? $tenant->tenant_email : old('tenant_email', $lead->email ?? '') }}"
                                                     placeholder="tenant@email.com" required>
                                                 @error('tenant_email')
                                                     <span class="invalid-feedback">{{ $message }}</span>
@@ -1252,8 +1255,8 @@
                                                     <div class="form-group">
                                                         <label>Contact Person <span class="text-danger">*</span></label>
                                                         <input type="text" name="contact_person" id="contactPerson"
-                                                            class="form-control"
-                                                            value="{{ isset($tenant) ? $tenant->contact_person : old('contact_person') }}"
+                                                            class="form-control" {{-- value="{{ isset($tenant) ? $tenant->contact_person : old('contact_person') }}" --}}
+                                                            value="{{ isset($tenant) ? $tenant->contact_person : old('contact_person', $lead->contact_person_name ?? '') }}"
                                                             placeholder="Contact person name">
                                                     </div>
                                                 </div>
@@ -1364,7 +1367,7 @@
                                         <i class="fas fa-info-circle text-info mt-1" style="flex-shrink:0;"></i>
                                         <span>
                                             <strong class="text-dark">B2B Requirement:</strong>
-                                            Emirates ID and Passport are mandatory for each owner.
+                                            Either Emirates ID or Passport is mandatory for each owner.
                                             One Trade License is required for the company.
                                         </span>
                                     </div>
@@ -1837,6 +1840,10 @@
         $('#b2cExpiry_2').datetimepicker({
             format: 'DD-MM-YYYY'
         });
+        $('#start_date, #end_date, #tradeLicenseIssuedDate, #tradeLicenseExpiryDate, #b2cIssued_1, #b2cExpiry_1, #b2cIssued_2, #b2cExpiry_2')
+            .on('change.datetimepicker', function() {
+                validateAll();
+            });
         // Pre-fill uploaded file indicators for existing B2C docs
         @if (isset($existingB2CDocs) && count($existingB2CDocs))
             @foreach ($existingB2CDocs as $doc)
@@ -2210,7 +2217,10 @@
             toggleVisible('rentSection', isB2C);
 
             // Existing customer toggle
-            document.getElementById('existingCustomerToggleWrap').style.display = isB2B ? '' : 'none';
+            const hasLeadId = @json(request()->has('lead_id'));
+
+            document.getElementById('existingCustomerToggleWrap').style.display =
+                isB2B && (!hasLeadId || window.leadHasTenant) ? '' : 'none';
             document.getElementById('existingCustomerCheck').checked = false;
             document.getElementById('existingCustomerPanel').style.display = 'none';
             document.getElementById('existingDivider').style.display = 'none';
@@ -2293,10 +2303,15 @@
             // addDocRowB2C(emiratesDoc, 'Emirates ID', 2);
             // addDocRowB2C(passportDoc, 'Passport', 1);
             // }
+            const tlNumber = document.getElementById('tlNumber');
             if (isB2B) {
                 document.getElementById('endDate').required = true;
+                // document.getElementById('tlNumber').required = true;
+                // document.getElementById('tlNumber').disabled = false;
             } else {
                 document.getElementById('endDate').required = false;
+                // document.getElementById('tlNumber').required = false;
+                // document.getElementById('tlNumber').disabled = true;
             }
 
             // Units
@@ -2431,28 +2446,28 @@
 
                     <td><input type="number" placeholder="0.00"
                         id="annual_${rowIdx}" name="unit_rent[${key}][annual]"
-                     ></td>
+                     disabled></td>
                     <td><input type="number" placeholder="0.00"
                         id="monthly_${rowIdx}" name="unit_rent[${key}][monthly]"
-                        ></td>
+                        disabled></td>
                     <td>${hasMulti
                         ? `<button type="button" class="btn-subunit" id="subBtn_${rowIdx}" onclick="toggleExpandRow(${rowIdx})">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <i class="fas fa-chevron-down" id="subBtnIcon_${rowIdx}"></i> Subunit Rents
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </button>`
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <i class="fas fa-chevron-down" id="subBtnIcon_${rowIdx}"></i> Subunit Rents
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </button>`
                         : '<span class="text-muted small">—</span>'}
                     </td>
                      <td>
                         ${isEdit
                             ? `<button type="button"
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        class="btn-delete-unit"
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        id="delBtn_${rowIdx}"
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        data-row="${rowIdx}"
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        data-unit-db-id=""
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        data-agreement-id="${agreementId}"
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        onclick="deleteAgreementUnit(this)"
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        style="display:none;">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="fas fa-trash-alt"></i>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </button>`
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            class="btn-delete-unit"
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            id="delBtn_${rowIdx}"
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            data-row="${rowIdx}"
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            data-unit-db-id=""
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            data-agreement-id="${agreementId}"
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            onclick="deleteAgreementUnit(this)"
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            style="display:none;">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <i class="fas fa-trash-alt"></i>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </button>`
                             : '—'}
                     </td>`;
                         tbody.appendChild(tr);
@@ -2749,7 +2764,7 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>Emirates ID Number</label>
+                                <label >Emirates ID Number</label>
                                 <input type="hidden" name="owners[${ownerIndex}][2][id]" id="eidDocId_${ownerIndex}" value="${emiratesDoc.doc_id ?? ''}">
                                 <input type="text" name="owners[${ownerIndex}][2][emirates_id]"
                                     class="form-control emirates-id" placeholder="784-XXXX-XXXXXXX-X"
@@ -2758,22 +2773,23 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>Emirates ID Upload</label>
+                                <label >Emirates ID Upload</label>
                                 <div class="file-upload-wrap">
                                     <input type="file" name="owners[${ownerIndex}][2][emirates_file]" accept="image/*,.pdf"
                                         onchange="onFileChange(this,'eidFace_${ownerIndex}','eidLabel_${ownerIndex}')">
                                     <div class="file-upload-face ${emiratesDoc.view_url ? 'has-file' : ''}" id="eidFace_${ownerIndex}"
-                                        ${emiratesDoc.view_url ? `style="background-image:url('${emiratesDoc.view_url}');background-size:contain;background-repeat:no-repeat;background-position:center;"` : ''}>
+                                        >
                                         <i class="fas fa-upload"></i>
                                         <span id="eidLabel_${ownerIndex}">${emiratesDoc.view_url ? 'File uploaded' : 'Click to upload or drag &amp; drop'}</span>
                                     </div>
+
                                 </div>
                             </div>
                         </div>
 
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>Emirates ID Issued Date</label>
+                                <label >Emirates ID Issued Date</label>
                                 <div class="input-group date" id="emiratesIssued_${ownerIndex}" data-target-input="nearest">
                                     <input type="text" class="form-control datetimepicker-input"
                                         name="owners[${ownerIndex}][2][emirates_issued]"
@@ -2788,7 +2804,7 @@
 
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>Emirates ID Expiry Date</label>
+                                <label >Emirates ID Expiry Date</label>
                                 <div class="input-group date" id="emiratesExpiry_${ownerIndex}" data-target-input="nearest">
                                     <input type="text" class="form-control datetimepicker-input"
                                         name="owners[${ownerIndex}][2][emirates_expiry]"
@@ -2808,7 +2824,7 @@
 
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>Passport Number</label>
+                                <label >Passport Number</label>
                                 <input type="hidden" name="owners[${ownerIndex}][1][id]" id="ppDocId_${ownerIndex}" value="${passportDoc.doc_id ?? ''}">
                                 <input type="text" name="owners[${ownerIndex}][1][passport_number]"
                                     class="form-control passport-number" placeholder="e.g. A12345678"
@@ -2817,12 +2833,12 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>Passport Upload</label>
+                                <label >Passport Upload</label>
                                 <div class="file-upload-wrap">
                                     <input type="file" name="owners[${ownerIndex}][1][passport_file]" accept="image/*,.pdf"
                                         onchange="onFileChange(this,'ppFace_${ownerIndex}','ppLabel_${ownerIndex}')">
                                     <div class="file-upload-face ${passportDoc.view_url ? 'has-file' : ''}" id="ppFace_${ownerIndex}"
-                                        ${passportDoc.view_url ? `style="background-image:url('${passportDoc.view_url}');background-size:contain;background-repeat:no-repeat;background-position:center;"` : ''}>
+                                       >
                                         <i class="fas fa-upload"></i>
                                         <span id="ppLabel_${ownerIndex}">${passportDoc.view_url ? 'File uploaded' : 'Click to upload or drag &amp; drop'}</span>
                                     </div>
@@ -2832,7 +2848,7 @@
 
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>Passport Issued Date</label>
+                                <label >Passport Issued Date</label>
                                 <div class="input-group date" id="passportIssued_${ownerIndex}" data-target-input="nearest">
                                     <input type="text" class="form-control datetimepicker-input"
                                         name="owners[${ownerIndex}][1][passport_issued]"
@@ -2847,7 +2863,7 @@
 
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>Passport Expiry Date</label>
+                                <label >Passport Expiry Date</label>
                                 <div class="input-group date" id="passportExpiry_${ownerIndex}" data-target-input="nearest">
                                     <input type="text" class="form-control datetimepicker-input"
                                         name="owners[${ownerIndex}][1][passport_expiry]"
@@ -3033,8 +3049,8 @@
                 <span class="doc-row-title">Document ${idx}</span>
                 <div id="docRowActions_${idx}">
                 ${idx > 1 ? `<button type="button" class="btn-remove-doc"
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            onclick="document.getElementById('docRowB2C_${idx}').remove(); refreshB2CDocDeleteButtons();">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <i class="fas fa-times"></i> Remove</button>` : ''}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                onclick="document.getElementById('docRowB2C_${idx}').remove(); refreshB2CDocDeleteButtons();">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <i class="fas fa-times"></i> Remove</button>` : ''}
                                     </div>
             </div>
             <input type="hidden" name="docsB2C[${idx}][id]" id="b2cDocId_${idx}" value="">
@@ -3419,6 +3435,14 @@
                 b2bDocs.style.display = 'none';
                 documentshead.style.display = 'none'; // ← hide docs for existing customer
 
+                clearB2BDocsSection(); // ← replaces the disable loop
+
+                // ── Clear required on TL fields since they're now hidden ──
+                document.getElementById('tlNumber').required = false;
+                document.getElementById('trade_license_issued').required = false;
+                document.getElementById('trade_license_expiry').required = false;
+
+
                 let hiddenInput = document.getElementById('hiddenExistingCustomerId');
                 if (!hiddenInput) {
                     hiddenInput = document.createElement('input');
@@ -3459,6 +3483,44 @@
 
             const hiddenInput = document.getElementById('hiddenExistingCustomerId');
             if (hiddenInput) hiddenInput.value = '';
+        }
+
+        function clearB2BDocsSection() {
+            console.log("Clearing B2B docs section");
+            const b2bDocs = document.getElementById('b2bDocSection');
+
+            b2bDocs.querySelectorAll('input, select, textarea').forEach(el => {
+                if (el.type === 'file') {
+                    el.value = '';
+                } else if (el.type === 'checkbox' || el.type === 'radio') {
+                    el.checked = false;
+                } else if (el.tagName === 'SELECT') {
+                    el.selectedIndex = 0;
+                } else {
+                    el.value = '';
+                }
+                el.classList.remove('is-invalid');
+            });
+
+            // ── Reset the visual file-upload faces (trade license + any owner uploads) ──
+            b2bDocs.querySelectorAll('.file-upload-face').forEach(face => {
+                face.classList.remove('has-file');
+                face.style.backgroundImage = '';
+                const label = face.querySelector('span');
+                if (label) label.textContent = 'Click to upload or drag & drop';
+            });
+
+            // ── Clear any hidden doc-id fields (tl_id, eidDocId_*, ppDocId_*) so edits don't reattach old docs ──
+            b2bDocs.querySelectorAll('input[type="hidden"]').forEach(el => {
+                el.value = '';
+            });
+
+            // ── Remove leftover validation error messages ──
+            b2bDocs.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+            b2bDocs.querySelectorAll('.expiry-warn').forEach(el => {
+                el.textContent = '';
+                el.className = 'expiry-warn';
+            });
         }
 
         // function clearSelectedCustomer() {
@@ -3985,8 +4047,17 @@
             const annualInput = document.getElementById(`annual_${rowIdx}`);
             const monthlyInput = document.getElementById(`monthly_${rowIdx}`);
 
-            if (annualInput) annualInput.required = isChecked;
-            if (monthlyInput) monthlyInput.required = isChecked;
+            if (annualInput) {
+                annualInput.required = isChecked;
+                annualInput.disabled = !isChecked; // ← excludes it from submission when unchecked
+                if (!isChecked) annualInput.value = '';
+            }
+            if (monthlyInput) {
+                monthlyInput.required = isChecked;
+                monthlyInput.disabled = !isChecked;
+                if (!isChecked) monthlyInput.value = '';
+            }
+            // if (monthlyInput) monthlyInput.required = isChecked;
 
             // ── NEVER set required on subunit inputs ──
             // They live inside a collapsed expand-inner (max-height:0, overflow:hidden)
@@ -3997,6 +4068,8 @@
             if (expandInner) {
                 expandInner.querySelectorAll('input[type="number"]').forEach(input => {
                     input.required = false; // always false — never required
+                    input.disabled = !isChecked; // ← same treatment for subunit rents
+                    if (!isChecked) input.value = '';
                 });
 
                 if (isChecked) {
@@ -4081,9 +4154,90 @@
         }
     </script>
     <script>
+        function validateB2BNewTenantDocs() {
+            let allValid = true;
+
+            const isB2B = $('#typeB2B').is(':checked');
+            const hiddenExisting = document.getElementById('hiddenExistingCustomerId');
+            const usingExistingCustomer = !!(hiddenExisting && hiddenExisting.value);
+            const applies = isB2B && !usingExistingCustomer;
+
+            // ── Trade License fields: toggle required to match whether this rule applies ──
+            const tlNumEl = document.getElementById('tlNumber');
+            const tlFileEl = document.getElementById('tlFile');
+            const tlIssuedEl = document.getElementById('trade_license_issued');
+            const tlExpiryEl = document.getElementById('trade_license_expiry');
+
+            if (tlNumEl) tlNumEl.required = applies;
+            // if (tlFileEl) tlFileEl.required = applies && !$('input[name="tl_id"]').val();
+            if (tlFileEl) tlFileEl.required = false;
+            if (tlIssuedEl) tlIssuedEl.required = applies;
+            if (tlExpiryEl) tlExpiryEl.required = applies;
+
+            // ── Not applicable — clear errors/required and bail ──
+            if (!applies) {
+
+
+                $('#tlNumber').removeClass('is-invalid').next('.invalid-feedback').remove();
+                $('#trade_license_issued').removeClass('is-invalid').closest('.input-group').next('.invalid-feedback')
+                    .remove();
+                $('#trade_license_expiry').removeClass('is-invalid').closest('.input-group').next('.invalid-feedback')
+                    .remove();
+                $('#tlFileFace').siblings('.invalid-feedback').remove();
+
+                return true;
+            }
+
+            // ── Trade License: number, file, issued date, expiry date ──
+            const tlNum = $('#tlNumber').val().trim();
+            const tlFileInput = $('#tlFile')[0];
+            const tlDocId = $('input[name="tl_id"]').val();
+            const tlIssuedInput = $('#trade_license_issued');
+            const tlExpiryInput = $('#trade_license_expiry');
+            const tlIssued = tlIssuedInput.val().trim();
+            const tlExpiry = tlExpiryInput.val().trim();
+            const tlFace = $('#tlFileFace');
+
+            // ── Clear previous state before re-checking ──
+            $('#tlNumber').removeClass('is-invalid').next('.invalid-feedback').remove();
+            tlIssuedInput.removeClass('is-invalid').closest('.input-group').next('.invalid-feedback').remove();
+            tlExpiryInput.removeClass('is-invalid').closest('.input-group').next('.invalid-feedback').remove();
+            tlFace.siblings('.invalid-feedback').remove();
+
+            if (!tlNum) {
+                showError($('#tlNumber'), 'Trade License number is required.');
+                allValid = false;
+            }
+            if (!tlFileInput.files.length && !tlDocId) {
+                tlFace.after(
+                    '<span class="invalid-feedback" style="display:block;">Trade License file is required.</span>');
+                allValid = false;
+            }
+            if (!tlIssued) {
+                // showErrorAfterGroup(tlIssuedInput, 'Trade License issued date is required.');
+                allValid = false;
+            }
+            if (!tlExpiry) {
+                // showErrorAfterGroup(tlExpiryInput, 'Trade License expiry date is required.');
+                allValid = false;
+            }
+
+            return allValid;
+        }
+
+        function showErrorAfterGroup(input, message) {
+            input.addClass('is-invalid');
+            const group = input.closest('.input-group');
+            const target = group.length ? group : input;
+            target.next('.invalid-feedback').remove();
+            target.after(`<span class="invalid-feedback" style="display:block;">${message}</span>`);
+        }
+
         function validateAll() {
             let submitBtn = $('#submitBtn');
             let allValid = true;
+
+            if (!validateB2BNewTenantDocs()) allValid = false;
 
             // ── Trade License ──
             let tradeInput = $('#tlNumber');
@@ -4188,11 +4342,126 @@
                     // ── No units in table — remove error if it exists ──
                     b2bUnitError.remove();
                 }
+                if (!b2bDocsValidation()) {
+                    allValid = false;
+                }
+                if (!validateB2BUnitSubunitRents()) { // ← add this
+                    allValid = false;
+                }
             }
 
             submitBtn.prop('disabled', !allValid);
             return allValid;
         }
+
+        function b2bDocsValidation() {
+            const hiddenExisting = document.getElementById('hiddenExistingCustomerId');
+            const usingExistingCustomer = !!(hiddenExisting && hiddenExisting.value);
+            if (usingExistingCustomer) {
+                return true;
+            }
+            let ownerDocsValid = true;
+
+            $('.owner-doc-error').remove();
+
+            $('.owner-block').each(function(index) {
+
+                const ownerBlock = $(this);
+                const displayNumber = index + 1;
+
+                const emiratesInput = ownerBlock.find('.emirates-id');
+                const passportInput = ownerBlock.find('.passport-number');
+
+                const emiratesValue = emiratesInput.val()?.trim() || '';
+                const passportValue = passportInput.val()?.trim() || '';
+
+                console.log('Owner:', displayNumber);
+                console.log('Block:', ownerBlock);
+                console.log('Emirates:', emiratesValue);
+                console.log('Passport:', passportValue);
+
+                // Owner must have at least one document number
+                if (!emiratesValue && !passportValue) {
+                    // alert("Please provide either Emirates ID or Passport for Owner " + displayNumber);
+                    ownerDocsValid = false;
+
+                    ownerBlock.append(`
+                <div class="col-md-12 owner-doc-error">
+                    <div class="text-danger mt-2">
+                        <i class="fas fa-exclamation-circle mr-1"></i>
+                        Please provide either Emirates ID or Passport for Owner ${displayNumber}.
+                    </div>
+                </div>
+            `);
+                }
+            });
+
+            return ownerDocsValid;
+        }
+
+        function validateB2BUnitSubunitRents() {
+            let allValid = true;
+
+            $('#b2bUnitsBody .unit-data-row').each(function() {
+                const row = $(this);
+                const checkbox = row.find('.row-checkbox');
+                if (!checkbox.length || !checkbox.prop('checked')) return; // only checked units matter
+
+                const rowIdx = checkbox.val();
+                const expandInner = document.getElementById(`expandInner_${rowIdx}`);
+
+                // Remove any previous error for this row
+                $(`#rentMismatch_${rowIdx}`).remove();
+
+                // No subunits for this unit — nothing to validate
+                if (!expandInner) return;
+
+                const subInputs = expandInner.querySelectorAll('input[type="number"]');
+                if (!subInputs.length) return;
+
+                let subTotal = 0;
+                let anySubFilled = false;
+                subInputs.forEach(input => {
+                    const val = parseFloat(input.value);
+                    if (!isNaN(val) && val > 0) {
+                        subTotal += val;
+                        anySubFilled = true;
+                    }
+                });
+
+                // If none of the subunit rents are filled in yet, don't validate (still typing)
+                if (!anySubFilled) return;
+
+                const monthlyInput = document.getElementById(`monthly_${rowIdx}`);
+                const monthlyVal = parseFloat(monthlyInput?.value);
+
+                if (isNaN(monthlyVal) || monthlyVal <= 0) return; // main rent not filled yet either
+
+                // Compare with a small tolerance for floating point rounding
+                const diff = Math.abs(monthlyVal - subTotal);
+                if (diff > 0.01) {
+                    allValid = false;
+
+                    const expandInnerEl = $(`#expandInner_${rowIdx} .subunit-grid`);
+                    expandInnerEl.after(
+                        `<div id="rentMismatch_${rowIdx}" class="text-danger small mt-2">
+                    <i class="fas fa-exclamation-circle mr-1"></i>
+                    Subunit rents total (AED ${subTotal.toFixed(2)}) must equal the Unit Monthly Rent (AED ${monthlyVal.toFixed(2)}).
+                </div>`
+                    );
+
+                    // Auto-expand the row so the user can see the error
+                    if (!expandInner.classList.contains('open')) {
+                        toggleExpandRow(rowIdx);
+                    }
+                }
+            });
+
+            return allValid;
+        }
+        $(document).on('input', '#b2bUnitsBody input[type="number"]', function() {
+            validateAll();
+        });
 
         function showError(input, message) {
             input.addClass('is-invalid');
@@ -4375,4 +4644,5 @@
 
     @include('admin.sales.form-submit-js');
     @include('admin.master.tenants.form-submit-js')
+    @include('admin.sales.lead-conversion-js')
 @endsection

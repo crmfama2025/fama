@@ -355,14 +355,14 @@
                                             <th>Company Name</th>
                                             <th>Contact Person</th>
                                             <th>Phone Number</th>
-                                            <th>Email</th>
+                                            <th>Status</th>
+                                            {{-- <th>Email</th> --}}
                                             <th>Lead Source</th>
                                             <th>Total Staff</th>
                                             <th>Total Allocation</th>
                                             <th>Required Location</th>
                                             <th>Added By</th>
                                             {{-- <th>Requirement</th> --}}
-                                            <th>Status</th>
 
                                         </tr>
                                     </thead>
@@ -523,11 +523,15 @@
                         data: 'phone_number',
                         name: 'leads.phone_number'
                     },
-
                     {
-                        data: 'email',
-                        name: 'leads.email'
+                        data: 'status',
+                        name: 'leads.status',
                     },
+
+                    // {
+                    //     data: 'email',
+                    //     name: 'leads.email'
+                    // },
 
                     {
                         data: 'lead_source',
@@ -552,10 +556,7 @@
                         name: 'added_by',
 
                     },
-                    {
-                        data: 'status',
-                        name: 'leads.status',
-                    },
+
 
 
 

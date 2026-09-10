@@ -308,6 +308,79 @@
             margin-top: 4px;
         }
 
+        .summary-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+
+        .summary-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .summary-icon {
+            width: 38px;
+            height: 38px;
+            min-width: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f1f5f9;
+            border-radius: 8px;
+            margin-right: 12px;
+            color: #2f75b5;
+        }
+
+        .summary-content {
+            min-width: 0;
+        }
+
+        .summary-label {
+            display: block;
+            font-size: 11px;
+            color: #6c757d;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .summary-value {
+            font-size: 14px;
+            color: #212529;
+            font-weight: 500;
+        }
+
+        .info-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            height: 100%;
+            background: #fff;
+            overflow: hidden;
+        }
+
+        .info-card-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #e5e7eb;
+            background: #f8fafc;
+        }
+
+        .info-card-header h5 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #343a40;
+        }
+
+        .info-card-body {
+            padding: 20px;
+        }
+
+        .info-item {
+            margin-bottom: 20px;
+        }
+
+
+
         /* Responsive */
         @media (max-width: 767px) {
             .sales-lead-header-inner {
@@ -336,6 +409,7 @@
             .summary-grid {
                 grid-template-columns: 1fr;
             }
+
         }
     </style>
 @endsection
@@ -534,6 +608,7 @@
                             </div>
                         </div>
 
+                        @include('admin.leads.allocations', ['allocations' => $allocations])
 
 
                         {{-- Follow Up --}}

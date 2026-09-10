@@ -1940,9 +1940,15 @@ namespace App\Models{
  * @property string $total_withdrawn_amount
  * @property int $has_partial_withdrawal 0-No ,1-Yes
  * @property int $investment_term_type 1-Long Term, 2-short term
+ * @property string|null $last_renewed_maturity_date
+ * @property string|null $renewed_at
+ * @property string|null $investor_novation_applied_at
+ * @property int|null $investor_novation_applied_by
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Investment> $childInvestments
  * @property-read int|null $child_investments_count
  * @property-read \App\Models\Company|null $company
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvestmentCompanyAllocation> $companyAllocations
+ * @property-read int|null $company_allocations_count
  * @property-read \App\Models\Bank|null $companyBank
  * @property-read \App\Models\User|null $deletedBy
  * @property-read mixed $formatted_investment_amount
@@ -1994,8 +2000,11 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereInvestmentType($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereInvestorBankId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereInvestorId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Investment whereInvestorNovationAppliedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Investment whereInvestorNovationAppliedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereIsProfitProcessed($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereLastProfitReleasedDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Investment whereLastRenewedMaturityDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereMaturityDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereNextProfitReleaseDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereNextReferralCommissionReleaseDate($value)
@@ -2013,6 +2022,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereReceivedAmount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereReinvestedCount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereReinvestmentOrNot($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Investment whereRenewedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereTerminateStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereTerminatedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereTerminationDate($value)
@@ -2036,7 +2046,9 @@ namespace App\Models{
 
 namespace App\Models{
 /**
+ * @property-read \App\Models\Company|null $company
  * @property-read \App\Models\User|null $deletedBy
+ * @property-read \App\Models\Investment|null $investment
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentCompanyAllocation newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentCompanyAllocation newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentCompanyAllocation onlyTrashed()
@@ -2223,15 +2235,6 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord withoutTrashed()
  */
 	class InvestmentProfitRecord extends \Eloquent {}
-}
-
-namespace App\Models{
-/**
- * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecordRenewalLog newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecordRenewalLog newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecordRenewalLog query()
- */
-	class InvestmentProfitRecordRenewalLog extends \Eloquent {}
 }
 
 namespace App\Models{
@@ -2922,6 +2925,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property int|null $total_allocation
  * @property-read \App\Models\User|null $assignedBy
  * @property-read \App\Models\User|null $assignedTo
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\LeadAssignment> $assignments
@@ -2931,6 +2935,8 @@ namespace App\Models{
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\LeadFollowUp> $followUps
  * @property-read int|null $follow_ups_count
  * @property-read \App\Models\LeadFollowUp|null $latestFollowUp
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SalesTenantAgreement> $salesAgreement
+ * @property-read int|null $sales_agreement_count
  * @property-read \App\Models\AgreementTenant|null $tenant
  * @property-read \App\Models\User|null $updatedBy
  * @method static \Illuminate\Database\Eloquent\Builder|Lead newModelQuery()
@@ -2954,6 +2960,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Lead whereRequiredLocation($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Lead whereRequirement($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Lead whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Lead whereTotalAllocation($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Lead whereTotalStaff($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Lead whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Lead whereUpdatedBy($value)
@@ -3507,6 +3514,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property int|null $lead_id
  * @property-read \App\Models\User|null $addedBy
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SalesTenantUnit> $agreementUnits
  * @property-read int|null $agreement_units_count
@@ -3535,6 +3543,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement whereIsAgreementAdded($value)
  * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement whereIsApproved($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement whereLeadId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement whereLocalityId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement wherePropertyId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement whereRejectionReason($value)
