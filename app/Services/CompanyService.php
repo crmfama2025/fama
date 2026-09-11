@@ -61,6 +61,16 @@ class CompanyService
             unset($data['letter_head_path']);
         }
 
+        if (
+            !empty($data['normal_letter_head_path']) &&
+            $data['normal_letter_head_path'] instanceof \Illuminate\Http\UploadedFile
+        ) {
+            $data['normal_letter_head_path'] = $this->getletterHeadePath($data);
+        } else {
+            //  REMOVE the key so it won’t overwrite DB
+            unset($data['normal_letter_head_path']);
+        }
+
         if ($existing) {
             if ($existing->trashed()) {
                 $existing->restore();
@@ -70,7 +80,7 @@ class CompanyService
             return $existing;
         }
 
-
+        dd($data);
 
         return $this->companyRepository->create($data);
     }
@@ -92,6 +102,16 @@ class CompanyService
             //  REMOVE the key so it won’t overwrite DB
             unset($data['letter_head_path']);
         }
+        if (
+            !empty($data['normal_letter_head_path']) &&
+            $data['normal_letter_head_path'] instanceof \Illuminate\Http\UploadedFile
+        ) {
+            $data['normal_letter_head_path'] = $this->getletterHeadePath($data);
+        } else {
+            //  REMOVE the key so it won’t overwrite DB
+            unset($data['normal_letter_head_path']);
+        }
+        // dd($data);
         return $this->companyRepository->update($id, $data);
     }
 
@@ -227,6 +247,37 @@ class CompanyService
 
         $file = $data['letter_head_path'];
 
+        // dd($file);
+
+        $filename = time() . '_' . $file->getClientOriginalName();
+
+        $pdfService = new PdfCompressionService();
+
+        if ($file->getClientOriginalExtension() === 'pdf') {
+
+            $path = $pdfService->compress(
+                $file,
+                'companies/' . $data['company_code'] . '/documents',
+                $filename
+            );
+        } else {
+
+            $path = $file->storeAs(
+                'companies/' . $data['company_code'] . '/documents',
+                $filename,
+                'public'
+            );
+        }
+
+        return $path;
+    }
+    public function getletterHeadePath($data)
+    {
+
+
+        $file = $data['normal_letter_head_path'];
+
+        // dd($file);
 
         $filename = time() . '_' . $file->getClientOriginalName();
 

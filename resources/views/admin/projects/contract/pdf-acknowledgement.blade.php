@@ -96,11 +96,11 @@
             style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;">
     @endif --}}
     @php
-        $imagePath = public_path('storage/' . $company->letter_head_path);
+        $imagePath = public_path('storage/' . $company->normal_letter_head_path);
     @endphp
     {{-- @dump($imagePath); --}}
 
-    @if (!empty($company->letter_head_path) && file_exists($imagePath))
+    @if (!empty($company->normal_letter_head_path) && file_exists($imagePath))
         <img src="{{ str_replace('\\', '/', $imagePath) }}"
             style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;">
     @endif

@@ -146,10 +146,23 @@
                                         </tr>
                                         {{-- {{ dump($company) }} --}}
                                         <tr>
-                                            <th>Lettter Head</th>
+                                            <th>Lettter Head(Investment Purpose)</th>
                                             <td>
                                                 @if (!empty($company->letter_head_path))
                                                     <a href="{{ asset('storage/' . $company->letter_head_path) }}"
+                                                        target="_blank" class="btn btn-sm btn-primary">
+                                                        View
+                                                    </a>
+                                                @else
+                                                    <span class="text-muted">No file</span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>Normal Lettter Head</th>
+                                            <td>
+                                                @if (!empty($company->normal_letter_head_path))
+                                                    <a href="{{ asset('storage/' . $company->normal_letter_head_path) }}"
                                                         target="_blank" class="btn btn-sm btn-primary">
                                                         View
                                                     </a>
