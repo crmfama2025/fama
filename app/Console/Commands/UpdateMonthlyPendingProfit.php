@@ -71,7 +71,9 @@ class UpdateMonthlyPendingProfit extends Command
                                     $currentMonthStart,
                                     $investment,
                                     $wd->balance_to_pay,
-                                    $wd->id
+                                    $wd->id,
+                                    Carbon::parse($bifurcation->withdrawal_date),
+                                    null
                                 );
                             }
                         }
@@ -246,7 +248,7 @@ class UpdateMonthlyPendingProfit extends Command
                                     ->where('payout_release_month', $currentMonthStart->format('Y-m'))
                                     ->exists();
                                 if (!$exists) {
-                                    $this->createInvestorpayout(2, $currentMonthStart, $investment, null, null,);
+                                    $this->createInvestorpayout(2, $currentMonthStart, $investment);
                                 }
                             }
                         }
