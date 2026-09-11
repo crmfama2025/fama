@@ -13,6 +13,8 @@ use App\Models\ProfitInterval;
 use App\Models\ReferralCommissionFrequency;
 use App\Repositories\Investment\InvestmentDocumentRepository;
 use App\Repositories\Investment\InvestmentRepository;
+use App\Repositories\Investment\InvestorAgreementRepository;
+use App\Repositories\Investment\InvestorLedgerRepository;
 use App\Repositories\Investment\InvestorRepository;
 use App\Services\BrevoService;
 use App\Services\PdfCompressionService;
@@ -39,8 +41,9 @@ class InvestmentService
         protected BrevoService $brevoService,
         protected InvestorAgreementService $investorAgreementService,
         protected InvestmentContractDocumentService $investmentContractDocumentService,
-        protected InvestorLedgerService $investorLedgerService
-
+        protected InvestorLedgerService $investorLedgerService,
+        protected InvestorAgreementRepository $investorAgreementRepository,
+        protected InvestorLedgerRepository $investorLedgerRepo,
     ) {}
 
 
@@ -744,6 +747,21 @@ class InvestmentService
                     //     ';
                     // }
 
+                    if (($row->terminate_status == 0) && auth()->user()->hasAnyPermission(['investment.terminate'], $row->company_id) && $row->investment_term_type == 2) {
+                        $action .= '
+                                <button class="btn btn-sm bg-gradient-navy m-1 shortTermTerminationModal"
+                                data-status = "' . $row->terminate_status . '"
+                                    data-id="' . $row->id . '"
+                                   data-principal="' . ($row->investment_amount) . '"
+                                  data-outstanding="' . ($row->termination_outstanding) . '"
+                                   data-commission-outstanding="' . ($row->termination_referral_commission_outstanding) . '"
+                                   data-outstanding-profit = "' . ($row->outstanding_profit) . '"
+                                    title="Edit termination Details">
+                                    <i class="fas fa-file-signature"></i>
+                                </button>
+                            ';
+                    }
+
 
 
                     if (auth()->user()->hasAnyPermission(['investment.add'], $row->company_id)) {
@@ -1231,5 +1249,95 @@ class InvestmentService
 
         return ((int) $whole * 100)
             + (int) str_pad($fraction, 2, '0', STR_PAD_RIGHT);
+    }
+    public function shortTermTermination($data)
+    {
+        // dd($data);
+        return DB::transaction(function () use ($data) {
+
+            $investmentId = $data['investment_id'];
+
+            $investment = $this->investmentRepository->find($investmentId);
+
+            if (!$investment) {
+                throw new \Exception('Investment not found.');
+            }
+
+            $investorId = $investment->investor_id;
+            $companyId = $investment->company_id;
+
+            // Mark investment as termination requested
+            $this->investmentRepository->update($investmentId, [
+                'termination_requested_date' => parseDate($data['termination_requested_date']),
+                'termination_date' => parseDate($data['termination_date']),
+                'termination_duration' => $data['duration'],
+                'termination_requested_by' => auth()->user()->id,
+                'terminate_status' => 1,
+            ]);
+
+            // Create termination document
+            $documentData = [
+                'investor_id' => $investorId,
+                'company_id' => $companyId,
+                'investor_agreement_template_id' => $this->investorAgreementRepository->getActiveIdBytype(5),
+                'investor_agreement_type_id' => 5,
+                'added_by' => auth()->user()->id,
+                'applied_investments' => $investmentId,
+                'investment_id' => 0,
+            ];
+            // dd('test');
+
+            $document = $this->investmentContractDocumentService
+                ->createInvestorDocument(
+                    $investorId,
+                    $companyId,
+                    $documentData
+                );
+            // dd('test');
+
+
+            // Create investor ledger transaction
+            $ledgerData = [
+                'investment_contract_document_id' => $document->id,
+                'investor_id' => $investorId,
+                'company_id' => $companyId,
+                'investor_transaction_type_id' => 4,
+                'transaction_amount' => $data['investment_amount'],
+                'is_credit' => 0,
+                'transaction_date' => parseDate($data['termination_requested_date']),
+                'added_by' => auth()->user()->id,
+                'investment_id' => $investmentId,
+                'withdrawal_status' => 1,
+                'requested_date' => parseDate($data['termination_requested_date']),
+                'duration_days' => $data['duration'],
+                'withdrawal_date' => parseDate($data['termination_date']),
+                'withdrawal_month_profit' => $data['termination_month_profit'],
+            ];
+
+            $ledger = $this->investorLedgerRepo->create($ledgerData);
+            // dd('test');
+            // dd($data);
+
+            $partialWithdrawalData = [
+                'investment_id' => $investmentId,
+                'ledger_id' => $ledger->id,
+                'company_id' => $companyId,
+                'withdrawal_amount' => $data['investment_amount'],
+                'previous_amount' => $investment['investment_amount'],
+                'balance_amount' => 0,
+                'added_by' => auth()->user()->id,
+                'requested_date' => parseDate($data['termination_requested_date']),
+                'withdrawal_date' => parseDate($data['termination_date']),
+                'duration_days' => $data['duration'],
+                'withdrawal_month_profit' => $data['termination_month_profit'] ?? 0,
+                'balance_to_pay' => $data['investment_amount'],
+            ];
+            // dd($partialWithdrawalData);
+
+            $this->investorLedgerRepo->createPartialWithdrawal($partialWithdrawalData);
+            // dd("test");
+
+            return $ledger;
+        });
     }
 }

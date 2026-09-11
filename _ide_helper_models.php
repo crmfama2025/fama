@@ -2046,13 +2046,29 @@ namespace App\Models{
 
 namespace App\Models{
 /**
- * @property-read \App\Models\Company|null $company
+ * @property int $id
+ * @property int $investment_id
+ * @property int $company_id
+ * @property string $allocated_amount
+ * @property int|null $deleted_by
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read \App\Models\Company $company
  * @property-read \App\Models\User|null $deletedBy
- * @property-read \App\Models\Investment|null $investment
+ * @property-read \App\Models\Investment $investment
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentCompanyAllocation newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentCompanyAllocation newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentCompanyAllocation onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentCompanyAllocation query()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentCompanyAllocation whereAllocatedAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentCompanyAllocation whereCompanyId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentCompanyAllocation whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentCompanyAllocation whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentCompanyAllocation whereDeletedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentCompanyAllocation whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentCompanyAllocation whereInvestmentId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentCompanyAllocation whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentCompanyAllocation withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentCompanyAllocation withoutTrashed()
  */

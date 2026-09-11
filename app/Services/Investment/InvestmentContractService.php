@@ -1421,7 +1421,12 @@ class InvestmentContractService
             ->orderBy('investment_date')
             ->get();
         // dd($investments);
-        // $investment = $this->investmentRepository->find($docDetails->investment_id);
+        // dd(json_decode($docDetails->applied_investments));
+        $appliedInvestments = json_decode($docDetails->applied_investments, true);
+        $appliedInvestmentIds = is_array($appliedInvestments)
+            ? $appliedInvestments
+            : [$appliedInvestments];
+        $investment = $this->investmentRepository->find($appliedInvestmentIds[0]);
         // dd($investment);
 
         $invDocDetails = $this->investmentContractDocumentRepository->find($docId);
@@ -1451,16 +1456,39 @@ class InvestmentContractService
 
         // $investmentDate       = Carbon::parse($investment->investment_date);
         $withdrwalCreated       = Carbon::parse($docDetails->generated_date);
-        $mudarabahCreatedDate       = Carbon::parse($invDocDetails->mudarabahReference->generated_date ?? $invDocDetails->mudarabahReference->created_at);
-        // dd("test");
+        if ($investment->investment_term_type == 2) {
+            $mudarabahCreatedDate = Carbon::parse($investment->investment_date);
+        } else {
+            $mudarabahCreatedDate       = Carbon::parse($invDocDetails->mudarabahReference->generated_date ?? $invDocDetails->mudarabahReference->created_at);
+        }
+        // dd($mudarabahCreatedDate);
 
 
         // Build the underlined, "date1, date2 and date3" addendum dates string
-        $addendumDates = $this->joinWithAnd(
-            $investments->map(fn($inv) => '<span class="underline-date">'
-                . Carbon::parse($inv->investment_date)->format('jS F Y')
-                . '</span>')->toArray()
-        );
+        if ($investment && $investment->investment_term_type == 2) {
+            $addendumDates = '';
+        } else {
+            $addendumDates = $this->joinWithAnd(
+                $investments->map(fn($inv) => '<span class="underline-date">'
+                    . Carbon::parse($inv->investment_date)->format('jS F Y')
+                    . '</span>')->toArray()
+            );
+        }
+
+        $addendumText = '';
+        $clause2text = '';
+
+        if ($investment->investment_term_type != 2) {
+            $addendumText = ' and Additional capital contribution document(s)
+        ("Addendum(s)") dated '
+                . $addendumDates .
+                ' (Collectively referred to as the "Investment Documents").';
+        }
+        if ($investment->investment_term_type != 2) {
+            $clause2text = 'The Original Agreement and all related addendums or additional capital contribution documents shall stand terminated by performance and mutual settlement.';
+        } else {
+            $clause2text = 'The Original Agreement shall stand terminated by performance and mutual settlement.';
+        }
         $vars = [
 
             '{settlement_day}'   => $day->format('d'),      // e.g. 15
@@ -1492,12 +1520,13 @@ class InvestmentContractService
             '{termination_requested_date}' => $termination_requested_date->format('d-m-Y'),
 
             '{addendum_dates}'    => $addendumDates,
-
+            '{addendum_text}' => $addendumText,
             '{capital}' => $ledger->transaction_amount,
             '{profit}' => $ledger->withdrawal_month_profit,
             '{total_amount}' => $total_amount,
 
-            '{date}' =>  Carbon::parse($ledger->withdrawal_date)->format('d/m/Y')
+            '{date}' =>  Carbon::parse($ledger->withdrawal_date)->format('d/m/Y'),
+            '{claude2text}' => $clause2text
 
             // '{html_eng}' => $this->ledgerPartialWithdrawal($docDetails->investor_id, $companyId, $mudarabahCreatedDate, $docId)['html_eng'],
             // '{html_ar}' => $this->ledgerPartialWithdrawal($docDetails->investor_id, $companyId, $mudarabahCreatedDate, $docId)['html_ar']
@@ -1506,7 +1535,7 @@ class InvestmentContractService
         // dd($vars);
 
         $html = str_replace(array_keys($vars), array_values($vars), $html);
-        // dd('test');
+        // dd($html);
 
         return [
             'html'       => $html,

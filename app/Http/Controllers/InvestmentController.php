@@ -214,4 +214,15 @@ class InvestmentController extends Controller
             'message' => 'Profit record deleted successfully.'
         ]);
     }
+    public function shortTermTermination(Request $request)
+    {
+        try {
+            $terminate = $this->investmentService->shortTermTermination($request->all());
+
+            return response()->json(['success' => true, 'data' =>  $terminate, 'message' => 'Investment terminated successfully'], 200);
+        } catch (\Exception $e) {
+
+            return response()->json(['success' => false, 'message' => $e->getMessage(), 'error'   => $e], 500);
+        }
+    }
 }

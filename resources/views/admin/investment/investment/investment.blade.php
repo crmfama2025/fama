@@ -94,7 +94,7 @@
 
 
 
-            <div class="modal fade" id="terminationModal" tabindex="-1" role="dialog" aria-hidden="true">
+            {{-- <div class="modal fade" id="terminationModal" tabindex="-1" role="dialog" aria-hidden="true">
                 <div class="modal-dialog" role="document">
                     <form id="terminationForm" method="POST" enctype="multipart/form-data">
                         @csrf
@@ -141,8 +141,7 @@
                                 <!-- Termination Date -->
                                 <div class="form-group">
                                     <label class="asterisk">Termination Date</label>
-                                    {{-- <input type="date" name="termination_date" id="termination_date"
-                                        class="form-control"> --}}
+
                                     <div class="input-group date" id="terminationdate" data-target-input="nearest">
                                         <input type="text" class="form-control datetimepicker-input"
                                             name="termination_date" id="termination_date" data-target="#terminationdate"
@@ -205,9 +204,105 @@
                         </div>
                     </form>
                 </div>
-            </div>
+            </div> --}}
 
             <!-- /.modal -->
+
+            <div class="modal fade" id="shortTermTerminationModal" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <form id="shortTerminationForm" method="POST">
+                        @csrf
+
+                        <div class="modal-content">
+                            <div class="modal-header bg-danger">
+                                <h5 class="modal-title text-white">
+                                    <i class="fas fa-ban"></i> Terminate Investment
+                                </h5>
+                                <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+                            </div>
+
+                            <div class="modal-body">
+
+                                <input type="hidden" name="investment_id" id="termination_investment_id">
+
+                                <div class="d-none text-lg-left text-info" id="profit-div"></div>
+
+                                <div class="form-group">
+                                    <label class="asterisk">Requested Date</label>
+                                    <div class="input-group date" id="requesteddate" data-target-input="nearest">
+                                        <input type="text" class="form-control datetimepicker-input"
+                                            name="termination_requested_date" id="termination_requested_date"
+                                            data-target="#requesteddate" placeholder="DD-MM-YYYY" required>
+
+                                        <div class="input-group-append" data-target="#requesteddate"
+                                            data-toggle="datetimepicker">
+                                            <div class="input-group-text">
+                                                <i class="fa fa-calendar"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="asterisk">Duration (Days)</label>
+                                    <input type="number" name="duration" id="termination_duration" class="form-control"
+                                        min="1" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="asterisk">Termination Date</label>
+                                    <div class="input-group date" id="terminationdate" data-target-input="nearest">
+                                        <input type="text" class="form-control datetimepicker-input"
+                                            name="termination_date" id="termination_date" data-target="#terminationdate"
+                                            placeholder="DD-MM-YYYY" required>
+
+                                        <div class="input-group-append" data-target="#terminationdate"
+                                            data-toggle="datetimepicker">
+                                            <div class="input-group-text">
+                                                <i class="fa fa-calendar"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Investment Amount</label>
+                                    <input type="number" name="investment_amount" id="investment_amount"
+                                        class="form-control">
+                                </div>
+
+                                <div class="pending_div">
+                                    <div class="form-group">
+                                        <label class="asterisk">Termination Month Profit</label>
+                                        <input type="number" name="termination_month_profit"
+                                            id="termination_outstanding" class="form-control" step="0.01"
+                                            min="-999999999" required>
+                                    </div>
+
+                                    {{-- <div class="form-group">
+                                        <label class="asterisk">Commission Till Termination</label>
+                                        <input type="number" name="termination_referral_commission_outstanding"
+                                            id="termination_referral_commission_outstanding" class="form-control"
+                                            step="0.01" min="-999999999" required>
+                                    </div> --}}
+                                </div>
+
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="fas fa-check"></i> Confirm Termination
+                                </button>
+
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                    Cancel
+                                </button>
+                            </div>
+
+                        </div>
+                    </form>
+                </div>
+            </div>
 
             <div class="modal fade" id="pendingInvestmentModal" tabindex="-1">
                 <div class="modal-dialog">
@@ -626,6 +721,83 @@
 
             $('#terminationModal').modal('show');
         });
+        $(document).on('click', '.shortTermTerminationModal', function() {
+
+            $('#shortTerminationForm')[0].reset();
+            $('#existingFileContainer').html('');
+            let investmentId = $(this).data('id');
+
+
+            $('#termination_investment_id').val(investmentId);
+            $('#requested_date').val('');
+            $('#termination_duration').val('');
+            $('#termination_date').val('');
+            let invest_amount = $(this).data('principal');
+            $('#investment_amount').val(invest_amount);
+            let outstanding = $(this).data('outstanding');
+            let comm_outstanding = $(this).data('outstanding');
+            $('#termination_outstanding').val(outstanding);
+            $('#termination_referral_commission_outstanding').val(comm_outstanding);
+            // 👉 Outstanding profit
+            let outstandingProfit = $(this).data('outstanding-profit');
+
+            if (outstandingProfit !== null && outstandingProfit !== '' && outstandingProfit != 0) {
+                $('#profit-div')
+                    .removeClass('d-none')
+                    .html(' Pending Payout Amount Generated: <strong>' + outstandingProfit +
+                        '</strong>');
+            } else {
+                $('#profit-div')
+                    .addClass('d-none')
+                    .html('');
+            }
+
+
+
+
+
+            // if ($(this).data('status')) {
+            $status = $(this).data('status');
+            if ($status == 1) {
+                // alert("test");
+
+                let requestedDate = $(this).data('requested-date') || '';
+                let duration = $(this).data('duration') || '';
+                let terminationDate = $(this).data('termination-date') || '';
+                let filePath = $(this).data('file-path');
+
+                console.log(filePath);
+
+
+                $('#termination_investment_id').val(investmentId);
+                $('#termination_requested_date').val(requestedDate);
+                $('#termination_duration').val(duration);
+                $('#termination_date').val(terminationDate);
+
+                if (filePath) {
+                    $('#existingFileContainer').html(
+                        '<a style="text-decoration:underline;" class="text-blue" href="' + filePath +
+                        '" target="_blank">Click here </a>to view Existing File'
+                    );
+                } else {
+                    $('#existingFileContainer').html('');
+                }
+                $('.pending_div')
+                    .removeClass('d-none')
+            }
+            // else if ($status == 0) {
+
+            //     // alert("test");
+            //     $('#profit-div')
+            //         .addClass('d-none')
+            //         .html('');
+            //     $('.pending_div')
+            //         .addClass('d-none')
+            // }
+            // }
+
+            $('#shortTermTerminationModal').modal('show');
+        });
         $('#requesteddate').on('change.datetimepicker', function() {
             calculateTerminationDate();
         });
@@ -695,6 +867,41 @@
         $('#terminationModal').on('hidden.bs.modal', function() {
             $('#terminationForm')[0].reset();
 
+        });
+        $('#shortTerminationForm').on('submit', function(e) {
+            e.preventDefault();
+
+            let form = $(this)[0];
+            let formData = new FormData(form);
+
+            $.ajax({
+                url: "{{ route('investment.submit.shortTerm-termination') }}",
+                method: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                beforeSend: function() {
+                    $('#shortTerminationForm button[type="submit"]').attr('disabled', true);
+                },
+                success: function(res) {
+                    $('#shortTermTerminationModal').modal('hide');
+                    $('#investmentsTable').DataTable().ajax.reload(null, false);
+                    toastr.success(res.message);
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 2000);
+                },
+                error: function(xhr) {
+                    let errMsg = 'Something went wrong!';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errMsg = xhr.responseJSON.message;
+                    }
+                    toastr.error(errMsg);
+                },
+                complete: function() {
+                    $('#shortTerminationForm button[type="submit"]').attr('disabled', false);
+                }
+            });
         });
     </script>
 @endsection

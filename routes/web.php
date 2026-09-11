@@ -498,6 +498,8 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
     Route::get('/investors/{investor}/novation-investments', [InvestmentContractsController::class, 'novationInvestments'])->name('investor.novation.investments');
 
     Route::post('/investors/apply-selected-novation', [InvestmentContractsController::class, 'applyNovation'])->name('investor.novation.apply');
+
+    Route::post('investments/short-term-termination', [InvestmentController::class, 'shortTermTermination'])->name(('investment.submit.shortTerm-termination'));
 });
 
 
