@@ -125,6 +125,11 @@
          <h3 class="card-title text-teal text-bold">
              <i class="fas fa-file-invoice-dollar mr-2"></i> Profit Details
          </h3>
+
+         <a href="{{ route('investments.profit-schedule.edit', $investment->id) }}"
+             class="btn btn-warning float-right">
+             Edit Future Profit Schedule
+         </a>
      </div>
 
      <div class="card-body p-0">

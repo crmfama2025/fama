@@ -5,12 +5,16 @@ namespace App\Http\Controllers;
 use App\Exports\InvestmentExport;
 use App\Models\Investment;
 use App\Models\InvestmentProfitRecord;
+use App\Models\InvestmentProfitRecordRenewalLog;
 use App\Models\InvestmentReceivedPayment;
 use App\Repositories\Investment\InvestmentRepository;
 use App\Services\Investment\InvestmentContractDocumentService;
 use App\Services\Investment\InvestmentService;
 use App\Services\Investment\InvestorLedgerService;
+use Gate;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
 
 class InvestmentController extends Controller
@@ -21,8 +25,6 @@ class InvestmentController extends Controller
         protected InvestmentRepository $investmentRepository,
         protected InvestmentContractDocumentService $investmentContractService,
         protected InvestorLedgerService $investorLedgerService,
-
-
     ) {}
 
     public function index()
@@ -43,9 +45,10 @@ class InvestmentController extends Controller
             'date' => $request->query('date'),
         );
         $paymentsCount = 0;
+        $profitRecords = collect();
 
         // dd($data);
-        return view("admin.investment.investment.create-investment-edit", compact("title", "data", 'reinvestment', 'parent_investment_id', 'paymentsCount', 'parent'));
+        return view("admin.investment.investment.create-investment-edit", compact("title", "data", 'reinvestment', 'parent_investment_id', 'paymentsCount', 'parent', 'profitRecords'));
     }
 
     public function store(Request $request)
@@ -93,8 +96,11 @@ class InvestmentController extends Controller
         $reinvestment = 0;
         $parent_investment_id = null;
         $paymentsCount = InvestmentReceivedPayment::where('investment_id', $id)->count();
+        $profitRecords = $this->investmentService->getInvestmentProfitRecords($investment);
 
-        return view("admin.investment.investment.create-investment-edit", compact("title", "data", "investment", 'reinvestment', 'parent_investment_id', 'paymentsCount'));
+        // dd($profitRecords);
+
+        return view("admin.investment.investment.create-investment-edit", compact("title", "data", "investment", 'reinvestment', 'parent_investment_id', 'paymentsCount', 'profitRecords'));
     }
     public function update(Request $request, $id)
     {
@@ -214,6 +220,7 @@ class InvestmentController extends Controller
             'message' => 'Profit record deleted successfully.'
         ]);
     }
+
     public function shortTermTermination(Request $request)
     {
         try {
@@ -224,5 +231,49 @@ class InvestmentController extends Controller
 
             return response()->json(['success' => false, 'message' => $e->getMessage(), 'error'   => $e], 500);
         }
+    }
+    // profitschedule updates
+    public function editProfitSchedule(int $investmentId)
+    {
+        $title = 'Edit Profit Recpords';
+        $investment = Investment::query()
+            ->activeLongTerm()
+            ->findOrFail($investmentId);
+
+        $profitRecords = $investment->profitRecords()
+            ->editable()
+            ->orderBy('profit_release_month')
+            ->get();
+
+        return view('admin.investment.profit-schedule-edit', [
+            'title' => $title,
+            'investment' => $investment,
+            'profitRecords' => $profitRecords,
+        ]);
+    }
+
+    public function updateProfitSchedule(Request $request, int $investmentId)
+    {
+        $investment = Investment::query()
+            ->activeLongTerm()
+            ->findOrFail($investmentId);
+
+        $maturityDate = Carbon::parse($investment->maturity_date)->toDateString();
+
+        $validated = $request->validate([
+            'profit_records' => ['required', 'array', 'min:1',],
+            'profit_records.*.id' => ['required', 'integer', 'distinct',],
+            'profit_records.*.profit_release_month' => ['required', 'date_format:Y-m-d', 'after_or_equal:today', "before_or_equal:{$maturityDate}", 'distinct',],
+            'profit_records.*.profit_amount' => ['required', 'numeric', 'min:0',],
+        ]);
+
+        $this->investmentService->updateProfitSchedule($investmentId, $validated['profit_records']);
+
+        return redirect()
+            ->route('investment.show', $investment->id)
+            ->with(
+                'success',
+                'Profit schedule updated successfully.'
+            );
     }
 }

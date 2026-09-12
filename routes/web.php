@@ -500,6 +500,10 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
     Route::post('/investors/apply-selected-novation', [InvestmentContractsController::class, 'applyNovation'])->name('investor.novation.apply');
 
     Route::post('investments/short-term-termination', [InvestmentController::class, 'shortTermTermination'])->name(('investment.submit.shortTerm-termination'));
+
+    // profit record management
+    Route::get('/investments/{investment}/profit-schedule/edit', [InvestmentController::class, 'editProfitSchedule'])->name('investments.profit-schedule.edit');
+    Route::put('/investments/{investment}/profit-schedule', [InvestmentController::class, 'updateProfitSchedule'])->name('investments.profit-schedule.update');
 });
 
 

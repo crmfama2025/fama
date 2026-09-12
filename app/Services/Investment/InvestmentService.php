@@ -20,6 +20,7 @@ use App\Services\BrevoService;
 use App\Services\PdfCompressionService;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
@@ -1250,6 +1251,7 @@ class InvestmentService
         return ((int) $whole * 100)
             + (int) str_pad($fraction, 2, '0', STR_PAD_RIGHT);
     }
+
     public function shortTermTermination($data)
     {
         // dd($data);
@@ -1338,6 +1340,196 @@ class InvestmentService
             // dd("test");
 
             return $ledger;
+        });
+    }
+
+    public function getInvestmentProfitRecords(
+        Investment $investment
+    ): Collection {
+        $expectedCount = (int) $investment->investment_tenure;
+
+        if ($expectedCount <= 0) {
+            return new Collection();
+        }
+
+        $latestRenewal = DB::table(
+            'investment_profit_record_renewal_logs'
+        )
+            ->where('investment_id', $investment->id)
+            ->whereColumn(
+                'new_maturity_date',
+                '>',
+                'old_maturity_date'
+            )
+            ->whereNotNull('first_profit_date')
+            ->whereNotNull('last_profit_date')
+            ->orderByDesc('processed_at')
+            ->orderByDesc('id')
+            ->first();
+
+        /*
+        * No renewal log: return the latest existing tenure records.
+        */
+        if (!$latestRenewal) {
+            $profitRecords = $investment->profitRecords()
+                ->orderByDesc('profit_release_month')
+                ->limit($expectedCount)
+                ->get();
+
+            return $this->sortProfitRecordsChronologically(
+                $profitRecords
+            );
+        }
+
+        $logFirstProfitDate = Carbon::parse(
+            $latestRenewal->first_profit_date
+        )->startOfDay();
+
+        $logLastProfitDate = Carbon::parse(
+            $latestRenewal->last_profit_date
+        )->endOfDay();
+
+        /*
+        * First attempt: records affected by the latest renewal log.
+        */
+        $profitRecords = $this->getProfitRecordsBetweenDates(
+            investment: $investment,
+            startDate: $logFirstProfitDate,
+            endDate: $logLastProfitDate,
+            limit: $expectedCount
+        );
+
+        /*
+        * If the log period contains fewer records than the tenure,
+        * use the novation date as the earlier starting boundary.
+        */
+        if (
+            $profitRecords->count() < $expectedCount &&
+            $investment->investor_novation_applied_at
+        ) {
+            $novationDate = Carbon::parse(
+                $investment->investor_novation_applied_at
+            )->startOfDay();
+
+            $profitRecords = $this->getProfitRecordsBetweenDates(
+                investment: $investment,
+                startDate: $novationDate,
+                endDate: $logLastProfitDate,
+                limit: $expectedCount
+            );
+            // dd($profitRecords);
+        }
+
+        return $profitRecords;
+    }
+
+    private function getProfitRecordsBetweenDates(
+        Investment $investment,
+        Carbon $startDate,
+        Carbon $endDate,
+        int $limit
+    ): Collection {
+        /*
+     * Select the latest required number of database records.
+     */
+        $profitRecords = $investment->profitRecords()
+            ->whereDate(
+                'profit_release_month',
+                '>=',
+                $startDate->toDateString()
+            )
+            ->whereDate(
+                'profit_release_month',
+                '<=',
+                $endDate->toDateString()
+            )
+            ->orderByDesc('profit_release_month')
+            ->limit($limit)
+            // ->toSql();
+            ->get();
+        // dd($profitRecords);
+        return $this->sortProfitRecordsChronologically(
+            $profitRecords
+        );
+    }
+
+    private function sortProfitRecordsChronologically(
+        Collection $profitRecords
+    ): Collection {
+        // dd($profitRecords);
+        return $profitRecords
+            ->sortBy(function ($record) {
+                /*
+             * Use the original YYYY-MM-DD database value.
+             * Do not sort the formatted DD-MM-YYYY accessor value.
+             */
+                $rawDate = $record->getRawOriginal(
+                    'profit_release_month'
+                );
+
+                return Carbon::parse($rawDate)->timestamp;
+            })
+            ->values();
+    }
+
+    // update profit schedule
+    public function updateProfitSchedule(int $investmentId, array $data): void
+    {
+        $investment = Investment::query()
+            ->activeLongTerm()
+            ->findOrFail($investmentId);
+
+        $maturityDate = Carbon::parse(
+            $investment->maturity_date
+        )->toDateString();
+
+        DB::transaction(function () use ($investment, $data) {
+            $submittedRecords = collect($data);
+
+            $submittedIds = $submittedRecords
+                ->pluck('id')
+                ->map(fn($id) => (int) $id)
+                ->values();
+
+            /*
+            * Load only records that are still editable.
+            * lockForUpdate prevents another process from releasing a record
+            * while it is being edited.
+            */
+            $editableRecords = $investment->profitRecords()
+                ->editable()
+                ->whereIn('id', $submittedIds)
+                ->lockForUpdate()
+                ->get()
+                ->keyBy('id');
+
+            $invalidIds = $submittedIds
+                ->diff(
+                    $editableRecords
+                        ->keys()
+                        ->map(fn($id) => (int) $id)
+                )
+                ->values()
+                ->all();
+
+            if (!empty($invalidIds)) {
+                throw ValidationException::withMessages([
+                    'profit_records' => sprintf(
+                        'These profit records are invalid, released, historical, or belong to another investment: %s',
+                        implode(', ', $invalidIds)
+                    ),
+                ]);
+            }
+
+            foreach ($submittedRecords as $submittedRecord) {
+                $profitRecord = $editableRecords->get((int) $submittedRecord['id']);
+
+                $profitRecord->update([
+                    'profit_release_month' => $submittedRecord['profit_release_month'],
+                    'profit_amount' =>  $submittedRecord['profit_amount'],
+                    'has_profit_amount' =>  $submittedRecord['profit_amount'] > 0 ? 1 : 0,
+                ]);
+            }
         });
     }
 }
