@@ -430,6 +430,7 @@ class InvestmentContractDocumentService
         $data['investor_agreement_template_id'] = $this->InvestorAgreementRepository
             ->getActiveIdBytype($agreementTypeId);
         // dd($data['investor_agreement_template_id']);
+        $data['action_type'] = 1;
 
         return $this->create($data);
     }
