@@ -106,7 +106,11 @@ class InvestmentContractDocumentService
             // ->addColumn('investment_code', fn($row) =>
             // $row->investment->investment_code ?? '-')
             ->addColumn('investor_agreement_type', fn($row) => $row->agreementType->investor_agreement_type)
-            ->addColumn('investor_agreement_template', fn($row) => 'V' . $row->agreementTemplate->version_no)
+            ->addColumn('investor_agreement_template', function ($row) {
+                return $row->action_type == 0
+                    ? 'V' . $row->version_number
+                    :  $row->agreementTemplate->version_no;
+            })
             ->addColumn('status', function ($row) {
                 if (!empty($row->generated_date)) {
                     return '<span class="badge badge-success">Generated</span>';
@@ -189,13 +193,14 @@ class InvestmentContractDocumentService
                         auth()->user()->hasAnyPermission(['investment.add'], $row->company_id) ||
                         auth()->user()->hasAnyPermission(['investment.view'], $row->company_id)
                     )
+                    && $row->action_type == 1
                 ) {
                     $action .= '<a href="' . route('legal_template.contractview', [
                         'docId' => $row->id,
                         'companyId' => $row->company_id,
                     ]) . '"
                                     class="btn btn-sm btn-success m-1"
-                                    title="View Document">
+                                    title="View Document ">
                                  <i class="fas fa-external-link-alt"></i>
                                 </a>';
                 }
@@ -242,6 +247,7 @@ class InvestmentContractDocumentService
     }
     public function updateDocument($data, $id)
     {
+        // dd($data);
         $document = InvestmentContractDocuments::find($id);
 
         if (!$document) {
@@ -260,10 +266,10 @@ class InvestmentContractDocumentService
         $pdfService = new PdfCompressionService();
 
         /*
-    |--------------------------------------------------
-    | MAIN DOCUMENT
-    |--------------------------------------------------
-    */
+        |--------------------------------------------------
+        | MAIN DOCUMENT
+        |--------------------------------------------------
+        */
         if (!empty($data['document']) && $data['document'] instanceof \Illuminate\Http\UploadedFile) {
 
             // delete old
@@ -294,10 +300,10 @@ class InvestmentContractDocumentService
 
 
         /*
-    |--------------------------------------------------
-    | ADDITIONAL DOCUMENT
-    |--------------------------------------------------
-    */
+            |--------------------------------------------------
+            | ADDITIONAL DOCUMENT
+            |--------------------------------------------------
+            */
         if (!empty($data['additional_document']) && $data['additional_document'] instanceof \Illuminate\Http\UploadedFile) {
 
             // delete old
@@ -338,7 +344,10 @@ class InvestmentContractDocumentService
         $document->has_additional_doc = $data['has_additional_doc'] ?? 0;
         $document->action_type       = $data['action_type'] ?? null;
         $document->generated_by      = auth()->id();
+        // dd($data);
+        $document->version_number = $data['version'] ?? null;
 
+        // dd($document);
         $document->save();
 
         return $document;
