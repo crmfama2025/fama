@@ -1052,7 +1052,7 @@ class InvestmentContractService
 
         $currentTotal = $prevAmount + $investment->investment_amount;
         $investmentDate       = Carbon::parse($investment->investment_date);
-        $mudarabahCreatedDate = Carbon::parse($docDetails->mudarabahReference->generated_date ?? $docDetails->mudarabahReference->created_at);
+        $mudarabahCreatedDate = Carbon::parse($docDetails->mudarabahReference->investment->investment_date);
 
         $html        = $documentDetail->template;
 
@@ -1090,7 +1090,7 @@ class InvestmentContractService
         $vars = [
             '{investment_long_date_eng}'        => $investmentDate->format('jS \d\a\y \o\f F Y'),
             // '{mudarabah_created_long_date_eng}' => $mudarabahCreatedDate->format('jS \d\a\y \o\f F Y'),
-            '{mudarabah_created_long_date_eng}'        => $investmentDate->format('jS \d\a\y \o\f F Y'),
+            '{mudarabah_created_long_date_eng}'        => $mudarabahCreatedDate->format('jS \d\a\y \o\f F Y'),
 
             '{investment_long_date_ar}'         => arabicLongDate($investmentDate),
             '{mudarabah_created_long_date_ar}'  => arabicLongDate($mudarabahCreatedDate),
@@ -1102,6 +1102,10 @@ class InvestmentContractService
 
             '{investor_name_eng}' => $investor->investor_name,
             '{investor_name_ar}'  => $investor->investor_name_arabic,
+            '{resident_state_eng}'       => $investor->state,
+            '{resident_state_ar}'        => $investor->state_arabic,
+            '{resident_country_eng}'     => $investor->countryOfResidence->nationality_name,
+            '{resident_country_ar}'      => $investor->countryOfResidence->nationality_arabic_name,
             '{id_number}'         => $investor->id_number,
 
 
