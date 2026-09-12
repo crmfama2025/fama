@@ -1471,4 +1471,65 @@ class InvestmentService
             })
             ->values();
     }
+
+    // update profit schedule
+    public function updateProfitSchedule(int $investmentId, array $data): void
+    {
+        $investment = Investment::query()
+            ->activeLongTerm()
+            ->findOrFail($investmentId);
+
+        $maturityDate = Carbon::parse(
+            $investment->maturity_date
+        )->toDateString();
+
+        DB::transaction(function () use ($investment, $data) {
+            $submittedRecords = collect($data);
+
+            $submittedIds = $submittedRecords
+                ->pluck('id')
+                ->map(fn($id) => (int) $id)
+                ->values();
+
+            /*
+            * Load only records that are still editable.
+            * lockForUpdate prevents another process from releasing a record
+            * while it is being edited.
+            */
+            $editableRecords = $investment->profitRecords()
+                ->editable()
+                ->whereIn('id', $submittedIds)
+                ->lockForUpdate()
+                ->get()
+                ->keyBy('id');
+
+            $invalidIds = $submittedIds
+                ->diff(
+                    $editableRecords
+                        ->keys()
+                        ->map(fn($id) => (int) $id)
+                )
+                ->values()
+                ->all();
+
+            if (!empty($invalidIds)) {
+                throw ValidationException::withMessages([
+                    'profit_records' => sprintf(
+                        'These profit records are invalid, released, historical, or belong to another investment: %s',
+                        implode(', ', $invalidIds)
+                    ),
+                ]);
+            }
+
+            foreach ($submittedRecords as $submittedRecord) {
+                $profitRecord = $editableRecords->get((int) $submittedRecord['id']);
+
+                $profitRecord->update([
+                    'profit_release_month' => $submittedRecord['profit_release_month'],
+                    'profit_amount' =>  $submittedRecord['profit_amount'],
+                    'has_profit_amount' =>  $submittedRecord['profit_amount'] > 0 ? 1 : 0,
+                ]);
+            }
+        });
+    }
 }

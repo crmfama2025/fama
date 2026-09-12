@@ -21,6 +21,7 @@ class InvestmentProfitRecord extends Model
         'released_total_amount',
         'last_released_at',
         'last_released_by',
+        'has_profit_amount'
     ];
 
     protected $casts = [

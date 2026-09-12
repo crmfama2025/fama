@@ -219,7 +219,7 @@
                                                 <div class="col-md-4">
                                                     <div class="form-group">
                                                         <label class="asterisk">Profit %</label>
-                                                        <input type="number" step="0.01" class="form-control"
+                                                        <input type="number" step="0.000001" class="form-control"
                                                             name="profit_perc"
                                                             value="{{ old('profit_perc', $investment->profit_perc ?? '') }}"
                                                             id="profit_perc" placeholder="Profit Percentage" required>

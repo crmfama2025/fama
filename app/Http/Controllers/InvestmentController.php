@@ -11,7 +11,10 @@ use App\Repositories\Investment\InvestmentRepository;
 use App\Services\Investment\InvestmentContractDocumentService;
 use App\Services\Investment\InvestmentService;
 use App\Services\Investment\InvestorLedgerService;
+use Gate;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
 
 class InvestmentController extends Controller
@@ -22,8 +25,6 @@ class InvestmentController extends Controller
         protected InvestmentRepository $investmentRepository,
         protected InvestmentContractDocumentService $investmentContractService,
         protected InvestorLedgerService $investorLedgerService,
-
-
     ) {}
 
     public function index()
@@ -251,18 +252,28 @@ class InvestmentController extends Controller
         ]);
     }
 
-    public function updateProfitSchedule(
-        Request $request,
-        int $investmentId
-    ) {
+    public function updateProfitSchedule(Request $request, int $investmentId)
+    {
+        $investment = Investment::query()
+            ->activeLongTerm()
+            ->findOrFail($investmentId);
 
-        validateProfitScheduleTotal();
+        $maturityDate = Carbon::parse($investment->maturity_date)->toDateString();
 
-        $this->updateInvestmentProfitRecords(
-            $investment,
-            $profits
-        );
+        $validated = $request->validate([
+            'profit_records' => ['required', 'array', 'min:1',],
+            'profit_records.*.id' => ['required', 'integer', 'distinct',],
+            'profit_records.*.profit_release_month' => ['required', 'date_format:Y-m-d', 'after_or_equal:today', "before_or_equal:{$maturityDate}", 'distinct',],
+            'profit_records.*.profit_amount' => ['required', 'numeric', 'min:0',],
+        ]);
 
-        // Update function provided previously
+        $this->investmentService->updateProfitSchedule($investmentId, $validated['profit_records']);
+
+        return redirect()
+            ->route('investment.show', $investment->id)
+            ->with(
+                'success',
+                'Profit schedule updated successfully.'
+            );
     }
 }

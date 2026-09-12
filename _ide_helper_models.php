@@ -2920,27 +2920,6 @@ namespace App\Models{
 
 namespace App\Models{
 /**
- * @property int $id
- * @property string $lead_code
- * @property string|null $company_name
- * @property string $contact_person_name
- * @property string $phone_number
- * @property string|null $email
- * @property string $lead_source
- * @property int|null $total_staff
- * @property string|null $required_location
- * @property string $requirement
- * @property int $status 0 = Pending, 1 = processing
- * @property int|null $assigned_to
- * @property int|null $assigned_by
- * @property \Illuminate\Support\Carbon|null $assigned_at
- * @property int|null $updated_by
- * @property int|null $deleted_by
- * @property int $created_by
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property int|null $total_allocation
  * @property-read \App\Models\User|null $assignedBy
  * @property-read \App\Models\User|null $assignedTo
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\LeadAssignment> $assignments
@@ -2958,27 +2937,6 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Lead newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Lead onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|Lead query()
- * @method static \Illuminate\Database\Eloquent\Builder|Lead whereAssignedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Lead whereAssignedBy($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Lead whereAssignedTo($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Lead whereCompanyName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Lead whereContactPersonName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Lead whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Lead whereCreatedBy($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Lead whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Lead whereDeletedBy($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Lead whereEmail($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Lead whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Lead whereLeadCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Lead whereLeadSource($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Lead wherePhoneNumber($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Lead whereRequiredLocation($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Lead whereRequirement($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Lead whereStatus($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Lead whereTotalAllocation($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Lead whereTotalStaff($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Lead whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Lead whereUpdatedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Lead withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|Lead withoutTrashed()
  */
@@ -3475,7 +3433,6 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property int|null $lead_id
  * @property-read \App\Models\User|null $addedBy
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SalesTenantUnit> $agreementUnits
  * @property-read int|null $agreement_units_count
@@ -3504,7 +3461,6 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement whereIsAgreementAdded($value)
  * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement whereIsApproved($value)
- * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement whereLeadId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement whereLocalityId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement wherePropertyId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|SalesTenantAgreement whereRejectionReason($value)
