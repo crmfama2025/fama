@@ -1088,6 +1088,7 @@ class InvestmentContractService
                 : "الربح السنوي المتوقع:");
 
         $vars = [
+            '{investment_date}'        => Carbon::parse($investment->investment_date)->format('d/m/Y'),
             '{investment_long_date_eng}'        => $investmentDate->format('jS \d\a\y \o\f F Y'),
             // '{mudarabah_created_long_date_eng}' => $mudarabahCreatedDate->format('jS \d\a\y \o\f F Y'),
             '{mudarabah_created_long_date_eng}'        => $mudarabahCreatedDate->format('jS \d\a\y \o\f F Y'),
