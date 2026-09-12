@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -76,6 +77,21 @@ class InvestmentProfitRecord extends Model
     public function scopeHasProfit($query, int $investmentId)
     {
         return $query->where('has_profit_amount', $investmentId);
+    }
+
+    public function scopeEditable(Builder $query): Builder
+    {
+        return $query
+            ->whereDate(
+                'profit_release_month',
+                '>=',
+                today()->toDateString()
+            )
+            ->where(function (Builder $query) {
+                $query
+                    ->whereNull('released_total_amount')
+                    ->orWhere('released_total_amount', 0);
+            });
     }
 
     // -----------------------

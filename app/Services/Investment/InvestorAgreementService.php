@@ -549,6 +549,38 @@ class InvestorAgreementService
             ->endOfDay();
 
         /*
+        * Prevent the same novation from being applied twice.
+        */
+        if (
+            $investment->investor_novation_applied_at &&
+            Carbon::parse($investment->investor_novation_applied_at)
+            ->isSameDay($novationDate) &&
+            $oldMaturityDate->isSameDay($newMaturityDate)
+        ) {
+            Log::warning('Duplicate investment novation skipped', [
+                'investment_id' => $investment->id,
+                'investment_code' => $investment->investment_code,
+                'novation_date' => $novationDate->toDateString(),
+                'maturity_date' => $oldMaturityDate->toDateString(),
+            ]);
+
+            return;
+        }
+
+        /*
+        * Also stop any other operation that produces an empty period.
+        */
+        if ($newMaturityDate->lessThanOrEqualTo($oldMaturityDate)) {
+            throw ValidationException::withMessages([
+                'novation_date' => sprintf(
+                    'The novation maturity date (%s) must be later than the current maturity date (%s).',
+                    $newMaturityDate->toDateString(),
+                    $oldMaturityDate->toDateString()
+                ),
+            ]);
+        }
+
+        /*
         * Novation generates the new schedule from the novation date.
         * The payout months and payout day still come from the previous
         * profit records.

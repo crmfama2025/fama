@@ -375,8 +375,9 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody id="profitScheduleBody">
+
                                                     @if (isset($investment))
-                                                        @foreach ($investment->profitRecords as $i => $record)
+                                                        {{-- @foreach ($profitRecords as $i => $record)
                                                             <tr>
                                                                 <td class="row-index">{{ $i + 1 }}</td>
                                                                 <input type="hidden"
@@ -409,13 +410,91 @@
                                                                 </td>
                                                                 <td class="text-center profit-row-delete-cell"></td>
                                                             </tr>
+                                                        @endforeach --}}
+                                                        @foreach ($profitRecords as $i => $record)
+                                                            @php
+                                                                $isPaid =
+                                                                    (float) ($record->released_total_amount ?? 0) > 0;
+                                                            @endphp
+
+                                                            <tr class="{{ $isPaid ? 'profit-row-locked bg-light' : '' }}"
+                                                                data-paid="{{ $isPaid ? 1 : 0 }}">
+                                                                <td class="row-index">
+                                                                    {{ $i + 1 }}
+
+                                                                    @if (!$isPaid)
+                                                                        <input type="hidden"
+                                                                            name="profit_records[{{ $i }}][id]"
+                                                                            class="profit-row-id"
+                                                                            value="{{ $record->id }}">
+                                                                    @endif
+                                                                </td>
+
+                                                                <td>
+                                                                    <div class="input-group date profit-row-date-group"
+                                                                        id="profitRowDate_{{ $i }}"
+                                                                        data-target-input="nearest">
+                                                                        <input type="text"
+                                                                            class="form-control form-control-sm datetimepicker-input profit-row-date"
+                                                                            name="profit_records[{{ $i }}][date]"
+                                                                            value="{{ \Carbon\Carbon::parse($record->profit_release_month)->format('d-m-Y') }}"
+                                                                            placeholder="DD-MM-YYYY"
+                                                                            data-target="#profitRowDate_{{ $i }}"
+                                                                            {{ $isPaid ? 'disabled' : '' }}>
+
+                                                                        @if (!$isPaid)
+                                                                            <div class="input-group-append"
+                                                                                data-target="#profitRowDate_{{ $i }}"
+                                                                                data-toggle="datetimepicker">
+                                                                                <div class="input-group-text">
+                                                                                    <i class="fa fa-calendar"></i>
+                                                                                </div>
+                                                                            </div>
+                                                                        @else
+                                                                            <div class="input-group-append">
+                                                                                <div class="input-group-text text-muted"
+                                                                                    title="Paid record cannot be edited">
+                                                                                    <i class="fa fa-lock"></i>
+                                                                                </div>
+                                                                            </div>
+                                                                        @endif
+                                                                    </div>
+                                                                </td>
+
+                                                                <td>
+                                                                    <input type="number" step="0.01" min="0"
+                                                                        class="form-control form-control-sm profit-row-amount"
+                                                                        name="profit_records[{{ $i }}][amount]"
+                                                                        value="{{ $record->profit_amount }}"
+                                                                        placeholder="0.00"
+                                                                        {{ $isPaid ? 'disabled' : '' }}>
+                                                                </td>
+
+                                                                <td class="text-center profit-row-delete-cell">
+                                                                    @if ($isPaid)
+                                                                        <span class="badge badge-success"
+                                                                            title="Paid or partially paid record">
+                                                                            <i class="fa fa-lock"></i>
+                                                                            Paid
+                                                                        </span>
+                                                                    @else
+                                                                        <button type="button"
+                                                                            class="btn btn-sm btn-danger remove-profit-row"
+                                                                            title="Remove profit record">
+                                                                            <i class="fa fa-trash"></i>
+                                                                        </button>
+                                                                    @endif
+                                                                </td>
+                                                            </tr>
                                                         @endforeach
                                                     @endif
                                                 </tbody>
                                                 <tfoot>
                                                     <tr>
                                                         <th colspan="2" class="text-right">Total</th>
-                                                        <th><span id="profitScheduleTotal">0.00</span></th>
+                                                        <th><span id="profitScheduleTotal">
+                                                                {{ number_format($profitRecords->sum('profit_amount'), 2, '.', '') }}
+                                                            </span></th>
                                                         <th></th>
                                                     </tr>
                                                 </tfoot>
@@ -1649,27 +1728,66 @@
     {{-- profit record script --}}
     <script>
         function regenerateProfitScheduleDates() {
+
+            /*
+             * Keep all database dates unchanged on the edit page.
+             */
+            if (isEditMode) {
+                return;
+            }
+
             let baseDate = calculateProfitEligibleDate();
-            console.log('calculateProfitEligibleDate', baseDate);
+            // console.log('calculateProfitEligibleDate', baseDate);
 
             if (!baseDate || isNaN(baseDate.getTime())) {
                 return;
             }
 
-            for (let i = 0; i < profitRowUid; i++) {
-                let $group = $('#profitRowDate_' + i);
-                if (!$group.length) continue; // row may have been deleted
+            // for (let i = 0; i < profitRowUid; i++) {
+            //     let $group = $('#profitRowDate_' + i);
+            //     if (!$group.length) continue; // row may have been deleted
 
-                let d = new Date(baseDate);
-                d.setMonth(d.getMonth() + i); // row 0 = base date, each next row +1 month
+            //     let d = new Date(baseDate);
+            //     d.setMonth(d.getMonth() + i); // row 0 = base date, each next row +1 month
 
-                let dp = $group.data('DateTimePicker');
-                if (dp) {
-                    dp.date(moment(formatDMY(d), 'DD-MM-YYYY'));
-                } else {
-                    $group.find('input').val(formatDMY(d));
+            //     let dp = $group.data('DateTimePicker');
+            //     if (dp) {
+            //         dp.date(moment(formatDMY(d), 'DD-MM-YYYY'));
+            //     } else {
+            //         $group.find('input').val(formatDMY(d));
+            //     }
+            // }
+
+            $('#profitScheduleBody tr').each(function(index) {
+                const $row = $(this);
+
+                /*
+                 * Never change the date of a paid record.
+                 */
+                if ($row.data('paid') == 1) {
+                    return;
                 }
-            }
+
+                const $group = $row.find('.profit-row-date-group');
+
+                if (!$group.length) {
+                    return;
+                }
+
+                let date = new Date(baseDate);
+                date.setMonth(date.getMonth() + index);
+
+                const dateValue = formatDMY(date);
+                const datePicker = $group.data('DateTimePicker');
+
+                if (datePicker) {
+                    datePicker.date(
+                        moment(dateValue, 'DD-MM-YYYY')
+                    );
+                } else {
+                    $group.find('.profit-row-date').val(dateValue);
+                }
+            });
         }
 
         function calculateProfitEligibleDate() {
@@ -1722,6 +1840,15 @@
         }
 
         function initRowDatePicker($row) {
+            const $input = $row.find('.profit-row-date');
+            /*
+             * Paid or partially paid records are displayed but their
+             * date picker must not be initialized.
+             */
+            if ($row.data('paid') == 1 || $input.prop('disabled')) {
+                return;
+            }
+
             $row.find('.profit-row-date-group').datetimepicker({
                 format: 'DD-MM-YYYY'
             });
@@ -1736,7 +1863,11 @@
 
         let profitRowUid = 0; // unique id counter for dynamically added rows
 
-        function addProfitRow() {
+        function addProfitRow(forceAdd = false) {
+            if (isEditMode && !forceAdd) {
+                return;
+            }
+
             let rowDate = nextRowDate();
             let uid = `profitRowDate_${profitRowUid++}`;
 
@@ -1775,90 +1906,179 @@
             });
         }
 
-        function updateProfitScheduleTotal() {
-            console.log('updateProfitScheduleTotal');
-            let totalProfit = parseFloat($('#profit_amount').val()) || 0;
+        function calculateDisplayedProfitTotal() {
             let sum = 0;
-            $('.profit-row-amount').each(function() {
-                sum += parseFloat($(this).val()) || 0;
-                console.log('sum loop', sum);
-            });
-            // Round to 2 decimal places
-            totalProfit = Math.round((totalProfit + Number.EPSILON) * 100) / 100;
-            sum = Math.round((sum + Number.EPSILON) * 100) / 100;
 
-            let tenure = parseInt($('#investment_tenure').val()) || 0;
-            let currentCount = $('#profitScheduleBody tr').length;
+            $('#profitScheduleBody .profit-row-amount')
+                .each(function() {
+                    const amount = parseFloat($(this).val());
 
-            // First validate tenure / row count
+                    if (!isNaN(amount)) {
+                        sum += amount;
+                    }
+                });
+
+            return Math.round(
+                (sum + Number.EPSILON) * 100
+            ) / 100;
+        }
+
+        function updateProfitScheduleTotal() {
+            let totalProfit =
+                parseFloat($('#profit_amount').val()) || 0;
+
+            let sum = calculateDisplayedProfitTotal();
+
+            totalProfit = Math.round(
+                (totalProfit + Number.EPSILON) * 100
+            ) / 100;
+
+            let tenure =
+                parseInt($('#investment_tenure').val(), 10) || 0;
+
+            let currentCount =
+                $('#profitScheduleBody tr').length;
+
             if (currentCount !== tenure) {
-                $('#investmentSubmitButton').prop('disabled', true);
+                $('#investmentSubmitButton').prop(
+                    'disabled',
+                    true
+                );
 
-                if (currentCount > tenure) {
-                    let extra = currentCount - tenure;
+                const difference = Math.abs(
+                    currentCount - tenure
+                );
 
-                    $('#profitScheduleMismatch')
-                        .text(
-                            `Tenure is ${tenure} months, but there are ${currentCount} profit records. Remove ${extra} row(s).`
-                        )
-                        .show();
-                }
+                $('#profitScheduleMismatch')
+                    .text(
+                        `Tenure is ${tenure} months, but there are ${currentCount} profit records. Difference: ${difference}.`
+                    )
+                    .show();
 
-                $('#profitScheduleTotal').text(sum.toFixed(2));
+                $('#profitScheduleTotal').text(
+                    sum.toFixed(2)
+                );
+
                 return;
             }
 
+            const amountDifference = Math.abs(
+                totalProfit - sum
+            );
 
-            if (totalProfit != sum) {
-                if (totalProfit < sum) {
-                    toastr.error('Total of profit records ' + sum + ' should not exceed Total Profit amount ' +
-                        totalProfit);
-                    console.log(sum);
-                    console.log(totalProfit);
-                    let diff = Math.abs(sum - totalProfit);
+            if (amountDifference > 0.01) {
+                $('#investmentSubmitButton').prop(
+                    'disabled',
+                    true
+                );
 
-                    $('#profitScheduleMismatch')
-                        .text(`Mismatch: records total differs from Profit Amount by ${diff.toFixed(2)}`)
-                        .toggle(diff > 0.01);
-                }
-
-                $('#investmentSubmitButton').prop('disabled', true);
+                $('#profitScheduleMismatch')
+                    .text(
+                        `Mismatch: records total differs from Profit Amount by ${amountDifference.toFixed(2)}`
+                    )
+                    .show();
             } else {
-                $('#profitScheduleMismatch').toggle(false);
-                $('#investmentSubmitButton').prop('disabled', false);
+                $('#profitScheduleMismatch').hide();
+
+                $('#investmentSubmitButton').prop(
+                    'disabled',
+                    false
+                );
             }
 
-            $('#profitScheduleTotal').text(sum.toFixed(2));
-
+            $('#profitScheduleTotal').text(
+                sum.toFixed(2)
+            );
         }
 
         // delete buttons only appear when there are MORE rows than tenure (i.e. tenure was reduced)
-        function updateDeleteButtonsVisibility() {
-            let tenure = parseInt($('#investment_tenure').val()) || 0;
-            let currentCount = $('#profitScheduleBody tr').length;
+        // function updateDeleteButtonsVisibility() {
+        //     let tenure = parseInt($('#investment_tenure').val()) || 0;
+        //     let currentCount = $('#profitScheduleBody tr').length;
 
-            if (currentCount > tenure) {
-                // console.log(currentCount, tenure)
-                $('#profitScheduleBody tr').each(function() {
-                    let $cell = $(this).find('.profit-row-delete-cell');
+        //     if (currentCount > tenure) {
+        //         // console.log(currentCount, tenure)
+        //         $('#profitScheduleBody tr').each(function() {
+        //             let $cell = $(this).find('.profit-row-delete-cell');
+        //             if (!$cell.find('.remove-profit-row').length) {
+        //                 $cell.html(`
+    //             <button type="button" class="btn btn-danger btn-sm remove-profit-row" title="Delete" data-toggle="tooltip">
+    //                 <i class="fa fa-trash"></i>
+    //             </button>
+    //         `);
+        //             }
+        //         });
+        //         showTenureMismatch(currentCount, tenure);
+        //     } else {
+        //         // console.log("hide called");
+        //         // console.log(currentCount, tenure)
+        //         $('.profit-row-delete-cell').empty();
+        //         // hideTenureMismatch();
+        //         $('#profitScheduleTenureMismatch').remove();
+        //     }
+        //     updateProfitScheduleTotal();
+
+        // }
+
+        function updateDeleteButtonsVisibility() {
+            const tenure =
+                parseInt($('#investment_tenure').val(), 10) || 0;
+
+            const currentCount =
+                $('#profitScheduleBody tr').length;
+
+            $('#profitScheduleBody tr').each(function() {
+                const $row = $(this);
+                const $cell = $row.find(
+                    '.profit-row-delete-cell'
+                );
+
+                if ($row.data('paid') == 1) {
+                    /*
+                     * Preserve the Paid badge and never add a delete button.
+                     */
+                    $cell.html(`
+                <span
+                    class="badge badge-success"
+                    title="Paid or partially paid record"
+                >
+                    <i class="fa fa-lock"></i>
+                    Paid
+                </span>
+            `);
+
+                    return;
+                }
+
+                if (currentCount > tenure) {
                     if (!$cell.find('.remove-profit-row').length) {
                         $cell.html(`
-                    <button type="button" class="btn btn-danger btn-sm remove-profit-row" title="Delete" data-toggle="tooltip">
+                    <button
+                        type="button"
+                        class="btn btn-danger btn-sm remove-profit-row"
+                        title="Delete"
+                        data-toggle="tooltip"
+                    >
                         <i class="fa fa-trash"></i>
                     </button>
                 `);
                     }
-                });
+                } else {
+                    /*
+                     * Clear delete controls only from editable rows.
+                     * Do not clear locked-row badges.
+                     */
+                    $cell.empty();
+                }
+            });
+
+            if (currentCount > tenure) {
                 showTenureMismatch(currentCount, tenure);
             } else {
-                // console.log("hide called");
-                // console.log(currentCount, tenure)
-                $('.profit-row-delete-cell').empty();
-                // hideTenureMismatch();
                 $('#profitScheduleTenureMismatch').remove();
             }
-            updateProfitScheduleTotal();
 
+            updateProfitScheduleTotal();
         }
 
         function showTenureMismatch(currentCount, tenure) {
@@ -1886,9 +2106,25 @@
             let tenure = parseInt($('#investment_tenure').val()) || 0;
             let currentCount = $('#profitScheduleBody tr').length;
 
-            if (tenure > currentCount) {
-                for (let i = currentCount; i < tenure; i++) addProfitRow();
+            /*
+             * Create schedule rows only for a new investment.
+             *
+             * During edit, every row must come from the database.
+             */
+            if (!isEditMode && tenure > currentCount) {
+                for (let index = currentCount; index < tenure; index++) {
+                    addProfitRow();
+                }
             }
+
+            if (isEditMode && currentCount < tenure) {
+                $('#profitScheduleMismatch').text(
+                    `Only ${currentCount} database profit records were found. Expected ${tenure}.`).show();
+
+                $('#investmentSubmitButton').prop('disabled', true);
+            }
+
+            updateDeleteButtonsVisibility();
 
 
             // tenure < currentCount: leave rows/amounts untouched, just reveal delete buttons below
@@ -1898,33 +2134,64 @@
 
 
         // manual row delete (only visible when tenure was reduced)
-        $(document).on('click', '.remove-profit-row', function() {
-            let $row = $(this).closest('tr');
-            // destroyRowDatePicker($row);
+        // $(document).on('click', '.remove-profit-row', function() {
+        //     let $row = $(this).closest('tr');
+        //     // destroyRowDatePicker($row);
 
-            let $idInput = $row.find('.profit-row-id');
-            let recordId = $idInput.length ? $idInput.val() : null;
-            // alert(recordId);
-            if (recordId) {
-                removeProfitRecordFromTable(recordId, $row);
-            } else {
-                removeRowFromDom($row);
-                return;
+        //     let $idInput = $row.find('.profit-row-id');
+        //     let recordId = $idInput.length ? $idInput.val() : null;
+        //     // alert(recordId);
+        //     if (recordId) {
+        //         removeProfitRecordFromTable(recordId, $row);
+        //     } else {
+        //         removeRowFromDom($row);
+        //         return;
+        //     }
+
+        //     // reindexProfitRows();
+        //     // updateProfitScheduleTotal();
+
+        //     // let tenure = parseInt($('#investment_tenure').val()) || 0;
+        //     // let currentCount = $('#profitScheduleBody tr').length;
+
+        //     // if (currentCount < tenure) {
+        //     //     // deleted past the target - resync tenure field down rather than silently regenerating
+        //     //     $('#investment_tenure').val(currentCount);
+        //     // }
+
+        //     // updateDeleteButtonsVisibility();
+        // });
+
+        $(document).on(
+            'click',
+            '.remove-profit-row',
+            function() {
+                const $row = $(this).closest('tr');
+
+                if ($row.data('paid') == 1) {
+                    toastr.error(
+                        'Paid profit records cannot be deleted.'
+                    );
+
+                    return;
+                }
+
+                const $idInput = $row.find('.profit-row-id');
+
+                const recordId = $idInput.length ?
+                    $idInput.val() :
+                    null;
+
+                if (recordId) {
+                    removeProfitRecordFromTable(
+                        recordId,
+                        $row
+                    );
+                } else {
+                    removeRowFromDom($row);
+                }
             }
-
-            // reindexProfitRows();
-            // updateProfitScheduleTotal();
-
-            // let tenure = parseInt($('#investment_tenure').val()) || 0;
-            // let currentCount = $('#profitScheduleBody tr').length;
-
-            // if (currentCount < tenure) {
-            //     // deleted past the target - resync tenure field down rather than silently regenerating
-            //     $('#investment_tenure').val(currentCount);
-            // }
-
-            // updateDeleteButtonsVisibility();
-        });
+        );
 
         function removeRowFromDom($row) {
             destroyRowDatePicker($row);
@@ -1944,35 +2211,98 @@
         }
 
         $(document).on('change.datetimepicker', '#profitRowDate_0', function() {
+            /*
+             * On edit, allow each unpaid date to be changed separately.
+             * Do not overwrite all following database records.
+             */
+            if (isEditMode) {
+                return;
+            }
             calculateProfitDates();
         });
 
+        // function calculateProfitDates() {
+        //     for (let i = 1; i < profitRowUid; i++) {
+
+        //         let startDateVal = $('#profitRowDate_' + (i - 1)).find('input').val();
+        //         // let step = getIntervalStepMonths();
+        //         // console.log('startDateVal', parseDMY(startDateVal));
+        //         let startDate = parseDMY(startDateVal);
+
+        //         if (!startDate || isNaN(startDate.getTime())) {
+        //             return;
+        //         }
+        //         let $group = $('#profitRowDate_' + i);
+        //         if (!$group.length) continue; // row may have been deleted
+
+        //         let d = new Date(startDate);
+        //         // console.log('date before month', formatDMY(d));
+        //         d.setMonth(d.getMonth() + 1);
+        //         // console.log('date', formatDMY(d));
+        //         let dp = $group.data('DateTimePicker');
+        //         if (dp) {
+        //             dp.date(moment(formatDMY(d), 'DD-MM-YYYY'));
+        //         } else {
+        //             $group.find('input').val(formatDMY(d));
+        //         }
+
+        //     }
+        // }
+
         function calculateProfitDates() {
-            for (let i = 1; i < profitRowUid; i++) {
+            const $rows = $('#profitScheduleBody tr');
 
-                let startDateVal = $('#profitRowDate_' + (i - 1)).find('input').val();
-                // let step = getIntervalStepMonths();
-                // console.log('startDateVal', parseDMY(startDateVal));
-                let startDate = parseDMY(startDateVal);
-
-                if (!startDate || isNaN(startDate.getTime())) {
+            $rows.each(function(index) {
+                if (index === 0) {
                     return;
                 }
-                let $group = $('#profitRowDate_' + i);
-                if (!$group.length) continue; // row may have been deleted
 
-                let d = new Date(startDate);
-                // console.log('date before month', formatDMY(d));
-                d.setMonth(d.getMonth() + 1);
-                // console.log('date', formatDMY(d));
-                let dp = $group.data('DateTimePicker');
-                if (dp) {
-                    dp.date(moment(formatDMY(d), 'DD-MM-YYYY'));
-                } else {
-                    $group.find('input').val(formatDMY(d));
+                const $row = $(this);
+
+                /*
+                 * Paid records retain their stored date.
+                 */
+                if ($row.data('paid') == 1) {
+                    return;
                 }
 
-            }
+                const $previousRow = $rows.eq(index - 1);
+
+                const previousDateValue = $previousRow
+                    .find('.profit-row-date')
+                    .val();
+
+                if (!previousDateValue) {
+                    return;
+                }
+
+                const previousDate = parseDMY(previousDateValue);
+
+                if (
+                    !previousDate ||
+                    isNaN(previousDate.getTime())
+                ) {
+                    return;
+                }
+
+                const nextDate = new Date(previousDate);
+                nextDate.setMonth(nextDate.getMonth() + 1);
+
+                const $group = $row.find(
+                    '.profit-row-date-group'
+                );
+
+                const datePicker = $group.data('DateTimePicker');
+                const dateValue = formatDMY(nextDate);
+
+                if (datePicker) {
+                    datePicker.date(
+                        moment(dateValue, 'DD-MM-YYYY')
+                    );
+                } else {
+                    $group.find('.profit-row-date').val(dateValue);
+                }
+            });
         }
 
         // manual per-row amount edit - only refresh total/mismatch, don't touch other rows
@@ -1996,7 +2326,7 @@
 
         $(function() {
             let $existingRows = $('#profitScheduleBody tr');
-            console.log($existingRows);
+            // console.log($existingRows);
             if ($existingRows.length) {
                 profitRowUid = $existingRows.length; // continue uid sequence after prefilled rows
                 $existingRows.each(function() {
