@@ -1169,19 +1169,21 @@ class InvestmentContractService
             $amtStyle   = $isWithdraw ? 'color:#C0392B;' : '';
             $serial     = $row['serial'] ?? '';
 
+            // | {$row['doc_date']}
+
             $html .= "
                 <tr style='{$rowStyle}'>
                     <td width='50%' style='border:1px solid #ccc;'>
                         <div class='english'>
                             <p class='text-sm'>
-                                {$serial} | {$row['particulars_eng']} | <span style='{$amtStyle}'>{$row['amount']}</span> | {$row['received_on']} | {$row['doc_date']}
+                                {$serial} | {$row['particulars_eng']} | <span style='{$amtStyle}'>{$row['amount']}</span> | {$row['received_on']}
                             </p>
                         </div>
                     </td>
                     <td width='50%' style='border:1px solid #ccc;'>
                         <div class='arabic'>
                             <p class='text-sm' dir='rtl'>
-                                {$serial} | {$row['particulars_ar']} | <span style='{$amtStyle}'>{$row['amount']}</span> | {$row['received_on']} | {$row['doc_date']}
+                                {$serial} | {$row['particulars_ar']} | <span style='{$amtStyle}'>{$row['amount']}</span> | {$row['received_on']}
                             </p>
                         </div>
                     </td>
