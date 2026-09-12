@@ -1128,7 +1128,7 @@ class InvestmentContractService
             '{annexA1}' => $annexureA,
 
 
-            '{total_invested_amount}' => $investment->investment_amount,
+            '{total_invested_amount}' => number_format($investment->investment_amount, 2),
             '{total_profit}'          => number_format($investment->profit_amount, 2),
             '{monthly_estimate}'      => $investment->profit_amount_per_interval,
             '{profit_month_eng}'      => $profitData['profitEng'],
