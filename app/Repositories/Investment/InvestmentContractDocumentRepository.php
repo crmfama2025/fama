@@ -44,6 +44,11 @@ class InvestmentContractDocumentRepository
         if (!empty($filters['investment_id'])) {
             $with[] = 'investment';
             $with[] = 'investment.company';
+
+            $query->where(function ($q) use ($filters) {
+                $q->where('investment_id', $filters['investment_id'])
+                    ->orWhereJsonContains('applied_investments', (int) $filters['investment_id']);
+            });
         }
 
         // Apply with
