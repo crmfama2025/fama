@@ -1106,15 +1106,15 @@ class InvestmentContractService
 
 
             '{tot_prev_invested_amount}'     => number_format($prevAmount, 2),
-            '{tot_prev_invested_amount_eng}' => numberToEnglishWords($prevAmount),
-            '{tot_prev_invested_amount_ar}'  => numberToArabicWords($prevAmount),
+            '{tot_prev_invested_amount_eng}' => numberToEnglishWords($prevAmount) . ' Dirhams Only',
+            '{tot_prev_invested_amount_ar}'  => numberToArabicWords($prevAmount) . ' درهم إماراتي فقط',
 
             '{current_invested_amount}'     => number_format($investment->investment_amount, 2),
-            '{current_invested_amount_eng}' => numberToEnglishWords($investment->investment_amount),
+            '{current_invested_amount_eng}' => numberToEnglishWords($investment->investment_amount) . ' Dirhams Only',
             '{current_invested_amount_ar}'  => numberToArabicWords($investment->investment_amount) . ' درهم إماراتي فقط',
 
             '{new_total_investment_amount}'     => number_format($currentTotal, 2),
-            '{new_total_investment_amount_eng}' => numberToEnglishWords($currentTotal),
+            '{new_total_investment_amount_eng}' => numberToEnglishWords($currentTotal) . ' Dirhams Only',
             '{new_total_investment_amount_ar}'  => numberToArabicWords($currentTotal) . ' درهم إماراتي فقط',
 
             '{annexA}' => $this->buildAnnexureARows($docDetails->investor_id, $companyId, $mudarabahCreatedDate, $docId),
@@ -1124,7 +1124,7 @@ class InvestmentContractService
 
 
             '{total_invested_amount}' => $investment->investment_amount,
-            // '{total_profit}'          => $investment->profit_amount,
+            '{total_profit}'          => number_format($investment->profit_amount, 2),
             '{monthly_estimate}'      => $investment->profit_amount_per_interval,
             '{profit_month_eng}'      => $profitData['profitEng'],
             '{profit_month_ar}'       => $profitData['profitAr'],
@@ -1226,7 +1226,7 @@ class InvestmentContractService
             '{total_invested_eng}' => numberToEnglishWords($totalInvested) . ' Dirhams Only',
             '{date}' =>  Carbon::parse($novationCreated)->format('d/m/Y'),
 
-            '{guardian}' => '',
+            '{guardian}' => '', //' (Guardian)'
 
         ];
 
