@@ -45,9 +45,11 @@ class InvestmentContractDocumentRepository
             $with[] = 'investment';
             $with[] = 'investment.company';
 
-            $query->where(function ($q) use ($filters) {
-                $q->where('investment_id', $filters['investment_id'])
-                    ->orWhereJsonContains('applied_investments', (int) $filters['investment_id']);
+            $investmentId = (int) $filters['investment_id'];
+
+            $query->where(function ($q) use ($investmentId) {
+                $q->where('investment_id', $investmentId)
+                    ->orWhereJsonContains('applied_investments', $investmentId);
             });
         }
 
@@ -57,9 +59,9 @@ class InvestmentContractDocumentRepository
         // $query->whereHas('investment.company', function ($q) use ($permittedCompanyIds) {
         //     $q->whereIn('company_id', $permittedCompanyIds);
         // });
-        if (!empty($filters['investment_id'])) {
-            $query->where('investment_id', $filters['investment_id']);
-        }
+        // if (!empty($filters['investment_id'])) {
+        //     $query->where('investment_id', $filters['investment_id']);
+        // }
         if (!empty($filters['company_id'])) {
             // dump($filters['company_id']);
             $query->whereHas('company', function ($q) use ($filters) {
