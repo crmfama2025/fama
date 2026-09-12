@@ -147,16 +147,24 @@ class InvestmentContractService
         $firstInv    = $investmentsCollection->first();
         $companyData = Company::find($firstInv->company_id);
 
-        $InvestorProfitPerc = ($firstInv->profit_perc * (100 / 50) * $firstInv->investment_tenure) / 12;
-        $CompanyProfitPerc  = 100 - $InvestorProfitPerc;
+
 
         $htmlMulti = $documentDetail->template;
 
         $expectedProfittext_en = "Expected annual profit:";
         $expectedProfittext_ar = "الربح السنوي المتوقع:";
 
-        $InvestorProfitPerctext = "Investor's profit share ratio:";
-        $InvestorProfitPerctext_ar = "نسبة حصة المستثمر من الربح :";
+
+        $profitData = $this->profitDetailForMudarabah($firstInv);
+        $InvestorProfitPerc = $profitData['InvestorProfitPerc'];
+        $CompanyProfitPerc  = $profitData['CompanyProfitPerc'];
+        $InvestorProfitPerctext = $profitData['InvestorProfitPerctext'];
+        $InvestorProfitPerctext_ar = $profitData['InvestorProfitPerctext_ar'];
+
+        // $InvestorProfitPerc = ($firstInv->profit_perc * (100 / 50) * $firstInv->investment_tenure) / 12;
+        // $CompanyProfitPerc  = 100 - $InvestorProfitPerc;
+        // $InvestorProfitPerctext = "Investor's profit share ratio:";
+        // $InvestorProfitPerctext_ar = "نسبة حصة المستثمر من الربح :";
 
         $clauseFive = $this->clauseFive($firstInv);
         $clauseThree = $this->clauseThree($firstInv);
@@ -168,11 +176,6 @@ class InvestmentContractService
             '{mudarabah_created_long_date_ar}'   => arabicLongDate($invDocDetails->generated_date),
             '{mudarabah_created_short_date_eng}' => date('d M Y', strtotime($invDocDetails->generated_date)),
             '{mudarabah_created_short_date_ar}'  => arabicShortDate($invDocDetails->generated_date),
-
-            // '{mudarabah_created_long_date_eng}'  => date('j \d\a\y \o\f F Y'),
-            // '{mudarabah_created_long_date_ar}'   => arabicLongDate(date('Y-m-d')),
-            // '{mudarabah_created_short_date_eng}' => date('d M Y'),
-            // '{mudarabah_created_short_date_ar}'  => arabicShortDate(date('Y-m-d')),
 
             // Investor
             '{investor_name_eng}'        => $investorData->investor_name,
@@ -222,7 +225,7 @@ class InvestmentContractService
             // Grand totals
             '{invested_amount}' => number_format($grandTotalInvested, 2),
             '{invested_amount_eng}' => numberToEnglishWords($grandTotalInvested) . ' Dirhams Only',
-            '{invested_amount_ar}' => numberToArabicWords($grandTotalInvested) . ' فقط',
+            '{invested_amount_ar}' => numberToArabicWords($grandTotalInvested) . 'درهم إماراتي فقط',
             '{total_invested_amount}' => number_format($grandTotalInvested, 2),
             '{total_profit}'          => number_format($grandTotalProfit, 2),
             '{monthly_estimate}'      => 0, //number_format($grandTotalPerInterval, 2)
@@ -292,6 +295,10 @@ class InvestmentContractService
             : ($inv->investment_tenure == 6
                 ? 'نسبة توزيع الربح  مدة 6 أشهر:'
                 : 'نسبة مشاركة الأرباح:');
+
+
+        $profit_ratio_text_en = ($inv->profit_perc >= 50) ? "Investor 50%" : "Investor {$invProfitPerc}% and Company {$companyProfitPerc}%";
+        $profit_ratio_text_ar = ($inv->profit_perc >= 50) ? "المستثمر 50%" : "المستثمر {$invProfitPerc}% و الشركة {$companyProfitPerc}%";
 
         return "
             <tr data-row data-force-page='true'>
@@ -460,12 +467,12 @@ class InvestmentContractService
                         <tr>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='english'>
-                                    <p class='marginClass text-sm'>{$term} Investor {$invProfitPerc}% and Company {$companyProfitPerc}%</p>
+                                    <p class='marginClass text-sm'>{$term} {$profit_ratio_text_en}</p>
                                 </div>
                             </td>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='arabic'>
-                                    <p class='marginClass text-sm'>{$term_ar} المستثمر {$invProfitPerc}% و الشركة {$companyProfitPerc}%</p>
+                                    <p class='marginClass text-sm'>{$term_ar} {$profit_ratio_text_ar}</p>
                                 </div>
                             </td>
                         </tr>
@@ -739,17 +746,9 @@ class InvestmentContractService
         ];
     }
 
-    /**
-     * Original single-investment path — unchanged logic.
-     */
-    private function buildMudarabahPayload($invDocDetails, $documentDetail, $investorData, $investmentData): array
+
+    public function profitDetailForMudarabah($investmentData)
     {
-
-        $companyData = Company::find($investmentData->company_id);
-        $html        = $documentDetail->template;
-        // dd($investmentData->invetsment_tenure);
-
-        // $InvestorProfitPerc = $investmentData->profit_perc * 100 / 50;
         $InvestorProfitPerc = ($investmentData->profit_perc * (100 / 50) * $investmentData->investment_tenure) / 12;
         // $CompanyProfitPerc  = 100 - $InvestorProfitPerc;
         $CompanyProfitPerc  = (100 / 12 * $investmentData->investment_tenure) - $InvestorProfitPerc;
@@ -766,6 +765,32 @@ class InvestmentContractService
             : ($investmentData->investment_tenure == 6
                 ? " نسبة حصة المستثمر من الربح مدة" . $investmentData->investment_tenure . " أشهر:"
                 : "نسبة حصة المستثمر من الربح :");
+
+        return [
+            'InvestorProfitPerc' => ($investmentData->profit_perc >= 50) ? $investmentData->profit_perc : $InvestorProfitPerc,
+            'CompanyProfitPerc' => ($investmentData->profit_perc >= 50) ? $CompanyProfitPerc : '-',
+            'InvestorProfitPerctext' => $InvestorProfitPerctext,
+            'InvestorProfitPerctext_ar' => $InvestorProfitPerctext_ar
+        ];
+    }
+
+    /**
+     * Original single-investment path — unchanged logic.
+     */
+    private function buildMudarabahPayload($invDocDetails, $documentDetail, $investorData, $investmentData): array
+    {
+
+        $companyData = Company::find($investmentData->company_id);
+        $html        = $documentDetail->template;
+        // dd($investmentData->invetsment_tenure);
+
+        $profitData = $this->profitDetailForMudarabah($investmentData);
+        $InvestorProfitPerc = $profitData['InvestorProfitPerc'];
+        $CompanyProfitPerc  = $profitData['CompanyProfitPerc'];
+        $InvestorProfitPerctext = $profitData['InvestorProfitPerctext'];
+        $InvestorProfitPerctext_ar = $profitData['InvestorProfitPerctext_ar'];
+
+
 
         // // ── Start from next month of mudarabah created date ──────────────────────
         // $startDate = Carbon::now()->addMonth()->startOfMonth();
@@ -1188,6 +1213,7 @@ class InvestmentContractService
 
         $vars = [
             '{novation_created_date}' => $novationCreated->format('d/m/Y'),
+            '{novation_created_date_long}' => $novationCreated->format('jS \d\a\y \o\f F Y'),
 
             '{company_name}'  => $company->company_name,
             '{company_licence_no}'   => $company->trade_license_number,
@@ -1197,8 +1223,10 @@ class InvestmentContractService
             '{investor_id_no}'         => $investor->id_number,
 
             '{total_invested_amount}'     => number_format($totalInvested, 2),
-            '{total_invested_eng}' => numberToEnglishWords($totalInvested) . ' Only',
-            '{date}' =>  Carbon::parse($novationCreated)->format('d/m/Y')
+            '{total_invested_eng}' => numberToEnglishWords($totalInvested) . ' Dirhams Only',
+            '{date}' =>  Carbon::parse($novationCreated)->format('d/m/Y'),
+
+            '{guardian}' => '',
 
         ];
 

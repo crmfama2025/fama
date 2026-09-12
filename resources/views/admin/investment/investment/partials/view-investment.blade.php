@@ -24,11 +24,12 @@
                          {{-- <th>#</th> --}}
                          <th>Investment Code</th>
                          <th>Company</th>
-                         <th>Invested Company</th>
                          <th>Investment Date</th>
                          <th>Investment Amount</th>
+                         <th>Investment Type</th>
                          <th>Received</th>
                          <th>Pending</th>
+                         <th>Profit %</th>
                          <th>Profit</th>
                          <th>Status</th>
                      </tr>
@@ -38,15 +39,18 @@
                      <tr>
                          <td>{{ $investment->investment_code }}</td>
                          <td>{{ $investment->company->company_name }}</td>
-                         <td>{{ $investment->investedCompany->company_name ?? ' - ' }}</td>
                          <td>{{ getFormattedDate($investment->investment_date) }}</td>
                          <td>{{ number_format($investment->investment_amount, 2) }} -
                              {{ $investment->investment_amount_arabic ?? ' - ' }}</td>
+                         <td>{{ $investment->investment_term_type == 1 ? 'Long Term' : 'Short Term' }}</td>
                          <td class="text-success">
                              {{ number_format($investment->total_received_amount, 2) }}
                          </td>
                          <td class="text-danger">
                              {{ number_format($investment->balance_amount, 2) }}
+                         </td>
+                         <td class="text-info">
+                             {{ $investment->profit_perc }}%
                          </td>
                          <td class="text-info">
                              {{ number_format($investment->profit_amount, 2) }}
