@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Exports\InvestmentExport;
 use App\Models\Investment;
 use App\Models\InvestmentProfitRecord;
+use App\Models\InvestmentProfitRecordRenewalLog;
 use App\Models\InvestmentReceivedPayment;
 use App\Repositories\Investment\InvestmentRepository;
 use App\Services\Investment\InvestmentContractDocumentService;
@@ -43,9 +44,10 @@ class InvestmentController extends Controller
             'date' => $request->query('date'),
         );
         $paymentsCount = 0;
+        $profitRecords = collect();
 
         // dd($data);
-        return view("admin.investment.investment.create-investment-edit", compact("title", "data", 'reinvestment', 'parent_investment_id', 'paymentsCount', 'parent'));
+        return view("admin.investment.investment.create-investment-edit", compact("title", "data", 'reinvestment', 'parent_investment_id', 'paymentsCount', 'parent', 'profitRecords'));
     }
 
     public function store(Request $request)
@@ -93,8 +95,11 @@ class InvestmentController extends Controller
         $reinvestment = 0;
         $parent_investment_id = null;
         $paymentsCount = InvestmentReceivedPayment::where('investment_id', $id)->count();
+        $profitRecords = $this->investmentService->getInvestmentProfitRecords($investment);
 
-        return view("admin.investment.investment.create-investment-edit", compact("title", "data", "investment", 'reinvestment', 'parent_investment_id', 'paymentsCount'));
+        // dd($profitRecords);
+
+        return view("admin.investment.investment.create-investment-edit", compact("title", "data", "investment", 'reinvestment', 'parent_investment_id', 'paymentsCount', 'profitRecords'));
     }
     public function update(Request $request, $id)
     {
@@ -214,6 +219,7 @@ class InvestmentController extends Controller
             'message' => 'Profit record deleted successfully.'
         ]);
     }
+
     public function shortTermTermination(Request $request)
     {
         try {
@@ -224,5 +230,39 @@ class InvestmentController extends Controller
 
             return response()->json(['success' => false, 'message' => $e->getMessage(), 'error'   => $e], 500);
         }
+    }
+    // profitschedule updates
+    public function editProfitSchedule(int $investmentId)
+    {
+        $title = 'Edit Profit Recpords';
+        $investment = Investment::query()
+            ->activeLongTerm()
+            ->findOrFail($investmentId);
+
+        $profitRecords = $investment->profitRecords()
+            ->editable()
+            ->orderBy('profit_release_month')
+            ->get();
+
+        return view('admin.investment.profit-schedule-edit', [
+            'title' => $title,
+            'investment' => $investment,
+            'profitRecords' => $profitRecords,
+        ]);
+    }
+
+    public function updateProfitSchedule(
+        Request $request,
+        int $investmentId
+    ) {
+
+        validateProfitScheduleTotal();
+
+        $this->updateInvestmentProfitRecords(
+            $investment,
+            $profits
+        );
+
+        // Update function provided previously
     }
 }

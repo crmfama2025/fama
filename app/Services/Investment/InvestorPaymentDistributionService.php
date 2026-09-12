@@ -2,6 +2,7 @@
 
 namespace App\Services\Investment;
 
+use App\Models\InvestmentProfitRecord;
 use App\Models\InvestorPayout;
 use App\Models\PartialWithdrawalBifurcation;
 use App\Models\WhatsappMessage;
@@ -210,17 +211,79 @@ class InvestorPaymentDistributionService
             // dd($distributionDatas);
             foreach ($distributionDatas as $distributionData) {
 
+                // $payoutData = InvestorPayout::find($distributionData->payout_id);
 
+                $payoutData = InvestorPayout::query()
+                    ->lockForUpdate()
+                    ->findOrFail($distributionData->payout_id);
 
-                $payoutData = InvestorPayout::find($distributionData->payout_id);
+                // $payoutDataArr = $payoutData;
+                // $balance = $payoutDataArr->amount_pending - $distributionData->amount_paid;
+                // // payout update
+                // $payoutDataArr->amount_paid = $payoutDataArr->amount_paid + $distributionData->amount_paid;
+                // $payoutDataArr->amount_pending = $balance;
+                // $payoutDataArr->is_processed = $balance == 0 ? 1 : 0;
+                // $payoutDataArr->update();
 
-                $payoutDataArr = $payoutData;
-                $balance = $payoutDataArr->amount_pending - $distributionData->amount_paid;
-                // payout update
-                $payoutDataArr->amount_paid = $payoutDataArr->amount_paid + $distributionData->amount_paid;
-                $payoutDataArr->amount_pending = $balance;
-                $payoutDataArr->is_processed = $balance == 0 ? 1 : 0;
-                $payoutDataArr->update();
+                $payoutData = InvestorPayout::query()
+                    ->lockForUpdate()
+                    ->findOrFail($distributionData->payout_id);
+
+                $distributionAmount = round(toNumeric($distributionData->amount_paid), 2);
+                $currentPendingAmount = round(toNumeric($payoutData->amount_pending), 2);
+                $currentPaidAmount = round(toNumeric($payoutData->amount_paid), 2);
+
+                /*
+                * Prevent zero, negative, or excessive payments.
+                */
+                if ($distributionAmount <= 0) {
+                    throw ValidationException::withMessages([
+                        'paid_amount' =>
+                        'The paid amount must be greater than zero.',
+                    ]);
+                }
+
+                if ($distributionAmount > $currentPendingAmount) {
+                    throw ValidationException::withMessages([
+                        'paid_amount' => sprintf(
+                            'Payment amount %.2f exceeds the pending amount %.2f for payout %d.',
+                            $distributionAmount,
+                            $currentPendingAmount,
+                            $payoutData->id
+                        ),
+                    ]);
+                }
+
+                $balance = round(
+                    $currentPendingAmount - $distributionAmount,
+                    2
+                );
+
+                $newPaidAmount = round(
+                    $currentPaidAmount + $distributionAmount,
+                    2
+                );
+
+                /*
+                * Avoid a negative-zero floating-point value.
+                */
+                if (abs($balance) < 0.01) {
+                    $balance = 0.00;
+                }
+
+                $payoutData->update([
+                    'amount_paid' => $newPaidAmount,
+                    'amount_pending' => $balance,
+                    'is_processed' => $balance === 0.00 ? 1 : 0,
+                ]);
+
+                /*
+                * If this is a profit payout, update the linked profit record.
+                */
+                $this->updateProfitRecordOnPayout(
+                    $payoutData,
+                    $distributionAmount
+                );
 
 
                 // dd($payoutData);
@@ -250,20 +313,17 @@ class InvestorPaymentDistributionService
                     updateInvestorLedgerOnPayout($bifurcation->ledger_id, $payoutData->payout_type);
                 }
 
-
-
-
                 // investment update
                 $investment = updateInvestmentOnDistribution($payoutData, $distributionData);
 
                 // referral update
                 if ($payoutData->payout_type == 2) {
-                    $refComm = refCommUpdateOnDistribution($payoutData, $distributionData);
+                    refCommUpdateOnDistribution($payoutData, $distributionData);
                 }
 
 
                 // investor update
-                $investor = investorUpdateOnDistribution($payoutData, $distributionData);
+                investorUpdateOnDistribution($payoutData, $distributionData);
             }
 
 
@@ -281,6 +341,89 @@ class InvestorPaymentDistributionService
         // }
 
         return $distr_data;
+    }
+
+    private function updateProfitRecordOnPayout(InvestorPayout $payout, float $distributionAmount): void
+    {
+        /*
+        * Only payout_type 1 represents an investment-profit payout.
+        */
+        if ((int) $payout->payout_type !== 1) {
+            return;
+        }
+
+        if ($distributionAmount <= 0) {
+            throw ValidationException::withMessages([
+                'paid_amount' =>
+                'The paid amount must be greater than zero.',
+            ]);
+        }
+
+        /*
+        * Preferred lookup: exact profit-record foreign key.
+        */
+        if ($payout->investment_profit_record_id) {
+            $profitRecord = InvestmentProfitRecord::query()
+                ->where('investment_id', $payout->investment_id)
+                ->lockForUpdate()
+                ->find($payout->investment_profit_record_id);
+        } else {
+            /*
+            * Temporary fallback for old payout rows that do not yet
+            * contain investment_profit_record_id.
+            */
+            if (!$payout->payout_release_month) {
+                throw new \RuntimeException(
+                    "Profit payout {$payout->id} is not linked to a profit record."
+                );
+            }
+
+            $profitDate = Carbon::parse(
+                $payout->payout_release_month
+            )->toDateString();
+
+            $profitRecord = InvestmentProfitRecord::query()
+                ->where('investment_id', $payout->investment_id)
+                ->whereDate(
+                    'profit_release_month',
+                    $profitDate
+                )
+                ->lockForUpdate()
+                ->first();
+        }
+
+        if (!$profitRecord) {
+            throw new \RuntimeException(
+                "Profit record not found for payout {$payout->id}."
+            );
+        }
+
+        $previouslyReleased = round((float) ($profitRecord->released_total_amount ?? 0), 2);
+        $newReleasedTotal = round($previouslyReleased + $distributionAmount, 2);
+        $profitAmount = round((float) $profitRecord->profit_amount, 2);
+
+        if ($newReleasedTotal > $profitAmount) {
+            throw ValidationException::withMessages([
+                'paid_amount' => sprintf(
+                    'The payment exceeds the profit-record balance. Profit amount: %.2f, already released: %.2f, attempted payment: %.2f.',
+                    $profitAmount,
+                    $previouslyReleased,
+                    $distributionAmount
+                ),
+            ]);
+        }
+
+        $profitRecord->update([
+            'released_total_amount' => $newReleasedTotal,
+
+            /*
+            * Add your actual status field here if one exists.
+            * */
+            'release_status' => $newReleasedTotal >= $profitAmount ? 'paid' : 'partially_paid',
+            'last_released_at' => now(),
+            'last_released_by' => auth()->user()->id ?? null,
+
+        ]);
     }
 
     private function validate(array $data, $id = null)
