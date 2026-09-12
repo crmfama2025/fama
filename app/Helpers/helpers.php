@@ -1544,7 +1544,17 @@ function getSubModuleArray()
         'admin-view',
         'withdrawal',
         'withdrawal-approve',
-        'withdrawal-delete'
+        'withdrawal-delete',
+        'novation',
+        'payable_report',
+        'inventory_report',
+        'occupancy_report',
+        'project_report',
+        'receivable_report',
+        'payout_report',
+        'investment_report',
+        'assign',
+        'convert'
     ];
 }
 
