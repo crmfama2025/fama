@@ -37,6 +37,7 @@ class InvestmentContractDocuments extends Model
         'sendto_management_by',
         'sendto_investor_date',
         'sendto_management_date',
+        'version_number'
     ];
 
     public function investment()

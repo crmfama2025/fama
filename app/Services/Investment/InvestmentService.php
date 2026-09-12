@@ -1284,7 +1284,7 @@ class InvestmentService
                 'investor_agreement_template_id' => $this->investorAgreementRepository->getActiveIdBytype(5),
                 'investor_agreement_type_id' => 5,
                 'added_by' => auth()->user()->id,
-                'applied_investments' => $investmentId,
+                'applied_investments' => json_encode($investmentId),
                 'investment_id' => 0,
             ];
             // dd('test');
