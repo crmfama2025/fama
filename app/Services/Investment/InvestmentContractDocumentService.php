@@ -109,7 +109,7 @@ class InvestmentContractDocumentService
             ->addColumn('investor_agreement_template', function ($row) {
                 return $row->action_type == 0
                     ? 'V' . $row->version_number
-                    :  $row->agreementTemplate->version_no;
+                    :  'V' . $row->agreementTemplate->version_no;
             })
             ->addColumn('status', function ($row) {
                 if (!empty($row->generated_date)) {
