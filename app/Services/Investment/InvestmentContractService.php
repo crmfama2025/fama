@@ -266,7 +266,7 @@ class InvestmentContractService
         $investorData,
         int $annexureNo,
         float $invProfitPerc,
-        float $companyProfitPerc,
+        ?float $companyProfitPerc = null,
         // string $lang
     ): string {
         $annexureNoR = toRoman($annexureNo);
@@ -768,7 +768,7 @@ class InvestmentContractService
 
         return [
             'InvestorProfitPerc' => ($investmentData->profit_perc >= 50) ? $investmentData->profit_perc : $InvestorProfitPerc,
-            'CompanyProfitPerc' => ($investmentData->profit_perc >= 50) ? $CompanyProfitPerc : '-',
+            'CompanyProfitPerc' => ($investmentData->profit_perc >= 50) ? '-' : $CompanyProfitPerc,
             'InvestorProfitPerctext' => $InvestorProfitPerctext,
             'InvestorProfitPerctext_ar' => $InvestorProfitPerctext_ar
         ];
@@ -1052,8 +1052,11 @@ class InvestmentContractService
 
         $currentTotal = $prevAmount + $investment->investment_amount;
         $investmentDate       = Carbon::parse($investment->investment_date);
-        $mudarabahCreatedDate = Carbon::parse($docDetails->mudarabahReference->generated_date ?? $docDetails->mudarabahReference->created_at);
+        $refInvestment = $docDetails->mudarabahReference->investment;
 
+        $mudarabahCreatedDate = Carbon::parse(
+            $refInvestment->investor_novation_applied_at ?? $refInvestment->investment_date
+        );
         $html        = $documentDetail->template;
 
         // Annexture A
@@ -1088,9 +1091,10 @@ class InvestmentContractService
                 : "الربح السنوي المتوقع:");
 
         $vars = [
+            '{investment_date}'        => Carbon::parse($investment->investment_date)->format('d/m/Y'),
             '{investment_long_date_eng}'        => $investmentDate->format('jS \d\a\y \o\f F Y'),
             // '{mudarabah_created_long_date_eng}' => $mudarabahCreatedDate->format('jS \d\a\y \o\f F Y'),
-            '{mudarabah_created_long_date_eng}'        => $investmentDate->format('jS \d\a\y \o\f F Y'),
+            '{mudarabah_created_long_date_eng}'        => $mudarabahCreatedDate->format('jS \d\a\y \o\f F Y'),
 
             '{investment_long_date_ar}'         => arabicLongDate($investmentDate),
             '{mudarabah_created_long_date_ar}'  => arabicLongDate($mudarabahCreatedDate),
@@ -1102,19 +1106,23 @@ class InvestmentContractService
 
             '{investor_name_eng}' => $investor->investor_name,
             '{investor_name_ar}'  => $investor->investor_name_arabic,
+            '{resident_state_eng}'       => $investor->state,
+            '{resident_state_ar}'        => $investor->state_arabic,
+            '{resident_country_eng}'     => $investor->countryOfResidence->nationality_name,
+            '{resident_country_ar}'      => $investor->countryOfResidence->nationality_arabic_name,
             '{id_number}'         => $investor->id_number,
 
 
             '{tot_prev_invested_amount}'     => number_format($prevAmount, 2),
-            '{tot_prev_invested_amount_eng}' => numberToEnglishWords($prevAmount),
-            '{tot_prev_invested_amount_ar}'  => numberToArabicWords($prevAmount),
+            '{tot_prev_invested_amount_eng}' => numberToEnglishWords($prevAmount) . ' Dirhams Only',
+            '{tot_prev_invested_amount_ar}'  => numberToArabicWords($prevAmount) . ' درهم إماراتي فقط',
 
             '{current_invested_amount}'     => number_format($investment->investment_amount, 2),
-            '{current_invested_amount_eng}' => numberToEnglishWords($investment->investment_amount),
+            '{current_invested_amount_eng}' => numberToEnglishWords($investment->investment_amount) . ' Dirhams Only',
             '{current_invested_amount_ar}'  => numberToArabicWords($investment->investment_amount) . ' درهم إماراتي فقط',
 
             '{new_total_investment_amount}'     => number_format($currentTotal, 2),
-            '{new_total_investment_amount_eng}' => numberToEnglishWords($currentTotal),
+            '{new_total_investment_amount_eng}' => numberToEnglishWords($currentTotal) . ' Dirhams Only',
             '{new_total_investment_amount_ar}'  => numberToArabicWords($currentTotal) . ' درهم إماراتي فقط',
 
             '{annexA}' => $this->buildAnnexureARows($docDetails->investor_id, $companyId, $mudarabahCreatedDate, $docId),
@@ -1123,8 +1131,8 @@ class InvestmentContractService
             '{annexA1}' => $annexureA,
 
 
-            '{total_invested_amount}' => $investment->investment_amount,
-            // '{total_profit}'          => $investment->profit_amount,
+            '{total_invested_amount}' => number_format($investment->investment_amount, 2),
+            '{total_profit}'          => number_format($investment->profit_amount, 2),
             '{monthly_estimate}'      => $investment->profit_amount_per_interval,
             '{profit_month_eng}'      => $profitData['profitEng'],
             '{profit_month_ar}'       => $profitData['profitAr'],
@@ -1164,19 +1172,21 @@ class InvestmentContractService
             $amtStyle   = $isWithdraw ? 'color:#C0392B;' : '';
             $serial     = $row['serial'] ?? '';
 
+            // | {$row['doc_date']}
+
             $html .= "
                 <tr style='{$rowStyle}'>
                     <td width='50%' style='border:1px solid #ccc;'>
                         <div class='english'>
                             <p class='text-sm'>
-                                {$serial} | {$row['particulars_eng']} | <span style='{$amtStyle}'>{$row['amount']}</span> | {$row['received_on']} | {$row['doc_date']}
+                                {$serial} | {$row['particulars_eng']} | <span style='{$amtStyle}'>{$row['amount']}</span> | {$row['received_on']}
                             </p>
                         </div>
                     </td>
                     <td width='50%' style='border:1px solid #ccc;'>
                         <div class='arabic'>
                             <p class='text-sm' dir='rtl'>
-                                {$serial} | {$row['particulars_ar']} | <span style='{$amtStyle}'>{$row['amount']}</span> | {$row['received_on']} | {$row['doc_date']}
+                                {$serial} | {$row['particulars_ar']} | <span style='{$amtStyle}'>{$row['amount']}</span> | {$row['received_on']}
                             </p>
                         </div>
                     </td>
@@ -1226,7 +1236,7 @@ class InvestmentContractService
             '{total_invested_eng}' => numberToEnglishWords($totalInvested) . ' Dirhams Only',
             '{date}' =>  Carbon::parse($novationCreated)->format('d/m/Y'),
 
-            '{guardian}' => '',
+            '{guardian}' => '', //' (Guardian)'
 
         ];
 
@@ -1377,7 +1387,7 @@ class InvestmentContractService
                 'particulars_eng' => $key == 0 ? 'Original Investment' : 'Additional Investment',
                 'particulars_ar'  => $key == 0 ? 'الاستثمار الأصلي'    : 'استثمار إضافي',
                 'amount'          => number_format($inv->total_invested_amount, 2),
-                'received_on'     => Carbon::parse($inv->investment_date)->format('d/m/Y'),
+                'received_on'     => $key == 0 ? Carbon::parse($mudarabahCreatedDate)->format('d/m/Y') : Carbon::parse($inv->investment_date)->format('d/m/Y'),
                 'doc_date'        => Carbon::parse($mudarabahCreatedDate)->format('d/m/Y'),
                 'type'            => 'investment',
             ];
