@@ -52,17 +52,43 @@
                                             <div class="form-group row">
                                                 <div class="col-sm-4">
                                                     <label class="asterisk">Investor Name</label>
-                                                    <input type="text" name="investor[investor_name]"
-                                                        class="form-control " placeholder="Investor Name"
-                                                        value="{{ $investor->investor_name ?? '' }}" required>
+                                                    <div class="input-group">
+                                                        <select name="investor[investor_prefix]" id="investor_prefix"
+                                                            class="form-control" style="max-width: 90px;" required>
+                                                            <option value="">Select</option>
+                                                            <option value="Mr"
+                                                                {{ ($investor->investor_prefix ?? '') == 'Mr' ? 'selected' : '' }}>
+                                                                Mr</option>
+                                                            <option value="Ms"
+                                                                {{ ($investor->investor_prefix ?? '') == 'Ms' ? 'selected' : '' }}>
+                                                                Ms</option>
+                                                        </select>
+                                                        <input type="text" name="investor[investor_name]"
+                                                            class="form-control " placeholder="Investor Name"
+                                                            value="{{ $investor->investor_name ?? '' }}" required>
+                                                    </div>
                                                 </div>
                                                 <div class="col-sm-4">
                                                     <label class="asterisk">Investor Name In Arabic</label>
-                                                    <input type="text" name="investor[investor_name_arabic]"
-                                                        pattern="[‌\u0600-\u06FF\s]+" class="form-control arabic-input"
-                                                        placeholder="Investor Name in Arabic"
-                                                        value="{{ $investor->investor_name_arabic ?? '' }}" required>
+                                                    <div class="input-group">
+                                                        <select name="investor[investor_prefix_arabic]" class="form-control"
+                                                            style="max-width: 90px;" id="investor_prefix_arabic" required>
+                                                            <option value="">Select</option>
+                                                            <option value="السيد"
+                                                                {{ ($investor->investor_prefix_arabic ?? '') == 'السيد' ? 'selected' : '' }}>
+                                                                السيد</option>
+                                                            <option value="السيدة"
+                                                                {{ ($investor->investor_prefix_arabic ?? '') == 'السيدة' ? 'selected' : '' }}>
+                                                                السيدة</option>
+                                                        </select>
+                                                        <input type="text" name="investor[investor_name_arabic]"
+                                                            pattern="[‌\u0600-\u06FF\s]+" class="form-control arabic-input"
+                                                            placeholder="Investor Name in Arabic"
+                                                            value="{{ $investor->investor_name_arabic ?? '' }}" required>
+                                                    </div>
                                                 </div>
+
+
 
                                                 <div class="col-sm-4">
                                                     <label for="inputEmail3" class="asterisk">Investor
@@ -159,7 +185,8 @@
                                                     </select>
                                                 </div>
                                                 <div class="col-sm-4">
-                                                    <label for="inputEmail3" class="asterisk">Investor Relation</label>
+                                                    <label for="inputEmail3" class="asterisk">Investor
+                                                        Relation</label>
                                                     <select class="form-control select2"
                                                         name="investor[investor_relation_id]" required>
                                                         <option value="">Select Relation</option>
@@ -217,10 +244,53 @@
                                                         </div>
                                                     </div> --}}
                                                 </div>
+                                                <div class="col-sm-4">
+                                                    <label class="asterisk">Gender</label>
+                                                    <select name="investor[gender]" id="gender"
+                                                        class="form-control select2" required>
+                                                        <option value="">Select</option>
+                                                        <option value="0"
+                                                            {{ ($investor->gender ?? '') == 0 ? 'selected' : '' }}>
+                                                            Male</option>
+                                                        <option value="1"
+                                                            {{ ($investor->gender ?? '') == 1 ? 'selected' : '' }}>
+                                                            Female</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-sm-4">
+                                                    <label class="asterisk">Investor Type</label>
+                                                    <div>
+                                                        <div class="form-check form-check-inline">
+                                                            <input class="form-check-input" type="radio"
+                                                                name="investor[investor_type]" id="investor_type_major"
+                                                                value="0"
+                                                                {{ ($investor->investor_type ?? 0) == 0 ? 'checked' : '' }}
+                                                                required>
+                                                            <label class="form-check-label"
+                                                                for="investor_type_major">Major</label>
+                                                        </div>
+                                                        <div class="form-check form-check-inline">
+                                                            <input class="form-check-input" type="radio"
+                                                                name="investor[investor_type]" id="investor_type_minor"
+                                                                value="1"
+                                                                {{ ($investor->investor_type ?? 1) == 1 ? 'checked' : '' }}
+                                                                required>
+                                                            <label class="form-check-label"
+                                                                for="investor_type_minor">Minor</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
                                             </div>
 
 
+                                            {{-- <div class="form-group row">
+
+                                            </div> --}}
+
+
                                         </div>
+                                        @include('admin.investment.investor-guardians')
 
                                         <div class="card card-outline card-info p-4">
                                             <h4>Investor Address</h4>
@@ -571,6 +641,10 @@
         $('#investor_mobile').on('blur', function() {
             phoneValidation(this, 'phone');
         });
+        $('#guardian_mobile').on('blur', function() {
+            phoneValidation(this, 'phone');
+        });
+
 
         @foreach ($documentTypes as $key => $documentType)
             $('#expiryDate{{ $key }}').datetimepicker({
@@ -744,7 +818,53 @@
                 // OR directly call function (better)
                 bankingRegionOnchange(region);
             }
+
+
+            function toggleGuardianDetails() {
+                const investorType = $('input[name="investor[investor_type]"]:checked').val();
+                const guardianCard = $('#guardianDetailsCard');
+                const guardianSelect = $('#guardian_id');
+
+                if (investorType == '1') {
+                    guardianCard.show();
+                    guardianSelect.prop('required', true);
+
+
+                } else {
+                    guardianCard.hide();
+
+                    guardianSelect.prop('required', false);
+
+                    guardianCard.find('input').prop('required', false);
+                }
+            }
+
+            $('input[name="investor[investor_type]"]').on('change', function() {
+                toggleGuardianDetails();
+            });
+            toggleGuardianDetails();
         });
+        // $(document).on('change', '#guardian_id', function() {
+        //     const guardianId = $(this).val();
+        //     const manualSection = $('#guardianManualDetails');
+
+        //     if (guardianId) {
+        //         $('#guardian_is_existing').val(1);
+
+        //         manualSection.find('input').each(function() {
+        //             $(this).prop('required', false);
+        //             $(this).prop('disabled', true);
+        //         });
+        //     } else {
+        //         $('#guardian_is_existing').val(0);
+
+        //         manualSection.find('input').each(function() {
+        //             $(this).prop('disabled', false);
+        //             $(this).prop('required', true);
+        //         });
+        //     }
+        // });
     </script>
     @include('admin.investment.investor-banks-js')
+    @include('admin.investment.add-guardian-modal')
 @endsection

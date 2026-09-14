@@ -53,7 +53,13 @@ class Investor extends Model
         'investor_address_arabic',
         'address_line2_arabic',
         'city_arabic',
-        'state_arabic'
+        'state_arabic',
+
+        'investor_prefix',
+        'investor_prefix_arabic',
+        'investor_type',
+        'gender',
+        'investor_guardian_id'
     ];
 
     public function nationality()
@@ -185,5 +191,9 @@ class Investor extends Model
     public function addedBy()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+    public function investorGuardian()
+    {
+        return $this->belongsTo(InvestorGuardianDetail::class, 'investor_guardian_id', 'id');
     }
 }

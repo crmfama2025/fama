@@ -93,6 +93,11 @@
                             </li>
                             <li class="nav-item"><a class="nav-link" href="#investment" data-toggle="tab">Investments</a>
                             </li>
+                            @if ($investor->investor_type == 1)
+                                <li class="nav-item"> <a class="nav-link" href="#guardian" data-toggle="tab"> Guardian
+                                        Details </a> </li>
+                            @endif
+
                         </ul>
                     </div><!-- /.card-header -->
                     <div class="card-body">
@@ -263,6 +268,7 @@
                                 </div>
                             </div>
                             <!-- /.tab-pane -->
+                            @include('admin.investment.investor-guardian-view')
 
                         </div>
                         <!-- /.tab-content -->

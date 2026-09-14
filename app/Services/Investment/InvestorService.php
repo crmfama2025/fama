@@ -4,6 +4,7 @@ namespace App\Services\Investment;
 
 use App\Models\Investment;
 use App\Models\InvestmentContractDocuments;
+use App\Models\InvestorGuardianDetail;
 use App\Models\PartialWithdrawalBifurcation;
 use App\Models\WhatsappMessage;
 use App\Repositories\Investment\InvestmentContractDocumentRepository;
@@ -12,6 +13,7 @@ use App\Repositories\Investment\InvestorAgreementRepository;
 use App\Repositories\Investment\InvestorLedgerRepository;
 use App\Repositories\Investment\InvestorRepository;
 use App\Services\Investment\WhatsAppMsgService;
+use App\Services\PdfCompressionService;
 use App\Services\WhatsAppService;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Support\Facades\DB;
@@ -21,6 +23,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
+use Storage;
 use Yajra\DataTables\Facades\DataTables;
 
 class InvestorService
@@ -69,7 +72,13 @@ class InvestorService
             $dataArr['created_by'] = auth()->user()->id;
             $dataArr['investor_code'] = $this->setInvestorCode();
 
+            if (($dataArr['investor_type'] ?? 0) != 1) {
+                unset($dataArr['investor_guardian_id']);
+            }
+
+            // dd($dataArr);
             $investor = $this->investorRepo->create($dataArr);
+
 
             $this->investorBankServ->create($data['investor_bank'] ?? [], $investor->id);
             $this->investorDocServ->create($data['inv_doc'] ?? [], $investor);
@@ -146,7 +155,11 @@ class InvestorService
         return DB::transaction(function () use ($data, $dataArr, $id) {
             $dataArr = $data['investor'];
             $dataArr['updated_by'] = auth()->user()->id;
+            if (($dataArr['investor_type'] ?? 0) != 1) {
+                unset($dataArr['investor_guardian_id']);
+            }
 
+            // dd($dataArr);
             $investor = $this->investorRepo->update($id, $dataArr);
 
             $this->investorBankServ->update($data['investor_bank']['bank_id'], $data['investor_bank'] ?? []);
@@ -163,6 +176,11 @@ class InvestorService
     {
         $codeService = new \App\Services\CodeGeneratorService();
         return $codeService->generateNextCode('investors', 'investor_code', 'INVR', 5, $addval);
+    }
+    public function setInvestorGuardianCode($addval = 1)
+    {
+        $codeService = new \App\Services\CodeGeneratorService();
+        return $codeService->generateNextCode('investor_guardian_details', 'investor_guardian_code', 'INVGN', 5, $addval);
     }
 
     private function validate(array $data, $id = null)
@@ -308,8 +326,8 @@ class InvestorService
 
                 if (auth()->user()->hasAnyPermission(['investor.novation'], $row->company_id)) {
                     $action .= ' <button class="btn btn-sm" data-id="" data-investor-id="' . $row->id . '" data-investor-name="' . $row->investor_name . '"
-                    data-target="#modal-apply-novation" 
-                    data-toggle="modal" 
+                    data-target="#modal-apply-novation"
+                    data-toggle="modal"
                     title="Apply Novation" style="background: #b700b7"><i class="fas fa-redo" style="color: white;"></i></button>';
                 }
 
@@ -1205,5 +1223,142 @@ class InvestorService
                 )->delete();
             }
         });
+    }
+
+
+    public function createGuardian($guardianArr)
+    {
+        // $investor = $this->investorRepo->find($investorId);
+
+        // $guardianArr['investor_id'] = $investorId;
+        // dd($guardianArr, gettype($guardianArr));
+        $guardianArr['investor_guardian_code'] = $this->setInvestorGuardianCode();
+        $guardianArr['added_by'] = auth()->id();
+        $guardianArr['eid_expiry_date'] = parseDate($guardianArr['eid_expiry_date'] ?? null);
+        $guardianArr['passport_expiry_date'] = parseDate($guardianArr['passport_expiry_date'] ?? null);
+        $pdfService = new PdfCompressionService();
+
+        if (
+            isset($guardianArr['emirates_id_copy']) &&
+            $guardianArr['emirates_id_copy'] instanceof \Illuminate\Http\UploadedFile
+        ) {
+            $file = $guardianArr['emirates_id_copy'];
+
+            $filename = time() . '_emirates_id.' . $file->getClientOriginalExtension();
+
+            if (strtolower($file->getClientOriginalExtension()) === 'pdf') {
+                $guardianArr['emirates_id_copy'] = $pdfService->compress(
+                    $file,
+                    'investments/guardians/' .  $guardianArr['investor_guardian_code'],
+                    $filename
+                );
+            } else {
+                $guardianArr['emirates_id_copy'] = $file->storeAs(
+                    'investments/guardians/' .  $guardianArr['investor_guardian_code'],
+                    $filename,
+                    'public'
+                );
+            }
+        }
+
+        if (
+            isset($guardianArr['passport_copy']) &&
+            $guardianArr['passport_copy'] instanceof \Illuminate\Http\UploadedFile
+        ) {
+            $file = $guardianArr['passport_copy'];
+
+            $filename = time() . '_passport.' . $file->getClientOriginalExtension();
+
+            if (strtolower($file->getClientOriginalExtension()) === 'pdf') {
+                $guardianArr['passport_copy'] = $pdfService->compress(
+                    $file,
+                    'investments/guardians/' . $guardianArr['investor_guardian_code'],
+                    $filename
+                );
+            } else {
+                $guardianArr['passport_copy'] = $file->storeAs(
+                    'investments/guardians/' . $guardianArr['investor_guardian_code'],
+                    $filename,
+                    'public'
+                );
+            }
+        }
+
+        return $this->investorRepo->createGuardian($guardianArr);
+    }
+
+    public function updateGuardian($id, $guardianArr)
+    {
+        $guardian = InvestorGuardianDetail::findOrFail($id);
+
+        $guardianArr['eid_expiry_date'] = parseDate($guardianArr['eid_expiry_date'] ?? null);
+        $guardianArr['passport_expiry_date'] = parseDate($guardianArr['passport_expiry_date'] ?? null);
+
+        $pdfService = new PdfCompressionService();
+
+        $folder = 'investments/guardians/' . $guardian->investor_guardian_code;
+
+        if (
+            isset($guardianArr['emirates_id_copy']) &&
+            $guardianArr['emirates_id_copy'] instanceof \Illuminate\Http\UploadedFile
+        ) {
+            $file = $guardianArr['emirates_id_copy'];
+
+            if ($guardian->emirates_id_copy) {
+                Storage::disk('public')->delete($guardian->emirates_id_copy);
+            }
+
+            $filename = time() . '_emirates_id.' . $file->getClientOriginalExtension();
+
+            if (strtolower($file->getClientOriginalExtension()) === 'pdf') {
+                $guardianArr['emirates_id_copy'] = $pdfService->compress(
+                    $file,
+                    $folder,
+                    $filename
+                );
+            } else {
+                $guardianArr['emirates_id_copy'] = $file->storeAs(
+                    $folder,
+                    $filename,
+                    'public'
+                );
+            }
+        } else {
+            unset($guardianArr['emirates_id_copy']);
+        }
+
+        if (
+            isset($guardianArr['passport_copy']) &&
+            $guardianArr['passport_copy'] instanceof \Illuminate\Http\UploadedFile
+        ) {
+            $file = $guardianArr['passport_copy'];
+
+            if ($guardian->passport_copy) {
+                Storage::disk('public')->delete($guardian->passport_copy);
+            }
+
+            $filename = time() . '_passport.' . $file->getClientOriginalExtension();
+
+            if (strtolower($file->getClientOriginalExtension()) === 'pdf') {
+                $guardianArr['passport_copy'] = $pdfService->compress(
+                    $file,
+                    $folder,
+                    $filename
+                );
+            } else {
+                $guardianArr['passport_copy'] = $file->storeAs(
+                    $folder,
+                    $filename,
+                    'public'
+                );
+            }
+        } else {
+            unset($guardianArr['passport_copy']);
+        }
+
+        return $this->investorRepo->updateGuardian(
+            $id,
+            $guardianArr
+        );
     }
 }

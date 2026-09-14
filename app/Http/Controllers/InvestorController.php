@@ -8,6 +8,7 @@ use App\Models\DocumentType;
 use App\Models\Investment;
 use App\Models\Investor;
 use App\Models\InvestorDocument;
+use App\Models\InvestorGuardianDetail;
 use App\Models\InvestorRelation;
 use App\Models\PaymentMode;
 use App\Models\PayoutBatch;
@@ -47,6 +48,7 @@ class InvestorController extends Controller
         $investor = null;
         $investorDocuments = null;
         $relations  = InvestorRelation::all();
+        $guardians = InvestorGuardianDetail::all();
 
 
         return view("admin.investment.investor-create", compact(
@@ -58,7 +60,8 @@ class InvestorController extends Controller
             "investorsLists",
             "investor",
             "relations",
-            "investorDocuments"
+            "investorDocuments",
+            "guardians"
         ));
     }
 
@@ -73,7 +76,9 @@ class InvestorController extends Controller
         $investorsLists = $this->investorService->getAllActive();
         $relations  = InvestorRelation::all();
         $investorDocuments = InvestorDocument::where('investor_id', $id)->get();
-        // dd($investorDocuments);
+        // $investorGuardian = InvestorGuardianDetail::where('investor_id', $id)->first();
+        $guardians = InvestorGuardianDetail::all();
+        // dd($investorGuardian);
 
 
         return view("admin.investment.investor-create", compact(
@@ -85,7 +90,9 @@ class InvestorController extends Controller
             "investorsLists",
             "investor",
             "relations",
-            "investorDocuments"
+            "investorDocuments",
+            // "investorGuardian",
+            "guardians"
         ));
     }
 
@@ -325,4 +332,32 @@ class InvestorController extends Controller
             ], 500);
         }
     }
+    public function storeGuardian(Request $request)
+    {
+        // dd($request->all());
+        try {
+            $guardian = $this->investorService->createGuardian($request->all());
+            return response()->json(['success' => true, 'guardian' => [
+                'id' => $guardian->id,
+                'guardian_name' => $guardian->guardian_name,
+                'investor_guardian_code' => $guardian->investor_guardian_code,
+            ], 'message' => 'Guardian created successfully'], 201);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage(), 'error'   => $e], 500);
+        }
+    }
+    // public function updateGuardian(Request $request)
+    // {
+    //     // dd($request->all());
+    //     try {
+    //         $guardian = $this->investorService->updateGuardian($request->all());
+    //         return response()->json(['success' => true, 'guardian' => [
+    //             'id' => $guardian->id,
+    //             'guardian_name' => $guardian->guardian_name,
+    //             'investor_guardian_code' => $guardian->investorguardian_code,
+    //         ], 'message' => 'Guardian created successfully'], 201);
+    //     } catch (\Exception $e) {
+    //         return response()->json(['success' => false, 'message' => $e->getMessage(), 'error'   => $e], 500);
+    //     }
+    // }
 }

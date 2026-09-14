@@ -3,6 +3,7 @@
 namespace App\Repositories\Investment;
 
 use App\Models\Investor;
+use App\Models\InvestorGuardianDetail;
 use App\Models\InvestorLedger;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
@@ -390,5 +391,29 @@ class InvestorRepository
         }
 
         return $query;
+    }
+    public function getGuardianByInvestorId($investorId)
+    {
+        return InvestorGuardianDetail::where('investor_id', $investorId)->first();
+    }
+    public function createGuardian($data)
+    {
+        return InvestorGuardianDetail::create($data);
+    }
+
+    public function updateGuardian($investorId, $data)
+    {
+        $guardian = InvestorGuardianDetail::where('investor_id', $investorId)->first();
+        // dd($data);
+
+        if (!$guardian) {
+            $data['added_by'] = auth()->user()->id;
+            return InvestorGuardianDetail::create($data);
+        }
+        $data['updated_by'] = auth()->user()->id;
+
+        $guardian->update($data);
+
+        return $guardian->fresh();
     }
 }

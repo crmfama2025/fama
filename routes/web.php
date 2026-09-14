@@ -504,6 +504,8 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
     // profit record management
     Route::get('/investments/{investment}/profit-schedule/edit', [InvestmentController::class, 'editProfitSchedule'])->name('investments.profit-schedule.edit');
     Route::put('/investments/{investment}/profit-schedule', [InvestmentController::class, 'updateProfitSchedule'])->name('investments.profit-schedule.update');
+    Route::post('/investor/guardian/store', [InvestorController::class, 'storeGuardian'])
+        ->name('investor.guardian.store');
 });
 
 

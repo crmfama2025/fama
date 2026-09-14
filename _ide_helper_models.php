@@ -696,6 +696,7 @@ namespace App\Models{
  * @property string|null $trade_license_number
  * @property string|null $registration_no
  * @property string|null $letter_head_path
+ * @property string|null $normal_letter_head_path
  * @property string $company_short_code
  * @property string|null $address
  * @property string|null $phone
@@ -744,6 +745,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereIndustryId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereLetterHeadPath($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Company whereNormalLetterHeadPath($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereOwnerEmail($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereOwnerName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Company whereOwnerNumber($value)
@@ -2427,6 +2429,10 @@ namespace App\Models{
 namespace App\Models{
 /**
  * @property int $id
+ * @property string|null $investor_prefix
+ * @property string|null $investor_prefix_arabic
+ * @property int $investor_type o-major,1-minor
+ * @property int|null $gender 0-male,1-female
  * @property string $investor_code
  * @property string $investor_name
  * @property string $investor_name_arabic
@@ -2479,6 +2485,7 @@ namespace App\Models{
  * @property-read int|null $investor_banks_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvestorDocument> $investorDocuments
  * @property-read int|null $investor_documents_count
+ * @property-read \App\Models\InvestorGuardianDetail|null $investorGuardian
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvestorLedger> $investorLedgers
  * @property-read int|null $investor_ledgers_count
  * @property-read \App\Models\InvestorRelation|null $investor_relation
@@ -2501,6 +2508,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereCreatedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereDeletedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Investor whereGender($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereIdNumber($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereInvestorAddress($value)
@@ -2510,7 +2518,10 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereInvestorMobile($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereInvestorName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereInvestorNameArabic($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Investor whereInvestorPrefix($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Investor whereInvestorPrefixArabic($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereInvestorRelationId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Investor whereInvestorType($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereIsIdUploaded($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereIsPassportUploaded($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereIsRefComContUploaded($value)
@@ -2690,6 +2701,47 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocument withoutTrashed()
  */
 	class InvestorDocument extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property int $id
+ * @property int $investor_id
+ * @property string $guardian_name
+ * @property string $guardian_name_arabic
+ * @property string $guardian_mobile
+ * @property string $guardian_email
+ * @property string $emirates_id_number
+ * @property string $passport_number
+ * @property string $emirates_id_copy
+ * @property string $passport_copy
+ * @property int $added_by
+ * @property int|null $updated_by
+ * @property int|null $deleted_by
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $deleted_at
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorGuardianDetail newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorGuardianDetail newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorGuardianDetail query()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorGuardianDetail whereAddedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorGuardianDetail whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorGuardianDetail whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorGuardianDetail whereDeletedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorGuardianDetail whereEmiratesIdCopy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorGuardianDetail whereEmiratesIdNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorGuardianDetail whereGuardianEmail($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorGuardianDetail whereGuardianMobile($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorGuardianDetail whereGuardianName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorGuardianDetail whereGuardianNameArabic($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorGuardianDetail whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorGuardianDetail whereInvestorId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorGuardianDetail wherePassportCopy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorGuardianDetail wherePassportNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorGuardianDetail whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorGuardianDetail whereUpdatedBy($value)
+ */
+	class InvestorGuardianDetail extends \Eloquent {}
 }
 
 namespace App\Models{
