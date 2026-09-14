@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Services\Investment\InvestmentService;
 use App\Services\Investment\InvestorAgreementService;
+use DateTimeImmutable;
 use Illuminate\Console\Command;
 use Throwable;
 
@@ -14,7 +15,8 @@ class ProcessInvestmentAutoRenewals extends Command
      *
      * @var string
      */
-    protected $signature = 'investments:process-auto-renewals';
+    protected $signature = 'investments:process-auto-renewals
+        {--max-maturity-date= : Include investments maturing on or before YYYY-MM-DD}';
 
     /**
      * The console command description.
@@ -28,8 +30,28 @@ class ProcessInvestmentAutoRenewals extends Command
      */
     public function handle(InvestorAgreementService $investmentAgreementService): int
     {
+        $maxMaturityDate = $this->option('max-maturity-date');
+
+        if ($maxMaturityDate !== null) {
+            $date = DateTimeImmutable::createFromFormat(
+                '!Y-m-d',
+                $maxMaturityDate
+            );
+
+            if (
+                !$date ||
+                $date->format('Y-m-d') !== $maxMaturityDate
+            ) {
+                $this->error(
+                    'Invalid max maturity date. Use YYYY-MM-DD, e.g. 2026-10-31.'
+                );
+
+                return self::FAILURE;
+            }
+        }
+
         try {
-            $investmentAgreementService->processUpcomingAutoRenewals();
+            $investmentAgreementService->processUpcomingAutoRenewals($maxMaturityDate);
 
             $this->info('Investment auto-renewal completed.');
 
