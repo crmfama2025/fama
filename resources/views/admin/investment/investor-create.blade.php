@@ -273,7 +273,7 @@
                                                             <input class="form-check-input" type="radio"
                                                                 name="investor[investor_type]" id="investor_type_minor"
                                                                 value="1"
-                                                                {{ ($investor->investor_type ?? 1) == 1 ? 'checked' : '' }}
+                                                                {{ ($investor->investor_type ?? 0) == 1 ? 'checked' : '' }}
                                                                 required>
                                                             <label class="form-check-label"
                                                                 for="investor_type_minor">Minor</label>
