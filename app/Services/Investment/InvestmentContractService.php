@@ -1052,8 +1052,11 @@ class InvestmentContractService
 
         $currentTotal = $prevAmount + $investment->investment_amount;
         $investmentDate       = Carbon::parse($investment->investment_date);
-        $mudarabahCreatedDate = Carbon::parse($docDetails->mudarabahReference->investment->investment_date);
+        $refInvestment = $docDetails->mudarabahReference->investment;
 
+        $mudarabahCreatedDate = Carbon::parse(
+            $refInvestment->investor_novation_applied_at ?? $refInvestment->investment_date
+        );
         $html        = $documentDetail->template;
 
         // Annexture A
