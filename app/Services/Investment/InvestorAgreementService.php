@@ -570,10 +570,18 @@ class InvestorAgreementService
         /*
         * Also stop any other operation that produces an empty period.
         */
-        if ($newMaturityDate->lessThanOrEqualTo($oldMaturityDate)) {
+
+        /*
+        * only for old novation for may, june and july investment. after all novation comment this 
+        * The new maturity date must be later than
+        * the current maturity date minus 45 days.
+        */
+        $minimumMaturityDate = $oldMaturityDate->copy()->subDays(45);
+
+        if ($newMaturityDate->lessThanOrEqualTo($minimumMaturityDate)) { //if not old nov do oldMaturityDate
             throw ValidationException::withMessages([
                 'novation_date' => sprintf(
-                    'The novation maturity date (%s) must be later than the current maturity date (%s).',
+                    'The novation maturity date (%s) must be later than %s (45 days before the current maturity date %s).',
                     $newMaturityDate->toDateString(),
                     $oldMaturityDate->toDateString()
                 ),
@@ -1197,16 +1205,16 @@ class InvestorAgreementService
     |--------------------------------------------------------------------------
     */
 
-    public function processUpcomingAutoRenewals(): void
+    public function processUpcomingAutoRenewals(?string $maxMaturityDate = null): void
     {
-        $renewalThreshold = now()->addWeek()->endOfDay();
+        $renewalThreshold = $maxMaturityDate ?? now()->addWeek()->endOfDay()->toDateString();
 
         Investment::query()
             ->activeLongTerm()
             ->whereDate(
                 'maturity_date',
                 '<=',
-                $renewalThreshold->toDateString()
+                $renewalThreshold
             )
             ->chunkById(100, function ($investments) {
                 foreach ($investments as $investment) {
