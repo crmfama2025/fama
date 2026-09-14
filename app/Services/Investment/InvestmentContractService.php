@@ -1387,7 +1387,7 @@ class InvestmentContractService
                 'particulars_eng' => $key == 0 ? 'Original Investment' : 'Additional Investment',
                 'particulars_ar'  => $key == 0 ? 'الاستثمار الأصلي'    : 'استثمار إضافي',
                 'amount'          => number_format($inv->total_invested_amount, 2),
-                'received_on'     => Carbon::parse($inv->investment_date)->format('d/m/Y'),
+                'received_on'     => $key == 0 ? Carbon::parse($mudarabahCreatedDate)->format('d/m/Y') : Carbon::parse($inv->investment_date)->format('d/m/Y'),
                 'doc_date'        => Carbon::parse($mudarabahCreatedDate)->format('d/m/Y'),
                 'type'            => 'investment',
             ];
