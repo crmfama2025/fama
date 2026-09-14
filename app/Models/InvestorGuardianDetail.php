@@ -24,4 +24,12 @@ class InvestorGuardianDetail extends Model
         'eid_expiry_date',
         'passport_expiry_date'
     ];
+    public function addedBy()
+    {
+        return $this->belongsTo(User::class, 'added_by');
+    }
+    public function investors()
+    {
+        return $this->hasMany(Investor::class, 'investor_guardian_id');
+    }
 }

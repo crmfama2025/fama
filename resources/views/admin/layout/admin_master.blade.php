@@ -449,9 +449,18 @@
                                     @if (hasPermission(auth()->id(), ['investor'], $companyId = null))
                                         <li class="nav-item ">
                                             <a href="{{ route('investor.index') }}"
-                                                class="nav-link {{ request()->is('investor*') && !request()->is('investorPayout*') ? 'active' : '' }}">
+                                                class="nav-link {{ request()->is('investor*') && !request()->is('investorPayout*') && !request()->is('investor-guardian*') ? 'active' : '' }}">
                                                 <i class="far fa-circle nav-icon"></i>
                                                 <p>Investors</p>
+                                            </a>
+                                        </li>
+                                    @endif
+                                    @if (hasPermission(auth()->id(), ['investor-guardian']))
+                                        <li class="nav-item ">
+                                            <a href="{{ route('investor-guardian.index') }}"
+                                                class="nav-link {{ request()->is('investor-guardian*') && !request()->is('investorPayout*') ? 'active' : '' }}">
+                                                <i class="far fa-circle nav-icon"></i>
+                                                <p>Investor Guardians</p>
                                             </a>
                                         </li>
                                     @endif

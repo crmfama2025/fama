@@ -38,6 +38,7 @@ use App\Models\FcmToken;
 use App\Services\BrevoService;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
+use App\Http\Controllers\InvestorGuardianController;
 
 /*
 |--------------------------------------------------------------------------
@@ -91,6 +92,7 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
     Route::resource('investmentReport', InvestmentReportController::class);
     Route::resource('contractReport', ContractReportController::class);
     Route::resource('lead', LeadController::class);
+    Route::resource('investor-guardian', InvestorGuardianController::class);
 
 
 
@@ -506,6 +508,8 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
     Route::put('/investments/{investment}/profit-schedule', [InvestmentController::class, 'updateProfitSchedule'])->name('investments.profit-schedule.update');
     Route::post('/investor/guardian/store', [InvestorController::class, 'storeGuardian'])
         ->name('investor.guardian.store');
+
+    Route::get('/investor-guardians/list', [InvestorGuardianController::class, 'getData'])->name('investor-guardian.list');
 });
 
 

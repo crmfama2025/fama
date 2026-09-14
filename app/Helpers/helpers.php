@@ -1512,7 +1512,8 @@ function getModuleArray()
         'tenant-registration',
         'invoice',
         'investor_legal_documents',
-        'leads'
+        'leads',
+        'investor-guardian'
     ];
 }
 

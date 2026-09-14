@@ -332,32 +332,4 @@ class InvestorController extends Controller
             ], 500);
         }
     }
-    public function storeGuardian(Request $request)
-    {
-        // dd($request->all());
-        try {
-            $guardian = $this->investorService->createGuardian($request->all());
-            return response()->json(['success' => true, 'guardian' => [
-                'id' => $guardian->id,
-                'guardian_name' => $guardian->guardian_name,
-                'investor_guardian_code' => $guardian->investor_guardian_code,
-            ], 'message' => 'Guardian created successfully'], 201);
-        } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage(), 'error'   => $e], 500);
-        }
-    }
-    // public function updateGuardian(Request $request)
-    // {
-    //     // dd($request->all());
-    //     try {
-    //         $guardian = $this->investorService->updateGuardian($request->all());
-    //         return response()->json(['success' => true, 'guardian' => [
-    //             'id' => $guardian->id,
-    //             'guardian_name' => $guardian->guardian_name,
-    //             'investor_guardian_code' => $guardian->investorguardian_code,
-    //         ], 'message' => 'Guardian created successfully'], 201);
-    //     } catch (\Exception $e) {
-    //         return response()->json(['success' => false, 'message' => $e->getMessage(), 'error'   => $e], 500);
-    //     }
-    // }
 }
