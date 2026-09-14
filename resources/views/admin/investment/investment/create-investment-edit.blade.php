@@ -100,8 +100,9 @@
                                                 <div class="col-md-4">
                                                     <div class="form-group">
                                                         <label class="asterisk">Investment Amount</label>
-                                                        <input type="number" class="form-control" id="investment_amount"
-                                                            name="investment_amount" placeholder="Enter Investment Amount"
+                                                        <input type="number" step="0.01" class="form-control"
+                                                            id="investment_amount" name="investment_amount"
+                                                            placeholder="Enter Investment Amount"
                                                             value="{{ old('investment_amount', isset($investment) && $investment->investment_amount ? $investment->investment_amount : $parent['amount'] ?? '') }}"
                                                             required>
                                                     </div>
@@ -121,7 +122,7 @@
                                                 <div class="col-md-4">
                                                     <div class="form-group">
                                                         <label class="asterisk">Received Amount</label>
-                                                        <input type="number" class="form-control" name="received_amount"
+                                                        <input type="number" step="0.01" class="form-control" name="received_amount"
                                                             id="received_amount" placeholder="Enter Received Amount"
                                                             value="{{ old('received_amount', isset($investment) && $investment->received_amount ? $investment->received_amount : $parent['amount'] ?? '') }}"
                                                             {{ $paymentsCount > 1 ? 'readonly' : '' }}>
@@ -2249,60 +2250,102 @@
         //     }
         // }
 
-        function calculateProfitDates() {
-            const $rows = $('#profitScheduleBody tr');
+        let updatingProfitDates = false;
 
-            $rows.each(function(index) {
-                if (index === 0) {
-                    return;
-                }
-
-                const $row = $(this);
-
-                /*
-                 * Paid records retain their stored date.
-                 */
-                if ($row.data('paid') == 1) {
-                    return;
-                }
-
-                const $previousRow = $rows.eq(index - 1);
-
-                const previousDateValue = $previousRow
-                    .find('.profit-row-date')
-                    .val();
-
-                if (!previousDateValue) {
-                    return;
-                }
-
-                const previousDate = parseDMY(previousDateValue);
-
-                if (
-                    !previousDate ||
-                    isNaN(previousDate.getTime())
-                ) {
-                    return;
-                }
-
-                const nextDate = new Date(previousDate);
-                nextDate.setMonth(nextDate.getMonth() + 1);
-
-                const $group = $row.find(
-                    '.profit-row-date-group'
+        // Calendar selection.
+        $(document).on(
+            'change.datetimepicker',
+            '#profitScheduleBody .profit-row-date-group',
+            function() {
+                handleFirstProfitDateChange(
+                    $(this).find('.profit-row-date')[0]
                 );
+            }
+        );
 
-                const datePicker = $group.data('DateTimePicker');
-                const dateValue = formatDMY(nextDate);
+        // Manually typed date.
+        $(document).on(
+            'change',
+            '#profitScheduleBody .profit-row-date',
+            function() {
+                handleFirstProfitDateChange(this);
+            }
+        );
 
-                if (datePicker) {
-                    datePicker.date(
-                        moment(dateValue, 'DD-MM-YYYY')
-                    );
-                } else {
-                    $group.find('.profit-row-date').val(dateValue);
-                }
+        function handleFirstProfitDateChange(input) {
+            if (updatingProfitDates || !input) {
+                return;
+            }
+
+            const firstInput = $('#profitScheduleBody .profit-row-date').first()[0];
+
+            // Only changing the first schedule date updates subsequent dates.
+            if (input !== firstInput || $(input).is(':disabled, [readonly]')) {
+                return;
+            }
+
+            calculateProfitDates();
+        }
+
+        function calculateProfitDates() {
+            if (updatingProfitDates) {
+                return;
+            }
+
+            const $rows = $('#profitScheduleBody tr').filter(function() {
+                return $(this).find('.profit-row-date').length > 0;
             });
+
+            const $firstRow = $rows.first();
+
+            if (!$firstRow.length || $firstRow.data('paid') == 1) {
+                return;
+            }
+
+            const firstDate = moment(
+                $firstRow.find('.profit-row-date').val(),
+                'DD-MM-YYYY',
+                true
+            );
+
+            if (!firstDate.isValid()) {
+                return;
+            }
+
+            updatingProfitDates = true;
+
+            try {
+                $rows.each(function(index) {
+                    if (index === 0) {
+                        return;
+                    }
+
+                    const $row = $(this);
+                    const $input = $row.find('.profit-row-date');
+
+                    // Preserve paid and locked records.
+                    if (
+                        $row.data('paid') == 1 ||
+                        $input.is(':disabled, [readonly]')
+                    ) {
+                        return;
+                    }
+
+                    // Calculate from the first date to prevent month-end drift.
+                    const nextDate = firstDate.clone().add(index, 'months');
+
+                    const $group = $row.find('.profit-row-date-group');
+                    const datePicker = $group.data('DateTimePicker');
+
+                    if (datePicker) {
+                        datePicker.date(nextDate);
+                    } else {
+                        $input.val(nextDate.format('DD-MM-YYYY'));
+                    }
+                });
+            } finally {
+                updatingProfitDates = false;
+            }
         }
 
         // manual per-row amount edit - only refresh total/mismatch, don't touch other rows
