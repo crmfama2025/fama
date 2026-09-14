@@ -266,7 +266,7 @@ class InvestmentContractService
         $investorData,
         int $annexureNo,
         float $invProfitPerc,
-        float $companyProfitPerc,
+        ?float $companyProfitPerc = null,
         // string $lang
     ): string {
         $annexureNoR = toRoman($annexureNo);
@@ -768,7 +768,7 @@ class InvestmentContractService
 
         return [
             'InvestorProfitPerc' => ($investmentData->profit_perc >= 50) ? $investmentData->profit_perc : $InvestorProfitPerc,
-            'CompanyProfitPerc' => ($investmentData->profit_perc >= 50) ? $CompanyProfitPerc : '-',
+            'CompanyProfitPerc' => ($investmentData->profit_perc >= 50) ? '-' : $CompanyProfitPerc,
             'InvestorProfitPerctext' => $InvestorProfitPerctext,
             'InvestorProfitPerctext_ar' => $InvestorProfitPerctext_ar
         ];
