@@ -134,22 +134,81 @@ function ar_month($month)
 use App\Models\Investment;
 use NumberToWords\NumberToWords;
 
+// function numberToArabicWords($number)
+// {
+//     $numberToWords = new NumberToWords();
+
+//     $transformer = $numberToWords->getNumberTransformer('ar');
+
+//     return $transformer->toWords($number);
+// }
+
 function numberToArabicWords($number)
 {
-    $numberToWords = new NumberToWords();
+    $value = trim((string) $number);
 
-    $transformer = $numberToWords->getNumberTransformer('ar');
+    if (!preg_match('/^-?\d+(?:\.\d+)?$/', $value)) {
+        throw new \InvalidArgumentException('Invalid number.');
+    }
 
-    return $transformer->toWords($number);
+    $negative = str_starts_with($value, '-');
+    $value = ltrim($value, '-');
+
+    [$whole, $decimal] = array_pad(explode('.', $value, 2), 2, null);
+
+    $transformer = (new NumberToWords())->getNumberTransformer('ar');
+
+    $words = ($negative ? 'سالب ' : '') . $transformer->toWords((int) $whole);
+
+    if ($decimal !== null) {
+        $digits = array_map(
+            fn($digit) => $transformer->toWords((int) $digit),
+            str_split($decimal)
+        );
+
+        $words .= ' فاصلة ' . implode(' ', $digits);
+    }
+
+    return $words;
 }
+
+// function numberToEnglishWords($number)
+// {
+//     $numberToWords = new NumberToWords();
+
+//     $transformer = $numberToWords->getNumberTransformer('en');
+
+//     return Str::title($transformer->toWords($number));
+// }
 
 function numberToEnglishWords($number)
 {
-    $numberToWords = new NumberToWords();
+    $value = trim((string) $number);
 
-    $transformer = $numberToWords->getNumberTransformer('en');
+    if (!preg_match('/^-?\d+(?:\.\d+)?$/', $value)) {
+        throw new \InvalidArgumentException('Invalid number.');
+    }
 
-    return Str::title($transformer->toWords($number));
+    $negative = str_starts_with($value, '-');
+    $value = ltrim($value, '-');
+
+    [$whole, $decimal] = array_pad(explode('.', $value, 2), 2, null);
+
+    $transformer = (new NumberToWords())->getNumberTransformer('en');
+
+    $words = ($negative ? 'minus ' : '')
+        . $transformer->toWords((int) $whole);
+
+    if ($decimal !== null) {
+        $digits = array_map(
+            fn($digit) => $transformer->toWords((int) $digit),
+            str_split($decimal)
+        );
+
+        $words .= ' point ' . implode(' ', $digits);
+    }
+
+    return Str::title($words);
 }
 
 function toRoman(int $number): string
