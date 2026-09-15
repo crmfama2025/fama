@@ -166,7 +166,7 @@ function numberToArabicWords($number)
             str_split($decimal)
         );
 
-        $words .= ' فاصلة ' . implode(' ', $digits);
+        $words .= ' و ' . implode(' ', $digits);
     }
 
     return $words;
@@ -205,7 +205,7 @@ function numberToEnglishWords($number)
             str_split($decimal)
         );
 
-        $words .= ' point ' . implode(' ', $digits);
+        $words .= ' and ' . implode(' ', $digits);
     }
 
     return Str::title($words);
