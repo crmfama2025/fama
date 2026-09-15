@@ -1052,7 +1052,7 @@ class InvestmentContractService
 
         $currentTotal = $prevAmount + $investment->investment_amount;
         $investmentDate       = Carbon::parse($investment->investment_date);
-        $refInvestment = $docDetails->mudarabahReference->investment;
+        $refInvestment = $docDetails->mudarabahReference?->resolveReferenceInvestment();
 
         $mudarabahCreatedDate = Carbon::parse(
             $refInvestment->investor_novation_applied_at ?? $refInvestment->investment_date
@@ -1281,7 +1281,7 @@ class InvestmentContractService
 
         // $investmentDate       = Carbon::parse($investment->investment_date);
         $withdrwalCreated       = Carbon::parse($docDetails->generated_date);
-        $mudarabahCreatedDate       = Carbon::parse($invDocDetails->mudarabahReference->generated_date ?? $invDocDetails->mudarabahReference->created_at);
+        $mudarabahCreatedDate       = Carbon::parse($invDocDetails->mudarabahReference?->resolveReferenceInvestment()->generated_date ?? $invDocDetails->mudarabahReference?->resolveReferenceInvestment()->created_at);
         // dd("test");
 
         $vars = [
@@ -1497,7 +1497,7 @@ class InvestmentContractService
         if ($investment->investment_term_type == 2) {
             $mudarabahCreatedDate = Carbon::parse($investment->investment_date);
         } else {
-            $mudarabahCreatedDate       = Carbon::parse($invDocDetails->mudarabahReference->generated_date ?? $invDocDetails->mudarabahReference->created_at);
+            $mudarabahCreatedDate       = Carbon::parse($invDocDetails->mudarabahReference?->resolveReferenceInvestment()->generated_date ?? $invDocDetails->mudarabahReference?->resolveReferenceInvestment()->created_at);
         }
         // dd($mudarabahCreatedDate);
 

@@ -65,6 +65,32 @@ class InvestmentContractDocuments extends Model
         return $this->belongsTo(InvestmentContractDocuments::class, 'reference_mudarabah_id', 'id');
     }
 
+    public function resolveReferenceInvestment(): ?Investment
+    {
+        $document = $this;
+        $visited = [];
+
+        while ($document) {
+            // Prevent an invalid circular reference from looping forever.
+            if (isset($visited[$document->id])) {
+                throw new \LogicException('Circular Mudarabah reference detected.');
+            }
+
+            $visited[$document->id] = true;
+
+            if (
+                (int) $document->investment_id > 0 &&
+                $document->investment
+            ) {
+                return $document->investment;
+            }
+
+            $document = $document->mudarabahReference;
+        }
+
+        return null;
+    }
+
     public function company()
     {
         return $this->belongsTo(Company::class, 'company_id');
