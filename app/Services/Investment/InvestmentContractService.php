@@ -4,6 +4,7 @@ namespace App\Services\Investment;
 
 use App\Models\Company;
 use App\Models\Investment;
+use App\Models\InvestmentContractDocuments;
 use App\Models\InvestorLedger;
 use App\Models\PartialWithdrawalBifurcation;
 use App\Repositories\Investment\InvestmentContractDocumentRepository;
@@ -1058,7 +1059,7 @@ class InvestmentContractService
             $refInvestment->investor_novation_applied_at ?? $refInvestment->investment_date
         );
         $html        = $documentDetail->template;
-
+        // dd($mudarabahCreatedDate);
         // Annexture A
         $InvestorProfitPerc = $investment->profit_perc * 100 / 50;
         // $CompanyProfitPerc  = 100 - $InvestorProfitPerc;
@@ -1376,68 +1377,224 @@ class InvestmentContractService
         $ledger = $this->ledgerRepository->getfirstbyCond(['investor_id' => $investorId, 'company_id' => $companyId]);
         // dd($ledger);
 
-        $investments = Investment::where(['investor_id' => $investorId, 'company_id' => $companyId, 'investment_term_type' => 1])
-            // ->orderBy('investment_date')
+        // $investments = Investment::where(['investor_id' => $investorId, 'company_id' => $companyId, 'investment_term_type' => 1])
+        //     // ->orderBy('investment_date')
+        //     ->get();
+
+        // foreach ($investments as $key => $inv) {
+
+        //     $rows[] = [
+        //         'serial'          => $serial++,
+        //         'particulars_eng' => $key == 0 ? 'Original Investment' : 'Additional Investment',
+        //         'particulars_ar'  => $key == 0 ? 'الاستثمار الأصلي'    : 'استثمار إضافي',
+        //         'amount'          => number_format($inv->total_invested_amount, 2),
+        //         'received_on'     => $key == 0 ? Carbon::parse($mudarabahCreatedDate)->format('d/m/Y') : Carbon::parse($inv->investment_date)->format('d/m/Y'),
+        //         'doc_date'        => Carbon::parse($mudarabahCreatedDate)->format('d/m/Y'),
+        //         'type'            => 'investment',
+        //     ];
+
+        //     $last_invDate = Carbon::parse($inv->investment_date)->format('d/m/Y');
+
+
+        //     // foreach (PartialWithdrawal::where('investment_id', $inv->id)->orderBy('withdrawal_date')->get() as $wd) {
+        //     //     $rows[] = [
+        //     //         'serial'          => $serial++,
+        //     //         'particulars_eng' => 'Partial Withdrawal',
+        //     //         'particulars_ar'  => 'سحب جزئي',
+        //     //         'amount'          => '(' . number_format($wd->amount, 2) . ')',
+        //     //         'received_on'     => Carbon::parse($wd->withdrawal_date)->format('d/m/Y'),
+        //     //         'doc_date'        => Carbon::parse($wd->document_date ?? $wd->withdrawal_date)->format('d/m/Y'),
+        //     //         'type'            => 'withdrawal',
+        //     //     ];
+        //     // }
+        // }
+
+        $document = InvestmentContractDocuments::where('investor_id', $investorId)
+            ->where('company_id', $companyId)
+            ->findOrFail($docId);
+
+        // If generating the novated Mudarabah itself, use that document.
+        // Otherwise, use the document's referenced Mudarabah.
+        $reference = (int) $document->investor_agreement_type_id === 1
+            ? $document
+            : $document->mudarabahReference;
+
+        $appliedIds = $reference?->applied_investments ?? [];
+
+        if (is_string($appliedIds)) {
+            $appliedIds = json_decode($appliedIds, true, 512, JSON_THROW_ON_ERROR);
+        }
+
+        $appliedIds = array_values(array_unique(array_map(
+            'intval',
+            $appliedIds
+        )));
+
+        $isNovatedMudarabah = $reference
+            && (int) $reference->investment_id === 0
+            && !empty($appliedIds);
+
+        $investments = Investment::where([
+            'investor_id' => $investorId,
+            'company_id' => $companyId,
+        ])
+            ->activeLongTerm()
+            ->orderBy('investment_date')
+            ->orderBy('id')
             ->get();
 
-        foreach ($investments as $key => $inv) {
+        $documentDate = Carbon::parse($mudarabahCreatedDate)->format('d/m/Y');
+        $last_invDate = $documentDate;
+
+        if ($isNovatedMudarabah) {
+            // $mudarabahCreatedDate must be the actual novation effective date.
+            $originalInvestments = $investments->whereIn('id', $appliedIds);
+            // dd($originalInvestments);
+            if ($originalInvestments->count() !== count($appliedIds)) {
+                throw new \RuntimeException(
+                    'Some investments listed in the novation could not be found.'
+                );
+            }
 
             $rows[] = [
-                'serial'          => $serial++,
-                'particulars_eng' => $key == 0 ? 'Original Investment' : 'Additional Investment',
-                'particulars_ar'  => $key == 0 ? 'الاستثمار الأصلي'    : 'استثمار إضافي',
-                'amount'          => number_format($inv->total_invested_amount, 2),
-                'received_on'     => $key == 0 ? Carbon::parse($mudarabahCreatedDate)->format('d/m/Y') : Carbon::parse($inv->investment_date)->format('d/m/Y'),
-                'doc_date'        => Carbon::parse($mudarabahCreatedDate)->format('d/m/Y'),
-                'type'            => 'investment',
+                'serial' => $serial++,
+                'particulars_eng' => 'Original Investment',
+                'particulars_ar' => 'الاستثمار الأصلي',
+                'amount' => number_format(
+                    $originalInvestments->sum('total_invested_amount'),
+                    2
+                ),
+                'received_on' => $documentDate,
+                'doc_date' => $documentDate,
+                'type' => 'investment',
             ];
 
-            $last_invDate = Carbon::parse($inv->investment_date)->format('d/m/Y');
+            $additionalInvestments = $investments->whereNotIn('id', $appliedIds);
+            // dd($additionalInvestments);
+            foreach ($additionalInvestments as $inv) {
+                $investmentDate = Carbon::parse($inv->investment_date)
+                    ->format('d/m/Y');
 
+                $rows[] = [
+                    'serial' => $serial++,
+                    'particulars_eng' => 'Additional Investment',
+                    'particulars_ar' => 'استثمار إضافي',
+                    'amount' => number_format($inv->total_invested_amount, 2),
+                    'received_on' => $investmentDate,
+                    'doc_date' => $documentDate,
+                    'type' => 'investment',
+                ];
 
-            // foreach (PartialWithdrawal::where('investment_id', $inv->id)->orderBy('withdrawal_date')->get() as $wd) {
-            //     $rows[] = [
-            //         'serial'          => $serial++,
-            //         'particulars_eng' => 'Partial Withdrawal',
-            //         'particulars_ar'  => 'سحب جزئي',
-            //         'amount'          => '(' . number_format($wd->amount, 2) . ')',
-            //         'received_on'     => Carbon::parse($wd->withdrawal_date)->format('d/m/Y'),
-            //         'doc_date'        => Carbon::parse($wd->document_date ?? $wd->withdrawal_date)->format('d/m/Y'),
-            //         'type'            => 'withdrawal',
-            //     ];
-            // }
+                $last_invDate = $investmentDate;
+            }
+        } else {
+            foreach ($investments as $key => $inv) {
+                $investmentDate = Carbon::parse($inv->investment_date)
+                    ->format('d/m/Y');
+
+                $rows[] = [
+                    'serial' => $serial++,
+                    'particulars_eng' => $key === 0
+                        ? 'Original Investment'
+                        : 'Additional Investment',
+                    'particulars_ar' => $key === 0
+                        ? 'الاستثمار الأصلي'
+                        : 'استثمار إضافي',
+                    'amount' => number_format($inv->total_invested_amount, 2),
+                    'received_on' => $key === 0
+                        ? $documentDate
+                        : $investmentDate,
+                    'doc_date' => $documentDate,
+                    'type' => 'investment',
+                ];
+
+                $last_invDate = $investmentDate;
+            }
         }
 
         $partial_ledger = $this->ledgerRepository->findByDocId($docId);
         // dd
         $ledger_id = $partial_ledger->id;
 
-        foreach (InvestorLedger::where('investor_id',  $investorId)->where('company_id', $companyId)->where('investor_transaction_type_id', 3)->where('id', '<=', $ledger_id)->orderBy('withdrawal_date')->get() as $wd) {
+        $withdrawalQuery = InvestorLedger::where([
+            'investor_id' => $investorId,
+            'company_id' => $companyId,
+            'investor_transaction_type_id' => 3,
+
+        ])
+            ->where('id', '<=', $ledger_id)
+            ->orderBy('withdrawal_date');
+
+        if ($isNovatedMudarabah) {
+            // dd($mudarabahCreatedDate);
+            // Must contain the actual novation effective date.
+            $novationDate = Carbon::parse($mudarabahCreatedDate)->toDateString();
+
+            $withdrawalQuery->whereDate('withdrawal_date', '>=', $novationDate);
+        }
+
+        $withdrawals = $withdrawalQuery
+            ->orderBy('withdrawal_date')
+            ->orderBy('id')
+            ->get();
+
+        foreach ($withdrawals as $wd) {
             $rows[] = [
                 'serial'          => $serial++,
                 'particulars_eng' => 'Partial Withdrawal',
                 'particulars_ar'  => 'سحب جزئي',
-                'amount'          => '(' . number_format($wd->transaction_amount, 2) . ')',
+                'amount'          => number_format($wd->transaction_amount, 2),
                 'received_on'     => Carbon::parse($wd->withdrawal_date)->format('d/m/Y'),
                 'doc_date'        => Carbon::parse($wd->document_date ?? $wd->withdrawal_date)->format('d/m/Y'),
                 'type'            => 'Partial withdrawal',
             ];
         }
-        // $partial_withdrawal = PartialWithdrawalBifurcation::
+
+
+        usort($rows, function ($a, $b) {
+            return Carbon::createFromFormat('d/m/Y', $a['received_on'])->startOfDay()
+                ->getTimestamp()
+                <=> Carbon::createFromFormat('d/m/Y', $b['received_on'])->startOfDay()
+                ->getTimestamp();
+        });
+
+        foreach ($rows as $index => &$row) {
+            $row['serial'] = $index + 1;
+        }
+        unset($row);
+
+        // Use the latest row date for the total row.
+        if (!empty($rows)) {
+            $last_invDate = $rows[count($rows) - 1]['received_on'];
+        }
+
 
         // Total row
-        $totalInvested  = Investment::where('investor_id', $investorId)->where('company_id', $companyId)->where('investment_term_type', 1)->sum('total_invested_amount');
+        // $totalInvested  = Investment::where('investor_id', $investorId)->where('company_id', $companyId)->where('investment_term_type', 1)->sum('total_invested_amount');
+        // $totalWithdrawn = PartialWithdrawalBifurcation::whereIn(
+        //     'investment_id',
+        //     Investment::where('investor_id', $investorId)->where('company_id', $companyId)->where('investment_term_type', 1)->pluck('id')
+        // )->where('ledger_id', $ledger_id)->sum('withdrawal_amount');
+
+        $investmentIds = $investments->pluck('id');
         $totalWithdrawn = PartialWithdrawalBifurcation::whereIn(
             'investment_id',
-            Investment::where('investor_id', $investorId)->where('company_id', $companyId)->where('investment_term_type', 1)->pluck('id')
-        )->where('ledger_id', $ledger_id)->sum('withdrawal_amount');
+            $investmentIds
+        )
+            ->whereIn('ledger_id', $withdrawals->pluck('id'))
+            ->sum('withdrawal_amount');
+
+
+        $totalInvested = $investments->sum('total_invested_amount');
+
+        $totalRevisedCapital = $totalInvested - $totalWithdrawn;
         // $totalWithdrawn = 0;
 
         $rows[] = [
             'serial'          => null,
             'particulars_eng' => 'Total Revised Capital',
             'particulars_ar'  => 'إجمالي رأس المال المعدّل',
-            'amount'          => number_format($totalInvested - $totalWithdrawn, 2),
+            'amount'          => number_format($totalRevisedCapital, 2),
             'received_on'     => $last_invDate,
             'doc_date'        => Carbon::parse($mudarabahCreatedDate)->format('d/m/Y'),
             'type'            => 'total',
