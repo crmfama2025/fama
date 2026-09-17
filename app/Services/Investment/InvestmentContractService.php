@@ -1039,7 +1039,13 @@ class InvestmentContractService
         $company    = Company::findOrFail($companyId);
 
         $prevAmount = 0;
-        $allInv = Investment::where(['investor_id' => $docDetails->investor_id, 'company_id' => $companyId])->where('id', '!=', $docDetails->investment_id)->get();
+        $allInv = Investment::where([
+            'investor_id' => $docDetails->investor_id,
+            'company_id' => $companyId
+        ])
+            ->where('investment_date', '<=', $docDetails->investment->investment_date)
+            ->where('id', '!=', $docDetails->investment_id)->get();
+
         foreach ($allInv as $key => $inv) {
             $prevAmount += $inv->investment_amount;
         }
