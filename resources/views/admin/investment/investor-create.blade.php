@@ -51,18 +51,50 @@
                                             <hr>
                                             <div class="form-group row">
                                                 <div class="col-sm-4">
+                                                    <label class="asterisk">Investor Category</label>
+                                                    <div>
+                                                        <div class="form-check form-check-inline">
+                                                            <input class="form-check-input" type="radio"
+                                                                name="investor[investor_category]"
+                                                                id="investor_category_individual" value="0"
+                                                                {{ ($investor->investor_category ?? 0) == 0 ? 'checked' : '' }}
+                                                                required>
+                                                            <label class="form-check-label"
+                                                                for="investor_category_individual">
+                                                                Individual
+                                                            </label>
+                                                        </div>
+
+                                                        <div class="form-check form-check-inline">
+                                                            <input class="form-check-input" type="radio"
+                                                                name="investor[investor_category]"
+                                                                id="investor_category_company" value="1"
+                                                                {{ ($investor->investor_category ?? 0) == 1 ? 'checked' : '' }}
+                                                                required>
+                                                            <label class="form-check-label" for="investor_category_company">
+                                                                Company
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <div class="col-sm-4">
                                                     <label class="asterisk">Investor Name</label>
                                                     <div class="input-group">
-                                                        <select name="investor[investor_prefix]" id="investor_prefix"
-                                                            class="form-control" style="max-width: 90px;" required>
-                                                            <option value="">Select</option>
-                                                            <option value="Mr"
-                                                                {{ ($investor->investor_prefix ?? '') == 'Mr' ? 'selected' : '' }}>
-                                                                Mr</option>
-                                                            <option value="Ms"
-                                                                {{ ($investor->investor_prefix ?? '') == 'Ms' ? 'selected' : '' }}>
-                                                                Ms</option>
-                                                        </select>
+                                                        <div id="investorPrefixSection">
+                                                            <select name="investor[investor_prefix]" id="investor_prefix"
+                                                                class="form-control" style="max-width: 90px;" required>
+                                                                <option value="">Select</option>
+                                                                <option value="Mr"
+                                                                    {{ ($investor->investor_prefix ?? '') == 'Mr' ? 'selected' : '' }}>
+                                                                    Mr</option>
+                                                                <option value="Ms"
+                                                                    {{ ($investor->investor_prefix ?? '') == 'Ms' ? 'selected' : '' }}>
+                                                                    Ms</option>
+                                                            </select>
+                                                        </div>
+
                                                         <input type="text" name="investor[investor_name]"
                                                             class="form-control " placeholder="Investor Name"
                                                             value="{{ $investor->investor_name ?? '' }}" required>
@@ -71,16 +103,19 @@
                                                 <div class="col-sm-4">
                                                     <label class="asterisk">Investor Name In Arabic</label>
                                                     <div class="input-group">
-                                                        <select name="investor[investor_prefix_arabic]" class="form-control"
-                                                            style="max-width: 90px;" id="investor_prefix_arabic" required>
-                                                            <option value="">Select</option>
-                                                            <option value="السيد"
-                                                                {{ ($investor->investor_prefix_arabic ?? '') == 'السيد' ? 'selected' : '' }}>
-                                                                السيد</option>
-                                                            <option value="السيدة"
-                                                                {{ ($investor->investor_prefix_arabic ?? '') == 'السيدة' ? 'selected' : '' }}>
-                                                                السيدة</option>
-                                                        </select>
+                                                        <div id="investorPrefixArabicSection">
+                                                            <select name="investor[investor_prefix_arabic]"
+                                                                class="form-control" style="max-width: 90px;"
+                                                                id="investor_prefix_arabic" required>
+                                                                <option value="">Select</option>
+                                                                <option value="السيد"
+                                                                    {{ ($investor->investor_prefix_arabic ?? '') == 'السيد' ? 'selected' : '' }}>
+                                                                    السيد</option>
+                                                                <option value="السيدة"
+                                                                    {{ ($investor->investor_prefix_arabic ?? '') == 'السيدة' ? 'selected' : '' }}>
+                                                                    السيدة</option>
+                                                            </select>
+                                                        </div>
                                                         <input type="text" name="investor[investor_name_arabic]"
                                                             pattern="[‌\u0600-\u06FF\s]+" class="form-control arabic-input"
                                                             placeholder="Investor Name in Arabic"
@@ -244,7 +279,7 @@
                                                         </div>
                                                     </div> --}}
                                                 </div>
-                                                <div class="col-sm-4">
+                                                <div class="col-sm-4" id="genderSection">
                                                     <label class="asterisk">Gender</label>
                                                     <select name="investor[gender]" id="gender"
                                                         class="form-control select2" required>
@@ -281,16 +316,17 @@
                                                     </div>
                                                 </div>
 
+
+
                                             </div>
 
 
-                                            {{-- <div class="form-group row">
 
-                                            </div> --}}
 
 
                                         </div>
                                         @include('admin.investment.investor-guardians')
+                                        @include('admin.investment.company-card')
 
                                         <div class="card card-outline card-info p-4">
                                             <h4>Investor Address</h4>
@@ -646,6 +682,8 @@
         });
 
 
+
+
         @foreach ($documentTypes as $key => $documentType)
             $('#expiryDate{{ $key }}').datetimepicker({
                 format: 'DD-MM-YYYY'
@@ -844,25 +882,64 @@
             });
             toggleGuardianDetails();
         });
-        // $(document).on('change', '#guardian_id', function() {
-        //     const guardianId = $(this).val();
-        //     const manualSection = $('#guardianManualDetails');
 
-        //     if (guardianId) {
-        //         $('#guardian_is_existing').val(1);
+        function toggleCompanyDetails() {
+            if ($('#investor_category_company').is(':checked')) {
+                $('#companyDetailsSection').show();
+                $('#genderSection').hide();
 
-        //         manualSection.find('input').each(function() {
-        //             $(this).prop('required', false);
-        //             $(this).prop('disabled', true);
-        //         });
-        //     } else {
-        //         $('#guardian_is_existing').val(0);
+                $('#trade_license_number').prop('required', true);
+                $('#registration_number').prop('required', true);
+                $('#place_of_incorporation_en').prop('required', true);
+                $('#place_of_incorporation_ar').prop('required', true);
+                $('#legal_type_en').prop('required', true);
+                $('#legal_type_ar').prop('required', true);
 
-        //         manualSection.find('input').each(function() {
-        //             $(this).prop('disabled', false);
-        //             $(this).prop('required', true);
-        //         });
-        //     }
+                $('#investorPrefixSection').hide();
+                $('#investorPrefixArabicSection').hide();
+
+                $('#investor_prefix').prop('required', false);
+                $('#investor_prefix_arabic').prop('required', false);
+
+
+                $('input[name="investor[gender]"]')
+                    .prop('required', false)
+                    .prop('checked', false);
+            } else {
+                $('#companyDetailsSection').hide();
+                $('#genderSection').show();
+
+                $('#trade_license_number').prop('required', false);
+                $('#registration_number').prop('required', false);
+                $('#place_of_incorporation_en').prop('required', false);
+                $('#place_of_incorporation_ar').prop('required', false);
+                $('#legal_type_en').prop('required', false);
+                $('#legal_type_ar').prop('required', false);
+
+                $('#investorPrefixSection').show();
+                $('#investorPrefixArabicSection').show();
+
+                $('#investor_prefix').prop('required', true);
+                $('#investor_prefix_arabic').prop('required', true);
+                $('input[name="investor[gender]"]').prop('required', true);
+            }
+        }
+
+        $('input[name="investor[investor_category]"]').on('change', function() {
+            toggleCompanyDetails();
+        });
+
+        $(document).ready(function() {
+            toggleCompanyDetails();
+        });
+        $('#trade_license_expiry_date_picker').datetimepicker({
+            format: 'DD-MM-YYYY'
+        });
+        // $('#place_of_incorporation_en').on('change', function() {
+        //     $('#place_of_incorporation_ar').val($(this).val()).trigger('change');
+        // });
+        // $('#legal_type_en').on('change', function() {
+        //     $('#legal_type_ar').val($(this).val()).trigger('change');
         // });
     </script>
     @include('admin.investment.investor-banks-js')

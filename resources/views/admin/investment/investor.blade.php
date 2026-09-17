@@ -65,6 +65,8 @@
                                             {{-- <th>Address</th> --}}
                                             <th>Emirates ID/ Passport No</th>
                                             <th>Payment Mode</th>
+                                            <th>Investor Type</th>
+                                            <th>Investor Category</th>
 
                                             {{-- <th>Bank Details</th> --}}
                                             <!-- <th>IBAN</th> -->
@@ -73,26 +75,6 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {{-- <tr>
-                                            <td>1</td>
-                                            <td> Mr. Ahmad Atieh Abdul Mohsen Sobuh</td>
-                                            <td>Jordan</td>
-                                            <td>UAE</td>
-                                            <td>Reference 1</td>
-                                            <td>asubah@eim.ae</td>
-                                            <td>Al Majaz 3, Sharjah, UAE</td>
-                                            <td>784-1971-0973742-5</td>
-                                            <td>Bank Transfer</td>
-                                            <td>Dubai Islamic Bank</td>
-                                            <!-- <td>AE860240009580614910301</td> -->
-                                            <td>+97150 450 0456</td>
-                                            <td>
-                                                <button class="btn btn-info" data-toggle="modal"
-                                                    data-target="#modal-Property">Edit</button>
-                                                <button class="btn btn-danger" onclick="deleteConf()">Delete</button>
-                                            </td>
-                                        </tr> --}}
-                                    </tbody>
                                 </table>
                             </div>
                             <!-- /.card-body -->
@@ -250,6 +232,15 @@
                     //     data: 'investor_mobile',
                     //     name: 'investor_mobile',
                     // },
+                    {
+                        data: 'investor_type',
+                        name: 'investors.investor_type',
+                    },
+                    {
+                        data: 'investor_category',
+                        name: 'investors.investor_category',
+                    },
+
 
                 ],
                 rowCallback: function(row, data, index) {

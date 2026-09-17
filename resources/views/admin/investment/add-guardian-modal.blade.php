@@ -86,8 +86,21 @@
                             <div id="currentPassportCopy" class="mt-2"></div>
                         </div>
                     </div>
+                    <div class="form-group row">
+                        <div class="col-sm-6">
+                            <label class="asterisk">Guardian Address</label>
+                            <input type="text" name="guardian_address" id="guardian_address" class="form-control"
+                                placeholder="Guardian Address" required>
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="asterisk">Guardian Address Arabic</label>
+                            <input type="text" name="guardian_address_ar" id="guardian_address_ar"
+                                class="form-control arabic-input" placeholder="Guardian Address Arabic" required>
+                        </div>
+                    </div>
 
                 </div>
+
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">

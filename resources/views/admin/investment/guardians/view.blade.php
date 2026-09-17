@@ -141,6 +141,22 @@
                                             </td>
                                         </tr>
 
+                                        <tr>
+                                            <th>Address</th>
+                                            <td>
+                                                {{ $investorGuardian->guardian_address ?? '-' }}
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <th>Address(Arabic)</th>
+                                            <td>
+                                                {{ $investorGuardian->guardian_address_ar ?? '-' }}
+                                            </td>
+                                        </tr>
+
+
+
                                     </table>
 
                                 </div>

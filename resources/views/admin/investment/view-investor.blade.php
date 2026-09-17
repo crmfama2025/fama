@@ -149,14 +149,39 @@
                                         <p class="text-muted m-0">{{ $investor->city_arabic }}</p>
 
                                         <hr>
+                                        @if ($investor->investor_category == 1)
+                                            <strong><i class="fas fa-pencil-alt mr-1"></i> Company Details</strong>
+                                            <p class="text-muted m-0">
+                                                Place of Incorporation :
+                                                {{ getPlacesOfIncorporation()[$investor->place_of_incorporation_id]['name'] ?? '-' }}
+                                            </p>
+
+                                            <p class="text-muted m-0">
+                                                Legal Type :
+                                                {{ getLegalTypes()[$investor->legal_type_id]['name'] ?? '-' }}
+                                            </p>
+
+                                            <hr>
+                                        @endif
 
                                         <strong><i class="fas fa-pencil-alt mr-1"></i> Identity Details</strong>
 
                                         <p class="text-muted m-0">Emirates ID / Other ID : {{ $investor->id_number }}
                                         </p>
                                         <p class="text-muted m-0">Passport : {{ $investor->passport_number }}</p>
+                                        @if ($investor->investor_category == 1)
+                                            <p class="text-muted m-0">Trade License Number :
+                                                {{ $investor->trade_license_number }}
+                                            </p>
+                                            <p class="text-muted m-0">Registration Number :
+                                                {{ $investor->registration_number }}
+                                            </p>
+                                        @endif
 
                                         <hr>
+
+
+
 
                                         <strong><i class="far fa-file-alt mr-1"></i> Documents Received</strong>
 

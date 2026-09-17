@@ -2116,7 +2116,7 @@ namespace App\Models{
  * @property string|null $sendto_management_date
  * @property string|null $signed_pdf_path
  * @property string|null $both_notified_at
- * @property int $version_number
+ * @property int|null $version_number
  * @property-read \App\Models\InvestorAgreementTemplate|null $agreementTemplate
  * @property-read \App\Models\InvestorAgreementType|null $agreementType
  * @property-read \App\Models\Company|null $company
@@ -2436,6 +2436,11 @@ namespace App\Models{
  * @property string|null $investor_prefix
  * @property string|null $investor_prefix_arabic
  * @property int $investor_type o-major,1-minor
+ * @property int $investor_category 0-individual,1-company
+ * @property int|null $place_of_incorporation_id
+ * @property int|null $legal_type_id
+ * @property string|null $trade_license_number
+ * @property string|null $registration_number
  * @property int|null $investor_guardian_id
  * @property int|null $gender 0-male,1-female
  * @property string $investor_code
@@ -2467,6 +2472,7 @@ namespace App\Models{
  * @property int $is_passport_uploaded
  * @property int $is_supp_doc_uploaded
  * @property int $is_ref_com_cont_uploaded
+ * @property int $is_trade_license_uploaded
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
@@ -2518,6 +2524,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereIdNumber($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereInvestorAddress($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereInvestorAddressArabic($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Investor whereInvestorCategory($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereInvestorCode($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereInvestorEmail($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereInvestorGuardianId($value)
@@ -2532,13 +2539,17 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereIsPassportUploaded($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereIsRefComContUploaded($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereIsSuppDocUploaded($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Investor whereIsTradeLicenseUploaded($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Investor whereLegalTypeId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereNationalityId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor wherePassportNumber($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor wherePaymentModeId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor wherePayoutBatchId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Investor wherePlaceOfIncorporationId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor wherePostalCode($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereProfitReleaseDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereReferralId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Investor whereRegistrationNumber($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereState($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereStateArabic($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereStatus($value)
@@ -2549,6 +2560,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereTotalReferalCommission($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereTotalReferralCommissionReceived($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereTotalTerminatedInvestments($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Investor whereTradeLicenseNumber($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor whereUpdatedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investor withTrashed()
@@ -2716,6 +2728,7 @@ namespace App\Models{
  * @property string $guardian_name
  * @property string $guardian_name_arabic
  * @property string $guardian_mobile
+ * @property string $guardian_address
  * @property string $guardian_email
  * @property string $emirates_id_number
  * @property string $passport_number
@@ -2730,6 +2743,8 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $deleted_at
  * @property-read \App\Models\User|null $addedBy
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Investor> $investors
+ * @property-read int|null $investors_count
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorGuardianDetail newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorGuardianDetail newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorGuardianDetail query()
@@ -2740,6 +2755,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorGuardianDetail whereEidExpiryDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorGuardianDetail whereEmiratesIdCopy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorGuardianDetail whereEmiratesIdNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorGuardianDetail whereGuardianAddress($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorGuardianDetail whereGuardianEmail($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorGuardianDetail whereGuardianMobile($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorGuardianDetail whereGuardianName($value)

@@ -223,6 +223,7 @@
                 success: function(response) {
 
                     let guardian = response.guardian;
+                    console.log(response);
 
                     $('#guardian_name').val(guardian.guardian_name);
                     $('#guardian_name_arabic').val(guardian.guardian_name_arabic);
@@ -234,6 +235,9 @@
 
                     $('#passport_number').val(guardian.passport_number);
                     $('#passport_expiry_date').val(guardian.passport_expiry_date);
+
+                    $('#guardian_address').val(guardian.guardian_address);
+                    $('#guardian_address_ar').val(guardian.guardian_address_ar);
 
                     if (guardian.emirates_id_copy) {
                         $('#currentEmiratesIdCopy').html(`

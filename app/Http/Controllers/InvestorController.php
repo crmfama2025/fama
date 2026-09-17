@@ -49,6 +49,8 @@ class InvestorController extends Controller
         $investorDocuments = null;
         $relations  = InvestorRelation::all();
         $guardians = InvestorGuardianDetail::all();
+        $places = getPlacesOfIncorporation();
+        $legal_types = getLegalTypes();
 
 
         return view("admin.investment.investor-create", compact(
@@ -61,7 +63,9 @@ class InvestorController extends Controller
             "investor",
             "relations",
             "investorDocuments",
-            "guardians"
+            "guardians",
+            "places",
+            "legal_types"
         ));
     }
 
@@ -78,6 +82,8 @@ class InvestorController extends Controller
         $investorDocuments = InvestorDocument::where('investor_id', $id)->get();
         // $investorGuardian = InvestorGuardianDetail::where('investor_id', $id)->first();
         $guardians = InvestorGuardianDetail::all();
+        $places = getPlacesOfIncorporation();
+        $legal_types = getLegalTypes();
         // dd($investorGuardian);
 
 
@@ -92,12 +98,15 @@ class InvestorController extends Controller
             "relations",
             "investorDocuments",
             // "investorGuardian",
-            "guardians"
+            "guardians",
+            "places",
+            "legal_types"
         ));
     }
 
     public function store(Request $request)
     {
+        // dd($request->all());
         try {
             if (!empty($request->id)) {
                 $investor = $this->investorService->update($request->id, $request->all());

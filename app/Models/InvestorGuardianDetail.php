@@ -22,7 +22,9 @@ class InvestorGuardianDetail extends Model
         'updated_by',
         'deleted_by',
         'eid_expiry_date',
-        'passport_expiry_date'
+        'passport_expiry_date',
+        'guardian_address',
+        'guardian_address_ar'
     ];
     public function addedBy()
     {

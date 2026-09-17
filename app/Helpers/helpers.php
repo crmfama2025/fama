@@ -2007,3 +2007,55 @@ function getLocalitiesHaveContract()
 
     return $localities;
 }
+
+function getPlacesOfIncorporation()
+{
+    return [
+        1 => [
+            'name' => 'Dubai, UAE',
+            'arabic' => 'دبي، الإمارات العربية المتحدة',
+        ],
+        2 => [
+            'name' => 'Abu Dhabi, UAE',
+            'arabic' => 'أبوظبي، الإمارات العربية المتحدة',
+        ],
+        3 => [
+            'name' => 'Sharjah, UAE',
+            'arabic' => 'الشارقة، الإمارات العربية المتحدة',
+        ],
+        4 => [
+            'name' => 'Ajman, UAE',
+            'arabic' => 'عجمان، الإمارات العربية المتحدة',
+        ],
+        5 => [
+            'name' => 'Umm Al Quwain, UAE',
+            'arabic' => 'أم القيوين، الإمارات العربية المتحدة',
+        ],
+        6 => [
+            'name' => 'Ras Al Khaimah, UAE',
+            'arabic' => 'رأس الخيمة، الإمارات العربية المتحدة',
+        ],
+        7 => [
+            'name' => 'Fujairah, UAE',
+            'arabic' => 'الفجيرة، الإمارات العربية المتحدة',
+        ],
+        8 => [
+            'name' => 'Other',
+            'arabic' => 'أخرى',
+        ],
+    ];
+}
+
+function getLegalTypes()
+{
+    return [
+        1 => [
+            'name' => 'Limited Liability Company',
+            'arabic' => 'شركة ذات مسؤولية محدودة',
+        ],
+        2 => [
+            'name' => 'Sole Proprietorship',
+            'arabic' => 'مؤسسة فردية',
+        ],
+    ];
+}

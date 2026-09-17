@@ -78,6 +78,15 @@ class DocumentTypeSeeder extends Seeder
                 'accept_types' => '.pdf,image/*',
                 'status' => 2, //Investment
             ],
+            [
+                // 'document_type' => 3,
+                'label_name' => 'Trade License',
+                'field_type' => 'file',
+                'field_name' => 'trade_license',
+                'status_change_value' => 'is_trade_license_uploaded',
+                'accept_types' => '.pdf,image/*',
+                'status' => 2, //Investment
+            ],
         ];
 
         foreach ($documentTypes as $type) {

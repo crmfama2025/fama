@@ -101,6 +101,8 @@ class InvestorGuardianController extends Controller
                 'passport_copy' => $guardian->passport_copy
                     ? asset('storage/' . $guardian->passport_copy)
                     : null,
+                'guardian_address' => $guardian->guardian_address ?? null,
+                'guardian_address_ar' => $guardian->guardian_address_ar ?? null,
             ]
         ]);
     }

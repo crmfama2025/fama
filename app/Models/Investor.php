@@ -59,7 +59,14 @@ class Investor extends Model
         'investor_prefix_arabic',
         'investor_type',
         'gender',
-        'investor_guardian_id'
+        'investor_guardian_id',
+
+        'investor_category',
+        'place_of_incorporation_id',
+        'legal_type_id',
+        'is_trade_license_uploaded',
+        'trade_license_number',
+        'registration_number'
     ];
 
     public function nationality()

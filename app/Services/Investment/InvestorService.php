@@ -75,6 +75,11 @@ class InvestorService
             if (($dataArr['investor_type'] ?? 0) != 1) {
                 unset($dataArr['investor_guardian_id']);
             }
+            if (($dataArr['investor_category'] ?? 0) == 1) {
+                $dataArr['gender'] = null;
+                $dataArr['investor_prefix'] = null;
+                $dataArr['investor_prefix_arabic'] = null;
+            }
 
             // dd($dataArr);
             $investor = $this->investorRepo->create($dataArr);
@@ -157,6 +162,11 @@ class InvestorService
             $dataArr['updated_by'] = auth()->user()->id;
             if (($dataArr['investor_type'] ?? 0) != 1) {
                 unset($dataArr['investor_guardian_id']);
+            }
+            if (($dataArr['investor_category'] ?? 0) == 1) {
+                $dataArr['gender'] = null;
+                $dataArr['investor_prefix'] = null;
+                $dataArr['investor_prefix_arabic'] = null;
             }
 
             // dd($dataArr);
@@ -263,6 +273,8 @@ class InvestorService
             ->addColumn('country_of_residence', fn($row) => $row->countryOfResidence->nationality_name ?? '-')
             ->addColumn('id_number', fn($row) => $row->id_number ?? '-')
             ->addColumn('referral', fn($row) => $row->referral->investor_name ?? '-')
+            ->addColumn('investor_type', fn($row) => $row->investor_type == 0 ? 'Major' : 'Minor')
+            ->addColumn('investor_category', fn($row) => $row->investor_category == 0 ? 'Individual' : 'Company')
             ->addColumn('payment_mode', function ($row) {
                 if (!$row->paymentMode) return '-';
 
