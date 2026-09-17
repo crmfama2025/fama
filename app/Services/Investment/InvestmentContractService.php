@@ -1479,7 +1479,7 @@ class InvestmentContractService
                 $investmentDate = Carbon::parse($inv->investment_date)
                     ->format('d/m/Y');
 
-                if ($inv->investment_date < $document->investment->investment_date) {
+                if ($inv->investment_date <= $document->investment->investment_date) {
                     $rows[] = [
                         'serial' => $serial++,
                         'particulars_eng' => 'Additional Investment',
