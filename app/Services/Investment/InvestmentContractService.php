@@ -1409,10 +1409,13 @@ class InvestmentContractService
         //     // }
         // }
 
-        $document = InvestmentContractDocuments::where('investor_id', $investorId)
+        $document = InvestmentContractDocuments::with('investment')->where('investor_id', $investorId)
             ->where('company_id', $companyId)
             ->findOrFail($docId);
 
+
+        $currentInvestment = $document->investment;
+        // dd($document);
         // If generating the novated Mudarabah itself, use that document.
         // Otherwise, use the document's referenced Mudarabah.
         $reference = (int) $document->investor_agreement_type_id === 1
@@ -1439,6 +1442,7 @@ class InvestmentContractService
             'company_id' => $companyId,
         ])
             ->activeLongTerm()
+            ->whereDate('investment_date', '<=', $currentInvestment->investment_date)
             ->orderBy('investment_date')
             ->orderBy('id')
             ->get();
@@ -1475,17 +1479,19 @@ class InvestmentContractService
                 $investmentDate = Carbon::parse($inv->investment_date)
                     ->format('d/m/Y');
 
-                $rows[] = [
-                    'serial' => $serial++,
-                    'particulars_eng' => 'Additional Investment',
-                    'particulars_ar' => 'استثمار إضافي',
-                    'amount' => number_format($inv->total_invested_amount, 2),
-                    'received_on' => $investmentDate,
-                    'doc_date' => $documentDate,
-                    'type' => 'investment',
-                ];
+                if ($inv->investment_date < $document->investment->investment_date) {
+                    $rows[] = [
+                        'serial' => $serial++,
+                        'particulars_eng' => 'Additional Investment',
+                        'particulars_ar' => 'استثمار إضافي',
+                        'amount' => number_format($inv->total_invested_amount, 2),
+                        'received_on' => $investmentDate,
+                        'doc_date' => $documentDate,
+                        'type' => 'investment',
+                    ];
 
-                $last_invDate = $investmentDate;
+                    $last_invDate = $investmentDate;
+                }
             }
         } else {
             foreach ($investments as $key => $inv) {
@@ -1494,16 +1500,10 @@ class InvestmentContractService
 
                 $rows[] = [
                     'serial' => $serial++,
-                    'particulars_eng' => $key === 0
-                        ? 'Original Investment'
-                        : 'Additional Investment',
-                    'particulars_ar' => $key === 0
-                        ? 'الاستثمار الأصلي'
-                        : 'استثمار إضافي',
+                    'particulars_eng' => $key === 0 ? 'Original Investment' : 'Additional Investment',
+                    'particulars_ar' => $key === 0 ? 'الاستثمار الأصلي' : 'استثمار إضافي',
                     'amount' => number_format($inv->total_invested_amount, 2),
-                    'received_on' => $key === 0
-                        ? $documentDate
-                        : $investmentDate,
+                    'received_on' => $key === 0 ? $documentDate : $investmentDate,
                     'doc_date' => $documentDate,
                     'type' => 'investment',
                 ];
