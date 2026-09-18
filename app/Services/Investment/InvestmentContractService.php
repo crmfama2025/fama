@@ -1127,7 +1127,7 @@ class InvestmentContractService
             $guardian = "in his capacity as a Legal guardian of the minor beneficial
                 owner  {$guardian_name},
                 resident of {$guardian_address},
-                having Emirates ID no. {$eid_number}";
+                having Investor ID no. {$eid_number}";
 
             $guardian_ar = " والوصي القانوني على المالك المستفيد القاصر هي {$guardian_name_arabic} المقيمة في {$guardian_address_ar}
                 والذي يحمل بطاقة الهوية الإماراتية رقم <span class=\"ltr-number\">{$eid_number}</span>";
@@ -1162,7 +1162,7 @@ class InvestmentContractService
                 $investorSignText_ar = "<p class='marginClass text-sm'>(الوصي) المست: {$investorData->investorGuardian->guardian_name_arabic}</p>";
             } else {
                 $investorSignText = "<p class='marginClass text-sm'>Investor :{$investorData->investor_name}</p>";
-                $investorSignText_ar = "<p class='marginClass text-sm'>{$investorData->investor_name_arabic}:الوصي المست</p>";
+                $investorSignText_ar = "<p class='marginClass text-sm'>المستثمر:{$investorData->investor_name_arabic} </p>";
             }
         }
 
