@@ -325,8 +325,8 @@ class InvestorGuardianService
                 'emirates_id_number' =>
                 ['required', 'string', Rule::unique('investor_guardian_details', 'emirates_id_number')->ignore($id),],
                 'eid_expiry_date' => 'required|date',
-                'passport_number' => ['required', 'string', Rule::unique('investor_guardian_details', 'passport_number')->ignore($id),],
-                'passport_expiry_date' => 'required|date',
+                // 'passport_number' => ['required', 'string', Rule::unique('investor_guardian_details', 'passport_number')->ignore($id),],
+                // 'passport_expiry_date' => 'required|date',
                 'emirates_id_copy' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
                 'passport_copy' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
             ]

@@ -75,9 +75,9 @@
 
                     <div class="form-group row">
                         <div class="col-sm-6">
-                            <label class="asterisk">Guardian Passport Number</label>
+                            <label class="">Guardian Passport Number</label>
                             <input type="text" name="passport_number" id="passport_number" class="form-control"
-                                placeholder="Guardian Passport Number" required>
+                                placeholder="Guardian Passport Number">
                         </div>
 
                         {{-- <div class="col-sm-6">
@@ -86,11 +86,11 @@
                                 class="form-control" required>
                         </div> --}}
                         <div class="col-sm-6">
-                            <label class="asterisk">Passport Expiry Date</label>
+                            <label class="">Passport Expiry Date</label>
                             <div class="input-group date" id="passport_expiry_date_picker" data-target-input="nearest">
                                 <input type="text" name="passport_expiry_date" id="passport_expiry_date"
                                     class="form-control datetimepicker-input" data-target="#passport_expiry_date_picker"
-                                    placeholder="DD-MM-YYYY" autocomplete="off" required>
+                                    placeholder="DD-MM-YYYY" autocomplete="off">
                                 <div class="input-group-append" data-target="#passport_expiry_date_picker"
                                     data-toggle="datetimepicker">
                                     <span class="input-group-text">
@@ -109,7 +109,7 @@
                         </div>
 
                         <div class="col-sm-6">
-                            <label class="asterisk" id="passportCopyLabel">Passport Copy</label>
+                            <label class="" id="passportCopyLabel">Passport Copy</label>
                             <input type="file" name="passport_copy" class="form-control">
                             <div id="currentPassportCopy" class="mt-2"></div>
                         </div>
@@ -168,10 +168,10 @@
 
         // Files are required when adding
         $('#emirates_id_copy').prop('required', true);
-        $('#passport_copy').prop('required', true);
+        // $('#passport_copy').prop('required', true);
 
         $('#emiratesIdCopyLabel').addClass('asterisk');
-        $('#passportCopyLabel').addClass('asterisk');
+        // $('#passportCopyLabel').addClass('asterisk');
 
         $('#currentEmiratesIdCopy').html('');
         $('#currentPassportCopy').html('');
