@@ -424,6 +424,7 @@ class InvestmentContractService
             </tr>
                 ";
             if ($investorData->investor_type == 1) {
+                $guardianPassport = $investorGuardian->passport_number ?? 'Not Applicable';
                 $investorDocument .= "
                 <tr>
                 <td width='50%' style='border:1px solid #ccc;'>
@@ -445,7 +446,7 @@ class InvestmentContractService
                 </td>
                 <td width='50%' style='border:1px solid #ccc;'>
                     <div class='arabic'>
-                        <p class='marginClass text-sm'>رقم جواز سفر الوصي: {$investorGuardian->passport_number}</p>
+                        <p class='marginClass text-sm'>رقم جواز سفر الوصي: {$guardianPassport}</p>
                     </div>
                 </td>
                 </tr>
