@@ -160,7 +160,7 @@ function numberToArabicWords($number)
 
     $words = ($negative ? 'سالب ' : '') . $transformer->toWords((int) $whole);
 
-    if ($decimal !== null) {
+    if ($decimal !== null && $decimal !== "00") {
         $digits = array_map(
             fn($digit) => $transformer->toWords((int) $digit),
             str_split($decimal)
@@ -199,7 +199,7 @@ function numberToEnglishWords($number)
     $words = ($negative ? 'minus ' : '')
         . $transformer->toWords((int) $whole);
 
-    if ($decimal !== null) {
+    if ($decimal !== null && $decimal !== "00") {
         $digits = array_map(
             fn($digit) => $transformer->toWords((int) $digit),
             str_split($decimal)
