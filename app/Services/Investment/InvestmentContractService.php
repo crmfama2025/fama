@@ -376,7 +376,7 @@ class InvestmentContractService
                 <tr>
                     <td width='50%' style='border:1px solid #ccc;'>
                         <div class='english'>
-                            <p class='marginClass text-sm'>Investor ID {$investorData->id_number}</p>
+                            <p class='marginClass text-sm'>Investor ID :{$investorData->id_number}</p>
                         </div>
                     </td>
                     <td width='50%' style='border:1px solid #ccc;'>
@@ -428,7 +428,7 @@ class InvestmentContractService
                 <tr>
                  <td width='50%' style='border:1px solid #ccc;'>
                     <div class='english'>
-                        <p class='marginClass text-sm'>Legal Guardian Name {$investorGuardian->guardian_name}</p>
+                        <p class='marginClass text-sm'>Legal Guardian Name :{$investorGuardian->guardian_name}</p>
                     </div>
                 </td>
                 <td width='50%' style='border:1px solid #ccc;'>
