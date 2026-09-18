@@ -1067,12 +1067,12 @@ class InvestmentContractService
                 having Emirates ID no. {$eid_number}";
 
             $guardian_ar = " والوصي القانوني على المالك المستفيد القاصر هي {$guardian_name_arabic} المقيمة في {$guardian_address_ar}
-                والذي يحمل بطاقة الهوية الإماراتية رقم {$eid_number}";
+                والذي يحمل بطاقة الهوية الإماراتية رقم <span class=\"ltr-number\">{$eid_number}</span>";
         }
         $investorParagraph = "{$investorData->investor_name} resident of {$investorData->state}, {$investorData->countryOfResidence->nationality_name},
-        having Investor ID no. {$investorData->id_number} {$guardian},";
+        having Investor ID no. {$investorData->id_number} {$guardian}";
         $investorParagraph_ar = "{$investorData->investor_name_arabic} المقيم في {$investorData->state_arabic}, {$investorData->countryOfResidence->nationality_arabic_name} ،
-         ويحمل هوية المستثمر رقم. <span class=\"ltr-number\">{$investorData->id_number}</span>{$guardian_ar},";
+         ويحمل هوية المستثمر رقم. <span class=\"ltr-number\">{$investorData->id_number}</span>{$guardian_ar}";
 
         $investorSignText = '';
         $investorSignText_ar = '';
