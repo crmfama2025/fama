@@ -33,7 +33,9 @@ class InvestorRelationsSeeder extends Seeder
             'Share Holder (Mr Yousef)',
             'Mr Fadi',
             'Father in Law',
-            "Ms.Samah's Brother's Wife"
+            "Ms.Samah's Brother's Wife",
+            'Mr. Muneer Company',
+
         );
 
         foreach ($relations as $key => $relation) {
