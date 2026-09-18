@@ -370,7 +370,7 @@ class InvestmentContractService
                 </td>
                 <td width='50%' style='border:1px solid #ccc;'>
                     <div class='arabic'>
-                        <p class='marginClass text-sm'>الوصي القانوني: {$investorGuardian->emirates_id_number}</p>
+                        <p class='marginClass text-sm'>الوصي القانوني: <span class='ltr-number'>{$investorGuardian->emirates_id_number}</span></p>
                     </div>
                 </td>
                 </tr>
