@@ -52,10 +52,24 @@
                                 placeholder="Guardian Emirates ID" required>
                         </div>
 
-                        <div class="col-sm-6">
+                        {{-- <div class="col-sm-6">
                             <label class="asterisk">Emirates ID Expiry Date</label>
                             <input type="date" name="eid_expiry_date" id="eid_expiry_date" class="form-control"
                                 required>
+                        </div> --}}
+                        <div class="col-sm-6">
+                            <label class="asterisk">Emirates ID Expiry Date</label>
+                            <div class="input-group date" id="eid_expiry_date_picker" data-target-input="nearest">
+                                <input type="text" name="eid_expiry_date" id="eid_expiry_date"
+                                    class="form-control datetimepicker-input" data-target="#eid_expiry_date_picker"
+                                    placeholder="DD-MM-YYYY" autocomplete="off" required>
+                                <div class="input-group-append" data-target="#eid_expiry_date_picker"
+                                    data-toggle="datetimepicker">
+                                    <span class="input-group-text">
+                                        <i class="fa fa-calendar"></i>
+                                    </span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -66,10 +80,24 @@
                                 placeholder="Guardian Passport Number" required>
                         </div>
 
-                        <div class="col-sm-6">
+                        {{-- <div class="col-sm-6">
                             <label class="asterisk">Passport Expiry Date</label>
                             <input type="date" name="passport_expiry_date" id="passport_expiry_date"
                                 class="form-control" required>
+                        </div> --}}
+                        <div class="col-sm-6">
+                            <label class="asterisk">Passport Expiry Date</label>
+                            <div class="input-group date" id="passport_expiry_date_picker" data-target-input="nearest">
+                                <input type="text" name="passport_expiry_date" id="passport_expiry_date"
+                                    class="form-control datetimepicker-input" data-target="#passport_expiry_date_picker"
+                                    placeholder="DD-MM-YYYY" autocomplete="off" required>
+                                <div class="input-group-append" data-target="#passport_expiry_date_picker"
+                                    data-toggle="datetimepicker">
+                                    <span class="input-group-text">
+                                        <i class="fa fa-calendar"></i>
+                                    </span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -117,6 +145,15 @@
     </div>
 </div>
 <script>
+    $('#eid_expiry_date_picker').datetimepicker({
+        format: 'DD-MM-YYYY',
+        useCurrent: false
+    });
+
+    $('#passport_expiry_date_picker').datetimepicker({
+        format: 'DD-MM-YYYY',
+        useCurrent: false
+    });
     $('#addGuardianBtn').on('click', function() {
         $('#addGuardianForm')[0].reset();
         $('#modal_guardian_id').val('');
