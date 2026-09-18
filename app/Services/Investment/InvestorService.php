@@ -1133,8 +1133,29 @@ class InvestorService
             return true;
         });
     }
-    public function getCompanyTotalInvestments($investorId)
+    public function getCompanyTotalInvestments($investorId, $contractDocument)
     {
+
+        $investment = null;
+        if ($contractDocument->investment_id != 0) {
+            $investment = $this->investmentRepository->find($contractDocument->investment_id);
+        }
+
+        $investmentDate = $investment !== null
+            && !empty($investment->investment_date)
+            ? \Carbon\Carbon::parse($investment->investment_date)->format('Y-m-d')
+            : null;
+
+        $documentDate = !empty($contractDocument->generated_date)
+            ? \Carbon\Carbon::parse($contractDocument->generated_date)->format('Y-m-d')
+            : null;
+
+        $cutoffDate = $investment !== null ? $investmentDate : $documentDate;
+
+        if ($cutoffDate === null) {
+            throw new \InvalidArgumentException('The required date is missing.');
+        }
+
         $data = Investment::select(
             'investments.company_id',
             'companies.company_name as company_name',
@@ -1144,6 +1165,7 @@ class InvestorService
             ->where('investments.investor_id', $investorId)
             ->where('investments.terminate_status', '!=', 2)
             ->where('investments.investment_term_type', 1)
+            ->whereDate('investments.investment_date', '<=', $cutoffDate)
             ->groupBy('investments.company_id', 'companies.company_name')
             ->get();
 

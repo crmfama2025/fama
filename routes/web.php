@@ -411,9 +411,8 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
 
     Route::post('/contracts/{id}/update-payables', [ContractController::class, 'updatePayables'])->name('contracts.updatePayables');
     Route::get('partial-withdrawal/export-withdrawal', [InvestorController::class, 'exportPartialWithdrawals'])->name('investor.partial-withdrawal.export');
-    Route::get('investor/investment-annexture/{id}', [InvestorController::class, 'investmentAnnexture'])->name('investor.investment_annexture');
-    Route::get('/investors/{investorId}/investment-annexure', [InvestorController::class, 'downloadInvestmentAnnexure'])
-        ->name('investor.investment-annexure');
+    // Route::get('investor/investment-annexture/{id}', [InvestorController::class, 'investmentAnnexture'])->name('investor.investment_annexture');
+    // Route::get('/investors/{investorId}/investment-annexure', [InvestorController::class, 'downloadInvestmentAnnexure'])->name('investor.investment-annexure');
     Route::delete('investor/partial-withdrawal/delete/{id}', [InvestorController::class, 'deleteTermination'])
         ->name('investor.partial-withdrawals.delete');
 

@@ -297,25 +297,25 @@ class InvestorController extends Controller
             'withdrawals.xlsx'
         );
     }
-    public function investmentAnnexture($id)
-    {
+    // public function investmentAnnexture($id)
+    // {
 
-        $title = 'Investment Annexture';
-        $investor = $this->investorService->getById($id);
-        $investments = $this->investorService->getCompanyTotalInvestments($id);
-        return view("admin.investment.inv_agreement.investment_annexture", compact("title", "investor", "investments"));
-    }
+    //     $title = 'Investment Annexture';
+    //     $investor = $this->investorService->getById($id);
+    //     $investments = $this->investorService->getCompanyTotalInvestments($id);
+    //     return view("admin.investment.inv_agreement.investment_annexture", compact("title", "investor", "investments"));
+    // }
 
-    public function downloadInvestmentAnnexure($investorId)
-    {
-        $investor = $this->investorService->getById($investorId);
-        $investments = $this->investorService->getCompanyTotalInvestments($investorId);
+    // public function downloadInvestmentAnnexure($investorId)
+    // {
+    //     $investor = $this->investorService->getById($investorId);
+    //     $investments = $this->investorService->getCompanyTotalInvestments($investorId);
 
-        $pdf = Pdf::loadView('admin.investment.inv_agreement.investment_annexture', compact('investor', 'investments'))
-            ->setPaper('a4', 'portrait');
+    //     $pdf = Pdf::loadView('admin.investment.inv_agreement.investment_annexture', compact('investor', 'investments'))
+    //         ->setPaper('a4', 'portrait');
 
-        return $pdf->download('Investment-Annexure-' . $investor->investor_name . '.pdf');
-    }
+    //     return $pdf->download('Investment-Annexure-' . $investor->investor_name . '.pdf');
+    // }
 
     public function deleteTermination($ledgerId)
     {
