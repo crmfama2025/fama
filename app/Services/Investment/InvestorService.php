@@ -1133,8 +1133,18 @@ class InvestorService
             return true;
         });
     }
-    public function getCompanyTotalInvestments($investorId)
+    public function getCompanyTotalInvestments($investorId, $contractDocument)
     {
+
+        $investment = null;
+        if ($contractDocument->investment_id != 0) {
+            $investment = $this->getById($contractDocument->investment_id);
+        }
+
+        $cutoffDate = $investment !== null
+            ? $investment->investment_date
+            : $contractDocument->generated_date;
+
         $data = Investment::select(
             'investments.company_id',
             'companies.company_name as company_name',
@@ -1144,6 +1154,7 @@ class InvestorService
             ->where('investments.investor_id', $investorId)
             ->where('investments.terminate_status', '!=', 2)
             ->where('investments.investment_term_type', 1)
+            ->whereDate('investments.investment_date', '<=', $cutoffDate)
             ->groupBy('investments.company_id', 'companies.company_name')
             ->get();
 

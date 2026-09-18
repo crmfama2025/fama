@@ -128,7 +128,7 @@ class InvestorAgreementTemplateController extends Controller
         // dd($investment);
         // dd($contractDocument);
         $investor = $this->investorService->getById($contractDocument->investor_id);
-        $investments = $this->investorService->getCompanyTotalInvestments($contractDocument->investor_id);
+        $investments = $this->investorService->getCompanyTotalInvestments($contractDocument->investor_id, $contractDocument);
 
         if (!$contractDocument->is_investor_signed) {
             $signerRole = 'investor';
@@ -335,7 +335,7 @@ class InvestorAgreementTemplateController extends Controller
         // }
 
         $investor = $this->investorService->getById($contractDocument->investor_id);
-        $investments = $this->investorService->getCompanyTotalInvestments($contractDocument->investor_id);
+        $investments = $this->investorService->getCompanyTotalInvestments($contractDocument->investor_id, $contractDocument);
 
         return view('admin.investment.inv_agreement.pdfview-agreement-dynamic', compact('data', 'contractDocument', 'signerRole', 'investor', 'investments', 'investment'));
     }
