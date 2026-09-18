@@ -5,7 +5,14 @@
     </div>
 
     <div class="letter-meta">
-        <span class="label">Date:</span> <span id="letter-date">{{ now()->format('d/m/Y') }}</span>
+        @php
+            $investment = null;
+            if ($document->investment_id != 0) {
+                $investment = $document->investment;
+            }
+        @endphp
+        <span class="label">Date:</span> <span
+            id="letter-date">{{ !empty($investment) ? \Carbon\Carbon::parse($investment->investment_date)->format('d/m/Y') : \Carbon\Carbon::parse($document->generated_date)->format('d/m/Y') }}</span>
     </div>
 
     <div class="letter-meta">

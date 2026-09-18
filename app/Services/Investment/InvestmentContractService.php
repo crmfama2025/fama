@@ -278,7 +278,7 @@ class InvestmentContractService
 
             // Grand totals
             '{invested_amount}' => number_format($grandTotalInvested, 2),
-            '{invested_amount_eng}' => numberToEnglishWords($grandTotalInvested) . ' Dirhams Only',
+            '{invested_amount_eng}' => numberToEnglishWords($grandTotalInvested),
             '{invested_amount_ar}' => numberToArabicWords($grandTotalInvested) . 'درهم إماراتي فقط',
             '{total_invested_amount}' => number_format($grandTotalInvested, 2),
             '{total_profit}'          => number_format($grandTotalProfit, 2),
@@ -1210,7 +1210,7 @@ class InvestmentContractService
             '{investment_date_eng}'      => date('d M Y', strtotime($investmentData->investment_date)),
             '{investment_date_ar}'       => arabicShortDate($investmentData->investment_date),
             '{invested_amount}'          => number_format($investmentData->investment_amount, 2),
-            '{invested_amount_eng}' => numberToEnglishWords($investmentData->investment_amount) . ' Dirhams Only',
+            '{invested_amount_eng}' => numberToEnglishWords($investmentData->investment_amount),
             // '{invested_amount_ar}' => numberToArabicWords($investmentData->investment_amount) . ' فقط',
             '{invested_amount_ar}' => $investmentData->investment_amount_arabic,
 
@@ -1375,16 +1375,16 @@ class InvestmentContractService
 
 
             '{tot_prev_invested_amount}'     => number_format($prevAmount, 2),
-            '{tot_prev_invested_amount_eng}' => numberToEnglishWords($prevAmount) . ' Dirhams Only',
-            '{tot_prev_invested_amount_ar}'  => numberToArabicWords($prevAmount) . ' درهم إماراتي فقط',
+            '{tot_prev_invested_amount_eng}' => numberToEnglishWords($prevAmount),
+            '{tot_prev_invested_amount_ar}'  => numberToArabicWords($prevAmount),
 
             '{current_invested_amount}'     => number_format($investment->investment_amount, 2),
-            '{current_invested_amount_eng}' => numberToEnglishWords($investment->investment_amount) . ' Dirhams Only',
-            '{current_invested_amount_ar}'  => numberToArabicWords($investment->investment_amount) . ' درهم إماراتي فقط',
+            '{current_invested_amount_eng}' => numberToEnglishWords($investment->investment_amount),
+            '{current_invested_amount_ar}'  => numberToArabicWords($investment->investment_amount),
 
             '{new_total_investment_amount}'     => number_format($currentTotal, 2),
-            '{new_total_investment_amount_eng}' => numberToEnglishWords($currentTotal) . ' Dirhams Only',
-            '{new_total_investment_amount_ar}'  => numberToArabicWords($currentTotal) . ' درهم إماراتي فقط',
+            '{new_total_investment_amount_eng}' => numberToEnglishWords($currentTotal),
+            '{new_total_investment_amount_ar}'  => numberToArabicWords($currentTotal),
 
             '{annexA}' => $this->buildAnnexureARows($docDetails->investor_id, $companyId, $mudarabahCreatedDate, $docId),
             '{date}' =>  Carbon::parse($investment->investment_date)->format('d/m/Y'),
@@ -1494,7 +1494,7 @@ class InvestmentContractService
             '{investor_id_no}'         => $investor->id_number,
 
             '{total_invested_amount}'     => number_format($totalInvested, 2),
-            '{total_invested_eng}' => numberToEnglishWords($totalInvested) . ' Dirhams Only',
+            '{total_invested_eng}' => numberToEnglishWords($totalInvested),
             '{date}' =>  Carbon::parse($novationCreated)->format('d/m/Y'),
 
             '{guardian}' => '', //' (Guardian)'
@@ -1557,7 +1557,7 @@ class InvestmentContractService
 
             '{withdrawal_amount}' => number_format($ledger->transaction_amount, 2),
             '{withdrawal_amount_eng}' => numberToEnglishWords($ledger->transaction_amount) . ' Only',
-            '{withdrawal_amount_ar}' => numberToArabicWords($ledger->transaction_amount) . ' درهم إماراتي فقط',
+            '{withdrawal_amount_ar}' => numberToArabicWords($ledger->transaction_amount),
 
             '{company_name_eng}'  => $company->company_name,
             '{company_name_ar}'  => $company->company_name_arabic,

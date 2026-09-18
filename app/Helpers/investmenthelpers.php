@@ -147,29 +147,46 @@ function numberToArabicWords($number)
 {
     $value = trim((string) $number);
 
-    if (!preg_match('/^-?\d+(?:\.\d+)?$/', $value)) {
-        throw new \InvalidArgumentException('Invalid number.');
+    if (!preg_match('/^-?\d+(?:\.\d{1,2})?$/', $value)) {
+        throw new \InvalidArgumentException(
+            'Invalid amount. Use a number with up to two decimal places.'
+        );
     }
 
     $negative = str_starts_with($value, '-');
     $value = ltrim($value, '-');
 
-    [$whole, $decimal] = array_pad(explode('.', $value, 2), 2, null);
+    [$whole, $decimal] = array_pad(explode('.', $value, 2), 2, '');
+    $fils = (int) str_pad($decimal, 2, '0');
 
     $transformer = (new NumberToWords())->getNumberTransformer('ar');
 
-    $words = ($negative ? 'سالب ' : '') . $transformer->toWords((int) $whole);
+    $currencyWords = function ($amount, $singular, $dual, $plural) use ($transformer) {
+        if ($amount === 1) {
+            return $singular . ' واحد';
+        }
 
-    if ($decimal !== null && $decimal !== "00") {
-        $digits = array_map(
-            fn($digit) => $transformer->toWords((int) $digit),
-            str_split($decimal)
-        );
+        if ($amount === 2) {
+            return $dual;
+        }
 
-        $words .= ' و ' . implode(' ', $digits);
+        $lastTwo = $amount % 100;
+        $unit = ($lastTwo >= 3 && $lastTwo <= 10)
+            ? $plural
+            : $singular;
+
+        return $transformer->toWords($amount) . ' ' . $unit;
+    };
+
+    $words = ($negative ? 'سالب ' : '')
+        . $currencyWords((int) $whole, 'درهم', 'درهمان', 'دراهم');
+
+    if ($fils > 0) {
+        $words .= ' و'
+            . $currencyWords($fils, 'فلس', 'فلسان', 'فلوس');
     }
 
-    return $words;
+    return $words . ' فقط';
 }
 
 // function numberToEnglishWords($number)
@@ -185,30 +202,29 @@ function numberToEnglishWords($number)
 {
     $value = trim((string) $number);
 
-    if (!preg_match('/^-?\d+(?:\.\d+)?$/', $value)) {
-        throw new \InvalidArgumentException('Invalid number.');
+    if (!preg_match('/^-?\d+(?:\.\d{1,2})?$/', $value)) {
+        throw new \InvalidArgumentException(
+            'Invalid amount. Use a number with up to two decimal places.'
+        );
     }
 
     $negative = str_starts_with($value, '-');
     $value = ltrim($value, '-');
 
-    [$whole, $decimal] = array_pad(explode('.', $value, 2), 2, null);
+    [$whole, $decimal] = array_pad(explode('.', $value, 2), 2, '');
+    $fils = (int) str_pad($decimal, 2, '0');
 
     $transformer = (new NumberToWords())->getNumberTransformer('en');
 
     $words = ($negative ? 'minus ' : '')
-        . $transformer->toWords((int) $whole);
+        . $transformer->toWords((int) $whole)
+        . ((int) $whole === 1 ? ' dirham' : ' dirhams');
 
-    if ($decimal !== null && $decimal !== "00") {
-        $digits = array_map(
-            fn($digit) => $transformer->toWords((int) $digit),
-            str_split($decimal)
-        );
-
-        $words .= ' and ' . implode(' ', $digits);
+    if ($fils > 0) {
+        $words .= ' and ' . $transformer->toWords($fils) . ' fils';
     }
 
-    return Str::title($words);
+    return Str::title($words . ' only');
 }
 
 function toRoman(int $number): string

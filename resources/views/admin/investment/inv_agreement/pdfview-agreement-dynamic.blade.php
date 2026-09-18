@@ -79,6 +79,7 @@
                         @include('admin.investment.inv_agreement.investment_annexture', [
                             'investor' => $investor,
                             'investments' => $investments,
+                            'document' => $contractDocument,
                         ])
                     @endif
                 @endif
