@@ -1069,9 +1069,9 @@ class InvestmentContractService
             $guardian_ar = " والوصي القانوني على المالك المستفيد القاصر هي {$guardian_name_arabic} المقيمة في {$guardian_address_ar}
                 والذي يحمل بطاقة الهوية الإماراتية رقم <span class=\"ltr-number\">{$eid_number}</span>";
         }
-        $investorParagraph = "{$investorData->investor_name} resident of {$investorData->state}, {$investorData->countryOfResidence->nationality_name},
+        $investorParagraph = "trim('{$investorData->investor_prefix} {$investorData->investor_name}') resident of {$investorData->state}, {$investorData->countryOfResidence->nationality_name},
         having Investor ID no. {$investorData->id_number} {$guardian}";
-        $investorParagraph_ar = "{$investorData->investor_name_arabic} المقيم في {$investorData->state_arabic}, {$investorData->countryOfResidence->nationality_arabic_name} ،
+        $investorParagraph_ar = "trim('{$investorData->investor_prefix_arabic} {$investorData->investor_name_arabic}') المقيم في {$investorData->state_arabic}, {$investorData->countryOfResidence->nationality_arabic_name} ،
          ويحمل هوية المستثمر رقم. <span class=\"ltr-number\">{$investorData->id_number}</span>{$guardian_ar}";
 
         $investorSignText = '';
