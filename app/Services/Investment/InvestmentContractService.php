@@ -287,6 +287,7 @@ class InvestmentContractService
 
         $companyNameEng = $companyData->company_name;
         $companyNameAr  = $companyData->company_arabic_name;
+        // dd($investorData);
 
         $term = $inv->investment_tenure == 3
             ? 'Profit Sharing Ratio for 3 months :'
@@ -300,6 +301,172 @@ class InvestmentContractService
 
         $profit_ratio_text_en = ($inv->profit_perc >= 50) ? "Investor 50%" : "Investor {$invProfitPerc}% and Company {$companyProfitPerc}%";
         $profit_ratio_text_ar = ($inv->profit_perc >= 50) ? "المستثمر 50%" : "المستثمر {$invProfitPerc}% و الشركة {$companyProfitPerc}%";
+        $placesOfIncorporation = getPlacesOfIncorporation();
+        $legalType = getLegalTypes();
+
+        $placeOfIncorporation = $placesOfIncorporation[$investorData->place_of_incorporation_id] ?? null;
+        $legal_type =  $legalType[$investorData->legal_type_id] ?? null;
+        $investorGuardian = $investorData->investorGuardian ?? null;
+        $investorDocument = " ";
+        if ($investorData->investor_category == 0) {
+            $investorDocument = "
+                <tr>
+                    <td width='50%' style='border:1px solid #ccc;'>
+                        <div class='english'>
+                            <p class='marginClass text-sm'>Investor ID {$investorData->id_number}</p>
+                        </div>
+                    </td>
+                    <td width='50%' style='border:1px solid #ccc;'>
+                        <div class='arabic'>
+                            <p class='marginClass text-sm'>هوية المستثمر:<span class='ltr-number'> {$investorData->id_number}</span></p>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td width='50%' style='border:1px solid #ccc;'>
+                        <div class='english'>
+                            <p class='marginClass text-sm'>Nationality: {$investorData->nationality->nationality_name}</p>
+                        </div>
+                    </td>
+                    <td width='50%' style='border:1px solid #ccc;'>
+                        <div class='arabic'>
+                            <p class='marginClass text-sm'>الجنسية: {$investorData->nationality->nationality_arabic_name}</p>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td width='50%' style='border:1px solid #ccc;'>
+                        <div class='english'>
+                            <p class='marginClass text-sm'>Country of Residence: {$investorData->countryOfResidence->nationality_name}</p>
+                        </div>
+                    </td>
+                    <td width='50%' style='border:1px solid #ccc;'>
+                        <div class='arabic'>
+                            <p class='marginClass text-sm'>بلد الإقامة: {$investorData->countryOfResidence->nationality_arabic_name}</p>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                <td width='50%' style='border:1px solid #ccc;'>
+                    <div class='english'>
+                        <p class='marginClass text-sm'>Passport No: {$investorData->passport_number}</p>
+                    </div>
+                </td>
+                <td width='50%' style='border:1px solid #ccc;'>
+                    <div class='arabic'>
+                        <p class='marginClass text-sm'>رقم جواز السفر: {$investorData->passport_number}</p>
+                    </div>
+                </td>
+            </tr>
+                ";
+            if ($investorData->investor_type == 1) {
+                $investorDocument .= "
+                <tr>
+                <td width='50%' style='border:1px solid #ccc;'>
+                    <div class='english'>
+                        <p class='marginClass text-sm'>Guardian ID: {$investorGuardian->emirates_id_number}</p>
+                    </div>
+                </td>
+                <td width='50%' style='border:1px solid #ccc;'>
+                    <div class='arabic'>
+                        <p class='marginClass text-sm'>الوصي القانوني: {$investorGuardian->emirates_id_number}</p>
+                    </div>
+                </td>
+                </tr>
+                <tr>
+                <td width='50%' style='border:1px solid #ccc;'>
+                    <div class='english'>
+                        <p class='marginClass text-sm'>Guardian Passport Number: {$investorGuardian->passport_number}</p>
+                    </div>
+                </td>
+                <td width='50%' style='border:1px solid #ccc;'>
+                    <div class='arabic'>
+                        <p class='marginClass text-sm'>رقم جواز سفر الوصي: {$investorGuardian->passport_number}</p>
+                    </div>
+                </td>
+                </tr>
+                 <tr>
+                <td width='50%' style='border:1px solid #ccc;'>
+                    <div class='english'>
+                        <p class='marginClass text-sm'>Guardian Mobile: {$investorGuardian->guardian_mobile}</p>
+                    </div>
+                </td>
+                <td width='50%' style='border:1px solid #ccc;'>
+                    <div class='arabic'>
+                        <p class='marginClass text-sm'>رقم الهاتف المتحرك للوصي: {$investorGuardian->guardian_mobile}</p>
+                    </div>
+                </td>
+                </tr>
+                 <tr>
+                <td width='50%' style='border:1px solid #ccc;'>
+                    <div class='english'>
+                        <p class='marginClass text-sm'>Guardian Email ID: {$investorGuardian->guardian_email}</p>
+                    </div>
+                </td>
+                <td width='50%' style='border:1px solid #ccc;'>
+                    <div class='arabic'>
+                        <p class='marginClass text-sm'>البريد الالكتروني للوصي: {$investorGuardian->guardian_email}</p>
+                    </div>
+                </td>
+                </tr>
+                ";
+            }
+        } else {
+            $investorDocument = "
+                <tr>
+                    <td width='50%' style='border:1px solid #ccc;'>
+                        <div class='english'>
+                            <p class='marginClass text-sm'>Company License No : {$investorData->trade_license_number}</p>
+                        </div>
+                    </td>
+                    <td width='50%' style='border:1px solid #ccc;'>
+                        <div class='arabic'>
+                            <p class='marginClass text-sm'>رقم ترخيص الشركة: <span class='ltr-number'> {$investorData->trade_license_number}</span></p>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td width='50%' style='border:1px solid #ccc;'>
+                        <div class='english'>
+                            <p class='marginClass text-sm'>Place of Incorporation: {$placeOfIncorporation['name']}</p>
+                        </div>
+                    </td>
+                    <td width='50%' style='border:1px solid #ccc;'>
+                        <div class='arabic'>
+                            <p class='marginClass text-sm'>مكان التأسيس: {$placeOfIncorporation['arabic']}</p>
+                        </div>
+                    </td>
+                </tr>
+
+                 <tr>
+                    <td width='50%' style='border:1px solid #ccc;'>
+                        <div class='english'>
+                            <p class='marginClass text-sm'>Legal Type: {$legal_type['name']}</p>
+                        </div>
+                    </td>
+                    <td width='50%' style='border:1px solid #ccc;'>
+                        <div class='arabic'>
+                            <p class='marginClass text-sm'>الشكل القانوني: {$legal_type['arabic']}</p>
+                        </div>
+                    </td>
+                </tr>
+                 <tr>
+                    <td width='50%' style='border:1px solid #ccc;'>
+                        <div class='english'>
+                            <p class='marginClass text-sm'>Registration No: {$investorData['registration_number']}</p>
+                        </div>
+                    </td>
+                    <td width='50%' style='border:1px solid #ccc;'>
+                        <div class='arabic'>
+                            <p class='marginClass text-sm'>رقم التسجيل: {$investorData['registration_number']}</p>
+                        </div>
+                    </td>
+                </tr>
+
+
+                ";
+        }
 
         return "
             <tr data-row data-force-page='true'>
@@ -399,58 +566,7 @@ class InvestmentContractService
                                 </div>
                             </td>
                         </tr>
-
-                        <tr>
-                            <td width='50%' style='border:1px solid #ccc;'>
-                                <div class='english'>
-                                    <p class='marginClass text-sm'>Investor ID {$investorData->id_number}</p>
-                                </div>
-                            </td>
-                            <td width='50%' style='border:1px solid #ccc;'>
-                                <div class='arabic'>
-                                    <p class='marginClass text-sm'>هوية المستثمر:<span class='ltr-number'> {$investorData->id_number}</span></p>
-                                </div>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td width='50%' style='border:1px solid #ccc;'>
-                                <div class='english'>
-                                    <p class='marginClass text-sm'>Nationality: {$investorData->nationality->nationality_name}</p>
-                                </div>
-                            </td>
-                            <td width='50%' style='border:1px solid #ccc;'>
-                                <div class='arabic'>
-                                    <p class='marginClass text-sm'>الجنسية: {$investorData->nationality->nationality_arabic_name}</p>
-                                </div>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td width='50%' style='border:1px solid #ccc;'>
-                                <div class='english'>
-                                    <p class='marginClass text-sm'>Country of Residence: {$investorData->countryOfResidence->nationality_name}</p>
-                                </div>
-                            </td>
-                            <td width='50%' style='border:1px solid #ccc;'>
-                                <div class='arabic'>
-                                    <p class='marginClass text-sm'>بلد الإقامة: {$investorData->countryOfResidence->nationality_arabic_name}</p>
-                                </div>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td width='50%' style='border:1px solid #ccc;'>
-                                <div class='english'>
-                                    <p class='marginClass text-sm'>Passport No: {$investorData->passport_number}</p>
-                                </div>
-                            </td>
-                            <td width='50%' style='border:1px solid #ccc;'>
-                                <div class='arabic'>
-                                    <p class='marginClass text-sm'>رقم جواز السفر: {$investorData->passport_number}</p>
-                                </div>
-                            </td>
-                        </tr>
+                        {$investorDocument}
 
                         <tr>
                             <td width='50%' style='border:1px solid #ccc;'>
@@ -937,6 +1053,56 @@ class InvestmentContractService
                 : "الربح السنوي المتوقع:");
 
 
+        $guardian = " ";
+        $guardian_ar = " ";
+        if ($investorData->investor_type == 1) {
+            $guardian_name = $investorData->investorGuardian?->guardian_name;
+            $guardian_name_arabic = $investorData->investorGuardian?->guardian_name_arabic;
+            $guardian_address = $investorData->investorGuardian?->guardian_address;
+            $guardian_address_ar = $investorData->investorGuardian?->guardian_address_ar;
+            $eid_number = $investorData->investorGuardian?->emirates_id_number;
+            $guardian = "in his capacity as a Legal guardian of the minor beneficial
+                owner  {$guardian_name},
+                resident of {$guardian_address},
+                having Emirates ID no. {$eid_number}";
+
+            $guardian_ar = " والوصي القانوني على المالك المستفيد القاصر هي {$guardian_name_arabic} المقيمة في {$guardian_address_ar}
+                والذي يحمل بطاقة الهوية الإماراتية رقم {$eid_number}";
+        }
+        $investorParagraph = "{$investorData->investor_name} resident of {$investorData->state}, {$investorData->countryOfResidence->nationality_name},
+        having Investor ID no. {$investorData->id_number} {$guardian},";
+        $investorParagraph_ar = "{$investorData->investor_name_arabic} المقيم في {$investorData->state_arabic}, {$investorData->countryOfResidence->nationality_arabic_name} ،
+         ويحمل هوية المستثمر رقم. <span class=\"ltr-number\">{$investorData->id_number}</span>{$guardian_ar},";
+
+        $investorSignText = '';
+        $investorSignText_ar = '';
+
+        $investorNameText = '';
+        $investorNameText_ar = '';
+
+        if ($investorData->investor_category == 1) {
+            $investorParagraph = "{$investorData->investor_name},
+            a Company duly incorporated and existing under the laws of United Arab Emirates,
+             having license number {$investorData->trade_license_number} and registration no. {$investorData->registration_number},";
+
+            $investorParagraph_ar = "{$investorData->investor_name},وهي شركة تأسست وقائمة بموجب قوانين دولة الإمارات العربية المتحدة،وتحمل الترخيص رقم
+             {$investorData->trade_license_number}ورقم التسجيل  {$investorData->registration_number},";
+
+            $investorSignText = "<p class='marginClass text-sm'>Authorized Signatory</p>";
+            $investorSignText_ar = "<p class='marginClass text-sm'>المفوض بالتوقيع</p>";
+            $investorNameText = "<p class='marginClass text-sm'>Investor :{$investorData->investor_name}</p>";
+            $investorNameText_ar = "<p class='marginClass text-sm'>{$investorData->investor_name_arabic}: الوصي المست</p>";
+        }
+        if ($investorData->investor_category == 0) {
+            if ($investorData->investor_type == 1) {
+                $investorSignText = "<p class='marginClass text-sm'>Investor (Guardian):{$investorData->investorGuardian->guardian_name}</p>";
+                $investorSignText_ar = "<p class='marginClass text-sm'>{$investorData->investorGuardian->guardian_name_arabic}:الوصي المست</p>";
+            } else {
+                $investorSignText = "<p class='marginClass text-sm'>Investor :{$investorData->investor_name}</p>";
+                $investorSignText_ar = "<p class='marginClass text-sm'>{$investorData->investor_name_arabic}:الوصي المست</p>";
+            }
+        }
+
         $placeholders = [
             // '{mudarabah_created_long_date_eng}'  => date('j \d\a\y \o\f F Y', strtotime($invDocDetails->generated_date)),
             // '{mudarabah_created_long_date_eng}'  => date('j \d\a\y \o\f F Y', strtotime($investmentData->investment_date)),
@@ -1013,6 +1179,16 @@ class InvestmentContractService
             '{profit_text}' => $expectedProfittext_en,
             '{profit_text_ar}' => $expectedProfittext_ar,
             '{date}' => Carbon::parse($investmentData->investment_date)->format('d/m/Y'),
+
+            '{guardian}' => $guardian,
+            '{guardian_ar}' => $guardian_ar,
+            '{investor_paragraph}' => $investorParagraph,
+            '{investor_paragraph_ar}' => $investorParagraph_ar,
+            '{investorSignText}' => $investorSignText,
+            '{investorSignText_ar}' => $investorSignText_ar,
+            '{investorNametext}' => $investorNameText,
+            '{investorNametext_ar}' => $investorNameText_ar,
+
         ];
 
         $html = str_replace(array_keys($placeholders), array_values($placeholders), $html);
