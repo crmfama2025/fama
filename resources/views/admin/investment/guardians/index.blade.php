@@ -231,10 +231,20 @@
                     $('#guardian_email').val(guardian.guardian_email);
 
                     $('#emirates_id_number').val(guardian.emirates_id_number);
-                    $('#eid_expiry_date').val(guardian.eid_expiry_date);
+                    // $('#eid_expiry_date').val(guardian.eid_expiry_date);
 
                     $('#passport_number').val(guardian.passport_number);
-                    $('#passport_expiry_date').val(guardian.passport_expiry_date);
+                    // $('#passport_expiry_date').val(guardian.passport_expiry_date);
+
+                    if (guardian.eid_expiry_date) {
+                        $('#eid_expiry_date_picker').datetimepicker('date', moment(guardian
+                            .eid_expiry_date));
+                    }
+
+                    if (guardian.passport_expiry_date) {
+                        $('#passport_expiry_date_picker').datetimepicker('date', moment(guardian
+                            .passport_expiry_date));
+                    }
 
                     $('#guardian_address').val(guardian.guardian_address);
                     $('#guardian_address_ar').val(guardian.guardian_address_ar);
