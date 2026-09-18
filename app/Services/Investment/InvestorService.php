@@ -1138,12 +1138,23 @@ class InvestorService
 
         $investment = null;
         if ($contractDocument->investment_id != 0) {
-            $investment = $this->getById($contractDocument->investment_id);
+            $investment = $this->investmentRepository->find($contractDocument->investment_id);
         }
 
-        $cutoffDate = $investment !== null
-            ? $investment->investment_date
-            : $contractDocument->generated_date;
+        $investmentDate = $investment !== null
+            && !empty($investment->investment_date)
+            ? \Carbon\Carbon::parse($investment->investment_date)->format('Y-m-d')
+            : null;
+
+        $documentDate = !empty($contractDocument->generated_date)
+            ? \Carbon\Carbon::parse($contractDocument->generated_date)->format('Y-m-d')
+            : null;
+
+        $cutoffDate = $investment !== null ? $investmentDate : $documentDate;
+
+        if ($cutoffDate === null) {
+            throw new \InvalidArgumentException('The required date is missing.');
+        }
 
         $data = Investment::select(
             'investments.company_id',
