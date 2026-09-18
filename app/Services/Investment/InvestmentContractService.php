@@ -1466,6 +1466,7 @@ class InvestmentContractService
 
         // $investmentDate       = Carbon::parse($investment->investment_date);
         $novationCreated       = Carbon::parse($docDetails->generated_date);
+        $guardian_name = $investor->investorGuardian?->guardian_name ?? " ";
 
 
         $vars = [
@@ -1483,7 +1484,7 @@ class InvestmentContractService
             '{total_invested_eng}' => numberToEnglishWords($totalInvested) . ' Dirhams Only',
             '{date}' =>  Carbon::parse($novationCreated)->format('d/m/Y'),
 
-            '{guardian}' => '', //' (Guardian)'
+            '{guardian}' => $guardian_name
 
         ];
 
