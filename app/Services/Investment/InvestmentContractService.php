@@ -1081,11 +1081,11 @@ class InvestmentContractService
         $investorNameText_ar = '';
 
         if ($investorData->investor_category == 1) {
-            $investorParagraph = "{$investorData->investor_name},
+            $investorParagraph = " trim('{$investorData->investor_prefix} {$investorData->investor_name}'),
             a Company duly incorporated and existing under the laws of United Arab Emirates,
              having license number {$investorData->trade_license_number} and registration no. {$investorData->registration_number},";
 
-            $investorParagraph_ar = "{$investorData->investor_name},وهي شركة تأسست وقائمة بموجب قوانين دولة الإمارات العربية المتحدة،وتحمل الترخيص رقم
+            $investorParagraph_ar = "trim('{$investorData->investor_prefix_arabic} {$investorData->investor_name_arabic}'),وهي شركة تأسست وقائمة بموجب قوانين دولة الإمارات العربية المتحدة،وتحمل الترخيص رقم
              {$investorData->trade_license_number}ورقم التسجيل  {$investorData->registration_number},";
 
             $investorSignText = "<p class='marginClass text-sm'>Authorized Signatory</p>";
