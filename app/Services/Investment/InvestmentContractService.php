@@ -426,6 +426,18 @@ class InvestmentContractService
             if ($investorData->investor_type == 1) {
                 $investorDocument .= "
                 <tr>
+                 <td width='50%' style='border:1px solid #ccc;'>
+                    <div class='english'>
+                        <p class='marginClass text-sm'>Legal Guardian Name {$investorGuardian->guardian_name}</p>
+                    </div>
+                </td>
+                <td width='50%' style='border:1px solid #ccc;'>
+                    <div class='arabic'>
+                        <p class='marginClass text-sm'>الوصي القانوني: {$investorGuardian->guardian_name_arabic}</p>
+                    </div>
+                </td>
+                </tr>
+                <tr>
                 <td width='50%' style='border:1px solid #ccc;'>
                     <div class='english'>
                         <p class='marginClass text-sm'>Guardian ID: {$investorGuardian->emirates_id_number}</p>
