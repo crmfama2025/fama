@@ -215,7 +215,7 @@ class InvestmentContractService
         if ($investorData->investor_category == 0) {
             if ($investorData->investor_type == 1) {
                 $investorSignText = "<p class='marginClass text-sm'>Investor (Guardian):{$investorData->investorGuardian->guardian_name}</p>";
-                $investorSignText_ar = "<p class='marginClass text-sm'>{$investorData->investorGuardian->guardian_name_arabic}</p>";
+                $investorSignText_ar = "<p class='marginClass text-sm'>المستثمر (الوصي): {$investorData->investorGuardian->guardian_name_arabic}</p>";
             } else {
                 $investorSignText = "<p class='marginClass text-sm'>Investor :{$investorData->investor_name}</p>";
                 $investorSignText_ar = "<p class='marginClass text-sm'>المستثمر:{$investorData->investor_name_arabic} </p>";
@@ -1159,7 +1159,7 @@ class InvestmentContractService
         if ($investorData->investor_category == 0) {
             if ($investorData->investor_type == 1) {
                 $investorSignText = "<p class='marginClass text-sm'>Investor (Guardian):{$investorData->investorGuardian->guardian_name}</p>";
-                $investorSignText_ar = "<p class='marginClass text-sm'>(الوصي) المست: {$investorData->investorGuardian->guardian_name_arabic}</p>";
+                $investorSignText_ar = "<p class='marginClass text-sm'>المستثمر (الوصي): {$investorData->investorGuardian->guardian_name_arabic}</p>";
             } else {
                 $investorSignText = "<p class='marginClass text-sm'>Investor :{$investorData->investor_name}</p>";
                 $investorSignText_ar = "<p class='marginClass text-sm'>المستثمر:{$investorData->investor_name_arabic} </p>";
