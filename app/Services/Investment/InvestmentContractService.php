@@ -171,6 +171,59 @@ class InvestmentContractService
         $clauseThree = $this->clauseThree($firstInv);
 
 
+
+        $guardian = " ";
+        $guardian_ar = " ";
+        if ($investorData->investor_type == 1) {
+            $guardian_name = $investorData->investorGuardian?->guardian_name;
+            $guardian_name_arabic = $investorData->investorGuardian?->guardian_name_arabic;
+            $guardian_address = $investorData->investorGuardian?->guardian_address;
+            $guardian_address_ar = $investorData->investorGuardian?->guardian_address_ar;
+            $eid_number = $investorData->investorGuardian?->emirates_id_number;
+            $guardian = "in his capacity as a Legal guardian of the minor beneficial
+                owner  {$guardian_name},
+                resident of {$guardian_address},
+                having Emirates ID no. {$eid_number}";
+
+            $guardian_ar = " والوصي القانوني على المالك المستفيد القاصر هي {$guardian_name_arabic} المقيمة في {$guardian_address_ar}
+                والذي يحمل بطاقة الهوية الإماراتية رقم <span class=\"ltr-number\">{$eid_number}</span>";
+        }
+        $investorParagraph = "{$investorData->investor_prefix} {$investorData->investor_name} resident of {$investorData->state}, {$investorData->countryOfResidence->nationality_name},
+        having Emirates ID no. {$investorData->id_number} {$guardian}";
+        $investorParagraph_ar = "{$investorData->investor_prefix_arabic} {$investorData->investor_name_arabic} المقيم في {$investorData->state_arabic}, {$investorData->countryOfResidence->nationality_arabic_name} ،
+         ويحمل هوية المستثمر رقم. <span class=\"ltr-number\">{$investorData->id_number}</span>{$guardian_ar}";
+
+        $investorSignText = '';
+        $investorSignText_ar = '';
+
+        $investorNameText = '';
+        $investorNameText_ar = '';
+
+        if ($investorData->investor_category == 1) {
+            $investorParagraph = "{$investorData->investor_prefix} {$investorData->investor_name},
+            a Company duly incorporated and existing under the laws of United Arab Emirates,
+             having license number {$investorData->trade_license_number} and registration no. {$investorData->registration_number},";
+
+            $investorParagraph_ar = "{$investorData->investor_prefix_arabic} {$investorData->investor_name_arabic},وهي شركة تأسست وقائمة بموجب قوانين دولة الإمارات العربية المتحدة،وتحمل الترخيص رقم
+             {$investorData->trade_license_number}ورقم التسجيل  {$investorData->registration_number},";
+
+            $investorSignText = "<p class='marginClass text-sm'>Authorized Signatory</p>";
+            $investorSignText_ar = "<p class='marginClass text-sm'>المفوض بالتوقيع</p>";
+            $investorNameText = "<p class='marginClass text-sm'>Investor :{$investorData->investor_name}</p>";
+            $investorNameText_ar = "<p class='marginClass text-sm'>{$investorData->investor_name_arabic}: الوصي المست</p>";
+        }
+        if ($investorData->investor_category == 0) {
+            if ($investorData->investor_type == 1) {
+                $investorSignText = "<p class='marginClass text-sm'>Investor (Guardian):{$investorData->investorGuardian->guardian_name}</p>";
+                $investorSignText_ar = "<p class='marginClass text-sm'>(الوصي) المست: {$investorData->investorGuardian->guardian_name_arabic}</p>";
+            } else {
+                $investorSignText = "<p class='marginClass text-sm'>Investor :{$investorData->investor_name}</p>";
+                $investorSignText_ar = "<p class='marginClass text-sm'>{$investorData->investor_name_arabic}:الوصي المست</p>";
+            }
+        }
+
+
+
         $placeholdersMulti = [
             // Dates
             '{mudarabah_created_long_date_eng}'  => date('j \d\a\y \o\f F Y', strtotime($invDocDetails->generated_date)),
@@ -246,6 +299,16 @@ class InvestmentContractService
             '{profit_text}' => $expectedProfittext_en,
             '{profit_text_ar}' => $expectedProfittext_ar,
             // '{date}' =>  now()->format('d/m/Y')
+
+
+            '{guardian}' => $guardian,
+            '{guardian_ar}' => $guardian_ar,
+            '{investor_paragraph}' => $investorParagraph,
+            '{investor_paragraph_ar}' => $investorParagraph_ar,
+            '{investorSignText}' => $investorSignText,
+            '{investorSignText_ar}' => $investorSignText_ar,
+            '{investorNametext}' => $investorNameText,
+            '{investorNametext_ar}' => $investorNameText_ar,
         ];
         // dump($annexureAMulti);
         $htmlMulti = str_replace(array_keys($placeholdersMulti), array_values($placeholdersMulti), $htmlMulti);
