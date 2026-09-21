@@ -172,57 +172,57 @@ class InvestmentContractService
 
 
 
-        $guardian = " ";
-        $guardian_ar = " ";
-        if ($investorData->investor_type == 1) {
-            $guardian_name = $investorData->investorGuardian?->guardian_name;
-            $guardian_name_arabic = $investorData->investorGuardian?->guardian_name_arabic;
-            $guardian_address = $investorData->investorGuardian?->guardian_address;
-            $guardian_address_ar = $investorData->investorGuardian?->guardian_address_ar;
-            $eid_number = $investorData->investorGuardian?->emirates_id_number;
-            $guardian = "in his capacity as a Legal guardian of the minor beneficial
-                owner  {$guardian_name},
-                resident of {$guardian_address},
-                having Emirates ID no. {$eid_number}";
+        // $guardian = " ";
+        // $guardian_ar = " ";
+        // if ($investorData->investor_type == 1) {
+        //     $guardian_name = $investorData->investorGuardian?->guardian_name;
+        //     $guardian_name_arabic = $investorData->investorGuardian?->guardian_name_arabic;
+        //     $guardian_address = $investorData->investorGuardian?->guardian_address;
+        //     $guardian_address_ar = $investorData->investorGuardian?->guardian_address_ar;
+        //     $eid_number = $investorData->investorGuardian?->emirates_id_number;
+        //     $guardian = "in his capacity as a Legal guardian of the minor beneficial
+        //         owner  {$guardian_name},
+        //         resident of {$guardian_address},
+        //         having Emirates ID no. {$eid_number}";
 
-            $guardian_ar = " والوصي القانوني على المالك المستفيد القاصر هي {$guardian_name_arabic} المقيمة في {$guardian_address_ar}
-                والذي يحمل بطاقة الهوية الإماراتية رقم <span class=\"ltr-number\">{$eid_number}</span>";
-        }
-        $investorParagraph = "{$investorData->investor_prefix} {$investorData->investor_name} resident of {$investorData->state}, {$investorData->countryOfResidence->nationality_name},
-        having Emirates ID no. {$investorData->id_number} {$guardian}";
-        $investorParagraph_ar = "{$investorData->investor_prefix_arabic} {$investorData->investor_name_arabic} المقيم في {$investorData->state_arabic}, {$investorData->countryOfResidence->nationality_arabic_name} ،
-         ويحمل هوية المستثمر رقم. <span class=\"ltr-number\">{$investorData->id_number}</span>{$guardian_ar}";
+        //     $guardian_ar = " والوصي القانوني على المالك المستفيد القاصر هي {$guardian_name_arabic} المقيمة في {$guardian_address_ar}
+        //         والذي يحمل بطاقة الهوية الإماراتية رقم <span class=\"ltr-number\">{$eid_number}</span>";
+        // }
+        // $investorParagraph = "{$investorData->investor_prefix} {$investorData->investor_name} resident of {$investorData->state}, {$investorData->countryOfResidence->nationality_name},
+        // having Emirates ID no. {$investorData->id_number} {$guardian}";
+        // $investorParagraph_ar = "{$investorData->investor_prefix_arabic} {$investorData->investor_name_arabic} المقيم في {$investorData->state_arabic}, {$investorData->countryOfResidence->nationality_arabic_name} ،
+        //  ويحمل هوية المستثمر رقم. <span class=\"ltr-number\">{$investorData->id_number}</span>{$guardian_ar}";
 
-        $investorSignText = '';
-        $investorSignText_ar = '';
+        // $investorSignText = '';
+        // $investorSignText_ar = '';
 
-        $investorNameText = '';
-        $investorNameText_ar = '';
+        // $investorNameText = '';
+        // $investorNameText_ar = '';
 
-        if ($investorData->investor_category == 1) {
-            $investorParagraph = "{$investorData->investor_prefix} {$investorData->investor_name},
-            a Company duly incorporated and existing under the laws of United Arab Emirates,
-             having license number {$investorData->trade_license_number} and registration no. {$investorData->registration_number},";
+        // if ($investorData->investor_category == 1) {
+        //     $investorParagraph = "{$investorData->investor_prefix} {$investorData->investor_name},
+        //     a Company duly incorporated and existing under the laws of United Arab Emirates,
+        //      having license number {$investorData->trade_license_number} and registration no. {$investorData->registration_number},";
 
-            $investorParagraph_ar = "{$investorData->investor_prefix_arabic} {$investorData->investor_name_arabic},وهي شركة تأسست وقائمة بموجب قوانين دولة الإمارات العربية المتحدة،وتحمل الترخيص رقم
-             {$investorData->trade_license_number}ورقم التسجيل  {$investorData->registration_number},";
+        //     $investorParagraph_ar = "{$investorData->investor_prefix_arabic} {$investorData->investor_name_arabic},وهي شركة تأسست وقائمة بموجب قوانين دولة الإمارات العربية المتحدة،وتحمل الترخيص رقم
+        //      {$investorData->trade_license_number}ورقم التسجيل  {$investorData->registration_number},";
 
-            $investorSignText = "<p class='marginClass text-sm'>Authorized Signatory</p>";
-            $investorSignText_ar = "<p class='marginClass text-sm'>المفوض بالتوقيع</p>";
-            $investorNameText = "<p class='marginClass text-sm'>Investor :{$investorData->investor_name}</p>";
-            $investorNameText_ar = "<p class='marginClass text-sm'>{$investorData->investor_name_arabic}: الوصي المست</p>";
-        }
-        if ($investorData->investor_category == 0) {
-            if ($investorData->investor_type == 1) {
-                $investorSignText = "<p class='marginClass text-sm'>Investor (Guardian):{$investorData->investorGuardian->guardian_name}</p>";
-                $investorSignText_ar = "<p class='marginClass text-sm'>المستثمر (الوصي): {$investorData->investorGuardian->guardian_name_arabic}</p>";
-            } else {
-                $investorSignText = "<p class='marginClass text-sm'>Investor :{$investorData->investor_name}</p>";
-                $investorSignText_ar = "<p class='marginClass text-sm'>المستثمر:{$investorData->investor_name_arabic} </p>";
-            }
-        }
+        //     $investorSignText = "<p class='marginClass text-sm'>Authorized Signatory</p>";
+        //     $investorSignText_ar = "<p class='marginClass text-sm'>المفوض بالتوقيع</p>";
+        //     $investorNameText = "<p class='marginClass text-sm'>Investor :{$investorData->investor_name}</p>";
+        //     $investorNameText_ar = "<p class='marginClass text-sm'>{$investorData->investor_name_arabic}: الوصي المست</p>";
+        // }
+        // if ($investorData->investor_category == 0) {
+        //     if ($investorData->investor_type == 1) {
+        //         $investorSignText = "<p class='marginClass text-sm'>Investor (Guardian):{$investorData->investorGuardian->guardian_name}</p>";
+        //         $investorSignText_ar = "<p class='marginClass text-sm'>المستثمر (الوصي): {$investorData->investorGuardian->guardian_name_arabic}</p>";
+        //     } else {
+        //         $investorSignText = "<p class='marginClass text-sm'>Investor :{$investorData->investor_name}</p>";
+        //         $investorSignText_ar = "<p class='marginClass text-sm'>المستثمر:{$investorData->investor_name_arabic} </p>";
+        //     }
+        // }
 
-
+        $p = $this->buildInvestorParagraphData($investorData);
 
         $placeholdersMulti = [
             // Dates
@@ -301,14 +301,15 @@ class InvestmentContractService
             // '{date}' =>  now()->format('d/m/Y')
 
 
-            '{guardian}' => $guardian,
-            '{guardian_ar}' => $guardian_ar,
-            '{investor_paragraph}' => $investorParagraph,
-            '{investor_paragraph_ar}' => $investorParagraph_ar,
-            '{investorSignText}' => $investorSignText,
-            '{investorSignText_ar}' => $investorSignText_ar,
-            '{investorNametext}' => $investorNameText,
-            '{investorNametext_ar}' => $investorNameText_ar,
+
+            '{guardian}'              => $p['guardian'],
+            '{guardian_ar}'           => $p['guardian_ar'],
+            '{investor_paragraph}'    => $p['investor_paragraph'],
+            '{investor_paragraph_ar}' => $p['investor_paragraph_ar'],
+            '{investorSignText}'      => $p['investor_sign_text'],
+            '{investorSignText_ar}'   => $p['investor_sign_text_ar'],
+            '{investorNametext}'      => $p['investor_name_text'],
+            '{investorNametext_ar}'   => $p['investor_name_text_ar'],
         ];
         // dump($annexureAMulti);
         $htmlMulti = str_replace(array_keys($placeholdersMulti), array_values($placeholdersMulti), $htmlMulti);
@@ -1129,56 +1130,59 @@ class InvestmentContractService
                 : "الربح السنوي المتوقع:");
 
 
-        $guardian = " ";
-        $guardian_ar = " ";
-        if ($investorData->investor_type == 1) {
-            $guardian_name = $investorData->investorGuardian?->guardian_name;
-            $guardian_name_arabic = $investorData->investorGuardian?->guardian_name_arabic;
-            $guardian_address = $investorData->investorGuardian?->guardian_address;
-            $guardian_address_ar = $investorData->investorGuardian?->guardian_address_ar;
-            $eid_number = $investorData->investorGuardian?->emirates_id_number;
-            $guardian = "in his capacity as a Legal guardian of the minor beneficial
-                owner  {$guardian_name},
-                resident of {$guardian_address},
-                having Investor ID no. {$eid_number}";
+        // $guardian = " ";
+        // $guardian_ar = " ";
+        // if ($investorData->investor_type == 1) {
+        //     $guardian_name = $investorData->investorGuardian?->guardian_name;
+        //     $guardian_name_arabic = $investorData->investorGuardian?->guardian_name_arabic;
+        //     $guardian_address = $investorData->investorGuardian?->guardian_address;
+        //     $guardian_address_ar = $investorData->investorGuardian?->guardian_address_ar;
+        //     $eid_number = $investorData->investorGuardian?->emirates_id_number;
+        //     $guardian = "in his capacity as a Legal guardian of the minor beneficial
+        //         owner  {$guardian_name},
+        //         resident of {$guardian_address},
+        //         having Investor ID no. {$eid_number}";
 
-            $guardian_ar = " والوصي القانوني على المالك المستفيد القاصر هي {$guardian_name_arabic} المقيمة في {$guardian_address_ar}
-                والذي نحمل بطاقة الهوية الإماراتية رقم <span class=\"ltr-number\">{$eid_number}</span>";
-        }
-        $investorParagraph = "{$investorData->investor_prefix} {$investorData->investor_name} resident of {$investorData->state}, {$investorData->countryOfResidence->nationality_name},
-        having Emirates ID no. {$investorData->id_number} {$guardian}";
-        $investorParagraph_ar = "{$investorData->investor_prefix_arabic} {$investorData->investor_name_arabic} المقيم في {$investorData->state_arabic}, {$investorData->countryOfResidence->nationality_arabic_name} ،
-         ويحمل هوية المستثمر رقم. <span class=\"ltr-number\">{$investorData->id_number}</span>{$guardian_ar}";
+        //     $guardian_ar = " والوصي القانوني على المالك المستفيد القاصر هي {$guardian_name_arabic} المقيمة في {$guardian_address_ar}
+        //         والذي نحمل بطاقة الهوية الإماراتية رقم <span class=\"ltr-number\">{$eid_number}</span>";
+        // }
+        // $investorParagraph = "{$investorData->investor_prefix} {$investorData->investor_name} resident of {$investorData->state}, {$investorData->countryOfResidence->nationality_name},
+        // having Emirates ID no. {$investorData->id_number} {$guardian}";
+        // $investorParagraph_ar = "{$investorData->investor_prefix_arabic} {$investorData->investor_name_arabic} المقيم في {$investorData->state_arabic}, {$investorData->countryOfResidence->nationality_arabic_name} ،
+        //  ويحمل هوية المستثمر رقم. <span class=\"ltr-number\">{$investorData->id_number}</span>{$guardian_ar}";
 
-        $investorSignText = '';
-        $investorSignText_ar = '';
+        // $investorSignText = '';
+        // $investorSignText_ar = '';
 
-        $investorNameText = '';
-        $investorNameText_ar = '';
+        // $investorNameText = '';
+        // $investorNameText_ar = '';
 
-        if ($investorData->investor_category == 1) {
-            $investorParagraph = "{$investorData->investor_prefix} {$investorData->investor_name},
-            a Company duly incorporated and existing under the laws of United Arab Emirates,
-             having license number {$investorData->trade_license_number} and registration no. {$investorData->registration_number},";
+        // if ($investorData->investor_category == 1) {
+        //     $investorParagraph = "{$investorData->investor_prefix} {$investorData->investor_name},
+        //     a Company duly incorporated and existing under the laws of United Arab Emirates,
+        //      having license number {$investorData->trade_license_number} and registration no. {$investorData->registration_number},";
 
-            $investorParagraph_ar = "{$investorData->investor_prefix_arabic} {$investorData->investor_name_arabic},وهي شركة تأسست وقائمة بموجب قوانين دولة الإمارات العربية المتحدة،وتحمل الترخيص رقم
-             {$investorData->trade_license_number}ورقم التسجيل  {$investorData->registration_number},";
+        //     $investorParagraph_ar = "{$investorData->investor_prefix_arabic} {$investorData->investor_name_arabic},وهي شركة تأسست وقائمة بموجب قوانين دولة الإمارات العربية المتحدة،وتحمل الترخيص رقم
+        //      {$investorData->trade_license_number}ورقم التسجيل  {$investorData->registration_number},";
 
-            $investorSignText = "<p class='marginClass text-sm'>Authorized Signatory</p>";
-            $investorSignText_ar = "<p class='marginClass text-sm'>المفوض بالتوقيع</p>";
-            $investorNameText = "<p class='marginClass text-sm'>Investor :{$investorData->investor_name}</p>";
-            $investorNameText_ar = "<p class='marginClass text-sm'>{$investorData->investor_name_arabic}: الوصي المست</p>";
-        }
-        if ($investorData->investor_category == 0) {
-            if ($investorData->investor_type == 1) {
-                $investorSignText = "<p class='marginClass text-sm'>Investor (Guardian):{$investorData->investorGuardian->guardian_name}</p>";
-                $investorSignText_ar = "<p class='marginClass text-sm'>المستثمر (الوصي): {$investorData->investorGuardian->guardian_name_arabic}</p>";
-            } else {
-                $investorSignText = "<p class='marginClass text-sm'>Investor :{$investorData->investor_name}</p>";
-                $investorSignText_ar = "<p class='marginClass text-sm'>المستثمر:{$investorData->investor_name_arabic} </p>";
-            }
-        }
+        //     $investorSignText = "<p class='marginClass text-sm'>Authorized Signatory</p>";
+        //     $investorSignText_ar = "<p class='marginClass text-sm'>المفوض بالتوقيع</p>";
+        //     $investorNameText = "<p class='marginClass text-sm'>Investor :{$investorData->investor_name}</p>";
+        //     $investorNameText_ar = "<p class='marginClass text-sm'>{$investorData->investor_name_arabic}: الوصي المست</p>";
+        // }
+        // if ($investorData->investor_category == 0) {
+        //     if ($investorData->investor_type == 1) {
+        //         $investorSignText = "<p class='marginClass text-sm'>Investor (Guardian):{$investorData->investorGuardian->guardian_name}</p>";
+        //         $investorSignText_ar = "<p class='marginClass text-sm'>المستثمر (الوصي): {$investorData->investorGuardian->guardian_name_arabic}</p>";
+        //     } else {
+        //         $investorSignText = "<p class='marginClass text-sm'>Investor :{$investorData->investor_name}</p>";
+        //         $investorSignText_ar = "<p class='marginClass text-sm'>المستثمر:{$investorData->investor_name_arabic} </p>";
+        //     }
+        // }
 
+
+
+        $p = $this->buildInvestorParagraphData($investorData);
 
 
         $placeholders = [
@@ -1258,15 +1262,14 @@ class InvestmentContractService
             '{profit_text_ar}' => $expectedProfittext_ar,
             '{date}' => Carbon::parse($investmentData->investment_date)->format('d/m/Y'),
 
-            '{guardian}' => $guardian,
-            '{guardian_ar}' => $guardian_ar,
-            '{investor_paragraph}' => $investorParagraph,
-            '{investor_paragraph_ar}' => $investorParagraph_ar,
-            '{investorSignText}' => $investorSignText,
-            '{investorSignText_ar}' => $investorSignText_ar,
-            '{investorNametext}' => $investorNameText,
-            '{investorNametext_ar}' => $investorNameText_ar,
-
+            '{guardian}'              => $p['guardian'],
+            '{guardian_ar}'           => $p['guardian_ar'],
+            '{investor_paragraph}'    => $p['investor_paragraph'],
+            '{investor_paragraph_ar}' => $p['investor_paragraph_ar'],
+            '{investorSignText}'      => $p['investor_sign_text'],
+            '{investorSignText_ar}'   => $p['investor_sign_text_ar'],
+            '{investorNametext}'      => $p['investor_name_text'],
+            '{investorNametext_ar}'   => $p['investor_name_text_ar'],
         ];
 
         $html = str_replace(array_keys($placeholders), array_values($placeholders), $html);
@@ -1351,6 +1354,10 @@ class InvestmentContractService
                 ? " الربح المتوقع لمدة " . $investment->investment_tenure . " أشهر:"
                 : "الربح السنوي المتوقع:");
 
+
+        $p = $this->buildInvestorParagraphData($investor);
+        // dd($p);
+
         $vars = [
             '{investment_date}'        => Carbon::parse($investment->investment_date)->format('d/m/Y'),
             '{investment_long_date_eng}'        => $investmentDate->format('jS \d\a\y \o\f F Y'),
@@ -1405,6 +1412,15 @@ class InvestmentContractService
             // profit
             '{inv_profit_perc}' => $InvestorProfitPerc,
             '{company_profit_perc}' => $CompanyProfitPerc,
+
+            '{guardian}'              => $p['guardian'],
+            '{guardian_ar}'           => $p['guardian_ar'],
+            '{investor_paragraph}'    => $p['investor_paragraph'],
+            '{investor_paragraph_ar}' => $p['investor_paragraph_ar'],
+            '{investorSignText}'      => $p['investor_sign_text'],
+            '{investorSignText_ar}'   => $p['investor_sign_text_ar'],
+            '{investorNametext}'      => $p['investor_name_text'],
+            '{investorNametext_ar}'   => $p['investor_name_text_ar'],
         ];
 
 
@@ -2444,5 +2460,69 @@ class InvestmentContractService
         }
 
         return $thirdClause;
+    }
+
+    private function buildInvestorParagraphData($investor): array
+    {
+        $guardian = " ";
+        $guardian_ar = " ";
+        if ($investor->investor_type == 1) {
+            $guardian_name = $investor->investorGuardian?->guardian_name;
+            $guardian_name_arabic = $investor->investorGuardian?->guardian_name_arabic;
+            $guardian_address = $investor->investorGuardian?->guardian_address;
+            $guardian_address_ar = $investor->investorGuardian?->guardian_address_ar;
+            $eid_number = $investor->investorGuardian?->emirates_id_number;
+            $guardian = "in his capacity as a Legal guardian of the minor beneficial
+                owner  {$guardian_name},
+                resident of {$guardian_address},
+                having Investor ID no. {$eid_number}";
+
+            $guardian_ar = " والوصي القانوني على المالك المستفيد القاصر هي {$guardian_name_arabic} المقيمة في {$guardian_address_ar}
+                والذي نحمل بطاقة الهوية الإماراتية رقم <span class=\"ltr-number\">{$eid_number}</span>";
+        }
+        $investorParagraph = "{$investor->investor_prefix} {$investor->investor_name} resident of {$investor->state}, {$investor->countryOfResidence->nationality_name},
+        having Emirates ID no. {$investor->id_number} {$guardian}";
+        $investorParagraph_ar = "{$investor->investor_prefix_arabic} {$investor->investor_name_arabic} المقيم في {$investor->state_arabic}, {$investor->countryOfResidence->nationality_arabic_name} ،
+         ويحمل هوية المستثمر رقم. <span class=\"ltr-number\">{$investor->id_number}</span>{$guardian_ar}";
+
+        $investorSignText = '';
+        $investorSignText_ar = '';
+
+        $investorNameText = '';
+        $investorNameText_ar = '';
+
+        if ($investor->investor_category == 1) { // If investor is Company
+            $investorParagraph = "{$investor->investor_prefix} {$investor->investor_name},
+            a Company duly incorporated and existing under the laws of United Arab Emirates,
+             having license number {$investor->trade_license_number} and registration no. {$investor->registration_number},";
+
+            $investorParagraph_ar = "{$investor->investor_prefix_arabic} {$investor->investor_name_arabic},وهي شركة تأسست وقائمة بموجب قوانين دولة الإمارات العربية المتحدة،وتحمل الترخيص رقم
+             {$investor->trade_license_number}ورقم التسجيل  {$investor->registration_number},";
+
+            $investorSignText = "<p class='marginClass text-sm'>Authorized Signatory</p>";
+            $investorSignText_ar = "<p class='marginClass text-sm'>المفوض بالتوقيع</p>";
+            $investorNameText = "<p class='marginClass text-sm'>Investor :{$investor->investor_name}</p>";
+            $investorNameText_ar = "<p class='marginClass text-sm'>{$investor->investor_name_arabic}: الوصي المست</p>";
+        }
+        if ($investor->investor_category == 0) { // Individual Investor
+            if ($investor->investor_type == 1) { // Minor
+                $investorSignText = "<p class='marginClass text-sm'>Investor (Guardian):{$investor->investorGuardian->guardian_name}</p>";
+                $investorSignText_ar = "<p class='marginClass text-sm'>المستثمر (الوصي): {$investor->investorGuardian->guardian_name_arabic}</p>";
+            } else {  // Major
+                $investorSignText = "<p class='marginClass text-sm'>Investor :{$investor->investor_prefix} {$investor->investor_name}</p>";
+                $investorSignText_ar = "<p class='marginClass text-sm'>المستثمر:{$investor->investor_prefix_arabic} {$investor->investor_name_arabic} </p>";
+            }
+        }
+
+        return [
+            'guardian'               => $guardian,
+            'guardian_ar'            => $guardian_ar,
+            'investor_paragraph'     => $investorParagraph,
+            'investor_paragraph_ar'  => $investorParagraph_ar,
+            'investor_sign_text'     => $investorSignText,
+            'investor_sign_text_ar'  => $investorSignText_ar,
+            'investor_name_text'     => $investorNameText,
+            'investor_name_text_ar'  => $investorNameText_ar,
+        ];
     }
 }
