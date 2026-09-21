@@ -1357,7 +1357,9 @@ class InvestmentContractService
 
         $p = $this->buildInvestorParagraphData($investor);
         // dd($p);
+        $monthly_estimate_en = ($investment->profit_interval_id == 1) ? '· Equivalent monthly estimate for investor: AED ' . number_format($investment->profit_amount_per_interval, 2) . '/-' : '';
 
+        $monthly_estimate_ar   = ($investment->profit_interval_id == 1) ? '· التقدير الشهري المعادل للمستثمر' . number_format($investment->profit_amount_per_interval, 2) . '/- درهم إماراتي' : '';
         $vars = [
             '{investment_date}'        => Carbon::parse($investment->investment_date)->format('d/m/Y'),
             '{investment_long_date_eng}'        => $investmentDate->format('jS \d\a\y \o\f F Y'),
@@ -1421,6 +1423,10 @@ class InvestmentContractService
             '{investorSignText_ar}'   => $p['investor_sign_text_ar'],
             '{investorNametext}'      => $p['investor_name_text'],
             '{investorNametext_ar}'   => $p['investor_name_text_ar'],
+
+
+            '{monthly_estimate_en}'      => $monthly_estimate_en,
+            '{monthly_estimate_ar}'      => $monthly_estimate_ar,
         ];
 
 
