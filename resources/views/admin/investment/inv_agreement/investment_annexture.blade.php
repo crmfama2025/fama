@@ -61,11 +61,27 @@
     </table>
 
     <div class="signature-block annexure-signature" data-own-signature-pad="true">
-        <div class="font-weight-bold" id="signee-name">{{ ucfirst($investor->investor_name) }}</div>
+        @if ($investor->investor_type == 1)
+            <div class="font-weight-bold" id="signee-name">Investor
+                Guardian : {{ ucfirst($investor->investorGuardian->guardian_name) }}
+            </div>
+        @elseif($investor->investor_category == 1)
+            <div class="font-weight-bold" id="signee-name">
+                {{ ucfirst($investor->investor_name) }}</div>
+        @else
+            <div class="font-weight-bold" id="signee-name">{{ $investor->investor_prefix }}.
+                {{ ucfirst($investor->investor_name) }}</div>
+        @endif
         <br>
-        <div class="annexure-signature-slot" data-signature-slot="investor_en" data-signer="investor">
-            Signature:
-        </div>
+        @if ($investor->investor_category == 1)
+            <div class="annexure-signature-slot" data-signature-slot="investor_en" data-signer="investor">
+                Authorized Signatory:
+            </div>
+        @else
+            <div class="annexure-signature-slot" data-signature-slot="investor_en" data-signer="investor">
+                Signature:
+            </div>
+        @endif
     </div>
 
 </div>

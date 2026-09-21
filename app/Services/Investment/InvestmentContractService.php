@@ -2486,9 +2486,9 @@ class InvestmentContractService
             $guardian_ar = " والوصي القانوني على المالك المستفيد القاصر هي {$guardian_name_arabic} المقيمة في {$guardian_address_ar}
                 والذي نحمل بطاقة الهوية الإماراتية رقم <span class=\"ltr-number\">{$eid_number}</span>";
         }
-        $investorParagraph = "{$investor->investor_prefix} {$investor->investor_name} resident of {$investor->state}, {$investor->countryOfResidence->nationality_name},
+        $investorParagraph = "{$investor->investor_prefix}. {$investor->investor_name} resident of {$investor->state}, {$investor->countryOfResidence->nationality_name},
         having Emirates ID no. {$investor->id_number} {$guardian}";
-        $investorParagraph_ar = "{$investor->investor_prefix_arabic} {$investor->investor_name_arabic} المقيم في {$investor->state_arabic}, {$investor->countryOfResidence->nationality_arabic_name} ،
+        $investorParagraph_ar = "{$investor->investor_prefix_arabic}. {$investor->investor_name_arabic} المقيم في {$investor->state_arabic}, {$investor->countryOfResidence->nationality_arabic_name} ،
          ويحمل هوية المستثمر رقم. <span class=\"ltr-number\">{$investor->id_number}</span>{$guardian_ar}";
 
         $investorSignText = '';
@@ -2498,11 +2498,11 @@ class InvestmentContractService
         $investorNameText_ar = '';
 
         if ($investor->investor_category == 1) { // If investor is Company
-            $investorParagraph = "{$investor->investor_prefix} {$investor->investor_name},
+            $investorParagraph = "{$investor->investor_prefix}. {$investor->investor_name},
             a Company duly incorporated and existing under the laws of United Arab Emirates,
              having license number {$investor->trade_license_number} and registration no. {$investor->registration_number},";
 
-            $investorParagraph_ar = "{$investor->investor_prefix_arabic} {$investor->investor_name_arabic},وهي شركة تأسست وقائمة بموجب قوانين دولة الإمارات العربية المتحدة،وتحمل الترخيص رقم
+            $investorParagraph_ar = "{$investor->investor_prefix_arabic}. {$investor->investor_name_arabic},وهي شركة تأسست وقائمة بموجب قوانين دولة الإمارات العربية المتحدة،وتحمل الترخيص رقم
              {$investor->trade_license_number}ورقم التسجيل  {$investor->registration_number},";
 
             $investorSignText = "<p class='marginClass text-sm'>Authorized Signatory</p>";
@@ -2515,8 +2515,8 @@ class InvestmentContractService
                 $investorSignText = "<p class='marginClass text-sm'>Investor (Guardian):{$investor->investorGuardian->guardian_name}</p>";
                 $investorSignText_ar = "<p class='marginClass text-sm'>المستثمر (الوصي): {$investor->investorGuardian->guardian_name_arabic}</p>";
             } else {  // Major
-                $investorSignText = "<p class='marginClass text-sm'>Investor :{$investor->investor_prefix} {$investor->investor_name}</p>";
-                $investorSignText_ar = "<p class='marginClass text-sm'>المستثمر:{$investor->investor_prefix_arabic} {$investor->investor_name_arabic} </p>";
+                $investorSignText = "<p class='marginClass text-sm'>Investor :{$investor->investor_prefix}. {$investor->investor_name}</p>";
+                $investorSignText_ar = "<p class='marginClass text-sm'>المستثمر:{$investor->investor_prefix_arabic}. {$investor->investor_name_arabic} </p>";
             }
         }
 
