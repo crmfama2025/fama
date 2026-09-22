@@ -17,7 +17,8 @@
 
     <div class="letter-meta">
         <div>To,</div>
-        <div class="font-weight-bold" id="recipient-name">Mr./Ms. {{ ucfirst($investor->investor_name) }}</div>
+        <div class="font-weight-bold" id="recipient-name">{{ ucfirst($investor->investor_prefix) }}.
+            {{ ucfirst($investor->investor_name) }}</div>
     </div>
 
     <div class="letter-subject">
