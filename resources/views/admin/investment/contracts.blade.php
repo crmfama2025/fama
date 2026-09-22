@@ -106,8 +106,8 @@
                                             <th>Signed Status</th>
                                             <th>Contract Type</th>
                                             <th>Version</th>
-                                            <th>Document</th>
-                                            <th>Additional Document </th>
+                                            {{-- <th>Document</th>
+                                            <th>Additional Document </th> --}}
                                             <th>Generated Date</th>
                                             {{-- <th>Version</th> --}}
 
@@ -164,6 +164,7 @@
                 serverSide: true,
                 responsive: true,
                 // pageLength: 5,
+                lengthMenu: [10, 25, 50, 100],
 
                 ajax: {
                     url: "{{ route('investmentContracts.list') }}",
@@ -211,20 +212,20 @@
                         name: 'investor_agreement_template'
                     },
                     //  Main Document
-                    {
-                        data: 'main_doc_view',
-                        name: 'main_doc_view',
-                        orderable: false,
-                        searchable: false
-                    },
+                    // {
+                    //     data: 'main_doc_view',
+                    //     name: 'main_doc_view',
+                    //     orderable: false,
+                    //     searchable: false
+                    // },
 
                     //  Additional Document
-                    {
-                        data: 'additional_doc_view',
-                        name: 'additional_doc_view',
-                        orderable: false,
-                        searchable: false
-                    },
+                    // {
+                    //     data: 'additional_doc_view',
+                    //     name: 'additional_doc_view',
+                    //     orderable: false,
+                    //     searchable: false
+                    // },
                     {
                         data: 'generated_date',
                         name: 'generated_date',
@@ -238,7 +239,23 @@
                 order: [
                     [0, 'desc']
                 ],
-                dom: 'Bfrtip',
+
+                dom: '<"row mb-2"' +
+                    '<"col-md-6"B>' +
+                    '<"col-md-6 text-right"l>' +
+                    '>' +
+                    '<"row mb-2"' +
+                    '<"col-md-12"f>' +
+                    '>' +
+                    '<"row"' +
+                    '<"col-12"tr>' +
+                    '>' +
+                    '<"row"' +
+                    '<"col-md-5"i>' +
+                    '<"col-md-7"p>' +
+                    '>',
+
+
                 buttons: [{
                     extend: 'excelHtml5',
                     text: 'Export Excel',
