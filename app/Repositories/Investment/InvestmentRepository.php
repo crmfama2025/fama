@@ -255,6 +255,7 @@ class InvestmentRepository
                 'profit_amount'         => $amount,
                 'has_profit_amount'     => $amount > 0 ? 1 : 0,
                 'release_status'        => 'pending',
+                'renewal_count' => 0,
                 'released_total_amount' => 0,
                 'last_released_at'      => null,
                 'last_released_by'      => null,
@@ -384,59 +385,161 @@ class InvestmentRepository
     //     return $schedule;
     // }
 
-    public function updateInvestorProfitRecords(array $profits, $investment): void
+    public function updateInvestorProfitRecords(array $profits, $investment): array
     {
-        DB::transaction(function () use ($profits, $investment) {
-            foreach ($profits as $record) {
-                $amount = round((float) ($record['amount'] ?? 0), 2);
+        return DB::transaction(function () use ($profits, $investment) {
+            return $this->updateOrCreateProfitRecord($profits, $investment);
+        });
+    }
 
-                if (empty($record['date'])) {
-                    continue; // can't create/update without a date
+    public function renewInvestorProfitRecords(array $profitRecords, Investment $investment): array
+    {
+        return DB::transaction(function () use ($investment, $profitRecords) {
+            return $this->updateOrCreateProfitRecord($profitRecords, $investment);
+        });
+    }
+
+    public function updateOrCreateProfitRecord($profits, $investment)
+    {
+        $changes = [];
+        foreach ($profits as $record) {
+            $amount = round((float) ($record['amount'] ?? 0), 2);
+
+            if (empty($record['date'])) {
+                continue; // can't create/update without a date
+            }
+
+            $releaseMonth = Carbon::createFromFormat('d-m-Y', $record['date'])->startOfDay();
+
+            if (!empty($record['id'])) {
+                $existing = InvestmentProfitRecord::where('id', $record['id'])
+                    ->where('investment_id', $investment->id)
+                    ->first();
+
+                if (!$existing) {
+                    continue;
                 }
 
-                $releaseMonth = Carbon::createFromFormat('d-m-Y', $record['date'])->startOfDay();
+                $existingDate = Carbon::createFromFormat('d-m-Y', $existing->profit_release_month)->startOfDay();
 
-                if (!empty($record['id'])) {
-                    $existing = InvestmentProfitRecord::where('id', $record['id'])
-                        ->where('investment_id', $investment->id)
-                        ->first();
+                $dateChanged   = !$existingDate->equalTo($releaseMonth);
+                $amountChanged = round((float) $existing->profit_amount, 2) !== $amount;
 
-                    if (!$existing) {
-                        continue;
-                    }
+                if ($dateChanged || $amountChanged) {
+                    $old = [
+                        'profit_release_month' => $existing->profit_release_month,
+                        'profit_amount' => $existing->profit_amount,
+                    ];
 
-                    $existingDate = Carbon::createFromFormat('d-m-Y', $existing->profit_release_month)->startOfDay();
-
-                    $dateChanged   = !$existingDate->equalTo($releaseMonth);
-                    $amountChanged = round((float) $existing->profit_amount, 2) !== $amount;
-
-                    if ($dateChanged || $amountChanged) {
-                        $existing->update([
-                            'investor_id'           => $investment->investor_id,
-                            'profit_release_month'  => $releaseMonth,
-                            'profit_amount'         => $amount,
-                            'has_profit_amount'     => $amount > 0 ? 1 : 0,
-                            // 'updated_at'            => now(),
-                            // 'released_total_amount' => 0,
-                            // 'last_released_at'      => null,
-                            // 'last_released_by'      => null,
-                        ]);
-                    }
-                } else {
-                    // No id - new row added on the frontend - create
-                    InvestmentProfitRecord::create([
+                    $existing->update([
                         'investor_id'           => $investment->investor_id,
-                        'investment_id'         => $investment->id,
                         'profit_release_month'  => $releaseMonth,
                         'profit_amount'         => $amount,
                         'has_profit_amount'     => $amount > 0 ? 1 : 0,
-                        'release_status'        => 'pending',
-                        'released_total_amount' => 0,
-                        'last_released_at'      => null,
-                        'last_released_by'      => null,
+                        // 'updated_at'            => now(),
+                        // 'released_total_amount' => 0,
+                        // 'last_released_at'      => null,
+                        // 'last_released_by'      => null,
                     ]);
+
+
+                    $changes[] = [
+                        'action' => 'updated',
+                        'id' => $existing->id,
+                        'old' => $old,
+                        'new' => [
+                            'profit_release_month' => $releaseMonth->toDateString(),
+                            'profit_amount' => $amount,
+                        ],
+                    ];
                 }
+            } else {
+                // No id - new row added on the frontend - create
+                $created = InvestmentProfitRecord::create([
+                    'investor_id'           => $investment->investor_id,
+                    'investment_id'         => $investment->id,
+                    'profit_release_month'  => $releaseMonth,
+                    'profit_amount'         => $amount,
+                    'renewal_count' => $investment->renewal_count,
+                    'has_profit_amount'     => $amount > 0 ? 1 : 0,
+                    'release_status'        => 'pending',
+                    'released_total_amount' => 0,
+                    'last_released_at'      => null,
+                    'last_released_by'      => null,
+                ]);
+
+
+                $changes[] = [
+                    'action' => 'created',
+                    'id' => $created->id,
+                    'new' => [
+                        'profit_release_month' => $releaseMonth->toDateString(),
+                        'profit_amount' => $amount,
+                    ],
+                ];
             }
+        }
+
+        return $changes;
+    }
+
+
+    public function getRenewalQuery(array $filters = []): Builder
+    {
+        $twoWeeksLater = Carbon::today()->addWeeks(2)->format('Y-m-d');
+        $permittedCompanyIds = getUserPermittedCompanyIds(auth()->user()->id, 'investment');
+
+        $query = Investment::with('investor', 'payoutBatch', 'profitInterval', 'company', 'investmentReferral', 'companyAllocations.company', 'investedCompany');
+
+        $query->whereHas('company', function ($q) use ($permittedCompanyIds) {
+            $q->whereIn('company_id', $permittedCompanyIds);
         });
+
+        $query->whereDate('maturity_date', '<=', $twoWeeksLater)
+            ->where('terminate_status', 0)
+            ->where('investment_term_type', 1);
+        // ->where('investment_status', 0);
+
+        if (!empty($filters['investor_id'])) {
+            $query->where('investor_id', $filters['investor_id']);
+        }
+        $result = $query->get();
+        // dd($result);
+        if (!empty($filters['search'])) {
+            $query->orWhere('investment_amount', 'like', '%' . $filters['search'] . '%')
+                ->orWhere('investment_date', 'like', '%' . $filters['search'] . '%')
+                ->orWhere('investment_code', 'like', '%' . $filters['search'] . '%')
+                ->orWhere('maturity_date', 'like', '%' . $filters['search'] . '%')
+                ->orWhere('profit_perc', 'like', '%' . $filters['search'] . '%')
+                ->orWhere('received_amount', 'like', '%' . $filters['search'] . '%')
+                ->orWhere('profit_release_date', 'like', '%' . $filters['search'] . '%')
+                ->orWhere('nominee_name', 'like', '%' . $filters['search'] . '%')
+                ->orWhere('nominee_email', 'like', '%' . $filters['search'] . '%')
+                ->orWhere('nominee_phone', 'like', '%' . $filters['search'] . '%')
+                ->orWhereHas('investor', function ($q) use ($filters) {
+                    $q->where('investor_name', 'like', '%' . $filters['search'] . '%');
+                })
+                ->orWhereHas('profitInterval', function ($q) use ($filters) {
+                    $q->where('profit_interval_name', 'like', '%' . $filters['search'] . '%');
+                })
+                ->orWhereHas('payoutBatch', function ($q) use ($filters) {
+                    $q->where('batch_name', 'like', '%' . $filters['search'] . '%');
+                })
+                ->orWhereHas('company', function ($q) use ($filters) {
+                    $q->where('company_name', 'like', '%' . $filters['search'] . '%');
+                })->orWhereHas('investmentReferral', function ($q) use ($filters) {
+                    $q->where('referral_commission_amount', 'like', '%' . $filters['search'] . '%');
+                    $q->whereHas('referrer', function ($qr) use ($filters) {
+                        $qr->where('investor_name', 'like', '%' . $filters['search'] . '%');
+                    });
+                })
+                ->orWhereRaw("CAST(investments.id AS CHAR) LIKE ?", ['%' . $filters['search'] . '%']);
+        }
+
+        // if (!empty($filters['company_id'])) {
+        //     $query->Where('company_id', $filters['company_id']);
+        // }
+
+        return $query;
     }
 }

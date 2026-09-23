@@ -5,6 +5,7 @@ namespace App\Services\Investment;
 use App\Models\Company;
 use App\Models\Investment;
 use App\Models\InvestmentReferral;
+use App\Models\InvestmentRenewalEditLog;
 use App\Models\Investor;
 use App\Models\InvestorAgreementType;
 use App\Models\PaymentTerms;
@@ -303,11 +304,28 @@ class InvestmentService
 
     public function update($id, array $data)
     {
-        $allocations = $this->validateCompanyAllocations($data);
+
+        $mode = $data['mode'] ?? 'edit';
+
+        if (!in_array($mode, ['edit', 'renew'], true)) {
+            throw ValidationException::withMessages([
+                'mode' => 'Invalid update mode.',
+            ]);
+        }
+
+        $allocations = '';
+        if ($mode === 'edit') {
+            $allocations = $this->validateCompanyAllocations($data);
+        }
         // dd($data);
-        return DB::transaction(function () use ($id, $data, $allocations) {
+        return DB::transaction(function () use ($id, $data, $allocations, $mode) {
 
             $investment = $this->investmentRepository->find($id);
+
+
+            if ($mode === 'renew') {
+                return $this->renewExistingInvestment($investment, $data);
+            }
 
             // Hard guard — matches UI's edit-button visibility logic
             if ($investment->is_profit_processed || $investment->has_partial_withdrawal) {
@@ -368,6 +386,9 @@ class InvestmentService
 
             $this->validate($investmentData);
 
+            $logFields = $this->editLogFields();
+            $before = $this->snapshotInvestment($investment, $logFields);
+
             $investment = $this->investmentRepository->update($id, $investmentData);
 
             $this->syncCompanyAllocations($investment, $allocations);
@@ -392,7 +413,7 @@ class InvestmentService
             // }
 
             // Profit record update
-            $this->investmentRepository->updateInvestorProfitRecords(
+            $scheduleChanges = $this->investmentRepository->updateInvestorProfitRecords(
                 $data['profit_records'] ?? [],
                 $investment
             );
@@ -465,8 +486,6 @@ class InvestmentService
                 updateReferralCommission($data['referral_id']);
             }
 
-
-
             $receivedPaymentData = [
                 'received_amount' => $investment->received_amount,
                 'received_date' => $investment->investment_date,
@@ -493,8 +512,164 @@ class InvestmentService
             $this->investorLedgerService->updateInvestmentLedger($investor->id, $companyId, $docInsertData, $investment);
             updateInvestmentBalance($investment->id);
 
+
+            $investment->refresh();
+
+            $after   = $this->snapshotInvestment($investment, $logFields);
+            $changes = $this->diffSnapshots($before, $after);
+
+            if (!empty($changes) || !empty($scheduleChanges)) {
+                InvestmentRenewalEditLog::create([
+                    'investment_id'    => $investment->id,
+                    'created_by'       => $userId,
+                    'reason'           => 'edit',
+                    'before_values'    => $before,
+                    'after_values'     => $after,
+                    'changes'          => $changes,
+                    'schedule_changes' => $scheduleChanges ?? [],
+                ]);
+            }
+
             return $investment;
         });
+    }
+
+    private function editLogFields(): array
+    {
+        return [
+            'investor_id',
+            'investment_amount',
+            'investment_amount_arabic',
+            'received_amount',
+            'investment_date',
+            'investment_tenure',
+            'grace_period',
+            'maturity_date',
+            'profit_perc',
+            'profit_amount',
+            'profit_interval_id',
+            'profit_amount_per_interval',
+            'profit_release_date',
+            'payout_batch_id',
+            'investor_bank_id',
+            'nominee_name',
+            'nominee_email',
+            'nominee_phone',
+            'company_id',
+            'company_bank_id',
+            'company_bank_iban',
+            'company_bank_account_number',
+            'reinvestment_or_not',
+            'next_profit_release_date',
+            'next_referral_commission_release_date',
+            'investment_term_type',
+        ];
+    }
+
+    private function snapshotInvestment(Investment $investment, array $fields): array
+    {
+        $snapshot = [];
+
+        foreach ($fields as $field) {
+            $value = $investment->getAttribute($field);
+
+            $snapshot[$field] = $value instanceof \DateTimeInterface
+                ? $value->format('Y-m-d')
+                : $value;
+        }
+
+        return $snapshot;
+    }
+
+    private function diffSnapshots(array $before, array $after): array
+    {
+        $changes = [];
+
+        foreach ($after as $field => $new) {
+            $old = $before[$field] ?? null;
+
+            if ($this->valuesDiffer($old, $new)) {
+                $changes[$field] = ['old' => $old, 'new' => $new];
+            }
+        }
+
+        return $changes;
+    }
+
+    private function valuesDiffer($old, $new): bool
+    {
+        // avoids false positives like "1000.00" vs 1000
+        if (is_numeric($old) && is_numeric($new)) {
+            return abs((float) $old - (float) $new) > 0.000001;
+        }
+
+        return (string) $old !== (string) $new;
+    }
+
+
+    private function renewExistingInvestment(Investment $investment, array $data)
+    {
+
+        $fields = [
+            'profit_perc',
+            'profit_amount',
+            'profit_amount_per_interval',
+            'profit_interval_id',
+            'profit_release_date',
+            'payout_batch_id',
+            'investor_bank_id',
+            'maturity_date'
+        ];
+
+        $oldMaturityDate = $investment->maturity_date;
+        $oldRenewalCount = $investment->renewal_count;
+
+        // Implement using your actual tables and renewal rules.
+        $this->validateRenewalReferences($data, $investment->id);
+
+        $before = $investment->only($fields);
+
+        foreach ($fields as $field) {
+            $investment->setAttribute($field, $data[$field]);
+        }
+
+        $changedFields = array_intersect(
+            array_keys($investment->getDirty()),
+            $fields
+        );
+
+        $investment->maturity_date = parseDate($data['maturity_date']);
+        $investment->last_renewed_maturity_date = $oldMaturityDate;
+        $investment->renewed_at = now();
+        $investment->renewal_count = $oldRenewalCount + 1;
+        $investment->updated_by = auth()->id();
+        $investment->save();
+
+        $scheduleChanges = $this->investmentRepository->renewInvestorProfitRecords($data['profit_records'], $investment);
+        // dd($scheduleChanges);
+        $investment->refresh();
+
+        $after = $investment->only($fields);
+        $changes = [];
+
+        foreach ($changedFields as $field) {
+            $changes[$field] = [
+                'old' => $before[$field],
+                'new' => $after[$field],
+            ];
+        }
+
+        InvestmentRenewalEditLog::create([
+            'investment_id' => $investment->id,
+            'created_by' => auth()->id(),
+            'reason' => 'renewal',
+            'before_values' => $before,
+            'after_values' => $after,
+            'changes' => $changes,
+            'schedule_changes' => $scheduleChanges,
+        ]);
+
+        return $investment;
     }
 
 
@@ -579,6 +754,42 @@ class InvestmentService
             // 'nominee_email.max' => 'Nominee email cannot exceed 254 characters.',
             'company_id.required' => 'Company is required.',
             'company_bank_id.required' => 'Company bank is required.',
+        ]);
+
+
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
+    }
+
+    private function validateRenewalReferences(array $data, $id = null)
+    {
+
+        $validator = Validator::make($data, [
+            'investor_id' => 'required',
+            'profit_perc' => 'required|numeric|min:0|max:100',
+            'profit_amount' => 'required|numeric|min:0',
+            'profit_interval_id' => 'required|exists:profit_intervals,id',
+            'profit_amount_per_interval' => 'required|numeric|min:0',
+            'payout_batch_id' => 'nullable|exists:payout_batches,id',
+            'investor_bank_id' => 'required|exists:investor_banks,id',
+        ], [
+            'investor_id.required' => 'Investor is required.',
+            'profit_perc.required' => 'Profit percentage is required.',
+            'profit_perc.numeric' => 'Profit percentage must be a number.',
+            'profit_perc.min' => 'Profit percentage cannot be negative.',
+            'profit_perc.max' => 'Profit percentage cannot exceed 100.',
+            'profit_amount.required' => 'Profit amount is required.',
+            'profit_amount.numeric' => 'Profit amount must be a number.',
+            'profit_amount.min' => 'Profit amount cannot be negative.',
+            'profit_interval_id.required' => 'Profit interval is required.',
+            'profit_interval_id.exists' => 'Selected profit interval is invalid.',
+            'profit_amount_per_interval.required' => 'Profit amount per interval is required.',
+            'profit_amount_per_interval.numeric' => 'Profit amount per interval must be a number.',
+            'profit_amount_per_interval.min' => 'Profit amount per interval cannot be negative.',
+            'payout_batch_id.exists' => 'Selected payout batch is invalid.',
+            'investor_bank_id.required' => 'Investor bank is required.',
+            'investor_bank_id.exists' => 'Selected investor bank is invalid.',
         ]);
 
 
@@ -1343,13 +1554,59 @@ class InvestmentService
         });
     }
 
-    public function getInvestmentProfitRecords(
-        Investment $investment
-    ): Collection {
+    public function getInvestmentProfitRecords(Investment $investment, $mode): Collection
+    {
         $expectedCount = (int) $investment->investment_tenure;
 
         if ($expectedCount <= 0) {
             return new Collection();
+        }
+
+        if ($mode === 'renew') {
+            $previousRecords = $investment->profitRecords()
+                ->orderByDesc('profit_release_month')
+                ->orderByDesc('id')
+                ->limit($expectedCount)
+                ->get();
+
+            // dd($previousRecords);
+            if ($previousRecords->count() < $expectedCount) {
+                return new Collection();
+            }
+
+            $lastRecord = $previousRecords->first();
+            // dd($lastRecord);
+            $lastProfitDate = Carbon::parse($lastRecord->profit_release_month);
+
+            $profitRecords = new Collection();
+
+            for ($month = 1; $month <= $expectedCount; $month++) {
+                // $previousRecord = $previousRecords->get($month - 1);
+                $newProfitDate  = $lastProfitDate->copy()
+                    ->addMonthsNoOverflow($month);
+
+                $previousTenureDate = $newProfitDate->copy()
+                    ->subMonthsNoOverflow($expectedCount);
+
+                $previousRecord = $investment->profitRecords()
+                    ->whereDate(
+                        'profit_release_month',
+                        $previousTenureDate->format('Y-m-d')
+                    )
+                    ->orderByDesc('id')
+                    ->first();
+
+                $profitRecords->push(
+                    $investment->profitRecords()->make([
+                        'profit_release_month' => $newProfitDate->format('Y-m-d'),
+
+                        // Month 1 copies prior tenure month 1, etc.
+                        'profit_amount' => $previousRecord?->profit_amount ?? 0,
+                    ])
+                );
+            }
+            // dd($profitRecords);
+            return $profitRecords;
         }
 
         $latestRenewal = DB::table(
@@ -1376,18 +1633,11 @@ class InvestmentService
                 ->limit($expectedCount)
                 ->get();
 
-            return $this->sortProfitRecordsChronologically(
-                $profitRecords
-            );
+            return $this->sortProfitRecordsChronologically($profitRecords);
         }
 
-        $logFirstProfitDate = Carbon::parse(
-            $latestRenewal->first_profit_date
-        )->startOfDay();
-
-        $logLastProfitDate = Carbon::parse(
-            $latestRenewal->last_profit_date
-        )->endOfDay();
+        $logFirstProfitDate = Carbon::parse($latestRenewal->first_profit_date)->startOfDay();
+        $logLastProfitDate = Carbon::parse($latestRenewal->last_profit_date)->endOfDay();
 
         /*
         * First attempt: records affected by the latest renewal log.
@@ -1407,9 +1657,7 @@ class InvestmentService
             $profitRecords->count() < $expectedCount &&
             $investment->investor_novation_applied_at
         ) {
-            $novationDate = Carbon::parse(
-                $investment->investor_novation_applied_at
-            )->startOfDay();
+            $novationDate = Carbon::parse($investment->investor_novation_applied_at)->startOfDay();
 
             $profitRecords = $this->getProfitRecordsBetweenDates(
                 investment: $investment,
@@ -1423,12 +1671,8 @@ class InvestmentService
         return $profitRecords;
     }
 
-    private function getProfitRecordsBetweenDates(
-        Investment $investment,
-        Carbon $startDate,
-        Carbon $endDate,
-        int $limit
-    ): Collection {
+    private function getProfitRecordsBetweenDates(Investment $investment, Carbon $startDate, Carbon $endDate, int $limit): Collection
+    {
         /*
      * Select the latest required number of database records.
      */
@@ -1479,10 +1723,6 @@ class InvestmentService
             ->activeLongTerm()
             ->findOrFail($investmentId);
 
-        $maturityDate = Carbon::parse(
-            $investment->maturity_date
-        )->toDateString();
-
         DB::transaction(function () use ($investment, $data) {
             $submittedRecords = collect($data);
 
@@ -1531,5 +1771,93 @@ class InvestmentService
                 ]);
             }
         });
+    }
+
+    public function getRenewalDataTable($filters)
+    {
+        $query = $this->investmentRepository->getRenewalQuery($filters);
+
+        $columns = [
+            ['data' => 'DT_RowIndex', 'name' => 'id'],
+            ['data' => 'company_name', 'name' => 'company.company_name'],
+            ['data' => 'invested_company_name', 'name' => 'investedCompany.company_name'],
+            ['data' => 'investor_name', 'name' => 'investor.investor_name'],
+            ['data' => 'investment_amount', 'name' => 'investment_amount'],
+            ['data' => 'total_received_amount', 'name' => 'total_received_amount'],
+            ['data' => 'investment_date', 'name' => 'investment_date'],
+            ['data' => 'profit_interval', 'name' => 'profit_interval_name'],
+            ['data' => 'profit_perc', 'name' => 'profit_perc'],
+            ['data' => 'maturity_date', 'name' => 'maturity_date'],
+            ['data' => 'profit_release_date', 'name' => 'profit_release_date'],
+            ['data' => 'grace_period', 'name' => 'grace_period'],
+            ['data' => 'payout_batch', 'name' => 'payoutBatch.batch_name'],
+            ['data' => 'nominee_name', 'name' => 'nominee_name'],
+            ['data' => 'total_profit_released', 'name' => 'total_profit_released'],
+            ['data' => 'current_month_released', 'name' => 'current_month_released'],
+            ['data' => 'outstanding_profit', 'name' => 'outstanding_profit'],
+            ['data' => 'action', 'name' => 'action', 'orderable' => false, 'searchable' => false],
+        ];
+
+        return datatables()
+            ->of($query)
+            ->addIndexColumn()
+            ->addColumn('company_name', fn($row) => $row->company->company_name ?? '-')
+            // ->addColumn(
+            //     'invested_company_name',
+            //     fn($row) =>
+            //     $row->investedCompany->company_name ?? '-'
+            // )
+            ->addColumn('invested_company_name', function ($row) {
+                if ($row->companyAllocations->isNotEmpty()) {
+                    return $row->companyAllocations
+                        ->map(function ($allocation) {
+                            return ($allocation->company?->company_name ?? '-')
+                                . ' - '
+                                . number_format($allocation->allocated_amount, 2);
+                        })
+                        ->implode(', <br>');
+                }
+
+                // Fallback for older investments.
+                if ($row->invested_company_id) {
+                    return ($row->investedCompany?->company_name ?? '-')
+                        . ' - '
+                        . number_format($row->investment_amount, 2);
+                }
+
+                return '-';
+            })
+            ->addColumn('investor_name', fn($row) => $row->investor->investor_name . " - " . $row->investor->investor_code ?? '-')
+
+            ->addColumn('investment_amount', fn($row) => number_format($row->investment_amount, 2))
+            ->addColumn('received_amount', fn($row) => number_format($row->total_received_amount, 2))
+            ->addColumn('investment_date', fn($row) => getFormattedDate($row->investment_date))
+            ->addColumn('profit_interval', fn($row) => $row->profitInterval->profit_interval_name ?? '-')
+            ->addColumn('profit_perc', fn($row) => $row->profit_perc . '%')
+            ->addColumn('maturity_date', fn($row) => getFormattedDate($row->maturity_date))
+            ->addColumn('profit_release_date', fn($row) => $row->profit_release_date)
+            ->addColumn('grace_period', fn($row) => $row->grace_period ?? '-')
+            ->addColumn('batch_name', fn($row) => 'Batch ' . $row->payout_batch_id . ' (' . $row->payoutBatch->batch_name . ')' ?? '-')
+            ->addColumn('referral_commission_amount', fn($row) => $row->investmentReferral->referral_commission_amount ?? '-')
+            ->addColumn('referral_commission_perc', fn($row) => $row->investmentReferral->referral_commission_perc ?? '-')
+
+            ->addColumn('action', function ($row) use ($filters) {
+                $action = '';
+
+                if (auth()->user()->hasAnyPermission(['investment.renew'], $row->company_id)) {
+                    $action .= '<a class="btn btn-primary btn-sm" href="' . route('investments.renew', ['id' => $row->id]) . '" title="Renew Investment">
+                            <i class="fas fa-sync-alt"></i>
+                        </a> ';
+
+                    // $reject = route('investment.reject_renew', $row->id);
+                    $action .= '<a class="btn btn-danger btn-sm openRejectModalBtn" href="#" data-url="' . route('investment.edit', $row->id) . '" data-id="' . $row->id . '" title="Reject Renewal">
+                            <i class="fas fa-times"></i>
+                        </a> ';
+                }
+
+                return $action;
+            })
+            ->rawColumns(['action', 'invested_company_name'])
+            ->toJson();
     }
 }

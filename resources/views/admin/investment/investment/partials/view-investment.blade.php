@@ -127,166 +127,6 @@
  <div class="card card-outline card-info">
      <div class="card-header">
          <h3 class="card-title text-teal text-bold">
-             <i class="fas fa-file-invoice-dollar mr-2"></i> Profit Details
-         </h3>
-
-         <a href="{{ route('investments.profit-schedule.edit', $investment->id) }}"
-             class="btn btn-warning float-right">
-             Edit Future Profit Schedule
-         </a>
-     </div>
-
-     <div class="card-body p-0">
-         <div class="table-responsive">
-             <table class="table table-bordered table-striped ">
-                 <thead class="bg-light">
-                     <tr>
-                         <th>Profit Date</th>
-                         <th>Profit Amount</th>
-                         <th>Release Status</th>
-                         <th>Total Released</th>
-                         <th>Released Date</th>
-                     </tr>
-                 </thead>
-
-                 <tbody>
-                     @foreach ($investment->profitRecords->where('has_profit_amount', 1) as $profitRecord)
-                         <tr>
-                             <td>
-                                 <span class="badge badge-light text-sm">
-                                     {{ getFormattedDate($profitRecord->profit_release_month) }}
-                                 </span>
-                             </td>
-                             <td>
-                                 <span class="badge badge-light text-sm">
-                                     {{ number_format($profitRecord->profit_amount, 2) ?? ' - ' }}
-                                 </span>
-                             </td>
-                             <td>
-                                 <span class="badge badge-light text-sm text-danger">
-                                     {{ toFirstCaps($profitRecord->release_status) }}
-                                 </span>
-                             </td>
-                             <td>
-                                 <span class="text-bold text-sm ">
-                                     {{ number_format($profitRecord->released_total_amount, 2) ?? ' - ' }}
-                                 </span>
-                             </td>
-                             <td>
-                                 <span class="text-bold text-sm ">
-                                     {{ $profitRecord->last_released_at }}
-                                 </span>
-                             </td>
-
-                         </tr>
-                     @endforeach
-
-
-                 </tbody>
-             </table>
-         </div>
-
-     </div>
-
- </div>
-
-
- {{-- <div class="card card-outline card-info">
-     <div class="card-header">
-         <h3 class="card-title text-teal text-bold">
-             <i class="fas fa-file-invoice-dollar mr-2"></i> Profit Release Details
-         </h3>
-     </div>
-
-     <div class="card-body p-0">
-         <div class="table-responsive">
-             <table class="table table-bordered table-striped ">
-                 <thead class="bg-light">
-                     <tr>
-                         <th>Last Profit Released on</th>
-                         <th>Profit Release Due on</th>
-                         <th>Outstanding Profit</th>
-                         <th>Payout Batch</th>
-                         <th>Profit Interval</th>
-
-                     </tr>
-                 </thead>
-
-                 <tbody>
-                     <tr>
-                         <td>
-                             <span class="badge badge-light text-sm">
-                                 {{ getFormattedDate($investment->last_profit_released_date) }}
-                             </span>
-                         </td>
-                         <td>
-                             <span class="badge badge-light text-sm">
-                                 {{ getFormattedDate($investment->next_profit_release_date) ?? ' - ' }}
-                             </span>
-                         </td>
-                         <td>
-                             <span class="badge badge-light text-sm text-danger">
-                                 {{ number_format($investment->outstanding_profit, 2) }}
-                             </span>
-                         </td>
-                         <td>
-                             <span class="text-bold text-sm ">
-                                 {{ $investment->payoutBatch->batch_name }}
-                             </span>
-                         </td>
-                         <td>
-                             <span class="text-bold text-sm ">
-                                 {{ $investment->profitInterval->profit_interval_name }}
-                             </span>
-                         </td>
-
-                     </tr>
-
-                 </tbody>
-             </table>
-         </div>
-
-     </div>
-
- </div> --}}
-
-
- <div class="card card-outline card-info">
-     <div class="card-header">
-         <h3 class="card-title text-teal text-bold">
-             <i class="fas fa-user mr-2"></i> Nominee Details
-         </h3>
-     </div>
-
-     <div class="card-body p-0">
-         <div class="table-responsive">
-             <table class="table table-bordered table-striped">
-                 <thead class="bg-light">
-                     <tr>
-                         {{-- <th>#</th> --}}
-                         <th>Nominee Name</th>
-                         <th>Nominee Email</th>
-                         <th>Nominee Phone</th>
-
-                     </tr>
-                 </thead>
-
-                 <tbody>
-                     <tr>
-                         <td>{{ $investment->nominee_name ?? ' - ' }}</td>
-                         <td>{{ $investment->nominee_email ?? ' - ' }}</td>
-                         <td>{{ $investment->nominee_phone ?? ' - ' }}</td>
-                     </tr>
-
-                 </tbody>
-             </table>
-         </div>
-     </div>
-
- </div>
- <div class="card card-outline card-info">
-     <div class="card-header">
-         <h3 class="card-title text-teal text-bold">
              <i class="fas fa-user mr-2"></i> Bank Details
          </h3>
      </div>
@@ -434,3 +274,363 @@
          </div>
      </div>
  @endif
+
+ <div class="card card-outline card-info">
+     <div class="card-header">
+         <h3 class="card-title text-teal text-bold">
+             <i class="fas fa-user mr-2"></i> Nominee Details
+         </h3>
+     </div>
+
+     <div class="card-body p-0">
+         <div class="table-responsive">
+             <table class="table table-bordered table-striped">
+                 <thead class="bg-light">
+                     <tr>
+                         {{-- <th>#</th> --}}
+                         <th>Nominee Name</th>
+                         <th>Nominee Email</th>
+                         <th>Nominee Phone</th>
+
+                     </tr>
+                 </thead>
+
+                 <tbody>
+                     <tr>
+                         <td>{{ $investment->nominee_name ?? ' - ' }}</td>
+                         <td>{{ $investment->nominee_email ?? ' - ' }}</td>
+                         <td>{{ $investment->nominee_phone ?? ' - ' }}</td>
+                     </tr>
+
+                 </tbody>
+             </table>
+         </div>
+     </div>
+
+ </div>
+
+ <div class="card card-outline card-info">
+
+
+     <div class="card-header">
+         <h3 class="card-title text-teal text-bold">
+             <i class="fas fa-file-invoice-dollar mr-2"></i> Investment Renewal Record
+         </h3>
+     </div>
+
+     <div class="card-body p-0">
+         <div class="table-responsive">
+             <table class="table table-bordered table-striped ">
+                 <thead class="bg-light">
+                     <tr>
+                         <th>#</th>
+                         <th>Renewal Date</th>
+                         <th>Renewal Count</th>
+                         <th>Modifications</th>
+                     </tr>
+                 </thead>
+
+                 <tbody>
+                     @php
+                         $renewalLogs = $investment->RenewalEditLog()->where('reason', 'renewal')->get();
+
+                         $renewalCount = 0;
+                         $previousRenewalDate = null;
+
+                         $renewalLogs->each(function ($item) use (&$renewalCount, &$previousRenewalDate) {
+                             $renewalDate = $item->created_at; //->toDateString()
+
+                             if ($renewalDate !== $previousRenewalDate) {
+                                 $renewalCount++;
+                                 $previousRenewalDate = $renewalDate;
+                             }
+
+                             $item->renewal_count = $renewalCount;
+                         });
+                     @endphp
+                     @forelse ($renewalLogs as $item)
+
+                         <tr>
+                             <td>{{ $loop->iteration }}</td>
+                             <td>{{ $item->created_at?->format('d-m-Y') }}</td>
+                             <td>Renewal {{ $item->renewal_count }}</td>
+                             <td>
+                                 @if (!empty($item->changes))
+                                     <table class="table table-sm table-bordered mb-0">
+                                         <thead class="table-light">
+                                             <tr>
+                                                 <th>Field Name</th>
+                                                 <th>Previous value</th>
+                                                 <th>New value</th>
+                                             </tr>
+                                         </thead>
+                                         <tbody>
+                                             @foreach ($item->changes as $field => $change)
+                                                 @php
+                                                     $old = data_get($change, 'old', '-');
+                                                     $new = data_get($change, 'new', '-');
+
+                                                     if ($field === 'maturity_date') {
+                                                         $old =
+                                                             $old !== '-' && $old
+                                                                 ? \Carbon\Carbon::parse($old)->format('d/m/Y')
+                                                                 : '-';
+
+                                                         $new =
+                                                             $new !== '-' && $new
+                                                                 ? \Carbon\Carbon::parse($new)->format('d/m/Y')
+                                                                 : '-';
+                                                     }
+                                                 @endphp
+
+                                                 <tr>
+                                                     <td class="text-capitalize">
+                                                         {{ str_replace('_', ' ', $field) }}
+                                                     </td>
+                                                     <td>{{ $old }}</td>
+                                                     <td>{{ $new }}</td>
+                                                 </tr>
+                                             @endforeach
+                                         </tbody>
+                                     </table>
+                                 @else
+                                     <span class="text-muted">No field modifications</span>
+                                 @endif
+                             </td>
+                         </tr>
+
+
+                         {{-- @foreach ($item->schedule_changes ?? [] as $scheduleChange)
+                             <tr>
+                                 <td>{{ $item->created_at?->format('d-m-Y H:i') }}</td>
+                                 <td>Schedule: {{ $scheduleChange['action'] ?? '-' }}</td>
+                                 <td>
+                                     {{ data_get($scheduleChange, 'old.profit_amount', '-') }}
+                                 </td>
+                                 <td>
+                                     {{ data_get($scheduleChange, 'new.profit_amount', '-') }}
+                                 </td>
+                             </tr>
+                         @endforeach --}}
+                     @empty
+                         <tr>
+                             <td colspan="4" class="text-center">No renewal modifications found.</td>
+                         </tr>
+                     @endforelse
+                 </tbody>
+             </table>
+         </div>
+
+     </div>
+
+ </div>
+
+
+ @php
+     $profitRecords = $investment->profitRecords
+         ->where('has_profit_amount', 1)
+         ->sortBy(function ($record) {
+             return \Carbon\Carbon::parse($record->getRawOriginal('profit_release_month'))->timestamp;
+         })
+         ->values();
+
+     $renewalCounts = $profitRecords
+         ->map(fn($record) => (int) ($record->renewal_count ?? 0))
+         ->unique()
+         ->sort()
+         ->values();
+
+     $selectedRenewalCount = $renewalCounts->isNotEmpty() ? $renewalCounts->max() : null;
+ @endphp
+
+ <div class="card card-outline card-success">
+     <div class="card-header">
+         <h3 class="card-title font-weight-bold">
+             <i class="fas fa-file-invoice-dollar text-success mr-2"></i>
+             Profit Details
+         </h3>
+     </div>
+
+     <div class="card-body">
+
+         <div class="row mb-3">
+             <div class="col-md-3">
+                 <label for="renewalFilter">Show Schedule</label>
+
+                 <select id="renewalFilter" class="form-control form-control-md">
+                     <option value="">All Schedules</option>
+
+                     @foreach ($renewalCounts as $renewalCount)
+                         <option value="{{ $renewalCount }}"
+                             {{ $renewalCount === $selectedRenewalCount ? 'selected' : '' }}>
+                             {{ $renewalCount === 0 ? 'New Investment' : 'Renewal ' . $renewalCount }}
+                         </option>
+                     @endforeach
+                 </select>
+             </div>
+         </div>
+
+         <div class="table-responsive">
+             <table class="table table-bordered table-striped table-sm">
+                 <thead>
+                     <tr>
+                         <th style="width: 70px;">#</th>
+                         <th>Profit Date</th>
+                         <th>Profit Amount</th>
+                         <th>Renewal Count</th>
+                         <th>Release Status</th>
+                         <th>Total Released</th>
+                         <th>Released Date</th>
+                     </tr>
+                 </thead>
+
+                 <tbody>
+                     @forelse ($profitRecords as $profitRecord)
+                         @php
+                             $renewalCount = (int) ($profitRecord->renewal_count ?? 0);
+
+                         @endphp
+
+                         <tr class="profit-record-row" data-renewal="{{ $renewalCount }}">
+
+                             <td class="profit-row-number">
+                                 {{ $loop->iteration }}
+                             </td>
+
+                             <td>
+                                 <span class="badge badge-light text-sm">
+                                     {{ getFormattedDate($profitRecord->profit_release_month) }}
+                                 </span>
+                             </td>
+
+                             <td>
+                                 <span class="badge badge-light text-sm">
+                                     {{ $profitRecord->profit_amount !== null ? number_format($profitRecord->profit_amount, 2) : '-' }}
+                                 </span>
+                             </td>
+
+                             <td>
+                                 <span class="badge badge-light text-sm">
+                                     {{ $renewalCount === 0 ? 'New' : 'Renewal ' . $renewalCount }}
+                                 </span>
+                             </td>
+
+                             <td>
+                                 <span class="badge badge-light text-sm text-danger">
+                                     {{ toFirstCaps($profitRecord->release_status) }}
+                                 </span>
+                             </td>
+
+                             <td>
+                                 <span class="text-bold text-sm">
+                                     {{ $profitRecord->released_total_amount !== null ? number_format($profitRecord->released_total_amount, 2) : '-' }}
+                                 </span>
+                             </td>
+
+                             <td>
+                                 <span class="text-bold text-sm">
+                                     {{ $profitRecord->last_released_at ? getFormattedDate($profitRecord->last_released_at) : '-' }}
+                                 </span>
+                             </td>
+                         </tr>
+                     @empty
+                         <tr>
+                             <td colspan="7" class="text-center text-muted">
+                                 No profit records found.
+                             </td>
+                         </tr>
+                     @endforelse
+                 </tbody>
+             </table>
+         </div>
+     </div>
+ </div>
+
+ @section('custom_js')
+     <script>
+         $(document).ready(function() {
+             function filterProfitRecords() {
+                 const selectedRenewal = String($('#renewalFilter').val());
+                 let visibleRowNumber = 1;
+
+                 $('.profit-record-row').each(function() {
+                     const renewalCount = String($(this).data('renewal'));
+
+                     const shouldShow = selectedRenewal === '' ||
+                         renewalCount === selectedRenewal;
+
+                     $(this).toggle(shouldShow);
+
+                     if (shouldShow) {
+                         $(this).find('.profit-row-number').text(visibleRowNumber++);
+                     }
+                 });
+             }
+
+             $('#renewalFilter').on('change', filterProfitRecords);
+
+             // On first page load: show only the highest/current renewal.
+             filterProfitRecords();
+         });
+     </script>
+ @endsection
+
+
+ {{-- <div class="card card-outline card-info">
+     <div class="card-header">
+         <h3 class="card-title text-teal text-bold">
+             <i class="fas fa-file-invoice-dollar mr-2"></i> Profit Release Details
+         </h3>
+     </div>
+
+     <div class="card-body p-0">
+         <div class="table-responsive">
+             <table class="table table-bordered table-striped ">
+                 <thead class="bg-light">
+                     <tr>
+                         <th>Last Profit Released on</th>
+                         <th>Profit Release Due on</th>
+                         <th>Outstanding Profit</th>
+                         <th>Payout Batch</th>
+                         <th>Profit Interval</th>
+
+                     </tr>
+                 </thead>
+
+                 <tbody>
+                     <tr>
+                         <td>
+                             <span class="badge badge-light text-sm">
+                                 {{ getFormattedDate($investment->last_profit_released_date) }}
+                             </span>
+                         </td>
+                         <td>
+                             <span class="badge badge-light text-sm">
+                                 {{ getFormattedDate($investment->next_profit_release_date) ?? ' - ' }}
+                             </span>
+                         </td>
+                         <td>
+                             <span class="badge badge-light text-sm text-danger">
+                                 {{ number_format($investment->outstanding_profit, 2) }}
+                             </span>
+                         </td>
+                         <td>
+                             <span class="text-bold text-sm ">
+                                 {{ $investment->payoutBatch->batch_name }}
+                             </span>
+                         </td>
+                         <td>
+                             <span class="text-bold text-sm ">
+                                 {{ $investment->profitInterval->profit_interval_name }}
+                             </span>
+                         </td>
+
+                     </tr>
+
+                 </tbody>
+             </table>
+         </div>
+
+     </div>
+
+ </div> --}}

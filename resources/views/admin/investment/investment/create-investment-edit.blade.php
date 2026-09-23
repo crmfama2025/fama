@@ -59,12 +59,33 @@
                             <div class="card-body">
                                 <form id="investmentForm" method="POST" enctype="multipart/form-data" novalidate>
                                     @csrf
+                                    @php
+                                        $mode = $mode ?? (isset($investment) ? 'edit' : 'create');
+                                        $isRenewal = $mode === 'renew';
+                                        $maturityDateValue = '';
 
+                                        if (isset($investment)) {
+                                            $maturityDate = !empty($investment->maturity_date)
+                                                ? \Carbon\Carbon::parse($investment->maturity_date)
+                                                : null;
+
+                                            if ($isRenewal && $maturityDate) {
+                                                // Assumes investment_tenure is in months.
+                                                $maturityDate->addMonthsNoOverflow(
+                                                    (int) $investment->investment_tenure,
+                                                );
+                                            }
+
+                                            $maturityDateValue = $maturityDate ? $maturityDate->format('d-m-Y') : '';
+                                        }
+                                    @endphp
                                     @if (isset($investment))
                                         @method('PUT')
                                         <input type="hidden" name="investment_id" id="investment_id"
                                             value="{{ $investment->id }}">
                                     @endif
+
+                                    <input type="hidden" name="mode" value="{{ $mode }}">
 
                                     <!-- ================= Investor Information ================= -->
                                     <div class="card card-outline card-info ">
@@ -104,7 +125,7 @@
                                                             id="investment_amount" name="investment_amount"
                                                             placeholder="Enter Investment Amount"
                                                             value="{{ old('investment_amount', isset($investment) && $investment->investment_amount ? $investment->investment_amount : $parent['amount'] ?? '') }}"
-                                                            required>
+                                                            required @readonly($isRenewal)>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-4">
@@ -115,17 +136,18 @@
                                                             id="investment_amount_arabic" name="investment_amount_arabic"
                                                             placeholder="Enter Investment Amount In Arabic Words"
                                                             value="{{ old('investment_amount_arabic', isset($investment) ? $investment->investment_amount_arabic : '') }}"
-                                                            required>
+                                                            required @readonly($isRenewal)>
                                                     </div>
                                                 </div>
 
                                                 <div class="col-md-4">
                                                     <div class="form-group">
                                                         <label class="asterisk">Received Amount</label>
-                                                        <input type="number" step="0.01" class="form-control" name="received_amount"
-                                                            id="received_amount" placeholder="Enter Received Amount"
+                                                        <input type="number" step="0.01" class="form-control"
+                                                            name="received_amount" id="received_amount"
+                                                            placeholder="Enter Received Amount"
                                                             value="{{ old('received_amount', isset($investment) && $investment->received_amount ? $investment->received_amount : $parent['amount'] ?? '') }}"
-                                                            {{ $paymentsCount > 1 ? 'readonly' : '' }}>
+                                                            @readonly($isRenewal || $paymentsCount > 1)>
                                                     </div>
                                                 </div>
 
@@ -138,7 +160,7 @@
                                                                 name="investment_date" id="investment_date"
                                                                 data-target="#investmentdate" placeholder="DD-MM-YYYY"
                                                                 value="{{ old('investment_date', isset($investment->investment_date) ? \Carbon\Carbon::parse($investment->investment_date)->format('d-m-Y') : $parent['date'] ?? '') }}"
-                                                                required>
+                                                                required @readonly($isRenewal)>
                                                             <div class="input-group-append" data-target="#investmentdate"
                                                                 data-toggle="datetimepicker">
                                                                 <div class="input-group-text">
@@ -168,8 +190,8 @@
                                                         <input type="number" class="form-control"
                                                             name="investment_tenure"
                                                             value="{{ old('investment_tenure', $investment->investment_tenure ?? '') }}"
-                                                            id="investment_tenure" placeholder="Invesmnet Tenure"
-                                                            required>
+                                                            id="investment_tenure" placeholder="Invesmnet Tenure" required
+                                                            @readonly($isRenewal)>
                                                     </div>
                                                 </div>
 
@@ -180,7 +202,8 @@
                                                         <label class="asterisk">Grace Period (Days)</label>
                                                         <input type="number" class="form-control" name="grace_period"
                                                             value="{{ old('grace_period', $investment->grace_period ?? '') }}"
-                                                            id="grace_period" placeholder="Grace Period" required>
+                                                            id="grace_period" placeholder="Grace Period" required
+                                                            @readonly($isRenewal)>
                                                     </div>
                                                 </div>
 
@@ -190,20 +213,23 @@
                                                         <div class="input-group date" id="maturityDate"
                                                             data-target-input="nearest">
                                                             <input type="text"
-                                                                class="form-control datetimepicker-input"
-                                                                value="{{ old('maturity_date', isset($investment->maturity_date) ? \Carbon\Carbon::parse($investment->maturity_date)->format('d-m-Y') : '') }}"
+                                                                class="form-control {{ $isRenewal ? '' : 'datetimepicker-input' }}"
+                                                                value="{{ $isRenewal ? $maturityDateValue : old('maturity_date', $maturityDateValue) }}"
                                                                 name="maturity_date" id="maturity_date" required
-                                                                data-target="#maturityDate" placeholder="DD-MM-YYYY">
-                                                            <div class="input-group-append" data-target="#maturityDate"
-                                                                data-toggle="datetimepicker">
-                                                                <div class="input-group-text">
-                                                                    <i class="fa fa-calendar"></i>
+                                                                data-target="#maturityDate" placeholder="DD-MM-YYYY"
+                                                                @readonly($isRenewal)>
+                                                            @if (!$isRenewal)
+                                                                <div class="input-group-append"
+                                                                    data-target="#maturityDate"
+                                                                    data-toggle="datetimepicker">
+                                                                    <div class="input-group-text">
+                                                                        <i class="fa fa-calendar"></i>
+                                                                    </div>
                                                                 </div>
-                                                            </div>
+                                                            @endif
                                                         </div>
                                                     </div>
                                                 </div>
-
                                             </div>
                                         </div>
                                     </div>
@@ -329,14 +355,16 @@
                                                                 id="first_profit_release_date"
                                                                 value="{{ old('next_profit_release_date', isset($investment->next_profit_release_date) ? \Carbon\Carbon::parse($investment->next_profit_release_date)->format('d-m-Y') : '') }}"
                                                                 data-target="#firstprofitreleasedate"
-                                                                placeholder="DD-MM-YYYY">
-                                                            <div class="input-group-append"
-                                                                data-target="#firstprofitreleasedate"
-                                                                data-toggle="datetimepicker">
-                                                                <div class="input-group-text">
-                                                                    <i class="fa fa-calendar"></i>
+                                                                placeholder="DD-MM-YYYY" @disabled($isRenewal)>
+                                                            @if (!$isRenewal)
+                                                                <div class="input-group-append"
+                                                                    data-target="#firstprofitreleasedate"
+                                                                    data-toggle="datetimepicker">
+                                                                    <div class="input-group-text">
+                                                                        <i class="fa fa-calendar"></i>
+                                                                    </div>
                                                                 </div>
-                                                            </div>
+                                                            @endif
                                                         </div>
                                                     </div>
                                                 </div>
@@ -562,7 +590,7 @@
                                                         <div class="form-group">
                                                             <label class="asterisk">Payment Terms</label>
                                                             <select class="form-control select2" name="payment_terms_id"
-                                                                id="payment_terms_id">
+                                                                id="payment_terms_id" @disabled($isRenewal)>
                                                                 <option value="">Select Payment Term</option>
                                                                 @foreach ($data['paymentTerms'] as $term)
                                                                     <option value="{{ $term->id }}"
@@ -585,14 +613,16 @@
                                                                     id="first_referral_commission_release_date"
                                                                     value="{{ old('next_referral_commission_release_date', isset($investment->next_referral_commission_release_date) ? \Carbon\Carbon::parse($investment->next_referral_commission_release_date)->format('d-m-Y') : '') }}"
                                                                     data-target="#firstreferralcommissionreleasedate"
-                                                                    placeholder="DD-MM-YYYY">
-                                                                <div class="input-group-append"
-                                                                    data-target="#firstreferralcommissionreleasedate"
-                                                                    data-toggle="datetimepicker">
-                                                                    <div class="input-group-text">
-                                                                        <i class="fa fa-calendar"></i>
+                                                                    placeholder="DD-MM-YYYY" @disabled($isRenewal)>
+                                                                @if (!$isRenewal)
+                                                                    <div class="input-group-append"
+                                                                        data-target="#firstreferralcommissionreleasedate"
+                                                                        data-toggle="datetimepicker">
+                                                                        <div class="input-group-text">
+                                                                            <i class="fa fa-calendar"></i>
+                                                                        </div>
                                                                     </div>
-                                                                </div>
+                                                                @endif
                                                             </div>
                                                         </div>
                                                     </div>
@@ -666,14 +696,16 @@
                                                                     name="next_referral_commission_release_date"
                                                                     id="first_referral_commission_release_date"
                                                                     data-target="#firstreferralcommissionreleasedate"
-                                                                    placeholder="DD-MM-YYYY">
-                                                                <div class="input-group-append"
-                                                                    data-target="#firstreferralcommissionreleasedate"
-                                                                    data-toggle="datetimepicker">
-                                                                    <div class="input-group-text">
-                                                                        <i class="fa fa-calendar"></i>
+                                                                    placeholder="DD-MM-YYYY" @disabled($isRenewal)>
+                                                                @if (!$isRenewal)
+                                                                    <div class="input-group-append"
+                                                                        data-target="#firstreferralcommissionreleasedate"
+                                                                        data-toggle="datetimepicker">
+                                                                        <div class="input-group-text">
+                                                                            <i class="fa fa-calendar"></i>
+                                                                        </div>
                                                                     </div>
-                                                                </div>
+                                                                @endif
                                                             </div>
                                                         </div>
                                                     </div>
@@ -698,7 +730,7 @@
                                                         <label>Nominee Name</label>
                                                         <input type="text" class="form-control" name="nominee_name"
                                                             value="{{ old('nominee_name', $investment->nominee_name ?? '') }}"
-                                                            placeholder="Nominee Name">
+                                                            placeholder="Nominee Name" @readonly($isRenewal)>
                                                     </div>
                                                 </div>
 
@@ -707,7 +739,7 @@
                                                         <label>Nominee Email</label>
                                                         <input type="email" class="form-control" name="nominee_email"
                                                             value="{{ old('nominee_email', $investment->nominee_email ?? '') }}"
-                                                            placeholder="Nominee email">
+                                                            placeholder="Nominee email" @readonly($isRenewal)>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-4">
@@ -715,7 +747,7 @@
                                                         <label>Nominee Phone</label>
                                                         <input type="number" class="form-control" name="nominee_phone"
                                                             value="{{ old('nominee_phone', $investment->nominee_phone ?? '') }}"
-                                                            placeholder="Nominee Phone">
+                                                            placeholder="Nominee Phone" @readonly($isRenewal)>
                                                     </div>
                                                 </div>
 
@@ -738,7 +770,7 @@
                                                     <div class="form-group">
                                                         <label class="asterisk">Company</label>
                                                         <select class="form-control select2" name="company_id"
-                                                            id="company_id" required>
+                                                            id="company_id" required @disabled($isRenewal)>
                                                             <option value="">Select Company</option>
                                                             @foreach ($data['companyBanks'] as $company)
                                                                 <option value="{{ $company->id }}"
@@ -756,7 +788,7 @@
                                                     <div class="form-group">
                                                         <label class="asterisk">Company Bank</label>
                                                         <select class="form-control select2" name="company_bank_id"
-                                                            id="company_bank_id" required>
+                                                            id="company_bank_id" required @disabled($isRenewal)>
                                                             <option value="">Select Company Bank</option>
                                                         </select>
                                                     </div>
@@ -784,7 +816,7 @@
                                                         <label for="iban" class="asterisk">IBAN</label>
                                                         <input type="text" name="company_bank_iban"
                                                             id="company_bank_iban" class=" form-control"
-                                                            placeholder="IBAN" required>
+                                                            placeholder="IBAN" required @disabled($isRenewal)>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-4">
@@ -794,7 +826,7 @@
                                                             Number</label>
                                                         <input type="text" name="company_bank_account_number"
                                                             id="company_bank_account_number" class=" form-control"
-                                                            placeholder="Account Number" required>
+                                                            placeholder="Account Number" required @readonly($isRenewal)>
                                                     </div>
                                                 </div>
 
@@ -871,7 +903,8 @@
                                                                                         name="company_allocations[{{ $index }}][company_id]"
                                                                                         class="form-control allocation-company"
                                                                                         aria-label="Invested company"
-                                                                                        required>
+                                                                                        required
+                                                                                        @disabled($isRenewal)>
                                                                                         <option value="">Select
                                                                                             company
                                                                                         </option>
@@ -895,12 +928,13 @@
                                                                                         min="0.01"
                                                                                         max="999999999999.99"
                                                                                         step="0.01" placeholder="0.00"
-                                                                                        required>
+                                                                                        required @readonly($isRenewal)>
                                                                                 </td>
 
                                                                                 <td>
                                                                                     <button type="button"
-                                                                                        class="btn btn-outline-danger btn-sm remove-allocation">
+                                                                                        class="btn btn-outline-danger btn-sm remove-allocation"
+                                                                                        @disabled($isRenewal)>
                                                                                         Remove
                                                                                     </button>
                                                                                 </td>
@@ -911,7 +945,7 @@
                                                             </div>
 
                                                             <button type="button" id="addAllocation"
-                                                                class="btn btn-info btn-sm">
+                                                                class="btn btn-info btn-sm" @disabled($isRenewal)>
                                                                 <i class="fas fa-plus"></i> Add Company
                                                             </button>
 
@@ -1068,18 +1102,23 @@
             });
 
             // Date Pickers
-            $('#investmentdate').datetimepicker({
-                format: 'DD-MM-YYYY'
-            });
+            @if (!$isRenewal)
+                $('#investmentdate').datetimepicker({
+                    format: 'DD-MM-YYYY'
+                });
+
+                $('#maturityDate').datetimepicker({
+                    format: 'DD-MM-YYYY'
+                });
+            @endif
+
             $('#profitreleasedate').datetimepicker({
                 format: 'DD-MM-YYYY'
             });
             $('#firstprofitreleasedate').datetimepicker({
                 format: 'DD-MM-YYYY'
             });
-            $('#maturityDate').datetimepicker({
-                format: 'DD-MM-YYYY'
-            });
+
             $('#firstreferralcommissionreleasedate').datetimepicker({
                 format: 'DD-MM-YYYY'
             });
@@ -1225,7 +1264,6 @@
             let term = $('#payment_terms_id').val();
             if (term) {
                 calculateFirstReferralCommissionReleaseDate();
-
             }
         });
 

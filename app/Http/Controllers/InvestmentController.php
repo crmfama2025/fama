@@ -44,11 +44,13 @@ class InvestmentController extends Controller
             'amount' => $request->query('amount'),
             'date' => $request->query('date'),
         );
+
+        $mode = 'create';
         $paymentsCount = 0;
         $profitRecords = collect();
 
         // dd($data);
-        return view("admin.investment.investment.create-investment-edit", compact("title", "data", 'reinvestment', 'parent_investment_id', 'paymentsCount', 'parent', 'profitRecords'));
+        return view("admin.investment.investment.create-investment-edit", compact("title", "data", 'reinvestment', 'parent_investment_id', 'paymentsCount', 'parent', 'profitRecords', 'mode'));
     }
 
     public function store(Request $request)
@@ -88,19 +90,23 @@ class InvestmentController extends Controller
         }
     }
 
-    public function edit($id)
+    public function edit(Request $request, $id)
     {
+        $mode = $request->routeIs('investments.renew') ? 'renew' : 'edit';
+
         $title = 'Edit Investment';
         $investment = $this->investmentRepository->getWithDetails($id);
         $data = $this->investmentService->getFormData();
         $reinvestment = 0;
         $parent_investment_id = null;
         $paymentsCount = InvestmentReceivedPayment::where('investment_id', $id)->count();
-        $profitRecords = $this->investmentService->getInvestmentProfitRecords($investment);
+        $profitRecords = $this->investmentService->getInvestmentProfitRecords($investment, $mode);
+
+        // $isRenewal = $mode === 'renew';
 
         // dd($profitRecords);
 
-        return view("admin.investment.investment.create-investment-edit", compact("title", "data", "investment", 'reinvestment', 'parent_investment_id', 'paymentsCount', 'profitRecords'));
+        return view("admin.investment.investment.create-investment-edit", compact("title", "data", "investment", 'reinvestment', 'parent_investment_id', 'paymentsCount', 'profitRecords', 'mode'));
     }
     public function update(Request $request, $id)
     {
@@ -275,5 +281,23 @@ class InvestmentController extends Controller
                 'success',
                 'Profit schedule updated successfully.'
             );
+    }
+
+    public function investmentRenewal(Request $request)
+    {
+        $title = 'Investment Renewal';
+
+        return view("admin.investment.investment.investment-renewal-list", compact("title"));
+    }
+
+    public function getRenewalList(Request $request)
+    {
+        if ($request->ajax()) {
+            $filters = [
+                // 'company_id' => auth()->user()->company_id,
+                'search' => $request->search['value'] ?? null
+            ];
+            return $this->investmentService->getRenewalDataTable($filters);
+        }
     }
 }

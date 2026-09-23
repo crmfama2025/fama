@@ -99,11 +99,14 @@ class Investment extends Model
         'renewed_at',
         'investor_novation_applied_at',
         'investor_novation_applied_by',
+        'renewal_count'
     ];
+
     protected $casts = [
         'company_bank_iban' => CustomEncrypted::class,
         'company_bank_account_number' => CustomEncrypted::class,
     ];
+
     public function investor()
     {
         return $this->belongsTo(Investor::class);
@@ -307,5 +310,10 @@ class Investment extends Model
     public function companyAllocations()
     {
         return $this->hasMany(InvestmentCompanyAllocation::class, 'investment_id', 'id');
+    }
+
+    public function RenewalEditLog()
+    {
+        return $this->hasMany(InvestmentRenewalEditLog::class, 'investment_id', 'id');
     }
 }

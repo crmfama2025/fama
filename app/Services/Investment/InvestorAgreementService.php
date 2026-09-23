@@ -1074,9 +1074,8 @@ class InvestorAgreementService
                 );
             }
 
-            $oldMaturityDate = Carbon::parse(
-                $investment->maturity_date
-            )->endOfDay();
+            $oldMaturityDate = Carbon::parse($investment->maturity_date)->endOfDay();
+            $oldRenewalCount = $investment->renewal_count;
 
             /*
          * Includes overdue investments and investments maturing
@@ -1141,6 +1140,7 @@ class InvestorAgreementService
             $investment->update([
                 'maturity_date' => $newMaturityDate->toDateString(),
                 'last_renewed_maturity_date' => $oldMaturityDate->toDateString(),
+                'renewal_count' => $oldRenewalCount + 1,
                 'renewed_at' => now(),
             ]);
 

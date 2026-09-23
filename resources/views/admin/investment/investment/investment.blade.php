@@ -45,6 +45,10 @@
                                     <span class="float-right">
                                         <a class="btn btn-info float-right m-1" href="{{ route('investment.create') }}">Add
                                             Investment</a>
+
+                                        <a class="btn btn-secondary float-right m-1"
+                                            href="{{ route('investment.renew') }}">Renew
+                                            Investment</a>
                                         {{-- <button class="btn btn-secondary float-right m-1" data-toggle="modal"
                                         data-target="#modal-import">Import</button> --}}
                                     </span>

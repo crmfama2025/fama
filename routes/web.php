@@ -509,6 +509,10 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
         ->name('investor.guardian.store');
 
     Route::get('/investor-guardians/list', [InvestorGuardianController::class, 'getData'])->name('investor-guardian.list');
+
+    Route::get('investment-renewal', [InvestmentController::class, 'investmentRenewal'])->name('investment.renew');
+    Route::get('investment-renewal-list', [InvestmentController::class, 'getRenewalList'])->name('investment.renew.list');
+    Route::get('/investments/{id}/renew', [InvestmentController::class, 'edit'])->name('investments.renew');
 });
 
 

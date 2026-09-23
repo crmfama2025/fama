@@ -2396,6 +2396,15 @@ namespace App\Models{
 
 namespace App\Models{
 /**
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentRenewalEditLog newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentRenewalEditLog newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentRenewalEditLog query()
+ */
+	class InvestmentRenewalEditLog extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
  * @property int $id
  * @property int $investment_contract_document_id
  * @property string $recipient_type
@@ -2728,6 +2737,7 @@ namespace App\Models{
  * @property string $guardian_name
  * @property string $guardian_name_arabic
  * @property string $guardian_mobile
+ * @property string $guardian_address_ar
  * @property string $guardian_address
  * @property string $guardian_email
  * @property string $emirates_id_number
@@ -2756,6 +2766,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorGuardianDetail whereEmiratesIdCopy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorGuardianDetail whereEmiratesIdNumber($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorGuardianDetail whereGuardianAddress($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorGuardianDetail whereGuardianAddressAr($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorGuardianDetail whereGuardianEmail($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorGuardianDetail whereGuardianMobile($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorGuardianDetail whereGuardianName($value)
@@ -3009,7 +3020,19 @@ namespace App\Models{
  * @property int|null $total_staff
  * @property string|null $required_location
  * @property string $requirement
- * @property int $status 0 = Pending, 1 = processing
+ * @property int $status 
+ *                 0 = Pending,
+ *                 1 = Processing,
+ *                 2 = Interested,
+ *                 3 = Call Back,
+ *                 4 = No Answer,
+ *                 5 = Not Interested,
+ *                 6 = Meeting Scheduled,
+ *                 7 = Proposal Sent,
+ *                 8 = Negotiation,
+ *                 9 = Converted,
+ *                 10 = Lost,
+ *                 11 = Others
  * @property int|null $assigned_to
  * @property int|null $assigned_by
  * @property \Illuminate\Support\Carbon|null $assigned_at

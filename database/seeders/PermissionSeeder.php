@@ -62,6 +62,7 @@ class PermissionSeeder extends Seeder
                     $subModule[] = 'submit_pending';
                     $subModule[] = 'referrals';
                     $subModule[] = 'soa';
+                    $subModule[] = 'renew';
                 }
                 if (in_array($module, ['tenant-registration'])) {
                     $subModule[] = 'approve';
