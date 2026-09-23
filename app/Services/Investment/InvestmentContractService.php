@@ -545,6 +545,23 @@ class InvestmentContractService
                 ";
         }
 
+        $annexureCommnt = "";
+        if ($inv->annexure_comment != null) {
+            $annexureCommnt = "<tr>
+                            <td width='50%' style='border:1px solid #ccc;'>
+                                <div class='english'>
+                                    <p class='marginClass text-sm'>Note: {$inv->annexure_comment}</p>
+                                </div>
+                            </td>
+                            <td width='50%' style='border:1px solid #ccc;'>
+                                <div class='arabic'>
+                                    <p class='marginClass text-sm'>ملاحظة: {$inv->annexure_comment_ar}</p>
+                                </div>
+                            </td>
+                        </tr>";
+        }
+
+
         return "
             <tr data-row data-force-page='true'>
                 <td colspan='2' style='padding:0;'>
@@ -735,6 +752,7 @@ class InvestmentContractService
                                 </div>
                             </td>
                         </tr>
+                        {$annexureCommnt}
 
                     </table>
                 </td>
