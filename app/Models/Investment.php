@@ -143,7 +143,7 @@ class Investment extends Model
 
     public function investorBank()
     {
-        return $this->belongsTo(Bank::class, 'investor_bank_id');
+        return $this->belongsTo(InvestorBank::class, 'investor_bank_id');
     }
 
     public function parentInvestment()

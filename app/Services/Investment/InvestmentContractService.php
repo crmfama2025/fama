@@ -351,7 +351,7 @@ class InvestmentContractService
 
         $companyNameEng = $companyData->company_name;
         $companyNameAr  = $companyData->company_arabic_name;
-        // dd($investorData);
+        // dd($inv->investorBank);
 
         $term = $inv->investment_tenure == 3
             ? 'Profit Sharing Ratio for 3 months :'
@@ -700,12 +700,12 @@ class InvestmentContractService
                         <tr>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='english'>
-                                    <p class='marginClass text-sm'>Beneficiary Name: {$investorData->investorBanks[0]->investor_beneficiary}</p>
+                                    <p class='marginClass text-sm'>Beneficiary Name: {$inv->investorBank->investor_beneficiary}</p>
                                 </div>
                             </td>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='arabic'>
-                                    <p class='marginClass text-sm'>اسم المستفيد: {$investorData->investorBanks[0]->investor_beneficiary_arabic}</p>
+                                    <p class='marginClass text-sm'>اسم المستفيد: {$inv->investorBank->investor_beneficiary_arabic}</p>
                                 </div>
                             </td>
                         </tr>
@@ -713,12 +713,12 @@ class InvestmentContractService
                         <tr>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='english'>
-                                    <p class='marginClass text-sm'>Beneficiary Bank Name: {$investorData->investorBanks[0]->investor_bank_name}</p>
+                                    <p class='marginClass text-sm'>Beneficiary Bank Name: {$inv->investorBank->investor_bank_name}</p>
                                 </div>
                             </td>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='arabic'>
-                                    <p class='marginClass text-sm'>البنك المستفيد: {$investorData->investorBanks[0]->investor_bank_name_arabic}</p>
+                                    <p class='marginClass text-sm'>البنك المستفيد: {$inv->investorBank->investor_bank_name_arabic}</p>
                                 </div>
                             </td>
                         </tr>
@@ -726,12 +726,12 @@ class InvestmentContractService
                         <tr>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='english'>
-                                    <p class='marginClass text-sm'>Beneficiary IBAN: {$investorData->investorBanks[0]->investor_iban}</p>
+                                    <p class='marginClass text-sm'>Beneficiary IBAN: {$inv->investorBank->investor_iban}</p>
                                 </div>
                             </td>
                             <td width='50%' style='border:1px solid #ccc;'>
                                 <div class='arabic'>
-                                    <p class='marginClass text-sm'>رقم آيبان الخاص بالمستفيد: {$investorData->investorBanks[0]->investor_iban}</p>
+                                    <p class='marginClass text-sm'>رقم آيبان الخاص بالمستفيد: {$inv->investorBank->investor_iban}</p>
                                 </div>
                             </td>
                         </tr>
