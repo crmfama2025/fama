@@ -25,7 +25,7 @@
         Subject: Confirmation and Breakdown of Investments
     </div>
 
-    <p>Dear Sir,</p>
+    <p>Dear Sir/Madam,</p>
 
     <p>
         Please find below the detailed breakdown of your investment:
