@@ -629,6 +629,8 @@
                         d.vendor_id = $('#vendor_id').val();
                         d.property_id = $('#property_id').val();
                         d.payment_mode = $('#payment_mode').val();
+                        d.company_id = $('#statusFilters .btn.btn-info').attr(
+                            'data-companyid');
                     }
                 },
                 columns: [{
@@ -774,11 +776,6 @@
                         }));
                         form.append($('<input>', {
                             type: 'hidden',
-                            name: 'mode_id',
-                            value: $('#modeSelect').val()
-                        }));
-                        form.append($('<input>', {
-                            type: 'hidden',
                             name: 'company_id',
                             value: $('#statusFilters .btn.btn-info').attr(
                                 'data-companyid')
@@ -813,9 +810,10 @@
                 if (solidClass) {
                     $(this).removeClass(outlineClass).addClass(solidClass);
                 }
-
+                // console.log(filterValue);
                 // Apply DataTable search column filter (status = column index 1)
-                table.column(2).search(filterValue).draw();
+                // table.column(2).search(filterValue).draw();
+                table.ajax.reload();
             });
 
             $('.searchbtnchq').on('click', function(e) {
@@ -930,10 +928,10 @@
                 success: function(response) {
                     // console.log(response);
                     $('#modal-clear-payable').modal('hide');
-                    hideLoader();
-                    toastr.success(response.message);
                     $('#PayableList').DataTable().ajax.reload();
                     resetPaymentModal();
+                    hideLoader();
+                    toastr.success(response.message);
                     // window.location.reload();
                     // window.location.href = "{{ route('finance.payable.clearing') }}";
                 },

@@ -136,6 +136,13 @@ class PayableClearRepository
                 $todate = $filter['date_to'];
             }
 
+            // company filter
+            if ($filter['company_id']) {
+                $query->whereHas('contract', function ($q) use ($filter) {
+                    $q->where('company_id', $filter['company_id']);
+                });
+            }
+
             // // Date filter
             // if (!empty($filters['date_from']) && !empty($filters['date_to'])) {
             //     $query->whereBetween('paid_date', [

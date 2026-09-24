@@ -58,7 +58,6 @@ class PayableClearingController extends Controller
 
     public function getPayables(Request $request)
     {
-
         if ($request->ajax()) {
             $filterData = array(
                 'date_from' => dateFormatChange($request->date_from, 'Y-m-d'),
@@ -66,6 +65,7 @@ class PayableClearingController extends Controller
                 'vendor_id' => $request->vendor_id,
                 'property_id' => $request->property_id,
                 'payment_mode' => $request->payment_mode,
+                'company_id' => $request->company_id,
             );
 
             $filters = [
