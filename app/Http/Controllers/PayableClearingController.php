@@ -27,7 +27,7 @@ class PayableClearingController extends Controller
     {
         $title = 'Payable Cheque Clearing';
         $banks = $this->bankService->getAll();
-        $paymentmodes = $this->paymentModeService->getAll()->whereIn('id', ['2', '3'])
+        $paymentmodes = $this->paymentModeService->getAll()->whereIn('id', ['1', '2', '3'])
             ->values();
 
         $vendors = getVendorsHaveContract();
@@ -36,7 +36,6 @@ class PayableClearingController extends Controller
         $companies = $this->companyService->getAll('finance', 'payable_cheque_clearing');
 
         return view('admin.finance.payable-cheque-clearing', compact(
-            'paymentmodes',
             'banks',
             'vendors',
             'properties',

@@ -307,6 +307,15 @@
                                         <span id="amountPending" class="text-danger text-sm"></span>
                                     </div>
                                     <div class="form-group row">
+                                        <div class="icheck-primary cash">
+                                            <input type="checkbox" id="cash" class="singleClear"
+                                                value="{{ $paymentmodes->where('id', 1)->first()->id ?? '' }}"
+                                                name="paid_mode">
+                                            <label
+                                                for="cash">{{ $paymentmodes->where('id', 1)->first()->payment_mode_name ?? '' }}
+                                            </label>
+                                        </div>
+
                                         <div class="icheck-primary bank">
                                             <input type="checkbox" id="bankcheque" class="singleClear"
                                                 value="{{ $paymentmodes->where('id', 2)->first()->id ?? '' }}"
@@ -500,13 +509,16 @@
             $('.singleClear').not(this).prop('checked', false);
 
             if ($(this).prop('checked')) {
-                $('.banksingle').show();
-                $('.companyTerminate').show();
-                $('.modechange').show();
-                if ($(this).val() == 2) {
-                    $('.cheque').hide();
-                } else {
-                    $('.cheque').show();
+
+                if ($(this).val() != 1) {
+                    $('.banksingle').show();
+                    $('.companyTerminate').show();
+                    $('.modechange').show();
+                    if ($(this).val() == 2) {
+                        $('.cheque').hide();
+                    } else {
+                        $('.cheque').show();
+                    }
                 }
             } else {
                 $('.banksingle').hide();
@@ -578,6 +590,8 @@
                 $('#detId').val(button.data('det-id'));
 
                 let totalAmount = button.data('amount');
+                $('#paid_amount').val(totalAmount);
+
                 document.getElementById('paid_amount').addEventListener('input', function() {
                     let paid = parseFloat(this.value) || 0;
                     // Prevent entering more than total amount
@@ -591,8 +605,8 @@
                     document.getElementById('amountPending').innerText =
                         'Remaining Amount: ' + remaining;
                 });
+                $('#amountPending').text('Remaining Amount: ' + (totalAmount - button.data('amount')));
 
-                $('#amountPending').text('Remaining Amount: ' + button.data('amount'));
                 $('.clrngamnt').show();
                 $('.chq').show();
             }
@@ -904,6 +918,8 @@
 
             fdata.append('payment_detail_ids', selectedValues);
 
+            showLoader();
+
             $.ajax({
                 type: "POST",
                 url: "{{ route('payable.save') }}",
@@ -913,10 +929,14 @@
                 contentType: false,
                 success: function(response) {
                     // console.log(response);
+                    $('#modal-clear-payable').modal('hide');
+                    hideLoader();
                     toastr.success(response.message);
-                    window.location.href = "{{ route('finance.payable.clearing') }}";
+                    $('#PayableList').DataTable().ajax.reload();
+                    // window.location.href = "{{ route('finance.payable.clearing') }}";
                 },
                 error: function(errors) {
+                    hideLoader();
                     toastr.error(errors.responseJSON.message);
                 }
             });

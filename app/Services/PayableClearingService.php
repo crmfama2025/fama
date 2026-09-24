@@ -208,7 +208,7 @@ class PayableClearingService
         ]);
 
         $validator->sometimes('paid_bank', 'required|string|max:255', function ($input) {
-            return !is_null($input->paid_mode) && $input->paid_mode !== '';
+            return in_array($input->paid_mode, ['2', '3']);
         });
 
         $validator->sometimes(['paid_cheque_number', 'paid_amount'], 'required', function ($input) {
