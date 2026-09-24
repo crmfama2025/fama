@@ -99,7 +99,11 @@ class Investment extends Model
         'renewed_at',
         'investor_novation_applied_at',
         'investor_novation_applied_by',
-        'renewal_count'
+        'renewal_count',
+
+        'annexure_comment',
+        'annexure_comment_ar',
+        'common_comment'
     ];
 
     protected $casts = [
