@@ -330,7 +330,7 @@
                 processing: true,
                 serverSide: true,
                 responsive: true,
-                pageLength: 5,
+                pageLength: 10,
                 ajax: {
                     url: "{{ route('investment.list') }}",
                     data: function(d) {
@@ -407,7 +407,7 @@
                 order: [
                     [0, 'desc']
                 ],
-                dom: 'Bfrtip',
+                dom: 'Bflrtip',
                 buttons: [{
                     extend: 'excelHtml5',
                     text: 'Export Excel',
@@ -430,7 +430,8 @@
                         }));
                         form.appendTo('body').submit();
                     }
-                }]
+                }],
+
             });
 
         });
