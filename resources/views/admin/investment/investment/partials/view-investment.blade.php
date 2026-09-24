@@ -449,6 +449,14 @@
              <i class="fas fa-file-invoice-dollar text-success mr-2"></i>
              Profit Details
          </h3>
+
+
+         @if ($investment->investor_novation_applied_at)
+             <br>
+             <small class="text-gray">Novation Applied:
+                 {{ getFormattedDate($investment->investor_novation_applied_at) }}</small>
+         @endif
+
      </div>
 
      <div class="card-body">

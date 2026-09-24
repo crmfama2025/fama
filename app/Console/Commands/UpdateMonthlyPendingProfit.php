@@ -175,7 +175,7 @@ class UpdateMonthlyPendingProfit extends Command
                                                     null,
                                                     null,
                                                     Carbon::parse($profitRecord->profit_release_month),
-                                                    $profitRecord->id
+                                                    $profitRecord
                                                 );
 
                                                 if ($payout) {

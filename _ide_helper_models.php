@@ -1946,6 +1946,12 @@ namespace App\Models{
  * @property string|null $renewed_at
  * @property string|null $investor_novation_applied_at
  * @property int|null $investor_novation_applied_by
+ * @property int $renewal_count
+ * @property string|null $annexure_comment
+ * @property string|null $annexure_comment_ar
+ * @property string|null $common_comment
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvestmentRenewalEditLog> $RenewalEditLog
+ * @property-read int|null $renewal_edit_log_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Investment> $childInvestments
  * @property-read int|null $child_investments_count
  * @property-read \App\Models\Company|null $company
@@ -1962,7 +1968,7 @@ namespace App\Models{
  * @property-read int|null $investment_received_payments_count
  * @property-read \App\Models\InvestmentReferral|null $investmentReferral
  * @property-read \App\Models\Investor|null $investor
- * @property-read \App\Models\Bank|null $investorBank
+ * @property-read \App\Models\InvestorBank|null $investorBank
  * @property-read \App\Models\PartialWithdrawalBifurcation|null $latestBifurcation
  * @property-read Investment|null $parentInvestment
  * @property-read \App\Models\PayoutBatch|null $payoutBatch
@@ -1976,7 +1982,10 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Investment onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|Investment query()
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereAddedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Investment whereAnnexureComment($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Investment whereAnnexureCommentAr($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereBalanceAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Investment whereCommonComment($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereCompanyBankAccountNumber($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereCompanyBankIban($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereCompanyBankId($value)
@@ -2024,6 +2033,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereReceivedAmount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereReinvestedCount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereReinvestmentOrNot($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Investment whereRenewalCount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereRenewedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereTerminateStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Investment whereTerminatedBy($value)
@@ -2225,6 +2235,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property int $renewal_count
  * @property-read \App\Models\Investment|null $investment
  * @property-read \App\Models\Investor|null $investor
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord editable()
@@ -2251,6 +2262,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord whereProfitReleaseMonth($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord whereReleaseStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord whereReleasedTotalAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord whereRenewalCount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentProfitRecord withoutTrashed()
@@ -2396,9 +2408,30 @@ namespace App\Models{
 
 namespace App\Models{
 /**
+ * @property int $id
+ * @property int $investment_id
+ * @property int $created_by
+ * @property string $reason
+ * @property array $before_values
+ * @property array $after_values
+ * @property array $changes
+ * @property array $schedule_changes
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Investment $investment
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentRenewalEditLog newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentRenewalEditLog newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentRenewalEditLog query()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentRenewalEditLog whereAfterValues($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentRenewalEditLog whereBeforeValues($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentRenewalEditLog whereChanges($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentRenewalEditLog whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentRenewalEditLog whereCreatedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentRenewalEditLog whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentRenewalEditLog whereInvestmentId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentRenewalEditLog whereReason($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentRenewalEditLog whereScheduleChanges($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentRenewalEditLog whereUpdatedAt($value)
  */
 	class InvestmentRenewalEditLog extends \Eloquent {}
 }
@@ -2741,9 +2774,9 @@ namespace App\Models{
  * @property string $guardian_address
  * @property string $guardian_email
  * @property string $emirates_id_number
- * @property string $passport_number
+ * @property string|null $passport_number
  * @property string $emirates_id_copy
- * @property string $passport_copy
+ * @property string|null $passport_copy
  * @property string|null $passport_expiry_date
  * @property string|null $eid_expiry_date
  * @property int $added_by
