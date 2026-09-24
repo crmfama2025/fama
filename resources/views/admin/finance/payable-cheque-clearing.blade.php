@@ -574,10 +574,10 @@
         $('#modal-clear-payable').on('show.bs.modal', function(event) {
             var button = $(event.relatedTarget); // Button that triggered the modal
             var clearType = button.data('clear-type'); // Extract info from data-* attributes
-            $('#PaymentSubmitForm')[0].reset();
-            hidelemnetsonload();
+            // $('#PaymentSubmitForm')[0].reset();
+            resetPaymentModal();
 
-            $(this).find('input, select, textarea').removeClass('is-invalid is-valid');
+            // $(this).find('input, select, textarea').removeClass('is-invalid is-valid');
 
             $('#method').val(clearType);
 
@@ -933,6 +933,8 @@
                     hideLoader();
                     toastr.success(response.message);
                     $('#PayableList').DataTable().ajax.reload();
+                    resetPaymentModal();
+                    // window.location.reload();
                     // window.location.href = "{{ route('finance.payable.clearing') }}";
                 },
                 error: function(errors) {
@@ -940,6 +942,31 @@
                     toastr.error(errors.responseJSON.message);
                 }
             });
+        }
+
+        function resetPaymentModal() {
+            var form = document.getElementById('PaymentSubmitForm');
+            form.reset();
+
+            // Reset Select2 dropdowns (plain .reset() doesn't update Select2's UI)
+            $('#PaymentSubmitForm').find('select.select2').val(null).trigger('change');
+
+            // Clear validation state classes
+            $('#PaymentSubmitForm').find('input, select, textarea').removeClass('is-invalid is-valid');
+            $('#PaymentSubmitForm').find('.select2-container').removeClass('is-invalid is-valid');
+
+            // Remove any leftover inline error messages
+            $('#PaymentSubmitForm').find('.invalid-feedback').remove();
+
+            // Clear the remaining-amount hint text
+            $('#amountPending').text('');
+
+            // Reset hidden fields
+            $('#method').val('');
+            $('#detId').val('');
+
+            // Re-hide conditional sections back to their default state
+            hidelemnetsonload();
         }
     </script>
 
