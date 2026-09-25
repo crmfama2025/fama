@@ -120,12 +120,19 @@ class LeadRepository
             $query->where('required_location', 'like', '%' . $filters['required_location'] . '%');
         }
 
-        if (!empty($filters['assigned_to'])) {
-            $query->where('assigned_to', $filters['assigned_to']);
-        }
+        // if (!empty($filters['assigned_to'])) {
+        //     $query->where('assigned_to', $filters['assigned_to']);
+        // }
 
-        if (!empty($filters['created_by'])) {
-            $query->where('created_by', $filters['created_by']);
+        // if (!empty($filters['created_by'])) {
+        //     $query->where('created_by', $filters['created_by']);
+        // }
+
+        if (!empty($filters['user_id'])) {
+            $query->where(function ($q) use ($filters) {
+                $q->where('created_by', $filters['user_id'])
+                    ->orWhere('assigned_to', $filters['user_id']);
+            });
         }
 
         if (

@@ -135,14 +135,19 @@ class LeadService
     {
         $user = auth()->user();
 
-        if ((int) $user->user_type_id === 3) {
-            $filters['assigned_to'] = $user->id;
-            $filters['created_by'] = $user->id;
+        // if ((int) $user->user_type_id === 3) {
+        //     $filters['assigned_to'] = $user->id;
+        //     $filters['created_by'] = $user->id;
+        // }
+        // if ((int) $user->user_type_id === 4) {
+        //     $filters['assigned_to'] = $user->id;
+        //     $filters['created_by'] = $user->id;
+        // }
+
+        if (in_array((int) $user->user_type_id, [3, 4])) {
+            $filters['user_id'] = $user->id;
         }
-        if ((int) $user->user_type_id === 4) {
-            $filters['assigned_to'] = $user->id;
-            $filters['created_by'] = $user->id;
-        }
+
 
         $query = $this->leadRepository->getQuery($filters);
         // Clone before DataTable modifies the query
