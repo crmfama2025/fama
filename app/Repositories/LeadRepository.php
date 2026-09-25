@@ -124,6 +124,10 @@ class LeadRepository
             $query->where('assigned_to', $filters['assigned_to']);
         }
 
+        if (!empty($filters['created_by'])) {
+            $query->where('created_by', $filters['created_by']);
+        }
+
         if (
             !empty($filters['follow_up_date_from']) ||
             !empty($filters['follow_up_date_to']) ||
