@@ -459,7 +459,8 @@ class AgreementRepository
             ->whereNotIn('agreements.id', function ($q) {
                 $q->select('parent_agreement_id')
                     ->from('agreements')
-                    ->whereNotNull('parent_agreement_id');
+                    ->whereNotNull('parent_agreement_id')
+                    ->whereNull('deleted_at');
             });
 
         // $get = $query->get();
