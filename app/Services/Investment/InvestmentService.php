@@ -4,6 +4,9 @@ namespace App\Services\Investment;
 
 use App\Models\Company;
 use App\Models\Investment;
+use App\Models\InvestmentAdditionalDocuments;
+use App\Models\InvestmentContractDocuments;
+use App\Models\InvestmentDocument;
 use App\Models\InvestmentReferral;
 use App\Models\InvestmentRenewalEditLog;
 use App\Models\Investor;
@@ -1859,5 +1862,148 @@ class InvestmentService
             })
             ->rawColumns(['action', 'invested_company_name'])
             ->toJson();
+    }
+    public function uploadContracts($data, $id)
+    {
+        // dd($data);
+        return DB::transaction(function () use ($data, $id) {
+            $document = InvestmentContractDocuments::findOrFail($id);
+            $investmentCode = $document->investment_id
+                ? $document->investment?->investment_code
+                : $document->investor->investor_code;
+            // dd("test");
+            // dd($data['documents']);
+
+            $hasAdditionalDoc = false;
+
+            foreach ($data['documents'] as $documentData) {
+                if (!empty($documentData['additional_documents'])) {
+                    foreach ($documentData['additional_documents'] as $additionalDocument) {
+                        if (!empty($additionalDocument['file'])) {
+                            $hasAdditionalDoc = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            $document->update([
+                'action_type' => $data['action_type'] ?? 0,
+                'has_additional_doc' => $hasAdditionalDoc ? 1 : 0,
+                'generated_by'     => auth()->id()
+            ]);
+
+            foreach ($data['documents'] as $documentData) {
+
+                $fileName = null;
+                $filePath = null;
+
+                $pdfservice = new PdfCompressionService();
+
+                if (!empty($documentData['document'])) {
+                    $file = $documentData['document'];
+                    $fileName = $file->getClientOriginalName();
+
+                    if (strtolower($file->getClientOriginalExtension()) === 'pdf') {
+                        $filePath = $pdfservice->compress(
+                            $file,
+                            'investments/documents/' . $investmentCode,
+                            $fileName
+                        );
+                    } else {
+                        $filePath = $file->storeAs(
+                            'investments/documents/' . $investmentCode,
+                            $fileName,
+                            'public'
+                        );
+                    }
+                }
+
+                $documentDate = !empty($documentData['generated_date'])
+                    ? parseDate($documentData['generated_date'])
+                    : null;
+                if ($data['action_type'] == 0) {
+                    $version_number = $documentData['version'];
+                } else if ($data['action_type'] == 1) {
+                    $version_number = $document->agreementTemplate->version_no;
+                }
+
+                $investmentDocument = InvestmentDocument::create([
+                    'investment_contract_document_id' => $id,
+                    'version_number' => $version_number ?? null,
+                    'investment_agreement_type_id' => $documentData['contract_type'] ?? null,
+                    'company_id' => $document->company_id ?? null,
+                    'document_date' => $documentDate,
+                    'investment_contract_file_name' => $fileName,
+                    'investment_contract_file_path' => $filePath,
+                    'investment_id' => $document->investment_id ?? null,
+                    'investor_id' => $document->investor_id ?? null,
+                    'added_by' => auth()->id(),
+                ]);
+
+                foreach ($documentData['additional_documents'] ?? [] as $additionalDocument) {
+                    if (!empty($additionalDocument['file'])) {
+                        $addFile = $additionalDocument['file'];
+                        $addFileName = $addFile->getClientOriginalName();
+
+                        if (strtolower($addFile->getClientOriginalExtension()) === 'pdf') {
+                            $addFilePath = $pdfservice->compress(
+                                $addFile,
+                                'investments/documents/' . $investmentCode . '/additional_documents',
+                                $addFileName
+                            );
+                        } else {
+                            $addFilePath = $addFile->storeAs(
+                                'investments/documents/' . $investmentCode . '/additional_documents',
+                                $addFileName,
+                                'public'
+                            );
+                        }
+                        $investmentDocument->additionalDocuments()->create([
+                            'document_name' => $additionalDocument['type'],
+                            'document_path' => $addFilePath,
+                            'document_date' => $documentDate,
+                            'created_by' => auth()->id(),
+                            'investment_contract_document_id' => $id,
+                        ]);
+                    }
+                }
+            }
+
+            return true;
+        });
+    }
+
+    public function deleteContracts($id)
+    {
+        $document = InvestmentDocument::with('additionalDocuments')->findOrFail($id);
+
+        foreach ($document->additionalDocuments as $additional) {
+            if ($additional->document_path && Storage::exists($additional->document_path)) {
+                Storage::delete($additional->document_path);
+            }
+
+            $additional->delete();
+        }
+
+        if ($document->investment_contract_file_path && Storage::exists($document->investment_contract_file_path)) {
+            Storage::delete($document->investment_contract_file_path);
+        }
+
+        $document->delete();
+
+        $remainingDocuments = InvestmentDocument::where(
+            'investment_contract_document_id',
+            $document->investment_contract_document_id
+        )->exists();
+
+        if (!$remainingDocuments) {
+            InvestmentContractDocuments::where('id', $document->investment_contract_document_id)
+                ->update([
+                    'has_additional_doc' => 0,
+                ]);
+        }
+
+        return $document;
     }
 }

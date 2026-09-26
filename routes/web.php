@@ -513,6 +513,10 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
     Route::get('investment-renewal', [InvestmentController::class, 'investmentRenewal'])->name('investment.renew');
     Route::get('investment-renewal-list', [InvestmentController::class, 'getRenewalList'])->name('investment.renew.list');
     Route::get('/investments/{id}/renew', [InvestmentController::class, 'edit'])->name('investments.renew');
+    Route::post('investments/upload-contracts/{id}', [InvestmentController::class, 'uploadContracts'])->name('investment.contracts.upload');
+    Route::post('investments/delete-contracts/{id}', [InvestmentController::class, 'deleteDocument'])->name('investment.documents.delete');
+
+    // Route::get('investor/contract-list/{id?}', [InvestorController::class, 'getContracts'])->name('investor.contracts');
 });
 
 

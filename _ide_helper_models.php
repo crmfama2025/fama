@@ -2059,6 +2059,43 @@ namespace App\Models{
 namespace App\Models{
 /**
  * @property int $id
+ * @property int $investment_document_id
+ * @property int $investment_contract_document_id
+ * @property string|null $document_name
+ * @property string|null $document_path
+ * @property string|null $document_date
+ * @property int|null $created_by
+ * @property int|null $updated_by
+ * @property int|null $deleted_by
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read \App\Models\InvestmentDocument $investmentDocument
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentAdditionalDocuments newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentAdditionalDocuments newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentAdditionalDocuments onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentAdditionalDocuments query()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentAdditionalDocuments whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentAdditionalDocuments whereCreatedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentAdditionalDocuments whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentAdditionalDocuments whereDeletedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentAdditionalDocuments whereDocumentDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentAdditionalDocuments whereDocumentName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentAdditionalDocuments whereDocumentPath($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentAdditionalDocuments whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentAdditionalDocuments whereInvestmentContractDocumentId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentAdditionalDocuments whereInvestmentDocumentId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentAdditionalDocuments whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentAdditionalDocuments whereUpdatedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentAdditionalDocuments withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentAdditionalDocuments withoutTrashed()
+ */
+	class InvestmentAdditionalDocuments extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property int $id
  * @property int $investment_id
  * @property int $company_id
  * @property string $allocated_amount
@@ -2188,7 +2225,12 @@ namespace App\Models{
 namespace App\Models{
 /**
  * @property int $id
- * @property int $investment_id
+ * @property int|null $investment_contract_document_id
+ * @property string|null $version_number
+ * @property int|null $investment_agreement_type_id
+ * @property int|null $company_id
+ * @property string|null $document_date
+ * @property int|null $investment_id
  * @property int $investor_id
  * @property string|null $investment_contract_file_name
  * @property string|null $investment_contract_file_path
@@ -2198,22 +2240,30 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvestmentAdditionalDocuments> $additionalDocuments
+ * @property-read int|null $additional_documents_count
+ * @property-read \App\Models\InvestorAgreementType|null $agreementType
  * @property-read \App\Models\User|null $deletedBy
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentDocument newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentDocument newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentDocument onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentDocument query()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentDocument whereAddedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentDocument whereCompanyId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentDocument whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentDocument whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentDocument whereDeletedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentDocument whereDocumentDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentDocument whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentDocument whereInvestmentAgreementTypeId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentDocument whereInvestmentContractDocumentId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentDocument whereInvestmentContractFileName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentDocument whereInvestmentContractFilePath($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentDocument whereInvestmentId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentDocument whereInvestorId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentDocument whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentDocument whereUpdatedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentDocument whereVersionNumber($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentDocument withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentDocument withoutTrashed()
  */
@@ -3053,19 +3103,7 @@ namespace App\Models{
  * @property int|null $total_staff
  * @property string|null $required_location
  * @property string $requirement
- * @property int $status 
- *                 0 = Pending,
- *                 1 = Processing,
- *                 2 = Interested,
- *                 3 = Call Back,
- *                 4 = No Answer,
- *                 5 = Not Interested,
- *                 6 = Meeting Scheduled,
- *                 7 = Proposal Sent,
- *                 8 = Negotiation,
- *                 9 = Converted,
- *                 10 = Lost,
- *                 11 = Others
+ * @property int $status 0 = Pending, 1 = processing
  * @property int|null $assigned_to
  * @property int|null $assigned_by
  * @property \Illuminate\Support\Carbon|null $assigned_at

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Exports\InvestmentContractsExport;
 use App\Models\Investment;
 use App\Models\InvestmentContractDocuments;
+use App\Models\InvestmentDocument;
 use App\Services\Investment\InvestmentContractDocumentService;
 use App\Services\Investment\InvestmentService;
 use Illuminate\Http\Request;
@@ -32,8 +33,6 @@ class InvestmentContractsController extends Controller
     }
     public function getContracts(Request $request)
     {
-
-
         if ($request->ajax()) {
             $filters = [
                 'investor_id' => $request->investorid,
@@ -47,7 +46,6 @@ class InvestmentContractsController extends Controller
     }
     public function updateContract(Request $request, $id)
     {
-        // dd($request->all());
         $data = $request->all();
         try {
             $investment = $this->investmentContractService->updateDocument($data, $id);
@@ -61,9 +59,13 @@ class InvestmentContractsController extends Controller
         $title = "Documents";
         $formData = $this->investmentContractService->documentsFormData();
         $document = $this->investmentContractService->getDetails($id);
-        // dd($formData);
-        return view('admin.investment.investment.investment-documents', compact('title', 'formData', 'document'));
+        $documents = InvestmentDocument::with('additionalDocuments', 'agreementType')
+            ->where('investment_contract_document_id', $document->id)
+            ->get();
+
+        return view('admin.investment.investment.document-upload', compact('title', 'formData', 'document', 'documents'));
     }
+
     public function documentView($id)
     {
         // $formData = $this->investmentContractService->documentsFormData();

@@ -300,4 +300,27 @@ class InvestmentController extends Controller
             return $this->investmentService->getRenewalDataTable($filters);
         }
     }
+    public function uploadContracts(request $request, $id)
+    {
+        // dd($id);
+        try {
+            $upload = $this->investmentService->uploadContracts($request->all(), $id);
+
+            return response()->json(['success' => true, 'data' =>  $upload, 'message' => 'Documents Uploaded successfully'], 200);
+        } catch (\Exception $e) {
+
+            return response()->json(['success' => false, 'message' => $e->getMessage(), 'error'   => $e], 500);
+        }
+    }
+    public function deleteDocument($id)
+    {
+        try {
+            $upload = $this->investmentService->deleteContracts($id);
+
+            return response()->json(['success' => true, 'data' =>  $upload, 'message' => 'Documents Deleted successfully'], 200);
+        } catch (\Exception $e) {
+
+            return response()->json(['success' => false, 'message' => $e->getMessage(), 'error'   => $e], 500);
+        }
+    }
 }
