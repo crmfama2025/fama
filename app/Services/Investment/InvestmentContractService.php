@@ -466,12 +466,12 @@ class InvestmentContractService
                  <tr>
                 <td width='50%' style='border:1px solid #ccc;'>
                     <div class='english'>
-                        <p class='marginClass text-sm'>Guardian Mobile: {$investorGuardian->guardian_mobile}</p>
+                        <p class='marginClass text-sm'>Guardian Mobile: +{$investorGuardian->guardian_mobile}</p>
                     </div>
                 </td>
                 <td width='50%' style='border:1px solid #ccc;'>
                     <div class='arabic'>
-                        <p class='marginClass text-sm'>رقم الهاتف المتحرك للوصي: <span class='ltr-number'>{$investorGuardian->guardian_mobile}</span></p>
+                        <p class='marginClass text-sm'>رقم الهاتف المتحرك للوصي: <span class='ltr-number'>+{$investorGuardian->guardian_mobile}</span></p>
                     </div>
                 </td>
                 </tr>
