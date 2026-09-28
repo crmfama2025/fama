@@ -12,7 +12,8 @@
         body {
             font-family: calibri, sans-serif;
             font-size: 16px;
-            background: url('{{ public_path('images/fama-letterhead.png') }}') no-repeat center center;
+            /* background: url('{{ public_path('images/fama-letterhead.png') }}') no-repeat center center; */
+            background: url('{{ public_path('storage/' . $company->normal_letter_head_path) }}') no-repeat center center;
             background-size: cover;
             /*
         }

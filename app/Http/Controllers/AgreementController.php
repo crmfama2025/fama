@@ -101,16 +101,10 @@ class AgreementController extends Controller
     {
         $agreement = $this->agreementService->getDetails($agreement->id);
         $chain = $agreement->getFullChain();
-        // dd($agreement);
-        // dd($agreement);
-        // dd($agreement->agreement_payment_details);
-        // dd($agreement->agreement_units);
-        // dd($agreement->agreement_payment->agreementPaymentDetails);
         return view('admin.projects.agreement.agreement-view', compact('agreement', 'chain'));
     }
     public function getAgreements(Request $request)
     {
-        // dd("test");
         if ($request->ajax()) {
             $filters = [
                 'company_id' => auth()->user()->company_id,
@@ -196,16 +190,18 @@ class AgreementController extends Controller
     public function print_view($id)
     {
         $agreement = $this->agreementService->getDetails($id);
+        $company = $agreement->company;
         $page = 1;
-        return view('admin.projects.agreement.printview-agreement', compact('agreement', 'page'));
+        return view('admin.projects.agreement.printview-agreement', compact('agreement', 'page', 'company'));
     }
 
 
     public function print($id)
     {
         $agreement = $this->agreementService->getDetails($id);
+        $company = $agreement->company;
         $page = 0;
-        $pdf = Pdf::loadView('admin.projects.agreement.pdf-agreement', compact('agreement', 'page'))
+        $pdf = Pdf::loadView('admin.projects.agreement.pdf-agreement', compact('agreement', 'page', 'company'))
             ->setPaper([0, 0, 930, 1250]);
         return $pdf->stream('agreement-' . $agreement->id . '.pdf');
     }
