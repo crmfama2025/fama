@@ -549,9 +549,9 @@ class ContractService
         return false;
     }
 
-    public function fullContracts()
+    public function fullContracts($id = null)
     {
-        return $this->contractRepo->fullContracts();
+        return $this->contractRepo->fullContracts($id);
     }
     public function getRenewalDataTable(array $filters = [])
     {

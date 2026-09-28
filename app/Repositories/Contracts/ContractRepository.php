@@ -277,7 +277,7 @@ class ContractRepository
             ->where('is_agreement_added', 0)
             ->get();
     }
-    public function fullContracts()
+    public function fullContracts($contractId = null)
     {
         return Contract::with([
             'contract_unit.contractUnitDetails.contractSubunitDetails',
@@ -290,6 +290,7 @@ class ContractRepository
             ->whereIn('contract_status', [1, 7])
             ->where('is_vendor_contract_uploaded', 1)
             // ->where('is_agreement_added', 0)
+            ->when($contractId, fn($q) => $q->where('contracts.id', $contractId))
             ->get();
     }
 

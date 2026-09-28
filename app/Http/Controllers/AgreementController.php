@@ -141,7 +141,7 @@ class AgreementController extends Controller
         // dd($agreement);
         $companies = $this->companyService->getAll();
         $contracts = $this->contractService->getAllwithUnits();
-        $fullContracts = $this->contractService->fullContracts();
+        $fullContracts = $this->contractService->fullContracts($agreement->contract_id);
         $installments = $this->installmentService->getAll();
         $tenantIdentities = TenantIdentity::where('show_status', true)->get();
         $unitTypes = UnitType::all();
@@ -307,14 +307,12 @@ class AgreementController extends Controller
     }
     public function renewAgreement($agreement_id)
     {
-        // dd($agreement_id);
         $companies = $this->companyService->getAll();
         // $contracts = $this->contractService->getAllwithUnits();
         $contracts = $this->contractService->getAllwithUnits()->map(function ($contract) {
             $contract->contract_unit->business_type_text = $contract->contract_unit->business_type();
             return $contract;
         });
-        // dd($contracts);
         $installments = $this->installmentService->getAll();
         $tenantIdentities = TenantIdentity::where('show_status', true)->get();
         $unitTypes = UnitType::all();
@@ -326,16 +324,8 @@ class AgreementController extends Controller
         $agreement = $this->agreementService->getById($agreement_id);
         $tenant = $agreement->tenant;
         $tenants = $this->tenantService->getTenantsForAgreement();
-        // dd($tenant);
         $company_id = $agreement->company_id;
         $contract = $this->contractService->getById($agreement->contract_id);
-        // dd($contract);
-        // if (!$contract || $contract->children->isEmpty()) {
-        //     return redirect()
-        //         ->back()
-        //         ->with('error', 'No renewal contract found for this agreement.');
-        // }
-
         $renewalContractId = $contract->children[0]->id;
         $emirates = Emirate::all();
         // dd($renewalContractId);
