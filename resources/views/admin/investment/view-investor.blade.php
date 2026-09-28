@@ -97,6 +97,10 @@
                                 <li class="nav-item"> <a class="nav-link" href="#guardian" data-toggle="tab"> Guardian
                                         Details </a> </li>
                             @endif
+                            <li class="nav-item"><a class="nav-link" href="#investmentDocuments"
+                                    data-toggle="tab">Investment
+                                    Documents</a>
+                            </li>
 
                         </ul>
                     </div><!-- /.card-header -->
@@ -294,6 +298,7 @@
                             </div>
                             <!-- /.tab-pane -->
                             @include('admin.investment.investor-guardian-view')
+                            @include('admin.investment.investor-documents')
 
                         </div>
                         <!-- /.tab-content -->
@@ -432,6 +437,54 @@
                     }
                 }],
 
+            });
+
+        });
+    </script>
+    <script>
+        let documentstable = '';
+        $(function() {
+            documentstable = $('#investmentContractsTable').DataTable({
+                // processing: true,
+                // serverSide: true,
+                responsive: true,
+                lengthMenu: [
+                    [10, 25, 50, -1],
+                    [10, 25, 50, 'All']
+                ],
+
+
+
+                order: [
+                    [0, 'desc']
+                ],
+                // dom: 'Bfrtip',
+                // buttons: [{
+                //     extend: 'excelHtml5',
+                //     text: 'Export Excel',
+                //     title: 'Investments Data',
+                //     action: function(e, dt, node, config) {
+                //         let searchValue = dt.search();
+                //         let url = "{{ route('investment.export') }}" + "?search=" +
+                //             encodeURIComponent(searchValue);
+                //         window.location.href = url;
+                //     }
+                // }]
+
+
+            });
+            $('input[name="agreementFilter"]').on('change', function() {
+                let filter = $(this).val();
+
+                if (filter === 'all') {
+                    documentstable.column(3).search('').draw();
+                } else if (filter === '1') {
+                    documentstable.column(3).search('^Pending$', true, false).draw();
+                } else if (filter === '2') {
+                    documentstable.column(3).search('^Investor Signed$', true, false).draw();
+                } else if (filter === '3') {
+                    documentstable.column(3).search('^Both Signed$', true, false).draw();
+                }
             });
 
         });

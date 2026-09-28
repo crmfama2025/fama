@@ -2170,6 +2170,8 @@ namespace App\Models{
  * @property-read \App\Models\User|null $deletedBy
  * @property-read \App\Models\User|null $generatedBy
  * @property-read \App\Models\Investment|null $investment
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvestmentDocument> $investmentDocuments
+ * @property-read int|null $investment_documents_count
  * @property-read \App\Models\Investor|null $investor
  * @property-read \App\Models\InvestorLedger|null $ledger
  * @property-read InvestmentContractDocuments|null $mudarabahReference

@@ -516,7 +516,7 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
     Route::post('investments/upload-contracts/{id}', [InvestmentController::class, 'uploadContracts'])->name('investment.contracts.upload');
     Route::post('investments/delete-contracts/{id}', [InvestmentController::class, 'deleteDocument'])->name('investment.documents.delete');
 
-    // Route::get('investor/contract-list/{id?}', [InvestorController::class, 'getContracts'])->name('investor.contracts');
+    Route::get('investor/contract-list/{id?}', [InvestorController::class, 'getContracts'])->name('investor.contracts');
 });
 
 

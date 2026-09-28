@@ -129,30 +129,79 @@ class InvestmentContractDocumentService
                 }
             })
             // Main Document View
+            // ->addColumn('main_doc_view', function ($row) {
+            //     if ($row->contract_file_path) {
+            //         return '<a href="' . Storage::url($row->contract_file_path) . '"
+            //         target="_blank"
+            //         class="btn btn-sm btn-outline-primary"
+            //         title="View Document">
+            //         <i class="fas fa-eye"></i>
+            //     </a>';
+            //     }
+            //     return '-';
+            // })
+
             ->addColumn('main_doc_view', function ($row) {
-                if ($row->contract_file_path) {
-                    return '<a href="' . Storage::url($row->contract_file_path) . '"
-                    target="_blank"
-                    class="btn btn-sm btn-outline-primary"
-                    title="View Document">
-                    <i class="fas fa-eye"></i>
-                </a>';
+                $documents = $row->investmentDocuments;
+
+                if ($documents->isEmpty()) {
+                    return '-';
                 }
-                return '-';
+
+                return $documents->map(function ($document) {
+                    if (!$document->investment_contract_file_path) {
+                        return '';
+                    }
+
+                    return '<a href="' . Storage::url($document->investment_contract_file_path) . '"
+                    target="_blank"
+                    class="btn btn-sm btn-outline-primary m-1"
+                    title="' . e('View Document') . '">
+                    <i class="fas fa-eye"></i>
+                </a> <br>';
+                })->filter()->implode('');
+            })
+
+            ->addColumn('additional_doc_view', function ($row) {
+                if ((int) $row->action_type !== 0) {
+                    return '-';
+                }
+
+                $additionalDocuments = $row->investmentDocuments
+                    ->flatMap(function ($document) {
+                        return $document->additionalDocuments;
+                    });
+
+                if ($additionalDocuments->isEmpty()) {
+                    return '-';
+                }
+
+                return $additionalDocuments->map(function ($document) {
+                    if (!$document->document_path) {
+                        return '';
+                    }
+
+                    return '<a href="' . Storage::url($document->document_path) . '"
+                    target="_blank"
+                    class="btn btn-sm btn-outline-info m-1"
+                    title="' . e($document->document_name ?? 'Additional Document') . '">
+                    <i class="fas fa-eye"></i>  <span>' . e($document->document_name ?? 'Additional Document') . '</span>
+                </a> <br>';
+                })->filter()->implode('');
             })
 
             // Additional Document View
-            ->addColumn('additional_doc_view', function ($row) {
-                if ($row->additional_file_path) {
-                    return '<a href="' . Storage::url($row->additional_file_path) . '"
-                    target="_blank"
-                    class="btn btn-sm btn-outline-info"
-                    title="View Document">
-                    <i class="fas fa-eye"></i>
-                </a>';
-                }
-                return '-';
-            })
+            // ->addColumn('additional_doc_view', function ($row) {
+            //     if ($row->additional_file_path) {
+            //         return '<a href="' . Storage::url($row->additional_file_path) . '"
+            //         target="_blank"
+            //         class="btn btn-sm btn-outline-info"
+            //         title="View Document">
+            //         <i class="fas fa-eye"></i>
+            //     </a>';
+            //     }
+            //     return '-';
+            // })
 
             ->addColumn('generated_date', function ($row) {
                 return $row->generated_date

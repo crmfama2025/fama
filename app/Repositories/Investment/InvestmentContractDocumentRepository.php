@@ -38,7 +38,7 @@ class InvestmentContractDocumentRepository
         $query = InvestmentContractDocuments::query();
 
         // Always needed relations
-        $with = ['investor', 'agreementType', 'agreementTemplate', 'company'];
+        $with = ['investor', 'agreementType', 'agreementTemplate', 'company', 'investmentDocuments.additionalDocuments'];
 
         // Only add investment if filter exists
         if (!empty($filters['investment_id'])) {
@@ -50,6 +50,13 @@ class InvestmentContractDocumentRepository
             $query->where(function ($q) use ($investmentId) {
                 $q->where('investment_id', $investmentId)
                     ->orWhereJsonContains('applied_investments', $investmentId);
+            });
+        }
+        // dd($filters);
+        if (!empty($filters['investor_id'])) {
+            $investorId = (int) $filters['investor_id'];
+            $query->where(function ($q) use ($investorId) {
+                $q->where('investor_id', $investorId);
             });
         }
 

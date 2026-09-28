@@ -107,4 +107,11 @@ class InvestmentContractDocuments extends Model
     {
         return $this->hasOne(InvestorLedger::class, 'investment_contract_document_id');
     }
+    public function investmentDocuments()
+    {
+        return $this->hasMany(
+            InvestmentDocument::class,
+            'investment_contract_document_id'
+        );
+    }
 }

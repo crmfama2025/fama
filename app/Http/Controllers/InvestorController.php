@@ -12,7 +12,10 @@ use App\Models\InvestorGuardianDetail;
 use App\Models\InvestorRelation;
 use App\Models\PaymentMode;
 use App\Models\PayoutBatch;
+use App\Repositories\Investment\InvestmentContractDocumentRepository;
 use App\Repositories\Investment\InvestorLedgerRepository;
+use App\Services\Investment\InvestmentContractDocumentService;
+use App\Services\Investment\InvestmentContractService;
 use App\Services\Investment\InvestorBankService;
 use App\Services\Investment\InvestorDocumentService;
 use App\Services\Investment\InvestorService;
@@ -28,7 +31,9 @@ class InvestorController extends Controller
         protected InvestorBankService $investorBankSer,
         protected NationalityService $nationalityService,
         protected InvestorDocumentService $investorDocSer,
-        protected InvestorLedgerRepository $investorLedgerRepo
+        protected InvestorLedgerRepository $investorLedgerRepo,
+        protected InvestmentContractDocumentService $investmentContractService,
+        protected InvestmentContractDocumentRepository $investmentContractDocumentRepository
     ) {}
 
     public function index()
@@ -150,9 +155,14 @@ class InvestorController extends Controller
 
         $investorBanks = $this->investorBankSer->getByInvestor(['investor_id' => $id]);
         $investorDocuments = $this->investorDocSer->getByInvestor(['investor_id' => $id]);
+        $investmentDocuments = $this->investmentContractDocumentRepository
+            ->getQuery([
+                'investor_id' => $id
+            ])
+            ->get();
         $investor = $this->investorService->getById($id);
 
-        return view("admin.investment.view-investor", compact("title", "investorBanks", "investor", "investorDocuments"));
+        return view("admin.investment.view-investor", compact("title", "investorBanks", "investor", "investorDocuments", "investmentDocuments"));
     }
 
     public function addorUpdateInvestorBank(Request $request)
@@ -339,6 +349,22 @@ class InvestorController extends Controller
                 'success' => false,
                 'message' => 'Unable to delete termination.'
             ], 500);
+        }
+    }
+    public function getContracts(Request $request)
+    {
+        // dd("test");
+        // dd($request->all());
+
+        if ($request->ajax()) {
+            $filters = [
+                'investor_id' => $request->investor_id,
+                // 'company_id' => auth()->user()->company_id,
+                'search' => $request->search['value'] ?? null,
+                'status' => $request->status ?? 'all',
+            ];
+
+            return $this->investmentContractService->getDataTable($filters);
         }
     }
 }

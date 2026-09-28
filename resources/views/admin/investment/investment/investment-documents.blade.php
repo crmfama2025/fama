@@ -48,10 +48,9 @@
                             </div>
 
                             {{-- MAIN FIELDS (UPLOAD MODE) --}}
-                            <div id="upload_fields" class="form-row align-items-end">
+                            {{-- <div id="upload_fields" class="form-row align-items-end">
 
-                                {{-- Version --}}
-                                <div class="col-md-3">
+                                <div class="col-md-2">
                                     <label class="asterisk">Version</label>
                                     <select name="version" class="form-control select2" required>
                                         <option value="">Select Version No</option>
@@ -63,7 +62,6 @@
                                     </select>
                                 </div>
 
-                                {{-- Document Type --}}
                                 <div class="col-md-3">
                                     <label class="asterisk">Document Type</label>
                                     <select name="contract_type" class="form-control select2" required>
@@ -77,23 +75,22 @@
                                     </select>
                                 </div>
 
-                                {{-- File --}}
                                 <div class="col-md-3" id="file_upload">
-                                    <label class="field-label" id="file_label">
+                                    <label class="field-label asterisk" id="file_label">
                                         Upload File
                                     </label>
-                                    <input type="file" name="document" class="form-control">
+
+                                    <div id="document_uploads">
+                                        <div class="input-group mb-2 document-upload-row">
+                                            <input type="file" name="document[]" class="form-control document-input"
+                                                required>
+
+
+                                        </div>
+                                    </div>
                                 </div>
 
-                                {{-- Date --}}
-                                {{-- <div class="col-md-3" id="date">
-                                    <label class="field-label" id="date_label">
-                                        Date
-                                    </label>
-                                    <input type="date" name="generated_date" class="form-control">
-                                </div> --}}
-                                <div class="col-md-3" id="date">
-                                    {{-- <div class="form-group"> --}}
+                                <div class="col-md-2" id="date">
                                     <label class="asterisk" id="date_label">Date</label>
                                     <div class="input-group date" id="generateddate" data-target-input="nearest">
                                         <input type="text" class="form-control datetimepicker-input"
@@ -106,12 +103,81 @@
                                             </div>
                                         </div>
                                     </div>
-                                    {{-- </div> --}}
+                                </div>
+                                <div class="col-md-2" id="">
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-success add-document">
+                                            <i class="fas fa-plus"></i> Add More
+                                        </button>
+                                    </div>
+                                </div>
+
+                            </div> --}}
+
+                            <div id="document_rows">
+
+                                <div class="form-row align-items-end document-row mb-3">
+
+                                    <div class="col-md-2">
+                                        <label class="asterisk">Version</label>
+                                        <select name="version[]" class="form-control select2" required>
+                                            <option value="">Select Version No</option>
+                                            @foreach (InvestorDocVersion() as $key => $item)
+                                                <option value="{{ $key }}"
+                                                    {{ $document->investor_agreement_template_id == $key ? 'selected' : '' }}>
+                                                    {{ $item }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <label class="asterisk">Document Type</label>
+                                        <select name="contract_type[]" class="form-control select2" required>
+                                            <option value="">Select Type</option>
+                                            @foreach ($formData['doc_types'] as $type)
+                                                <option value="{{ $type->id }}"
+                                                    {{ $document->investor_agreement_type_id == $type->id ? 'selected' : '' }}>
+                                                    {{ $type->investor_agreement_type }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <label class="field-label asterisk">Upload File</label>
+                                        <input type="file" name="document[]" class="form-control document-input"
+                                            required>
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <label class="asterisk">Date</label>
+                                        <div class="input-group date generateddate" data-target-input="nearest">
+                                            <input type="text" class="form-control datetimepicker-input generated-date"
+                                                name="generated_date[]" data-target=".generateddate"
+                                                placeholder="DD-MM-YYYY" required>
+
+                                            <div class="input-group-append" data-toggle="datetimepicker">
+                                                <div class="input-group-text">
+                                                    <i class="fa fa-calendar"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <button type="button" class="btn btn-success add-document">
+                                            <i class="fas fa-plus"></i> Add More
+                                        </button>
+                                    </div>
+
                                 </div>
 
                             </div>
 
-                            {{-- ADDITIONAL DOC --}}
+
+
+
                             <div class="form-row mt-3">
                                 <div class="col-md-12">
                                     <div class="form-check">
@@ -125,7 +191,7 @@
                                 </div>
                             </div>
 
-                            <div id="additional_doc_section" class="form-row mt-3 d-none">
+                            {{-- <div id="additional_doc_section" class="form-row mt-3 d-none">
 
                                 <div class="col-md-4">
                                     <label id="add_doc_type_label">
@@ -148,6 +214,48 @@
                                     <input type="file" name="additional_document" class="form-control">
                                 </div>
 
+                            </div> --}}
+
+                            <div id="additional_doc_section" class="form-row mt-3 d-none">
+                                <div class="col-md-12">
+                                    <label id="add_doc_label">
+                                        Additional Documents
+                                    </label>
+
+                                    <div id="additional_documents">
+                                        <div class="form-row additional-document-row mb-2">
+                                            <div class="col-md-5">
+                                                <label id="add_doc_type_label">
+                                                    Additional Document Type
+                                                </label>
+
+                                                <select name="additional_contract_type[]"
+                                                    class="form-control select2 additional-type">
+                                                    <option value="">Select Type</option>
+                                                    <option value="exit_plan_document">Exit Plan Document</option>
+                                                    <option value="authorisation_document">Authorisation Document</option>
+                                                    <option value="bank_confirmation_letter">Bank Confirmation Letter
+                                                    </option>
+                                                </select>
+                                            </div>
+
+                                            <div class="col-md-5">
+                                                <label id="add_doc_file_label">
+                                                    Upload File
+                                                </label>
+
+                                                <input type="file" name="additional_document[]"
+                                                    class="form-control additional-file">
+                                            </div>
+
+                                            <div class="col-md-2 d-flex align-items-end">
+                                                <button type="button" class="btn btn-success add-additional-document">
+                                                    <i class="fas fa-plus"></i> Add More
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             {{-- BUTTON --}}
@@ -311,6 +419,66 @@
                 }
             });
 
+        });
+    </script>
+    <script>
+        $(document).on('click', '.add-document', function() {
+
+            let row =
+                ` <div class="form-row align-items-end document-row mb-3"> <div class="col-md-2"> <label class="asterisk">Version</label> <select name="version[]" class="form-control select2" required> <option value="">Select Version No</option> @foreach (InvestorDocVersion() as $key => $item) <option value="{{ $key }}">{{ $item }}</option> @endforeach </select> </div> <div class="col-md-3"> <label class="asterisk">Document Type</label> <select name="contract_type[]" class="form-control select2" required> <option value="">Select Type</option> @foreach ($formData['doc_types'] as $type) <option value="{{ $type->id }}"> {{ $type->investor_agreement_type }} </option> @endforeach </select> </div> <div class="col-md-3"> <label class="field-label asterisk">Upload File</label> <input type="file" name="document[]" class="form-control document-input" required> </div> <div class="col-md-2"> <label class="asterisk">Date</label> <div class="input-group date generateddate" data-target-input="nearest"> <input type="text" class="form-control datetimepicker-input generated-date" name="generated_date[]" placeholder="DD-MM-YYYY" required> <div class="input-group-append" data-toggle="datetimepicker"> <div class="input-group-text"> <i class="fa fa-calendar"></i> </div> </div> </div> </div> <div class="col-md-2"> <button type="button" class="btn btn-danger remove-document"> <i class="fas fa-minus"></i> Remove </button> </div> </div> `;
+
+            $('#document_rows').append(row);
+
+            $('#document_rows .select2').last().select2({
+                theme: 'bootstrap4',
+                width: '100%'
+            });
+
+            $('.generateddate').last().datetimepicker({
+                format: 'DD-MM-YYYY'
+            });
+        });
+
+        $(document).on('click', '.remove-document', function() {
+            $(this).closest('.document-row').remove();
+        });
+
+
+
+        $(document).on('click', '.add-additional-document', function() {
+            let row = `
+        <div class="form-row additional-document-row mb-2">
+            <div class="col-md-5">
+                <select name="additional_contract_type[]" class="form-control select2 additional-type">
+                    <option value="">Select Type</option>
+                    <option value="exit_plan_document">Exit Plan Document</option>
+                    <option value="authorisation_document">Authorisation Document</option>
+                    <option value="bank_confirmation_letter">Bank Confirmation Letter</option>
+                </select>
+            </div>
+
+            <div class="col-md-5">
+                <input type="file" name="additional_document[]" class="form-control additional-file">
+            </div>
+
+            <div class="col-md-2 d-flex align-items-center">
+                <button type="button" class="btn btn-danger remove-additional-document">
+                    <i class="fas fa-minus"></i>
+                </button>
+            </div>
+        </div>
+    `;
+
+            $('#additional_documents').append(row);
+
+            $('#additional_documents .select2').last().select2({
+                theme: 'bootstrap4',
+                width: '100%'
+            });
+        });
+
+        $(document).on('click', '.remove-additional-document', function() {
+            $(this).closest('.additional-document-row').remove();
         });
     </script>
 @endsection
