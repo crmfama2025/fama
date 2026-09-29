@@ -19,7 +19,7 @@
 </style>
 <div style="height: 120px;">&nbsp;</div>
 
-<table width="88%" border="0" align="center" cellpadding="5" style="margin-top: 50px;marging-bottom:50px;">
+<table width="88%" border="0" align="center" cellpadding="5" style="margin-top: 55px;marging-bottom:50px;">
     <tr>
         <td align="left" valign="top">
             <table width="95%" border="0" align="center" cellpadding="5" style="width:95%;">
