@@ -19,10 +19,10 @@
                     <td height="30">
                         @if ($page == 0)
                             <div align="right" class="mx-5"><img width="300" height="100"
-                                    src="{{ asset('images/images/fg.png') }}" alt="fama-logo"></div>
+                                    src="{{ public_path('images/fg.png') }}" alt="fama-logo"></div>
                         @else
                             <div align="right" class="mx-5"><img width="300" height="100"
-                                    src="{{ asset('images/images/fg.png') }}" alt="fama-logo"></div>
+                                    src="{{ asset('images/fg.png') }}" alt="fama-logo"></div>
                         @endif
                     </td>
                 </tr>
