@@ -61,7 +61,7 @@
 
                     <td>
                         <div align="left" class="mx-5"><strong>From,<br>
-                                <p class="mt-2">Fama Real Estate</p>
+                                <p class="mt-2">{{ $contract->company->company_name }}</p>
                                 P.O.Box : 32693<br>
                                 Dubai, UAE
                             </strong>
