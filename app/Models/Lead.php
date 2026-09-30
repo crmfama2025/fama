@@ -30,9 +30,6 @@ class Lead extends Model
         'created_by',
         'updated_by',
         'deleted_by',
-        'assigned_to',
-        'assigned_by',
-        'assigned_at',
         'total_allocation'
     ];
 

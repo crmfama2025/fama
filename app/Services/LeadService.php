@@ -393,6 +393,7 @@ class LeadService
 
             $followUpData['lead_id'] = $lead->id;
             $followUpData['created_by'] = auth()->id();
+            $followUpData['followed_up_by'] = auth()->id();
 
             $followUp = LeadFollowUp::create($followUpData);
 
