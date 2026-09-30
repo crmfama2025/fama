@@ -325,7 +325,8 @@
                                                         @foreach ($paymentBanks as $bank)
                                                             <option value="{{ $bank->id }}"
                                                                 {{ $detail->bank_id == $bank->id ? 'selected' : '' }}>
-                                                                {{ $bank->bank_name }}
+                                                                {{ $bank->bank_name }} -
+                                                                {{ $bank->company->company_short_code }}
                                                             </option>
                                                         @endforeach
                                                     </select>
