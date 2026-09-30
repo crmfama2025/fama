@@ -84,13 +84,26 @@
                                             </div>
 
                                             <!-- Property -->
-                                            <div class="form-group col-md-2">
+                                            {{-- <div class="form-group col-md-2">
                                                 <label for="propertySelect">Property</label>
                                                 <select class="form-control select2" id="propertySelect" name="property_id">
                                                     <option value="">Select Property</option>
                                                     @foreach ($properties as $property)
                                                         <option value="{{ $property->id }}">
                                                             {{ $property->property_name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div> --}}
+
+                                            <!-- Property -->
+                                            <div class="form-group col-md-2">
+                                                <label for="companySelect">Company</label>
+                                                <select class="form-control select2" id="companySelect" name="company_id">
+                                                    <option value="">Select Company</option>
+                                                    @foreach ($companies as $company)
+                                                        <option value="{{ $company->id }}">
+                                                            {{ $company->company_name }}
                                                         </option>
                                                     @endforeach
                                                 </select>
@@ -478,6 +491,27 @@
         $(document).on('change', '#propertySelect', function() {
             propertyChange();
         });
+        $(document).on('change', '#companySelect', function() {
+            companyChange();
+        });
+
+        function companyChange() {
+            // alert("test");
+            let company_id = $('#companySelect').val();
+
+            let projectSelect = $('#projectSelect');
+            projectSelect.empty();
+            projectSelect.append('<option value="">Select Project</option>');
+            let filteredContracts = contracts.filter(c => c.company_id == company_id);
+            filteredContracts.forEach(c => {
+                projectSelect.append(
+                    `<option value="${c.id}">
+                        ${c.project_number}
+                    </option>`
+                );
+            });
+            projectSelect.trigger('change');
+        }
 
         function propertyChange() {
             let property_id = $('#propertySelect').val();
@@ -582,6 +616,7 @@
             $('#propertySelect').val(null).trigger('change');
             $('#unitSelect').val(null).trigger('change');
             $('#modeSelect').val(null).trigger('change');
+            $('#companySelect').val(null).trigger('change');
 
             $('#dateFrom input').val('');
             $('#dateTo input').val('');
@@ -619,6 +654,7 @@
                         d.tenant_id = $('#tenantSelect').val();
                         d.contract_id = $('#projectSelect').val();
                         d.status = $('input[name="invoiceFilter"]:checked').val();
+                        d.comp_id = $('#companySelect').val();
 
                     },
                 },
@@ -843,7 +879,8 @@
 
                     $('#editModal').modal('hide');
                     form[0].reset();
-                    location.reload(); // or datatable reload
+                    // location.reload(); // or datatable reload
+                    $('#invoiceTable').DataTable().ajax.reload(null, false);
                     hideLoader();
                     toastr.success('Invoice updated successfully');
 

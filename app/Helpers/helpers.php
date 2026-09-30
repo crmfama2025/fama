@@ -651,7 +651,7 @@ function getPropertiesHaveContractB2b()
 }
 function getContractsHaveAgreementB2b()
 {
-    $contracts = Contract::select('id', 'project_number')->where('contract_type_id', 1)
+    $contracts = Contract::select('id', 'project_number', 'company_id')->where('contract_type_id', 1)
         ->whereHas('agreements') // only contracts that have agreements
         ->whereHas('contract_unit', function ($q) {
             $q->where('business_type', 1);

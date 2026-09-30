@@ -55,6 +55,7 @@ class InvoiceController extends Controller
                 'tenant_id' => $request->tenant_id ?? null,
                 'status' => $request->status ?? 'all',
                 'contract_id' => $request->contract_id ?? null,
+                'comp_id' => $request->comp_id ?? null
             ];
             return $this->invoiceService->getDataTable($filters);
         }
@@ -168,6 +169,7 @@ class InvoiceController extends Controller
                 'mode_id' => $request->mode_id ?? null,
                 'tenant_id' => $request->tenant_id ?? null,
                 'status' => $request->status ?? 'all',
+                'comp_id' => $request->comp_id ?? null
             ];
             return $this->invoiceService->getGeneratedInvoices($filters);
         }

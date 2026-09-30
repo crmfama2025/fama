@@ -241,9 +241,9 @@ class InvoiceRepository
                     });
                 }
             });
-        } elseif (!empty($filters['property_id'])) {
-            $query->whereHas('agreement.contract.property', function ($q) use ($filters) {
-                $q->where('id', $filters['property_id']);
+        } elseif (!empty($filters['comp_id'])) {
+            $query->whereHas('agreement.contract.company', function ($q) use ($filters) {
+                $q->where('id', $filters['comp_id']);
             });
             if (!empty($filters['contract_id'])) {
                 $query->whereHas('agreement.contract', function ($q) use ($filters) {
