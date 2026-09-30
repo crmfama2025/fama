@@ -315,11 +315,17 @@
                                                     <select name="payments[{{ $index }}][bank_id]"
                                                         class="form-control select2 bank-select">
                                                         <option value="">Select Bank</option>
-                                                        @foreach ($dropdowns['banks'] as $bank)
+                                                        {{-- @foreach ($dropdowns['banks'] as $bank)
                                                             <option value="{{ $bank->id }}"
                                                                 {{ $detail->bank_id == $bank->id ? 'selected' : '' }}>
                                                                 {{ $bank->bank_name }} -
                                                                 {{ $contract->company->company_short_code }}
+                                                            </option>
+                                                        @endforeach --}}
+                                                        @foreach ($paymentBanks as $bank)
+                                                            <option value="{{ $bank->id }}"
+                                                                {{ $detail->bank_id == $bank->id ? 'selected' : '' }}>
+                                                                {{ $bank->bank_name }}
                                                             </option>
                                                         @endforeach
                                                     </select>

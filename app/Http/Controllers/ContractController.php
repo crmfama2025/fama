@@ -189,10 +189,11 @@ class ContractController extends Controller
         $contractUnitdetails = $this->unitdetServ->getByContractId($contractId);
         $contractPayables = $this->paymentSev->getByContractId($contractId);
         $dropdowns = $this->contractService->getDropdownData('add');
+        $paymentBanks = Bank::where('company_id', $contract->company_id)->get();
         // dd($contractPayables);
         // dd($dropdowns);
         // dd($agreements);
-        return view("admin.projects.contract.contract-documents", compact("title", 'contract', 'documentTypes', 'contractDocuments', 'contractUnitdetails', 'dropdowns', 'contractPayables'));
+        return view("admin.projects.contract.contract-documents", compact("title", 'contract', 'documentTypes', 'contractDocuments', 'contractUnitdetails', 'dropdowns', 'contractPayables', 'paymentBanks'));
     }
 
     public function allocatedDetails($contractId)
