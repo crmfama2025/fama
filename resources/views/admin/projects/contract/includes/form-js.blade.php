@@ -146,9 +146,11 @@
                 if (prevBlocks.length > unitCount) {
                     const detailId = '';
                     if ({{ $edit }}) {
-                        detailId = $(block.querySelector(
+                        const idInput = $(block.querySelector(
                             'input[name="unit_detail[id][]"]'
-                        )).val();
+                        ));
+
+                        const detailId = idInput.val() ? idInput.val().trim() : '';
                     }
 
                     Swal.fire({
@@ -200,14 +202,19 @@
                                         toastr.success(response.message);
                                         // window.location.reload();
                                         Swal.close();
-                                        const sameClassName = Array.from(block.classList)
-                                            .find(cls => cls.startsWith('profitDeletecls'));
+                                        // const sameClassName = Array.from(block.classList)
+                                        //     .find(cls => cls.startsWith('profitDeletecls'));
 
-                                        $('.' + sameClassName).remove();
+                                        // $('.' + sameClassName).remove();
+
+                                        const idx = $(block).data('index');
+                                        $(`.apdi[data-index="${idx}"], .rentPerUnitDFaddmore[data-index="${idx}"], .rentPerUnitFFaddmore[data-index="${idx}"]`)
+                                            .remove();
                                         // block.remove();
                                         calculateTotalRent();
                                         CalculatePayables();
                                         calculateRoiFF();
+                                        calculateRoiDF();
                                         valueTorentRec('change');
                                         finalRecCal();
 
@@ -229,10 +236,14 @@
                                 });
                             } else {
                                 Swal.close();
-                                const sameClassName = Array.from(block.classList)
-                                    .find(cls => cls.startsWith('profitDeletecls'));
+                                // const sameClassName = Array.from(block.classList)
+                                //     .find(cls => cls.startsWith('profitDeletecls'));
 
-                                $('.' + sameClassName).remove();
+                                // $('.' + sameClassName).remove();
+
+                                const idx = $(block).data('index');
+                                $(`.apdi[data-index="${idx}"], .rentPerUnitDFaddmore[data-index="${idx}"], .rentPerUnitFFaddmore[data-index="${idx}"]`)
+                                    .remove();
                                 // block.remove();
                                 calculateTotalRent();
                                 CalculatePayables();
@@ -532,6 +543,184 @@
     });
 </script>
 <!-- unit addmore -->
+
+{{-- rent per unit DF --}}
+<script>
+    function rentPerUnitDF() {
+        if ($('#contract_type').val() == '2') return;
+
+        const containerDF = document.getElementsByClassName('rentPerUnitDF')[0];
+        if (!containerDF) return;
+
+
+        $('.apdi').each(function() {
+            const $unitRow = $(this);
+            const unitIndex = $unitRow.data('index'); // same highestIndex the unit block itself uses
+
+            // Skip if a DF block already exists for THIS specific unit (by identity, not position)
+            // if ($(`.rentPerUnitDFaddmore.profitDeletecls${unitIndex}`).length) return;
+            if ($(`.rentPerUnitDFaddmore.profitDeleteclsDF${unitIndex}`).length) return;
+
+            const unitNoVal = $unitRow.find('.unit_no').val();
+            const hasPart = $unitRow.find('.partcheck').is(':checked');
+            const hasBs = $unitRow.find('.bedcheck').is(':checked');
+            const hasRoom = $unitRow.find('.roomcheck').is(':checked');
+            const isFlat = !hasPart && !hasBs && !hasRoom;
+
+            const block = document.createElement('div');
+            // SAME class prefix as the unit block — this is what makes the existing
+            // unit-delete cleanup ($('.' + sameClassName).remove()) remove this DF block too, automatically.
+            // block.classList.add('rentPerUnitDFaddmore', 'profitDeletecls' + unitIndex);
+            block.classList.add('rentPerUnitDFaddmore', 'profitDeleteclsDF' + unitIndex);
+            block.setAttribute('data-index', unitIndex);
+            block.innerHTML = `
+            <div class="form-group row">
+                <div class="col-md-2">
+                    <label>Unit No</label>
+                    <input type="text" class="form-control unit_noDF" id="unit_noDF${unitIndex}" readonly value="${unitNoVal}">
+                </div>
+                <div class="col-md-2 dfPartition" ${hasPart ? '' : 'style="display:none"'}>
+                    <label class="asterisk">Rent per Partition</label>
+                    <input type="number" class="form-control rent_per_part_unit" required
+                        name="unit_detail[rent_per_partition][]" id="rent_per_part${unitIndex}" placeholder="Rent per Partition">
+                    <input type="hidden" class="total_partitions_ref" value="${$unitRow.find('.total_partitions').val() || 0}">
+                </div>
+                <div class="col-md-2 dfBedspace" ${hasBs ? '' : 'style="display:none"'}>
+                    <label class="asterisk">Rent per Bedspace</label>
+                    <input type="number" class="form-control rent_per_bs_unit" required
+                        name="unit_detail[rent_per_bedspace][]" id="rent_per_bs${unitIndex}" placeholder="Rent per Bedspace">
+                    <input type="hidden" class="total_bedspaces_ref" value="${$unitRow.find('.total_bedspaces').val() || 0}">
+                </div>
+                <div class="col-md-2 dfRoom" ${hasRoom ? '' : 'style="display:none"'}>
+                    <label class="asterisk">Rent per Room</label>
+                    <input type="number" class="form-control rent_per_room_unit" required
+                        name="unit_detail[rent_per_room][]" id="rent_per_room${unitIndex}" placeholder="Rent per Room">
+                    <input type="hidden" class="total_room_ref" value="${$unitRow.find('.total_room').val() || 0}">
+                </div>
+                <div class="col-md-2 dfFlat" ${isFlat ? '' : 'style="display:none"'}>
+                    <label class="asterisk">Rent per Flat</label>
+                    <input type="number" class="form-control rent_per_flat_unit" required
+                        name="unit_detail[rent_per_flat][]" id="rent_per_flat${unitIndex}" placeholder="Rent per Flat">
+                </div>
+                <div class="col-md-2">
+                    <label>Unit Total / Month</label>
+                    <input type="number" class="form-control unit_total_rent" id="unit_total_rent${unitIndex}" readonly>
+                </div>
+            </div>
+            <hr>`;
+
+            containerDF.appendChild(block);
+        });
+
+        refreshDFUnitVisibility();
+    }
+
+    // Keeps each existing DF block's visible fields in sync when checkboxes
+    // change AFTER the block was already created — this is what handles your
+    // "partition + bedspace both checked → both fields show" case on toggle.
+    function refreshDFUnitVisibility(preserveValues = false) {
+        if ($('#contract_type').val() == '2') return;
+
+        $('.rentPerUnitDFaddmore').each(function() {
+            const $dfBlock = $(this);
+            const unitIndex = $dfBlock.data('index');
+            const $unitRow = $(`.apdi[data-index="${unitIndex}"]`);
+
+            if (!$unitRow.length) { // unit was deleted
+                $dfBlock.remove();
+                return;
+            }
+
+            // keep Unit No in sync if the user edits it later
+            if ($unitRow.length) {
+                $dfBlock.find('.unit_noDF').val($unitRow.find('.unit_no').val());
+            }
+
+            const hasPart = $unitRow.length ? $unitRow.find('.partcheck').is(':checked') : $dfBlock.data(
+                'has-part') == 1;
+            const hasBs = $unitRow.length ? $unitRow.find('.bedcheck').is(':checked') : $dfBlock.data(
+                'has-bs') == 1;
+            const hasRoom = $unitRow.length ? $unitRow.find('.roomcheck').is(':checked') : $dfBlock.data(
+                'has-room') == 1;
+            const isFlat = !hasPart && !hasBs && !hasRoom;
+
+            toggleDFField($dfBlock, '.dfPartition', '.rent_per_part_unit', hasPart, preserveValues);
+            toggleDFField($dfBlock, '.dfBedspace', '.rent_per_bs_unit', hasBs, preserveValues);
+            toggleDFField($dfBlock, '.dfRoom', '.rent_per_room_unit', hasRoom, preserveValues);
+            toggleDFField($dfBlock, '.dfFlat', '.rent_per_flat_unit', isFlat, preserveValues);
+        });
+
+        calculateRoiDF();
+    }
+
+    function toggleDFField($dfBlock, wrapperSel, inputSel, show, preserveValues = false) {
+        const $wrapper = $dfBlock.find(wrapperSel);
+        const $input = $wrapper.find(inputSel);
+        $input.prop('required', show);
+        if (show) {
+            $wrapper.show();
+        } else {
+            $wrapper.hide();
+            if (!preserveValues) $input.val('');
+        }
+    }
+
+    function calculateRoiDF() {
+        if ($('#contract_type').val() == '2') return;
+
+        let total_rent_rec = 0;
+
+        $('.rentPerUnitDFaddmore').each(function() {
+            const $block = $(this);
+            const unitIndex = $block.data('index');
+            const $unitRow = $(`.apdi[data-index="${unitIndex}"]`);
+
+            const partRate = parseFloat($block.find('.rent_per_part_unit').val()) || 0;
+            const bsRate = parseFloat($block.find('.rent_per_bs_unit').val()) || 0;
+            const roomRate = parseFloat($block.find('.rent_per_room_unit').val()) || 0;
+            const flatRate = parseFloat($block.find('.rent_per_flat_unit').val()) || 0;
+
+            const isOn = sel => $block.find(sel).css('display') !== 'none';
+
+            const getCount = (unitSel, refSel) => {
+                const src = $unitRow.length ? $unitRow.find(unitSel) : $block.find(refSel);
+                return parseFloat(src.val()) || 0;
+            };
+
+            const partCount = isOn('.dfPartition') ? getCount('.total_partitions', '.total_partitions_ref') : 0;
+            const bsCount = isOn('.dfBedspace') ? getCount('.total_bedspaces', '.total_bedspaces_ref') : 0;
+            const roomCount = isOn('.dfRoom') ? getCount('.total_room', '.total_room_ref') : 0;
+            const flatOn = isOn('.dfFlat');
+
+            const unitTotal = (partRate * partCount) + (bsRate * bsCount) +
+                (roomRate * roomCount) + (flatOn ? flatRate : 0);
+
+            $block.find('.unit_total_rent').val(unitTotal.toFixed(2));
+            total_rent_rec += unitTotal;
+        });
+
+        const duration = parseFloat($('#duration_months').val()) || 0;
+        const total_rental = customRound(total_rent_rec * duration);
+        const expProfit = total_rental - parseFloat($('.final_cost').val());
+        const roi = expProfit / parseFloat($('.initial_inv').val());
+        const profit = expProfit / parseFloat($('.final_cost').val());
+
+        $('.total_rent_receivable').val(customRound(total_rent_rec));
+        $('.no_of_months_final').val(duration);
+        $('.total_rental').val(total_rental);
+        $('#roi').val(Math.round(roi * 100));
+        $('#expected_profit').val(customRound(expProfit));
+        $('#profit').val(customRound(profit * 100));
+
+        valueTorentRec('change');
+        finalRecCal();
+    }
+
+    $(document).on('input change',
+        '.rent_per_part_unit, .rent_per_bs_unit, .rent_per_room_unit, .rent_per_flat_unit',
+        calculateRoiDF);
+</script>
+{{-- rent per unit DF --}}
 
 <!-- checkboxes inside unit -->
 <script>
@@ -973,13 +1162,21 @@
 
     }
 
+    $(document).on('blur', '.unit_no', function() {
+        calculateOtc();
+        calculateRoi();
+        CalculatePayables();
+        if ($('#contract_type').val() != '2') rentPerUnitDF();
+    });
+
     // Trigger on input/change
     $(document).on('input change',
-        '.unit_no, .unit_type, .total_partitions, .total_bedspaces, .total_partitions_fb, .total_bedspaces_fb',
+        '.unit_type, .total_partitions, .total_bedspaces, .total_partitions_fb, .total_bedspaces_fb,.total_room, .partcheck, .bedcheck, .roomcheck',
         function() {
             calculateOtc();
             calculateRoi();
             CalculatePayables();
+            if ($('#contract_type').val() != '2') refreshDFUnitVisibility();
         });
 </script>
 
@@ -1286,6 +1483,7 @@
                     containerPayment.appendChild(paymentBlock);
                     // console.log('type change inside payment addnmore');
                     rentPerUnitFamaFaateh();
+                    refreshDFUnitVisibility();
 
                     $(containerPayment).find('select.select2').select2({
                         placeholder: 'Select an option',
@@ -1329,6 +1527,8 @@
                 if ($('#contract_type').val() == '2') {
                     // console.log('type change inside installment change');
                     rentPerUnitFamaFaateh();
+                } else {
+                    refreshDFUnitVisibility();
                 }
 
             }
@@ -1589,6 +1789,7 @@
             $('#btob').prop('checked', true);
             $('#btoc').prop('checked', false);
             // console.log('contract change');
+            $('.rentPerUnitDF').hide();
 
             rentPerUnitFamaFaateh();
             //         $('#client_name').val('Faateh');
@@ -1600,6 +1801,8 @@
             $('#btob').prop('checked', false);
             $('#btoc').prop('checked', true);
             $('.rentPerUnitFF').hide();
+
+            rentPerUnitDF();
             //         $('#client_name').val('Faateh');
             //         $('#client_phone').val('0568856995');
             //         $('#client_email').val('adil@faateh.ae');
@@ -1673,7 +1876,7 @@
     $('.rentPartition, .rentBedspace, .rentRoom, .rentFlat').hide();
     let totalflatcount = 0;
 
-    $(document).on('change',
+    $(document).on('input change',
         '.unit_type, .partcheck, .bedcheck, .roomcheck , .partcheck_fb, .bedcheck_fb, .fullBuildCheck',
         function() {
             subUnitCheck();
@@ -1718,19 +1921,24 @@
         //         }
         //     });
         // } else {
+        if ($('#contract_type').val() == 2) {
+            if (($('.partcheck:checked').length) > 0) {
+                $('.rentPartition').show();
+            }
 
-        if (($('.partcheck:checked').length) > 0) {
-            $('.rentPartition').show();
+            if ($('.bedcheck:checked').length > 0) {
+                $('.rentBedspace').show();
+            }
+            // console.log($('.roomcheck:checked'));
+            if ($('.roomcheck:checked').length > 0) {
+                $('.rentRoom').show();
+            }
         }
 
-        if ($('.bedcheck:checked').length > 0) {
-            $('.rentBedspace').show();
-        }
-        // console.log($('.roomcheck:checked'));
-        if ($('.roomcheck:checked').length > 0) {
-            $('.rentRoom').show();
-        }
 
+        if ($('#contract_type').val() == 1) {
+            refreshDFUnitVisibility(edit); // true on initial edit-page load → preserve values
+        }
 
         // }
 
@@ -1774,51 +1982,58 @@
 
 
     function calculateRoi() {
-        // console.log('calculate roi');
-        let contract_type = '{{ $contract ? $contract->contract_type_id : '' }}';
-        if (contract_type == '2') {
+
+        if ($('#contract_type').val() == '2') {
             calculateRoiFF();
-            return;
+        } else {
+            calculateRoiDF();
         }
 
-        let rentPerPartition = parseFloat($('#rent_per_part').val()) || 0;
-        let rentPerBedspace = parseFloat($('#rent_per_bs').val()) || 0;
-        let rentPerRoom = parseFloat($('#rent_per_room').val()) || 0;
-        let rentPerFlat = parseFloat($('#rent_per_flat').val()) || 0;
+        // console.log('calculate roi');
+        // let contract_type = '{{ $contract ? $contract->contract_type_id : '' }}';
+        // if (contract_type == '2') {
+        //     calculateRoiFF();
+        //     return;
+        // }
 
-        if (rentPerPartition > 0 || rentPerBedspace > 0 || rentPerRoom > 0 || rentPerFlat > 0) {
-            let total_part = totalPartition() * rentPerPartition;
-            let total_bs = totalBedspace() * rentPerBedspace;
-            let total_room = totalRoom() * rentPerRoom;
-            calculateFlatcount();
+        // let rentPerPartition = parseFloat($('#rent_per_part').val()) || 0;
+        // let rentPerBedspace = parseFloat($('#rent_per_bs').val()) || 0;
+        // let rentPerRoom = parseFloat($('#rent_per_room').val()) || 0;
+        // let rentPerFlat = parseFloat($('#rent_per_flat').val()) || 0;
 
-            $('#subunit_count_per_contract').val(calculateSubAccommodations().totSubValue);
-            // console.log($('#subunit_count_per_contract').val());
-            let total_flats = totalflatcount * rentPerFlat;
+        // if (rentPerPartition > 0 || rentPerBedspace > 0 || rentPerRoom > 0 || rentPerFlat > 0) {
+        //     let total_part = totalPartition() * rentPerPartition;
+        //     let total_bs = totalBedspace() * rentPerBedspace;
+        //     let total_room = totalRoom() * rentPerRoom;
+        //     calculateFlatcount();
 
-            let total_rent_rec = customRound(total_part + total_bs + total_room + total_flats);
-            let duration = $('#duration_months').val();
+        //     $('#subunit_count_per_contract').val(calculateSubAccommodations().totSubValue);
+        //     // console.log($('#subunit_count_per_contract').val());
+        //     let total_flats = totalflatcount * rentPerFlat;
 
-            // if($('#'))
-            let total_rental = customRound(total_rent_rec * duration);
+        //     let total_rent_rec = customRound(total_part + total_bs + total_room + total_flats);
+        //     let duration = $('#duration_months').val();
 
-
-            let expProfit = total_rental - parseFloat($('.final_cost').val());
-            let roi = expProfit / parseFloat($('.initial_inv').val());
-            let profit = expProfit / parseFloat($('.final_cost').val());
-            // parseFloat($('.').val());
-
-
-
-            $('.total_rent_receivable').val(total_rent_rec);
-            $('.no_of_months_final').val(duration);
-            $('.total_rental').val(total_rental);
+        //     // if($('#'))
+        //     let total_rental = customRound(total_rent_rec * duration);
 
 
-            $('#roi').val(Math.round(roi * 100));
-            $('#expected_profit').val(customRound(expProfit));
-            $('#profit').val(customRound(profit * 100));
-        }
+        //     let expProfit = total_rental - parseFloat($('.final_cost').val());
+        //     let roi = expProfit / parseFloat($('.initial_inv').val());
+        //     let profit = expProfit / parseFloat($('.final_cost').val());
+        //     // parseFloat($('.').val());
+
+
+
+        //     $('.total_rent_receivable').val(total_rent_rec);
+        //     $('.no_of_months_final').val(duration);
+        //     $('.total_rental').val(total_rental);
+
+
+        //     $('#roi').val(Math.round(roi * 100));
+        //     $('#expected_profit').val(customRound(expProfit));
+        //     $('#profit').val(customRound(profit * 100));
+        // }
     }
 
     function customRound($value) {
@@ -1865,223 +2080,310 @@
 
 <!-- rent per unit FF -->
 <script>
-    function rentPerUnitFamaFaateh() {
+    // function rentPerUnitFamaFaateh() {
 
+    //     if ($('#contract_type').val() != '2') return;
+
+    //     profitHiddenValues();
+
+    //     // if ({{ $renew }}) {
+    //     //     updateProfitRevenueForUnits();
+    //     // }
+
+
+    //     // $('.rentPerUnitFF').show();
+    //     // $('.receivable_maindiv').hide();
+    //     // $('.rentPartition, .rentBedspace, .rentRoom, .rentFlat').hide();
+
+    //     let no_of_units = 0;
+
+    //     $('.unit_no').each(function() {
+    //         no_of_units++;
+    //     });
+    //     // console.log('rentPerUnitFamaFaateh');
+    //     let unit_no = $('.unit_noFF').map(function() {
+    //         return $(this).val();
+    //     }).get();
+    //     // console.log(unit_no);
+
+    //     const containerPayment = document.getElementsByClassName('rentPerUnitFF')[0];
+    //     const prevffBlocks = containerPayment.querySelectorAll('.rentPerUnitFFaddmore');
+    //     prevffBlocks.forEach(block => {
+    //         const formGroups = block.querySelectorAll('.form-group.row');
+
+    //         if (formGroups.length > 0) {
+    //             // Get the last .form-group element
+    //             const lastFormGroup = formGroups[formGroups.length - 1];
+    //             const existingBtn = lastFormGroup.querySelector('.btndetdProfit');
+
+    //             if (prevffBlocks.length > no_of_units) {
+    //                 if (!existingBtn) {
+    //                     lastFormGroup.insertAdjacentHTML('beforeend', `
+    //                             <div class="col-sm-1 btndeleteProf">
+    //                                 <button type="button" class="btn-danger btn-block dlt-divProf btndetdProfit mt-31" title="Delete" data-toggle="tooltip">
+    //                                     <i class="fa fa-trash fa-1x"></i>
+    //                                 </button>
+    //                             </div>
+    //                         `);
+
+    //                     $('.contractFormSubmit').prop('disabled', true);
+
+    //                     // Remove button
+    //                     const removeBtn = block.querySelector('.dlt-divProf');
+    //                     if (removeBtn) {
+    //                         removeBtn.addEventListener('click', () => {
+    //                             if (prevffBlocks.length > no_of_units) {
+    //                                 block.remove();
+    //                                 calculateRoiFF();
+    //                                 valueTorentRec('change');
+    //                                 finalRecCal();
+
+    //                                 // After removal, check if we reached the minimum count
+    //                                 const remainingDeletes = containerPayment
+    //                                     .querySelectorAll(
+    //                                         '.btndeleteProf');
+    //                                 if (remainingDeletes.length <= 0 ||
+    //                                     containerPayment
+    //                                     .querySelectorAll('.rentPerUnitFF')
+    //                                     .length <=
+    //                                     no_of_units) {
+    //                                     remainingDeletes.forEach(div => div
+    //                                         .remove());
+    //                                     // console.log('after remove');
+    //                                     $('.contractFormSubmit').prop('disabled', false);
+    //                                 }
+    //                             } else {
+    //                                 // $('.btndeleteProf').remove();
+    //                                 $toastr.error(
+    //                                     'Cannot remove Payment. Minimum Profit reached.'
+    //                                 );
+    //                             }
+    //                         });
+    //                     }
+    //                 }
+    //             } else {
+    //                 if (existingBtn) {
+    //                     const remainingDeletes = containerPayment.querySelectorAll(
+    //                         '.btndeleteProf');
+    //                     if (remainingDeletes.length <= 0 || containerPayment
+    //                         .querySelectorAll(
+    //                             '.rentPerUnitFF')
+    //                         .length <= no_of_units) {
+    //                         remainingDeletes.forEach(div => div.remove());
+    //                         // console.log('after remove else');
+    //                         $('.contractFormSubmit').prop('disabled', false);
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     });
+
+    //     let prevPayCount = 0;
+    //     if (prevffBlocks.length > 0) {
+    //         prevPayCount = prevffBlocks.length;
+    //     } else {
+    //         prevPayCount = 0;
+    //     }
+
+
+    //     if (no_of_units > prevPayCount) {
+    //         let diffValk = no_of_units - prevPayCount;
+    //         let start = prevPayCount;
+
+    //         let i = start;
+
+    //         // for (i = 0; i < no_of_units; i++) {
+    //         $('.unit_no').each(function() {
+    //             const currentVal = $(this).val();
+
+    //             if (i < no_of_units && !unit_no.includes(currentVal)) {
+    //                 let unit_rent = $(this).parent().siblings().find('.unit_rent_per_annum').val();
+    //                 let unit_type = $(this).parent().siblings().find('.unit_type').find(':selected').text();
+    //                 let unit_comm = unit_rent * ($('#commission_perc').val() / 100);
+    //                 let unit_depo = unit_rent * ($('#deposit_perc').val() / 100);
+    //                 let unit_payable = parseFloat(unit_rent) + parseFloat(unit_comm) + parseFloat(unit_depo);
+
+    //                 const ffblock = document.createElement('div');
+    //                 ffblock.classList.add('rentPerUnitFFaddmore', 'profitDeletecls' + i);
+
+    //                 ffblock.innerHTML = `
+    //             <div class="form-group row">
+    //                 <div class="col-md-2">
+    //                     <label for="exampleInputEmail1">Unit No</label>
+    //                     <input type="text" class="form-control unit_noFF" id="unit_noFF${i}"
+    //                         readonly value="` + $(this).val() + `">
+    //                     <input type="hidden" id="unit_amount_payable${i}"
+    //                         value="` + unit_payable + `" name="unit_detail[unit_amount_payable][]">
+    //                     <input type="hidden" value="` + unit_comm + `" id="unit_commission${i}"
+    //                         name="unit_detail[unit_commission][]">
+    //                     <input type="hidden" value="` + unit_depo + `" id="unit_deposit${i}"
+    //                         name="unit_detail[unit_deposit][]">
+    //                 </div>
+    //                 <div class="col-md-2">
+    //                     <label for="exampleInputEmail1">Unit Type</label>
+    //                     <input type="text" class="form-control" id="unit_typeFF${i}"
+    //                         readonly value="` + unit_type + `">
+    //                 </div>
+    //                 <div class="col-md-2">
+    //                     <label for="exampleInputEmail1" class="asterisk">Profit %</label>
+    //                     <input type="number" class="form-control unit_profit_perc"
+    //                         name="unit_detail[unit_profit_perc][]"
+    //                         id="unit_profit_perc${i}" placeholder="Profit %" step="0.01" required>
+    //                 </div>
+    //                 <div class="col-md-2">
+    //                     <label for="exampleInputEmail1">Profit</label>
+    //                     <input type="number" class="form-control unit_profit"
+    //                         name="unit_detail[unit_profit][]" id="unit_profit${i}"
+    //                         placeholder="Profit" readonly>
+    //                 </div>
+    //                 <div class="col-md-3">
+    //                     <label for="exampleInputEmail1" class="asterisk">Revenue</label>
+    //                     <input type="number" class="form-control unit_revenue editafterapprove"
+    //                         name="unit_detail[unit_revenue][]" id="unit_revenue${i}"
+    //                         placeholder="Revenue" required>
+    //                 </div>
+    //             </div>`;
+    //                 containerPayment.appendChild(ffblock);
+
+
+    //                 // Calculate profit/revenue immediately for this new block
+    //                 (function(ffblock) {
+    //                     const unitBlock = $(ffblock);
+    //                     let unit_rent = $(this).parent().siblings().find('.unit_rent_per_annum').val() || 0;
+    //                     let unit_comm = parseFloat(unit_rent * ($('#commission_perc').val() / 100)) || 0;
+    //                     let unit_depo = parseFloat(unit_rent * ($('#deposit_perc').val() / 100)) || 0;
+    //                     let unit_payable = parseFloat(unit_rent) + parseFloat(unit_comm) + parseFloat(
+    //                         unit_depo);
+
+    //                     unitBlock.find('input[name="unit_detail[unit_amount_payable][]"]').val(
+    //                         unit_payable);
+    //                     unitBlock.find('input[name^="unit_commission"]').val(unit_comm);
+    //                     unitBlock.find('input[name^="unit_deposit"]').val(unit_depo);
+
+    //                     const profitPercInput = unitBlock.find('.unit_profit_perc');
+    //                     const profitInput = unitBlock.find('.unit_profit');
+    //                     const revenueInput = unitBlock.find('.unit_revenue');
+    //                     const profitPerc = parseFloat(profitPercInput.val()) || 0;
+    //                     const profit = (unit_payable * profitPerc) / 100;
+    //                     const revenue = unit_payable + profit;
+
+    //                     profitInput.val(profit.toFixed(2));
+    //                     revenueInput.val(revenue.toFixed(2));
+    //                 })(ffblock);
+
+
+
+    //                 $('#unit_profit_perc' + i).on('input change', function() {
+    //                     // console.log('unit profit change inside');
+    //                     calculateRevenueUnit($(this), unit_payable);
+    //                     valueTorentRec('change');
+    //                     finalRecCal();
+    //                 });
+
+    //                 // Unit revenue change event - geethu
+    //                 $('#unit_revenue' + i).on('input change', function() {
+    //                     // console.log('unit profit change inside');
+    //                     calculateProfitUnit($(this), unit_payable);
+    //                     valueTorentRec('change');
+    //                     finalRecCal();
+    //                 });
+    //                 // End
+
+    //                 unit_no.push(currentVal);
+
+    //                 i++;
+    //             }
+
+    //         });
+    //     }
+
+    // }
+
+    function rentPerUnitFamaFaateh() {
         if ($('#contract_type').val() != '2') return;
 
         profitHiddenValues();
 
-        // if ({{ $renew }}) {
-        //     updateProfitRevenueForUnits();
-        // }
-
-
-        // $('.rentPerUnitFF').show();
-        // $('.receivable_maindiv').hide();
-        // $('.rentPartition, .rentBedspace, .rentRoom, .rentFlat').hide();
-
-        let no_of_units = 0;
+        const containerPayment = document.getElementsByClassName('rentPerUnitFF')[0];
+        if (!containerPayment) return;
 
         $('.unit_no').each(function() {
-            no_of_units++;
-        });
-        // console.log('rentPerUnitFamaFaateh');
-        let unit_no = $('.unit_noFF').map(function() {
-            return $(this).val();
-        }).get();
-        // console.log(unit_no);
+            const $unitRow = $(this).closest('.apdi');
+            const unitIndex = $unitRow.data('index'); // same highestIndex the unit block itself carries
 
-        const containerPayment = document.getElementsByClassName('rentPerUnitFF')[0];
-        const prevffBlocks = containerPayment.querySelectorAll('.rentPerUnitFFaddmore');
-        prevffBlocks.forEach(block => {
-            const formGroups = block.querySelectorAll('.form-group.row');
+            // Skip if an FF block already exists for THIS unit (identity check, not a count check)
+            if ($(`.rentPerUnitFFaddmore.profitDeletecls${unitIndex}`).length) return;
 
-            if (formGroups.length > 0) {
-                // Get the last .form-group element
-                const lastFormGroup = formGroups[formGroups.length - 1];
-                const existingBtn = lastFormGroup.querySelector('.btndetdProfit');
+            const currentVal = $(this).val();
+            let unit_rent = $(this).parent().siblings().find('.unit_rent_per_annum').val();
+            let unit_type = $(this).parent().siblings().find('.unit_type').find(':selected').text();
+            let unit_comm = unit_rent * ($('#commission_perc').val() / 100);
+            let unit_depo = unit_rent * ($('#deposit_perc').val() / 100);
+            let unit_payable = parseFloat(unit_rent) + parseFloat(unit_comm) + parseFloat(unit_depo);
 
-                if (prevffBlocks.length > no_of_units) {
-                    if (!existingBtn) {
-                        lastFormGroup.insertAdjacentHTML('beforeend', `
-                                <div class="col-sm-1 btndeleteProf">
-                                    <button type="button" class="btn-danger btn-block dlt-divProf btndetdProfit mt-31" title="Delete" data-toggle="tooltip">
-                                        <i class="fa fa-trash fa-1x"></i>
-                                    </button>
-                                </div>
-                            `);
+            const ffblock = document.createElement('div');
+            // SAME class prefix as the unit block — this is what makes the existing
+            // unit-delete cleanup remove this FF block automatically, in sync.
+            ffblock.classList.add('rentPerUnitFFaddmore', 'profitDeletecls' + unitIndex);
+            ffblock.setAttribute('data-index', unitIndex);
 
-                        $('.contractFormSubmit').prop('disabled', true);
+            ffblock.innerHTML = `
+            <div class="form-group row">
+                <div class="col-md-2">
+                    <label for="exampleInputEmail1">Unit No</label>
+                    <input type="text" class="form-control unit_noFF" id="unit_noFF${unitIndex}"
+                        readonly value="${currentVal}">
+                    <input type="hidden" id="unit_amount_payable${unitIndex}"
+                        value="${unit_payable}" name="unit_detail[unit_amount_payable][]">
+                    <input type="hidden" value="${unit_comm}" id="unit_commission${unitIndex}"
+                        name="unit_detail[unit_commission][]">
+                    <input type="hidden" value="${unit_depo}" id="unit_deposit${unitIndex}"
+                        name="unit_detail[unit_deposit][]">
+                </div>
+                <div class="col-md-2">
+                    <label for="exampleInputEmail1">Unit Type</label>
+                    <input type="text" class="form-control" id="unit_typeFF${unitIndex}"
+                        readonly value="${unit_type}">
+                </div>
+                <div class="col-md-2">
+                    <label for="exampleInputEmail1" class="asterisk">Profit %</label>
+                    <input type="number" class="form-control unit_profit_perc"
+                        name="unit_detail[unit_profit_perc][]"
+                        id="unit_profit_perc${unitIndex}" placeholder="Profit %" step="0.01" required>
+                </div>
+                <div class="col-md-2">
+                    <label for="exampleInputEmail1">Profit</label>
+                    <input type="number" class="form-control unit_profit"
+                        name="unit_detail[unit_profit][]" id="unit_profit${unitIndex}"
+                        placeholder="Profit" readonly>
+                </div>
+                <div class="col-md-3">
+                    <label for="exampleInputEmail1" class="asterisk">Revenue</label>
+                    <input type="number" class="form-control unit_revenue editafterapprove"
+                        name="unit_detail[unit_revenue][]" id="unit_revenue${unitIndex}"
+                        placeholder="Revenue" required>
+                </div>
+            </div>`;
+            containerPayment.appendChild(ffblock);
 
-                        // Remove button
-                        const removeBtn = block.querySelector('.dlt-divProf');
-                        if (removeBtn) {
-                            removeBtn.addEventListener('click', () => {
-                                if (prevffBlocks.length > no_of_units) {
-                                    block.remove();
-                                    calculateRoiFF();
-                                    valueTorentRec('change');
-                                    finalRecCal();
+            const unitBlock = $(ffblock);
+            const profitPerc = parseFloat(unitBlock.find('.unit_profit_perc').val()) || 0;
+            const profit = (unit_payable * profitPerc) / 100;
+            unitBlock.find('.unit_profit').val(profit.toFixed(2));
+            unitBlock.find('.unit_revenue').val((unit_payable + profit).toFixed(2));
 
-                                    // After removal, check if we reached the minimum count
-                                    const remainingDeletes = containerPayment
-                                        .querySelectorAll(
-                                            '.btndeleteProf');
-                                    if (remainingDeletes.length <= 0 ||
-                                        containerPayment
-                                        .querySelectorAll('.rentPerUnitFF')
-                                        .length <=
-                                        no_of_units) {
-                                        remainingDeletes.forEach(div => div
-                                            .remove());
-                                        // console.log('after remove');
-                                        $('.contractFormSubmit').prop('disabled', false);
-                                    }
-                                } else {
-                                    // $('.btndeleteProf').remove();
-                                    $toastr.error(
-                                        'Cannot remove Payment. Minimum Profit reached.'
-                                    );
-                                }
-                            });
-                        }
-                    }
-                } else {
-                    if (existingBtn) {
-                        const remainingDeletes = containerPayment.querySelectorAll(
-                            '.btndeleteProf');
-                        if (remainingDeletes.length <= 0 || containerPayment
-                            .querySelectorAll(
-                                '.rentPerUnitFF')
-                            .length <= no_of_units) {
-                            remainingDeletes.forEach(div => div.remove());
-                            // console.log('after remove else');
-                            $('.contractFormSubmit').prop('disabled', false);
-                        }
-                    }
-                }
-            }
-        });
-
-        let prevPayCount = 0;
-        if (prevffBlocks.length > 0) {
-            prevPayCount = prevffBlocks.length;
-        } else {
-            prevPayCount = 0;
-        }
-
-
-        if (no_of_units > prevPayCount) {
-            let diffValk = no_of_units - prevPayCount;
-            let start = prevPayCount;
-
-            let i = start;
-
-            // for (i = 0; i < no_of_units; i++) {
-            $('.unit_no').each(function() {
-                const currentVal = $(this).val();
-
-                if (i < no_of_units && !unit_no.includes(currentVal)) {
-                    let unit_rent = $(this).parent().siblings().find('.unit_rent_per_annum').val();
-                    let unit_type = $(this).parent().siblings().find('.unit_type').find(':selected').text();
-                    let unit_comm = unit_rent * ($('#commission_perc').val() / 100);
-                    let unit_depo = unit_rent * ($('#deposit_perc').val() / 100);
-                    let unit_payable = parseFloat(unit_rent) + parseFloat(unit_comm) + parseFloat(unit_depo);
-
-                    const ffblock = document.createElement('div');
-                    ffblock.classList.add('rentPerUnitFFaddmore', 'profitDeletecls' + i);
-
-                    ffblock.innerHTML = `
-                <div class="form-group row">
-                    <div class="col-md-2">
-                        <label for="exampleInputEmail1">Unit No</label>
-                        <input type="text" class="form-control unit_noFF" id="unit_noFF${i}"
-                            readonly value="` + $(this).val() + `">
-                        <input type="hidden" id="unit_amount_payable${i}"
-                            value="` + unit_payable + `" name="unit_detail[unit_amount_payable][]">
-                        <input type="hidden" value="` + unit_comm + `" id="unit_commission${i}"
-                            name="unit_detail[unit_commission][]">
-                        <input type="hidden" value="` + unit_depo + `" id="unit_deposit${i}"
-                            name="unit_detail[unit_deposit][]">
-                    </div>
-                    <div class="col-md-2">
-                        <label for="exampleInputEmail1">Unit Type</label>
-                        <input type="text" class="form-control" id="unit_typeFF${i}"
-                            readonly value="` + unit_type + `">
-                    </div>
-                    <div class="col-md-2">
-                        <label for="exampleInputEmail1" class="asterisk">Profit %</label>
-                        <input type="number" class="form-control unit_profit_perc"
-                            name="unit_detail[unit_profit_perc][]"
-                            id="unit_profit_perc${i}" placeholder="Profit %" step="0.01" required>
-                    </div>
-                    <div class="col-md-2">
-                        <label for="exampleInputEmail1">Profit</label>
-                        <input type="number" class="form-control unit_profit"
-                            name="unit_detail[unit_profit][]" id="unit_profit${i}"
-                            placeholder="Profit" readonly>
-                    </div>
-                    <div class="col-md-3">
-                        <label for="exampleInputEmail1" class="asterisk">Revenue</label>
-                        <input type="number" class="form-control unit_revenue editafterapprove"
-                            name="unit_detail[unit_revenue][]" id="unit_revenue${i}"
-                            placeholder="Revenue" required>
-                    </div>
-                </div>`;
-                    containerPayment.appendChild(ffblock);
-
-
-                    // Calculate profit/revenue immediately for this new block
-                    (function(ffblock) {
-                        const unitBlock = $(ffblock);
-                        let unit_rent = $(this).parent().siblings().find('.unit_rent_per_annum').val() || 0;
-                        let unit_comm = parseFloat(unit_rent * ($('#commission_perc').val() / 100)) || 0;
-                        let unit_depo = parseFloat(unit_rent * ($('#deposit_perc').val() / 100)) || 0;
-                        let unit_payable = parseFloat(unit_rent) + parseFloat(unit_comm) + parseFloat(
-                            unit_depo);
-
-                        unitBlock.find('input[name="unit_detail[unit_amount_payable][]"]').val(
-                            unit_payable);
-                        unitBlock.find('input[name^="unit_commission"]').val(unit_comm);
-                        unitBlock.find('input[name^="unit_deposit"]').val(unit_depo);
-
-                        const profitPercInput = unitBlock.find('.unit_profit_perc');
-                        const profitInput = unitBlock.find('.unit_profit');
-                        const revenueInput = unitBlock.find('.unit_revenue');
-                        const profitPerc = parseFloat(profitPercInput.val()) || 0;
-                        const profit = (unit_payable * profitPerc) / 100;
-                        const revenue = unit_payable + profit;
-
-                        profitInput.val(profit.toFixed(2));
-                        revenueInput.val(revenue.toFixed(2));
-                    })(ffblock);
-
-
-
-                    $('#unit_profit_perc' + i).on('input change', function() {
-                        // console.log('unit profit change inside');
-                        calculateRevenueUnit($(this), unit_payable);
-                        valueTorentRec('change');
-                        finalRecCal();
-                    });
-
-                    // Unit revenue change event - geethu
-                    $('#unit_revenue' + i).on('input change', function() {
-                        // console.log('unit profit change inside');
-                        calculateProfitUnit($(this), unit_payable);
-                        valueTorentRec('change');
-                        finalRecCal();
-                    });
-                    // End
-
-                    unit_no.push(currentVal);
-
-                    i++;
-                }
-
+            $('#unit_profit_perc' + unitIndex).on('input change', function() {
+                calculateRevenueUnit($(this), unit_payable);
+                valueTorentRec('change');
+                finalRecCal();
             });
-        }
 
+            $('#unit_revenue' + unitIndex).on('input change', function() {
+                calculateProfitUnit($(this), unit_payable);
+                valueTorentRec('change');
+                finalRecCal();
+            });
+        });
     }
 
 
@@ -2638,8 +2940,8 @@
                 let rentinstallment_sum = parseFloat($(this).val()) || 0;
                 sum += rentinstallment_sum;
             });
-            console.log('sum', sum);
-            console.log('totalRental_lastsection', totalRental_lastsection);
+            // console.log('sum', sum);
+            // console.log('totalRental_lastsection', totalRental_lastsection);
 
             // Check if sum is NOT equal to total rental
             if (sum.toFixed(2) !== totalRental_lastsection.toFixed(2)) {

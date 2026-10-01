@@ -813,13 +813,23 @@
                                                 <input type="hidden" name="unit[total_subunit_count_per_contract]"
                                                     id="subunit_count_per_contract"
                                                     value="{{ isset($contract) ? $contract->contract_unit->total_subunit_count_per_contract : 0 }}">
+                                                <div class="form-group rentPerUnitDF">
+                                                    @if (isset($contract) && isset($contract->contract_unit_details) && ($contract->contract_type_id ?? null) != '2')
+                                                        @include(
+                                                            'admin.projects.contract.includes.edit_dfdet',
+                                                            [
+                                                                'contract_units_details' =>
+                                                                    $contract->contract_unit_details ?? [],
+                                                            ]
+                                                        )
+                                                    @endif
+                                                </div>
                                                 <div class="form-group row">
                                                     <div class="col-md-2 rentPartition">
                                                         <label for="exampleInputEmail1" class="asterisk">Rent per
                                                             Partition</label>
-                                                        {{-- @dd($contract); --}}
                                                         <input type="number" class="form-control editafterapprove"
-                                                            name="unit_detail[rent_per_partition]" id="rent_per_part"
+                                                            name="unit_detail[rent_per_partition_cmn]" id="rent_per_part"
                                                             placeholder="Rent per Partition"
                                                             value="{{ isset($contract) ? toNumeric($contract->totals['prj_rent_per_partition']) : '' }}"
                                                             required>
@@ -828,7 +838,7 @@
                                                         <label for="exampleInputEmail1" class="asterisk">Rent per
                                                             Bedspace</label>
                                                         <input type="number" class="form-control editafterapprove"
-                                                            name="unit_detail[rent_per_bedspace]" id="rent_per_bs"
+                                                            name="unit_detail[rent_per_bedspace_cmn]" id="rent_per_bs"
                                                             placeholder="Rent per Bedspace"
                                                             value="{{ isset($contract) ? toNumeric($contract->totals['prj_rent_per_bedspace']) : '' }}"
                                                             required>
@@ -837,7 +847,7 @@
                                                         <label for="exampleInputEmail1" class="asterisk">Rent per
                                                             Room</label>
                                                         <input type="number" class="form-control editafterapprove"
-                                                            name="unit_detail[rent_per_room]" id="rent_per_room"
+                                                            name="unit_detail[rent_per_room_cmn]" id="rent_per_room"
                                                             placeholder="Rent per Room"
                                                             value="{{ isset($contract) ? toNumeric($contract->totals['prj_rent_per_room']) : '' }}"
                                                             required>
@@ -846,7 +856,7 @@
                                                         <label for="exampleInputEmail1" class="asterisk">Rent per
                                                             Flat</label>
                                                         <input type="number" class="form-control editafterapprove"
-                                                            name="unit_detail[rent_per_flat]" id="rent_per_flat"
+                                                            id="rent_per_flat" name="unit_detail[rent_per_flat_cmn]"
                                                             placeholder="Rent per Flat"
                                                             value="{{ isset($contract) ? toNumeric($contract->totals['prj_rent_per_flat']) : '' }}"
                                                             required>
