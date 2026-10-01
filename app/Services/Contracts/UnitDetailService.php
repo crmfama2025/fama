@@ -34,12 +34,20 @@ class UnitDetailService
     public function create($contractData, $ct_detail, array $dataArr, $receivable_installments, $unit_id, $user_id = null)
     {
         $data = [];
-
         //Re-index all sub-arrays to fix gaps from frontend row deletions when no of units changes in form upon entering data.-Geethu
         // $dataArr = array_map(function ($value) {
         //     return is_array($value) ? array_values($value) : $value;
         // }, $dataArr);
         // end - Geethu
+
+        // reindex for subunits only to the other array key - Rasmiya 30092026
+        foreach (['partition', 'bedspace', 'room', 'maid_room'] as $flag) {
+            $arr = $dataArr[$flag] ?? [];
+            ksort($arr, SORT_NUMERIC);
+            $dataArr[$flag] = array_values($arr);   // 0..n-1, aligned with unit_number[]
+        }
+        // endreindex
+
 
         foreach ($dataArr['unit_type_id'] as $key => $value) {
             // dd('test');
@@ -56,6 +64,7 @@ class UnitDetailService
 
     public function createManyData($data, $dataArr, $contractData, $unit_id, $user_id, $stage = 0)
     {
+        // dd($dataArr);
         return DB::transaction(function () use ($data, $dataArr, $contractData, $unit_id, $user_id, $stage) {
             $unitDetId = $this->unitdetRepo->createMany($data);
 
@@ -74,7 +83,7 @@ class UnitDetailService
             $subUnitData = $this->getsubUnitData($dataArr, $contractData, $unit_id);
 
 
-
+            // dd($subUnitData);
 
             if ($stage == 0) {
                 // print_r($stage);
@@ -102,6 +111,14 @@ class UnitDetailService
         // }, $dataArr);
         // end - Geethu
         // dump($dataArr);
+
+        // reindex for subunits only to the other array key - Rasmiya 30092026
+        foreach (['partition', 'bedspace', 'room', 'maid_room'] as $flag) {
+            $arr = $dataArr[$flag] ?? [];
+            ksort($arr, SORT_NUMERIC);
+            $dataArr[$flag] = array_values($arr);   // 0..n-1, aligned with unit_number[]
+        }
+        // endreindex
 
         foreach ($dataArr['unit_type_id'] as $key => $value) {
             $dataArray = [];
@@ -181,7 +198,7 @@ class UnitDetailService
             // );
             // dd($dataArray);
             // echo "</pre>";
-            // print_r($dataArr);
+            // print_r($dataArray);
 
             $this->validate($dataArray);
 
@@ -208,7 +225,7 @@ class UnitDetailService
                 $unitDetId = array_merge($unitDetId, $detailids);
                 // $unitDetId = $detailids + $unitDetId;
                 $subUnitData = $this->getsubUnitData($dataArr, $contractData, $unit_id);
-
+                // dd($subUnitData);
                 $this->subUnitdetServ->update($unitDetId, $subUnitData, $user_id);
             }
 
@@ -241,7 +258,7 @@ class UnitDetailService
         // } else {
         //     $is_partition++;
         // }
-
+        // dump($dataArr);
         $subUnitData = array(
             'is_partition' => (isset($dataArr['partition'])) ? $dataArr['partition'] : '',
             'is_bedspace' => (isset($dataArr['bedspace'])) ? $dataArr['bedspace'] : '',
@@ -250,10 +267,10 @@ class UnitDetailService
             'partition' => (isset($dataArr['partition'])) ? $dataArr['total_partition'] : 0,
             'bedspace' => (isset($dataArr['bedspace'])) ? $dataArr['total_bedspace'] : 0,
             'room' => (isset($dataArr['room'])) ? $dataArr['total_room'] : 0,
-            'rent_per_partition' => (isset($dataArr['partition']) > 0) ? $dataArr['rent_per_partition'] : 0,
-            'rent_per_bedspace' => (isset($dataArr['bedspace']) > 0) ? $dataArr['rent_per_bedspace'] : 0,
-            'rent_per_room' => (isset($dataArr['room']) > 0) ?  $dataArr['rent_per_room']  : 0,
-            'rent_per_flat' => $dataArr['rent_per_flat'],
+            'rent_per_partition' => (isset($dataArr['partition']) > 0) ? $dataArr['rent_per_partition'] ?? $dataArr['rent_per_partition_cmn'] : 0,
+            'rent_per_bedspace' => (isset($dataArr['bedspace']) > 0) ? $dataArr['rent_per_bedspace'] ?? $dataArr['rent_per_bedspace_cmn'] : 0,
+            'rent_per_room' => (isset($dataArr['room']) > 0) ?  $dataArr['rent_per_room'] ?? $dataArr['rent_per_room_cmn']  : 0,
+            'rent_per_flat' => $dataArr['rent_per_flat'] ?? $dataArr['rent_per_flat_cmn'],
             'project_no' => $contractData->project_number,
             'contract_id' => $contractData->id,
             'contract_unit_id' => $unit_id,
@@ -262,7 +279,8 @@ class UnitDetailService
             'unit_type' => $dataArr['unit_type_id'],
             'subunittype' => $contractData->subunittype,
         );
-
+        // dump('hii');
+        // dd($subUnitData);
         return $subUnitData;
     }
 
@@ -272,6 +290,7 @@ class UnitDetailService
         // dd($contractData);
 
         $partitionValue = getPartitionValue($dataArr, $ct_detail, $key, $receivable_installments);
+        // dd($partitionValue);
         $partition = $partitionValue['partition'];
         $bedspace = $partitionValue['bedspace'];
         $room = $partitionValue['room'];
@@ -283,7 +302,6 @@ class UnitDetailService
         $subunit_rent_per_unit = $partitionValue['subunit_rent_per_unit'];
         $total_rent_per_unit_per_month = $partitionValue['total_rent_per_unit_per_month'];
         $total_rent_per_unit_per_annum = $partitionValue['total_rent_per_unit_per_annum'];
-
 
         // dd($partitionValue);
         $unitDetailArr = array(
@@ -304,9 +322,9 @@ class UnitDetailService
             'total_partition' => ($partition > 0) ? $dataArr['total_partition'][$key] : 0,
             'total_bedspace' => ($bedspace > 0) ? $dataArr['total_bedspace'][$key] : 0,
             'total_room' => ($room > 0) ? $dataArr['total_room'][$key] : 0,
-            'rent_per_partition' => ($partition > 0) ? $dataArr['rent_per_partition'] : 0,
-            'rent_per_bedspace' => ($bedspace > 0) ? $dataArr['rent_per_bedspace'] : 0,
-            'rent_per_room' => ($room > 0) ?  $dataArr['rent_per_room']  : 0,
+            'rent_per_partition' => ($partition > 0) ? $dataArr['rent_per_partition'][$key] : 0,
+            'rent_per_bedspace' => ($bedspace > 0) ? $dataArr['rent_per_bedspace'][$key] : 0,
+            'rent_per_room' => ($room > 0) ?  $dataArr['rent_per_room'][$key]  : 0,
             'rent_per_flat' => ($bedspace == 0 && $partition == 0 && $room == 0) ? $rent_per_flat : 0,
             'rent_per_unit_per_month' => $rent_per_unit_per_month,
             'rent_per_unit_per_annum' => $rent_per_unit_per_annum,
@@ -324,13 +342,13 @@ class UnitDetailService
             'total_payment_pending' => isset($dataArr['unit_revenue']) ? $dataArr['unit_revenue'][$key] : $total_rent_per_unit_per_annum,
             // 'key' => $key, // to identify the unit in subunit creation/updation - Geethu
         );
-
+        // dd('hloo');
         if ($action  == 1) {
             $unitDetailArr['added_by'] = $user_id ? $user_id : auth()->user()->id;
         } else {
             $unitDetailArr['updated_by'] = $user_id ? $user_id : auth()->user()->id;
         }
-
+        // dd($unitDetailArr);
         return $unitDetailArr;
     }
 
