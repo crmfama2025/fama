@@ -23,8 +23,238 @@
             display: block;
         }
 
+
         .counts {
             font-size: 14px;
+        }
+
+        #leadCalendar {
+            font-size: 0.85rem;
+        }
+
+        #leadCalendar .fc-toolbar {
+            margin-bottom: 0.75rem !important;
+        }
+
+        #leadCalendar .fc-toolbar-title {
+            font-size: 1.15rem;
+        }
+
+        #leadCalendar .fc-button {
+            padding: 0.25rem 0.6rem;
+            font-size: 0.8rem;
+        }
+
+        #leadCalendar .fc-col-header-cell-cushion {
+            padding: 3px 0;
+        }
+
+        #leadCalendar .fc-daygrid-day-number {
+            padding: 2px 6px;
+            font-size: 0.8rem;
+        }
+
+        #leadCalendar .fc-event {
+            font-size: 0.75rem;
+        }
+
+        #leadCalendar {
+            padding: 0;
+        }
+
+        .card-body:has(> #leadCalendar) {
+            padding: 0.75rem;
+        }
+
+
+
+        #leadCalendar .fc-daygrid-day.has-followup .fc-daygrid-day-frame {
+            background-color: #cdffdd;
+        }
+
+        .followup-tooltip {
+            position: fixed;
+            z-index: 99999;
+            width: min(340px, calc(100vw - 24px));
+            max-height: min(280px, calc(100vh - 24px));
+            overflow-y: auto;
+            padding: 12px 14px;
+            background: #fff;
+            color: #343a40;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+            font-size: 13px;
+            line-height: 1.4;
+            pointer-events: none;
+        }
+
+        .followup-tooltip__title {
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eee;
+            color: #007bff;
+            font-size: 15px;
+            font-weight: 600;
+            overflow-wrap: anywhere;
+        }
+
+        .followup-tooltip__row {
+            display: grid;
+            grid-template-columns: 105px minmax(0, 1fr);
+            gap: 8px;
+            margin: 5px 0;
+        }
+
+        .followup-tooltip__label {
+            color: #6c757d;
+            font-weight: 600;
+        }
+
+        .followup-tooltip__value {
+            overflow-wrap: anywhere;
+        }
+
+        .followup-tooltip__notes {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #eee;
+        }
+
+        .followup-tooltip__notes-text {
+            margin-top: 3px;
+            max-height: 90px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        /* #leadCalendar .fc-daygrid-day.is-overdue .fc-daygrid-day-frame {
+                                                                                                                                                                                                                                                    background-color: #f8d7da;
+                                                                                                                                                                                                                                                } */
+
+        /* Theme variables: softer borders, cleaner toolbar buttons */
+        #leadCalendar {
+            --fc-border-color: #e5e9f0;
+            --fc-today-bg-color: transparent;
+            /* we style today ourselves */
+            --fc-button-bg-color: #fff;
+            --fc-button-text-color: #495057;
+            --fc-button-border-color: #ced4da;
+            --fc-button-hover-bg-color: #f1f3f5;
+            --fc-button-hover-border-color: #ced4da;
+            --fc-button-active-bg-color: #007bff;
+            --fc-button-active-border-color: #007bff;
+        }
+
+        #leadCalendar .fc-button-primary:not(:disabled).fc-button-active,
+        #leadCalendar .fc-button-primary:not(:disabled):active {
+            color: #fff;
+        }
+
+        /* Stop the teal link color leaking in */
+        #leadCalendar a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        /* Headers and day numbers */
+        #leadCalendar .fc-col-header-cell-cushion {
+            color: #6c757d;
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+
+        #leadCalendar .fc-daygrid-day-number {
+            color: #495057;
+        }
+
+        #leadCalendar .fc-day-other .fc-daygrid-day-top {
+            opacity: 0.55;
+        }
+
+        /* Day states: white-ish cell + colored left accent instead of heavy fills */
+        #leadCalendar .fc-daygrid-day.has-followup .fc-daygrid-day-frame {
+            background-color: #f4fbf7;
+            box-shadow: inset 3px 0 0 #28a745;
+        }
+
+        #leadCalendar .fc-daygrid-day.is-overdue .fc-daygrid-day-frame {
+            background-color: #fdf3f4;
+            box-shadow: inset 3px 0 0 #dc3545;
+        }
+
+        /* Today: blue circle on the number */
+        #leadCalendar .fc-day-today .fc-daygrid-day-number {
+            background: #007bff;
+            color: #fff;
+            border-radius: 50%;
+            min-width: 22px;
+            height: 22px;
+            line-height: 22px;
+            text-align: center;
+            padding: 0;
+            margin: 3px;
+            font-weight: 600;
+        }
+
+        /* Event pills */
+        #leadCalendar .fc-daygrid-block-event {
+            margin: 1px 4px;
+            border-radius: 4px;
+        }
+
+        #leadCalendar .fc-event-time {
+            font-weight: 400;
+            opacity: .75;
+            margin-right: 3px;
+        }
+
+        #leadCalendar .fc-event-title {
+            font-weight: 600;
+        }
+
+        #leadCalendar .fc-event.fu-done {
+            opacity: .65;
+        }
+
+        /* Legend */
+        .cal-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            font-size: 12px;
+            color: #6c757d;
+            padding: 0 0 8px;
+        }
+
+        .cal-legend span::before {
+            content: '';
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+            margin-right: 5px;
+            vertical-align: -1px;
+        }
+
+        .cal-legend .lg-pending::before {
+            background: #28a745;
+        }
+
+        .cal-legend .lg-overdue::before {
+            background: #dc3545;
+        }
+
+        .cal-legend .lg-done::before {
+            background: #adb5bd;
+        }
+
+        .cal-legend .lg-today::before {
+            background: #007bff;
+            border-radius: 50%;
         }
     </style>
 @endsection
@@ -259,8 +489,21 @@
                     </div>
 
                 </div>
+                {{-- View toggle --}}
+                {{-- <div class="d-flex justify-content-end mb-3">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-primary" id="calendarViewBtn">
+                            <i class="far fa-calendar-alt"></i> Calendar
+                        </button>
+                        <button type="button" class="btn btn-default" id="listViewBtn">
+                            <i class="fas fa-list"></i> List
+                        </button>
+                    </div>
+                </div> --}}
 
-                <div class="row">
+                @include('admin.leads.lead-calender')
+
+                <div class="row" id="listCard">
 
                     <div class="col-12">
 
@@ -422,6 +665,7 @@
     <script src="{{ asset('assets/datatables-buttons/js/buttons.colVis.min.js') }}"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.5/dist/sweetalert2.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.20/index.global.min.js"></script>
 
 
     <script>
@@ -696,4 +940,5 @@
             table.ajax.reload(null, true);
         });
     </script>
+    @include('admin.leads.lead-calender-js')
 @endsection
