@@ -146,9 +146,9 @@
                                                         value="{{ $investor->investor_email ?? '' }}" required>
                                                 </div>
                                                 <div class="col-sm-4">
-                                                    <label class="asterisk">Nationality</label>
+                                                    <label class="asterisk" id="nationalityLabel">Nationality</label>
                                                     <select name="investor[nationality_id]" class="form-control select2"
-                                                        required>
+                                                        id="nationality" required>
                                                         <option value="">Select Nationality</option>
                                                         @foreach ($nationalities as $nationality)
                                                             <option value="{{ $nationality->id }}"
@@ -160,9 +160,10 @@
                                                 </div>
 
                                                 <div class="col-sm-4">
-                                                    <label class="asterisk">Country of Residence</label>
+                                                    <label class="asterisk" id="residenceLabel">Country of
+                                                        Residence</label>
                                                     <select name="investor[country_of_residence]"
-                                                        class="form-control select2" required>
+                                                        id="country_of_residence" class="form-control select2" required>
                                                         <option value="">Select Country</option>
                                                         @foreach ($nationalities as $nationality)
                                                             <option value="{{ $nationality->id }}"
@@ -190,7 +191,8 @@
                                                     </select>
                                                 </div>
                                                 <div class="col-sm-4">
-                                                    <label for="inputEmail3" class="asterisk">Emirates ID/
+                                                    <label for="inputEmail3" id="idNumberLabel" class="asterisk">Emirates
+                                                        ID/
                                                         Other
                                                         ID</label>
                                                     <input type="text" name="investor[id_number]" id="id_number"
@@ -521,7 +523,12 @@
                                                 @foreach ($documentTypes as $key => $documentType)
                                                     @php
                                                         $class = $req = '';
-                                                        if ($documentType->id == 4) {
+                                                        if (
+                                                            ($documentType->id == 4 &&
+                                                                ($investor->investor_category ?? 0) == 0) ||
+                                                            ($documentType->id == 10 &&
+                                                                ($investor->investor_category ?? 0) == 1)
+                                                        ) {
                                                             $class = 'asterisk';
                                                             $req = 'required';
                                                         }
@@ -537,6 +544,7 @@
                                                     @endphp
                                                     <div class="col-md-6">
                                                         <label for="inputEmail3"
+                                                            data-document-type="{{ $documentType->id }}"
                                                             class="col-form-label {{ $class }}">{{ $documentType->label_name }}</label>
 
                                                         {{-- hidden fields --}}
@@ -552,6 +560,7 @@
                                                         <input type="{{ $documentType->field_type }}"
                                                             name="inv_doc[{{ $key }}][file]"
                                                             class="form-control"
+                                                            data-document-type="{{ $documentType->id }}"
                                                             accept="{{ $documentType->accept_types }}"
                                                             {{ $req }}>
 
@@ -884,6 +893,13 @@
         });
 
         function toggleCompanyDetails() {
+
+            const eidlabel = $('label[data-document-type="4"]');
+            const eidFileInput = $('input[data-document-type="4"]');
+
+            const tradeLicenseLabel = $('label[data-document-type="10"]');
+            const tradeLicenseFileInput = $('input[data-document-type="10"]');
+
             if ($('#investor_category_company').is(':checked')) {
                 $('#companyDetailsSection').show();
                 $('#genderSection').hide();
@@ -905,6 +921,25 @@
                 $('input[name="investor[gender]"]')
                     .prop('required', false)
                     .prop('checked', false);
+                // Company: these are NOT mandatory
+                $('#nationality').prop('required', false);
+                $('#country_of_residence').prop('required', false);
+                $('#id_number').prop('required', false);
+
+                // Remove asterisk from labels
+                $('#nationalityLabel').removeClass('asterisk');
+                $('#residenceLabel').removeClass('asterisk');
+                $('#idNumberLabel').removeClass('asterisk');
+
+                // Emirates ID Copy: NOT mandatory for company
+                eidlabel.removeClass('asterisk');
+
+                eidFileInput.prop('required', false);
+
+                // Trade License Copy: MANDATORY for company
+                tradeLicenseLabel.addClass('asterisk');
+                tradeLicenseFileInput.prop('required', true);
+
             } else {
                 $('#companyDetailsSection').hide();
                 $('#genderSection').show();
@@ -922,6 +957,23 @@
                 $('#investor_prefix').prop('required', true);
                 $('#investor_prefix_arabic').prop('required', true);
                 $('input[name="investor[gender]"]').prop('required', true);
+
+                $('#nationality_id').prop('required', true);
+                $('#country_of_residence').prop('required', true);
+                $('#id_number').prop('required', true);
+
+                // Add asterisk to labels
+                $('#nationalityLabel').addClass('asterisk');
+                $('#residenceLabel').addClass('asterisk');
+                $('#idNumberLabel').addClass('asterisk');
+
+                // Emirates ID Copy: MANDATORY for individual
+                eidlabel.addClass('asterisk');
+                eidFileInput.prop('required', true);
+
+                // Trade License Copy: NOT mandatory for individual
+                tradeLicenseLabel.removeClass('asterisk');
+                tradeLicenseFileInput.prop('required', false);
             }
         }
 

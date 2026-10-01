@@ -68,8 +68,7 @@ class InvestorDocumentService
 
             $documentExist = $this->getByName(['document_type_id' => $value['document_type_id'], 'investor_id' => $investor->id]);
 
-            if ($value['document_type_id'] == 4 && empty($documentExist)) {
-                // dump(isset($value['file']));
+            if ($value['document_type_id'] == 4 && empty($documentExist) && $investor->investor_category == 0) {
                 if (!isset($value['file'])) {
                     throw ValidationException::withMessages([
                         'file' => 'Emirates ID / Other ID file is required',
