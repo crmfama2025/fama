@@ -526,7 +526,7 @@
                                                         if (
                                                             ($documentType->id == 4 &&
                                                                 ($investor->investor_category ?? 0) == 0) ||
-                                                            ($documentType->id == 10 &&
+                                                            ($documentType->id == 8 &&
                                                                 ($investor->investor_category ?? 0) == 1)
                                                         ) {
                                                             $class = 'asterisk';
@@ -897,8 +897,8 @@
             const eidlabel = $('label[data-document-type="4"]');
             const eidFileInput = $('input[data-document-type="4"]');
 
-            const tradeLicenseLabel = $('label[data-document-type="10"]');
-            const tradeLicenseFileInput = $('input[data-document-type="10"]');
+            const tradeLicenseLabel = $('label[data-document-type="8"]');
+            const tradeLicenseFileInput = $('input[data-document-type="8"]');
 
             if ($('#investor_category_company').is(':checked')) {
                 $('#companyDetailsSection').show();
