@@ -1093,6 +1093,7 @@
     <script src="{{ asset('assets/datatables-buttons/js/dataTables.buttons.min.js') }}"></script>
     <script src="{{ asset('assets/datatables-buttons/js/buttons.bootstrap4.min.js') }}"></script>
 
+
     <script>
         $(function() {
 
@@ -1154,11 +1155,25 @@
 
         $('#investment_amount').on('keyup change', function() {
             calculateProfit();
+            convertAmountToArabic();
         });
 
         // $('#investment_tenure').on('keyup change', function() {
         //     calculateProfit();
         // });
+
+        // convert to investment amount to words in arabic
+        function convertAmountToArabic() {
+            let investmentAmount = parseFloat($('#investment_amount').val()) || 0;
+
+            if (!investmentAmount) {
+                $('#investment_amount_arabic').val('');
+                return;
+            }
+            $('#investment_amount_arabic').val(
+                numberToArabicWords(investmentAmount)
+            );
+        }
 
         function calculateProfitPerInterval() {
             let profitAmount = parseFloat($('#profit_amount').val()) || 0;

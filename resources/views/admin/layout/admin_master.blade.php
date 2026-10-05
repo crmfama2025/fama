@@ -756,6 +756,11 @@
             }
         });
     </script> --}}
+    @if (session('error'))
+        <script>
+            toastr.error(@json(session('error')));
+        </script>
+    @endif
     <script>
         toastr.options = {
             "closeButton": true,
@@ -1069,6 +1074,101 @@
             }, 1000);
         });
     </script> --}}
+    <script>
+        // Convert amount in number to Arabic words
+        function numberToArabicWords(number) {
+            number = parseInt(number);
+
+            if (number === 0) {
+                return 'صفر';
+            }
+
+            const ones = [
+                '', 'واحد', 'اثنان', 'ثلاثة', 'أربعة',
+                'خمسة', 'ستة', 'سبعة', 'ثمانية', 'تسعة'
+            ];
+
+            const tens = [
+                '', '', 'عشرون', 'ثلاثون', 'أربعون',
+                'خمسون', 'ستون', 'سبعون', 'ثمانون', 'تسعون'
+            ];
+
+            const teens = [
+                'عشرة', 'أحد عشر', 'اثنا عشر', 'ثلاثة عشر',
+                'أربعة عشر', 'خمسة عشر', 'ستة عشر',
+                'سبعة عشر', 'ثمانية عشر', 'تسعة عشر'
+            ];
+
+            function convertHundreds(num) {
+                let result = '';
+
+                const hundreds = Math.floor(num / 100);
+                const remainder = num % 100;
+
+                const hundredWords = [
+                    '', 'مائة', 'مائتان', 'ثلاثمائة',
+                    'أربعمائة', 'خمسمائة', 'ستمائة',
+                    'سبعمائة', 'ثمانمائة', 'تسعمائة'
+                ];
+
+                if (hundreds > 0) {
+                    result += hundredWords[hundreds];
+                }
+
+                if (remainder > 0) {
+                    if (result !== '') {
+                        result += ' و';
+                    }
+
+                    if (remainder < 10) {
+                        result += ones[remainder];
+                    } else if (remainder < 20) {
+                        result += teens[remainder - 10];
+                    } else {
+                        const ten = Math.floor(remainder / 10);
+                        const one = remainder % 10;
+
+                        if (one > 0) {
+                            result += ones[one] + ' و' + tens[ten];
+                        } else {
+                            result += tens[ten];
+                        }
+                    }
+                }
+
+                return result;
+            }
+
+            function convert(num) {
+                if (num < 1000) {
+                    return convertHundreds(num);
+                }
+
+                const thousands = Math.floor(num / 1000);
+                const remainder = num % 1000;
+
+                let result = '';
+
+                if (thousands === 1) {
+                    result = 'ألف';
+                } else if (thousands === 2) {
+                    result = 'ألفا';
+                } else if (thousands >= 3 && thousands <= 10) {
+                    result = convertHundreds(thousands) + ' آلاف';
+                } else {
+                    result = convertHundreds(thousands) + ' ألف';
+                }
+
+                if (remainder > 0) {
+                    result += ' و' + convertHundreds(remainder);
+                }
+
+                return result;
+            }
+
+            return convert(number) + ' درهم إماراتي فقط لا غير';
+        }
+    </script>
     <script>
         window.routes = {
             saveFcmToken: "{{ route('fcm.saveToken') }}"
