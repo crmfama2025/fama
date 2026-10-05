@@ -1196,6 +1196,6 @@
             });
         });
     </script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD46-CF9pTGIQpnKNkvc1eeZwBH2pQ70qQ&callback=initMap" async
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCq2_9KIyYch0m6sCB_f1Z3VFVGGZR2SrM&callback=initMap" async
         defer></script>
 @endsection
