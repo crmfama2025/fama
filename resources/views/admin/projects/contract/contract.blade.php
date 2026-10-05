@@ -1,6 +1,12 @@
 @extends('admin.layout.admin_master')
 
 @section('custom_css')
+    <!-- daterange picker -->
+    <link rel="stylesheet" href="{{ asset('assets/daterangepicker/daterangepicker.css') }}">
+    <!-- Tempusdominus Bootstrap 4 -->
+    <link rel="stylesheet" href="{{ asset('assets/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css') }}">
+    <!-- iCheck for checkboxes and radio inputs -->
+    <link rel="stylesheet" href="{{ asset('assets/icheck-bootstrap/icheck-bootstrap.min.css') }}">
     <!-- Select2 -->
     <link rel="stylesheet" href="{{ asset('assets/select2/css/select2.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/select2-bootstrap4-theme/select2-bootstrap4.min.css') }}">
@@ -8,8 +14,6 @@
     <link rel="stylesheet" href="{{ asset('assets/datatables-bs4/css/dataTables.bootstrap4.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/datatables-responsive/css/responsive.bootstrap4.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/datatables-buttons/css/buttons.bootstrap4.min.css') }}">
-
-    <link rel="stylesheet" href="{{ asset('assets/icheck-bootstrap/icheck-bootstrap.min.css') }}">
 @endsection
 
 @section('content')
@@ -37,6 +41,93 @@
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-12">
+                        <div class="card card-df card-outline">
+
+                            <div class="card-header shadow-sm">
+                                <h5 class="card-title mb-0">Filter</h5>
+                            </div>
+
+                            <div class="d-flex justify-content-end mx-4 my-2">
+                                <button type="button" class="btn btn-secondary reset">
+                                    <i class="fa fa-undo-alt"></i> Reset
+                                </button>
+                            </div>
+                            <form class="filterform">
+                                <div class="card-body">
+                                    <div class="row align-items-end">
+
+                                        {{-- Company --}}
+                                        <div class="col-lg-3 col-md-4">
+                                            <label for="companySelect">Select Company </label>
+
+                                            <select class="form-control select2" id="companySelect" name="company_id">
+                                                <option value="">All Companies</option>
+
+                                                @foreach ($companies->where('industry_id', 1) as $com)
+                                                    <option value="{{ $com->id }}">
+                                                        {{ $com->company_name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+                                        <div class="col-md-2">
+                                            <label for="exampleInputEmail1">From</label>
+                                            <div class="input-group date" id="dateFrom" data-target-input="nearest">
+                                                <input type="text" class="form-control datetimepicker-input"
+                                                    data-target="#dateFrom" id="date_From" placeholder="dd-mm-YYYY"
+                                                    value="" />
+                                                <div class="input-group-append" data-target="#dateFrom"
+                                                    data-toggle="datetimepicker">
+                                                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label for="exampleInputEmail1">To</label>
+                                            <div class="input-group date" id="dateTo" data-target-input="nearest">
+                                                <input type="text" class="form-control datetimepicker-input"
+                                                    data-target="#dateTo" id="date_To" placeholder="dd-mm-YYYY"
+                                                    value="" />
+                                                <div class="input-group-append" data-target="#dateTo"
+                                                    data-toggle="datetimepicker">
+                                                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {{-- <div class="col-lg-3 col-md-4">
+                                            <label for="dateFrom">Start Date </label>
+                                            <input type="date" id="dateFrom" class="form-control">
+                                        </div>
+
+                                        <div class="col-lg-3 col-md-4">
+                                            <label for="dateTo">End Date </label>
+                                            <input type="date" id="dateTo" class="form-control">
+                                        </div> --}}
+
+                                        {{-- Project --}}
+                                        <div class="col-lg-3 col-md-4">
+                                            <label for="projectSelect">Select Project </label>
+
+                                            <select class="form-control select2" id="projectSelect" name="contract_id">
+                                                <option value="">All Projects</option>
+                                            </select>
+                                        </div>
+
+                                        {{-- Search --}}
+                                        <div class="mt-3 col-lg-3 col-md-4 ml-auto">
+                                            <button type="button" class="btn btn-primary btn-block searchbtn">
+                                                <i class="fa fa-search"></i>
+                                                Search
+                                            </button>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </form>
+
+                        </div>
                         <div class="card">
                             <div class="card-header">
                                 <!-- <h3 class="card-title">Contract Details</h3> -->
@@ -412,6 +503,16 @@
     <script src="{{ asset('assets/bs-stepper/js/bs-stepper.min.js') }}"></script>
 
     <script>
+        $('#dateFrom').datetimepicker({
+            format: 'DD-MM-YYYY'
+        });
+
+        $('#dateTo').datetimepicker({
+            format: 'DD-MM-YYYY'
+        });
+    </script>
+
+    <script>
         $('#terminatedate').datetimepicker({
             format: 'DD-MM-YYYY',
             allowInputToggle: true
@@ -426,8 +527,11 @@
                 ajax: {
                     url: "{{ route('contract.list') }}",
                     data: function(d) {
-                        filre: 'require'
                         // d.company_id = $('#companyFilter').val();
+                        d.companyId = $('#companySelect').val();
+                        d.contractId = $('#projectSelect').val();
+                        d.startDate = $('#date_From').val();
+                        d.endDate = $('#date_To').val();
                     },
 
                 },
@@ -608,6 +712,10 @@
 
                 // Apply DataTable search column filter (status = column index 1)
                 table.column(4).search(filterValue).draw();
+            });
+
+            $('.searchbtn').on('click', function() {
+                table.ajax.reload(null, true);
             });
         });
 
@@ -927,6 +1035,40 @@
                 }
             });
         }
+    </script>
+
+    <script>
+        const contracts = @json($contracts);
+
+        $('#companySelect').on('change', function() {
+
+            let companyId = $(this).val();
+
+            $('#projectSelect').html('<option value="">Select Project</option>');
+
+            if (!companyId) {
+                return;
+            }
+
+            let companyContracts = contracts.filter(function(contract) {
+                return contract.company_id == companyId;
+            });
+
+            $.each(companyContracts, function(index, contract) {
+                $('#projectSelect').append(
+                    '<option value="' + contract.id + '">' +
+                    contract.project_number +
+                    '</option>'
+                );
+            });
+        });
+
+        $('.reset').click(function() {
+            $('#companySelect').val('').trigger('change');
+            $('#projectSelect').html('<option value="">All Projects</option>');
+            $('input[name="agreementFilter"][value="all"]').prop('checked', true);
+            table.ajax.reload();
+        });
     </script>
     @include('admin.projects.contract.includes.contract_document_js')
 @endsection
