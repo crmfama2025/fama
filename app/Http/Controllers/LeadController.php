@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Exports\GenericExport;
+use App\Models\LeadFollowUp;
 use App\Services\LeadService;
 use App\Services\UserService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -237,5 +239,59 @@ class LeadController extends Controller
             'assigned_to' => $request->followed_up_by,
 
         ];
+    }
+
+    public function calendarEvents(Request $request)
+    {
+        $request->validate([
+            'start' => ['required', 'date'],
+            'end' => ['required', 'date'],
+            // 'assigned_to' => ['nullable', 'integer'],
+        ]);
+        $user = auth()->user();
+        $latestFollowUpIds = LeadFollowUp::query()
+            ->selectRaw('MAX(id)')
+            ->groupBy('lead_id');
+
+        $followUps = LeadFollowUp::with(['lead', 'followedUpBy'])
+            ->whereIn('id', $latestFollowUpIds)
+            ->whereNotNull('next_follow_up_date')
+            ->whereBetween('next_follow_up_date', [
+                Carbon::parse($request->start),
+                Carbon::parse($request->end),
+            ])
+            ->whereHas('lead', function ($query) use ($request, $user,) {
+                $query->whereNotIn('status', [5, 10, 9]);
+                $query->where(function ($q) use ($user) {
+                    $q->where('assigned_to', $user->id)
+                        ->orWhere('created_by', $user->id);
+                });
+            })
+
+
+            ->get();
+
+        return $followUps->map(function ($followUp) {
+            $date = Carbon::parse($followUp->next_follow_up_date)->format('Y-m-d');
+            $time = $followUp->next_follow_up_time;
+            $leadName = $followUp->lead?->company_name ?? 'Lead #' . $followUp->lead_id;
+            $start = $time
+                ? $date . 'T' . $time
+                : $date;
+
+            return [
+                'id' => $followUp->id,
+                'title' => $leadName,
+                'start' => $start,
+                'extendedProps' => [
+                    'assignedTo' => $followUp->lead->assignedTo
+                        ? trim($followUp->lead->assignedTo->first_name . ' ' . $followUp->lead->assignedTo->last_name)
+                        : 'Unassigned',
+                    'type' => $followUp->follow_up_type_name,
+                    'status' => $followUp->follow_up_status,
+                    'notes' => $followUp->notes,
+                ],
+            ];
+        });
     }
 }

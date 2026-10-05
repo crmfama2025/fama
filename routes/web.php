@@ -517,6 +517,10 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
     Route::post('investments/delete-contracts/{id}', [InvestmentController::class, 'deleteDocument'])->name('investment.documents.delete');
 
     Route::get('investor/contract-list/{id?}', [InvestorController::class, 'getContracts'])->name('investor.contracts');
+
+    // routes/web.php
+    Route::get('/leads/follow-ups/calendar', [LeadController::class, 'calendarEvents'])
+        ->name('lead.calendar-events');
 });
 
 

@@ -198,9 +198,9 @@ class InvestorService
                 'regex:/^[1-9][0-9]{9,14}$/'
             ],
             'investor_email' => 'required',
-            'nationality_id' => 'required',
+            // 'nationality_id' => 'required',
             'id_number' => [
-                'required',
+                'nullable',
                 Rule::unique('investors', 'id_number')->ignore($id),
             ],
             'payment_mode_id' => 'required',
@@ -211,7 +211,7 @@ class InvestorService
             'state' => 'required',
             'country_id' => 'required',
         ], [
-            'id_number.required' => 'Emirates ID/Other ID id required',
+            // 'id_number.required' => 'Emirates ID/Other ID id required',
             'payment_mode_id.required' => 'Payment Mode required'
         ]);
 
