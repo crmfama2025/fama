@@ -5,8 +5,12 @@ namespace App\Exports;
 use App\Models\Contract;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use PhpOffice\PhpSpreadsheet\Shared\Date;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
+use Carbon\Carbon;
+use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 
-class ContractExport implements FromCollection, WithHeadings
+class ContractExport implements FromCollection, WithHeadings, WithColumnFormatting
 {
     /**
      * @return \Illuminate\Support\Collection
@@ -22,6 +26,7 @@ class ContractExport implements FromCollection, WithHeadings
     public function collection()
     {
         $query = Contract::with('company', 'vendor', 'contract_type',);
+        $filters = $this->filter;
 
         if ($this->search) {
             $search = $this->search;
@@ -96,9 +101,32 @@ class ContractExport implements FromCollection, WithHeadings
             });
         }
 
-        if ($this->filter) {
-            $query->where('contracts.id', $this->filter);
+        if (!empty($filters['companyId'])) {
+            $query->where('contracts.company_id', $filters['companyId']);
         }
+
+        if (!empty($filters['contractId'])) {
+            $query->where('contracts.id', $filters['contractId']);
+        }
+
+        if (!empty($filters['startDate']) || !empty($filters['endDate'])) {
+            $query->whereHas('contract_detail', function ($q) use ($filters) {
+                if (!empty($filters['startDate'])) {
+                    $from = Carbon::createFromFormat('d-m-Y', $filters['startDate'])->format('Y-m-d');
+                    $q->whereDate('start_date', '>=', $from);
+                }
+                if (!empty($filters['endDate'])) {
+                    $to = Carbon::createFromFormat('d-m-Y', $filters['endDate'])->format('Y-m-d');
+                    $q->whereDate('end_date', '<=', $to);
+                }
+            });
+        }
+
+        // "0" (Pending) is a valid status, so don't use empty()
+        if (isset($filters['status']) && $filters['status'] !== '') {
+            $query->where('contracts.contract_status', $filters['status']);
+        }
+
         return $query->get()
             ->map(function ($contract) {
                 if ($contract->indirect_status == 1) {
@@ -113,8 +141,12 @@ class ContractExport implements FromCollection, WithHeadings
                         1 => "B2B",
                         2 => "B2C"
                     },
-                    'Start Date'  => $contract->contract_detail->start_date,
-                    'End Date'  => $contract->contract_detail->end_date,
+                    'Start Date'  => $contract->contract_detail?->start_date
+                        ? Date::PHPToExcel(Carbon::parse($contract->contract_detail->start_date))
+                        : null,
+                    'End Date'  => $contract->contract_detail?->end_date
+                        ? Date::PHPToExcel(Carbon::parse($contract->contract_detail->end_date))
+                        : null,
                     'Company Name' => $contract->company->company_name,
                     'Indirect Company' => $contract->indirectCompany?->company_name
                         ? $contract->indirectCompany->company_name . ' - Project ' . ($contract->indirectContract?->project_number ?? '')
@@ -128,19 +160,19 @@ class ContractExport implements FromCollection, WithHeadings
                     'Total Units' => $contract->contract_unit->no_of_units ?? '',
                     'Unit' => $contract->contract_unit->unit_numbers ?? '',
                     'UniT Type' => $contract->contract_unit->unit_type_count ?? '',
-                    'Commission' => $contract->contract_rentals->commission ?? '',
-                    'Deposit' => $contract->contract_rentals->deposit,
-                    'Rent Per Annum' => $contract->contract_rentals->rent_per_annum_payable,
-                    'Total Vendor Payment' => $contract->contract_rentals->total_payment_to_vendor,
-                    'Total OTC' => $contract->contract_rentals->total_otc,
-                    'Total Project Cost' => $contract->contract_rentals->final_cost ?? '',
-                    'Total Vendor Payment' => $contract->contract_rentals->total_payment_to_vendor,
+                    'Commission' => (float) ($contract->contract_rentals->commission ?? 0),
+                    'Deposit' => (float) ($contract->contract_rentals->deposit ?? 0),
+                    'Rent Per Annum' => (float) ($contract->contract_rentals->rent_per_annum_payable ?? 0),
+                    'Total Vendor Payment' => (float) ($contract->contract_rentals->total_payment_to_vendor ?? 0),
+                    'Total OTC' => (float) ($contract->contract_rentals->total_otc ?? 0),
+                    'Total Project Cost' => (float) ($contract->contract_rentals->final_cost ?? 0),
+                    'Total Vendor Payment' => (float) ($contract->contract_rentals->total_payment_to_vendor ?? 0),
                     'Tenure' => $contract->contract_detail->duration_in_months . "M",
                     'Rent Receivable per Annum' => $contract->contract_rentals->rent_receivable_per_annum,
                     'Rent Receivable per Month' => $contract->contract_rentals->rent_receivable_per_month,
-                    'ROI' =>  $contract->contract_rentals->roi_perc,
-                    'Profit %' => $contract->contract_rentals->profit_percentage,
-                    'Profit' => $contract->contract_rentals->expected_profit,
+                    'ROI' =>  (float) ($contract->contract_rentals->roi_perc ?? 0),
+                    'Profit %' => (float) ($contract->contract_rentals->profit_percentage ?? 0),
+                    'Profit' => (float) ($contract->contract_rentals->expected_profit ?? 0),
                     'Building Type' => match ($contract->contract_unit->building_type) {
                         1 => 'Full Building',
                         0 => ''
@@ -157,7 +189,9 @@ class ContractExport implements FromCollection, WithHeadings
                         1 => 'Renewal (' . ($contract->renewal_count ?? 0) . ')',
                     },
 
-                    'Created_at' => $contract->created_at->format('d/m/Y'),
+                    'Created_at' => $contract->created_at
+                        ? Date::PHPToExcel($contract->created_at)
+                        : null,
 
 
                 ];
@@ -204,6 +238,30 @@ class ContractExport implements FromCollection, WithHeadings
             'Status',
             'Project Status',
             'Created_at',
+        ];
+    }
+
+    public function columnFormats(): array
+    {
+        return [
+            'F'  => NumberFormat::FORMAT_DATE_DDMMYYYY, // dd/mm/yyyy
+            'G'  => NumberFormat::FORMAT_DATE_DDMMYYYY,
+            'AK' => NumberFormat::FORMAT_DATE_DDMMYYYY,
+
+            // money (1,234.00)
+            'S'  => NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1, // Commission
+            'T'  => NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1, // Deposit
+            'U'  => NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1, // Rent Per Annum
+            'V'  => NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1, // Total Vendor Payment
+            'W'  => NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1, // Total OTC
+            'X'  => NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1, // Total Project Cost
+            'Z'  => NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1, // Rent Receivable / Annum
+            'AA' => NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1, // Rent Receivable / Month
+            'AD' => NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1, // Profit
+
+            // percentages
+            'AB' => NumberFormat::FORMAT_NUMBER_00,       // ROI
+            'AC' => NumberFormat::FORMAT_NUMBER_00,       // Profit %
         ];
     }
 }

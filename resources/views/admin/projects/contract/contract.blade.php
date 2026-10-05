@@ -518,6 +518,8 @@
             allowInputToggle: true
         });
 
+        let statusFilter = '';
+
         $(function() {
             let table = $('#contractTable').DataTable({
                 processing: true,
@@ -532,6 +534,7 @@
                         d.contractId = $('#projectSelect').val();
                         d.startDate = $('#date_From').val();
                         d.endDate = $('#date_To').val();
+                        d.status = statusFilter;
                     },
 
                 },
@@ -655,19 +658,25 @@
                     title: 'Contract Data',
                     action: function(e, dt, node, config) {
                         // redirect to your Laravel export route
-                        let searchValue = dt.search();
-                        let url = "{{ route('contract.export') }}" + "?search=" +
-                            encodeURIComponent(searchValue);
-                        window.location.href = url;
+
+                        let params = new URLSearchParams({
+                            search: dt.search(),
+                            companyId: $('#companySelect').val() || '',
+                            contractId: $('#projectSelect').val() || '',
+                            startDate: $('#date_From').val() || '',
+                            endDate: $('#date_To').val() || '',
+                            status: statusFilter // <-- send status
+                        });
+
+                        window.location.href = "{{ route('contract.export') }}?" + params
+                            .toString();
                     }
                 }]
             });
 
-            @if ($permission == false)
-                $(document).ready(function() {
+            @if ($permission == false) $(document).ready(function() {
                     $('.approvalPending').click();
-                });
-            @endif
+                }); @endif
 
             $(document).ready(function() {
 
@@ -689,6 +698,7 @@
             // Filter buttons
             $('.filter-btn').on('click', function() {
                 let filterValue = $(this).data('filter');
+                statusFilter = $(this).data('filter');
 
                 // Reset ALL buttons
                 $('.filter-btn').each(function() {

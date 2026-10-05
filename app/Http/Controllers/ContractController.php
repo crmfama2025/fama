@@ -231,11 +231,15 @@ class ContractController extends Controller
     public function exportContract(Contract $contract)
     {
         $search = request('search');
-        $filters = auth()->user()->company_id ? [
-            // 'company_id' => auth()->user()->company_id,
-        ] : null;
+        // $filters = [
+        //     'companyId'  => request()->input('companyId'),
+        //     'contractId' => request()->input('contractId'),
+        //     'startDate' => request()->input('startDate'),
+        //     'endDate' => request()->input('endDate'),
+        //     'status' => request()->input('status'),
+        // ];
 
-        return Excel::download(new ContractExport($search, $filters), 'contracts.xlsx');
+        return Excel::download(new ContractExport($search, request()->only(['companyId', 'contractId', 'startDate', 'endDate', 'status'])), 'contracts.xlsx');
     }
 
     public function deleteUnitDetail($id)
