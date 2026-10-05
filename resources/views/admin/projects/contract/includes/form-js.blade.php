@@ -144,13 +144,12 @@
 
             function unitRemoveFunc(prevBlocks, unitCount, block) {
                 if (prevBlocks.length > unitCount) {
-                    const detailId = '';
+                    let detailId = '';
                     if ({{ $edit }}) {
                         const idInput = $(block.querySelector(
                             'input[name="unit_detail[id][]"]'
                         ));
-
-                        const detailId = idInput.val() ? idInput.val().trim() : '';
+                        detailId = idInput.val() ? idInput.val().trim() : '';
                     }
 
                     Swal.fire({
@@ -1972,7 +1971,7 @@
 
         totalflatcount = flatcount;
 
-        if (hasMissingPartitionOrBedspace) {
+        if (hasMissingPartitionOrBedspace && $('#contract_type').val() == '2') {
             $('.rentFlat').show();
         } else {
             $('.rentFlat').hide();
@@ -2843,6 +2842,7 @@
 
             let tot_rent_per_month = totalrev / 12;
             // console.log(tot_rent_per_month);
+            // console.log('calculate roi ff');
             $('.rentFlat').show();
             $('#rent_per_flat').val(tot_rent_per_month.toFixed(2)).attr('readonly', 'true');
 

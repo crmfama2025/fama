@@ -66,8 +66,9 @@ class ContractController extends Controller
         $paymentmodes = $this->paymentModeService->getAll();
         $banks = $this->bankService->getAll();
         $companies = $this->companyService->getAll();
+        $contracts = $this->contractService->getAll();
 
-        return view("admin.projects.contract.contract", compact("title", "paymentmodes", "banks", "companies"));
+        return view("admin.projects.contract.contract", compact("title", "paymentmodes", "banks", "companies", "contracts"));
     }
 
     public function create()
@@ -161,7 +162,11 @@ class ContractController extends Controller
         if ($request->ajax()) {
             $filters = [
                 // 'company_id' => auth()->user()->company_id,
-                'search' => $request->search['value'] ?? null
+                'search' => $request->search['value'] ?? null,
+                'companyId' => $request->companyId ?? null,
+                'contractId' => $request->contractId ?? null,
+                'startDate' => dateFormatChange($request->startDate, 'Y-m-d') ?? null,
+                'endDate' => dateFormatChange($request->endDate, 'Y-m-d') ?? null,
             ];
             return $this->contractService->getDataTable($filters);
         }

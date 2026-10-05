@@ -246,8 +246,20 @@ class ContractRepository
 
 
 
-        if (!empty($filters['company_id'])) {
-            $query->Where('contracts.company_id', $filters['company_id']);
+        if (!empty($filters['companyId'])) {
+            $query->Where('contracts.company_id', $filters['companyId']);
+        }
+
+        if (!empty($filters['contractId'])) {
+            $query->Where('contracts.id', $filters['contractId']);
+        }
+
+        if (!empty($filters['startDate'])) {
+            $query->Where('contract_details.start_date', '>=', $filters['startDate']);
+        }
+
+        if (!empty($filters['endDate'])) {
+            $query->Where('contract_details.end_date', '<=', $filters['endDate']);
         }
 
         return $query;
