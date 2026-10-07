@@ -1166,7 +1166,7 @@
                 return result;
             }
 
-            return convert(number) + ' درهم إماراتي فقط لا غير';
+            return convert(number) + ' درهم إماراتي فقط  ';
         }
     </script>
     <script>
