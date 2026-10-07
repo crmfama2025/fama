@@ -46,4 +46,7 @@ return [
         'node_binary' => env('NODE_BINARY_PATH'),
         'npm_binary' => env('NPM_BINARY_PATH'),
     ],
+    'google' => [
+        'maps_key' => env('GOOGLE_MAPS_KEY'),
+    ],
 ];
