@@ -279,7 +279,7 @@ class InvestmentContractService
             // Grand totals
             '{invested_amount}' => number_format($grandTotalInvested, 2),
             '{invested_amount_eng}' => numberToEnglishWords($grandTotalInvested),
-            '{invested_amount_ar}' => numberToArabicWords($grandTotalInvested) . 'درهم إماراتي فقط',
+            '{invested_amount_ar}' => numberToArabicWords($grandTotalInvested),
             '{total_invested_amount}' => number_format($grandTotalInvested, 2),
             '{total_profit}'          => number_format($grandTotalProfit, 2),
             '{monthly_estimate}'      => 0, //number_format($grandTotalPerInterval, 2)
