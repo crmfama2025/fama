@@ -39,15 +39,32 @@ class UnitDetailService
         //     return is_array($value) ? array_values($value) : $value;
         // }, $dataArr);
         // end - Geethu
-
+        // var_dump($dataArr);
         // reindex for subunits only to the other array key - Rasmiya 30092026
-        foreach (['partition', 'bedspace', 'room', 'maid_room'] as $flag) {
-            $arr = $dataArr[$flag] ?? [];
-            ksort($arr, SORT_NUMERIC);
-            $dataArr[$flag] = array_values($arr);   // 0..n-1, aligned with unit_number[]
-        }
-        // endreindex
+        // $totals = [
+        //     'partition' => 'total_partition',
+        //     'bedspace'  => 'total_bedspace',
+        //     'room'      => 'total_room',
+        // ];
 
+        // foreach ($totals as $flag => $totalKey) {
+        //     $arr = $dataArr[$flag] ?? [];
+        //     ksort($arr, SORT_NUMERIC);
+        //     $values = array_values($arr);          // [ "3", "3" ]
+
+        //     $aligned = [];
+        //     foreach (array_keys($dataArr['unit_number']) as $i) {
+        //         // only units that have a total get the next submitted value
+        //         $aligned[$i] = !empty($dataArr[$totalKey][$i]) ? array_shift($values) : null;
+        //     }
+        //     $dataArr[$flag] = $aligned;
+        // }
+
+        $dataArr = $this->alignSubUnits($dataArr);
+
+        // endreindex
+        // print('after');
+        // dd($dataArr);
 
         foreach ($dataArr['unit_type_id'] as $key => $value) {
             // dd('test');
@@ -97,6 +114,42 @@ class UnitDetailService
         return;
     }
 
+    protected const SUB_UNIT_TOTALS = [
+        'partition' => 'total_partition',
+        'bedspace'  => 'total_bedspace',
+        'room'      => 'total_room',
+    ];
+
+    /**
+     * Align partition/bedspace/room/maid_room values with unit_number[] keys.
+     */
+    protected function alignSubUnits(array $dataArr): array
+    {
+        $unitKeys = array_keys($dataArr['unit_number'] ?? []);
+
+        foreach (self::SUB_UNIT_TOTALS as $flag => $totalKey) {
+            $arr = $dataArr[$flag] ?? [];
+            ksort($arr, SORT_NUMERIC);
+            $values = array_values($arr);
+
+            $aligned = [];
+            foreach ($unitKeys as $i) {
+                // only units that have a total consume the next submitted value
+                $aligned[$i] = !empty($dataArr[$totalKey][$i]) ? array_shift($values) : null;
+            }
+            $dataArr[$flag] = $aligned;
+        }
+
+        // maid_room has no total_* field, so just keep per-unit slots
+        $maid = $dataArr['maid_room'] ?? [];
+        $dataArr['maid_room'] = [];
+        foreach ($unitKeys as $i) {
+            $dataArr['maid_room'][$i] = $maid[$i] ?? null;
+        }
+
+        return $dataArr;
+    }
+
     public function update($contractData, $ct_detail, array $dataArr, $receivable_installments, $unit_id, $user_id = null)
     {
         // dd($dataArr);
@@ -113,11 +166,13 @@ class UnitDetailService
         // dump($dataArr);
 
         // reindex for subunits only to the other array key - Rasmiya 30092026
-        foreach (['partition', 'bedspace', 'room', 'maid_room'] as $flag) {
-            $arr = $dataArr[$flag] ?? [];
-            ksort($arr, SORT_NUMERIC);
-            $dataArr[$flag] = array_values($arr);   // 0..n-1, aligned with unit_number[]
-        }
+        // foreach (['partition', 'bedspace', 'room', 'maid_room'] as $flag) {
+        //     $arr = $dataArr[$flag] ?? [];
+        //     ksort($arr, SORT_NUMERIC);
+        //     $dataArr[$flag] = array_values($arr);   // 0..n-1, aligned with unit_number[]
+        // }
+
+        $dataArr = $this->alignSubUnits($dataArr);
         // endreindex
 
         foreach ($dataArr['unit_type_id'] as $key => $value) {
