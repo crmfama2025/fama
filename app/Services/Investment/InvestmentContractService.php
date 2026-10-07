@@ -279,7 +279,7 @@ class InvestmentContractService
             // Grand totals
             '{invested_amount}' => number_format($grandTotalInvested, 2),
             '{invested_amount_eng}' => numberToEnglishWords($grandTotalInvested),
-            '{invested_amount_ar}' => numberToArabicWords($grandTotalInvested) . 'درهم إماراتي فقط',
+            '{invested_amount_ar}' => numberToArabicWords($grandTotalInvested),
             '{total_invested_amount}' => number_format($grandTotalInvested, 2),
             '{total_profit}'          => number_format($grandTotalProfit, 2),
             '{monthly_estimate}'      => 0, //number_format($grandTotalPerInterval, 2)
@@ -2499,7 +2499,7 @@ class InvestmentContractService
             $guardian = "in his capacity as a Legal guardian of the minor beneficial
                 owner  {$guardian_name},
                 resident of {$guardian_address},
-                having Investor ID no. {$eid_number}";
+                having Emirates ID no. {$eid_number}";
 
             $guardian_ar = " والوصي القانوني على المالك المستفيد القاصر هي {$guardian_name_arabic} المقيمة في {$guardian_address_ar}
                 والذي نحمل بطاقة الهوية الإماراتية رقم <span class=\"ltr-number\">{$eid_number}</span>";

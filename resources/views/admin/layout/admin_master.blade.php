@@ -1077,7 +1077,10 @@
     <script>
         // Convert amount in number to Arabic words
         function numberToArabicWords(number) {
-            number = parseInt(number);
+            number = parseFloat(number);
+
+            const dirhams = Math.floor(number);
+            const fils = Math.round((number - dirhams) * 100);
 
             if (number === 0) {
                 return 'صفر';
@@ -1139,7 +1142,35 @@
                 return result;
             }
 
-            function convert(num) {
+            // function convert(num) {
+            //     if (num < 1000) {
+            //         return convertHundreds(num);
+            //     }
+
+            //     const thousands = Math.floor(num / 1000);
+            //     const remainder = num % 1000;
+
+            //     let result = '';
+
+            //     if (thousands === 1) {
+            //         result = 'ألف';
+            //     } else if (thousands === 2) {
+            //         result = 'ألفا';
+            //     } else if (thousands >= 3 && thousands <= 10) {
+            //         result = convertHundreds(thousands) + ' آلاف';
+            //     } else {
+            //         result = convertHundreds(thousands) + ' ألف';
+            //     }
+
+            //     if (remainder > 0) {
+            //         result += ' و' + convertHundreds(remainder);
+            //     }
+
+            //     return result;
+            // }
+
+
+            function convertThousands(num) {
                 if (num < 1000) {
                     return convertHundreds(num);
                 }
@@ -1152,7 +1183,7 @@
                 if (thousands === 1) {
                     result = 'ألف';
                 } else if (thousands === 2) {
-                    result = 'ألفا';
+                    result = 'ألفان';
                 } else if (thousands >= 3 && thousands <= 10) {
                     result = convertHundreds(thousands) + ' آلاف';
                 } else {
@@ -1166,7 +1197,46 @@
                 return result;
             }
 
-            return convert(number) + ' درهم إماراتي فقط لا غير';
+            if (dirhams === 0 && fils === 0) {
+                return 'صفر درهم إماراتي فقط لا غير';
+            }
+
+            let result = '';
+
+            if (dirhams > 0) {
+                result += convertThousands(dirhams);
+
+                if (dirhams === 1) {
+                    result += ' درهم';
+                } else if (dirhams === 2) {
+                    result += ' درهمان';
+                } else if (dirhams >= 3 && dirhams <= 10) {
+                    result += ' دراهم';
+                } else {
+                    result += ' درهماً';
+                }
+            }
+
+            if (fils > 0) {
+                if (result) {
+                    result += ' و ';
+                }
+
+                result += convertHundreds(fils);
+
+                if (fils === 1) {
+                    result += ' فلس';
+                } else if (fils === 2) {
+                    result += ' فلسان';
+                } else if (fils >= 3 && fils <= 10) {
+                    result += ' فلوس';
+                } else {
+                    result += ' فلساً';
+                }
+            }
+
+            // return convert(number) + ' درهم إماراتي فقط  ';
+            return result + ' فقط ';
         }
     </script>
     <script>
