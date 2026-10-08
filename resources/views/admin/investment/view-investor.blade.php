@@ -276,10 +276,13 @@
                                                     <th>Company</th>
                                                     <th>Investment</th>
                                                     <th>Investment Amount</th>
-                                                    <th>Date</th>
+                                                    <th>Investment Date</th>
                                                     <th>Profit Interval</th>
+                                                    <th>Investment Type</th>
                                                     <th>Profit %</th>
-                                                    <th>Profit Release Date</th>
+                                                    <th>Profit Amount</th>
+                                                    <th>Invested Company</th>
+                                                    <th>Maturity Date</th>
                                                     <th>Tot. Profit Released</th>
                                                     <th>Active Month Release</th>
                                                     <th>Outstanding Profit</th>
@@ -375,8 +378,20 @@
                         name: 'profitInterval.profit_interval_name'
                     },
                     {
+                        data: 'investment_term_type',
+                        name: 'investment_term_type'
+                    },
+                    {
                         data: 'profit_perc',
                         name: 'profit_perc'
+                    },
+                    {
+                        data: 'profit_amount',
+                        name: 'profit_amount'
+                    },
+                    {
+                        data: 'invested_company_name',
+                        name: 'investedCompany.company_name'
                     },
                     {
                         data: 'maturity_date',

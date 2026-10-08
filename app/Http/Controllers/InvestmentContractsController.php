@@ -128,13 +128,14 @@ class InvestmentContractsController extends Controller
             ->where('investor_id', $investorId)
             ->with('company:id,company_name')
             ->orderByDesc('id')
-            ->get(['id', 'investor_id', 'company_id', 'investment_date', 'investment_amount', 'investment_code'])
+            ->get(['id', 'investor_id', 'company_id', 'investment_date', 'maturity_date', 'investment_amount', 'investment_code'])
             ->map(function ($investment) {
                 return [
                     'id' => $investment->id,
                     'company_id' => $investment->company_id,
                     'investment_code' => $investment->investment_code,
-                    'investment_date' => $investment->investment_date,
+                    'investment_date' => getFormattedDate($investment->investment_date),
+                    'maturity_date' => getFormattedDate($investment->maturity_date),
                     'investment_amount' => $investment->investment_amount,
                     'company_name' => optional($investment->company)->company_name,
                 ];

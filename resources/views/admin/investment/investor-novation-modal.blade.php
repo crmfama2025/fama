@@ -72,6 +72,7 @@
                                          <th style="width: 50px;"></th>
                                          <th>Investment ID</th>
                                          <th>Investment Date</th>
+                                         <th>Maturity Date</th>
                                          <th>Investment Amount</th>
                                          <th>Company</th>
                                      </tr>
@@ -192,6 +193,7 @@
              $('<td>').append(checkbox).appendTo(row);
              $('<td>').text(investment.investment_code).appendTo(row);
              $('<td>').text(investment.investment_date).appendTo(row);
+             $('<td>').text(investment.maturity_date).appendTo(row);
              $('<td>').text(investment.investment_amount).appendTo(row);
              $('<td>').text(investment.company_name || '-').appendTo(row);
 

@@ -31,6 +31,7 @@
                          <th>Pending</th>
                          <th>Profit %</th>
                          <th>Profit</th>
+                         <th>Maturity Date</th>
                          <th>Status</th>
                      </tr>
                  </thead>
@@ -55,6 +56,7 @@
                          <td class="text-info">
                              {{ number_format($investment->profit_amount, 2) }}
                          </td>
+                         <td>{{ getFormattedDate($investment->maturity_date) }}</td>
                          <td>
                              @if ($investment->investment_status == 1)
                                  <span class="badge badge-success">Active</span>

@@ -820,6 +820,7 @@ class InvestmentService
             ['data' => 'profit_release_date', 'name' => 'profit_release_date'],
             ['data' => 'grace_period', 'name' => 'grace_period'],
             ['data' => 'payout_batch', 'name' => 'payoutBatch.batch_name'],
+            ['data' => 'investment_term_type', 'name' => 'investment_term_type'],
             ['data' => 'nominee_name', 'name' => 'nominee_name'],
             ['data' => 'total_profit_released', 'name' => 'total_profit_released'],
             ['data' => 'current_month_released', 'name' => 'current_month_released'],
@@ -863,8 +864,10 @@ class InvestmentService
             ->addColumn('investment_date', fn($row) => getFormattedDate($row->investment_date))
             ->addColumn('profit_interval', fn($row) => $row->profitInterval->profit_interval_name ?? '-')
             ->addColumn('profit_perc', fn($row) => $row->profit_perc . '%')
+            ->addColumn('profit_amount', fn($row) => $row->profit_amount)
             ->addColumn('maturity_date', fn($row) => getFormattedDate($row->maturity_date))
             ->addColumn('profit_release_date', fn($row) => $row->profit_release_date)
+            ->addColumn('investment_term_type', fn($row) => $row->investment_term_type == 1 ? 'Long Term' : 'Short Term')
 
             ->addColumn('grace_period', fn($row) => $row->grace_period ?? '-')
             ->addColumn('batch_name', fn($row) => 'Batch ' . $row->payout_batch_id . ' (' . $row->payoutBatch->batch_name . ')' ?? '-')
@@ -985,6 +988,18 @@ class InvestmentService
                             title="Documents">
                             <i class="fas fa-file-upload"></i>
                         </a>';
+                    }
+
+                    $twoWeeksLater = Carbon::today()->addWeeks(2)->format('Y-m-d');
+                    $renewal = 0;
+                    if ($row->maturity_date <= $twoWeeksLater && $row->terminate_status == 0 && $row->investment_term_type == 1) {
+                        $renewal = 1;
+                    }
+
+                    if ($renewal == 1 && auth()->user()->hasAnyPermission(['investment.renew'], $row->company_id)) {
+                        $action .= '<a class="btn btn-secondary btn-sm" href="' . route('investments.renew', ['id' => $row->id]) . '" title="Renew Investment">
+                            <i class="fas fa-sync-alt"></i>
+                        </a> ';
                     }
                     // $action .= '<a href="' . route('investment.ledger.list', $row->id) . '"
                     //         class="btn btn-sm btn-info m-1"
@@ -1848,14 +1863,14 @@ class InvestmentService
                 $action = '';
 
                 if (auth()->user()->hasAnyPermission(['investment.renew'], $row->company_id)) {
-                    $action .= '<a class="btn btn-primary btn-sm" href="' . route('investments.renew', ['id' => $row->id]) . '" title="Renew Investment">
+                    $action .= '<a class="btn btn-secondary btn-sm" href="' . route('investments.renew', ['id' => $row->id]) . '" title="Renew Investment">
                             <i class="fas fa-sync-alt"></i>
                         </a> ';
 
                     // $reject = route('investment.reject_renew', $row->id);
-                    $action .= '<a class="btn btn-danger btn-sm openRejectModalBtn" href="#" data-url="' . route('investment.edit', $row->id) . '" data-id="' . $row->id . '" title="Reject Renewal">
-                            <i class="fas fa-times"></i>
-                        </a> ';
+                    // $action .= '<a class="btn btn-danger btn-sm openRejectModalBtn" href="#" data-url="' . route('investment.edit', $row->id) . '" data-id="' . $row->id . '" title="Reject Renewal">
+                    //         <i class="fas fa-times"></i>
+                    //     </a> ';
                 }
 
                 return $action;
