@@ -231,6 +231,7 @@ class ContractService
             $this->rentalServ->update($data['rentals'] ?? []);
             $this->otcServ->update($data['otc'] ?? []);
 
+            $data['payment_detail']['beneficiary_id'] = $contract->vendor_id;
             $this->paymentServ->update($id, $data['payment'] ?? [], $data['payment_detail'] ?? [], $data['receivables'] ?? []);
 
 
