@@ -229,7 +229,7 @@ class Agreement extends Model
     }
     public function tenant_invoices()
     {
-        return $this->hasMany(AgreementUnit::class, 'agreement_id', 'id');
+        return $this->hasMany(TenantInvoice::class, 'agreement_id', 'id');
     }
     public function agreementStatusLogs()
     {

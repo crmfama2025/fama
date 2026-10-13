@@ -1080,30 +1080,46 @@ class InvestorService
             'investment_term_type' => 1,
             'company_id' => $companyId,
         ]);
-        $allTerminated = true;
+        // dd($investments);
+        // $allTerminated = true;
 
+        // foreach ($investments as $investment) {
+
+        //     $totalInvested = $investment->total_invested_amount;
+
+        //     $totalWithdrawn = $investment->total_withdrawn_amount;
+        //     // @dump($totalInvested, $totalWithdrawn);
+
+        //     // bccomp returns 0 if equal, avoids float drift
+        //     $isFullyWithdrawn = bccomp((string) $totalInvested, (string) $totalWithdrawn, 2) === 0;
+        //     // @dump($isFullyWithdrawn);
+
+        //     if ($isFullyWithdrawn) {
+        //         // if ($investment->investment_status != 1) {
+        //         //     $investment->update(['investment_status' => 1]);
+        //         // }
+        //         $allTerminated = true;
+        //     } else {
+        //         $allTerminated = false;
+        //     }
+        // }
+
+        // return $allTerminated;
         foreach ($investments as $investment) {
-
             $totalInvested = $investment->total_invested_amount;
-
             $totalWithdrawn = $investment->total_withdrawn_amount;
-            // @dump($totalInvested, $totalWithdrawn);
 
-            // bccomp returns 0 if equal, avoids float drift
-            $isFullyWithdrawn = bccomp((string) $totalInvested, (string) $totalWithdrawn, 2) === 0;
-            // @dump($isFullyWithdrawn);
-
-            if ($isFullyWithdrawn) {
-                // if ($investment->investment_status != 1) {
-                //     $investment->update(['investment_status' => 1]);
-                // }
-                $allTerminated = true;
-            } else {
-                $allTerminated = false;
+            $isFullyWithdrawn = bccomp(
+                (string) $totalInvested,
+                (string) $totalWithdrawn,
+                2
+            ) === 0;
+            if (!$isFullyWithdrawn) {
+                return false;
             }
         }
 
-        return $allTerminated;
+        return true;
     }
 
     public function approvePartialWithdrawal($id, $data)
