@@ -978,6 +978,14 @@ class InvestmentContractService
                 ? " نسبة حصة المستثمر من الربح مدة" . $investmentData->investment_tenure . " أشهر:"
                 : "نسبة حصة المستثمر من الربح :");
 
+        dd([
+            'profit_perc' => $investmentData->profit_perc,
+            'type' => gettype($investmentData->profit_perc),
+            'InvestorProfitPerc' => ($investmentData->profit_perc >= 50)
+                ? $investmentData->profit_perc
+                : $InvestorProfitPerc,
+        ]);
+
         return [
             'InvestorProfitPerc' => ($investmentData->profit_perc >= 50) ? $investmentData->profit_perc : $InvestorProfitPerc,
             'CompanyProfitPerc' => ($investmentData->profit_perc >= 50) ? null : $CompanyProfitPerc,
