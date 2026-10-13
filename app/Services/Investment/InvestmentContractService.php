@@ -980,7 +980,7 @@ class InvestmentContractService
 
         return [
             'InvestorProfitPerc' => ($investmentData->profit_perc >= 50) ? $investmentData->profit_perc : $InvestorProfitPerc,
-            'CompanyProfitPerc' => ($investmentData->profit_perc >= 50) ? '-' : $CompanyProfitPerc,
+            'CompanyProfitPerc' => ($investmentData->profit_perc >= 50) ? null : $CompanyProfitPerc,
             'InvestorProfitPerctext' => $InvestorProfitPerctext,
             'InvestorProfitPerctext_ar' => $InvestorProfitPerctext_ar
         ];
@@ -1342,9 +1342,14 @@ class InvestmentContractService
         $html        = $documentDetail->template;
         // dd($mudarabahCreatedDate);
         // Annexture A
-        $InvestorProfitPerc = $investment->profit_perc * 100 / 50;
-        // $CompanyProfitPerc  = 100 - $InvestorProfitPerc;
-        $CompanyProfitPerc  = (100 / 12 * $investment->investment_tenure) - $InvestorProfitPerc;
+        $profitData = $this->profitDetailForMudarabah($investment);
+        $InvestorProfitPerc = $profitData['InvestorProfitPerc'];
+        $CompanyProfitPerc  = $profitData['CompanyProfitPerc'];
+        $InvestorProfitPerctext = $profitData['InvestorProfitPerctext'];
+        $InvestorProfitPerctext_ar = $profitData['InvestorProfitPerctext_ar'];
+        // $InvestorProfitPerc = $investment->profit_perc * 100 / 50;
+        // // $CompanyProfitPerc  = 100 - $InvestorProfitPerc;
+        // $CompanyProfitPerc  = (100 / 12 * $investment->investment_tenure) - $InvestorProfitPerc;
         $annexureA = $this->buildSingleAnnexureA(
             $company,
             $investment,
@@ -1359,18 +1364,18 @@ class InvestmentContractService
         $profitData = $this->annextureB($investment);
         // dd($profitData);
 
-        $expectedProfittext_en = $investment->investment_tenure == 3
-            ? "Expected Profit for " . $investment->investment_tenure . " months:"
-            : ($investment->investment_tenure == 6
-                ? "Expected Profit for " . $investment->investment_tenure . " months:"
-                : ($investment->investment_tenure == 12
-                    ? "Expected annual profit:"
-                    : "Expected annual profit:"));
-        $expectedProfittext_ar = $investment->investment_tenure == 3
-            ? " الربح المتوقع لمدة " . $investment->investment_tenure . " أشهر:"
-            : ($investment->investment_tenure == 6
-                ? " الربح المتوقع لمدة " . $investment->investment_tenure . " أشهر:"
-                : "الربح السنوي المتوقع:");
+        // $expectedProfittext_en = $investment->investment_tenure == 3
+        //     ? "Expected Profit for " . $investment->investment_tenure . " months:"
+        //     : ($investment->investment_tenure == 6
+        //         ? "Expected Profit for " . $investment->investment_tenure . " months:"
+        //         : ($investment->investment_tenure == 12
+        //             ? "Expected annual profit:"
+        //             : "Expected annual profit:"));
+        // $expectedProfittext_ar = $investment->investment_tenure == 3
+        //     ? " الربح المتوقع لمدة " . $investment->investment_tenure . " أشهر:"
+        //     : ($investment->investment_tenure == 6
+        //         ? " الربح المتوقع لمدة " . $investment->investment_tenure . " أشهر:"
+        //         : "الربح السنوي المتوقع:");
 
 
         $p = $this->buildInvestorParagraphData($investor);
