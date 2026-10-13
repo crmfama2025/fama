@@ -62,6 +62,7 @@
                                             <th>#</th>
                                             <th>Action</th>
                                             <th>Investment Code</th>
+                                            <th>Added By</th>
                                             <th>Status</th>
                                             <th>Company Name</th>
                                             <th>Invested Company</th>
@@ -410,6 +411,10 @@
                     {
                         data: 'investment_code',
                         name: 'investment_code'
+                    },
+                    {
+                        data: 'added_by',
+                        name: 'added_by',
                     },
                     {
                         data: 'investment_status',

@@ -887,7 +887,24 @@ class InvestmentService
             })
             ->addColumn('referral_commission_amount', fn($row) => $row->investmentReferral->referral_commission_amount ?? '-')
             ->addColumn('referral_commission_perc', fn($row) => $row->investmentReferral->referral_commission_perc ?? '-')
+            ->addColumn('added_by', function ($row) {
+                if ($row->addedBy) {
+                    $name = $row->addedBy->first_name . ' ' . $row->addedBy->last_name;
+                    $image = $row->addedBy->profile_path
+                        ? asset('storage/' . $row->addedBy->profile_path)
+                        : asset('images/default-avatar.png');
 
+                    return '
+            <div style="display:flex; align-items:center; gap:8px;">
+                <img src="' . $image . '"
+                     style="width:30px; height:30px; border-radius:50%; object-fit:cover;">
+                <span>' . $name . '</span>
+            </div>
+        ';
+                }
+
+                return '-';
+            })
             ->addColumn('action', function ($row) use ($filters) {
                 $action = '';
 
@@ -1010,7 +1027,7 @@ class InvestmentService
 
                 return $action;
             })
-            ->rawColumns(['action', 'nominee_details', 'invested_company_name'])
+            ->rawColumns(['action', 'nominee_details', 'invested_company_name', 'added_by'])
             ->toJson();
     }
     public function getFormData()

@@ -117,12 +117,12 @@
 
                                             <div class="info-box-content">
                                                 <span class="info-box-text">Payment Received</span>
-                                                <span
-                                                    class="info-box-number">{{ $contract->contract_unit->total_payment_received }}</span>
+                                                <span class="info-box-number">{{ $mainData['paymentReceived'] }}</span>
                                             </div>
                                             <!-- /.info-box-content -->
                                         </div>
                                         <!-- /.info-box -->
+
                                     </div>
                                     <!-- /.col -->
                                     <div class="col-md-3 col-sm-6 col-12">
@@ -132,8 +132,7 @@
 
                                             <div class="info-box-content">
                                                 <span class="info-box-text">Payment Pending</span>
-                                                <span
-                                                    class="info-box-number">{{ $contract->contract_unit->total_payment_pending }}</span>
+                                                <span class="info-box-number">{{ $mainData['paymentPending'] }}</span>
                                             </div>
                                             <!-- /.info-box-content -->
                                         </div>
