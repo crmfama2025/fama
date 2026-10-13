@@ -363,8 +363,8 @@ class InvestmentContractService
                 : 'نسبة مشاركة الأرباح:');
 
 
-        $profit_ratio_text_en = ($inv->profit_perc >= 50) ? "Investor 50%" : "Investor {$invProfitPerc}% and Company {$companyProfitPerc}%";
-        $profit_ratio_text_ar = ($inv->profit_perc >= 50) ? "المستثمر 50%" : "المستثمر {$invProfitPerc}% و الشركة {$companyProfitPerc}%";
+        $profit_ratio_text_en = ($inv->profit_perc >= 50) ? "Investor {$invProfitPerc}%" : "Investor {$invProfitPerc}% and Company {$companyProfitPerc}%";
+        $profit_ratio_text_ar = ($inv->profit_perc >= 50) ? "المستثمر {$invProfitPerc}%" : "المستثمر {$invProfitPerc}% و الشركة {$companyProfitPerc}%";
         $placesOfIncorporation = getPlacesOfIncorporation();
         $legalType = getLegalTypes();
 
@@ -978,13 +978,6 @@ class InvestmentContractService
                 ? " نسبة حصة المستثمر من الربح مدة" . $investmentData->investment_tenure . " أشهر:"
                 : "نسبة حصة المستثمر من الربح :");
 
-        dd([
-            'profit_perc' => $investmentData->profit_perc,
-            'type' => gettype($investmentData->profit_perc),
-            'InvestorProfitPerc' => ($investmentData->profit_perc >= 50)
-                ? $investmentData->profit_perc
-                : $InvestorProfitPerc,
-        ]);
 
         return [
             'InvestorProfitPerc' => ($investmentData->profit_perc >= 50) ? $investmentData->profit_perc : $InvestorProfitPerc,
