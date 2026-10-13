@@ -542,6 +542,7 @@ class InvestorAgreementService
         }
 
         $oldMaturityDate = Carbon::parse($investment->maturity_date)->endOfDay();
+        $oldRenewalCount = (int) $investment->renewal_count;
 
         $newMaturityDate = $novationDate
             ->copy()
@@ -593,18 +594,22 @@ class InvestorAgreementService
         * The payout months and payout day still come from the previous
         * profit records.
         */
-        $profitResult = $this->refreshFutureProfitRecords(
-            $investment,
-            $novationDate,
-            $newMaturityDate
-        );
 
         $investment->update([
             'maturity_date' => $newMaturityDate->toDateString(),
             'investor_novation_applied_at' =>
             $novationDate->toDateString(),
             'investor_novation_applied_by' => auth()->id(),
+            'renewal_count' => $oldRenewalCount + 1,
         ]);
+
+        $profitResult = $this->refreshFutureProfitRecords(
+            $investment,
+            $novationDate,
+            $newMaturityDate
+        );
+
+
 
         $this->createProfitRenewalLog(
             investment: $investment,
@@ -890,6 +895,7 @@ class InvestorAgreementService
 
                         $existingRecord->update([
                             'profit_release_month' => $profitDate,
+                            'renewal_count' => $investment->renewal_count,
                         ]);
 
                         $updatedCount++;
@@ -902,6 +908,7 @@ class InvestorAgreementService
                         'investor_id' => $investment->investor_id,
                         'released_total_amount' => 0,
                         'has_profit_amount' => 1,
+                        'renewal_count' => $investment->renewal_count,
                     ]);
 
                     $createdCount++;

@@ -436,6 +436,7 @@ class InvestmentRepository
                         'profit_release_month'  => $releaseMonth,
                         'profit_amount'         => $amount,
                         'has_profit_amount'     => $amount > 0 ? 1 : 0,
+                        'renewal_count' => $investment->renewal_count,
                         // 'updated_at'            => now(),
                         // 'released_total_amount' => 0,
                         // 'last_released_at'      => null,
