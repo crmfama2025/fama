@@ -54,6 +54,13 @@
         $contact_person = $agreement->tenant->contact_person;
         //   $total_receivable = $agreement->$contact->
     }
+    if ($agreement->contract->company_id == 3) {
+        $com_name = 'Lock And Key Real Estate';
+        $com_name_right = 'Floors and Doors Real Estate';
+    } elseif ($agreement->contract->company_id == 1) {
+        $com_name = 'Fama Real Estate';
+        $com_name_right = 'Faateh Real Estate';
+    }
 @endphp
 {{-- {{ dd($agreement->agreement_units) }} --}}
 @foreach ($agreement->agreement_units as $unit)
@@ -766,13 +773,13 @@
                         <td style="padding-left:6px;">
                             <div class="ml-1 text-sm ">
                                 <strong>
-                                    Agreed & Accepted By: Fama Real Estate
+                                    Agreed & Accepted By: {{ $com_name }}
                                 </strong>
                             </div>
                         </td>
                         <td style="padding-left:6px;">
                             <div class="ml-1 text-sm ">
-                                <strong>Agreed & Accepted By: Faateh Real Estate</strong>
+                                <strong>Agreed & Accepted By: {{ $com_name_right }}</strong>
                             </div>
                         </td>
                     </tr>
