@@ -320,4 +320,8 @@ class Investment extends Model
     {
         return $this->hasMany(InvestmentRenewalEditLog::class, 'investment_id', 'id');
     }
+    public function addedBy()
+    {
+        return $this->belongsTo(User::class, 'added_by');
+    }
 }
