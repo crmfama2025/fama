@@ -1619,12 +1619,12 @@ function unitDetailCount($payment_details, $type, $stage = null)
             $occupied += $detail->contractUnitDetail->subunit_occupied_count;
             $vacant += $detail->contractUnitDetail->subunit_vacant_count;
             $paymentReceived += $detail->contractUnitDetail->total_payment_received;
-            $payamentPending += $detail->contractUnitDetail->total_payment_pending;
+            $payamentPending += $detail->contractUnitDetail->unit_revenue - $detail->contractUnitDetail->total_payment_received;
         } else {
             $occupied += $detail->subunit_occupied_count;
             $vacant += $detail->subunit_vacant_count;
             $paymentReceived += $detail->total_payment_received;
-            $payamentPending += $detail->total_payment_pending;
+            $payamentPending += $detail->unit_revenue - $detail->total_payment_received;
         }
     }
 

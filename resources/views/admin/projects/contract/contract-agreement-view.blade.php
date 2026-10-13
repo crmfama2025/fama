@@ -119,7 +119,8 @@
                                             </td>
                                             <td>{{ $agreementUnit->contractUnitDetail->subunit_occupied_count + $agreementUnit->contractUnitDetail->subunit_vacant_count }}
                                             </td>
-                                            <td>{{ $agreementUnit->contractUnitDetail->total_payment_pending }}</td>
+                                            <td>{{ $agreementUnit->contractUnitDetail->unit_revenue - $agreementUnit->contractUnitDetail->total_payment_received }}
+                                            </td>
                                             <td>{{ $agreementUnit->contractUnitDetail->total_payment_received }}
                                             </td>
                                         </tr>
