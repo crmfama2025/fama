@@ -130,7 +130,10 @@ class InvestmentService
                 'initial_profit_release_month' => Carbon::parse($data['next_profit_release_date'])->format('M Y'),
                 // 'invested_company_id' => $data['invested_company_id'],
                 'total_invested_amount' => $data['investment_amount'],
-                'investment_term_type' => $termtype
+                'investment_term_type' => $termtype,
+                'annexure_comment'  => $data['annexure_comment'],
+                'annexure_comment_ar'  => $data['annexure_comment_ar'],
+                'common_comment'  => $data['remarks']
             ];
             $this->validate($investmentData);
             // dd($investmentData);
@@ -383,7 +386,10 @@ class InvestmentService
                 'initial_profit_release_month' => Carbon::parse($data['next_profit_release_date'])->format('M Y'),
                 // 'invested_company_id' => $data['invested_company_id'],
                 'total_invested_amount' => $data['investment_amount'],
-                'investment_term_type' => $termtype
+                'investment_term_type' => $termtype,
+                'annexure_comment'  => $data['annexure_comment'],
+                'annexure_comment_ar'  => $data['annexure_comment_ar'],
+                'common_comment'  => $data['remarks'],
             ];
             // dd($investmentData);
 

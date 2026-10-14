@@ -311,6 +311,60 @@
 
  </div>
 
+    <div class="card card-outline card-info">
+        <div class="card-header">
+            <h3 class="card-title text-teal font-weight-bold">
+                <i class="fas fa-comments mr-2"></i> Comments
+            </h3>
+        </div>
+
+        <div class="card-body">
+            <div class="row">
+
+                {{-- Annexure Comment --}}
+                <div class="col-md-4 mb-3">
+                    <h6 class="font-weight-bold">
+                        Annexure Comment
+                    </h6>
+
+                    <div class="border rounded p-3 bg-light h-100"
+                        style="overflow-wrap: anywhere;">
+                        {{ $investment->annexure_comment ?: 'No comment available.' }}
+                    </div>
+                </div>
+
+                {{-- Annexure Comment Arabic --}}
+                <div class="col-md-4 mb-3">
+                    <h6 class="font-weight-bold">
+                        Annexure Comment (Arabic)
+                    </h6>
+
+                    <div class="border rounded p-3 bg-light h-100"
+                        dir="rtl"
+                        lang="ar"
+                        style=" overflow-wrap: anywhere; text-align: right;">
+                        {{ $investment->annexure_comment_ar ?: 'لا توجد تعليقات.' }}
+                    </div>
+                </div>
+
+                {{-- Remarks --}}
+                <div class="col-md-4 mb-3">
+                    <h6 class="font-weight-bold">
+                        Remarks
+                    </h6>
+
+                    <div class="border rounded p-3 bg-light h-100"
+                        style="overflow-wrap: anywhere;">
+                        {{ $investment->common_comment ?: 'No remarks available.' }}
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+
  <div class="card card-outline card-info">
 
 
