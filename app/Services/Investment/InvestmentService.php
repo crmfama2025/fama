@@ -1075,12 +1075,12 @@ class InvestmentService
 
             $userId = auth()->id();
             $balance_amount = $balanceAmount - $data['received_amount'];
-
+            $receivedDate = parseDate($data['received_date']);
             $insertData = [
                 'investment_id'  => $investment->id,
                 'investor_id'    => $investment->investor_id,
                 'received_amount' => $data['received_amount'],
-                'received_date'  => parseDate($data['received_date']),
+                'received_date'  => $receivedDate,
                 'status'         => 1,
                 'added_by'       => $userId,
                 'is_initial_payment' => 0
@@ -1093,6 +1093,7 @@ class InvestmentService
                 $newTotalReceived
             );
             $this->investmentRepository->updateById($investment->id, [
+                'investment_date'       => $receivedDate,
                 'total_received_amount' => $newTotalReceived,
                 'has_fully_received' => $has_fully_received,
                 'balance_amount' => $balance_amount,
@@ -1100,6 +1101,58 @@ class InvestmentService
             ]);
         });
     }
+    // public function submitPending($data)
+    // {
+    //     DB::transaction(function () use ($data) {
+
+    //         $investment = $this->investmentRepository->find(
+    //             $data['investment_id']
+    //         );
+
+    //         if (!$investment) {
+    //             throw new \Exception("Investment not found");
+    //         }
+
+    //         $totalReceived = $this->investmentRepository
+    //             ->getTotalReceivedAmount($investment);
+
+    //         $balanceAmount = $investment->investment_amount - $totalReceived;
+
+    //         $userId = auth()->id();
+
+    //         $balance_amount = $balanceAmount - $data['received_amount'];
+
+    //         // Parse received date once
+    //         $receivedDate = parseDate($data['received_date']);
+
+    //         $insertData = [
+    //             'investment_id'      => $investment->id,
+    //             'investor_id'        => $investment->investor_id,
+    //             'received_amount'    => $data['received_amount'],
+    //             'received_date'      => $receivedDate,
+    //             'status'             => 1,
+    //             'added_by'           => $userId,
+    //             'is_initial_payment' => 0,
+    //         ];
+
+    //         $this->investmentReceivedPaymentService->create($insertData);
+
+    //         $newTotalReceived = $totalReceived + $data['received_amount'];
+
+    //         $has_fully_received = investmentStatus(
+    //             $investment->investment_amount,
+    //             $newTotalReceived
+    //         );
+
+    //         // Update investment details, including investment_date
+    //         $this->investmentRepository->updateById($investment->id, [
+    //             'investment_date'       => $receivedDate,
+    //             'total_received_amount' => $newTotalReceived,
+    //             'has_fully_received'    => $has_fully_received,
+    //             'balance_amount'        => $balance_amount,
+    //         ]);
+    //     });
+    // }
     public function getFormDataEdit()
     {
         $investors = $this->investorRepository->getInvestorsWithDetails();
