@@ -112,12 +112,15 @@ class PayableClearingService
             ->addColumn('cheque_no', fn($row) => $row->cheque_no ?? '-')
             ->addColumn('has_returned', fn($row) => $row->has_returned ?? '-')
             ->addColumn('composition', fn($row) => getComposition($row->contract_id, $row->id) ?? '-')
+            // ->addColumn('payment_amount', function ($row) {
+
+            //     $paid = totalPaidPayable($row->payables);
+
+
+            //     return toNumeric($row->payment_amount) - $paid;
+            // })
             ->addColumn('payment_amount', function ($row) {
-
-                $paid = totalPaidPayable($row->payables);
-
-
-                return toNumeric($row->payment_amount) - $paid;
+                return toNumeric($row->payment_amount) - (float) ($row->paid_total ?? 0);
             })
             ->addColumn('action', function ($row) {
                 $action = '';
@@ -125,7 +128,7 @@ class PayableClearingService
 
                 $action .= '<a class="btn btn-success  btn-sm" title="Clear cheque"
                                 data-toggle="modal" data-target="#modal-clear-payable"
-                                data-clear-type="single" data-det-id="' . $row->id . '" data-amount="' . (toNumeric($row->payment_amount) - totalPaidPayable($row->payables)) . '">Clear</a>';
+                                data-clear-type="single" data-det-id="' . $row->id . '" data-amount="' . (toNumeric($row->payment_amount) - (float) ($row->paid_total ?? 0)) . '">Clear</a>';
 
 
                 return $action ?: '-';
@@ -190,13 +193,7 @@ class PayableClearingService
                 );
             })
             ->orderColumn('payment_amount', function ($q, $order) {
-                $q->orderByRaw(
-                    "(contract_payment_details.payment_amount - COALESCE((
-                        SELECT SUM(pc.paid_amount)
-                        FROM contract_payable_clears pc
-                        WHERE pc.contract_payment_detail_id = contract_payment_details.id
-                        AND pc.returned_status = 0), 0)) $order"
-                );
+                $q->orderByRaw("(contract_payment_details.payment_amount - COALESCE(paid_total, 0)) $order");
             })
 
             ->rawColumns(['checkbox', 'project_number', 'action', 'status'])

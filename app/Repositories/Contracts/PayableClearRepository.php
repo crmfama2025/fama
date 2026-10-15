@@ -70,6 +70,10 @@ class PayableClearRepository
         // dd($permittedCompanyIds);
 
         $query = ContractPaymentDetail::query()
+            ->withSum(
+                ['payables as paid_total' => fn($q) => $q->where('returned_status', 0)],
+                'paid_amount'
+            )
             ->with([
                 'contract',
                 'contract.vendor',
