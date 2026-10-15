@@ -48,7 +48,7 @@
                                     <!-- form start -->
                                     <form class="form-horizontal">
                                         <div class="form-group row m-4">
-                                            <div class="col-md-3">
+                                            <div class="col-md-2">
                                                 <label for="inputPassword3">Month</label>
                                                 <select class="form-control select2" name="month" id="month">
                                                     <option value="">Select Month</option>
@@ -77,6 +77,21 @@
                                                         </option>
                                                     @endforeach
 
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label for="company_id">Invested Company</label>
+
+                                                <select class="form-control select2"
+                                                        name="company_id"
+                                                        id="company_id">
+                                                    <option value="">Select Company</option>
+
+                                                    @foreach ($investedCompanies as $company)
+                                                        <option value="{{ $company->id }}">
+                                                            {{ $company->company_name }}
+                                                        </option>
+                                                    @endforeach
                                                 </select>
                                             </div>
 
@@ -469,6 +484,7 @@
                         d.month = $('#month').val();
                         d.batch_id = $('#batch_id').val();
                         d.investor_id = $('#investor_id').val();
+                        d.company_id = $('#company_id').val();
                     }
                 },
                 columns: [{
@@ -571,6 +587,7 @@
                         params.month = $('#month').val();
                         params.batch_id = $('#batch_id').val();
                         params.investor_id = $('#investor_id').val();
+                        params.company_id = $('#company_id').val();
                         params.search = dt.search();
 
                         // build query string
