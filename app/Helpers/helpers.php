@@ -1519,7 +1519,6 @@ function getUserPermittedCompanyIds($userId, $permissionNames)
 }
 
 
-// seeder helper functions
 function getModuleArray()
 {
     return [
@@ -1587,7 +1586,8 @@ function getSubModuleArray()
         'payout_report',
         'investment_report',
         'assign',
-        'convert'
+        'convert',
+        'location_pricing'
     ];
 }
 

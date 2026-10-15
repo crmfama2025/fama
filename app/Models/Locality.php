@@ -59,6 +59,7 @@ class Locality extends Model
     {
         return $this->belongsTo(Area::class);
     }
+    
 
     public function company()
     {
@@ -81,5 +82,9 @@ class Locality extends Model
     public function updatedBy()
     {
         return $this->belongsTo(User::class, 'updated_by');
+    }
+    public function pricings()
+    {
+        return $this->hasMany(LocalityPricing::class, 'locality_id');
     }
 }

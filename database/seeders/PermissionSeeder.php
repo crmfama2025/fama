@@ -84,6 +84,9 @@ class PermissionSeeder extends Seeder
                     $subModule[] = 'assign';
                     $subModule[] = 'convert';
                 }
+                if (in_array($module, ['locality'])) {
+                    $subModule[] = 'location_pricing';
+                }
             }
 
             foreach ($subModule as $action) {
