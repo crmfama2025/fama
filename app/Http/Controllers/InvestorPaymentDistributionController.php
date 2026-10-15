@@ -8,6 +8,7 @@ use App\Models\InvestorPaymentDistribution;
 use App\Models\PayoutBatch;
 use App\Services\BankService;
 use App\Services\CompanyService;
+use App\Models\Company;
 use App\Services\Investment\InvestorPaymentDistributionService;
 use App\Services\Investment\InvestorService;
 use App\Services\PaymentModeService;
@@ -31,11 +32,15 @@ class InvestorPaymentDistributionController extends Controller
 
         $banks = $this->bankService->getAll();
         $companies = $this->companyService->getAll('finance', 'payout');
+        $investedCompanies = Company::whereHas('investments')
+                    ->select('id', 'company_name')
+                    ->orderBy('company_name')
+                    ->get();
         $paymentmodes = $this->paymentModeService->getAll()->where('id', '!=', 4);
         $payoutbatches = PayoutBatch::where('status', 1)->get();
         $investors = $this->investorService->getAllActive();
 
-        return view("admin.investment.investor-payment-distribution", compact("title", "paymentmodes", "banks", "payoutbatches", "investors", "companies"));
+        return view("admin.investment.investor-payment-distribution", compact("title", "paymentmodes", "banks", "payoutbatches", "investors", "companies", "investedCompanies"));
     }
 
     public function getPayouts(Request $request)
@@ -43,12 +48,13 @@ class InvestorPaymentDistributionController extends Controller
 
         if ($request->ajax()) {
             $filterData = [];
-            if ($request->month || $request->batch_id || $request->investor_id || $request->investment_id) {
+            if ($request->month || $request->batch_id || $request->investor_id || $request->investment_id || $request->company_id) {
                 $filterData = array(
                     'month' => $request->month,
                     'batch_id' => $request->batch_id,
                     'investor_id' => $request->investor_id,
-                    'investment_id' => $request->investment_id
+                    'investment_id' => $request->investment_id,
+                    'company_id' => $request->company_id
                 );
             }
 

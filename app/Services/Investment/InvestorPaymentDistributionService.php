@@ -58,7 +58,11 @@ class InvestorPaymentDistributionService
     public function getPendingList(array $filters = [])
     {
         $query = $this->investorDistRepo->getPendings($filters);
-
+        if (!empty($filters['filter']['company_id'])) {
+            $query->whereHas('investment', function ($q) use ($filters) {
+                $q->where('company_id', $filters['filter']['company_id']);
+            });
+        }
         $columns = [
             ['data' => 'checkbox', 'name' => 'checkbox'],
             ['data' => 'investor_name', 'name' => 'investor.investor_name'],
@@ -88,15 +92,15 @@ class InvestorPaymentDistributionService
                 if (!$investor) return '-';
 
                 return "
-                <a href='" . route('investor.show', $investor->id) . "' target='_blank'>
-            <strong class='text-capitalize'>{$investor->investor_name}</strong>
-            <p class='mb-0 text-primary'>{$investor->investor_email}</p>
-            <p class='text-muted small'>
-                <i class='fa fa-phone-alt text-danger'></i>
-                <span class='font-weight-bold'>{$investor->investor_mobile}</span>
-            </p>
-            </a>
-        ";
+                            <a href='" . route('investor.show', $investor->id) . "' target='_blank'>
+                        <strong class='text-capitalize'>{$investor->investor_name}</strong>
+                        <p class='mb-0 text-primary'>{$investor->investor_email}</p>
+                        <p class='text-muted small'>
+                            <i class='fa fa-phone-alt text-danger'></i>
+                            <span class='font-weight-bold'>{$investor->investor_mobile}</span>
+                        </p>
+                        </a>
+                     ";
             })
             ->addColumn('company_name', fn($row) => ($row->investment->company->company_name) ? "<a href='" . route('company.show', $row->investment->company->id) . "' target='_blank'>" . $row->investment->company->company_name . "</a>" : '-')
 
@@ -165,6 +169,7 @@ class InvestorPaymentDistributionService
             ->with(['columns' => $columns])
             ->toJson();
     }
+    
 
     public function savePayout(array $data)
     {

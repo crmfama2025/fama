@@ -90,6 +90,8 @@ class InvestmentController extends Controller
         }
     }
 
+
+
     public function edit(Request $request, $id)
     {
         $mode = $request->routeIs('investments.renew') ? 'renew' : 'edit';
