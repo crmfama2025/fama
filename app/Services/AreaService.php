@@ -19,6 +19,7 @@ class AreaService
         protected CompanyService $companyService,
     ) {}
 
+    
 
     public function getAll()
     {
