@@ -53,12 +53,101 @@ class InvestorPaymentDistributionRepository
         return  $detId;
     }
 
-    public function getPendings(array $filters = []): Builder
-    {
-        $nextWeek = Carbon::today()
-            ->addDays(7)
-            ->endOfDay();
+    // public function getPendings(array $filters = []): Builder
+    // {
+    //     $nextWeek = Carbon::today()
+    //         ->addDays(7)
+    //         ->endOfDay();
 
+    //     $permittedCompanyIds = getUserPermittedCompanyIds(
+    //         auth()->id(),
+    //         'finance.payout'
+    //     );
+
+    //     $filter = $filters['filter'] ?? [];
+
+    //     $query = InvestorPayout::query()
+    //         ->with([
+    //             'investor:id,investor_code,investor_name,investor_mobile,payment_mode_id',
+
+    //             'investment:id,investment_code,next_profit_release_date,next_referral_commission_release_date,terminate_status,termination_date,company_id,payout_batch_id',
+    //         ])
+    //         ->whereColumn(
+    //             'investor_payouts.payout_amount',
+    //             '>',
+    //             'investor_payouts.amount_paid'
+    //         )
+    //         ->where('investor_payouts.is_processed', 0)
+
+      
+    //         ->whereHas('investment', function ($query) use (
+    //             $permittedCompanyIds
+    //         ) {
+    //             $query->whereIn(
+    //                 'company_id',
+    //                 $permittedCompanyIds
+    //             );
+    //         });
+
+    //     if (empty($filter)) {
+    //         $query->where(function ($query) use ($nextWeek) {
+    //             /*
+    //          * Each payout is checked against its own release date.
+    //          * This keeps older unpaid payouts visible even when the
+    //          * investment's next release date has advanced.
+    //          */
+    //             $query
+    //                 ->whereNotNull(
+    //                     'investor_payouts.payout_release_month'
+    //                 )
+    //                 ->whereDate(
+    //                     'investor_payouts.payout_release_month',
+    //                     '<=',
+    //                     $nextWeek->toDateString()
+    //                 );
+    //         });
+    //     }
+
+    //     if (!empty($filter['month'])) {
+    //         $query->whereMonth(
+    //             'investor_payouts.original_profit_date',
+    //             (int) $filter['month']
+    //         );
+    //     }
+
+    //     if (!empty($filter['batch_id'])) {
+    //         $query->whereHas(
+    //             'investment',
+    //             function ($query) use ($filter) {
+    //                 $query->where(
+    //                     'payout_batch_id',
+    //                     $filter['batch_id']
+    //                 );
+    //             }
+    //         );
+    //     }
+
+    //     if (!empty($filter['investor_id'])) {
+    //         $query->where(
+    //             'investor_payouts.investor_id',
+    //             $filter['investor_id']
+    //         );
+    //     }
+
+    //     if (!empty($filter['investment_id'])) {
+    //         $query->where(
+    //             'investor_payouts.investment_id',
+    //             $filter['investment_id']
+    //         );
+    //     }
+
+    //     return $query->orderBy(
+    //         'investor_payouts.payout_release_month'
+    //     );
+    // }
+    
+    public function getPendings(array $filters = []): \Illuminate\Database\Eloquent\Builder
+    {
         $permittedCompanyIds = getUserPermittedCompanyIds(
             auth()->id(),
             'finance.payout'
@@ -68,67 +157,44 @@ class InvestorPaymentDistributionRepository
 
         $query = InvestorPayout::query()
             ->with([
-                'investor:id,investor_code,investor_name,investor_mobile,payment_mode_id',
+                'investor:id,investor_code,investor_name,investor_email,investor_mobile,payment_mode_id',
 
-                'investment:id,investment_code,next_profit_release_date,next_referral_commission_release_date,terminate_status,termination_date,company_id,payout_batch_id',
+                'investor.paymentMode',
+
+                'investor.primaryBank',
+
+                'investment:id,investment_code,company_id,payout_batch_id,terminate_status,next_profit_release_date,next_referral_commission_release_date,termination_date',
+
+                'investment.company:id,company_name',
             ])
+
             ->whereColumn(
                 'investor_payouts.payout_amount',
                 '>',
                 'investor_payouts.amount_paid'
             )
+
             ->where('investor_payouts.is_processed', 0)
 
-            /*
-         * Use the investment relationship only for company access.
-         * Do not filter all payout rows using the investment's latest
-         * next-profit date.
-         */
-            ->whereHas('investment', function ($query) use (
-                $permittedCompanyIds
-            ) {
-                $query->whereIn(
-                    'company_id',
-                    $permittedCompanyIds
-                );
+            ->whereHas('investment', function ($query) use ($permittedCompanyIds) {
+                $query->whereIn('company_id', $permittedCompanyIds);
             });
-
-        if (empty($filter)) {
-            $query->where(function ($query) use ($nextWeek) {
-                /*
-             * Each payout is checked against its own release date.
-             * This keeps older unpaid payouts visible even when the
-             * investment's next release date has advanced.
-             */
-                $query
-                    ->whereNotNull(
-                        'investor_payouts.payout_release_month'
-                    )
-                    ->whereDate(
-                        'investor_payouts.payout_release_month',
-                        '<=',
-                        $nextWeek->toDateString()
-                    );
-            });
-        }
 
         if (!empty($filter['month'])) {
-            $query->whereMonth(
-                'investor_payouts.payout_release_month',
-                (int) $filter['month']
-            );
+            $month = (int) $filter['month'];
+
+            if ($month >= 1 && $month <= 12) {
+                $query->whereMonth(
+                    'investor_payouts.original_profit_date',
+                    $month
+                );
+            }
         }
 
         if (!empty($filter['batch_id'])) {
-            $query->whereHas(
-                'investment',
-                function ($query) use ($filter) {
-                    $query->where(
-                        'payout_batch_id',
-                        $filter['batch_id']
-                    );
-                }
-            );
+            $query->whereHas('investment', function ($q) use ($filter) {
+                $q->where('payout_batch_id', $filter['batch_id']);
+            });
         }
 
         if (!empty($filter['investor_id'])) {
@@ -145,10 +211,16 @@ class InvestorPaymentDistributionRepository
             );
         }
 
-        return $query->orderBy(
-            'investor_payouts.payout_release_month'
-        );
+        if (!empty($filter['company_id'])) {
+            $query->whereHas('investment', function ($q) use ($filter) {
+                $q->where('company_id', $filter['company_id']);
+            });
+        }
+
+      
+        return $query;
     }
+
 
     public function getDistributedList(array $filters = []): Builder
     {

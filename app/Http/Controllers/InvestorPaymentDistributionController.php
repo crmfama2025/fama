@@ -43,30 +43,55 @@ class InvestorPaymentDistributionController extends Controller
         return view("admin.investment.investor-payment-distribution", compact("title", "paymentmodes", "banks", "payoutbatches", "investors", "companies", "investedCompanies"));
     }
 
+    // public function getPayouts(Request $request)
+    // {
+
+    //     if ($request->ajax()) {
+    //         $filterData = [];
+    //         if ($request->month || $request->batch_id || $request->investor_id || $request->investment_id || $request->company_id) {
+    //             $filterData = array(
+    //                 'month' => $request->month,
+    //                 'batch_id' => $request->batch_id,
+    //                 'investor_id' => $request->investor_id,
+    //                 'investment_id' => $request->investment_id,
+    //                 'company_id' => $request->company_id
+    //             );
+    //         }
+
+
+    //         $filters = [
+    //             'search' => $request->search['value'] ?? null,
+    //             'filter' => $filterData,
+    //         ];
+
+    //         return $this->investorDistrService->getPendingList($filters);
+    //     }
+    // }
+    
     public function getPayouts(Request $request)
     {
-
-        if ($request->ajax()) {
-            $filterData = [];
-            if ($request->month || $request->batch_id || $request->investor_id || $request->investment_id || $request->company_id) {
-                $filterData = array(
-                    'month' => $request->month,
-                    'batch_id' => $request->batch_id,
-                    'investor_id' => $request->investor_id,
-                    'investment_id' => $request->investment_id,
-                    'company_id' => $request->company_id
-                );
-            }
-
-
-            $filters = [
-                'search' => $request->search['value'] ?? null,
-                'filter' => $filterData,
-            ];
-
-            return $this->investorDistrService->getPendingList($filters);
+        if (!$request->ajax()) {
+            abort(404);
         }
+
+        $filterData = array_filter([
+            'month'        => $request->input('month'),
+            'batch_id'     => $request->input('batch_id'),
+            'investor_id'  => $request->input('investor_id'),
+            'investment_id' => $request->input('investment_id'),
+            'company_id'   => $request->input('company_id'),
+        ], function ($value) {
+            return $value !== null && $value !== '';
+        });
+
+        $filters = [
+            'search' => $request->input('search.value'),
+            'filter' => $filterData,
+        ];
+
+        return $this->investorDistrService->getPendingList($filters);
     }
+
 
     public function savePayouts(Request $request)
     {
@@ -94,7 +119,6 @@ class InvestorPaymentDistributionController extends Controller
 
     public function getDistributedList(Request $request)
     {
-        // dd($request->all());
 
         if ($request->ajax()) {
             $filterData = [];
@@ -116,23 +140,45 @@ class InvestorPaymentDistributionController extends Controller
         }
     }
 
+    // public function exportPayoutPending()
+    // {
+    //     $filters = [];
+
+    //     if (request('month') || request('batch_id') || request('investor_id') || request('investment_id')) {
+    //         $filters = array(
+    //             'month' => request('month'),
+    //             'batch_id' => request('batch_id'),
+    //             'investor_id' => request('investor_id'),
+    //             'investment_id' => request('investment_id')
+    //         );
+    //     }
+
+    //     $search = request('search') ?? null;
+
+    //     return Excel::download(new DistributePendingExport($search, $filters), 'payout-pending-report.xlsx');
+    // }
+    
     public function exportPayoutPending()
     {
-        $filters = [];
+        $filters = array_filter([
+            'month'         => request('month'),
+            'batch_id'      => request('batch_id'),
+            'investor_id'   => request('investor_id'),
+            'investment_id' => request('investment_id'),
+            'company_id'    => request('company_id'),
+        ], function ($value) {
+            return $value !== null && $value !== '';
+        });
 
-        if (request('month') || request('batch_id') || request('investor_id') || request('investment_id')) {
-            $filters = array(
-                'month' => request('month'),
-                'batch_id' => request('batch_id'),
-                'investor_id' => request('investor_id'),
-                'investment_id' => request('investment_id')
-            );
-        }
+        $searchInput = request('search');
 
-        $search = request('search') ?? null;
+        $search = is_array($searchInput)
+            ? ($searchInput['value'] ?? '')
+            : $searchInput;
 
-        return Excel::download(new DistributePendingExport($search, $filters), 'payout-pending-report.xlsx');
+        return Excel::download(new DistributePendingExport($search, $filters),'payout-pending-report.xlsx');
     }
+
 
     public function exportDistribute()
     {

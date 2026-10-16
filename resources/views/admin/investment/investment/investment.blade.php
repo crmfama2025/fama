@@ -40,6 +40,63 @@
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header">
+                               
+                                <form class="form-horizontal">
+                                    <div class="form-group row m-4">
+                                        <div class="col-md-3">
+                                            <label for="investor_id">Investor</label>
+
+                                            <select class="form-control select2"
+                                                    name="investor_id"
+                                                    id="investor_id">
+                                                <option value="">Select Investor</option>
+
+                                                @foreach ($investors as $investor)
+                                                    <option value="{{ $investor->id }}">
+                                                        {{ $investor->investor_name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+                                        {{-- Company Name --}}
+                                        <div class="col-md-3">
+                                            <label for="company_id">Company Name</label>
+
+                                            <select class="form-control select2"
+                                                    name="company_id"
+                                                    id="company_id">
+                                                <option value="">Select Company</option>
+
+                                                @foreach ($companies as $company)
+                                                    <option value="{{ $company->id }}">
+                                                        {{ $company->company_name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+                                        {{-- Investment Term Type --}}
+                                        <div class="col-md-3">
+                                            <label for="investment_term_type">Term Type</label>
+
+                                            <select class="form-control select2"
+                                                    name="investment_term_type"
+                                                    id="investment_term_type">
+                                                <option value="">Select Term Types</option>
+                                                <option value="1">Long Term</option>
+                                                <option value="2">Short Term</option>
+                                            </select>
+                                        </div>
+
+
+                                        <div class="col-md-1 float-right">
+                                            <button type="button" class="btn btn-info searchbtnchq">Search</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="card-header">
                                 <!-- <h3 class="card-title">Property Details</h3> -->
                                 @if (auth()->user()->hasAnyPermission(['investment.add']))
                                     <span class="float-right">
@@ -394,8 +451,10 @@
                 // pageLength: 5,
                 ajax: {
                     url: "{{ route('investment.list') }}",
-                    data: function(d) {
-                        // You can add filters here if needed
+                    data: function (d) {
+                        d.investor_id = $('#investor_id').val();
+                        d.company_id = $('#company_id').val();
+                        d.investment_term_type = $('#investment_term_type').val();
                     },
                 },
                 columns: [{
@@ -457,7 +516,9 @@
                     },
                     {
                         data: 'invested_company_name',
-                        name: 'investedCompany.company_name'
+                        name: 'invested_company_name',
+                        orderable: true,
+                        searchable: true
                     },
                     {
                         data: 'investor_name',
@@ -523,10 +584,18 @@
                     extend: 'excelHtml5',
                     text: 'Export Excel',
                     title: 'Investments Data',
-                    action: function(e, dt, node, config) {
-                        let searchValue = dt.search();
-                        let url = "{{ route('investment.export') }}" + "?search=" +
-                            encodeURIComponent(searchValue);
+
+                    action: function (e, dt, node, config) {
+                        const params = {
+                            search: dt.search(),
+                            investor_id: $('#investor_id').val(),
+                            company_id: $('#company_id').val(),
+                            investment_term_type: $('#investment_term_type').val()
+                        };
+
+                        const url = "{{ route('investment.export') }}"
+                            + '?' + $.param(params);
+
                         window.location.href = url;
                     }
                 }]
@@ -543,6 +612,12 @@
         });
         $('#terminationdate').datetimepicker({
             format: 'DD-MM-YYYY'
+        });
+       $('.searchbtnchq').on('click', function (e) {
+            e.preventDefault();
+
+            // Reload DataTable with the selected filters
+            table.ajax.reload();
         });
     </script>
     <script>
@@ -794,16 +869,7 @@
                 $('.pending_div')
                     .removeClass('d-none')
             }
-            // else if ($status == 0) {
 
-            //     // alert("test");
-            //     $('#profit-div')
-            //         .addClass('d-none')
-            //         .html('');
-            //     $('.pending_div')
-            //         .addClass('d-none')
-            // }
-            // }
 
             $('#shortTermTerminationModal').modal('show');
         });

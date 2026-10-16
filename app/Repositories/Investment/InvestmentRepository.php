@@ -82,55 +82,154 @@ class InvestmentRepository
         return Investment::where('company_id', $company_id)->get();
     }
 
+    // public function getQuery(array $filters = []): Builder
+    // {
+    //     $permittedCompanyIds = getUserPermittedCompanyIds(auth()->user()->id, 'investment');
+
+    //     $query = Investment::with('investor', 'payoutBatch', 'profitInterval', 'company', 'investmentReferral', 'companyAllocations.company', 'investedCompany');
+
+    //     $query->whereHas('company', function ($q) use ($permittedCompanyIds) {
+    //         $q->whereIn('company_id', $permittedCompanyIds);
+    //     });
+
+    //     if (!empty($filters['investor_id'])) {
+    //         $query->where('investor_id', $filters['investor_id']);
+    //     }
+    //     $result = $query->get();
+       
+    //     if (!empty($filters['search'])) {
+    //         $query->orWhere('investment_amount', 'like', '%' . $filters['search'] . '%')
+    //             ->orWhere('investment_date', 'like', '%' . $filters['search'] . '%')
+    //             ->orWhere('investment_code', 'like', '%' . $filters['search'] . '%')
+    //             ->orWhere('maturity_date', 'like', '%' . $filters['search'] . '%')
+    //             ->orWhere('profit_perc', 'like', '%' . $filters['search'] . '%')
+    //             ->orWhere('received_amount', 'like', '%' . $filters['search'] . '%')
+    //             ->orWhere('profit_release_date', 'like', '%' . $filters['search'] . '%')
+    //             ->orWhere('nominee_name', 'like', '%' . $filters['search'] . '%')
+    //             ->orWhere('nominee_email', 'like', '%' . $filters['search'] . '%')
+    //             ->orWhere('nominee_phone', 'like', '%' . $filters['search'] . '%')
+    //             ->orWhereHas('investor', function ($q) use ($filters) {
+    //                 $q->where('investor_name', 'like', '%' . $filters['search'] . '%');
+    //             })
+    //             ->orWhereHas('profitInterval', function ($q) use ($filters) {
+    //                 $q->where('profit_interval_name', 'like', '%' . $filters['search'] . '%');
+    //             })
+    //             ->orWhereHas('payoutBatch', function ($q) use ($filters) {
+    //                 $q->where('batch_name', 'like', '%' . $filters['search'] . '%');
+    //             })
+    //             ->orWhereHas('company', function ($q) use ($filters) {
+    //                 $q->where('company_name', 'like', '%' . $filters['search'] . '%');
+    //             })->orWhereHas('investmentReferral', function ($q) use ($filters) {
+    //                 $q->where('referral_commission_amount', 'like', '%' . $filters['search'] . '%');
+    //                 $q->whereHas('referrer', function ($qr) use ($filters) {
+    //                     $qr->where('investor_name', 'like', '%' . $filters['search'] . '%');
+    //                 });
+    //             })
+    //             ->orWhereRaw("CAST(investments.id AS CHAR) LIKE ?", ['%' . $filters['search'] . '%']);
+    //     }
+
+    //     // if (!empty($filters['company_id'])) {
+    //     //     $query->Where('company_id', $filters['company_id']);
+    //     // }
+
+    //     return $query;
+    // }
     public function getQuery(array $filters = []): Builder
     {
-        $permittedCompanyIds = getUserPermittedCompanyIds(auth()->user()->id, 'investment');
+        $permittedCompanyIds = getUserPermittedCompanyIds(
+            auth()->user()->id,
+            'investment'
+        );
 
-        $query = Investment::with('investor', 'payoutBatch', 'profitInterval', 'company', 'investmentReferral', 'companyAllocations.company', 'investedCompany');
+        $query = Investment::with([
+            'investor',
+            'payoutBatch',
+            'profitInterval',
+            'company',
+            'investmentReferral',
+            'companyAllocations.company',
+            'investedCompany',
+        ]);
 
+        // Preserve the existing company permission restriction
         $query->whereHas('company', function ($q) use ($permittedCompanyIds) {
             $q->whereIn('company_id', $permittedCompanyIds);
         });
 
+        // Filter by Investor
         if (!empty($filters['investor_id'])) {
             $query->where('investor_id', $filters['investor_id']);
         }
-        $result = $query->get();
-        // dd($result);
-        if (!empty($filters['search'])) {
-            $query->orWhere('investment_amount', 'like', '%' . $filters['search'] . '%')
-                ->orWhere('investment_date', 'like', '%' . $filters['search'] . '%')
-                ->orWhere('investment_code', 'like', '%' . $filters['search'] . '%')
-                ->orWhere('maturity_date', 'like', '%' . $filters['search'] . '%')
-                ->orWhere('profit_perc', 'like', '%' . $filters['search'] . '%')
-                ->orWhere('received_amount', 'like', '%' . $filters['search'] . '%')
-                ->orWhere('profit_release_date', 'like', '%' . $filters['search'] . '%')
-                ->orWhere('nominee_name', 'like', '%' . $filters['search'] . '%')
-                ->orWhere('nominee_email', 'like', '%' . $filters['search'] . '%')
-                ->orWhere('nominee_phone', 'like', '%' . $filters['search'] . '%')
-                ->orWhereHas('investor', function ($q) use ($filters) {
-                    $q->where('investor_name', 'like', '%' . $filters['search'] . '%');
-                })
-                ->orWhereHas('profitInterval', function ($q) use ($filters) {
-                    $q->where('profit_interval_name', 'like', '%' . $filters['search'] . '%');
-                })
-                ->orWhereHas('payoutBatch', function ($q) use ($filters) {
-                    $q->where('batch_name', 'like', '%' . $filters['search'] . '%');
-                })
-                ->orWhereHas('company', function ($q) use ($filters) {
-                    $q->where('company_name', 'like', '%' . $filters['search'] . '%');
-                })->orWhereHas('investmentReferral', function ($q) use ($filters) {
-                    $q->where('referral_commission_amount', 'like', '%' . $filters['search'] . '%');
-                    $q->whereHas('referrer', function ($qr) use ($filters) {
-                        $qr->where('investor_name', 'like', '%' . $filters['search'] . '%');
-                    });
-                })
-                ->orWhereRaw("CAST(investments.id AS CHAR) LIKE ?", ['%' . $filters['search'] . '%']);
+
+        // Filter by Company Name
+        if (!empty($filters['company_id'])) {
+            $query->where('company_id', $filters['company_id']);
         }
 
-        // if (!empty($filters['company_id'])) {
-        //     $query->Where('company_id', $filters['company_id']);
-        // }
+        // Filter by Term Type: 1 = Long Term, 2 = Short Term
+        if (
+            isset($filters['investment_term_type']) &&
+            $filters['investment_term_type'] !== ''
+        ) {
+            $query->where(
+                'investment_term_type',
+                (int) $filters['investment_term_type']
+            );
+        }
+
+        // DataTables global search
+        if (!empty($filters['search'])) {
+            $search = trim($filters['search']);
+            $like = '%' . $search . '%';
+
+            $query->where(function ($q) use ($like) {
+                $q->where('investment_amount', 'like', $like)
+                    ->orWhere('investment_date', 'like', $like)
+                    ->orWhere('investment_code', 'like', $like)
+                    ->orWhere('maturity_date', 'like', $like)
+                    ->orWhere('profit_perc', 'like', $like)
+                    ->orWhere('received_amount', 'like', $like)
+                    ->orWhere('total_received_amount', 'like', $like)
+                    ->orWhere('profit_release_date', 'like', $like)
+                    ->orWhere('nominee_name', 'like', $like)
+                    ->orWhere('nominee_email', 'like', $like)
+                    ->orWhere('nominee_phone', 'like', $like)
+
+                    ->orWhereHas('investor', function ($investorQuery) use ($like) {
+                        $investorQuery->where('investor_name', 'like', $like)
+                            ->orWhere('investor_code', 'like', $like);
+                    })
+
+                    ->orWhereHas('profitInterval', function ($intervalQuery) use ($like) {
+                        $intervalQuery->where('profit_interval_name', 'like', $like);
+                    })
+
+                    ->orWhereHas('payoutBatch', function ($batchQuery) use ($like) {
+                        $batchQuery->where('batch_name', 'like', $like);
+                    })
+
+                    ->orWhereHas('company', function ($companyQuery) use ($like) {
+                        $companyQuery->where('company_name', 'like', $like);
+                    })
+
+                    ->orWhereHas('companyAllocations.company', function ($companyQuery) use ($like) {
+                        $companyQuery->where('company_name', 'like', $like);
+                    })
+
+                    ->orWhereHas('investmentReferral', function ($referralQuery) use ($like) {
+                        $referralQuery
+                            ->where('referral_commission_amount', 'like', $like)
+                            ->orWhereHas('referrer', function ($referrerQuery) use ($like) {
+                                $referrerQuery->where('investor_name', 'like', $like);
+                            });
+                    })
+
+                    ->orWhereRaw(
+                        'CAST(investments.id AS CHAR) LIKE ?',
+                        [$like]
+                    );
+            });
+        }
 
         return $query;
     }

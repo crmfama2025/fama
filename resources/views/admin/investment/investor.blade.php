@@ -205,7 +205,7 @@
                     },
                     {
                         data: 'referral',
-                        name: 'referral.investor_name',
+                        name: 'referral',
                     },
                     // {
                     //     data: 'investor_email',
@@ -256,20 +256,33 @@
                     [0, 'desc']
                 ],
                 dom: 'Bfrtip', // This is important for buttons
-                buttons: [{
-                    text: 'Export Excel',
-                    action: function(e, dt, node, config) {
+                buttons: [
+    {
+        text: 'Export Excel',
+        action: function (e, dt) {
+            const url = "{{ route('investor.export') }}";
+            const params = new URLSearchParams();
 
-                        let searchValue = dt.search();
-                        let url = "{{ route('investor.export') }}";
+            params.set('search', dt.search() || '');
 
-                        if (searchValue) {
-                            url += '?search=' + encodeURIComponent(searchValue);
-                        }
+            const order = dt.order();
 
-                        window.location.href = url; // THIS triggers the route
-                    }
-                }]
+            if (order.length) {
+                params.set('order[0][column]', order[0][0]);
+                params.set('order[0][dir]', order[0][1]);
+            }
+
+            dt.settings()[0].aoColumns.forEach(function (column, index) {
+                params.set(
+                    `columns[${index}][data]`,
+                    typeof column.data === 'string' ? column.data : ''
+                );
+            });
+
+            window.location.href = url + '?' + params.toString();
+        }
+    }
+]
             });
 
 

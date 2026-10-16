@@ -126,14 +126,18 @@ class InvestorController extends Controller
         }
     }
 
-    public function getInvestors(Request $request)
+ 
+    public function getInvestors(\Illuminate\Http\Request $request)
     {
         if ($request->ajax()) {
             $filters = [
-                'search' => $request->search['value'] ?? null
+                'search' => $request->input('search.value', ''),
             ];
+
             return $this->investorService->getDataTable($filters);
         }
+
+        abort(404);
     }
 
     public function update(Request $request, $id)
@@ -190,15 +194,87 @@ class InvestorController extends Controller
         return response()->json($InvBank);
     }
 
+    // public function exportInvestors()
+    // {
+    //     $search = request('search');
+
+    //     return Excel::download(
+    //         new InvestorExport($search),
+    //         'investors.xlsx'
+    //     );
+    // }
+    
+    
+    
+    // public function exportInvestors()
+    // {
+    //     $search = request('search.value') ?? request('search');
+
+    //     $orderIndex = request('order.0.column');
+    //     $columns = request('columns', []);
+
+    //     $orderColumn = 'id';
+    //     $orderDirection = 'desc';
+
+    //     if ($orderIndex !== null && isset($columns[$orderIndex]['data'])) {
+    //         $orderColumn = $columns[$orderIndex]['data'];
+    //         $orderDirection = request('order.0.dir', 'desc');
+    //     }
+
+    //     return Excel::download(
+    //         new InvestorExport($search, $orderColumn, $orderDirection),
+    //         'investors.xlsx'
+    //     );
+    // }
+    
+    // public function exportInvestors()
+    // {
+    //     $search = request('search');
+
+    //     $orderIndex = request('order.0.column');
+    //     $columns = request('columns', []);
+
+    //     $orderColumn = 'id';
+    //     $orderDirection = request('order.0.dir', 'desc');
+
+    //     if ($orderIndex !== null && isset($columns[$orderIndex]['data'])) {
+    //         $orderColumn = $columns[$orderIndex]['data'];
+    //     }
+
+    //     return Excel::download(
+    //         new InvestorExport($search, $orderColumn, $orderDirection),
+    //         'investors.xlsx'
+    //     );
+    // }
+
     public function exportInvestors()
     {
-        $search = request('search');
+        $search = request()->input('search', '');
 
-        return Excel::download(
-            new InvestorExport($search),
+        $orderIndex = request()->input('order.0.column');
+        $columns = request()->input('columns', []);
+        $orderDirection = request()->input('order.0.dir', 'desc');
+
+        $orderColumn = 'id';
+
+        if (
+            $orderIndex !== null &&
+            isset($columns[$orderIndex]['data'])
+        ) {
+            $orderColumn = $columns[$orderIndex]['data'];
+        }
+
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\InvestorExport(
+                $search,
+                $orderColumn,
+                $orderDirection
+            ),
             'investors.xlsx'
         );
     }
+
+
 
     public function destroy(Investor $investor)
     {
