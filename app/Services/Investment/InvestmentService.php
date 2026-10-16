@@ -815,7 +815,7 @@ class InvestmentService
         $columns = [
             ['data' => 'DT_RowIndex', 'name' => 'id'],
             ['data' => 'company_name', 'name' => 'company.company_name'],
-            ['data' => 'invested_company_name', 'name' => 'investedCompany.company_name'],
+            ['data' => 'invested_company_name','name' => 'invested_company_name'],
             ['data' => 'investor_name', 'name' => 'investor.investor_name'],
             ['data' => 'investment_amount', 'name' => 'investment_amount'],
             ['data' => 'total_received_amount', 'name' => 'total_received_amount'],

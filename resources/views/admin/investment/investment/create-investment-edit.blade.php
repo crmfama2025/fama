@@ -768,15 +768,15 @@
 
                                                 <div class="col-md-4">
                                                     <div class="form-group">
-                                                        <label class="asterisk">Annexure Comment</label>
-                                                        <textarea class="form-control" rows="5" name="annexure_comment" required>{{ old('annexure_comment', $investment->annexure_comment ?? '') }}</textarea>
+                                                        <label>Annexure Comment</label>
+                                                        <textarea class="form-control" rows="5" name="annexure_comment" >{{ old('annexure_comment', $investment->annexure_comment ?? '') }}</textarea>
                                                     </div>
                                                 </div>
 
                                                 <div class="col-md-4">
                                                     <div class="form-group">
-                                                        <label class="asterisk">Annexure Comment (Arabic)</label>
-                                                        <textarea class="form-control" rows="5" name="annexure_comment_ar" required>{{ old('annexure_comment_ar', $investment->annexure_comment_ar ?? '') }}</textarea>
+                                                        <label>Annexure Comment (Arabic)</label>
+                                                        <textarea class="form-control" rows="5" name="annexure_comment_ar">{{ old('annexure_comment_ar', $investment->annexure_comment_ar ?? '') }}</textarea>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-4">
