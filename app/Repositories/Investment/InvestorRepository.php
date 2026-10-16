@@ -64,6 +64,7 @@ class InvestorRepository
     public function getQuery(array $filters = []): Builder
     {
         $query = Investor::query()
+            ->select('investors.*')
             ->with([
                 'nationality',
                 'paymentMode',
@@ -71,60 +72,106 @@ class InvestorRepository
                 'payoutBatch',
                 'referral',
                 'investorBanks',
-                'addedBy'
+                'addedBy',
             ]);
 
-        if (!empty($filters['search'])) {
-            $search = trim($filters['search']);
-            $searchLike = str_replace('-', '%', $search);
+        $search = trim((string) ($filters['search'] ?? ''));
 
-            $query->where(function ($q) use ($search, $searchLike) {
-
-                $q->where('investor_name', 'like', "%{$search}%")
-                    ->orWhereRaw("CAST(investor_mobile AS CHAR) LIKE ?", ["%{$searchLike}%"])
-                    ->orWhere('investor_email', 'like', "%{$search}%")
-                    ->orWhereRaw("CAST(id_number AS CHAR) LIKE ?", ["%{$searchLike}%"])
-                    ->orWhereRaw("CAST(passport_number AS CHAR) LIKE ?", ["%{$searchLike}%"])
-                    ->orWhereRaw('DATE_FORMAT(profit_release_date, "%Y-%m-%d") LIKE ?', ["%{$searchLike}%"])
-
-                    ->orWhereHas('nationality', function ($q) use ($search) {
-                        $q->where('nationality_name', 'like', "%{$search}%");
-                    })
-
-                    ->orWhereHas('addedBy', function ($q) use ($search) {
-                        $q->where('first_name', 'like', '%' . $search . '%')
-                            ->orWhere('last_name', 'like', '%' . $search . '%');
-                    })
-
-                    ->orWhereHas('payoutBatch', function ($q) use ($search) {
-                        $q->where('batch_name', 'like', "%{$search}%");
-                    })
-
-                    ->orWhereHas('paymentMode', function ($q) use ($search) {
-                        $q->where('payment_mode_name', 'like', "%{$search}%");
-                    })
-
-                    ->orWhereHas('investorBanks', function ($q) use ($search) {
-                        $q->where(function ($q) use ($search) {
-                            $q->where('investor_beneficiary', 'like', "%{$search}%")
-                                ->orWhere('investor_bank_name', 'like', "%{$search}%")
-                                ->orWhere('investor_iban', 'like', "%{$search}%");
-                        });
-                    })
-
-                    ->orWhereHas('referral', function ($q) use ($search) {
-                        $q->where('investor_name', 'like', "%{$search}%");
-                    });
-            });
+        if ($search === '') {
+            return $query;
         }
 
-        return $query; // ✅ ALWAYS return Builder
+        $searchLike = str_replace('-', '%', $search);
+
+        return $query->where(function ($q) use ($search, $searchLike) {
+            $q->where('investors.investor_name', 'like', "%{$search}%")
+                ->orWhere('investors.investor_code', 'like', "%{$search}%")
+                ->orWhereRaw(
+                    'CAST(investors.investor_mobile AS CHAR) LIKE ?',
+                    ["%{$searchLike}%"]
+                )
+                ->orWhere('investors.investor_email', 'like', "%{$search}%")
+                ->orWhere('investors.investor_address', 'like', "%{$search}%")
+                ->orWhereRaw(
+                    'CAST(investors.id_number AS CHAR) LIKE ?',
+                    ["%{$searchLike}%"]
+                )
+                ->orWhereRaw(
+                    'CAST(investors.passport_number AS CHAR) LIKE ?',
+                    ["%{$searchLike}%"]
+                )
+                ->orWhereRaw(
+                    'DATE_FORMAT(investors.profit_release_date, "%Y-%m-%d") LIKE ?',
+                    ["%{$searchLike}%"]
+                )
+                ->orWhereHas('nationality', function ($related) use ($search) {
+                    $related->where(
+                        'nationality_name',
+                        'like',
+                        "%{$search}%"
+                    );
+                })
+                ->orWhereHas('countryOfResidence', function ($related) use ($search) {
+                    $related->where(
+                        'nationality_name',
+                        'like',
+                        "%{$search}%"
+                    );
+                })
+                ->orWhereHas('addedBy', function ($related) use ($search) {
+                    $related->where(function ($nameQuery) use ($search) {
+                        $nameQuery->where('first_name', 'like', "%{$search}%")
+                            ->orWhere('last_name', 'like', "%{$search}%");
+                    });
+                })
+                ->orWhereHas('payoutBatch', function ($related) use ($search) {
+                    $related->where(
+                        'batch_name',
+                        'like',
+                        "%{$search}%"
+                    );
+                })
+                ->orWhereHas('paymentMode', function ($related) use ($search) {
+                    $related->where(
+                        'payment_mode_name',
+                        'like',
+                        "%{$search}%"
+                    );
+                })
+                ->orWhereHas('investorBanks', function ($related) use ($search) {
+                    $related->where(function ($bankQuery) use ($search) {
+                        $bankQuery->where(
+                            'investor_beneficiary',
+                            'like',
+                            "%{$search}%"
+                        )
+                        ->orWhere(
+                            'investor_bank_name',
+                            'like',
+                            "%{$search}%"
+                        )
+                        ->orWhere(
+                            'investor_iban',
+                            'like',
+                            "%{$search}%"
+                        );
+                    });
+                })
+                ->orWhereHas('referral', function ($related) use ($search) {
+                    $related->where(
+                        'investor_name',
+                        'like',
+                        "%{$search}%"
+                    );
+                });
+        });
     }
+
 
 
     public function insertBulk(array $rows)
     {
-        return Investor::insert($rows); // bulk insert
+        return Investor::insert($rows); 
     }
 
     public function getInvestorsWithDetails()

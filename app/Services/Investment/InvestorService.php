@@ -220,136 +220,288 @@ class InvestorService
         }
     }
 
+    
     public function getDataTable(array $filters = [])
     {
         $query = $this->investorRepo->getQuery($filters);
+       
 
         $columns = [
-            ['data' => 'DT_RowIndex', 'name' => 'id'],
-            ['data' => 'investor_name', 'name' => 'investor_name'],
-            ['data' => 'investor_code', 'name' => 'investor_code'],
-            ['data' => 'investor_mobile', 'name' => 'investor_mobile'],
-            ['data' => 'investor_email', 'name' => 'investor_email'],
-            ['data' => 'nationality_name', 'name' => 'nationality_name'],
-            ['data' => 'country_of_residence', 'name' => 'country_of_residence'],
-            ['data' => 'referral', 'name' => 'referral'],
-            ['data' => 'investor_address', 'name' => 'investor_address'],
-            ['data' => 'id_number', 'name' => 'id_number'],
+            [
+                'data' => 'DT_RowIndex',
+                'name' => 'id',
+                'orderable' => false,
+                'searchable' => false,
+            ],
+            ['data' => 'investor_name', 'name' => 'investors.investor_name'],
+            ['data' => 'investor_code', 'name' => 'investors.investor_code'],
+            ['data' => 'investor_mobile', 'name' => 'investors.investor_mobile'],
+            ['data' => 'investor_email', 'name' => 'investors.investor_email'],
+            [
+                'data' => 'nationality_name',
+                'name' => 'nationality_name',
+            ],
+            [
+                'data' => 'country_of_residence',
+                'name' => 'country_of_residence',
+            ],
+            [
+                'data' => 'referral',
+                'name' => 'referral',
+                'orderable' => true,
+                'searchable' => false,
+            ],
+            ['data' => 'investor_address', 'name' => 'investors.investor_address'],
+            ['data' => 'id_number', 'name' => 'investors.id_number'],
             ['data' => 'payment_mode', 'name' => 'payment_mode'],
             ['data' => 'investor_bank_name', 'name' => 'investor_bank_name'],
-            ['data' => 'action', 'name' => 'action', 'orderable' => true, 'searchable' => true],
+            [
+                'data' => 'action',
+                'name' => 'action',
+                'orderable' => false,
+                'searchable' => false,
+            ],
         ];
 
         return datatables()
-            ->of($query)
+            ->eloquent($query)
             ->addIndexColumn()
-            ->addColumn('investor_code', fn($row) => $row->investor_code ?? '-')
-            ->addColumn('investor_name', function ($row) {
-                $name = $row->investor_name ?? '-';
-                $email = $row->investor_email ?? '-';
-                $phone = $row->investor_mobile ?? '-';
 
-                $address = $row->investor_address;
+            ->addColumn('investor_code', function ($row) {
+                return $row->investor_code ?? '-';
+            })
+
+            ->addColumn('investor_name', function ($row) {
+                $name = e($row->investor_name ?? '-');
+                $email = e($row->investor_email ?? '-');
+                $phone = e($row->investor_mobile ?? '-');
+
+                $address = $row->investor_address ?? '';
+
                 if (!empty($row->address_line2)) {
                     $address .= ', ' . $row->address_line2;
                 }
-                // if (!empty($row->city)) {
-                //     $address .= ', ' . $row->city;
-                // }
-                // if (!empty($row->country_id)) {
-                //     $address .= ', ' . $row->country?->nationality_name;
-                // }
+
                 if (!empty($row->postal_code)) {
                     $address .= ' - ' . $row->postal_code;
                 }
 
+                $address = e($address ?: '-');
 
-                $address = $address ?? '-';
-
-                return "<strong class='text-capitalize'>{$name}</strong><p class='mb-0 text-primary'>{$email}</p>
-            <p class='text-muted small'><i class='fa fa-phone-alt text-danger'></i> <span class='font-weight-bold'>{$phone}</span> </p><p class='text-muted small'><i class='fas fa-home text-danger'></i> <span class='font-weight-bold'>{$address}</span></p>";
+                return "
+                    <strong class='text-capitalize'>{$name}</strong>
+                    <p class='mb-0 text-primary'>{$email}</p>
+                    <p class='text-muted small'>
+                        <i class='fa fa-phone-alt text-danger'></i>
+                        <span class='font-weight-bold'>{$phone}</span>
+                    </p>
+                    <p class='text-muted small'>
+                        <i class='fas fa-home text-danger'></i>
+                        <span class='font-weight-bold'>{$address}</span>
+                    </p>
+                ";
             })
-            ->addColumn('nationality_name', fn($row) => $row->nationality->nationality_name ?? '-')
-            ->addColumn('country_of_residence', fn($row) => $row->countryOfResidence->nationality_name ?? '-')
-            ->addColumn('id_number', fn($row) => $row->id_number ?? '-')
-            ->addColumn('referral', fn($row) => $row->referral->investor_name ?? '-')
-            ->addColumn('investor_type', fn($row) => $row->investor_type == 0 ? 'Major' : 'Minor')
-            ->addColumn('investor_category', fn($row) => $row->investor_category == 0 ? 'Individual' : 'Company')
+
+            ->addColumn('nationality_name', function ($row) {
+                return $row->nationality?->nationality_name ?? '-';
+            })
+
+            ->addColumn('country_of_residence', function ($row) {
+                return $row->countryOfResidence?->nationality_name ?? '-';
+            })
+
+            ->orderColumn('nationality_name', function ($query, $order) {
+                $relation = (new \App\Models\Investor())->nationality();
+                $related = $relation->getRelated();
+
+                $direction = strtolower($order) === 'desc' ? 'desc' : 'asc';
+
+                $subQuery = $related->newQuery()
+                    ->select($related->qualifyColumn('nationality_name'))
+                    ->whereColumn(
+                        $relation->getQualifiedOwnerKeyName(),
+                        $relation->getQualifiedForeignKeyName()
+                    );
+                $query->orderBy($subQuery, $direction);
+            })
+
+            ->orderColumn('country_of_residence', function ($query, $order) {
+                $relation = (new \App\Models\Investor())->countryOfResidence();
+                $related = $relation->getRelated();
+
+                $direction = strtolower($order) === 'desc' ? 'desc' : 'asc';
+
+                $subQuery = $related->newQuery()
+                    ->select($related->qualifyColumn('nationality_name'))
+                    ->whereColumn(
+                        $relation->getQualifiedOwnerKeyName(),
+                        $relation->getQualifiedForeignKeyName()
+                    );
+
+                $query->orderBy($subQuery, $direction);
+            })
+
+            ->addColumn('id_number', function ($row) {
+                return $row->id_number ?? '-';
+            })
+
+            ->addColumn('referral', function ($row) {
+                return $row->referral?->investor_name ?? '-';
+            })
+
+            ->orderColumn('referral', function ($query, $order) {
+                $direction = strtolower($order) === 'desc' ? 'desc' : 'asc';
+
+                $query->orderByRaw(
+                    '(SELECT referral_investors.investor_name
+                    FROM investors AS referral_investors
+                    WHERE referral_investors.id = investors.referral_id
+                        AND referral_investors.deleted_at IS NULL
+                    LIMIT 1) ' . $direction
+                );
+            })
+
+            ->addColumn('investor_type', function ($row) {
+                return $row->investor_type == 0 ? 'Major' : 'Minor';
+            })
+
+            ->addColumn('investor_category', function ($row) {
+                return $row->investor_category == 0 ? 'Individual' : 'Company';
+            })
+
             ->addColumn('payment_mode', function ($row) {
-                if (!$row->paymentMode) return '-';
-
-                if (in_array($row->paymentMode->id, [1, 4])) return $row->paymentMode->payment_mode_name;
-
-                if (in_array($row->paymentMode->id, [3, 2])) {
-                    // $primaryBank = $row->investorBanks->where('is_primary', 1)->first();
-                    $bankName = $row->primaryBank->investor_bank_name ?? '-';
-                    return $row->paymentMode->payment_mode_name . ' - ' . $bankName;
+                if (!$row->paymentMode) {
+                    return '-';
                 }
-                // dump($row->paymentMode->payment_mode_name);
+
+                if (in_array($row->paymentMode->id, [1, 4])) {
+                    return e($row->paymentMode->payment_mode_name);
+                }
+
+                if (in_array($row->paymentMode->id, [2, 3])) {
+                    $bankName = $row->primaryBank?->investor_bank_name ?? '-';
+
+                    return e($row->paymentMode->payment_mode_name)
+                        . ' - ' . e($bankName);
+                }
 
                 return '-';
             })
+
             ->addColumn('added_by', function ($row) {
-                if ($row->addedBy) {
-                    $name = $row->addedBy->first_name . ' ' . $row->addedBy->last_name;
-                    $image = $row->addedBy->profile_path
-                        ? asset('storage/' . $row->addedBy->profile_path)
-                        : asset('images/default-avatar.png');
-
-                    return '
-            <div style="display:flex; align-items:center; gap:8px;">
-                <img src="' . $image . '"
-                     style="width:30px; height:30px; border-radius:50%; object-fit:cover;">
-                <span>' . $name . '</span>
-            </div>
-        ';
+                if (!$row->addedBy) {
+                    return '-';
                 }
 
-                return '-';
+                $name = e(
+                    $row->addedBy->first_name . ' ' .
+                    $row->addedBy->last_name
+                );
+
+                $image = $row->addedBy->profile_path
+                    ? asset('storage/' . $row->addedBy->profile_path)
+                    : asset('images/default-avatar.png');
+
+                return '
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <img src="' . e($image) . '"
+                            style="width:30px;height:30px;border-radius:50%;object-fit:cover;">
+                        <span>' . $name . '</span>
+                    </div>
+                ';
             })
+
             ->addColumn('action', function ($row) {
                 $action = '';
-                if (auth()->user()->hasAnyPermission(['investor.edit'], $row->company_id)) {
-                    $action .= '<a href="' . route('investor.edit', $row->id) . '" class="btn btn-info btn-sm" title="Edit Investor"><i class="fas fa-pencil-alt"></i></a>';
-                }
-                if (auth()->user()->hasAnyPermission(['investor.view'], $row->company_id)) {
-                    $action .= '
-                <a href="' . route('investor.show', $row->id) . '" class="btn btn-primary btn-sm" title="View Investor"><i class="fas fa-eye"></i></a>';
+                $user = auth()->user();
+                $investorId = $row->getKey();
+
+                if (!$investorId) {
+                    return '';
                 }
 
-                if ($row->total_no_of_investments == 0 && auth()->user()->hasAnyPermission(['investor.delete'], $row->company_id)) {
-                    $action .= ' <button class="btn btn-danger btn-sm" data-id="' . $row->id . '" onclick="deleteConf(' . $row->id . ')"><i class="fas fa-trash-alt"></i></button>';
-                }
-                if (auth()->user()->hasAnyPermission(['investor.add'], $row->company_id)) {
-                    $action .= ' <button class="btn btn-warning btn-sm" data-id="" data-investor-id="' . $row->id . '" data-target="#modal-add-bank" data-toggle="modal" title="Add Bank"><i class="fas fa-university"></i></button>';
-                }
-                if (auth()->user()->hasAnyPermission(['investor.withdrawal'], $row->company_id)) {
-                    $action .= ' <a href="' . route('investor.partial_withdrawal', $row->id) . '"
-                    title="Withdrawal/Settlement"
-                    class="btn bg-orange btn-sm">
-                    <i class="fas fa-wallet"></i>
-                </a>';
+                if (
+                    $user &&
+                    $user->hasAnyPermission(['investor.edit'], $row->company_id)
+                ) {
+                    $action .= '<a href="' .
+                        route('investor.edit', ['investor' => $investorId]) .
+                        '" class="btn btn-info btn-sm" title="Edit Investor">
+                        <i class="fas fa-pencil-alt"></i></a> ';
                 }
 
-                if (auth()->user()->hasAnyPermission(['investor.novation'], $row->company_id)) {
-                    $action .= ' <button class="btn btn-sm" data-id="" data-investor-id="' . $row->id . '" data-investor-name="' . $row->investor_name . '"
-                    data-target="#modal-apply-novation"
-                    data-toggle="modal"
-                    title="Apply Novation" style="background: #b700b7"><i class="fas fa-redo" style="color: white;"></i></button>';
+                if (
+                    $user &&
+                    $user->hasAnyPermission(['investor.view'], $row->company_id)
+                ) {
+                    $action .= '<a href="' .
+                        route('investor.show', ['investor' => $investorId]) .
+                        '" class="btn btn-primary btn-sm" title="View Investor">
+                        <i class="fas fa-eye"></i></a> ';
                 }
 
-                // $action .= ' <a href="' . route('investor.investment_annexture', $row->id) . '"
-                //     title="Investment Annexture"
-                //     class="btn bg-pink btn-sm">
-                //     <i class="fas fa-file"></i>
-                // </a>';
+                if (
+                    $row->total_no_of_investments == 0 &&
+                    $user &&
+                    $user->hasAnyPermission(['investor.delete'], $row->company_id)
+                ) {
+                    $action .= '<button class="btn btn-danger btn-sm"
+                        onclick="deleteConf(' . (int) $investorId . ')">
+                        <i class="fas fa-trash-alt"></i></button> ';
+                }
+
+                if (
+                    $user &&
+                    $user->hasAnyPermission(['investor.add'], $row->company_id)
+                ) {
+                    $action .= '<button class="btn btn-warning btn-sm"
+                        data-investor-id="' . (int) $investorId . '"
+                        data-target="#modal-add-bank"
+                        data-toggle="modal" title="Add Bank">
+                        <i class="fas fa-university"></i></button> ';
+                }
+
+                if (
+                    $user &&
+                    $user->hasAnyPermission(
+                        ['investor.partial_withdrawal'],
+                        $row->company_id
+                    )
+                ) {
+                    $action .= '<a href="' .
+                        route('investor.partial_withdrawal', ['id' => $investorId]) .
+                        '" title="Withdrawal/Settlement" class="btn bg-orange btn-sm">
+                        <i class="fas fa-wallet"></i></a> ';
+                }
+
+                if (
+                    $user &&
+                    $user->hasAnyPermission(['investor.novation'], $row->company_id)
+                ) {
+                    $investorName = e($row->investor_name ?? '');
+
+                    $action .= '<button class="btn btn-sm"
+                        data-investor-id="' . (int) $investorId . '"
+                        data-investor-name="' . $investorName . '"
+                        data-target="#modal-apply-novation"
+                        data-toggle="modal"
+                        title="Apply Novation" style="background:#b700b7">
+                        <i class="fas fa-redo" style="color:white;"></i></button> ';
+                }
 
                 return $action;
             })
-            ->rawColumns(['investor_name', 'action', 'payment_mode', 'added_by'])
+
+            ->rawColumns([
+                'investor_name',
+                'action',
+                'payment_mode',
+                'added_by',
+            ])
             ->with(['columns' => $columns])
             ->toJson();
     }
+
     public function getInvestedCompanies($investor_id)
     {
         return $this->investorRepo->getInvestedCompanies($investor_id);
