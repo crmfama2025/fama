@@ -13,6 +13,9 @@
     {{-- Interactive-page dependencies --}}
     <link rel="stylesheet" href="{{ asset('assets/fontawesome-free/css/all.min.css') }}">
 
+    <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
+
+
     <link rel="stylesheet" href="{{ asset('assets/toastr/toastr.min.css') }}">
 
     <link rel="stylesheet" href="{{ asset('css/adminlte.min.css') }}">
@@ -949,7 +952,7 @@
                         const slotId = slot.dataset.signatureSlot;
                         const spotKey = `${pageIndex}-${slotId}`;
                         // placing place signature button
-                        /* 
+                        /*
                         if (page.querySelector(`.sig-placed-wrap[data-spot-key="${spotKey}"]`)) return;
                         if (page.querySelector(`.sig-placeholder-btn[data-spot-key="${spotKey}"]`)) return;
 
@@ -1030,7 +1033,7 @@
                 const spotKey = `${pageIndex}-default-${cfg.signerRole}`;
 
                 // placing sig with button
-                /* 
+                /*
                 if (page.querySelector(`.sig-placed-wrap[data-spot-key="${spotKey}"]`)) return;
                 if (page.querySelector(`.sig-placeholder-btn[data-spot-key="${spotKey}"]`)) return;
 
