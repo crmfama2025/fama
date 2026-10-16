@@ -55,68 +55,257 @@ class InvestorPaymentDistributionService
     // }
 
 
+    // public function getPendingList(array $filters = [])
+    // {
+    //     $query = $this->investorDistRepo->getPendings($filters);
+    //     // $month = $filters['filter']['month'] ?? null;
+
+    //     // if (!empty($month) && is_numeric($month) && $month >= 1 && $month <= 12) {
+    //     //     $query->whereMonth(
+    //     //         'investor_payouts.original_profit_date',
+    //     //         (int) $month
+    //     //     );
+    //     // }
+
+    //     $companyId = $filters['filter']['company_id'] ?? null;
+
+    //     if (!empty($companyId)) {
+    //         $query->whereHas('investment', function ($q) use ($companyId) {
+    //             $q->where('company_id', $companyId);
+    //         });
+    //     }
+    //     $columns = [
+    //         ['data' => 'checkbox', 'name' => 'checkbox'],
+    //         ['data' => 'investor_name', 'name' => 'investor.investor_name'],
+    //         ['data' => 'company_name', 'name' => 'investment.company.company_name'],
+    //         ['data' => 'investment_code', 'name' => 'investment.investment_code'],
+    //         ['data' => 'payout_date', 'name' => 'payout_date'],
+    //         ['data' => 'payout_type', 'name' => 'payout_type'],
+    //         ['data' => 'payout_amount', 'name' => 'amount_pending'],
+    //         ['data' => 'payment_mode', 'name' => 'payment_mode'],
+    //         ['data' => 'action', 'name' => 'action', 'orderable' => false, 'searchable' => false],
+    //     ];
+
+    //     return datatables()
+    //         ->of($query)
+    //         ->addColumn('checkbox', function ($row) {
+    //             return '<div class="icheck-primary d-inline">
+    //                         <input type="checkbox" id="ichek' . $row->id . '" class="groupCheckbox"
+    //                             name="investor_payout_id[' . $row->id . ']" value="' . $row->id . '">
+    //                         <label for="ichek' . $row->id . '">
+    //                         </label>
+    //                     </div>';
+    //         })
+
+    //         ->addColumn('investor_name', function ($row) {
+    //             $investor = $row->investor;
+
+    //             if (!$investor) return '-';
+
+    //             return "
+    //                         <a href='" . route('investor.show', $investor->id) . "' target='_blank'>
+    //                     <strong class='text-capitalize'>{$investor->investor_name}</strong>
+    //                     <p class='mb-0 text-primary'>{$investor->investor_email}</p>
+    //                     <p class='text-muted small'>
+    //                         <i class='fa fa-phone-alt text-danger'></i>
+    //                         <span class='font-weight-bold'>{$investor->investor_mobile}</span>
+    //                     </p>
+    //                     </a>
+    //                  ";
+    //         })
+    //         ->addColumn('company_name', fn($row) => ($row->investment->company->company_name) ? "<a href='" . route('company.show', $row->investment->company->id) . "' target='_blank'>" . $row->investment->company->company_name . "</a>" : '-')
+
+    //         ->addColumn('investment_code', fn($row) => ($row->investment->investment_code) ? "<a href='" . route('investment.show', $row->investment->id) . "' target='_blank'>" . $row->investment->investment_code . "</a>" : '-')
+    //         ->addColumn('payout_date', function ($row) {
+    //             return getPayoutDate($row);
+    //         })
+
+    //         ->addColumn('payout_type', function ($row) {
+    //             return match ($row->payout_type) {
+    //                 1 => '<span class="badge badge-success">Profit</span>',
+    //                 2 => '<span class="badge badge-info">Commission</span>',
+    //                 // 3 => '<span class="badge badge-warning">Principal</span>',
+    //                 // 4 => '<span class="badge badge-secondary">Pending Profit</span>',
+    //                 // 6 => '<span class="badge bg-orange">Withdrawal/Settlement</span>',
+    //                 6 => ($row->investment && $row->investment->terminate_status == 1)
+    //                     ? '<span class="badge bg-danger">Settlement</span>'
+    //                     : '<span class="badge bg-orange">Withdrawal</span>',
+    //                 default => '-',
+    //             };
+    //         })
+
+    //         ->addColumn('payout_amount', function ($row) {
+    //             return number_format($row->amount_pending, 2);
+    //         })
+
+    //         ->addColumn('payment_mode', function ($row) {
+    //             $investor = $row->investor;
+
+    //             if (!$investor || !$investor->paymentMode) return '-';
+
+    //             if (in_array($investor->paymentMode->id, [1, 4])) {
+    //                 return $investor->paymentMode->payment_mode_name;
+    //             }
+
+    //             if ($investor->paymentMode->id == 2) {
+    //                 $bankName = $investor->primaryBank->investor_bank_name ?? '-';
+    //                 return $investor->paymentMode->payment_mode_name . ' - ' . $bankName;
+    //             }
+
+    //             return '-';
+    //         })
+
+    //         ->addColumn('action', function ($row) {
+    //             $action = " - ";
+    //             $action .= '<div class="d-flex align-items-center">';
+    //             $action .= '<a class="btn btn-success btn-sm bulktriggerbtn mr-1" title="Pay now"
+    //                 data-toggle="modal" data-target="#modal-payout"
+    //                 data-clear-type="single" data-reinvest="0" data-det-id="' . $row->id . '"
+    //                 data-amount="' . $row->amount_pending . '">
+    //                 <i class="fas fa-dollar-sign"></i></a>';
+    //             if ($row->payout_type == 1) {
+    //                 $action .= '<a class="btn btn-secondary btn-sm bulktriggerbtn" title="Re-Invest"
+    //                 data-toggle="modal" data-target="#modal-payout"
+    //                 data-clear-type="single" data-det-id="' . $row->id . '" data-reinvest="1" data-investmentid="' . $row->investment_id . '"
+    //                 data-amount="' . $row->amount_pending . '">
+    //                 <i class="fas fa-redo"></i></a>';
+    //             }
+
+    //             $action .= '</div>';
+    //             return $action;
+    //         })
+
+
+    //         ->rawColumns(['investor_name', 'payout_type', 'action', 'checkbox', 'investment_code', 'company_name'])
+    //         ->with(['columns' => $columns])
+    //         ->toJson();
+    // }
+    
     public function getPendingList(array $filters = [])
     {
         $query = $this->investorDistRepo->getPendings($filters);
-        if (!empty($filters['filter']['company_id'])) {
-            $query->whereHas('investment', function ($q) use ($filters) {
-                $q->where('company_id', $filters['filter']['company_id']);
-            });
-        }
+
         $columns = [
-            ['data' => 'checkbox', 'name' => 'checkbox'],
-            ['data' => 'investor_name', 'name' => 'investor.investor_name'],
-            ['data' => 'company_name', 'name' => 'investment.company.company_name'],
-            ['data' => 'investment_code', 'name' => 'investment.investment_code'],
-            ['data' => 'payout_date', 'name' => 'payout_date'],
-            ['data' => 'payout_type', 'name' => 'payout_type'],
-            ['data' => 'payout_amount', 'name' => 'amount_pending'],
-            ['data' => 'payment_mode', 'name' => 'payment_mode'],
-            ['data' => 'action', 'name' => 'action', 'orderable' => false, 'searchable' => false],
+            [
+                'data' => 'checkbox',
+                'name' => 'checkbox',
+                'orderable' => false,
+                'searchable' => false,
+            ],
+            [
+                'data' => 'investor_name',
+                'name' => 'investor.investor_name',
+            ],
+            [
+                'data' => 'company_name',
+                'name' => 'investment.company.company_name',
+            ],
+            [
+                'data' => 'investment_code',
+                'name' => 'investment.investment_code',
+            ],
+            [
+                'data' => 'payout_date',
+                'name' => 'payout_date',
+                'orderable' => false,
+                'searchable' => false,
+            ],
+            [
+                'data' => 'payout_type',
+                'name' => 'payout_type',
+            ],
+            [
+                'data' => 'payout_amount',
+                'name' => 'payout_amount',
+            ],
+            [
+                'data' => 'payment_mode',
+                'name' => 'payment_mode',
+                'orderable' => false,
+                'searchable' => false,
+            ],
+            [
+                'data' => 'action',
+                'name' => 'action',
+                'orderable' => false,
+                'searchable' => false,
+            ],
         ];
 
         return datatables()
-            ->of($query)
+            ->eloquent($query)
+
             ->addColumn('checkbox', function ($row) {
                 return '<div class="icheck-primary d-inline">
-                            <input type="checkbox" id="ichek' . $row->id . '" class="groupCheckbox"
-                                name="investor_payout_id[' . $row->id . ']" value="' . $row->id . '">
-                            <label for="ichek' . $row->id . '">
-                            </label>
-                        </div>';
+                    <input type="checkbox"
+                        id="ichek' . $row->id . '"
+                        class="groupCheckbox"
+                        name="investor_payout_id[' . $row->id . ']"
+                        value="' . $row->id . '">
+                    <label for="ichek' . $row->id . '"></label>
+                </div>';
             })
 
             ->addColumn('investor_name', function ($row) {
                 $investor = $row->investor;
 
-                if (!$investor) return '-';
+                if (!$investor) {
+                    return '-';
+                }
 
-                return "
-                            <a href='" . route('investor.show', $investor->id) . "' target='_blank'>
-                        <strong class='text-capitalize'>{$investor->investor_name}</strong>
-                        <p class='mb-0 text-primary'>{$investor->investor_email}</p>
-                        <p class='text-muted small'>
-                            <i class='fa fa-phone-alt text-danger'></i>
-                            <span class='font-weight-bold'>{$investor->investor_mobile}</span>
-                        </p>
-                        </a>
-                     ";
+                return "<a href='" . route('investor.show', $investor->id) . "'
+                            target='_blank'>
+                    <strong class='text-capitalize'>
+                        " . e($investor->investor_name) . "
+                    </strong>
+                    <p class='mb-0 text-primary'>
+                        " . e($investor->investor_email ?? '-') . "
+                    </p>
+                    <p class='text-muted small'>
+                        <i class='fa fa-phone-alt text-danger'></i>
+                        <span class='font-weight-bold'>
+                            " . e($investor->investor_mobile ?? '-') . "
+                        </span>
+                    </p>
+                </a>";
             })
-            ->addColumn('company_name', fn($row) => ($row->investment->company->company_name) ? "<a href='" . route('company.show', $row->investment->company->id) . "' target='_blank'>" . $row->investment->company->company_name . "</a>" : '-')
 
-            ->addColumn('investment_code', fn($row) => ($row->investment->investment_code) ? "<a href='" . route('investment.show', $row->investment->id) . "' target='_blank'>" . $row->investment->investment_code . "</a>" : '-')
+            ->addColumn('company_name', function ($row) {
+                $company = $row->investment->company ?? null;
+
+                if (!$company) {
+                    return '-';
+                }
+
+                return "<a href='" . route('company.show', $company->id) . "'
+                            target='_blank'>" .
+                            e($company->company_name) .
+                        "</a>";
+            })
+
+            ->addColumn('investment_code', function ($row) {
+                $investment = $row->investment;
+
+                if (!$investment) {
+                    return '-';
+                }
+
+                return "<a href='" . route('investment.show', $investment->id) . "'
+                            target='_blank'>" .
+                            e($investment->investment_code) .
+                        "</a>";
+            })
+
             ->addColumn('payout_date', function ($row) {
                 return getPayoutDate($row);
             })
 
             ->addColumn('payout_type', function ($row) {
-                return match ($row->payout_type) {
+                return match ((int) $row->payout_type) {
                     1 => '<span class="badge badge-success">Profit</span>',
                     2 => '<span class="badge badge-info">Commission</span>',
-                    // 3 => '<span class="badge badge-warning">Principal</span>',
-                    // 4 => '<span class="badge badge-secondary">Pending Profit</span>',
-                    // 6 => '<span class="badge bg-orange">Withdrawal/Settlement</span>',
-                    6 => ($row->investment && $row->investment->terminate_status == 1)
+                    6 => ($row->investment &&
+                        (int) $row->investment->terminate_status === 1)
                         ? '<span class="badge bg-danger">Settlement</span>'
                         : '<span class="badge bg-orange">Withdrawal</span>',
                     default => '-',
@@ -124,51 +313,154 @@ class InvestorPaymentDistributionService
             })
 
             ->addColumn('payout_amount', function ($row) {
-                return number_format($row->amount_pending, 2);
+                return number_format((float) $row->amount_pending, 2);
             })
 
             ->addColumn('payment_mode', function ($row) {
                 $investor = $row->investor;
 
-                if (!$investor || !$investor->paymentMode) return '-';
-
-                if (in_array($investor->paymentMode->id, [1, 4])) {
-                    return $investor->paymentMode->payment_mode_name;
+                if (!$investor || !$investor->paymentMode) {
+                    return '-';
                 }
 
-                if ($investor->paymentMode->id == 2) {
-                    $bankName = $investor->primaryBank->investor_bank_name ?? '-';
-                    return $investor->paymentMode->payment_mode_name . ' - ' . $bankName;
+                $mode = $investor->paymentMode;
+
+                if (in_array((int) $mode->id, [1, 4], true)) {
+                    return e($mode->payment_mode_name);
+                }
+
+                if ((int) $mode->id === 2) {
+                    $bankName = $investor->primaryBank->investor_bank_name
+                        ?? '-';
+
+                    return e($mode->payment_mode_name) .
+                        ' - ' . e($bankName);
                 }
 
                 return '-';
             })
 
-            ->addColumn('action', function ($row) {
-                $action = " - ";
-                $action .= '<div class="d-flex align-items-center">';
-                $action .= '<a class="btn btn-success btn-sm bulktriggerbtn mr-1" title="Pay now"
-                    data-toggle="modal" data-target="#modal-payout"
-                    data-clear-type="single" data-reinvest="0" data-det-id="' . $row->id . '"
-                    data-amount="' . $row->amount_pending . '">
-                    <i class="fas fa-dollar-sign"></i></a>';
-                if ($row->payout_type == 1) {
-                    $action .= '<a class="btn btn-secondary btn-sm bulktriggerbtn" title="Re-Invest"
-                    data-toggle="modal" data-target="#modal-payout"
-                    data-clear-type="single" data-det-id="' . $row->id . '" data-reinvest="1" data-investmentid="' . $row->investment_id . '"
-                    data-amount="' . $row->amount_pending . '">
-                    <i class="fas fa-redo"></i></a>';
-                }
-
-                $action .= '</div>';
-                return $action;
+            ->filterColumn('investor_name', function ($query, $keyword) {
+                $query->whereHas('investor', function ($q) use ($keyword) {
+                    $q->where('investor_name', 'like', "%{$keyword}%")
+                    ->orWhere('investor_email', 'like', "%{$keyword}%")
+                    ->orWhere('investor_mobile', 'like', "%{$keyword}%");
+                });
             })
 
+            ->filterColumn('company_name', function ($query, $keyword) {
+                $query->whereHas('investment.company', function ($q) use ($keyword) {
+                    $q->where('company_name', 'like', "%{$keyword}%");
+                });
+            })
 
-            ->rawColumns(['investor_name', 'payout_type', 'action', 'checkbox', 'investment_code', 'company_name'])
+            ->filterColumn('investment_code', function ($query, $keyword) {
+                $query->whereHas('investment', function ($q) use ($keyword) {
+                    $q->where('investment_code', 'like', "%{$keyword}%");
+                });
+            })
+
+            ->filterColumn('payout_type', function ($query, $keyword) {
+                $keyword = strtolower(trim($keyword));
+
+                $types = [];
+
+                if (str_contains('profit', $keyword) ||
+                    str_contains($keyword, 'profit')) {
+                    $types[] = 1;
+                }
+
+                if (str_contains('commission', $keyword) ||
+                    str_contains($keyword, 'commission')) {
+                    $types[] = 2;
+                }
+
+                if (str_contains('withdrawal', $keyword) ||
+                    str_contains($keyword, 'withdrawal') ||
+                    str_contains('settlement', $keyword) ||
+                    str_contains($keyword, 'settlement')) {
+                    $types[] = 6;
+                }
+
+                if (is_numeric($keyword)) {
+                    $types[] = (int) $keyword;
+                }
+
+                if (!empty($types)) {
+                    $query->whereIn(
+                        'investor_payouts.payout_type',
+                        array_unique($types)
+                    );
+                } else {
+                    $query->whereRaw('1 = 0');
+                }
+            })
+
+            ->filterColumn('payout_amount', function ($query, $keyword) {
+                $keyword = trim(str_replace(',', '', $keyword));
+
+                if (is_numeric($keyword)) {
+                    $query->where(
+                        'investor_payouts.amount_pending',
+                        '=',
+                        (float) $keyword
+                    );
+                } else {
+                    $query->whereRaw('1 = 0');
+                }
+            })
+
+            ->orderColumn('payout_amount', function ($query, $order) {
+                $query->orderBy(
+                    'investor_payouts.amount_pending',
+                    $order
+                );
+            })
+
+            ->addColumn('action', function ($row) {
+                $action = '<div class="d-flex align-items-center">';
+
+                $action .= '<a class="btn btn-success btn-sm bulktriggerbtn mr-1"
+                    title="Pay now"
+                    data-toggle="modal"
+                    data-target="#modal-payout"
+                    data-clear-type="single"
+                    data-reinvest="0"
+                    data-det-id="' . $row->id . '"
+                    data-amount="' . $row->amount_pending . '">
+                    <i class="fas fa-dollar-sign"></i>
+                </a>';
+
+                if ((int) $row->payout_type === 1) {
+                    $action .= '<a class="btn btn-secondary btn-sm bulktriggerbtn"
+                        title="Re-Invest"
+                        data-toggle="modal"
+                        data-target="#modal-payout"
+                        data-clear-type="single"
+                        data-det-id="' . $row->id . '"
+                        data-reinvest="1"
+                        data-investmentid="' . $row->investment_id . '"
+                        data-amount="' . $row->amount_pending . '">
+                        <i class="fas fa-redo"></i>
+                    </a>';
+                }
+
+                return $action . '</div>';
+            })
+
+            ->rawColumns([
+                'checkbox',
+                'investor_name',
+                'company_name',
+                'investment_code',
+                'payout_type',
+                'action',
+            ])
+
             ->with(['columns' => $columns])
             ->toJson();
     }
+
     
 
     public function savePayout(array $data)

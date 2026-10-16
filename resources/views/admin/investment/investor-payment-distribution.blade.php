@@ -490,8 +490,8 @@
                 columns: [{
                         data: 'checkbox',
                         name: 'checkbox',
-                        orderable: false,
-                        searchable: false
+                        orderable: false
+                        // searchable: false
                     },
                     {
                         data: 'investor_name',
@@ -556,8 +556,8 @@
                     {
                         data: 'action',
                         name: 'action',
-                        orderable: false,
-                        searchable: false
+                        orderable: false
+                        // searchable: false
                     },
                 ],
                 rowCallback: function(row, data, index) {
@@ -572,25 +572,22 @@
                 order: [
                     [0, 'desc']
                 ],
-                dom: 'Bfrtip', // This is important for buttons
+                dom: 'Bfrtip',
                 buttons: [{
                     extend: 'excelHtml5',
                     text: 'Export Excel',
                     title: 'Contract Data',
                     action: function(e, dt, node, config) {
-                        // redirect to your Laravel export route
                         let searchValue = dt.search();
 
                         let params = dt.ajax.params();
 
-                        // add your custom filters manually (important)
                         params.month = $('#month').val();
                         params.batch_id = $('#batch_id').val();
                         params.investor_id = $('#investor_id').val();
                         params.company_id = $('#company_id').val();
                         params.search = dt.search();
 
-                        // build query string
                         let queryString = $.param(params);
 
                         let url = "{{ route('payout.pending.export') }}?" + queryString;

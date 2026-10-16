@@ -108,60 +108,8 @@ class LocalityService
         }
     }
 
-    // public function getDataTable(array $filters = [])
-    // {
-    //     $query = $this->localityRepository->getQuery($filters);
-
-    //     $columns = [
-    //         ['data' => 'DT_RowIndex', 'name' => 'id'],
-    //         ['data' => 'locality_name', 'name' => 'locality_name'],
-    //         ['data' => 'area_name', 'name' => 'area_name'],
-    //         // ['data' => 'company_name', 'name' => 'company_name'],
-    //         ['data' => 'action', 'name' => 'action', 'orderable' => true, 'searchable' => true],
-    //     ];
-
-    //     return datatables()
-    //         ->of($query)
-    //         ->addIndexColumn()
-    //         ->addColumn('locality_name', fn($row) => $row->locality_name ?? '-')
-    //         ->addColumn('area_name', fn($row) => $row->area->area_name ?? '-')
-    //         // ->addColumn('company_name', fn($row) => $row->company->company_name ?? '-')
-    //         ->addColumn('action', function ($row) {
-    //             $action = '<div class="d-flex flex-column flex-md-row ">';
-    //             // if (Gate::allows('locality.pricing')) {
-    //                 $action .= '<button type="button"
-    //                     class="btn btn-success mb-1 mr-md-1"
-    //                     data-toggle="modal"
-    //                     data-target="#modal-locality-pricing"
-    //                     data-id="' . $row->id . '"
-    //                     data-name="' . e($row->locality_name) . '"
-    //                     data-area="' . e($row->area->area_name ?? '') . '">
-    //                     Pricing
-    //                 </button>';
-    //             // }
-    //             if (Gate::allows('locality.edit')) {
-    //                 $action .= '<button class="btn btn-info mb-1 mr-md-1" data-toggle="modal"
-    //                                                     data-target="#modal-locality" data-id="' . $row->id . '"
-    //                                                     data-name="' . $row->locality_name . '"
-    //                                                     data-company="' . $row->company_id . '"
-    //                                                      data-area="' . $row->area_id . '"
-    //                                                      data-status="' . $row->status . '"
-    //                                                      >Edit</button>';
-    //             }
-    //             if (Gate::allows('locality.view')) {
-    //                 $action .= '<a href="' . route('locality.show', $row->id) . '" class="btn btn-warning mb-1 mr-md-1">View</a>';
-    //             }
-    //             if (Gate::allows('locality.delete')) {
-    //                 $action .= '<button class="btn btn-danger mb-1" onclick="deleteConf(' . $row->id . ')" type="submit">Delete</button>';
-    //             }
-    //             $action .= '</div>';
-
-    //             return $action ?: '-';
-    //         })
-    //         ->rawColumns(['action'])
-    //         ->with(['columns' => $columns]) // send columns too
-    //         ->toJson();
-    // }
+    
+    
 
     public function getDataTable(array $filters = [])
     {

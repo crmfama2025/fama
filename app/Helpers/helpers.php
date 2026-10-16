@@ -1039,19 +1039,21 @@ function currMonthProfit($colname, $investor_id)
 }
 
 
+
 function getPayoutDate($row)
 {
-    return match ($row->payout_type) {
-        1 => $row->original_profit_date ?? '-', //($row->investment)->next_profit_release_date modifed to original_profit_date for profits
+    $date = match ($row->payout_type) {
+        1 => $row->original_profit_date,
         2 => optional($row->investment)->next_referral_commission_release_date,
-        // 3 => optional($row->investment)->termination_date,
-        // 4 => optional($row->investment)->termination_date,
-        6 => optional($row->bifurcation)->withdrawal_date
-            ? \Carbon\Carbon::parse($row->bifurcation->withdrawal_date)->format('d-m-Y')
-            : null,
+        6 => optional($row->bifurcation)->withdrawal_date,
         default => null,
     };
+
+    return $date
+        ? \Carbon\Carbon::parse($date)->format('d-m-Y')
+        : '-';
 }
+
 
 function getPayoutTypeLabel(int $type): string
 {
