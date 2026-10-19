@@ -14,6 +14,9 @@ class ClearedReceivableAllocation extends Model
         'cleared_date',
         'added_by',
         'updated_by',
+        'bank_reference',
+        'receipt_allocation_id',
+        'have_other_adjustments'
     ];
 
     protected $casts = [

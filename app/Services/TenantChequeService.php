@@ -336,16 +336,27 @@ class TenantChequeService
 
 
 
-                $action .= '<a class="btn btn-success mr-1 btn-sm clearChequeBtn m-1" title="Clear cheque"
-                 data-date="' . $row->payment_date . '" data-id="' . $row->id . '" data-form="single"
-                 data-amount = "' . getReceivableAmount($row->id) . '" data-payment-mode ="' . $row->payment_mode_id . '"
-                  data-bank-id="' . $row->bank_id . '" data-cheque-number="' . $row->cheque_number . '"
+                // $action .= '<a class="btn btn-success mr-1 btn-sm clearChequeBtn m-1" title="Clear cheque"
+                //  data-date="' . $row->payment_date . '" data-id="' . $row->id . '" data-form="single"
+                //  data-amount = "' . getReceivableAmount($row->id) . '" data-payment-mode ="' . $row->payment_mode_id . '"
+                //   data-bank-id="' . $row->bank_id . '" data-cheque-number="' . $row->cheque_number . '"
 
-                  data-toggle="modal" data-target="#modal-single-clear">Clear</a>';
-
-
+                //   data-toggle="modal" data-target="#modal-single-clear">Clear</a>';
 
 
+
+                // $action .= '<a class="btn btn-warning mr-1 btn-sm lossDiscountBtn m-1"
+                //     title="Loss / Discount"
+                //     data-id="' . $row->id . '"
+                //     data-date="' . $row->payment_date . '"
+                //     data-amount="' . getReceivableAmount($row->id) . '"
+                //     data-payment-mode="' . $row->payment_mode_id . '"
+                //     data-bank-id="' . $row->bank_id . '"
+                //     data-cheque-number="' . $row->cheque_number . '"
+                //     data-toggle="modal"
+                //     data-target="#modal-loss-discount">
+                //     <i class="fas fa-percentage"></i>
+                // </a>';
 
 
 
@@ -532,9 +543,10 @@ class TenantChequeService
 
                 $detail_data = [
                     'is_payment_received' => $isReceived,
-                    'payment_detail_id' => $paymentId
+                    'payment_detail_id' => $paymentId,
                 ];
                 // dd($detail_data);
+                // dd($data);
                 $cleared_data = [
                     'paid_date' => $paidDate,
                     'paid_amount' => $paidAmount,
@@ -546,7 +558,11 @@ class TenantChequeService
                     'agreement_payment_details_id' => $paymentId,
                     'paid_by' => auth()->user()->id,
                     'agreement_id' => $payment->agreement_id,
-                    'paid_company_id' => $paidCompanyId ?? null
+                    'paid_company_id' => $paidCompanyId ?? null,
+                    'receipt_allocation_id' => $data['receipt_allocation_id'] ?? null,
+                    'bank_reference' => $data['bank_reference'] ?? null,
+                    'have_other_adjustmants' => $data['have_other_adjustmants'] ?? null,
+                    'loss_or_discount' => 0
                 ];
                 // dd($cleared_data);
                 // dd($detail_date);
@@ -590,14 +606,20 @@ class TenantChequeService
 
                 $this->tenantChequeRepository->updatePayment($paymentData);
             }
-            $allocation = [
-                'cleared_receivable_ids' => json_encode($clearedReceivableIds),
-                'allocated_amount' => $data['allocated_amount'],
-                'cleared_date' => $paidDate,
-                'created_at' => now(),
-                'added_by' => auth()->user()->id,
-            ];
-            $this->tenantChequeRepository->createallocation($allocation);
+            // dd(!empty($data['allocated_amount']));
+            if (!empty($data['allocated_amount'])) {
+                $allocation = [
+                    'cleared_receivable_ids' => json_encode($clearedReceivableIds),
+                    'allocated_amount' => $data['allocated_amount'],
+                    'cleared_date' => $paidDate,
+                    'created_at' => now(),
+                    'added_by' => auth()->user()->id,
+                    'receipt_allocation_id' => $data['receipt_allocation_id'] ?? null,
+                    'bank_reference' => $data['bank_reference'] ?? null,
+                    'have_other_adjustmants' => $data['have_other_adjustmants'] ?? null,
+                ];
+                $this->tenantChequeRepository->createallocation($allocation);
+            }
         });
     }
     public function bouncedCheque(array $data)

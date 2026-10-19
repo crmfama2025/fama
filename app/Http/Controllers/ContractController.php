@@ -7,6 +7,7 @@ use App\Exports\ProjectScopeExport;
 use App\Models\Agreement;
 use App\Models\Bank;
 use App\Models\Contract;
+use App\Models\Company;
 use App\Models\DocumentType;
 use App\Models\PaymentMode;
 use App\Repositories\Agreement\AgreementRepository;
@@ -296,23 +297,46 @@ class ContractController extends Controller
     }
 
 
+    // public function getRenewalPendingContracts()
+    // {
+    //     $title = 'Renewal Pendings';
+
+    //     return view("admin.projects.contract.contract-renewal-list", compact("title"));
+    // }
     public function getRenewalPendingContracts()
     {
         $title = 'Renewal Pendings';
 
-        return view("admin.projects.contract.contract-renewal-list", compact("title"));
+        $companies = Company::where('industry_id', 1)->get();
+
+        $contracts = Contract::select(
+            'id',
+            'project_number',
+            'company_id'
+        )->get();
+
+        return view(
+            'admin.projects.contract.contract-renewal-list',
+            compact('title', 'companies', 'contracts')
+        );
     }
 
     public function getRenewalContractsList(Request $request)
     {
+      
         if ($request->ajax()) {
             $filters = [
-                // 'company_id' => auth()->user()->company_id,
-                'search' => $request->search['value'] ?? null
+                'search'      => $request->input('search.value'),
+                'company_id'  => $request->input('companyId'),
+                'contract_id' => $request->input('contractId'),
+                'start_date'  => $request->input('startDate'),
+                'end_date'    => $request->input('endDate'),
             ];
+
             return $this->contractService->getRenewalDataTable($filters);
         }
     }
+ 
 
     public function renewContracts($contract_id)
     {
