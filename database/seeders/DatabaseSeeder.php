@@ -38,7 +38,8 @@ class DatabaseSeeder extends Seeder
             InvestorRelationsSeeder::class,
             EmiratesSeeder::class,
             InvestorAgreementTypeSeeder::class,
-            InvestorTransactionTypeSeeder::class
+            InvestorTransactionTypeSeeder::class,
+            ReceiptAllocationsSeeder::class,
         ]);
     }
 }
