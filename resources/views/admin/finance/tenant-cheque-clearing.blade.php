@@ -900,7 +900,8 @@
 
         $('#fromDateAllocationPicker').datetimepicker({
             format: 'DD-MM-YYYY',
-            placeholder: 'dd-mm-yyyy'
+            // placeholder: 'dd-mm-yyyy'
+            defaultDate: moment('01-04-2022', 'DD-MM-YYYY')
         });
 
         $('#toDateAllocationPicker').datetimepicker({
