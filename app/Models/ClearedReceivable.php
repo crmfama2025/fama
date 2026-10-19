@@ -22,7 +22,11 @@ class ClearedReceivable extends Model
         'paid_cheque_number',
         'payment_remarks',
         'paid_by',
-        'paid_company_id'
+        'paid_company_id',
+        'bank_reference',
+        'receipt_allocation_id',
+        'have_other_adjustments',
+        'loss_or_discount'
     ];
 
 

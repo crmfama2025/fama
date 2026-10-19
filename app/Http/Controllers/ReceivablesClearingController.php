@@ -7,6 +7,7 @@ use App\Models\AgreementPaymentDetail;
 use App\Models\AgreementTenant;
 use App\Models\Bank;
 use App\Models\PaymentMode;
+use App\Models\ReceiptAllocation;
 use App\Repositories\TenantChequeRepository;
 use App\Services\Agreement\AgreementService;
 use App\Services\CompanyService;
@@ -35,12 +36,14 @@ class ReceivablesClearingController extends Controller
         $agpaymentmodes = getPaymentModeHaveAgreement();
         $tenants = AgreementTenant::all();
         $agreements = $this->agreementService->getAllAgreements();
+        $receiptAlloctaions = ReceiptAllocation::all();
+        // dd($receiptAlloctaions);
         // dd($units);
-        $units = getUnitshaveAgreement();
+        // $units = getUnitshaveAgreement();
         // $allReceivables = $this->tenantChequeService->getAllReceivables();
         // dd($allReceivables);
         // $allReceivables  = [];
-        return view('admin.finance.tenant-cheque-clearing', compact('payment_modes', 'banks', 'companies', 'properties', 'agpaymentmodes', 'units', 'tenants', 'agreements'));
+        return view('admin.finance.tenant-cheque-clearing', compact('payment_modes', 'receiptAlloctaions', 'banks', 'companies', 'properties', 'agpaymentmodes', 'units', 'tenants', 'agreements'));
     }
     public function receivableChequeClearingList(Request $request)
     {
@@ -146,10 +149,17 @@ class ReceivablesClearingController extends Controller
     public function getTenantPendingReceivables(Request $request)
     {
         $request->validate([
-            'tenant_id' => 'required|integer|exists:agreement_tenants,id',
+            // 'tenant_id' => 'required|integer|exists:agreement_tenants,id',
+            'from_date' => 'nullable|date_format:d-m-Y',
+            'to_date'   => 'nullable|date_format:d-m-Y|after_or_equal:from_date',
+            'company_id' => 'required|integer|exists:companies,id',
+
         ]);
 
         $tenantId = $request->tenant_id;
+        $companyId = $request->company_id;
+        $fromDate = $request->from_date ? Carbon::createFromFormat('d-m-Y', $request->from_date)->format('Y-m-d') : null;
+        $toDate   = $request->to_date ? Carbon::createFromFormat('d-m-Y', $request->to_date)->format('Y-m-d') : null;
 
         $receivables = AgreementPaymentDetail::query()
             ->with([
@@ -160,8 +170,9 @@ class ReceivablesClearingController extends Controller
                 'agreementUnit.contractUnitDetail',
                 'agreementUnit.contractSubunitDetail'
             ])
-            ->whereHas('agreementPayment.agreement', function ($q) use ($tenantId) {
-                $q->where('tenant_id', $tenantId);
+            ->whereHas('agreementPayment.agreement', function ($q) use ($companyId) {
+                // $q->where('tenant_id', $tenantId);
+                $q->where('company_id', $companyId);
             })
             ->withSum('clearedReceivables', 'paid_amount')
             ->where('is_payment_received', '!=', 1)
@@ -170,8 +181,16 @@ class ReceivablesClearingController extends Controller
                 $q->where('has_bounced', 0)
                     ->orWhereNull('has_bounced');  // handle null safely
             })
-            ->whereDate('payment_date', '<=', Carbon::today()->addWeeks(2))
-            ->orderBy('payment_date', 'asc')    // oldest first
+            // ->whereDate('payment_date', '<=', Carbon::today()->addWeeks(2))
+            ->when($fromDate && $toDate, function ($q) use ($fromDate, $toDate) {
+                $q->whereDate('payment_date', '>=', $fromDate)
+                    ->whereDate('payment_date', '<=', $toDate);
+            }, function ($q) {
+                // fallback to original default window when no range is given
+                $q->whereDate('payment_date', '<=', Carbon::today()->addWeeks(2));
+            })
+            ->orderBy('payment_date', 'asc') // oldest first
+            // dd($receivables->toSql(), $receivables->getBindings(), $receivables->count());
             ->get();
         //  Pre-load ALL installments for the unit IDs we already have — one query
         $unitIds = $receivables->pluck('agreement_unit_id')->unique()->filter();
