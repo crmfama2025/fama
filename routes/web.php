@@ -256,6 +256,7 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
 
     Route::get('investments/investment-soa', [InvesmentSOAController::class, 'index'])->name('investment-soa.list');
     Route::get('investments/investment-soa/data', [InvesmentSOAController::class, 'getData'])->name('investment-soa.data');
+    Route::get('investments/breakdown', [InvestmentController::class, 'getInvestmentBreakdown'])->name('investment.breakdown');
 
 
     Route::get('/send-test-template', function () {

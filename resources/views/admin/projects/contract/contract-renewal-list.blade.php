@@ -242,412 +242,156 @@
     <script src="{{ asset('assets/bs-stepper/js/bs-stepper.min.js') }}"></script>
 
     <script>
-        // $('#dateFrom').datetimepicker({
-        //     format: 'DD-MM-YYYY'
-        // });
-
-        // $('#dateTo').datetimepicker({
-        //     format: 'DD-MM-YYYY'
-        // });
-        // $(function() {
-        //     let table = $('#contractTable').DataTable({
-        //         processing: true,
-        //         serverSide: true,
-
-        //         ajax: {
-        //             url: "{{ route('contract.renewal_list') }}",
-        //             data: function (d) {
-        //                 d.companyId = $('#companySelect').val();
-        //                 d.contractId = $('#projectSelect').val();
-        //                 d.startDate = $('#date_From').val();
-        //                 d.endDate = $('#date_To').val();
-        //             }
-        //         },
-        //         columns: [{
-        //                 data: 'DT_RowIndex',
-        //                 name: 'contracts.id',
-        //                 orderable: true,
-        //                 searchable: false
-        //             },
-        //             {
-        //                 data: 'project_number',
-        //                 name: 'contracts.project_number',
-        //             },
-        //             {
-        //                 data: 'contract_type',
-        //                 name: 'contract_types.contract_type',
-        //             },
-        //             {
-        //                 data: 'company_name',
-        //                 name: 'companies.company_name',
-        //             },
-        //             {
-        //                 data: 'no_of_units',
-        //                 name: 'contract_units.no_of_units',
-        //             },
-        //             {
-        //                 data: 'roi_perc',
-        //                 name: 'contract_rentals.roi_perc',
-        //             },
-        //             {
-        //                 data: 'expected_profit',
-        //                 name: 'contract_rentals.expected_profit',
-        //             },
-        //             {
-        //                 data: 'end_date',
-        //                 name: 'contract_details.end_date',
-        //             },
-        //             // {
-        //             //     data: 'status',
-        //             //     name: 'contracts.contract_status',
-        //             //     render: function(data, type, row) {
-        //             //         let badgeClass = '';
-        //             //         let text = '';
-
-        //             //         switch (data) {
-        //             //             case 0:
-        //             //                 badgeClass = 'badge badge-warning';
-        //             //                 text = 'Pending';
-        //             //                 break;
-        //             //             case 1:
-        //             //                 badgeClass = 'badge badge-info text-white';
-        //             //                 text = 'Processing';
-        //             //                 break;
-        //             //             case 2:
-        //             //                 badgeClass = 'badge badge-success text-white';
-        //             //                 text = 'Approved';
-        //             //                 break;
-        //             //             case 3:
-        //             //                 badgeClass = 'badge badge-danger text-white';
-        //             //                 text = 'Terminated';
-        //             //                 break;
-        //             //         }
-
-        //             //         return '<span class="' + badgeClass + '">' + text + '</span>';
-        //             //     },
-        //             // },
-
-        //             {
-        //                 data: 'action',
-        //                 name: 'action',
-        //                 orderable: false,
-        //                 searchable: false
-        //             },
-        //         ],
-        //         order: [
-        //             [0, 'desc']
-        //         ],
-        //         dom: 'Bfrtip', // This is important for buttons
-        //         buttons: [{
-        //             extend: 'excelHtml5',
-        //             text: 'Export Excel',
-        //             title: 'Contract Data',
-        //             action: function(e, dt, node, config) {
-        //                 // redirect to your Laravel export route
-        //                 let searchValue = dt.search();
-        //                 let url = "{{ route('contract.export') }}" + "?search=" +
-        //                     encodeURIComponent(searchValue);
-        //                 window.location.href = url;
-        //             }
-        //         }]
-        //     });
-        // });
-
-        // $(document).on('click', '.openRejectModalBtn', function(e) {
-        //     e.preventDefault();
-
-        //     // Get data from button
-        //     const id = $(this).data('id');
-
-        //     // (Optional) Load modal content dynamically
-        //     $('#contract_id').val(id);
-        //     $('#reject_url').val($(this).data('url'));
-
-        //     // Manually show the modal
-        //     const myModal = new bootstrap.Modal(document.getElementById('modal-reject'));
-        //     myModal.show();
-        // });
-
-
-        // $('#rejectSubmitBtn').click(function(e) {
-        //     e.preventDefault();
-
-        //     if ($('#renew_reject_reason').val() == '') {
-        //         toastr.error('Please provide reason for Renewal');
-        //         return;
-        //     }
-
-        //     const url = $('#reject_url').val();
-        //     var form = document.getElementById('RenewalrejectionForm');
-        //     var fdata = new FormData(form);
-        //     fdata.append('_token', $('meta[name="csrf-token"]').attr('content'));
-
-        //     $.ajax({
-        //         type: "POST",
-        //         url: url,
-        //         data: fdata,
-        //         dataType: "json",
-        //         processData: false,
-        //         contentType: false,
-        //         success: function(response) {
-        //             // console.log(response);
-        //             toastr.success(response.message);
-        //             window.location.href = "{{ route('contract.renewal_pending_list') }}";
-        //         },
-        //         error: function(errors) {
-        //             toastr.error(errors.responseJSON.message);
-        //         }
-        //     });
-        // });
-
-        // const contracts = @json($contracts);
-
-        // $(function () {
-
-        //     $('#companySelect, #projectSelect').select2({
-        //         theme: 'bootstrap4',
-        //         width: '100%'
-        //     });
-
-        //     $('#companySelect').on('change', function () {
-
-        //         const companyId = $(this).val();
-        //         const projectSelect = $('#projectSelect');
-
-        //         // Reset project dropdown
-        //         projectSelect.empty();
-
-        //         if (!companyId) {
-        //             projectSelect.append(
-        //                 '<option value="">All Projects</option>'
-        //             );
-        //         } else {
-        //             projectSelect.append(
-        //                 '<option value="">Select Project</option>'
-        //             );
-
-        //             const companyContracts = contracts.filter(function (contract) {
-        //                 return String(contract.company_id) === String(companyId);
-        //             });
-
-        //             companyContracts.forEach(function (contract) {
-        //                 projectSelect.append(
-        //                     $('<option>', {
-        //                         value: contract.id,
-        //                         text: contract.project_number
-        //                     })
-        //                 );
-        //             });
-        //         }
-
-        //         // Refresh Select2 display
-        //         projectSelect.val('').trigger('change.select2');
-        //     });
-
-        // });
-        // $('.searchbtn').on('click', function (e) {
-        //     e.preventDefault();
-        //     table.ajax.reload();
-        // });
-
-        // // Reset button
-        // $('.reset').on('click', function (e) {
-        //     e.preventDefault();
-
-        //     $('#companySelect').val('').trigger('change');
-        //     $('#projectSelect').html('<option value="">All Projects</option>')
-        //         .trigger('change');
-
-        //     $('#date_From').val('');
-        //     $('#date_To').val('');
-
-        //     table.ajax.reload();
-        // });
-
-        // function deleteConf(id) {
-        //     Swal.fire({
-        //         title: "Are you sure?",
-        //         icon: "warning",
-        //         showCancelButton: true,
-        //         confirmButtonColor: "#3085d6",
-        //         cancelButtonColor: "#d33",
-        //         confirmButtonText: "Yes, delete it!"
-        //     }).then((result) => {
-        //         if (result.isConfirmed) {
-        //             $.ajax({
-        //                 type: "DELETE",
-        //                 url: '/contract/' + id,
-        //                 data: {
-        //                     _token: $('meta[name="csrf-token"]').attr('content')
-        //                 },
-        //                 dataType: "json",
-        //                 success: function(response) {
-        //                     toastr.success(response.message);
-        //                     $('#contractTable').DataTable().ajax.reload();
-        //                 }
-        //             });
-
-        //         } else {
-        //             toastr.error(errors.responseJSON.message);
-        //         }
-        //     });
-        // }
+    
 
         
-$(function () {
-    // Initialize date pickers
-    $('#dateFrom, #dateTo').datetimepicker({
-        format: 'DD-MM-YYYY'
-    });
+    $(function () {
+        $('#dateFrom, #dateTo').datetimepicker({
+            format: 'DD-MM-YYYY'
+        });
 
-    // Initialize Select2
-    $('#companySelect, #projectSelect').select2({
-        theme: 'bootstrap4',
-        width: '100%'
-    });
+        $('#companySelect, #projectSelect').select2({
+            theme: 'bootstrap4',
+            width: '100%'
+        });
 
-    const contracts = @json($contracts);
+        const contracts = @json($contracts);
 
-    // Populate projects based on selected company
-    $('#companySelect').on('change', function () {
-        const companyId = $(this).val();
-        const projectSelect = $('#projectSelect');
+        $('#companySelect').on('change', function () {
+            const companyId = $(this).val();
+            const projectSelect = $('#projectSelect');
 
-        projectSelect.empty();
+            projectSelect.empty();
 
-        projectSelect.append(
-            $('<option>', {
-                value: '',
-                text: companyId ? 'Select Project' : 'All Projects'
-            })
-        );
+            projectSelect.append(
+                $('<option>', {
+                    value: '',
+                    text: companyId ? 'Select Project' : 'All Projects'
+                })
+            );
 
-        if (companyId) {
-            const companyContracts = contracts.filter(function (contract) {
-                return String(contract.company_id) === String(companyId);
-            });
+            if (companyId) {
+                const companyContracts = contracts.filter(function (contract) {
+                    return String(contract.company_id) === String(companyId);
+                });
 
-            companyContracts.forEach(function (contract) {
-                projectSelect.append(
-                    $('<option>', {
-                        value: contract.id,
-                        text: contract.project_number
-                    })
-                );
-            });
-        }
-
-        projectSelect.val('').trigger('change.select2');
-    });
-
-    // Initialize DataTable
-    const table = $('#contractTable').DataTable({
-        processing: true,
-        serverSide: true,
-
-        ajax: {
-            url: "{{ route('contract.renewal_list') }}",
-            data: function (d) {
-                d.companyId = $('#companySelect').val();
-                d.contractId = $('#projectSelect').val();
-                d.startDate = $('#date_From').val();
-                d.endDate = $('#date_To').val();
+                companyContracts.forEach(function (contract) {
+                    projectSelect.append(
+                        $('<option>', {
+                            value: contract.id,
+                            text: contract.project_number
+                        })
+                    );
+                });
             }
-        },
 
-        columns: [
-            {
-                data: 'DT_RowIndex',
-                name: 'contracts.id',
-                orderable: false,
-                searchable: false
-            },
-            {
-                data: 'project_number',
-                name: 'contracts.project_number'
-            },
-            {
-                data: 'contract_type',
-                name: 'contract_types.contract_type'
-            },
-            {
-                data: 'company_name',
-                name: 'companies.company_name'
-            },
-            {
-                data: 'no_of_units',
-                name: 'contract_units.no_of_units',
-                orderable: false
-            },
-            {
-                data: 'roi_perc',
-                name: 'contract_rentals.roi_perc',
-                orderable: false
-            },
-            {
-                data: 'expected_profit',
-                name: 'contract_rentals.expected_profit',
-                orderable: false
-            },
-            {
-                data: 'end_date',
-                name: 'contract_details.end_date'
-            },
-            {
-                data: 'action',
-                name: 'action',
-                orderable: false,
-                searchable: false
-            }
-        ],
+            projectSelect.val('').trigger('change.select2');
+        });
 
-        order: [[0, 'desc']],
-        dom: 'Bfrtip',
+        const table = $('#contractTable').DataTable({
+            processing: true,
+            serverSide: true,
 
-        buttons: [
-            {
-                extend: 'excelHtml5',
-                text: 'Export Excel',
-                title: 'Contract Data',
-                action: function (e, dt) {
-                    const searchValue = dt.search();
-
-                    const url = "{{ route('contract.export') }}" +
-                        "?search=" + encodeURIComponent(searchValue);
-
-                    window.location.href = url;
+            ajax: {
+                url: "{{ route('contract.renewal_list') }}",
+                data: function (d) {
+                    d.companyId = $('#companySelect').val();
+                    d.contractId = $('#projectSelect').val();
+                    d.startDate = $('#date_From').val();
+                    d.endDate = $('#date_To').val();
                 }
-            }
-        ]
+            },
+
+            columns: [
+                {
+                    data: 'DT_RowIndex',
+                    name: 'contracts.id',
+                    orderable: false,
+                    searchable: false
+                },
+                {
+                    data: 'project_number',
+                    name: 'contracts.project_number'
+                },
+                {
+                    data: 'contract_type',
+                    name: 'contract_types.contract_type'
+                },
+                {
+                    data: 'company_name',
+                    name: 'companies.company_name'
+                },
+                {
+                    data: 'no_of_units',
+                    name: 'contract_units.no_of_units',
+                    orderable: false
+                },
+                {
+                    data: 'roi_perc',
+                    name: 'contract_rentals.roi_perc',
+                    orderable: false
+                },
+                {
+                    data: 'expected_profit',
+                    name: 'contract_rentals.expected_profit',
+                    orderable: false
+                },
+                {
+                    data: 'end_date',
+                    name: 'contract_details.end_date'
+                },
+                {
+                    data: 'action',
+                    name: 'action',
+                    orderable: false,
+                    searchable: false
+                }
+            ],
+
+            order: [[0, 'desc']],
+            dom: 'Bfrtip',
+
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    text: 'Export Excel',
+                    title: 'Contract Data',
+                    action: function (e, dt) {
+                        const searchValue = dt.search();
+
+                        const url = "{{ route('contract.export') }}" +
+                            "?search=" + encodeURIComponent(searchValue);
+
+                        window.location.href = url;
+                    }
+                }
+            ]
+        });
+
+        $('.searchbtn').on('click', function (e) {
+            e.preventDefault();
+            table.ajax.reload();
+        });
+
+        $('.reset').on('click', function (e) {
+            e.preventDefault();
+
+            $('#companySelect').val('').trigger('change');
+
+            $('#projectSelect')
+                .empty()
+                .append('<option value="">All Projects</option>')
+                .val('')
+                .trigger('change.select2');
+
+            $('#date_From').val('');
+            $('#date_To').val('');
+
+            table.search('');
+
+            table.ajax.reload();
+        });
     });
-
-    // Search button: reload table with selected filters
-    $('.searchbtn').on('click', function (e) {
-        e.preventDefault();
-        table.ajax.reload();
-    });
-
-    // Reset filters
-    $('.reset').on('click', function (e) {
-        e.preventDefault();
-
-        $('#companySelect').val('').trigger('change');
-
-        $('#projectSelect')
-            .empty()
-            .append('<option value="">All Projects</option>')
-            .val('')
-            .trigger('change.select2');
-
-        $('#date_From').val('');
-        $('#date_To').val('');
-
-        // Clear DataTables' built-in search box too
-        table.search('');
-
-        table.ajax.reload();
-    });
-});
 
     </script>
 @endsection

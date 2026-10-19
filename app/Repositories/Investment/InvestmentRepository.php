@@ -638,4 +638,101 @@ class InvestmentRepository
 
         return $query;
     }
+    //  public function getCompanyTotalInvestmentsQuery($investorId, $cutoffDate = null)
+    // {
+    //     // dd($investorId, $cutoffDate);
+    //     $query = Investment::select(
+    //         'investments.company_id',
+    //         'companies.company_name as company_name',
+    //         DB::raw('SUM(investments.investment_amount) as total_invested')
+    //     )
+    //         ->join(
+    //             'companies',
+    //             'companies.id',
+    //             '=',
+    //             'investments.company_id'
+    //         )
+    //         ->where('investments.investor_id', $investorId)
+    //         ->where('investments.terminate_status', '!=', 2);
+    //         // ->where('investments.investment_term_type', 1);
+
+    //     if ($cutoffDate !== null) {
+    //         $query->whereDate(
+    //             'investments.investment_date',
+    //             '<=',
+    //             $cutoffDate
+    //         );
+    //     }
+
+
+    //     $data = $query
+    //         ->groupBy(
+    //             'investments.company_id',
+    //             'companies.company_name'
+    //         )
+    //         ->orderBy('companies.company_name')
+    //         ->get();
+
+    //     return [
+    //         'companies' => $data,
+    //         'grand_total' => $data->sum('total_invested'),
+    //     ];
+    // }
+    public function getCompanyTotalInvestmentsQuery($investorId, $cutoffDate = null)
+    {
+        $query = Investment::select(
+            'investments.company_id',
+            'companies.company_name as company_name',
+
+            DB::raw('SUM(
+                CASE
+                    WHEN investments.investment_term_type = 1
+                    THEN investments.investment_amount
+                    ELSE 0
+                END
+            ) as short_term_amount'),
+
+            DB::raw('SUM(
+                CASE
+                    WHEN investments.investment_term_type = 2
+                    THEN investments.investment_amount
+                    ELSE 0
+                END
+            ) as long_term_amount'),
+
+            DB::raw('SUM(investments.investment_amount) as total_invested')
+        )
+            ->join(
+                'companies',
+                'companies.id',
+                '=',
+                'investments.company_id'
+            )
+            ->where('investments.investor_id', $investorId)
+            ->where('investments.terminate_status', '!=', 2)
+            ->whereIn('investments.investment_term_type', [1, 2]);
+
+        if ($cutoffDate !== null) {
+            $query->whereDate(
+                'investments.investment_date',
+                '<=',
+                $cutoffDate
+            );
+        }
+
+        $data = $query
+            ->groupBy(
+                'investments.company_id',
+                'companies.company_name'
+            )
+            ->orderBy('companies.company_name')
+            ->get();
+
+        return [
+            'companies' => $data,
+            'short_term_total' => $data->sum('short_term_amount'),
+            'long_term_total' => $data->sum('long_term_amount'),
+            'grand_total' => $data->sum('total_invested'),
+        ];
+    }
 }

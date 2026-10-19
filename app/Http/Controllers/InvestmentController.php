@@ -12,12 +12,14 @@ use App\Models\InvestmentReceivedPayment;
 use App\Repositories\Investment\InvestmentRepository;
 use App\Services\Investment\InvestmentContractDocumentService;
 use App\Services\Investment\InvestmentService;
+use App\Services\Investment\InvestorService;
 use App\Services\Investment\InvestorLedgerService;
 use Gate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\DB;
 
 class InvestmentController extends Controller
 {
@@ -27,6 +29,7 @@ class InvestmentController extends Controller
         protected InvestmentRepository $investmentRepository,
         protected InvestmentContractDocumentService $investmentContractService,
         protected InvestorLedgerService $investorLedgerService,
+        protected InvestorService $investorService,
     ) {}
 
     public function index()
@@ -372,5 +375,19 @@ class InvestmentController extends Controller
 
             return response()->json(['success' => false, 'message' => $e->getMessage(), 'error'   => $e], 500);
         }
+    }
+    public function getInvestmentBreakdown(Request $request)
+    {
+        $validated = $request->validate([
+            'investor_id' => ['required', 'integer', 'min:1'],
+        ]);
+
+        $investments = $this->investorService
+            ->getCompanyTotalInvestments(
+                $validated['investor_id'],
+                null
+            );
+
+        return response()->json($investments);
     }
 }
