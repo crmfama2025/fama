@@ -136,6 +136,7 @@ class InvestmentRepository
     // }
     public function getQuery(array $filters = []): Builder
     {
+
         $permittedCompanyIds = getUserPermittedCompanyIds(
             auth()->user()->id,
             'investment'
@@ -151,22 +152,18 @@ class InvestmentRepository
             'investedCompany',
         ]);
 
-        // Preserve the existing company permission restriction
         $query->whereHas('company', function ($q) use ($permittedCompanyIds) {
             $q->whereIn('company_id', $permittedCompanyIds);
         });
 
-        // Filter by Investor
         if (!empty($filters['investor_id'])) {
             $query->where('investor_id', $filters['investor_id']);
         }
 
-        // Filter by Company Name
         if (!empty($filters['company_id'])) {
             $query->where('company_id', $filters['company_id']);
         }
 
-        // Filter by Term Type: 1 = Long Term, 2 = Short Term
         if (
             isset($filters['investment_term_type']) &&
             $filters['investment_term_type'] !== ''
@@ -177,7 +174,6 @@ class InvestmentRepository
             );
         }
 
-        // DataTables global search
         if (!empty($filters['search'])) {
             $search = trim($filters['search']);
             $like = '%' . $search . '%';

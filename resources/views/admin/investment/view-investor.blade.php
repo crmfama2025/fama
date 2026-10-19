@@ -343,7 +343,7 @@
                     url: "{{ route('investment.list') }}",
                     data: function(d) {
                         console.log({{ $investor->id }});
-                        d.investorid = "{{ $investor->id }}";
+                        d.investor_id = "{{ $investor->id }}";
                         // You can add filters here if needed
                     },
                 },

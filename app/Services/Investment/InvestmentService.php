@@ -854,7 +854,6 @@ class InvestmentService
                         ->implode(', <br>');
                 }
 
-                // Fallback for older investments.
                 if ($row->invested_company_id) {
                     return ($row->investedCompany?->company_name ?? '-')
                         . ' - '
