@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Contract;
 use App\Repositories\Contracts\PayableClearRepository;
 use App\Repositories\Contracts\PaymentDetailRepository;
 use App\Repositories\Contracts\PaymentRepository;
@@ -31,6 +32,12 @@ class PayableClearingService
     public function getDataTable(array $filters)
     {
         $query = $this->payableClearRepo->getPayables($filters);
+
+        $contract = fn($col) => DB::table('contracts')
+            ->select($col)
+            ->whereColumn('contracts.id', 'contract_payment_details.contract_id')
+            ->limit(1);
+
 
         $columns = [
             ['data' => 'checkbox', 'name' => 'checkbox'],
@@ -105,12 +112,15 @@ class PayableClearingService
             ->addColumn('cheque_no', fn($row) => $row->cheque_no ?? '-')
             ->addColumn('has_returned', fn($row) => $row->has_returned ?? '-')
             ->addColumn('composition', fn($row) => getComposition($row->contract_id, $row->id) ?? '-')
+            // ->addColumn('payment_amount', function ($row) {
+
+            //     $paid = totalPaidPayable($row->payables);
+
+
+            //     return toNumeric($row->payment_amount) - $paid;
+            // })
             ->addColumn('payment_amount', function ($row) {
-
-                $paid = totalPaidPayable($row->payables);
-
-
-                return toNumeric($row->payment_amount) - $paid;
+                return toNumeric($row->payment_amount) - (float) ($row->paid_total ?? 0);
             })
             ->addColumn('action', function ($row) {
                 $action = '';
@@ -118,10 +128,72 @@ class PayableClearingService
 
                 $action .= '<a class="btn btn-success  btn-sm" title="Clear cheque"
                                 data-toggle="modal" data-target="#modal-clear-payable"
-                                data-clear-type="single" data-det-id="' . $row->id . '" data-amount="' . (toNumeric($row->payment_amount) - totalPaidPayable($row->payables)) . '">Clear</a>';
+                                data-clear-type="single" data-det-id="' . $row->id . '" data-amount="' . (toNumeric($row->payment_amount) - (float) ($row->paid_total ?? 0)) . '">Clear</a>';
 
 
                 return $action ?: '-';
+            })
+
+            ->orderColumn('project_number', function ($q, $order) use ($contract) {
+                $q->orderBy($contract('contracts.project_number'), $order)
+                    ->orderBy('contract_payment_details.id', $order);
+            })
+
+            ->orderColumn('company_name', function ($q, $order) {
+                $q->orderBy(
+                    DB::table('contracts')
+                        ->join('companies', 'companies.id', '=', 'contracts.company_id')
+                        ->select('companies.company_name')
+                        ->whereColumn('contracts.id', 'contract_payment_details.contract_id')
+                        ->limit(1),
+                    $order
+                );
+            })
+
+            ->orderColumn('vendor_name', function ($q, $order) {
+                $q->orderBy(
+                    DB::table('contracts')
+                        ->join('vendors', 'vendors.id', '=', 'contracts.vendor_id')
+                        ->select('vendors.vendor_name')
+                        ->whereColumn('contracts.id', 'contract_payment_details.contract_id')
+                        ->limit(1),
+                    $order
+                );
+            })
+
+            ->orderColumn('property_name', function ($q, $order) {
+                $q->orderBy(
+                    DB::table('contracts')
+                        ->join('properties', 'properties.id', '=', 'contracts.property_id')
+                        ->select('properties.property_name')
+                        ->whereColumn('contracts.id', 'contract_payment_details.contract_id')
+                        ->limit(1),
+                    $order
+                );
+            })
+
+            ->orderColumn('contract_type', function ($q, $order) {
+                $q->orderBy(
+                    DB::table('contracts')
+                        ->join('contract_types', 'contract_types.id', '=', 'contracts.contract_type_id')
+                        ->select('contract_types.shortcode')
+                        ->whereColumn('contracts.id', 'contract_payment_details.contract_id')
+                        ->limit(1),
+                    $order
+                );
+            })
+
+            ->orderColumn('payment_mode', function ($q, $order) {
+                $q->orderBy(
+                    DB::table('payment_modes')
+                        ->select('payment_mode_name')
+                        ->whereColumn('payment_modes.id', 'contract_payment_details.payment_mode_id')
+                        ->limit(1),
+                    $order
+                );
+            })
+            ->orderColumn('payment_amount', function ($q, $order) {
+                $q->orderByRaw("(contract_payment_details.payment_amount - COALESCE(paid_total, 0)) $order");
             })
 
             ->rawColumns(['checkbox', 'project_number', 'action', 'status'])

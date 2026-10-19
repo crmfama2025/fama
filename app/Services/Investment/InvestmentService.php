@@ -130,7 +130,10 @@ class InvestmentService
                 'initial_profit_release_month' => Carbon::parse($data['next_profit_release_date'])->format('M Y'),
                 // 'invested_company_id' => $data['invested_company_id'],
                 'total_invested_amount' => $data['investment_amount'],
-                'investment_term_type' => $termtype
+                'investment_term_type' => $termtype,
+                'annexure_comment'  => $data['annexure_comment'],
+                'annexure_comment_ar'  => $data['annexure_comment_ar'],
+                'common_comment'  => $data['remarks']
             ];
             $this->validate($investmentData);
             // dd($investmentData);
@@ -383,7 +386,10 @@ class InvestmentService
                 'initial_profit_release_month' => Carbon::parse($data['next_profit_release_date'])->format('M Y'),
                 // 'invested_company_id' => $data['invested_company_id'],
                 'total_invested_amount' => $data['investment_amount'],
-                'investment_term_type' => $termtype
+                'investment_term_type' => $termtype,
+                'annexure_comment'  => $data['annexure_comment'],
+                'annexure_comment_ar'  => $data['annexure_comment_ar'],
+                'common_comment'  => $data['remarks'],
             ];
             // dd($investmentData);
 
@@ -809,7 +815,7 @@ class InvestmentService
         $columns = [
             ['data' => 'DT_RowIndex', 'name' => 'id'],
             ['data' => 'company_name', 'name' => 'company.company_name'],
-            ['data' => 'invested_company_name', 'name' => 'investedCompany.company_name'],
+            ['data' => 'invested_company_name','name' => 'invested_company_name'],
             ['data' => 'investor_name', 'name' => 'investor.investor_name'],
             ['data' => 'investment_amount', 'name' => 'investment_amount'],
             ['data' => 'total_received_amount', 'name' => 'total_received_amount'],
@@ -1069,12 +1075,12 @@ class InvestmentService
 
             $userId = auth()->id();
             $balance_amount = $balanceAmount - $data['received_amount'];
-
+            $receivedDate = parseDate($data['received_date']);
             $insertData = [
                 'investment_id'  => $investment->id,
                 'investor_id'    => $investment->investor_id,
                 'received_amount' => $data['received_amount'],
-                'received_date'  => parseDate($data['received_date']),
+                'received_date'  => $receivedDate,
                 'status'         => 1,
                 'added_by'       => $userId,
                 'is_initial_payment' => 0
@@ -1087,6 +1093,7 @@ class InvestmentService
                 $newTotalReceived
             );
             $this->investmentRepository->updateById($investment->id, [
+                'investment_date'       => $receivedDate,
                 'total_received_amount' => $newTotalReceived,
                 'has_fully_received' => $has_fully_received,
                 'balance_amount' => $balance_amount,
@@ -1094,6 +1101,7 @@ class InvestmentService
             ]);
         });
     }
+   
     public function getFormDataEdit()
     {
         $investors = $this->investorRepository->getInvestorsWithDetails();

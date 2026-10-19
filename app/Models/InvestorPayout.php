@@ -32,11 +32,11 @@ class InvestorPayout extends Model
 
     public function investor()
     {
-        return $this->belongsTo(Investor::class);
+        return $this->belongsTo(Investor::class, 'investor_id');
     }
     public function investment()
     {
-        return $this->belongsTo(Investment::class);
+        return $this->belongsTo(Investment::class, 'investment_id');
     }
     public function investmentReferral()
     {

@@ -757,6 +757,41 @@
                                         </div>
                                     </div>
 
+                                    <!-- ================= Comments ================= -->
+                                    <div class="card card-outline card-info ">
+                                        <div class="card-header">
+                                            <h3 class="card-title font-weight-bold">Comments</h3>
+                                        </div>
+
+                                        <div class="card-body">
+                                            <div class="row">
+
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <label>Annexure Comment</label>
+                                                        <textarea class="form-control" rows="5" name="annexure_comment" >{{ old('annexure_comment', $investment->annexure_comment ?? '') }}</textarea>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <label>Annexure Comment (Arabic)</label>
+                                                        <textarea class="form-control" rows="5" name="annexure_comment_ar">{{ old('annexure_comment_ar', $investment->annexure_comment_ar ?? '') }}</textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <label>Remarks</label>
+                                                        <textarea class="form-control" rows="5" name="remarks">{{ old('common_comment', $investment->common_comment ?? '') }}</textarea>
+                                                    </div>
+                                                </div>
+
+
+
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     <!-- ================= Company & Bank ================= -->
                                     <div class="card card-outline card-info ">
                                         <div class="card-header">

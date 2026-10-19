@@ -5,11 +5,14 @@ namespace App\Http\Controllers;
 use App\Exports\LocalityExport;
 use App\Models\Area;
 use App\Models\Locality;
+use App\Models\UnitType;
+use App\Models\LocalityPricing;
 use App\Services\CompanyService;
 use App\Services\LocalityService;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\DB;
 
 class LocalityController extends Controller
 {
@@ -27,7 +30,9 @@ class LocalityController extends Controller
         $title = 'Locality';
         $areas = Area::all();
         $companies = $this->companyService->getAll();
-        return view("admin.master.locality", compact("companies", "areas"));
+        $unitTypes = UnitType::all();
+        // dd($unitTypes);
+        return view("admin.master.locality", compact("companies", "areas", "unitTypes"));
     }
 
     /**
@@ -118,6 +123,61 @@ class LocalityController extends Controller
             return $this->localityService->getDataTable($filters);
         }
     }
+    public function getPricing($locality)
+    {
+        $locality = Locality::with('area')->findOrFail($locality);
+
+        $prices = LocalityPricing::where('locality_id', $locality->id)
+            ->get()
+            ->keyBy('unit_type_id')
+            ->map(fn ($item) => $item->price);
+
+        return response()->json([
+            'locality_id' => $locality->id,
+            'locality_name' => $locality->locality_name,
+            'area_name' => $locality->area->area_name ?? '',
+            'prices' => $prices,
+        ]);
+    }
+    public function storePricing(Request $request)
+    {
+        
+        $validated = $request->validate([
+            'locality_id' => ['required', 'integer', 'exists:localities,id'],
+            'prices' => ['required', 'array'],
+            'prices.*.unit_type_id' => [
+                'required',
+                'integer',
+                'distinct',
+                'exists:unit_types,id',
+            ],
+            'prices.*.price' => ['nullable', 'numeric', 'min:0'],
+        ]);
+
+        DB::transaction(function () use ($validated) {
+            foreach ($validated['prices'] as $item) {
+                $price = $item['price'] ?? null;
+
+                if ($price === '') {
+                    $price = null;
+                }
+
+                LocalityPricing::updateOrCreate(
+                    [
+                        'locality_id' => $validated['locality_id'],
+                        'unit_type_id' => $item['unit_type_id'],
+                    ],
+                    [
+                        'price' => $price,
+                    ]
+                );
+            }
+        });
+        return response()->json([
+            'message' => 'Locality pricing saved successfully.',
+        ]);
+    }
+
 
     public function import(Request $request)
     {

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Exports\InvestmentExport;
 use App\Models\Investment;
+use App\Models\Investor;
+use App\Models\Company;
 use App\Models\InvestmentProfitRecord;
 use App\Models\InvestmentProfitRecordRenewalLog;
 use App\Models\InvestmentReceivedPayment;
@@ -29,8 +31,40 @@ class InvestmentController extends Controller
 
     public function index()
     {
-        $title = 'Investments';
-        return view("admin.investment.investment.investment", compact("title"));
+         $title = 'Investments';
+        // return view("admin.investment.investment.investment", compact("title"));
+         $permittedCompanyIds = getUserPermittedCompanyIds(
+            auth()->id(),
+            'investment'
+        );
+
+        $visibleInvestments = Investment::query()
+            ->whereHas('company', function ($q) use ($permittedCompanyIds) {
+                $q->whereIn('company_id', $permittedCompanyIds);
+            });
+
+        $investorIds = (clone $visibleInvestments)
+            ->select('investor_id')
+            ->distinct()
+            ->pluck('investor_id');
+
+        $companyIds = (clone $visibleInvestments)
+            ->select('company_id')
+            ->distinct()
+            ->pluck('company_id');
+
+        $investors = Investor::whereIn('id', $investorIds)
+            ->orderBy('investor_name')
+            ->get(['id', 'investor_name', 'investor_code']);
+
+        $companies = Company::whereIn('id', $companyIds)
+            ->orderBy('company_name')
+            ->get(['id', 'company_name']);
+
+        return view(
+            'admin.investment.investment.investment',
+            compact('title', 'investors', 'companies')
+        );
     }
 
     public function create(Request $request)
@@ -66,14 +100,13 @@ class InvestmentController extends Controller
 
     public function getInvestments(Request $request)
     {
-        // dd("test");
-        // dd($request->all());
 
         if ($request->ajax()) {
             $filters = [
-                'investor_id' => $request->investorid,
-                'company_id' => auth()->user()->company_id,
-                'search' => $request->search['value'] ?? null
+                'investor_id' => $request->input('investor_id'),
+                'company_id' => $request->input('company_id'),
+                'investment_term_type' => $request->input('investment_term_type'),
+                'search' => $request->input('search.value'),
             ];
 
             return $this->investmentService->getDataTable($filters);
@@ -89,6 +122,8 @@ class InvestmentController extends Controller
             return response()->json(['success' => false, 'message' => $e->getMessage(), 'error'   => $e], 422);
         }
     }
+
+
 
     public function edit(Request $request, $id)
     {
@@ -120,16 +155,31 @@ class InvestmentController extends Controller
             return response()->json(['success' => false, 'message' => $e->getMessage(), 'error'   => $e], 500);
         }
     }
-    public function exportInvestment()
-    {
-        // $filters = [
-        //     'investor_id' => $request->investorid,
-        //     'company_id' => auth()->user()->company_id,
-        // ];
-        $search = request('search') ?? null;
+    // public function exportInvestment()
+    // {
+    //     // $filters = [
+    //     //     'investor_id' => $request->investorid,
+    //     //     'company_id' => auth()->user()->company_id,
+    //     // ];
+    //     $search = request('search') ?? null;
 
-        return Excel::download(new InvestmentExport($search), 'investments.xlsx');
-    }
+    //     return Excel::download(new InvestmentExport($search), 'investments.xlsx');
+    // }
+    public function exportInvestment(Request $request)
+    {
+        $filters = [
+            'investor_id' => $request->input('investor_id'),
+            'company_id' => $request->input('company_id'),
+            'investment_term_type' => $request->input('investment_term_type'),
+        ];
+
+        $search = $request->input('search');
+
+        return Excel::download(
+            new InvestmentExport($search, $filters),
+            'Investments.xlsx'
+        );
+}
     public function show(Investment $investment)
     {
         $investment = $this->investmentService->getDetails($investment->id);

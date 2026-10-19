@@ -53,6 +53,9 @@
                                             {{-- <th>Company Name</th> --}}
                                             <th>Area Name</th>
                                             <th>Locality Name</th>
+                                            @foreach ($unitTypes as $unitType)
+                                                <th>{{ $unitType->unit_type }}</th>
+                                            @endforeach
                                             <th>Status</th>
                                             <th>Action</th>
                                         </tr>
@@ -195,6 +198,9 @@
             @endforeach
         @endslot
     @endcomponent
+@component('admin.modals.modal-locality-pricing', ['unitTypes' => $unitTypes])
+@endcomponent
+
 
 
     <script>
@@ -227,16 +233,19 @@
                         data: 'locality_name',
                         name: 'localities.locality_name'
                     },
+                    @foreach ($unitTypes as $unitType)
+                    {
+                        data: 'unit_type_{{ $unitType->id }}',
+                        name: 'unit_type_{{ $unitType->id }}',
+                        orderable: false,
+                        searchable: false
+                    },
+                    @endforeach
                     {
                         data: 'status',
-                        name: 'areas.status',
-                        render: function(data, type, row) {
-                            if (data == 1) {
-                                return '<span class="badge bg-success">Active</span>';
-                            } else {
-                                return '<span class="badge bg-secondary">Inactive</span>';
-                            }
-                        }
+                        name: 'localities.status',
+                        orderable: false,
+                        searchable: false
                     },
                     {
                         data: 'action',
@@ -359,6 +368,68 @@
             form.find('select').val(null).trigger('change');
             $('#company_id').prop('disabled', false);
         });
+
+        $('#modal-locality-pricing').on('show.bs.modal', function (e) {
+            const button = $(e.relatedTarget);
+            const modal = $(this);
+            const form = modal.find('#localityPricingForm');
+
+            const id = button.data('id');
+            const name = button.data('name');
+            const areaName = button.data('area');
+
+            // Set locality details
+            $('#pricing_locality_id').val(id);
+            $('#pricing_locality_name').val(name);
+            $('#pricing_area_name').val(areaName);
+
+            // Clear previous prices before loading the selected locality
+            form.find('input[name$="[price]"]').val('');
+
+            if (!id) {
+                return;
+            }
+
+            // Fetch saved pricing for this locality
+            const url = "{{ route('locality.pricing.show', ['locality' => '__ID__']) }}"
+                .replace('__ID__', id);
+
+            $.ajax({
+                url: url,
+                type: 'GET',
+                dataType: 'json',
+
+                success: function (response) {
+                    $('#pricing_locality_id').val(response.locality_id);
+                    $('#pricing_locality_name').val(response.locality_name);
+                    $('#pricing_area_name').val(response.area_name);
+
+                    // Populate the saved price for each unit type
+                    $.each(response.prices, function (unitTypeId, price) {
+                        form.find(
+                            'input[name="prices[' + unitTypeId + '][price]"]'
+                        ).val(price);
+                    });
+                },
+                
+
+                error: function (xhr) {
+                    console.error(xhr.responseText);
+                    toastr.error('Unable to load saved locality pricing.');
+                }
+            });
+        });
+
+        $('#modal-locality-pricing').on('hidden.bs.modal', function () {
+            const form = $(this).find('#localityPricingForm');
+
+            form[0].reset();
+
+            $('#pricing_locality_id').val('');
+            $('#pricing_locality_name').val('');
+            $('#pricing_area_name').val('');
+        });
+
         enableEnterNavigation('#localityForm');
     </script>
 @endsection

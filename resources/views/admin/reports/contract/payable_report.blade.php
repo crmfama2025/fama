@@ -330,7 +330,7 @@
                     }
                 ],
                 order: [
-                    [8, 'asc']
+                    [5, 'asc']
                 ],
                 dom: 'Bfrtip',
                 buttons: [{
