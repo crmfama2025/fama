@@ -412,8 +412,41 @@ class ContractRepository
         if (!empty($filters['company_id'])) {
             $query->Where('contracts.company_id', $filters['company_id']);
         }
+        if (!empty($filters['contract_id'])) {
+            $query->where(
+                'contracts.id',
+                $filters['contract_id']
+            );
+        }
 
-        // dd($query->tosql());
+        
+        if (!empty($filters['start_date'])) {
+            $startDate = Carbon::createFromFormat(
+                'd-m-Y',
+                $filters['start_date']
+            )->format('Y-m-d');
+
+            $query->whereDate(
+                'contract_details.end_date',
+                '>=',
+                $startDate
+            );
+        }
+
+        if (!empty($filters['end_date'])) {
+            $endDate = Carbon::createFromFormat(
+                'd-m-Y',
+                $filters['end_date']
+            )->format('Y-m-d');
+
+            $query->whereDate(
+                'contract_details.end_date',
+                '<=',
+                $endDate
+            );
+        }
+
+                // dd($query->tosql());
 
         return $query;
     }

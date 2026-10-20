@@ -569,7 +569,7 @@ class ContractService
             ['data' => 'expected_profit', 'name' => 'expected_profit'],
             ['data' => 'end_date', 'name' => 'end_date'],
             ['data' => 'contract_status', 'name' => 'contract_status'],
-            ['data' => 'action', 'name' => 'action', 'orderable' => true, 'searchable' => true],
+            ['data' => 'action', 'name' => 'action', 'orderable' => false, 'searchable' => false],
         ];
 
         return datatables()
@@ -582,8 +582,7 @@ class ContractService
             ->addColumn('roi_perc', fn($row) => $row->contract_rentals->roi_perc ?? '-')
             ->addColumn('expected_profit', fn($row) => $row->contract_rentals->expected_profit ?? '-')
             ->addColumn('end_date', fn($row) => $row->contract_detail->end_date ?? '-')
-            // ->addColumn('status', fn($row) => $row->contract_status ?? '-')
-
+            ->addColumn('contract_status', fn($row) => $row->contract_status ?? '-')
             ->addColumn('action', function ($row) {
                 $action = '';
 
