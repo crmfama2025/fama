@@ -124,7 +124,7 @@ class RecevableClearingExport implements FromCollection, WithHeadings, ShouldAut
 
                 'Payment Date' => $row->payment_date ? Carbon::parse($row->payment_date)->format('d-m-Y') : '-',
                 'Payment Amount' => $row->payment_amount ?? 0,
-                'Pending Amount' => $row->latestClearedReceivable->pending_amount ?? 0,
+                'Pending Amount' => $row->latestClearedReceivable->pending_amount ?? $row->payment_amount ?? 0,
                 'Payment Mode' => $row->paymentMode->payment_mode_name ?? '-',
                 'Bank' => $row->bank->bank_name ?? '-',
                 'Cheque Number' => $row->cheque_number ?? '-',
