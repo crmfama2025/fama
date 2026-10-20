@@ -85,7 +85,7 @@ namespace App\Models{
  * @property-read Agreement|null $parent
  * @property-read \App\Models\SalesTenantAgreement|null $salesTenantAgreement
  * @property-read \App\Models\AgreementTenant|null $tenant
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\AgreementUnit> $tenant_invoices
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\TenantInvoice> $tenant_invoices
  * @property-read int|null $tenant_invoices_count
  * @method static \Illuminate\Database\Eloquent\Builder|Agreement newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Agreement newQuery()
@@ -1952,6 +1952,7 @@ namespace App\Models{
  * @property string|null $common_comment
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvestmentRenewalEditLog> $RenewalEditLog
  * @property-read int|null $renewal_edit_log_count
+ * @property-read \App\Models\User|null $addedBy
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Investment> $childInvestments
  * @property-read int|null $child_investments_count
  * @property-read \App\Models\Company|null $company
@@ -2164,6 +2165,10 @@ namespace App\Models{
  * @property string|null $signed_pdf_path
  * @property string|null $both_notified_at
  * @property int|null $version_number
+ * @property int $resign_count
+ * @property string|null $last_resign_reason
+ * @property string|null $last_resign_at
+ * @property string|null $last_resign_role
  * @property-read \App\Models\InvestorAgreementTemplate|null $agreementTemplate
  * @property-read \App\Models\InvestorAgreementType|null $agreementType
  * @property-read \App\Models\Company|null $company
@@ -2175,6 +2180,8 @@ namespace App\Models{
  * @property-read \App\Models\Investor|null $investor
  * @property-read \App\Models\InvestorLedger|null $ledger
  * @property-read InvestmentContractDocuments|null $mudarabahReference
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvestorDocumentResignRequestLog> $resignRequests
+ * @property-read int|null $resign_requests_count
  * @property-read \App\Models\User|null $sendToInvestorBy
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments newQuery()
@@ -2207,7 +2214,11 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereInvestorSignedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereIsCompanySigned($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereIsInvestorSigned($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereLastResignAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereLastResignReason($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereLastResignRole($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereReferenceMudarabahId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereResignCount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereSendtoInvestorBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereSendtoInvestorDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereSendtoManagementBy($value)
@@ -2544,10 +2555,10 @@ namespace App\Models{
  * @property string $investor_email
  * @property string $investor_address
  * @property string|null $investor_address_arabic
- * @property int $nationality_id
- * @property int $country_of_residence
+ * @property int|null $nationality_id
+ * @property int|null $country_of_residence
  * @property int $payment_mode_id
- * @property string $id_number
+ * @property string|null $id_number
  * @property string|null $passport_number
  * @property int|null $referral_id
  * @property int $payout_batch_id
@@ -2813,6 +2824,45 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocument withoutTrashed()
  */
 	class InvestorDocument extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property int $id
+ * @property int $investment_contract_document_id
+ * @property string $signer_role
+ * @property int $attempt_no
+ * @property string $reason
+ * @property string $channel
+ * @property int $requested_by
+ * @property string|null $rejected_signed_html
+ * @property string|null $rejected_signature_image
+ * @property string|null $signed_at
+ * @property string|null $resigned_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $deleted_at
+ * @property-read \App\Models\InvestmentContractDocuments|null $InvestmentContractDocument
+ * @property-read \App\Models\User|null $requester
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocumentResignRequestLog newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocumentResignRequestLog newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocumentResignRequestLog query()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocumentResignRequestLog whereAttemptNo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocumentResignRequestLog whereChannel($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocumentResignRequestLog whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocumentResignRequestLog whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocumentResignRequestLog whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocumentResignRequestLog whereInvestmentContractDocumentId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocumentResignRequestLog whereReason($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocumentResignRequestLog whereRejectedSignatureImage($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocumentResignRequestLog whereRejectedSignedHtml($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocumentResignRequestLog whereRequestedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocumentResignRequestLog whereResignedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocumentResignRequestLog whereSignedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocumentResignRequestLog whereSignerRole($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocumentResignRequestLog whereUpdatedAt($value)
+ */
+	class InvestorDocumentResignRequestLog extends \Eloquent {}
 }
 
 namespace App\Models{
@@ -3105,7 +3155,19 @@ namespace App\Models{
  * @property int|null $total_staff
  * @property string|null $required_location
  * @property string $requirement
- * @property int $status 0 = Pending, 1 = processing
+ * @property int $status 
+ *                 0 = Pending,
+ *                 1 = Processing,
+ *                 2 = Interested,
+ *                 3 = Call Back,
+ *                 4 = No Answer,
+ *                 5 = Not Interested,
+ *                 6 = Meeting Scheduled,
+ *                 7 = Proposal Sent,
+ *                 8 = Negotiation,
+ *                 9 = Converted,
+ *                 10 = Lost,
+ *                 11 = Others
  * @property int|null $assigned_to
  * @property int|null $assigned_by
  * @property \Illuminate\Support\Carbon|null $assigned_at
@@ -3285,10 +3347,34 @@ namespace App\Models{
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Contract> $contracts
  * @property-read int|null $contracts_count
  * @property-read \App\Models\User|null $deletedBy
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\LocalityPricing> $pricings
+ * @property-read int|null $pricings_count
  * @property-read \App\Models\User|null $updatedBy
  * @method static \Illuminate\Database\Eloquent\Builder|Locality whereDeletedBy($value)
  */
 	class Locality extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property int $id
+ * @property int $locality_id
+ * @property int $unit_type_id
+ * @property string|null $price
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\UnitType $unitType
+ * @method static \Illuminate\Database\Eloquent\Builder|LocalityPricing newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|LocalityPricing newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|LocalityPricing query()
+ * @method static \Illuminate\Database\Eloquent\Builder|LocalityPricing whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LocalityPricing whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LocalityPricing whereLocalityId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LocalityPricing wherePrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LocalityPricing whereUnitTypeId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LocalityPricing whereUpdatedAt($value)
+ */
+	class LocalityPricing extends \Eloquent {}
 }
 
 namespace App\Models{

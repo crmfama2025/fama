@@ -61,7 +61,10 @@ class InvestmentContractDocumentRepository
         }
 
         // Apply with
-        $query->with($with);
+        $query->with($with)->withCount([
+            'resignRequests as investor_resign_count' => fn($q) => $q->where('signer_role', 'investor'),
+            'resignRequests as company_resign_count'  => fn($q) => $q->where('signer_role', 'company'),
+        ]);
 
         // $query->whereHas('investment.company', function ($q) use ($permittedCompanyIds) {
         //     $q->whereIn('company_id', $permittedCompanyIds);

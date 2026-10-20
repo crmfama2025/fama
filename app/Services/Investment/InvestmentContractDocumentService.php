@@ -120,13 +120,32 @@ class InvestmentContractDocumentService
             })
 
             ->addColumn('signed_status', function ($row) {
-                if ($row->is_investor_signed == 0 && $row->is_company_signed == 0) {
+                if ($row->resign_pending_for) {
+                    // Investor shows the investor's count, company shows the company's count
+                    $count = $row->resign_pending_for === 'company'
+                        ? $row->company_resign_count
+                        : $row->investor_resign_count;
+
+                    $sentBack = $count > 0 ? ' &middot; ' . $count . 'x sent back' : '';
+                    $date     = $row->last_resign_at ? getFormattedDate($row->last_resign_at) : '';
+
+                    return '<span class="badge badge-dark" title="' . e($row->last_resign_reason) . '">
+                                Re-sign requested to ' . ucfirst($row->resign_pending_for) . '
+                            </span>
+                            <div class="small text-muted">' . $date . $sentBack . '</div>';
+                }
+
+                if (!$row->is_investor_signed && !$row->is_company_signed) {
                     return '<span class="badge badge-warning">Pending</span>';
-                } elseif ($row->is_investor_signed == 1 && $row->is_company_signed == 0) {
+                }
+                if ($row->is_investor_signed && !$row->is_company_signed) {
                     return '<span class="badge badge-info">Investor Signed</span>';
-                } elseif ($row->is_investor_signed == 1 && $row->is_company_signed == 1) {
+                }
+                if ($row->is_investor_signed && $row->is_company_signed) {
                     return '<span class="badge badge-success">Both Signed</span>';
                 }
+
+                return '<span class="badge badge-secondary">-</span>';   // fallback, should not normally happen
             })
             // Main Document View
             // ->addColumn('main_doc_view', function ($row) {

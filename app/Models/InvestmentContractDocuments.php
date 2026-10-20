@@ -37,7 +37,11 @@ class InvestmentContractDocuments extends Model
         'sendto_management_by',
         'sendto_investor_date',
         'sendto_management_date',
-        'version_number'
+        'version_number',
+        'resign_count',
+        'last_resign_reason',
+        'last_resign_at',
+        'last_resign_role',
     ];
 
     public function investment()
@@ -113,5 +117,31 @@ class InvestmentContractDocuments extends Model
             InvestmentDocument::class,
             'investment_contract_document_id'
         );
+    }
+
+    public function resignRequests()
+    {
+        return $this->hasMany(InvestorDocumentResignRequestLog::class, 'investment_contract_document_id')->latest();
+    }
+
+    // Returns 'investor', 'company', or null when no re-sign is pending
+    public function getResignPendingForAttribute(): ?string
+    {
+        if ($this->last_resign_role === 'investor' && !$this->is_investor_signed) return 'investor';
+        if ($this->last_resign_role === 'company'  && !$this->is_company_signed)  return 'company';
+        return null;
+    }
+
+    // For filtering the list: ->resignRequested() or ->resignRequested('company')
+    public function scopeResignRequested($query, ?string $role = null)
+    {
+        return $query->where(function ($q) use ($role) {
+            if (!$role || $role === 'investor') {
+                $q->orWhere(fn($x) => $x->where('last_resign_role', 'investor')->where('is_investor_signed', false));
+            }
+            if (!$role || $role === 'company') {
+                $q->orWhere(fn($x) => $x->where('last_resign_role', 'company')->where('is_company_signed', false));
+            }
+        });
     }
 }
