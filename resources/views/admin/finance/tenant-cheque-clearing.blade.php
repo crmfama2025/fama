@@ -1799,7 +1799,6 @@
             }
 
             $.ajax({
-                url: "{{ route('receivable.loss-discount') }}",
                 type: 'POST',
                 data: $(this).serialize(),
                 headers: {
