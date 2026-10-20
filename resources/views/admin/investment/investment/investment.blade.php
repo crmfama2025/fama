@@ -459,7 +459,9 @@
                 },
                 columns: [{
                         data: 'DT_RowIndex',
-                        name: 'id'
+                        name: 'id',
+                        searchable: false,
+                        orderable: true
                     },
                     {
                         data: 'action',
@@ -474,10 +476,14 @@
                     {
                         data: 'added_by',
                         name: 'added_by',
+                        orderable: true,
+                        searchable: true
                     },
                     {
                         data: 'investment_status',
                         name: 'investment_status',
+                        orderable: true,
+                        searchable: false,
                         render: function(data, type, row) {
                             let mainStatus = '';
                             let mainClass = '';
@@ -526,15 +532,21 @@
                     },
                     {
                         data: 'investment_amount',
-                        name: 'investment_amount'
+                        name: 'investment_amount',
+                        orderable: true,
+                        searchable: true
                     },
                     {
                         data: 'total_received_amount',
-                        name: 'total_received_amount'
+                        name: 'total_received_amount',
+                        orderable: true,
+                        searchable: true
                     },
                     {
                         data: 'investment_date',
-                        name: 'investment_date'
+                        name: 'investment_date',
+                        orderable: true,
+                        searchable: true
                     },
                     {
                         data: 'profit_interval',
@@ -542,27 +554,37 @@
                     },
                     {
                         data: 'profit_perc',
-                        name: 'profit_perc'
+                        name: 'profit_perc',
+                        orderable: true,
+                        searchable: true
                     },
                     {
                         data: 'maturity_date',
-                        name: 'maturity_date'
+                        name: 'maturity_date',
+                        orderable: true,
+                        searchable: true
                     },
                     {
                         data: 'profit_release_date',
-                        name: 'profit_release_date'
+                        name: 'profit_release_date',
+                        orderable: true,
+                        searchable: true
                     },
                     {
                         data: 'grace_period',
-                        name: 'grace_period'
+                        name: 'grace_period',
+                        orderable: true,
+                        searchable: true
                     },
                     {
-                        data: 'batch_name',
+                        data: 'batch_name', 
                         name: 'payoutBatch.batch_name'
                     },
                     {
                         data: 'nominee_details',
-                        name: 'nominee_name'
+                        name: 'nominee_name',
+                        orderable: true,
+                        searchable: true
                     },
                     {
                         data: 'referral_commission_amount',
