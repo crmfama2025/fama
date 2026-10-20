@@ -112,6 +112,11 @@
                                                 </select>
 
                                             </div>
+                                            <div class="form-group col-md-12 d-flex justify-content-end">
+                                                <button type="button" id="runAllocationBtn" class="btn btn-primary">
+                                                    <i class="fas fa-play mr-1"></i> Run
+                                                </button>
+                                            </div>
                                         </div>
 
                                     </div>
@@ -1723,40 +1728,36 @@
     </script>
     <script>
         let receivableAmount = 0;
+        let selectedPaymentId = null;
         $(document).on('click', '.lossDiscountBtn', function() {
             // $('#receivableClearForm')[0].reset();
-            let date = $(this).data('date');
-            receivableAmount = $(this).data('amount');
+            let paymentDate = $(this).data('date');
 
-            let payment_id = $(this).data('id');
-            $('#balance_amount').val(receivableAmount);
+            if (paymentDate) {
+                let formattedDate = moment(paymentDate, ['YYYY-MM-DD', 'DD-MM-YYYY']).format('DD-MM-YYYY');
+                $('#loss_discount_date').val(formattedDate);
+            }
+
+            selectedPaymentId = $(this).data('id');
+            receivableAmount = parseFloat($(this).data('amount')) || 0;
+
+            $('#loss_discount_id').val(selectedPaymentId);
+            $('#balance_amount').val(receivableAmount.toFixed(2));
+            $('#loss_discount_amount').val('0.0');
+            $('#loss_discount_reason').val('');
+            $('#loss_type').prop('checked', true);
+            $('#clearing_diff_box').hide();
         });
         $('#loss_discount_amount').on('input', function() {
             let entered = parseFloat($(this).val()) || 0;
             let diff = receivableAmount - entered;
             $('#balance_amount').val(diff);
             if (entered <= 0) {
-                Swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    icon: 'warning',
-                    title: "Amount should be greater than zero!",
-                    showConfirmButton: false,
-                    timer: 3000,
-                    timerProgressBar: true
-                });
+                toastr.error('Amount should be greater than zero.');
                 $('#clearBtn').prop('disabled', true);
             }
             if (entered > receivableAmount) {
-                Swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    icon: 'error',
-                    title: "Entered amount cannot exceed the payable amount!",
-                    showConfirmButton: false,
-                    timer: 3000,
-                    timerProgressBar: true
-                });
+                toastr.error('Entered amount cannot exceed the receivable amount.');
                 $('#clearBtn').prop('disabled', true);
             } else {
                 $('#clearBtn').prop('disabled', false);
@@ -1774,6 +1775,57 @@
             } else {
                 $('#clearing_diff_box').hide();
             }
+        });
+
+        $('#lossDiscountForm').on('submit', function(e) {
+            e.preventDefault();
+
+            let amount = parseFloat($('#loss_discount_amount').val());
+            let date = $('#loss_discount_date').val();
+
+            if (!date) {
+                toastr.warning('Please select a date.');
+                return;
+            }
+
+            if (isNaN(amount) || amount <= 0) {
+                toastr.error('Amount should be greater than zero.');
+                return;
+            }
+
+            if (amount > receivableAmount) {
+                toastr.error('Amount cannot exceed the receivable amount.');
+                return;
+            }
+
+            $.ajax({
+                url: "{{ route('receivable.loss-discount') }}",
+                type: 'POST',
+                data: $(this).serialize(),
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                beforeSend: function() {
+                    $('#lossDiscountForm button[type="submit"]').prop('disabled', true);
+                },
+                success: function(response) {
+                    toastr.success(response.message || 'Loss / Discount saved successfully.');
+                    $('#modal-loss-discount').modal('hide');
+                    $('#lossDiscountForm')[0].reset();
+                },
+                error: function(xhr) {
+                    if (xhr.status === 422 && xhr.responseJSON.errors) {
+                        Object.values(xhr.responseJSON.errors).forEach(function(errors) {
+                            toastr.error(errors[0]);
+                        });
+                    } else {
+                        toastr.error(xhr.responseJSON?.message || 'Something went wrong.');
+                    }
+                },
+                complete: function() {
+                    $('#lossDiscountForm button[type="submit"]').prop('disabled', false);
+                }
+            });
         });
     </script>
     @include('admin.finance.receivable-allocation-js');
