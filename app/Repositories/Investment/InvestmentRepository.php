@@ -219,6 +219,16 @@ class InvestmentRepository
                                 $referrerQuery->where('investor_name', 'like', $like);
                             });
                     })
+                    ->orWhereHas('addedBy', function ($userQuery) use ($like) {
+                        $userQuery->where(function ($user) use ($like) {
+                            $user->where('first_name', 'like', $like)
+                                ->orWhere('last_name', 'like', $like)
+                                ->orWhereRaw(
+                                    "CONCAT_WS(' ', first_name, last_name) LIKE ?",
+                                    [$like]
+                                );
+                        });
+                    })
 
                     ->orWhereRaw(
                         'CAST(investments.id AS CHAR) LIKE ?',

@@ -873,7 +873,6 @@ class InvestmentService
             ->addColumn('maturity_date', fn($row) => getFormattedDate($row->maturity_date))
             ->addColumn('profit_release_date', fn($row) => $row->profit_release_date)
             ->addColumn('investment_term_type', fn($row) => $row->investment_term_type == 1 ? 'Long Term' : 'Short Term')
-
             ->addColumn('grace_period', fn($row) => $row->grace_period ?? '-')
             ->addColumn('batch_name', fn($row) => 'Batch ' . $row->payout_batch_id . ' (' . $row->payoutBatch->batch_name . ')' ?? '-')
             ->addColumn('nominee_details', function ($row) {
@@ -900,15 +899,119 @@ class InvestmentService
                         : asset('images/default-avatar.png');
 
                     return '
-            <div style="display:flex; align-items:center; gap:8px;">
-                <img src="' . $image . '"
-                     style="width:30px; height:30px; border-radius:50%; object-fit:cover;">
-                <span>' . $name . '</span>
-            </div>
-        ';
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <img src="' . $image . '"
+                            style="width:30px; height:30px; border-radius:50%; object-fit:cover;">
+                        <span>' . $name . '</span>
+                    </div>
+                ';
                 }
 
                 return '-';
+            })
+         
+            ->filterColumn('added_by', function ($query, $keyword) {
+                $like = '%' . trim($keyword) . '%';
+
+                $query->whereHas('addedBy', function ($userQuery) use ($like) {
+                    $userQuery->where(function ($q) use ($like) {
+                        $q->where('first_name', 'like', $like)
+                            ->orWhere('last_name', 'like', $like)
+                            ->orWhereRaw(
+                                "CONCAT_WS(' ', first_name, last_name) LIKE ?",
+                                [$like]
+                            );
+                    });
+                });
+            })
+      
+            ->filterColumn('invested_company_name', function ($query, $keyword) {
+                $query->where(function ($q) use ($keyword) {
+                    $q->whereHas(
+                        'companyAllocations.company',
+                        function ($companyQuery) use ($keyword) {
+                            $companyQuery->where(
+                                'company_name',
+                                'like',
+                                '%' . $keyword . '%'
+                            );
+                        }
+                    )->orWhereHas(
+                        'investedCompany',
+                        function ($companyQuery) use ($keyword) {
+                            $companyQuery->where(
+                                'company_name',
+                                'like',
+                                '%' . $keyword . '%'
+                            );
+                        }
+                    );
+                });
+            })
+
+            ->orderColumn('added_by', function ($query, $order) {
+                $query->orderBy(
+                    \App\Models\User::selectRaw(
+                        "CONCAT(users.first_name, ' ', users.last_name)"
+                    )->whereColumn(
+                        'users.id',
+                        'investments.added_by'
+                    ),
+                    $order
+                );
+            })
+
+        
+            ->orderColumn('invested_company_name', function ($query, $order) {
+                $direction = strtolower($order) === 'desc' ? 'desc' : 'asc';
+
+                $query->orderByRaw(
+                    "COALESCE(
+                        (
+                            SELECT MIN(companies.company_name)
+                            FROM investment_company_allocations AS ica
+                            INNER JOIN companies
+                                ON companies.id = ica.company_id
+                            WHERE ica.investment_id = investments.id
+                            AND ica.deleted_at IS NULL
+                        ),
+                        (
+                            SELECT companies.company_name
+                            FROM companies
+                            WHERE companies.id = investments.invested_company_id
+                            LIMIT 1
+                        ),
+                        ''
+                    ) {$direction}"
+                );
+            })
+
+            ->orderColumn('investment_amount', function ($query, $order) {
+                $query->orderBy('investments.investment_amount', $order);
+            })
+
+            ->orderColumn('total_received_amount', function ($query, $order) {
+                $query->orderBy('investments.total_received_amount', $order);
+            })
+
+            ->orderColumn('profit_perc', function ($query, $order) {
+                $query->orderBy('investments.profit_perc', $order);
+            })
+
+            ->orderColumn('investment_date', function ($query, $order) {
+                $query->orderBy('investments.investment_date', $order);
+            })
+
+            ->orderColumn('maturity_date', function ($query, $order) {
+                $query->orderBy('investments.maturity_date', $order);
+            })
+
+            ->orderColumn('profit_release_date', function ($query, $order) {
+                $query->orderBy('investments.profit_release_date', $order);
+            })
+
+            ->orderColumn('grace_period', function ($query, $order) {
+                $query->orderBy('investments.grace_period', $order);
             })
             ->addColumn('action', function ($row) use ($filters) {
                 $action = '';
