@@ -160,9 +160,10 @@
                                                     ->whereIn('permission_id', [57, 59, 60, 63, 64, 92])
                                                     ->exists();
                                             @endphp
-                                            @if ($permission)
-                                                <button class="btn my-1 btn-primary filter-btn" add-class="btn-primary"
+                                            <button class="btn my-1 btn-primary filter-btn" add-class="btn-primary"
                                                     data-filter="">All</button>
+                                            @if ($permission)
+                                                
                                                 <button class="btn my-1 btn-outline-warning filter-btn pending"
                                                     add-class="btn-warning" data-filter="0">Pending</button>
                                                 <button class="btn my-1 btn-outline-info filter-btn processing"
