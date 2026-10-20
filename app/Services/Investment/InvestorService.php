@@ -464,7 +464,7 @@ class InvestorService
                 if (
                     $user &&
                     $user->hasAnyPermission(
-                        ['investor.partial_withdrawal'],
+                        ['investor.withdrawal'],
                         $row->company_id
                     )
                 ) {
