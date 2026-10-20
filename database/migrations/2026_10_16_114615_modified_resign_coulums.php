@@ -24,7 +24,6 @@ return new class extends Migration
 
         Schema::table($this->contractsTable, function (Blueprint $t) {
             $t->string('last_resign_role', 20)->nullable();
-            $t->integer('resign_requested', 11)->default(0);
             if (! Schema::hasColumn($this->contractsTable, 'company_signed_at')) {
                 $t->timestamp('company_signed_at')->nullable();
             }
