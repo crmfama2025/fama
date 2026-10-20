@@ -6,6 +6,7 @@ use App\Models\AgreementSignatureEvent;
 use App\Models\ContractDocument;
 use App\Models\Investment;
 use App\Models\InvestmentContractDocuments;
+use App\Models\InvestorDocumentResignRequestLog;
 use App\Models\WhatsappMessage;
 use App\Repositories\Investment\InvestmentContractDocumentRepository;
 use App\Services\BrevoService;
@@ -31,27 +32,39 @@ class AgreementSignatureService
     /**
      * Dispatch the signing link via WhatsApp or Email, and log the send.
      */
-    public function sendForSignature($contract, string $channel): void
+    // private const MAX_RESIGN_ATTEMPTS = 3;
+
+    public function sendForSignature($contractId, string $channel, bool $isResign = false, ?string $reason = null, ?string $resignRole = null): void
     {
-        $contract = $this->InvContractDocRepo->find($contract);
-        $signerRole = $this->currentSignerRole($contract);
+        $contract = $this->InvContractDocRepo->find($contractId);
 
-        // keep the record of who and time of sending from crm
-        if ($signerRole === 'investor') {
-            $contract->sendto_investor_by = auth()->user()->id;
-            $contract->sendto_investor_date = now();
-        } else {
-            $contract->sendto_management_by = auth()->user()->id;
-            $contract->sendto_investor_date = now();
+        if ($isResign) {
+            abort_unless(in_array($resignRole, ['investor', 'company'], true), 422, 'Invalid signer role.');
+            abort_if(blank($reason), 422, 'A reason is required for re-sign.');
+            abort_if(
+                $contract->resign_pending_for,
+                422,
+                'A re-sign request is already pending for the ' . $contract->resign_pending_for . '. Wait for them to sign, or use the normal Send to remind them.'
+            );
+
+            if ($resignRole === 'investor') {
+                abort_unless($contract->is_investor_signed, 422, 'Investor has not signed yet.');
+                abort_if($contract->is_company_signed, 422, 'Company has already signed.');
+            } else {
+                abort_unless($contract->is_company_signed, 422, 'Company has not signed yet.');
+            }
+
+            // $used = InvestorDocumentResignRequestLog::where('investment_contract_document_id', $contract->id)
+            // ->where('signer_role', $resignRole)->count();
+            // abort_if($used >= self::MAX_RESIGN_ATTEMPTS, 422, 'Maximum re-sign attempts reached. Please escalate.');
         }
+        // var_dump('isResign: ', $isResign, 'resignRole: ', $resignRole, 'reason: ', $reason);
+        $signerRole = $isResign ? $resignRole : $this->currentSignerRole($contract);
 
-        $contract->investor_sign_channel = $channel;
-        $contract->sign_token = ($contract->sign_token) ? $contract->sign_token : str()->random(8);
-
-
-        $contract->save();
-
-        $this->logEvent($contract, $signerRole, 'sent', $channel);
+        if (! $contract->sign_token) {
+            $contract->sign_token = str()->random(8);
+            $contract->save();
+        }
 
         $docIdHash = substr(md5($contract->id), 0, 8);
         $signLink = route('legal_template.investorContractView', [
@@ -61,11 +74,88 @@ class AgreementSignatureService
         $signLink_whatsap = str_replace('https://famacrm.cloud/', '', $signLink);
 
         $channel === 'whatsapp'
-            ? $this->sendViaWhatsApp($contract, $signerRole, $signLink_whatsap)
+            ? $this->sendViaWhatsApp($contract, $signerRole, $signLink_whatsap, $isResign)
             : $this->sendViaEmail($contract, $signerRole, $signLink);
-        if ($signerRole === 'investor') {
+        // if ($signerRole === 'investor') {
+        //     $this->sendOwnerNotification($contract);
+        // }
+
+        DB::transaction(function () use ($contract, $signerRole, $channel, $isResign, $reason) {
+            if ($isResign) {
+                // dd($signerRole, $channel, $reason);
+                $this->archiveAndResetSignature($contract, $signerRole, $channel, $reason);
+            }
+
+            if ($signerRole === 'investor') {
+                $contract->sendto_investor_by   = auth()->id();
+                $contract->sendto_investor_date = now();
+            } else {
+                $contract->sendto_management_by   = auth()->id();
+                $contract->sendto_management_date = now();   // was sendto_investor_date (typo)
+            }
+
+            $contract->investor_sign_channel = $channel;
+            $contract->save();
+
+            $this->logEvent($contract, $signerRole, $isResign ? 'resign_requested' : 'sent', $channel);
+        });
+
+        // Owner notification only for the first send to the investor
+        if (!$isResign && $signerRole === 'investor') {
+            // dd($isResign);
             $this->sendOwnerNotification($contract);
         }
+    }
+
+    private function archiveAndResetSignature($contract, string $role, string $channel, string $reason): void
+    {
+        $isCompany = $role === 'company';
+
+        $attempt = InvestorDocumentResignRequestLog::where('investment_contract_document_id', $contract->id)
+            ->where('signer_role', $role)->count() + 1;
+
+        InvestorDocumentResignRequestLog::create([
+            'investment_contract_document_id'     => $contract->id,
+            'signer_role'              => $role,
+            'attempt_no'               => $attempt,
+            'reason'                   => $reason,
+            'channel'                  => $channel,
+            'requested_by'             => auth()->id(),
+            'rejected_signed_html'     => $contract->contract_document_html,
+            'rejected_signature_image' => $isCompany ? $contract->company_sign : $contract->investor_sign,
+            'signed_at'                => $isCompany ? $contract->company_signed_at : $contract->investor_signed_at,
+        ]);
+
+        if ($isCompany) {
+            $contract->is_company_signed = false;
+            $contract->company_sign = null;
+            // Keep the investor's signature: remove only the company's stamps from the snapshot
+            $contract->contract_document_html = $this->stripSignerStamps($contract->contract_document_html, 'company');
+        } else {
+            $contract->is_investor_signed     = false;
+            $contract->investor_sign     = null;
+            $contract->contract_document_html = null;   // company hasn't signed, so nothing else to keep
+        }
+
+        $contract->resign_count      = $contract->resign_count + 1;   // total across both roles
+        $contract->last_resign_reason = $reason;
+        $contract->last_resign_role   = $role;
+        $contract->last_resign_at     = now();
+    }
+
+    /**
+     * Remove the placed-signature wrappers for one signer from the saved snapshot.
+     * Works on any attribute order; each wrapper only contains an <img>, so the lazy match is safe.
+     */
+    private function stripSignerStamps(?string $html, string $role): ?string
+    {
+        if (blank($html)) {
+            return $html;
+        }
+
+        $pattern = '#<div\b(?=[^>]*\bsig-placed-wrap\b)(?=[^>]*\bdata-signer="' . preg_quote($role, '#') . '")[^>]*>.*?</div>#s';
+
+        return preg_replace($pattern, '', $html) ?? $html;   // if the regex fails, keep the original
     }
 
     /**
@@ -192,7 +282,7 @@ logEvent
         ]);
     }
 
-    private function sendViaWhatsApp($contract, string $signerRole, string $signLink): void
+    private function sendViaWhatsApp($contract, string $signerRole, string $signLink, bool $isResign = false): void
     {
         // dump($contract->toArray());
         $recipient = $signerRole === 'investor'
@@ -220,7 +310,12 @@ logEvent
             'document_name_ar' => document_name_ar($contract->agreementType->short_code) ?? 'Document',
         ];
 
-        $templateId = '407226';
+        if ($isResign) {
+            $templateId = '455728';
+        } else {
+            $templateId = '407226';
+        }
+
         // -d "templateVariable-investorName-1=investor_name" \
         // -d "templateVariable-documentName-2=document_name" \
         // -d "templateVariable-investorName-3=investor_name_ar" \
@@ -425,7 +520,7 @@ logEvent
             return $contract->ledger?->transaction_amount ?? 0;
         }
         if ($contract->investor_agreement_type_id == 4) { // Novation
-            $totalInvested  = Investment::where('investor_id', $contract->investor_id)->sum('total_investment_amount');
+            $totalInvested  = Investment::where('investor_id', $contract->investor_id)->sum('total_invested_amount');
             return $totalInvested ?? 0;
         }
 

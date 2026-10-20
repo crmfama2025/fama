@@ -6,6 +6,7 @@ use App\Jobs\GenerateAndSendSignedAgreementPdf;
 use App\Models\AgreementSignatureEvent;
 use App\Models\InvestmentContractDocuments;
 use App\Models\InvestorAgreementType;
+use App\Models\InvestorDocumentResignRequestLog;
 use App\Services\Investment\AgreementSignatureService;
 use App\Services\Investment\InvestmentContractService;
 use App\Services\Investment\InvestmentService;
@@ -17,6 +18,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Mpdf\Config\ConfigVariables;
 use Mpdf\Config\FontVariables;
 use Mpdf\Mpdf;
@@ -217,7 +219,9 @@ class InvestorAgreementTemplateController extends Controller
         }
         // dump($html);
         // dd($contract);
-        DB::transaction(function () use ($contract, $validated, $imageUrl, $html) {
+        $role = $validated['signer_role'];
+
+        DB::transaction(function () use ($contract, $validated, $imageUrl, $html, $role) {
             $contract->contract_document_html = $html;
 
             if ($validated['signer_role'] === 'investor') {
@@ -253,6 +257,14 @@ class InvestorAgreementTemplateController extends Controller
             // if ($validated['signer_role'] === 'company' && $contract->is_investor_signed) {
             //     GenerateAndSendSignedAgreementPdf::dispatch($contract->id)->onQueue('pdfs')->afterCommit();
             // }
+
+            // NEW: close the open re-sign request for this signer
+            InvestorDocumentResignRequestLog::where('investment_contract_document_id', $contract->id)
+                ->where('signer_role', $role)        // 'investor' or 'company'
+                ->whereNull('resigned_at')
+                ->latest()
+                ->first()
+                ?->update(['resigned_at' => now()]);
         });
 
         return response()->json(['message' => 'Signed successfully.', 'status' => 'success']);
@@ -346,12 +358,33 @@ class InvestorAgreementTemplateController extends Controller
     public function sendForSignature(Request $request, InvestmentContractDocuments $contract)
     {
         $validated = $request->validate([
-            'channel' => 'required|in:whatsapp,email',
+            'channel'     => 'required|in:whatsapp,email',
+            're_sign'     => 'sometimes|boolean',
+            'resign_role' => [Rule::requiredIf(fn() => $request->boolean('re_sign')), 'nullable', 'in:investor,company'],
+            'reason'      => [Rule::requiredIf(fn() => $request->boolean('re_sign')), 'nullable', 'string', 'max:500'],
         ]);
 
-        $this->signatureService->sendForSignature($contract->id, $validated['channel']);
+        $isResign = $request->boolean('re_sign');
 
-        return response()->json(['message' => 'Sent for signature via ' . $validated['channel'] . '.']);
+        try {
+            $this->signatureService->sendForSignature(
+                $contract->id,
+                $validated['channel'],
+                $isResign,
+                $validated['reason'] ?? null,
+                $validated['resign_role'] ?? null
+            );
+        } catch (\RuntimeException $e) {
+            return response()->json(['message' => $e->getMessage()], 502);
+        }
+
+        $who = ($validated['resign_role'] ?? 'investor') === 'company' ? 'company' : 'investor';
+
+        return response()->json([
+            'message' => $isResign
+                ? "Re-sign request sent to the {$who} via {$validated['channel']}."
+                : "Sent for signature via {$validated['channel']}.",
+        ]);
     }
 
 
