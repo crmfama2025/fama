@@ -584,6 +584,7 @@ class InvestorAgreementService
                 'novation_date' => sprintf(
                     'The novation maturity date (%s) must be later than %s (45 days before the current maturity date %s).',
                     $newMaturityDate->toDateString(),
+                    $oldMaturityDate->copy()->subDays(45)->toDateString(),
                     $oldMaturityDate->toDateString()
                 ),
             ]);
