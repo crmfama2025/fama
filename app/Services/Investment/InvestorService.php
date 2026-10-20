@@ -464,12 +464,12 @@ class InvestorService
                 if (
                     $user &&
                     $user->hasAnyPermission(
-                        ['investor.withdrawal'],
+                        ['investor.partial_withdrawal'],
                         $row->company_id
                     )
                 ) {
                     $action .= '<a href="' .
-                        route('investor.withdrawal', ['id' => $investorId]) .
+                        route('investor.partial_withdrawal', ['id' => $investorId]) .
                         '" title="Withdrawal/Settlement" class="btn bg-orange btn-sm">
                         <i class="fas fa-wallet"></i></a> ';
                 }
