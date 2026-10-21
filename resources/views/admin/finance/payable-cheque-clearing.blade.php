@@ -306,7 +306,7 @@
                                             placeholder="Clearing Amount" required min="0" step="1">
                                         <span id="amountPending" class="text-danger text-sm"></span>
                                     </div>
-                                    <div class="form-group row">
+                                    <div class="form-group d-flex align-items-center flex-wrap" style="gap:25px;">
                                         <div class="icheck-primary cash">
                                             <input type="checkbox" id="cash" class="singleClear"
                                                 value="{{ $paymentmodes->where('id', 1)->first()->id ?? '' }}"
@@ -354,6 +354,11 @@
                                                 <option value="{{ $bank->id }}">{{ $bank->bank_name }} </option>
                                             @endforeach --}}
                                         </select>
+                                    </div>
+                                    <div class="form-group  bankref">
+                                        <label class="asterisk">Bank Reference</label>
+                                        <input type="text" class="form-control" name="bank_reference" id="bank_reference"
+                                            placeholder="Bank Reference" required>
                                     </div>
 
                                     <div class="form-group row cheque">
@@ -486,13 +491,111 @@
         function hidelemnetsonload() {
             $('.banksingle, .cheque, .modechange, .companyTerminate').hide();
         }
+       function applyPaymentMode(modeId) {
+            modeId = parseInt(modeId) || 0;
+            hidelemnetsonload();
+            if (!modeId) return;
+
+            $('.modechange').show(); 
+             if (modeId === 1) { 
+                $('.bankref').hide();
+            } else { 
+                $('.companyTerminate, .banksingle, .bankref').show();
+                if (modeId === 3) $('.cheque').show(); 
+            }
+        }
+
+        $('.singleClear').on('change', function() {
+            $('.singleClear').not(this).prop('checked', false);
+            applyPaymentMode($(this).prop('checked') ? $(this).val() : 0);
+        });
+
+        let allBanks = @json($banks);
+
+        $(document).on('change', '#paid_company', function() {
+            CompanyChange($(this));
+        });
+
+        function CompanyChange(ele) {
+            const companyId = $(ele).val();
+            let options = '<option value="">Select Bank</option>';
+            allBanks
+                .filter(b => b.company_id == companyId)
+                .forEach(b => {
+                    options += `<option value="${b.id}">${b.bank_name}</option>`;
+                });
+            $('#bank_name').html(options).trigger('change');
+        }
+        $('#modal-clear-payable').on('show.bs.modal', function(event) {
+            var button = $(event.relatedTarget);
+            var clearType = button.data('clear-type');
+
+            // Bulk: block the modal if nothing is selected
+            if (clearType === 'bulk' && $('.groupCheckbox:checked').length === 0) {
+                toastr.error('Please select one or more items to continue.');
+                event.preventDefault();
+                return;
+            }
+
+            resetPaymentModal();
+            $('#method').val(clearType);
+
+            if (clearType === 'bulk') {
+                $('.clrngamnt').hide();
+                $('.chq').hide();
+            } else {
+                $('#detId').val(button.data('det-id'));
+
+                let totalAmount = parseFloat(button.data('amount')) || 0;
+                $('#paid_amount').val(totalAmount);
+
+                $('#paid_amount').off('input').on('input', function() {
+                    let paid = parseFloat(this.value) || 0;
+                    if (paid > totalAmount) {
+                        paid = totalAmount;
+                        this.value = totalAmount;
+                    }
+                    $('#amountPending').text('Remaining Amount: ' + (totalAmount - paid));
+                });
+                $('#amountPending').text('Remaining Amount: 0');
+
+                $('.clrngamnt').show();
+                $('.chq').show();
+
+                // ---- pre-select mode + prefill fields ----
+                const modeId = button.attr('data-mode-id');
+                const companyId = button.attr('data-company-id');
+                const bankId = button.attr('data-bank-id');
+                const chequeNo = button.attr('data-cheque-no');
+
+                if (modeId) {
+                    $('.singleClear[value="' + modeId + '"]').prop('checked', true);
+                    applyPaymentMode(modeId);
+                }
+
+                if (companyId) {
+                    $('#paid_company').val(companyId).trigger('change').prop('disabled', true);
+                }
+                if (bankId) {
+                    $('#bank_name').val(bankId).trigger('change');
+                }
+                $('#cheque_no').val(chequeNo || '');
+            }
+        });
+
+        $('#modal-return-cheque').on('show.bs.modal', function(event) {
+            if ($('.groupCheckbox:checked').length === 0) {
+                toastr.error('Please select one or more items to continue.');
+                event.preventDefault();
+            }
+        });
 
         function toggleAllCheckboxes() {
             document.getElementById('selectAll').addEventListener('change', function() {
                 const itemCheckboxes = document.querySelectorAll('.groupCheckbox');
                 itemCheckboxes.forEach(checkbox => {
                     checkbox.checked = this
-                        .checked; // Set checked status based on the "Select All" checkbox
+                        .checked; 
                 });
             });
         }
@@ -505,60 +608,60 @@
             format: 'DD-MM-YYYY'
         });
 
-        $('.singleClear').on('change', function() {
-            $('.singleClear').not(this).prop('checked', false);
+        // $('.singleClear').on('change', function() {
+        //     $('.singleClear').not(this).prop('checked', false);
 
-            if ($(this).prop('checked')) {
+        //     if ($(this).prop('checked')) {
 
-                if ($(this).val() != 1) {
-                    $('.banksingle').show();
-                    $('.companyTerminate').show();
-                    $('.modechange').show();
-                    if ($(this).val() == 2) {
-                        $('.cheque').hide();
-                    } else {
-                        $('.cheque').show();
-                    }
-                }
-            } else {
-                $('.banksingle').hide();
-                $('.companyTerminate').hide();
-                $('.cheque').hide();
-                $('.modechange').hide();
-            }
-        });
+        //         if ($(this).val() != 1) {
+        //             $('.banksingle').show();
+        //             $('.companyTerminate').show();
+        //             $('.modechange').show();
+        //             if ($(this).val() == 2) {
+        //                 $('.cheque').hide();
+        //             } else {
+        //                 $('.cheque').show();
+        //             }
+        //         }
+        //     } else {
+        //         $('.banksingle').hide();
+        //         $('.companyTerminate').hide();
+        //         $('.cheque').hide();
+        //         $('.modechange').hide();
+        //     }
+        // });
 
-        $('#bankBulk').click(function() {
-            if ($(this).prop('checked')) {
-                $('.banksingle').show();
-                $('.companyTerminate').show();
-            } else {
-                $('.banksingle').hide();
-                $('.companyTerminate').hide();
-            }
-        });
+        // $('#bankBulk').click(function() {
+        //     if ($(this).prop('checked')) {
+        //         $('.banksingle').show();
+        //         $('.companyTerminate').show();
+        //     } else {
+        //         $('.banksingle').hide();
+        //         $('.companyTerminate').hide();
+        //     }
+        // });
 
-        let allBanks = @json($banks);
+        // let allBanks = @json($banks);
 
-        $(document).on('change', '#paid_company', function() {
-            CompanyChange($(this));
-        });
+        // $(document).on('change', '#paid_company', function() {
+        //     CompanyChange($(this));
+        // });
 
-        function CompanyChange(ele) {
-            console.log('company');
-            const companyId = $(ele).val();
-            const companyName = $(ele).find('option:selected').text().trim();
+        // function CompanyChange(ele) {
+        //     console.log('company');
+        //     const companyId = $(ele).val();
+        //     const companyName = $(ele).find('option:selected').text().trim();
 
-            let options = '<option value="">Select Bank</option>';
-            allBanks
-                .filter(b => b.company_id == companyId)
-                .forEach(b => {
-                    // const selected = (b.id == bendorVal) ? 'selected' : '';
-                    options +=
-                        `<option value="${b.id}">${b.bank_name}</option>`;
-                });
-            $('#bank_name').html(options).trigger('change');
-        }
+        //     let options = '<option value="">Select Bank</option>';
+        //     allBanks
+        //         .filter(b => b.company_id == companyId)
+        //         .forEach(b => {
+        //             // const selected = (b.id == bendorVal) ? 'selected' : '';
+        //             options +=
+        //                 `<option value="${b.id}">${b.bank_name}</option>`;
+        //         });
+        //     $('#bank_name').html(options).trigger('change');
+        // }
 
         $('.bulktriggerbtn').click(function(e) {
             e.preventDefault();
@@ -571,46 +674,46 @@
         });
 
 
-        $('#modal-clear-payable').on('show.bs.modal', function(event) {
-            var button = $(event.relatedTarget); // Button that triggered the modal
-            var clearType = button.data('clear-type'); // Extract info from data-* attributes
-            // $('#PaymentSubmitForm')[0].reset();
-            resetPaymentModal();
+        // $('#modal-clear-payable').on('show.bs.modal', function(event) {
+        //     var button = $(event.relatedTarget); // Button that triggered the modal
+        //     var clearType = button.data('clear-type'); // Extract info from data-* attributes
+        //     // $('#PaymentSubmitForm')[0].reset();
+        //     resetPaymentModal();
 
-            // $(this).find('input, select, textarea').removeClass('is-invalid is-valid');
+        //     // $(this).find('input, select, textarea').removeClass('is-invalid is-valid');
 
-            $('#method').val(clearType);
+        //     $('#method').val(clearType);
 
-            // $('.modechange').hide();
-            if (clearType === 'bulk') {
+        //     // $('.modechange').hide();
+        //     if (clearType === 'bulk') {
 
-                $('.clrngamnt').hide();
-                $('.chq').hide().css('display', 'none', 'important');
-            } else {
-                $('#detId').val(button.data('det-id'));
+        //         $('.clrngamnt').hide();
+        //         $('.chq').hide().css('display', 'none', 'important');
+        //     } else {
+        //         $('#detId').val(button.data('det-id'));
 
-                let totalAmount = button.data('amount');
-                $('#paid_amount').val(totalAmount);
+        //         let totalAmount = button.data('amount');
+        //         $('#paid_amount').val(totalAmount);
 
-                document.getElementById('paid_amount').addEventListener('input', function() {
-                    let paid = parseFloat(this.value) || 0;
-                    // Prevent entering more than total amount
-                    if (paid > totalAmount) {
-                        paid = totalAmount;
-                        this.value = totalAmount;
-                    }
+        //         document.getElementById('paid_amount').addEventListener('input', function() {
+        //             let paid = parseFloat(this.value) || 0;
+        //             // Prevent entering more than total amount
+        //             if (paid > totalAmount) {
+        //                 paid = totalAmount;
+        //                 this.value = totalAmount;
+        //             }
 
-                    let remaining = totalAmount - paid;
+        //             let remaining = totalAmount - paid;
 
-                    document.getElementById('amountPending').innerText =
-                        'Remaining Amount: ' + remaining;
-                });
-                $('#amountPending').text('Remaining Amount: ' + (totalAmount - button.data('amount')));
+        //             document.getElementById('amountPending').innerText =
+        //                 'Remaining Amount: ' + remaining;
+        //         });
+        //         $('#amountPending').text('Remaining Amount: ' + (totalAmount - button.data('amount')));
 
-                $('.clrngamnt').show();
-                $('.chq').show();
-            }
-        });
+        //         $('.clrngamnt').show();
+        //         $('.chq').show();
+        //     }
+        // });
     </script>
 
     <script>
@@ -714,13 +817,12 @@
                 order: [
                     [0, 'desc']
                 ],
-                dom: 'Bfrtip', // This is important for buttons
+                dom: 'Bfrtip', 
                 buttons: [{
                     extend: 'excelHtml5',
                     text: 'Export Excel',
                     title: 'Contract Data',
                     action: function(e, dt, node, config) {
-                        // redirect to your Laravel export route
                         let searchValue = dt.search();
                         let form = $('<form>', {
                             action: "{{ route('payables.pending.export') }}",
@@ -740,7 +842,6 @@
                             value: '{{ csrf_token() }}'
                         }));
 
-                        // Global search
                         form.append($('<input>', {
                             type: 'hidden',
                             name: 'search',
@@ -843,26 +944,39 @@
                     setValid(this);
                 }
             });
-
-            // Validate Select2 fields
-            $("#PaymentSubmitForm").find('[required]select.select2').each(function() {
-                const value = $(this).val();
+            $("#PaymentSubmitForm").find('select.select2[required]').each(function () {
                 const container = $(this).next('.select2-container');
 
-                // Skip validation if hidden (either the select or its container)
-                if (!$(this).is(':visible') || container.css('display') === 'none') {
+                if (!container.is(':visible')) {
                     container.removeClass('is-invalid is-valid');
-                    return; // skip hidden selects
+                    return; // hidden for this mode, skip
                 }
 
-
-                if (!value || value.length === 0) {
+                if (!$(this).val() && !$(this).prop('disabled')) {
                     container.addClass('is-invalid').removeClass('is-valid');
                     isValid = false;
                 } else {
                     container.addClass('is-valid').removeClass('is-invalid');
                 }
             });
+            // $("#PaymentSubmitForm").find('[required]select.select2').each(function() {
+            //     const value = $(this).val();
+            //     const container = $(this).next('.select2-container');
+
+            //     // Skip validation if hidden (either the select or its container)
+            //     if (!$(this).is(':visible') || container.css('display') === 'none') {
+            //         container.removeClass('is-invalid is-valid');
+            //         return; // skip hidden selects
+            //     }
+
+
+            //     if (!value || value.length === 0) {
+            //         container.addClass('is-invalid').removeClass('is-valid');
+            //         isValid = false;
+            //     } else {
+            //         container.addClass('is-valid').removeClass('is-invalid');
+            //     }
+            // });
 
 
 
@@ -902,6 +1016,7 @@
         function submitForm() {
             var form = document.getElementById('PaymentSubmitForm');
             var fdata = new FormData(form);
+            fdata.set('company_id', $('#paid_company').val() || '');
 
             fdata.append('_token', $('meta[name="csrf-token"]').attr('content'));
 
@@ -943,6 +1058,7 @@
         }
 
         function resetPaymentModal() {
+            $('#paid_company').prop('disabled', false); 
             var form = document.getElementById('PaymentSubmitForm');
             form.reset();
 
