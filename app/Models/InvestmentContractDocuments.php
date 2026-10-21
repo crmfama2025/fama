@@ -86,10 +86,9 @@ class InvestmentContractDocuments extends Model
                 (int) $document->investment_id > 0 &&
                 $document->investment
             ) {
-                dump('Found investment for document ID: ' . $document->id);
                 return $document->investment;
             }
-            dump('No investment found for document ID: ' . $document->id . '. Checking reference...');
+
             $document = $document->mudarabahReference;
         }
 
