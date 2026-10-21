@@ -637,6 +637,10 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property int|null $paid_company_id
+ * @property string|null $bank_reference
+ * @property int|null $receipt_allocation_id
+ * @property int $have_other_adjustments 0-No, 1-Yes
+ * @property int $loss_or_discount 0-None, 1-Loss, 2-Discount
  * @property-read \App\Models\AgreementPaymentDetail|null $agreementPaymentDetail
  * @property-read \App\Models\Bank|null $paidBank
  * @property-read \App\Models\User|null $paidBy
@@ -647,8 +651,11 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable query()
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable whereAgreementId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable whereAgreementPaymentDetailsId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable whereBankReference($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable whereHaveOtherAdjustments($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable whereLossOrDiscount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable wherePaidAmount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable wherePaidBankId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable wherePaidBy($value)
@@ -658,6 +665,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable wherePaidModeId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable wherePaymentRemarks($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable wherePendingAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable whereReceiptAllocationId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable whereUpdatedAt($value)
  */
 	class ClearedReceivable extends \Eloquent {}
@@ -673,15 +681,21 @@ namespace App\Models{
  * @property int|null $updated_by
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $bank_reference
+ * @property int|null $receipt_allocation_id
+ * @property int $have_other_adjustments 0-No, 1-Yes
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation query()
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereAddedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereAllocatedAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereBankReference($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereClearedDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereClearedReceivableIds($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereHaveOtherAdjustments($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereReceiptAllocationId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereUpdatedBy($value)
  */
@@ -1081,6 +1095,7 @@ namespace App\Models{
  * @property int $paid_by
  * @property int|null $paid_bank
  * @property string|null $paid_cheque_number
+ * @property string|null $bank_reference
  * @property string|null $payment_remarks
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -1095,6 +1110,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPayableClear newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPayableClear newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPayableClear query()
+ * @method static \Illuminate\Database\Eloquent\Builder|ContractPayableClear whereBankReference($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPayableClear whereCompanyId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPayableClear whereContractId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPayableClear whereContractPaymentDetailId($value)
@@ -2174,6 +2190,7 @@ namespace App\Models{
  * @property-read \App\Models\Company|null $company
  * @property-read \App\Models\User|null $deletedBy
  * @property-read \App\Models\User|null $generatedBy
+ * @property-read string|null $resign_pending_for
  * @property-read \App\Models\Investment|null $investment
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvestmentDocument> $investmentDocuments
  * @property-read int|null $investment_documents_count
@@ -2187,6 +2204,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments query()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments resignRequested(?string $role = null)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereActionType($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereAddedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereAdditionalFilePath($value)
@@ -2844,6 +2862,8 @@ namespace App\Models{
  * @property string|null $deleted_at
  * @property-read \App\Models\InvestmentContractDocuments|null $InvestmentContractDocument
  * @property-read \App\Models\User|null $requester
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, InvestorDocumentResignRequestLog> $resignRequests
+ * @property-read int|null $resign_requests_count
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocumentResignRequestLog newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocumentResignRequestLog newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocumentResignRequestLog query()
@@ -3742,6 +3762,23 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|PropertyType whereDeletedBy($value)
  */
 	class PropertyType extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property int $id
+ * @property string $receipt_allocation_name
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @method static \Illuminate\Database\Eloquent\Builder|ReceiptAllocation newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ReceiptAllocation newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ReceiptAllocation query()
+ * @method static \Illuminate\Database\Eloquent\Builder|ReceiptAllocation whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ReceiptAllocation whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ReceiptAllocation whereReceiptAllocationName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ReceiptAllocation whereUpdatedAt($value)
+ */
+	class ReceiptAllocation extends \Eloquent {}
 }
 
 namespace App\Models{

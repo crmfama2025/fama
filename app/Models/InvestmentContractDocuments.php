@@ -75,6 +75,7 @@ class InvestmentContractDocuments extends Model
         $visited = [];
 
         while ($document) {
+            dd($document->id);
             // Prevent an invalid circular reference from looping forever.
             if (isset($visited[$document->id])) {
                 throw new \LogicException('Circular Mudarabah reference detected.');
