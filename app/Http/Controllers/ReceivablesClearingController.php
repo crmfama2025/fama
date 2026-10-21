@@ -191,6 +191,8 @@ class ReceivablesClearingController extends Controller
             })
             ->orderBy('payment_date', 'asc') // oldest first
             // dd($receivables->toSql(), $receivables->getBindings(), $receivables->count());
+            ->orderBy('agreement_payment_details.payment_date', 'asc')
+            ->orderBy('agreement_payment_details.id', 'asc')
             ->get();
         //  Pre-load ALL installments for the unit IDs we already have — one query
         $unitIds = $receivables->pluck('agreement_unit_id')->unique()->filter();
@@ -259,5 +261,17 @@ class ReceivablesClearingController extends Controller
             'success' => true,
             'data'    => $allReceivables,
         ]);
+    }
+    public function storeLossDiscount(Request $request)
+    {
+        // dd($request->all());
+        try {
+            $update = $this->tenantChequeService->storeLossDiscount($request->all());
+
+            return response()->json(['success' => true, 'data' => $update, 'message' => 'Loss/Discount Data Updated Successfully.'], 200);
+        } catch (\Exception $e) {
+
+            return response()->json(['success' => false, 'message' => $e->getMessage(), 'error'   => $e], 500);
+        }
     }
 }

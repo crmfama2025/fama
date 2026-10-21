@@ -106,8 +106,10 @@
                                                     name="company_id">
                                                     <option value="">Select Company</option>
                                                     @foreach ($companies as $company)
-                                                        <option value="{{ $company->id }}">{{ $company->company_name }}
-                                                        </option>
+                                                        @if (auth()->user()->hasAnyPermission(['finance.receivable_cheque_clearing'], $company->id))
+                                                            <option value="{{ $company->id }}">{{ $company->company_name }}
+                                                            </option>
+                                                        @endif
                                                     @endforeach
                                                 </select>
 
@@ -1797,8 +1799,10 @@
                 toastr.error('Amount cannot exceed the receivable amount.');
                 return;
             }
+            showLoader();
 
             $.ajax({
+                url: "{{ route('receivable.loss-discount') }}",
                 type: 'POST',
                 data: $(this).serialize(),
                 headers: {
@@ -1811,8 +1815,12 @@
                     toastr.success(response.message || 'Loss / Discount saved successfully.');
                     $('#modal-loss-discount').modal('hide');
                     $('#lossDiscountForm')[0].reset();
+                    table.ajax.reload(null, false); // Reload DataTable without resetting pagination
+                    window.location.reload();
+                    hideLoader();
                 },
                 error: function(xhr) {
+                    hideLoader();
                     if (xhr.status === 422 && xhr.responseJSON.errors) {
                         Object.values(xhr.responseJSON.errors).forEach(function(errors) {
                             toastr.error(errors[0]);
@@ -1822,6 +1830,7 @@
                     }
                 },
                 complete: function() {
+                    hideLoader();
                     $('#lossDiscountForm button[type="submit"]').prop('disabled', false);
                 }
             });

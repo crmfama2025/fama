@@ -46,6 +46,11 @@ class AgreementPaymentDetail extends Model
         'has_bounced',
         'transaction_type',
         'is_invoice_added',
+
+        'loss_or_discount',
+        'loss_discount_amount',
+        'loss_discount_date',
+        'loss_discount_remarks',
     ];
 
     /**

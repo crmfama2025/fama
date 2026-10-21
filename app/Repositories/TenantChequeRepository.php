@@ -279,6 +279,8 @@ class TenantChequeRepository
         // $count = (clone $query)->count();
         // dd('2013 records found: ' . $count);
 
+        $query->orderBy('agreement_payment_details.payment_date', 'asc')
+            ->orderBy('agreement_payment_details.id', 'asc');
 
 
         return $query;

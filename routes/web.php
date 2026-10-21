@@ -104,9 +104,9 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
     Route::get('export-localities', [LocalityController::class, 'export'])->name('locality.export');
     Route::get('locality-list', [LocalityController::class, 'getLocalities'])->name('locality.list');
     Route::post('import-locality', [LocalityController::class, 'import'])->name('import.locality');
-   
-    Route::post('/locality/pricing',[LocalityController::class, 'storePricing'])->name('locality.pricing.store');
-    Route::get('/locality/{locality}/pricing',[LocalityController::class, 'getPricing'])->name('locality.pricing.show');
+
+    Route::post('/locality/pricing', [LocalityController::class, 'storePricing'])->name('locality.pricing.store');
+    Route::get('/locality/{locality}/pricing', [LocalityController::class, 'getPricing'])->name('locality.pricing.show');
 
     Route::get('propertyType-list', [PropertyTypeController::class, 'getPropertyType'])->name('property_type.list');
     Route::post('import-property-type', [PropertyTypeController::class, 'importPropertyType'])->name('import.propertytype');
@@ -525,6 +525,9 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
     // routes/web.php
     Route::get('/leads/follow-ups/calendar', [LeadController::class, 'calendarEvents'])
         ->name('lead.calendar-events');
+
+    Route::post('/loss-discount', [ReceivablesClearingController::class, 'storeLossDiscount'])
+        ->name('receivable.loss-discount');
 });
 
 

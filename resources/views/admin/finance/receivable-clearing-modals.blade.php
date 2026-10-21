@@ -157,14 +157,14 @@
                         <label>Adjustment Type</label>
 
                         <div class="icheck-primary d-inline mr-3">
-                            <input type="radio" id="loss_type" name="adjustment_type" value="loss" checked>
+                            <input type="radio" id="loss_type" name="loss_or_discount" value="1" checked>
                             <label for="loss_type">
                                 Loss
                             </label>
                         </div>
 
                         <div class="icheck-primary d-inline">
-                            <input type="radio" id="discount_type" name="adjustment_type" value="discount">
+                            <input type="radio" id="discount_type" name="loss_or_discount" value="2">
                             <label for="discount_type">
                                 Discount
                             </label>
@@ -174,7 +174,7 @@
                     <div class="form-group">
                         <label class="asterisk">Date</label>
                         <div class="input-group date" id="lossDiscountDate" data-target-input="nearest">
-                            <input type="text" name="date" class="form-control datetimepicker-input"
+                            <input type="text" name="loss_discount_date" class="form-control datetimepicker-input"
                                 id="loss_discount_date" data-target="#lossDiscountDate" placeholder="dd-mm-YYYY"
                                 required>
 
@@ -189,19 +189,22 @@
 
                     <div class="form-group">
                         <label>Amount</label>
-                        <input type="number" name="amount" id="loss_discount_amount" class="form-control"
-                            step="0.01" min="0" oninput="this.value = Math.max(0, this.value)">
+                        <input type="number" name="loss_discount_amount" id="loss_discount_amount"
+                            class="form-control" step="0.0001" min="0" value="0"
+                            oninput="if (this.value < 0) this.value = 0;">
                     </div>
 
                     <div class="form-group">
                         <label>Balance Amount</label>
-                        <input type="number" name="amount" id="balance_amount" class="form-control" readonly>
+                        <input type="number" name="balance_amount" id="balance_amount" class="form-control"
+                            readonly>
                     </div>
 
 
                     <div class="form-group">
                         <label>Reason</label>
-                        <textarea name="reason" id="loss_discount_reason" class="form-control" rows="3" placeholder="Enter reason"></textarea>
+                        <textarea name="loss_discount_remarks" id="loss_discount_remarks" class="form-control" rows="3"
+                            placeholder="Enter reason"></textarea>
                     </div>
                 </div>
 
