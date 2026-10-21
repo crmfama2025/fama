@@ -41,15 +41,14 @@ class InvestmentRepository
         return Investment::where($areaData)->first();
     }
 
-    public function getAllByCondition($where, array $whereIn = [])
+    public function getAllByCondition($where)
     {
-        $query = Investment::where($where);
+        return Investment::where($where)->get();
+    }
 
-        foreach ($whereIn as $column => $values) {
-            $query->whereIn($column, (array) $values);
-        }
-
-        return $query->get();
+    public function getAllByConditionAndIds(array $where, array $ids)
+    {
+        return Investment::where($where)->whereIn('id', $ids)->get();
     }
 
     public function create($data)

@@ -59,15 +59,19 @@ class InvestmentContractService
         $templateDocumentDetail = $this->InvAgreementRepo->findByType($docTypeId);
 
         if ($investmentId == 0) {
-            $investments = $this->investmentRepository->getAllByCondition(
+            $raw = $invDocDetails->applied_investments;
+
+            $investmentIds = is_array($raw)
+                ? $raw
+                : array_filter(array_map('intval', preg_split('/[^\d]+/', (string) $raw)));
+
+            $investments = $this->investmentRepository->getAllByConditionAndIds(
                 [
                     'investor_id'       => $invDocDetails->investor_id,
                     'investment_status' => 1,
                     'company_id' => $companyId,
                 ],
-                [
-                    'id' => $invDocDetails->applied_investments, // e.g. [12, 15, 18]
-                ]
+                $investmentIds, // e.g. [12, 15, 18]
             );
 
             // dd($investments);
@@ -86,7 +90,6 @@ class InvestmentContractService
      */
     private function sendMudarabahMultiple($invDocDetails, $documentDetail, $investorData, $investments)
     {
-        // dd('multiple');
         $byCompany = [];
         foreach ($investments as $inv) {
             $byCompany[$inv->company_id][] = $inv;
@@ -149,7 +152,6 @@ class InvestmentContractService
         $grandTotalPerInterval = $investmentsCollection->sum('profit_amount_per_interval');
 
         // dd($grandTotalInvested);
-
         $firstInv    = $investmentsCollection->first();
         $companyData = Company::find($firstInv->company_id);
 
