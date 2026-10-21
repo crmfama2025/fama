@@ -1343,7 +1343,7 @@ class InvestmentContractService
         $currentTotal = $prevAmount + $investment->investment_amount;
         $investmentDate       = Carbon::parse($investment->investment_date);
         $refInvestment = $docDetails->mudarabahReference?->resolveReferenceInvestment();
-
+        dd($refInvestment);
         $mudarabahCreatedDate = Carbon::parse(
             $refInvestment->investor_novation_applied_at ?? $refInvestment->investment_date
         );
