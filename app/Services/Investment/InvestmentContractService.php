@@ -59,11 +59,16 @@ class InvestmentContractService
         $templateDocumentDetail = $this->InvAgreementRepo->findByType($docTypeId);
 
         if ($investmentId == 0) {
-            $investments = $this->investmentRepository->getAllByCondition([
-                'investor_id'       => $invDocDetails->investor_id,
-                'investment_status' => 1,
-                'company_id' => $companyId,
-            ]);
+            $investments = $this->investmentRepository->getAllByCondition(
+                [
+                    'investor_id'       => $invDocDetails->investor_id,
+                    'investment_status' => 1,
+                    'company_id' => $companyId,
+                ],
+                [
+                    'id' => $invDocDetails->applied_investments, // e.g. [12, 15, 18]
+                ]
+            );
 
             // dd($investments);
             return $this->sendMudarabahMultiple($invDocDetails, $templateDocumentDetail, $investorData, $investments);
