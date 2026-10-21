@@ -41,9 +41,15 @@ class InvestmentRepository
         return Investment::where($areaData)->first();
     }
 
-    public function getAllByCondition($where)
+    public function getAllByCondition($where, array $whereIn = [])
     {
-        return Investment::where($where)->get();
+        $query = Investment::where($where);
+
+        foreach ($whereIn as $column => $values) {
+            $query->whereIn($column, (array) $values);
+        }
+
+        return $query->get();
     }
 
     public function create($data)
@@ -96,7 +102,7 @@ class InvestmentRepository
     //         $query->where('investor_id', $filters['investor_id']);
     //     }
     //     $result = $query->get();
-       
+
     //     if (!empty($filters['search'])) {
     //         $query->orWhere('investment_amount', 'like', '%' . $filters['search'] . '%')
     //             ->orWhere('investment_date', 'like', '%' . $filters['search'] . '%')
