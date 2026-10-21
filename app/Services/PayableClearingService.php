@@ -244,7 +244,7 @@ class PayableClearingService
                 // 'paid_cheque_number' => $data['paid_cheque_number'] ?? null,
                 'paid_cheque_number' => $paidMode == 3
                     ? ($data['paid_cheque_number'] ?? $paymentdetails->cheque_no)
-                    : null,
+                : null,
                 'bank_reference'             => $paidMode == 1 ? null : ($data['bank_reference'] ?? null),
                 'payment_remarks' => $data['payment_remarks'] ?? null,
             );
@@ -253,14 +253,14 @@ class PayableClearingService
                 'paid_status' => ($pendingAmt == 0) ? 1 : 2,
             );
         }
-
+// dd($payable);
         return DB::transaction(function () use ($paymentdet, $payable) {
             // DB::enableQueryLog();
             // dump($payable);
             // dd($paymentdet);
             $paidIds = $this->paymentDetRepo->updateMany($paymentdet);
 
-            $payableIds = $this->payableClearRepo->createMany($payable);
+        $payableIds = $this->payableClearRepo->createMany($payable);
 
             foreach ($paidIds as $paidId) {
                 $detail = $this->paymentDetRepo->find($paidId);

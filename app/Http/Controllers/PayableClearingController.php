@@ -46,6 +46,7 @@ class PayableClearingController extends Controller
 
     public function submitPayables(Request $request)
     {
+        // dd($request->all());
         try {
             $paidDet = $this->payableClear->PayableSave($request->all());
 

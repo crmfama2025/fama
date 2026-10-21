@@ -355,18 +355,16 @@
                                             @endforeach --}}
                                         </select>
                                     </div>
-                                    <div class="form-group  bankref">
-                                        <label class="asterisk">Bank Reference</label>
-                                        <input type="text" class="form-control" name="bank_reference" id="bank_reference"
-                                            placeholder="Bank Reference" required>
-                                    </div>
-
                                     <div class="form-group row cheque">
                                         <label for="exampleInputEmail1" class="asterisk">Cheque No</label>
                                         <input type="text" class="form-control cheque_no" id="cheque_no"
                                             name="paid_cheque_number" placeholder="Cheque No" required>
                                     </div>
-
+                                    <div class="form-group  bankref">
+                                        <label class="asterisk">Bank Reference</label>
+                                        <input type="text" class="form-control" name="bank_reference" id="bank_reference"
+                                            placeholder="Bank Reference" required>
+                                    </div>
                                     <div class="form-group row modechange">
                                         <label for="exampleInputEmail1">Remarks</label>
                                         <textarea name="payment_remarks" id="" cols="10" rows="5" class="form-control"></textarea>
@@ -931,9 +929,8 @@
             e.preventDefault();
 
             let isValid = true;
-            $(".error-text").remove(); // clear old errors
+            $(".error-text").remove(); 
 
-            // validate ALL required fields
             $("#PaymentSubmitForm").find("[required]:visible").each(function() {
                 const value = $(this).val()?.trim();
 
@@ -949,7 +946,7 @@
 
                 if (!container.is(':visible')) {
                     container.removeClass('is-invalid is-valid');
-                    return; // hidden for this mode, skip
+                    return;
                 }
 
                 if (!$(this).val() && !$(this).prop('disabled')) {
@@ -982,7 +979,7 @@
 
             if (!isValid) return;
 
-            submitForm(); // everything passed
+            submitForm(); 
 
 
         });
