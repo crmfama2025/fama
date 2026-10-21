@@ -128,7 +128,10 @@ class PayableClearingService
 
                 $action .= '<a class="btn btn-success  btn-sm" title="Clear cheque"
                                 data-toggle="modal" data-target="#modal-clear-payable"
-                                data-clear-type="single" data-det-id="' . $row->id . '" data-amount="' . (toNumeric($row->payment_amount) - (float) ($row->paid_total ?? 0)) . '">Clear</a>';
+                                data-clear-type="single" data-det-id="' . $row->id . '" data-amount="' . (toNumeric($row->payment_amount) - (float) ($row->paid_total ?? 0)) . '" data-mode-id="' . ($row->payment_mode_id ?? '') . '"
+                data-company-id="' . ($row->contract->company_id ?? '') . '"
+                data-bank-id="' . ($row->bank_id ?? '') . '"
+                data-cheque-no="' . e($row->cheque_no ?? '') . '">Clear</a>';
 
 
                 return $action ?: '-';
@@ -242,7 +245,7 @@ class PayableClearingService
                 'paid_cheque_number' => $paidMode == 3
                     ? ($data['paid_cheque_number'] ?? $paymentdetails->cheque_no)
                     : null,
-
+                'bank_reference'             => $paidMode == 1 ? null : ($data['bank_reference'] ?? null),
                 'payment_remarks' => $data['payment_remarks'] ?? null,
             );
 

@@ -1103,6 +1103,7 @@ namespace App\Models{
  * @property int $paid_by
  * @property int|null $paid_bank
  * @property string|null $paid_cheque_number
+ * @property string|null $bank_reference
  * @property string|null $payment_remarks
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -1117,6 +1118,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPayableClear newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPayableClear newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPayableClear query()
+ * @method static \Illuminate\Database\Eloquent\Builder|ContractPayableClear whereBankReference($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPayableClear whereCompanyId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPayableClear whereContractId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPayableClear whereContractPaymentDetailId($value)
@@ -2196,6 +2198,7 @@ namespace App\Models{
  * @property-read \App\Models\Company|null $company
  * @property-read \App\Models\User|null $deletedBy
  * @property-read \App\Models\User|null $generatedBy
+ * @property-read string|null $resign_pending_for
  * @property-read \App\Models\Investment|null $investment
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvestmentDocument> $investmentDocuments
  * @property-read int|null $investment_documents_count
@@ -2209,6 +2212,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments query()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments resignRequested(?string $role = null)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereActionType($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereAddedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereAdditionalFilePath($value)
@@ -2866,6 +2870,8 @@ namespace App\Models{
  * @property string|null $deleted_at
  * @property-read \App\Models\InvestmentContractDocuments|null $InvestmentContractDocument
  * @property-read \App\Models\User|null $requester
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, InvestorDocumentResignRequestLog> $resignRequests
+ * @property-read int|null $resign_requests_count
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocumentResignRequestLog newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocumentResignRequestLog newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocumentResignRequestLog query()
