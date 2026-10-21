@@ -1517,12 +1517,26 @@ class InvestmentContractService
 
         $docTypeId     = $docDetails->investor_agreement_type_id;
         $investor   = $docDetails->investor;
-        $investments = Investment::where(['investor_id' => $docDetails->investor_id, 'company_id' => $companyId])
-            ->orderBy('investment_date')
-            ->get();
+        // $investments = Investment::where(['investor_id' => $docDetails->investor_id, 'company_id' => $companyId])
+        //     ->orderBy('investment_date')
+        //     ->get();
 
-        $totalInvested  = Investment::where('investor_id', $docDetails->investor_id)->sum('total_invested_amount');
+        $raw = $docDetails->applied_investments;
 
+        $investmentIds = is_array($raw)
+            ? $raw
+            : array_filter(array_map('intval', preg_split('/[^\d]+/', (string) $raw)));
+
+        $investments = $this->investmentRepository->getAllByConditionAndIds(
+            [
+                'investor_id'       => $docDetails->investor_id,
+                'investment_status' => 1,
+                'company_id' => $companyId,
+            ],
+            $investmentIds, // e.g. [12, 15, 18]
+        );
+
+        $totalInvested  = $investments->sum('total_invested_amount');
 
         // $investor   = $this->investorRepository->find($investorId);
         // $investment = $this->investmentRepository->find($investmentId);
