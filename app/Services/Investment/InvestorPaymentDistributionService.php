@@ -180,7 +180,7 @@ class InvestorPaymentDistributionService
     //         ->with(['columns' => $columns])
     //         ->toJson();
     // }
-    
+
     public function getPendingList(array $filters = [])
     {
         $query = $this->investorDistRepo->getPendings($filters);
@@ -279,8 +279,8 @@ class InvestorPaymentDistributionService
 
                 return "<a href='" . route('company.show', $company->id) . "'
                             target='_blank'>" .
-                            e($company->company_name) .
-                        "</a>";
+                    e($company->company_name) .
+                    "</a>";
             })
 
             ->addColumn('investment_code', function ($row) {
@@ -292,8 +292,8 @@ class InvestorPaymentDistributionService
 
                 return "<a href='" . route('investment.show', $investment->id) . "'
                             target='_blank'>" .
-                            e($investment->investment_code) .
-                        "</a>";
+                    e($investment->investment_code) .
+                    "</a>";
             })
 
             ->addColumn('payout_date', function ($row) {
@@ -343,8 +343,8 @@ class InvestorPaymentDistributionService
             ->filterColumn('investor_name', function ($query, $keyword) {
                 $query->whereHas('investor', function ($q) use ($keyword) {
                     $q->where('investor_name', 'like', "%{$keyword}%")
-                    ->orWhere('investor_email', 'like', "%{$keyword}%")
-                    ->orWhere('investor_mobile', 'like', "%{$keyword}%");
+                        ->orWhere('investor_email', 'like', "%{$keyword}%")
+                        ->orWhere('investor_mobile', 'like', "%{$keyword}%");
                 });
             })
 
@@ -365,20 +365,26 @@ class InvestorPaymentDistributionService
 
                 $types = [];
 
-                if (str_contains('profit', $keyword) ||
-                    str_contains($keyword, 'profit')) {
+                if (
+                    str_contains('profit', $keyword) ||
+                    str_contains($keyword, 'profit')
+                ) {
                     $types[] = 1;
                 }
 
-                if (str_contains('commission', $keyword) ||
-                    str_contains($keyword, 'commission')) {
+                if (
+                    str_contains('commission', $keyword) ||
+                    str_contains($keyword, 'commission')
+                ) {
                     $types[] = 2;
                 }
 
-                if (str_contains('withdrawal', $keyword) ||
+                if (
+                    str_contains('withdrawal', $keyword) ||
                     str_contains($keyword, 'withdrawal') ||
                     str_contains('settlement', $keyword) ||
-                    str_contains($keyword, 'settlement')) {
+                    str_contains($keyword, 'settlement')
+                ) {
                     $types[] = 6;
                 }
 
@@ -461,7 +467,7 @@ class InvestorPaymentDistributionService
             ->toJson();
     }
 
-    
+
 
     public function savePayout(array $data)
     {
@@ -716,7 +722,7 @@ class InvestorPaymentDistributionService
             /*
             * Add your actual status field here if one exists.
             * */
-            'release_status' => $newReleasedTotal >= $profitAmount ? 'paid' : 'partially_paid',
+            'release_status' => $newReleasedTotal >= $profitAmount ? 'released' : 'partially_released',
             'last_released_at' => now(),
             'last_released_by' => auth()->user()->id ?? null,
 
