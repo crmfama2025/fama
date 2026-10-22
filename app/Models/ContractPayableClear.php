@@ -24,7 +24,8 @@ class ContractPayableClear extends Model
         'bank_reference',
         'payment_remarks',
         'company_id',
-        'returned_status'
+        'returned_status',
+        'is_discount',
     ];
 
     public function contract()

@@ -336,27 +336,27 @@ class TenantChequeService
 
 
 
-                // $action .= '<a class="btn btn-success mr-1 btn-sm clearChequeBtn m-1" title="Clear cheque"
-                //  data-date="' . $row->payment_date . '" data-id="' . $row->id . '" data-form="single"
-                //  data-amount = "' . getReceivableAmount($row->id) . '" data-payment-mode ="' . $row->payment_mode_id . '"
-                //   data-bank-id="' . $row->bank_id . '" data-cheque-number="' . $row->cheque_number . '"
+                $action .= '<a class="btn btn-success mr-1 btn-sm clearChequeBtn m-1" title="Clear cheque"
+                 data-date="' . $row->payment_date . '" data-id="' . $row->id . '" data-form="single"
+                 data-amount = "' . getReceivableAmount($row->id) . '" data-payment-mode ="' . $row->payment_mode_id . '"
+                  data-bank-id="' . $row->bank_id . '" data-cheque-number="' . $row->cheque_number . '"
 
-                //   data-toggle="modal" data-target="#modal-single-clear">Clear</a>';
+                  data-toggle="modal" data-target="#modal-single-clear">Clear</a>';
 
 
 
-                // $action .= '<a class="btn btn-warning mr-1 btn-sm lossDiscountBtn m-1"
-                //     title="Loss / Discount"
-                //     data-id="' . $row->id . '"
-                //     data-date="' . $row->payment_date . '"
-                //     data-amount="' . getReceivableAmount($row->id) . '"
-                //     data-payment-mode="' . $row->payment_mode_id . '"
-                //     data-bank-id="' . $row->bank_id . '"
-                //     data-cheque-number="' . $row->cheque_number . '"
-                //     data-toggle="modal"
-                //     data-target="#modal-loss-discount">
-                //     <i class="fas fa-percentage"></i>
-                // </a>';
+                $action .= '<a class="btn btn-warning mr-1 btn-sm lossDiscountBtn m-1"
+                    title="Loss / Discount"
+                    data-id="' . $row->id . '"
+                    data-date="' . $row->payment_date . '"
+                    data-amount="' . getReceivableAmount($row->id) . '"
+                    data-payment-mode="' . $row->payment_mode_id . '"
+                    data-bank-id="' . $row->bank_id . '"
+                    data-cheque-number="' . $row->cheque_number . '"
+                    data-toggle="modal"
+                    data-target="#modal-loss-discount">
+                    <i class="fas fa-percentage"></i>
+                </a>';
 
 
 
@@ -779,17 +779,42 @@ class TenantChequeService
                 return "{$current}/{$total}";
             })
             ->addColumn('is_payment_received', function ($row) {
+                // $status = $row->agreementPaymentDetail->is_payment_received ?? null;
+                // // dd($status);
+                // switch ($status) {
+                //     case 0:
+                //         return '<span class="badge bg-warning">Pending</span>';
+                //     case 2:
+                //         return '<span class="badge bg-info">Partially Paid</span>';
+                //     case 1:
+                //         return '<span class="badge bg-success">Paid</span>';
+                // }
                 $status = $row->agreementPaymentDetail->is_payment_received ?? null;
-                // dd($status);
+                $lossOrDiscount = $row->loss_or_discount ?? 0;
+
+                $badge = '';
+
                 switch ($status) {
                     case 0:
-                        return '<span class="badge bg-warning">Pending</span>';
+                        $badge = '<span class="badge bg-warning">Pending</span>';
+                        break;
                     case 2:
-                        return '<span class="badge bg-info">Partially Paid</span>';
+                        $badge = '<span class="badge bg-info">Partially Paid</span>';
+                        break;
                     case 1:
-                        return '<span class="badge bg-success">Paid</span>';
+                        $badge = '<span class="badge bg-success">Paid</span>';
+                        break;
                 }
+
+                if ($lossOrDiscount == 1) {
+                    $badge .= '<br> <span class="badge bg-danger">Loss</span>';
+                } elseif ($lossOrDiscount == 2) {
+                    $badge .= '<br> <span class="badge bg-primary">Discount</span>';
+                }
+
+                return $badge;
             })
+
             // ->addColumn('action', function ($row) {
             //     $action = '';
             //     $detail = $row->agreementPaymentDetail;
@@ -846,5 +871,51 @@ class TenantChequeService
             });
         // dd($allReceivables->count());
         return $allReceivables;
+    }
+
+
+    public function storeLossDiscount($data)
+    {
+        return DB::transaction(function () use ($data) {
+            $payment = $this->tenantChequeRepository->getPaymentDetailById($data['id']);
+
+            if (!$payment) {
+                throw new \Exception('Payment detail not found.');
+            }
+
+            $balanceAmount = (float) $data['balance_amount'];
+            $lossDiscountAmount = (float) $data['loss_discount_amount'];
+            $lossDiscountDate = parseDate($data['loss_discount_date']);
+            // dd($balanceAmount, $lossDiscountAmount, $lossDiscountDate);
+            if ($payment->loss_discount_amount != null) {
+                $ld_amount = $payment->loss_discount_amount + $lossDiscountAmount;
+            } else {
+                $ld_amount = $lossDiscountAmount;
+            }
+
+            $payment->update([
+                'is_payment_received' => $balanceAmount == 0 ? 1 : 2,
+                'loss_or_discount' => $data['loss_or_discount'],
+                'loss_discount_amount' => $ld_amount,
+                'loss_discount_date' => $lossDiscountDate,
+                'loss_discount_remarks' => $data['loss_discount_remarks'] ?? null,
+            ]);
+
+            $cleared_data = [
+                'paid_date' => $lossDiscountDate,
+                'paid_amount' => $lossDiscountAmount,
+                'paid_mode_id' => 1,
+                'payment_remarks' => $data['loss_discount_remarks'] ?? null,
+                'pending_amount' => $balanceAmount,
+                'agreement_payment_details_id' => $payment->id,
+                'paid_by' => auth()->id(),
+                'agreement_id' => $payment->agreement_id,
+                'paid_company_id' => $payment->company_id,
+                'loss_or_discount' => $data['loss_or_discount'],
+            ];
+            $cleared =  $this->tenantChequeRepository->createClearedReceivables($cleared_data);
+
+            return true;
+        });
     }
 }

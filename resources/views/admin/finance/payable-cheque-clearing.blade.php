@@ -304,6 +304,7 @@
                                         <label for="exampleInputEmail1" class="asterisk">Clearing Amount</label>
                                         <input type="number" class="form-control" name="paid_amount" id="paid_amount"
                                             placeholder="Clearing Amount" required min="0" step="1">
+                                        {{-- can't be more than what is pending --}}
                                         <span id="amountPending" class="text-danger text-sm"></span>
                                     </div>
                                     <div class="form-group d-flex align-items-center flex-wrap" style="gap:25px;">
@@ -449,6 +450,72 @@
                 </div>
                 <!-- /.modal-dialog -->
             </div>
+            <div class="modal fade" id="modal-loss-discount">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Discount</h5>
+                            <button type="button" class="close" data-dismiss="modal">
+                                <span>&times;</span>
+                            </button>
+                        </div>
+
+                        <form id="lossDiscountForm">
+                            <div class="modal-body">
+                                <input type="hidden" name="id" id="loss_discount_id">
+
+                             
+
+                                <div class="form-group">
+                                    <label class="asterisk">Date</label>
+                                    <div class="input-group date" id="lossDiscountDate" data-target-input="nearest">
+                                        <input type="text" name="loss_discount_date" class="form-control datetimepicker-input"
+                                            id="loss_discount_date" data-target="#lossDiscountDate" placeholder="dd-mm-YYYY"
+                                            required>
+
+                                        <div class="input-group-append" data-target="#lossDiscountDate"
+                                            data-toggle="datetimepicker">
+                                            <span class="input-group-text">
+                                                <i class="fa fa-calendar"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Amount</label>
+                                    <input type="number" name="loss_discount_amount" id="loss_discount_amount"
+                                        class="form-control" step="0.0001" min="0" value="0"
+                                        oninput="if (this.value < 0) this.value = 0;">
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Balance Amount</label>
+                                    <input type="number" name="balance_amount" id="balance_amount" class="form-control"
+                                        readonly>
+                                </div>
+
+
+                                <div class="form-group">
+                                    <label>Reason</label>
+                                    <textarea name="loss_discount_remarks" id="loss_discount_remarks" class="form-control" rows="3"
+                                        placeholder="Enter reason"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                    Cancel
+                                </button>
+
+                                <button type="submit" class="btn btn-primary">
+                                    Save
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
             <!-- /.modal -->
         </section>
     </div>
@@ -479,6 +546,9 @@
 
         $('#dateTo').datetimepicker({
             format: 'DD-MM-YYYY'
+        });
+        $('#lossDiscountDate').datetimepicker({
+            format: 'DD-MM-YYYY',
         });
 
         $(document).ready(function() {
@@ -524,11 +594,73 @@
                 });
             $('#bank_name').html(options).trigger('change');
         }
+        let lossDiscountBalance = 0;
+
+        $(document).on('input', '#loss_discount_amount', function () {
+            let amt = parseFloat(this.value) || 0;
+
+            if (amt > lossDiscountBalance) {
+                amt = lossDiscountBalance;
+                this.value = lossDiscountBalance;
+            }
+
+            $('#balance_amount').val((lossDiscountBalance - amt).toFixed(2));
+        });
+      
+        $(document).on('click', '.lossDiscountBtn', function (e) {
+            e.preventDefault();
+
+            $('.modal.show').not('#modal-loss-discount').modal('hide');
+
+            $('#lossDiscountForm')[0].reset();
+            $('#lossDiscountForm').find('input, textarea').removeClass('is-invalid is-valid');
+
+            lossDiscountBalance = parseFloat($(this).data('amount')) || 0;
+
+            $('#loss_discount_id').val($(this).data('det-id'));
+            $('#loss_discount_amount').val(0).attr('max', lossDiscountBalance);
+            $('#balance_amount').val(lossDiscountBalance.toFixed(2));
+
+            const dueDate = $(this).attr('data-due-date');
+            const m = moment(dueDate, ['DD-MM-YYYY', 'YYYY-MM-DD']);
+            if (dueDate && m.isValid()) {
+                $('#loss_discount_date').val(m.format('DD-MM-YYYY'));
+                $('#lossDiscountDate').datetimepicker('date', m);
+            }
+
+            $('#modal-loss-discount').modal('show');
+        });
+        $('#lossDiscountForm').on('submit', function (e) {
+            e.preventDefault();
+
+            const fdata = new FormData(this);
+            fdata.append('_token', $('meta[name="csrf-token"]').attr('content'));
+
+            showLoader();
+            $.ajax({
+                type: 'POST',
+                url: "{{ route('payable.discount') }}",
+                data: fdata,
+                dataType: 'json',
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    hideLoader();
+                    $('#modal-loss-discount').modal('hide');
+                    $('#PayableList').DataTable().ajax.reload();
+                    toastr.success(response.message);
+                },
+                error: function (xhr) {
+                    hideLoader();
+                    const errs = xhr.responseJSON?.errors;
+                    toastr.error(errs ? Object.values(errs)[0][0] : (xhr.responseJSON?.message || 'Something went wrong'));
+                }
+            });
+        });
         $('#modal-clear-payable').on('show.bs.modal', function(event) {
             var button = $(event.relatedTarget);
             var clearType = button.data('clear-type');
-
-            // Bulk: block the modal if nothing is selected
+        
             if (clearType === 'bulk' && $('.groupCheckbox:checked').length === 0) {
                 toastr.error('Please select one or more items to continue.');
                 event.preventDefault();
@@ -545,7 +677,7 @@
                 $('#detId').val(button.data('det-id'));
 
                 let totalAmount = parseFloat(button.data('amount')) || 0;
-                $('#paid_amount').val(totalAmount);
+                $('#paid_amount').val(totalAmount).attr('max', totalAmount);
 
                 $('#paid_amount').off('input').on('input', function() {
                     let paid = parseFloat(this.value) || 0;
@@ -560,7 +692,6 @@
                 $('.clrngamnt').show();
                 $('.chq').show();
 
-                // ---- pre-select mode + prefill fields ----
                 const modeId = button.attr('data-mode-id');
                 const companyId = button.attr('data-company-id');
                 const bankId = button.attr('data-bank-id');
@@ -578,6 +709,7 @@
                     $('#bank_name').val(bankId).trigger('change');
                 }
                 $('#cheque_no').val(chequeNo || '');
+           
             }
         });
 
@@ -941,6 +1073,17 @@
                     setValid(this);
                 }
             });
+            const paidAmountInput = $('#paid_amount');
+            if ($('#method').val() === 'single' && paidAmountInput.is(':visible')) {
+                const paid = parseFloat(paidAmountInput.val()) || 0;
+                const pendingMax = parseFloat(paidAmountInput.attr('max'));
+                if (!isNaN(pendingMax) && paid > pendingMax) {
+                    paidAmountInput.val(pendingMax);
+                    setInvalid(paidAmountInput[0], 'Amount cannot be more than pending');
+                    isValid = false;
+                }
+            }
+
             $("#PaymentSubmitForm").find('select.select2[required]').each(function () {
                 const container = $(this).next('.select2-container');
 
@@ -1071,6 +1214,7 @@
 
             // Clear the remaining-amount hint text
             $('#amountPending').text('');
+            $('#paid_amount').removeAttr('max');
 
             // Reset hidden fields
             $('#method').val('');

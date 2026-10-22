@@ -7,6 +7,7 @@
     let apTenantName = '';
     let apAllocatedIds = []; // IDs that will actually be touched
     let apAllocatedAmounts = {};
+    let apCompanyId = null;
 
     function fmtAED(n) {
         return 'AED ' + parseFloat(n).toLocaleString('en-US', {
@@ -16,20 +17,150 @@
     }
 
     // ── When tenant dropdown changes ──────────────────────────────────
-    $(document).on('change', '#tenantSelectAllocation', function() {
-        apTenantId = $(this).val();
-        apTenantName = $(this).find('option:selected').text().trim();
+    // $(document).on('change', '#tenantSelectAllocation', function() {
+    // $(document).on('change', '#companySelectAllocation', function() {
+    //     // apTenantId = $(this).val();
+    //     apCompanyId = $(this).val();
+    //     // apTenantName = $(this).find('option:selected').text().trim();
+    //     apCompanyName = $(this).find('option:selected').text().trim();
+
+    //     apFromDate = $('#fromDateAllocation').val();
+    //     apToDate = $('#toDateAllocation').val();
+    //     if (!apFromDate || !apToDate) {
+    //         toastr.error('Please select both From Date and To Date.');
+    //         return;
+    //     }
+
+    //     apReceivables = [];
+    //     $('#ap_rows').html('');
+    //     $('#ap_summary').hide();
+    //     $('#ap_banner').hide();
+    //     $('#ap_amount_input').val('');
+    //     $('#ap_covered_summary').hide();
+    //     $('#ap_submit_btn').prop('disabled', true);
+
+    //     // if (!apTenantId) {
+    //     //     $('#allocationCard').hide();
+    //     //     $('#ap_tenant_name').text('—');
+    //     //     return;
+    //     // }
+    //     if (!apCompanyId) {
+    //         $('#allocationCard').hide();
+    //         return;
+    //     }
+
+    //     // $('#ap_tenant_name').text(apTenantName);
+    //     // $('#allocationCard').show();
+    //     showLoader();
+    //     // fetch pending receivables for this tenant
+    //     $.get("{{ route('tenant.pending.receivables') }}", {
+    //             // tenant_id: apTenantId,
+    //             from_date: apFromDate,
+    //             to_date: apToDate,
+    //             company_id: apCompanyId
+    //         },
+    //         function(res) {
+    //             // alert("test");
+    //             hideLoader();
+    //             console.log('Received receivables:', res.data);
+    //             apReceivables = res.data || [];
+
+    //             if (apReceivables.length === 0) {
+    //                 toastr.info('No pending receivables found for this tenant.');
+    //                 $('#ap_submit_btn').prop('disabled', true);
+    //                 $('#ap_rows').html('');
+    //                 $('#ap_summary').hide();
+    //                 $('#ap_banner').hide();
+    //                 $('#ap_covered_summary').hide();
+    //                 $('#allocationCard').hide();
+    //                 return;
+    //             }
+    //             $('#ap_tenant_name').text(apTenantName);
+    //             $('#ap_company_name').text(apCompanyName);
+    //             $('#allocationCard').show();
+    //             // auto-run if amount already typed
+    //             if ($('#ap_amount_input').val()) runApAllocation();
+    //         }
+    //     );
+    //     // AFTER (client-side filter):
+    //     // apReceivables = allReceivables.filter(r => r.tenant_id == apTenantId);
+    //     // hideLoader();
+
+    //     // if (apReceivables.length === 0) {
+    //     //     toastr.info('No pending receivables found for this tenant.');
+    //     //     $('#ap_submit_btn').prop('disabled', true);
+    //     //     $('#ap_rows').html('');
+    //     //     $('#ap_summary').hide();
+    //     //     $('#ap_banner').hide();
+    //     //     $('#ap_tenant_name').text('');
+    //     //     $('#allocationCard').hide();
+    //     //     return;
+    //     // }
+
+    //     // $('#ap_tenant_name').text(apTenantName);
+    //     // $('#allocationCard').show();
+    //     // if ($('#ap_amount_input').val()) runApAllocation();
+    //     console.log('ap', apReceivables);
+    // });
+
+    // $(document).on('change.datetimepicker', '#fromDateAllocation, #toDateAllocation', function() {
+    $('#fromDateAllocationPicker, #toDateAllocationPicker').on('change.datetimepicker', function(e) {
+        // if (apTenantId) {
+        //     $('#tenantSelectAllocation').trigger('change');
+        // }
+        // alert(apCompanyId);
+        // alert("test");
+        const fromDate = $('#fromDateAllocationPicker').datetimepicker('date');
+        const toDate = $('#toDateAllocationPicker').datetimepicker('date');
+
+        // check if both dates are selected and if toDate is before fromDate
+        if (fromDate && toDate && toDate.isBefore(fromDate, 'day')) {
+            toastr.error('To Date must be greater than or equal to From Date.');
+            $('#toDateAllocationPicker').datetimepicker('clear');
+            return;
+        }
+
+        // console.log('apCompanyId', apCompanyId);
+        // if (fromDate && toDate && apCompanyId) {
+        //     $('#companySelectAllocation').trigger('change');
+        // if (parseFloat($('#ap_amount_input').val()) > 0) {
+        //     runApAllocation();
+        // }
+        // }
+    });
+
+    function loadCompanyAllocation() {
+        apCompanyId = $('#companySelectAllocation').val();
+        apCompanyName = $('#companySelectAllocation option:selected').text().trim();
+
+        apFromDate = $('#fromDateAllocation').val();
+        apToDate = $('#toDateAllocation').val();
+
+        if (!apFromDate || !apToDate) {
+            toastr.error('Please select both From Date and To Date.');
+            return;
+        }
+
+        if (!apCompanyId) {
+            toastr.error('Please select a Company.');
+            return;
+        }
 
         apReceivables = [];
         $('#ap_rows').html('');
         $('#ap_summary').hide();
         $('#ap_banner').hide();
         $('#ap_amount_input').val('');
+        $('#ap_covered_summary').hide();
         $('#ap_submit_btn').prop('disabled', true);
 
-        if (!apTenantId) {
+        // if (!apTenantId) {
+        //     $('#allocationCard').hide();
+        //     $('#ap_tenant_name').text('—');
+        //     return;
+        // }
+        if (!apCompanyId) {
             $('#allocationCard').hide();
-            $('#ap_tenant_name').text('—');
             return;
         }
 
@@ -38,7 +169,10 @@
         showLoader();
         // fetch pending receivables for this tenant
         $.get("{{ route('tenant.pending.receivables') }}", {
-                tenant_id: apTenantId
+                // tenant_id: apTenantId,
+                from_date: apFromDate,
+                to_date: apToDate,
+                company_id: apCompanyId
             },
             function(res) {
                 // alert("test");
@@ -52,34 +186,21 @@
                     $('#ap_rows').html('');
                     $('#ap_summary').hide();
                     $('#ap_banner').hide();
+                    $('#ap_covered_summary').hide();
                     $('#allocationCard').hide();
                     return;
                 }
                 $('#ap_tenant_name').text(apTenantName);
+                $('#ap_company_name').text(apCompanyName);
                 $('#allocationCard').show();
                 // auto-run if amount already typed
                 if ($('#ap_amount_input').val()) runApAllocation();
             }
         );
-        // AFTER (client-side filter):
-        // apReceivables = allReceivables.filter(r => r.tenant_id == apTenantId);
-        // hideLoader();
+    }
 
-        // if (apReceivables.length === 0) {
-        //     toastr.info('No pending receivables found for this tenant.');
-        //     $('#ap_submit_btn').prop('disabled', true);
-        //     $('#ap_rows').html('');
-        //     $('#ap_summary').hide();
-        //     $('#ap_banner').hide();
-        //     $('#ap_tenant_name').text('');
-        //     $('#allocationCard').hide();
-        //     return;
-        // }
-
-        // $('#ap_tenant_name').text(apTenantName);
-        // $('#allocationCard').show();
-        // if ($('#ap_amount_input').val()) runApAllocation();
-        console.log('ap', apReceivables);
+    $(document).on('click', '#runAllocationBtn', function() {
+        loadCompanyAllocation();
     });
 
     // ── When amount changes ───────────────────────────────────────────
@@ -215,6 +336,7 @@
             $('#ap_summary').hide();
             $('#ap_rows').html('');
             $('#ap_banner').hide();
+            $('#ap_covered_summary').hide();
             $('#ap_submit_btn').prop('disabled', true);
             return;
         }
@@ -279,10 +401,10 @@
                                 ${fmtAED(r.amount)}
                             </div>
                             ${state === 'partial' ? `
-                            <div style="font-size:11px;color:#28a745;">
+                            <div style="font-size:11px;color:#28a745;font-weight:600;">
                                 Covered: ${fmtAED(covered)}
                             </div>
-                            <div style="font-size:11px;color:#856404;">
+                            <div style="font-size:11px;color:#856404;font-weight:600;">
                                 Remaining: ${fmtAED(remaining)}
                             </div>` : ''}
                         </div>
@@ -298,6 +420,8 @@
         $('#ap_summary').show();
         $('#ap_total').text(fmtAED(total));
         $('#ap_allocated').text(fmtAED(allocated));
+        $('#ap_total_covered').text(fmtAED(allocated));
+        $('#ap_covered_summary').show();
 
         const surplus = entered - allocated;
         const short = total - allocated;
@@ -331,10 +455,20 @@
     // ── Submit button → open confirmation modal ───────────────────────
     $('#ap_submit_btn').on('click', function() {
         const entered = parseFloat($('#ap_amount_input').val()) || 0;
-        if (!apTenantId || entered <= 0 || apAllocatedIds.length === 0) return;
+        // if (!apTenantId || entered <= 0 || apAllocatedIds.length === 0) return;
+        if (!apCompanyId || entered <= 0 || apAllocatedIds.length === 0) return;
+
+        console.log('Submitting allocation:', {
+            company_id: apCompanyId,
+            tenant_name: apTenantName,
+            entered_amount: entered,
+            allocated_ids: apAllocatedIds,
+            allocated_amounts: apAllocatedAmounts
+        });
 
         // populate confirmation modal summary
         $('#conf_tenant').text(apTenantName);
+        $('#conf_company').text(apCompanyName);
         $('#conf_amount').text(fmtAED(entered));
         $('#ap_allocated_amount').val(entered);
         $('#conf_count').text(apAllocatedIds.length + ' receivable(s)');
@@ -347,6 +481,7 @@
         $('#ap_cheque_no').val('');
         $('#ap_remarks').val('');
         $('#ap_clearing_date_input').val('');
+        $('#ap_company_id').val(apCompanyId).trigger('change');
 
         $('#modal-ap-confirm').modal('show');
     });
@@ -358,12 +493,51 @@
 
         $('#ap_bank_div').hide();
         $('#ap_cheque_div').hide();
+        $('.receiptDiv').hide();
+
+        // Remove required
+        $('#ap_company_id').prop('required', false);
+        $('#ap_bank_id').prop('required', false);
+        $('#ap_cheque_no').prop('required', false);
+        $('#receipt_allocation').prop('required', false);
+        $('#ap_reference').prop('required', false);
 
         if (mode === 3) { // cheque
             $('#ap_bank_div').show();
             $('#ap_cheque_div').show();
+            $('.receiptDiv').show();
+
+            $('#ap_company_id').prop('required', true);
+            $('#ap_bank_id').prop('required', true);
+            $('#ap_cheque_no').prop('required', true);
+            $('#receipt_allocation').prop('required', true);
+            $('#ap_reference').prop('required', true);
+            addClassAsterisk('#ap_bank_id');
+            addClassAsterisk('#receipt_allocation');
         } else if (mode === 2) { // bank transfer
             $('#ap_bank_div').show();
+            $('.receiptDiv').show();
+
+            $('#ap_company_id').prop('required', true);
+            $('#ap_bank_id').prop('required', true);
+            $('#receipt_allocation').prop('required', true);
+            $('#ap_reference').prop('required', true);
+            addClassAsterisk('#ap_bank_id');
+            // addClassAsterisk('#ap_reference');
+            addClassAsterisk('#ap_clearing_date_input');
+            addClassAsterisk('#receipt_allocation');
+            $('#ap_cheque_no').val('');
+
+        } else if (mode === 1) {
+            $('#ap_bank_div').hide();
+            $('#ap_cheque_div').hide();
+            $('.receiptDiv').hide();
+            $('#receipt_allocation').val('');
+            $('#ap_reference').val('');
+            $('#ap_company_id').val('').trigger('change');
+            $('#ap_bank_id').val('').trigger('change');
+            $('#ap_cheque_no').val('');
+
         }
     });
 
@@ -396,6 +570,38 @@
             });
             return;
         }
+        const mode = $('.ap_payment_mode:checked').val();
+
+        if (!mode) {
+            toastr.error('Please select a payment type.');
+            return;
+        }
+
+        if ((mode == 2 || mode == 3) && !$('#ap_company_id').val()) {
+            toastr.error('Please select a company.');
+            return;
+        }
+
+        if ((mode == 2 || mode == 3) && !$('#receipt_allocation').val()) {
+            toastr.error('Please select a receipt allocation.');
+            return;
+        }
+
+        if ((mode == 2 || mode == 3) && !$('#ap_reference').val()) {
+            toastr.error('Please enter a bank reference.');
+            return;
+        }
+
+        if ((mode == 2 || mode == 3) && !$('#ap_bank_id').val()) {
+            toastr.error('Please select a bank.');
+            return;
+        }
+
+        if (mode == 3 && !$('#ap_cheque_no').val()) {
+            toastr.error('Please enter the cheque number.');
+            return;
+        }
+
 
         const formData = new FormData();
         formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
@@ -408,6 +614,9 @@
         formData.append('paid_cheque_number', $('#ap_cheque_no').val());
         formData.append('payment_remarks', $('#ap_remarks').val());
         formData.append('allocated_amount', $('#ap_allocated_amount').val());
+        formData.append('receipt_allocation_id', $('#receipt_allocation').val());
+        formData.append('bank_reference', $('#ap_reference').val());
+        formData.append('have_other_adjustments', $('#other_adjustments').is(':checked') ? 1 : 0);
 
         // attach all touched receivable IDs
         apAllocatedIds.forEach(id => {
@@ -445,6 +654,7 @@
                     $('#ap_submit_btn').prop('disabled', true);
                     $('#allocationCard').hide();
                     $('#tenantSelectAllocation').val(null).trigger('change.select2');
+                    $('#companySelectAllocation').val(null).trigger('change.select2');
                     $('#modal-ap-confirm').find('select').val(null).trigger('change');
 
                     $.get("{{ route('tenant.pending.receivables.all') }}", function(res) {

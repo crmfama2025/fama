@@ -85,7 +85,7 @@ namespace App\Models{
  * @property-read Agreement|null $parent
  * @property-read \App\Models\SalesTenantAgreement|null $salesTenantAgreement
  * @property-read \App\Models\AgreementTenant|null $tenant
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\AgreementUnit> $tenant_invoices
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\TenantInvoice> $tenant_invoices
  * @property-read int|null $tenant_invoices_count
  * @method static \Illuminate\Database\Eloquent\Builder|Agreement newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Agreement newQuery()
@@ -242,6 +242,10 @@ namespace App\Models{
  * @property int $terminate_status
  * @property int $transaction_type 1 = Receive, 2 = Pay Back, 3 = Run Away
  * @property int $is_invoice_added 0=pending,1=added
+ * @property int $loss_or_discount 0-None, 1-Loss, 2-Discount
+ * @property string|null $loss_discount_amount
+ * @property string|null $loss_discount_date
+ * @property string|null $loss_discount_remarks
  * @property-read \App\Models\Agreement|null $agreement
  * @property-read \App\Models\AgreementPayment|null $agreementPayment
  * @property-read \App\Models\AgreementUnit|null $agreementUnit
@@ -281,6 +285,10 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail whereIsInvoiceAdded($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail whereIsPaymentReceived($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail whereLossDiscountAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail whereLossDiscountDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail whereLossDiscountRemarks($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail whereLossOrDiscount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail wherePaymentAmount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail wherePaymentDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail wherePaymentModeId($value)
@@ -637,6 +645,10 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property int|null $paid_company_id
+ * @property string|null $bank_reference
+ * @property int|null $receipt_allocation_id
+ * @property int $have_other_adjustments 0-No, 1-Yes
+ * @property int $loss_or_discount 0-None, 1-Loss, 2-Discount
  * @property-read \App\Models\AgreementPaymentDetail|null $agreementPaymentDetail
  * @property-read \App\Models\Bank|null $paidBank
  * @property-read \App\Models\User|null $paidBy
@@ -647,8 +659,11 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable query()
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable whereAgreementId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable whereAgreementPaymentDetailsId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable whereBankReference($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable whereHaveOtherAdjustments($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable whereLossOrDiscount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable wherePaidAmount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable wherePaidBankId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable wherePaidBy($value)
@@ -658,6 +673,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable wherePaidModeId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable wherePaymentRemarks($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable wherePendingAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable whereReceiptAllocationId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable whereUpdatedAt($value)
  */
 	class ClearedReceivable extends \Eloquent {}
@@ -673,15 +689,21 @@ namespace App\Models{
  * @property int|null $updated_by
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $bank_reference
+ * @property int|null $receipt_allocation_id
+ * @property int $have_other_adjustments 0-No, 1-Yes
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation query()
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereAddedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereAllocatedAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereBankReference($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereClearedDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereClearedReceivableIds($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereHaveOtherAdjustments($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereReceiptAllocationId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereUpdatedBy($value)
  */
@@ -1081,6 +1103,7 @@ namespace App\Models{
  * @property int $paid_by
  * @property int|null $paid_bank
  * @property string|null $paid_cheque_number
+ * @property string|null $bank_reference
  * @property string|null $payment_remarks
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -1095,6 +1118,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPayableClear newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPayableClear newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPayableClear query()
+ * @method static \Illuminate\Database\Eloquent\Builder|ContractPayableClear whereBankReference($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPayableClear whereCompanyId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPayableClear whereContractId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPayableClear whereContractPaymentDetailId($value)
@@ -1952,6 +1976,7 @@ namespace App\Models{
  * @property string|null $common_comment
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvestmentRenewalEditLog> $RenewalEditLog
  * @property-read int|null $renewal_edit_log_count
+ * @property-read \App\Models\User|null $addedBy
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Investment> $childInvestments
  * @property-read int|null $child_investments_count
  * @property-read \App\Models\Company|null $company
@@ -2164,22 +2189,30 @@ namespace App\Models{
  * @property string|null $signed_pdf_path
  * @property string|null $both_notified_at
  * @property int|null $version_number
+ * @property int $resign_count
+ * @property string|null $last_resign_reason
+ * @property string|null $last_resign_at
+ * @property string|null $last_resign_role
  * @property-read \App\Models\InvestorAgreementTemplate|null $agreementTemplate
  * @property-read \App\Models\InvestorAgreementType|null $agreementType
  * @property-read \App\Models\Company|null $company
  * @property-read \App\Models\User|null $deletedBy
  * @property-read \App\Models\User|null $generatedBy
+ * @property-read string|null $resign_pending_for
  * @property-read \App\Models\Investment|null $investment
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvestmentDocument> $investmentDocuments
  * @property-read int|null $investment_documents_count
  * @property-read \App\Models\Investor|null $investor
  * @property-read \App\Models\InvestorLedger|null $ledger
  * @property-read InvestmentContractDocuments|null $mudarabahReference
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvestorDocumentResignRequestLog> $resignRequests
+ * @property-read int|null $resign_requests_count
  * @property-read \App\Models\User|null $sendToInvestorBy
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments query()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments resignRequested(?string $role = null)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereActionType($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereAddedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereAdditionalFilePath($value)
@@ -2207,7 +2240,11 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereInvestorSignedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereIsCompanySigned($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereIsInvestorSigned($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereLastResignAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereLastResignReason($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereLastResignRole($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereReferenceMudarabahId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereResignCount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereSendtoInvestorBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereSendtoInvestorDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentContractDocuments whereSendtoManagementBy($value)
@@ -2544,10 +2581,10 @@ namespace App\Models{
  * @property string $investor_email
  * @property string $investor_address
  * @property string|null $investor_address_arabic
- * @property int $nationality_id
- * @property int $country_of_residence
+ * @property int|null $nationality_id
+ * @property int|null $country_of_residence
  * @property int $payment_mode_id
- * @property string $id_number
+ * @property string|null $id_number
  * @property string|null $passport_number
  * @property int|null $referral_id
  * @property int $payout_batch_id
@@ -2813,6 +2850,47 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocument withoutTrashed()
  */
 	class InvestorDocument extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property int $id
+ * @property int $investment_contract_document_id
+ * @property string $signer_role
+ * @property int $attempt_no
+ * @property string $reason
+ * @property string $channel
+ * @property int $requested_by
+ * @property string|null $rejected_signed_html
+ * @property string|null $rejected_signature_image
+ * @property string|null $signed_at
+ * @property string|null $resigned_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $deleted_at
+ * @property-read \App\Models\InvestmentContractDocuments|null $InvestmentContractDocument
+ * @property-read \App\Models\User|null $requester
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, InvestorDocumentResignRequestLog> $resignRequests
+ * @property-read int|null $resign_requests_count
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocumentResignRequestLog newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocumentResignRequestLog newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocumentResignRequestLog query()
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocumentResignRequestLog whereAttemptNo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocumentResignRequestLog whereChannel($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocumentResignRequestLog whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocumentResignRequestLog whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocumentResignRequestLog whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocumentResignRequestLog whereInvestmentContractDocumentId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocumentResignRequestLog whereReason($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocumentResignRequestLog whereRejectedSignatureImage($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocumentResignRequestLog whereRejectedSignedHtml($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocumentResignRequestLog whereRequestedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocumentResignRequestLog whereResignedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocumentResignRequestLog whereSignedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocumentResignRequestLog whereSignerRole($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|InvestorDocumentResignRequestLog whereUpdatedAt($value)
+ */
+	class InvestorDocumentResignRequestLog extends \Eloquent {}
 }
 
 namespace App\Models{
@@ -3105,7 +3183,19 @@ namespace App\Models{
  * @property int|null $total_staff
  * @property string|null $required_location
  * @property string $requirement
- * @property int $status 0 = Pending, 1 = processing
+ * @property int $status 
+ *                 0 = Pending,
+ *                 1 = Processing,
+ *                 2 = Interested,
+ *                 3 = Call Back,
+ *                 4 = No Answer,
+ *                 5 = Not Interested,
+ *                 6 = Meeting Scheduled,
+ *                 7 = Proposal Sent,
+ *                 8 = Negotiation,
+ *                 9 = Converted,
+ *                 10 = Lost,
+ *                 11 = Others
  * @property int|null $assigned_to
  * @property int|null $assigned_by
  * @property \Illuminate\Support\Carbon|null $assigned_at
@@ -3285,10 +3375,34 @@ namespace App\Models{
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Contract> $contracts
  * @property-read int|null $contracts_count
  * @property-read \App\Models\User|null $deletedBy
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\LocalityPricing> $pricings
+ * @property-read int|null $pricings_count
  * @property-read \App\Models\User|null $updatedBy
  * @method static \Illuminate\Database\Eloquent\Builder|Locality whereDeletedBy($value)
  */
 	class Locality extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property int $id
+ * @property int $locality_id
+ * @property int $unit_type_id
+ * @property string|null $price
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\UnitType $unitType
+ * @method static \Illuminate\Database\Eloquent\Builder|LocalityPricing newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|LocalityPricing newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|LocalityPricing query()
+ * @method static \Illuminate\Database\Eloquent\Builder|LocalityPricing whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LocalityPricing whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LocalityPricing whereLocalityId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LocalityPricing wherePrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LocalityPricing whereUnitTypeId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|LocalityPricing whereUpdatedAt($value)
+ */
+	class LocalityPricing extends \Eloquent {}
 }
 
 namespace App\Models{
@@ -3656,6 +3770,23 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|PropertyType whereDeletedBy($value)
  */
 	class PropertyType extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property int $id
+ * @property string $receipt_allocation_name
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @method static \Illuminate\Database\Eloquent\Builder|ReceiptAllocation newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ReceiptAllocation newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ReceiptAllocation query()
+ * @method static \Illuminate\Database\Eloquent\Builder|ReceiptAllocation whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ReceiptAllocation whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ReceiptAllocation whereReceiptAllocationName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ReceiptAllocation whereUpdatedAt($value)
+ */
+	class ReceiptAllocation extends \Eloquent {}
 }
 
 namespace App\Models{

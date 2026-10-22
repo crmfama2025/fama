@@ -220,11 +220,11 @@ class InvestorService
         }
     }
 
-    
+
     public function getDataTable(array $filters = [])
     {
         $query = $this->investorRepo->getQuery($filters);
-       
+
 
         $columns = [
             [
@@ -395,7 +395,7 @@ class InvestorService
 
                 $name = e(
                     $row->addedBy->first_name . ' ' .
-                    $row->addedBy->last_name
+                        $row->addedBy->last_name
                 );
 
                 $image = $row->addedBy->profile_path
@@ -464,7 +464,7 @@ class InvestorService
                 if (
                     $user &&
                     $user->hasAnyPermission(
-                        ['investor.partial_withdrawal'],
+                        ['investor.withdrawal'],
                         $row->company_id
                     )
                 ) {
@@ -1342,7 +1342,7 @@ class InvestorService
     //         'companies'   => $data,
     //         'grand_total' => $grandTotal,
     //     ];
-        
+
     // }
     public function getCompanyTotalInvestments($investorId, $contractDocument)
     {
@@ -1359,10 +1359,10 @@ class InvestorService
 
             $investmentDate = $investment !== null
                 && !empty($investment->investment_date)
-                    ? \Carbon\Carbon::parse(
-                        $investment->investment_date
-                    )->format('Y-m-d')
-                    : null;
+                ? \Carbon\Carbon::parse(
+                    $investment->investment_date
+                )->format('Y-m-d')
+                : null;
 
             $documentDate = !empty($contractDocument->generated_date)
                 ? \Carbon\Carbon::parse(
@@ -1381,7 +1381,7 @@ class InvestorService
             }
         }
 
-        return $this->investmentRepository->getCompanyTotalInvestmentsQuery($investorId,$cutoffDate);
+        return $this->investmentRepository->getCompanyTotalInvestmentsQuery($investorId, $cutoffDate);
     }
     public function deleteTermination($ledgerId)
     {
@@ -1458,5 +1458,4 @@ class InvestorService
             }
         });
     }
-   
 }

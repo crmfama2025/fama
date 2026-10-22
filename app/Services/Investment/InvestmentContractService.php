@@ -59,11 +59,20 @@ class InvestmentContractService
         $templateDocumentDetail = $this->InvAgreementRepo->findByType($docTypeId);
 
         if ($investmentId == 0) {
-            $investments = $this->investmentRepository->getAllByCondition([
-                'investor_id'       => $invDocDetails->investor_id,
-                'investment_status' => 1,
-                'company_id' => $companyId,
-            ]);
+            $raw = $invDocDetails->applied_investments;
+
+            $investmentIds = is_array($raw)
+                ? $raw
+                : array_filter(array_map('intval', preg_split('/[^\d]+/', (string) $raw)));
+
+            $investments = $this->investmentRepository->getAllByConditionAndIds(
+                [
+                    'investor_id'       => $invDocDetails->investor_id,
+                    'investment_status' => 1,
+                    'company_id' => $companyId,
+                ],
+                $investmentIds, // e.g. [12, 15, 18]
+            );
 
             // dd($investments);
             return $this->sendMudarabahMultiple($invDocDetails, $templateDocumentDetail, $investorData, $investments);
@@ -81,7 +90,6 @@ class InvestmentContractService
      */
     private function sendMudarabahMultiple($invDocDetails, $documentDetail, $investorData, $investments)
     {
-        // dd('multiple');
         $byCompany = [];
         foreach ($investments as $inv) {
             $byCompany[$inv->company_id][] = $inv;
@@ -144,7 +152,6 @@ class InvestmentContractService
         $grandTotalPerInterval = $investmentsCollection->sum('profit_amount_per_interval');
 
         // dd($grandTotalInvested);
-
         $firstInv    = $investmentsCollection->first();
         $companyData = Company::find($firstInv->company_id);
 
@@ -1510,12 +1517,26 @@ class InvestmentContractService
 
         $docTypeId     = $docDetails->investor_agreement_type_id;
         $investor   = $docDetails->investor;
-        $investments = Investment::where(['investor_id' => $docDetails->investor_id, 'company_id' => $companyId])
-            ->orderBy('investment_date')
-            ->get();
+        // $investments = Investment::where(['investor_id' => $docDetails->investor_id, 'company_id' => $companyId])
+        //     ->orderBy('investment_date')
+        //     ->get();
 
-        $totalInvested  = Investment::where('investor_id', $docDetails->investor_id)->sum('total_invested_amount');
+        $raw = $docDetails->applied_investments;
 
+        $investmentIds = is_array($raw)
+            ? $raw
+            : array_filter(array_map('intval', preg_split('/[^\d]+/', (string) $raw)));
+
+        $investments = $this->investmentRepository->getAllByConditionAndIds(
+            [
+                'investor_id'       => $docDetails->investor_id,
+                'investment_status' => 1,
+                'company_id' => $companyId,
+            ],
+            $investmentIds, // e.g. [12, 15, 18]
+        );
+
+        $totalInvested  = $investments->sum('total_invested_amount');
 
         // $investor   = $this->investorRepository->find($investorId);
         // $investment = $this->investmentRepository->find($investmentId);

@@ -59,17 +59,68 @@
                                         </div>
                                     </div>
                                     <div class="card-body">
-                                        <div class="form-group col-md-4 mb-0">
-                                            <label for="tenantSelectAllocation">Tenant</label>
-                                            <select class="form-control select2" id="tenantSelectAllocation"
-                                                name="tenant_id">
-                                                <option value="">Select Tenant</option>
-                                                @foreach ($tenants as $tenant)
-                                                    <option value="{{ $tenant->id }}">{{ $tenant->tenant_name }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
+                                        <div class="row">
+
+                                            <div class="form-group col-md-4">
+                                                <label for="fromDateAllocation">From Date</label>
+                                                <div class="input-group date" id="fromDateAllocationPicker"
+                                                    data-target-input="nearest">
+                                                    <input type="text" class="form-control datetimepicker-input"
+                                                        data-target="#fromDateAllocationPicker" id="fromDateAllocation"
+                                                        name="from_date" autocomplete="off" placeholder="dd-mm-yyyy" />
+                                                    <div class="input-group-append" data-target="#fromDateAllocationPicker"
+                                                        data-toggle="datetimepicker">
+                                                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group col-md-4">
+                                                <label for="toDateAllocation">To Date</label>
+                                                <div class="input-group date" id="toDateAllocationPicker"
+                                                    data-target-input="nearest">
+                                                    <input type="text" class="form-control datetimepicker-input"
+                                                        data-target="#toDateAllocationPicker" id="toDateAllocation"
+                                                        name="to_date" autocomplete="off" placeholder="dd-mm-yyyy" />
+                                                    <div class="input-group-append" data-target="#toDateAllocationPicker"
+                                                        data-toggle="datetimepicker">
+                                                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {{-- <div class="form-group col-md-4 mb-0">
+                                                <label for="tenantSelectAllocation">Tenant</label>
+                                                <select class="form-control select2" id="tenantSelectAllocation"
+                                                    name="tenant_id">
+                                                    <option value="">Select Tenant</option>
+                                                    @foreach ($tenants as $tenant)
+                                                        <option value="{{ $tenant->id }}">{{ $tenant->tenant_name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+
+                                            </div> --}}
+                                            <div class="form-group col-md-4 mb-0">
+                                                <label for="companySelectAllocation">Company</label>
+                                                <select class="form-control select2" id="companySelectAllocation"
+                                                    name="company_id">
+                                                    <option value="">Select Company</option>
+                                                    @foreach ($companies as $company)
+                                                        @if (auth()->user()->hasAnyPermission(['finance.receivable_cheque_clearing'], $company->id))
+                                                            <option value="{{ $company->id }}">{{ $company->company_name }}
+                                                            </option>
+                                                        @endif
+                                                    @endforeach
+                                                </select>
+
+                                            </div>
+                                            <div class="form-group col-md-12 d-flex justify-content-end">
+                                                <button type="button" id="runAllocationBtn" class="btn btn-primary">
+                                                    <i class="fas fa-play mr-1"></i> Run
+                                                </button>
+                                            </div>
                                         </div>
+
                                     </div>
 
                                     <!-- Allocation card appears below tenant select inside same card -->
@@ -86,11 +137,22 @@
 
                                             <!-- Tenant + Amount + Submit -->
                                             <div class="form-row align-items-end mb-3">
-                                                <div class="form-group col-md-3">
+                                                {{-- <div class="form-group col-md-3">
                                                     <label
                                                         style="font-size:11px;text-transform:uppercase;
                                                         letter-spacing:.05em;color:#6c757d;">Tenant</label>
                                                     <div id="ap_tenant_name"
+                                                        style="font-size:15px;font-weight:600;padding:7px 10px;
+                                                            border:1px solid #dee2e6;border-radius:4px;
+                                                        background:#f8f9fa;min-height:38px;">
+                                                        —
+                                                    </div>
+                                                </div> --}}
+                                                <div class="form-group col-md-3">
+                                                    <label
+                                                        style="font-size:11px;text-transform:uppercase;
+                                                        letter-spacing:.05em;color:#6c757d;">Company</label>
+                                                    <div id="ap_company_name"
                                                         style="font-size:15px;font-weight:600;padding:7px 10px;
                                                             border:1px solid #dee2e6;border-radius:4px;
                                                         background:#f8f9fa;min-height:38px;">
@@ -146,6 +208,11 @@
                                                     </div>
                                                 </div>
                                             </div> --}}
+                                            <div class="alert alert-success py-2 mb-2" id="ap_covered_summary"
+                                                style="display:none;">
+                                                <strong>Total Covered Amount:</strong>
+                                                <span id="ap_total_covered">AED 0.00</span>
+                                            </div>
 
                                             <!-- Allocation rows -->
                                             <div id="ap_rows"></div>
@@ -176,8 +243,8 @@
                                             <div class="form-group col-md-2">
                                                 <label for="dateFrom" class="asterisk">From</label>
                                                 <div class="input-group date" id="dateFrom" data-target-input="nearest">
-                                                    <input type="text" class="form-control datetimepicker-input" required
-                                                        data-target="#dateFrom" placeholder="dd-mm-YYYY" />
+                                                    <input type="text" class="form-control datetimepicker-input"
+                                                        required data-target="#dateFrom" placeholder="dd-mm-YYYY" />
                                                     <div class="input-group-append" data-target="#dateFrom"
                                                         data-toggle="datetimepicker">
                                                         <div class="input-group-text"><i class="fa fa-calendar"></i></div>
@@ -456,7 +523,7 @@
                 </div>
             </div> --}}
             <div class="modal fade" id="modal-single-clear">
-                <div class="modal-dialog  modal-dialog-centered">
+                <div class="modal-dialog  modal-dialog-centered modal-lg">
                     <div class="modal-content">
 
                         <div class="modal-header bg-info">
@@ -479,6 +546,17 @@
                                     <input type="hidden" id="current_cheque_number" name="paid_cheque_number"
                                         value="">
                                 </div> --}}
+
+                                <!-- Other Adjustments -->
+                                <div class="form-group">
+                                    <div class="form-check">
+                                        <input type="checkbox" name="other_adjustments" id="other_adjustments"
+                                            class="form-check-input" value="1">
+                                        <label class="form-check-label" for="other_adjustments">
+                                            Other Adjustments
+                                        </label>
+                                    </div>
+                                </div>
 
                                 <!-- Clearing Date -->
                                 <div class="form-group">
@@ -506,20 +584,21 @@
                                     <span id="clearing_diff_text"></span>
                                 </div>
 
-                                <!-- Payment Type -->
-                                <div class="form-group" id="payment_modes">
-                                    <label><strong>Select Payment Type</strong></label>
-                                    <div class="d-flex">
+                                <div class="row">
+                                    <!-- Payment Type -->
+                                    <div class="form-group col-md-6" id="payment_modes">
+                                        <label><strong>Select Payment Type</strong></label>
+                                        <div class="d-flex">
 
-                                        <!-- Cheque -->
-                                        <div class="form-check mr-4 cheque">
-                                            <input type="checkbox" name="paid_mode_id" value="3"
-                                                class="form-check-input payment_mode" id="cheque_payment">
-                                            <label class="form-check-label" for="cheque_payment">
-                                                Cheque
-                                            </label>
-                                        </div>
-                                        {{-- <div class="custom-control custom-checkbox cheque">
+                                            <!-- Cheque -->
+                                            <div class="form-check mr-4 cheque">
+                                                <input type="checkbox" name="paid_mode_id" value="3"
+                                                    class="form-check-input payment_mode" id="cheque_payment">
+                                                <label class="form-check-label" for="cheque_payment">
+                                                    Cheque
+                                                </label>
+                                            </div>
+                                            {{-- <div class="custom-control custom-checkbox cheque">
                                             <input class="custom-control-input payment_mode" type="checkbox"
                                                 id="customCheckbox1" value="3">
                                             <label for="cheque_payment" class="custom-control-label">
@@ -532,18 +611,36 @@
                                                 Bank Transfer</label>
                                         </div> --}}
 
-                                        <!-- Bank -->
-                                        <div class="form-check bank">
-                                            <input type="checkbox" name="paid_mode_id" value="2"
-                                                name="paid_mode_id" class="form-check-input payment_mode"
-                                                id="bank_transfer">
-                                            <label class="form-check-label" for="bank_transfer">
-                                                Bank Transfer
-                                            </label>
-                                        </div>
+                                            <!-- Bank -->
+                                            <div class="form-check mr-4 bank">
+                                                <input type="checkbox" name="paid_mode_id" value="2"
+                                                    name="paid_mode_id" class="form-check-input payment_mode"
+                                                    id="bank_transfer">
+                                                <label class="form-check-label" for="bank_transfer">
+                                                    Bank Transfer
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input type="checkbox" name="paid_mode_id"
+                                                    class="form-check-input payment_mode" id="cash" value="1">
+                                                <label class="form-check-label" for="cash">Cash</label>
+                                            </div>
 
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-6  $('.receiptDiv').hide();">
+                                        <label class="asterisk">Receipt Allocation</label>
+                                        <select id="allocation" name="receipt_allocation_id" class="form-control"
+                                            required>
+                                            <option value="">Select</option>
+                                            @foreach ($receiptAlloctaions as $receipt)
+                                                <option value="{{ $receipt->id }}">
+                                                    {{ $receipt->receipt_allocation_name }}</option>
+                                            @endforeach
+                                        </select>
                                     </div>
                                 </div>
+
 
 
                                 <!-- Bank -->
@@ -567,6 +664,11 @@
                                         </select>
                                     </div>
                                 </div>
+                                <div class="form-group col-md-12 referenceDiv">
+                                    <label class="asterisk">Bank Reference</label>
+                                    <input type="text" id="reference" class="form-control"
+                                        placeholder="Bank Reference">
+                                </div>
 
                                 <!-- Cheque Number -->
                                 <div class="form-group" id="cheque_div" style="display:none;">
@@ -577,7 +679,7 @@
 
                                 <!-- Mode Change Reason -->
                                 <div class="form-group" id="mode_change_reason_div" style="display:none;">
-                                    <label>Pyament Remarks</label>
+                                    <label>Payment Remarks</label>
                                     <textarea id="mode_change_reason" name="payment_remarks" class="form-control" rows="3"
                                         placeholder="Enter reason"></textarea>
                                 </div>
@@ -693,109 +795,83 @@
         </div>
     </div>
 
-    <div class="modal fade" id="modal-ap-confirm" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
+
+
+    {{-- <div class="modal fade" id="modal-loss-discount">
+        <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title">Confirm Payment</h5>
-                    <button type="button" class="close text-white" data-dismiss="modal">
+                <div class="modal-header">
+                    <h5 class="modal-title">Loss / Discount</h5>
+                    <button type="button" class="close" data-dismiss="modal">
                         <span>&times;</span>
                     </button>
                 </div>
-                <div class="modal-body">
 
-                    <!-- Summary read-only -->
-                    <table class="table table-sm table-borderless mb-0">
-                        <tr>
-                            <td class="text-muted" style="width:40%">Tenant</td>
-                            <td><strong id="conf_tenant">—</strong></td>
-                        </tr>
-                        <tr>
-                            <td class="text-muted">Amount</td>
-                            <td><strong id="conf_amount">—</strong></td>
-                        </tr>
-                        <tr>
-                            <td class="text-muted">Receivables covered</td>
-                            <td><strong id="conf_count">—</strong></td>
-                        </tr>
-                    </table>
+                <form id="lossDiscountForm">
+                    <div class="modal-body">
+                        <input type="hidden" name="id" id="loss_discount_id">
 
-                    <hr>
-
-                    <!-- Clearing date -->
-                    <div class="form-group">
-                        <label class="asterisk">Clearing Date</label>
-                        <div class="input-group date" id="ap_clearingDate" data-target-input="nearest">
-                            <input type="text" name="paid_date" class="form-control datetimepicker-input"
-                                id="ap_clearing_date_input" data-target="#ap_clearingDate" placeholder="dd-mm-YYYY"
-                                required />
-                            <div class="input-group-append" data-target="#ap_clearingDate" data-toggle="datetimepicker">
-                                <span class="input-group-text">
-                                    <i class="fa fa-calendar"></i>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    <input type="hidden" name="allocated_amount" id="ap_allocated_amount" value="0">
-
-                    <!-- Payment type -->
-                    <div class="form-group">
-                        <label><strong>Payment Type</strong></label>
-                        <div class="d-flex gap-3">
-                            <div class="form-check mr-4">
-                                <input type="checkbox" class="form-check-input ap_payment_mode" id="ap_cheque"
-                                    value="3">
-                                <label class="form-check-label" for="ap_cheque">Cheque</label>
-                            </div>
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input ap_payment_mode" id="ap_bank"
-                                    value="2">
-                                <label class="form-check-label" for="ap_bank">Bank Transfer</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Company + Bank (shown when payment type selected) -->
-                    <div id="ap_bank_div" style="display:none;">
                         <div class="form-group">
-                            <label class="asterisk">Company</label>
-                            <select id="ap_company_id" class="form-control">
-                                <option value="">Select Company</option>
-                                @foreach ($companies as $com)
-                                    <option value="{{ $com->id }}">{{ $com->company_name }}</option>
-                                @endforeach
-                            </select>
+                            <label>Adjustment Type</label>
+
+                            <div class="icheck-primary d-inline mr-3">
+                                <input type="radio" id="loss_type" name="adjustment_type" value="loss" checked>
+                                <label for="loss_type">
+                                    Loss
+                                </label>
+                            </div>
+
+                            <div class="icheck-primary d-inline">
+                                <input type="radio" id="discount_type" name="adjustment_type" value="discount">
+                                <label for="discount_type">
+                                    Discount
+                                </label>
+                            </div>
                         </div>
+
                         <div class="form-group">
-                            <label>Bank</label>
-                            <select id="ap_bank_id" class="form-control">
-                                <option value="">Select Bank</option>
-                            </select>
+                            <label class="asterisk">Date</label>
+                            <div class="input-group date" id="lossDiscountDate" data-target-input="nearest">
+                                <input type="text" name="date" class="form-control datetimepicker-input"
+                                    id="loss_discount_date" data-target="#lossDiscountDate" placeholder="dd-mm-YYYY"
+                                    required>
+
+                                <div class="input-group-append" data-target="#lossDiscountDate"
+                                    data-toggle="datetimepicker">
+                                    <span class="input-group-text">
+                                        <i class="fa fa-calendar"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Amount</label>
+                            <input type="number" name="amount" id="loss_discount_amount" class="form-control"
+                                step="0.01" min="0" oninput="this.value = Math.max(0, this.value)">
+                        </div>
+
+
+                        <div class="form-group">
+                            <label>Reason</label>
+                            <textarea name="reason" id="loss_discount_reason" class="form-control" rows="3" placeholder="Enter reason"></textarea>
                         </div>
                     </div>
 
-                    <!-- Cheque number -->
-                    <div class="form-group" id="ap_cheque_div" style="display:none;">
-                        <label>Cheque Number</label>
-                        <input type="text" id="ap_cheque_no" class="form-control" placeholder="Enter cheque number">
-                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            Cancel
+                        </button>
 
-                    <!-- Remarks -->
-                    <div class="form-group">
-                        <label>Remarks</label>
-                        <textarea id="ap_remarks" class="form-control" rows="2" placeholder="Optional remarks"></textarea>
+                        <button type="submit" class="btn btn-primary">
+                            Save
+                        </button>
                     </div>
-
-                </div>
-                <div class="modal-footer bg-light">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="button" id="ap_confirm_btn" class="btn btn-success">
-                        <i class="fa fa-check mr-1"></i> Confirm & Clear
-                    </button>
-                </div>
+                </form>
             </div>
         </div>
-    </div>
+    </div> --}}
+    @include('admin.finance.receivable-clearing-modals')
 @endsection
 
 
@@ -829,6 +905,21 @@
             format: 'DD-MM-YYYY'
         });
 
+        $('#fromDateAllocationPicker').datetimepicker({
+            format: 'DD-MM-YYYY',
+            // placeholder: 'dd-mm-yyyy'
+            defaultDate: moment('01-04-2022', 'DD-MM-YYYY')
+        });
+
+        $('#toDateAllocationPicker').datetimepicker({
+            format: 'DD-MM-YYYY',
+            placeholder: 'dd-mm-yyyy'
+        });
+
+        $('#lossDiscountDate').datetimepicker({
+            format: 'DD-MM-YYYY',
+            placeholder: 'dd-mm-yyyy'
+        });
         $(document).ready(function() {
             // $('.searchCheque').hide();
 
@@ -1171,6 +1262,8 @@
             let selectedMode = parseInt($(this).val());
             let originalMode = parseInt($('#modal-single-clear').data('original-mode'));
 
+            // $('.receiptDiv').hide();
+
             if (selectedMode !== originalMode) {
                 $('#mode_change_reason_div').show();
                 $('#mode_change_reason').prop('required', true);
@@ -1246,6 +1339,11 @@
 
             $('#cheque_div').hide();
             $('#cheque_no').prop('required', false).val('');
+            $('.receiptDiv').hide();
+            $('.referenceDiv').hide();
+
+            $('#allocation').prop('required', false);
+            $('#reference').prop('required', false);
 
             if (mode === 3) {
                 $('#bank_div').show();
@@ -1256,18 +1354,34 @@
                 $('#cheque_no').prop('required', true);
                 addClassAsterisk('#cheque_no');
 
+                $('#allocation').prop('required', true);
+                $('#reference').prop('required', true);
+                $('.referenceDiv').show();
+                $('.receiptDiv').show();
+
+
             } else if (mode === 2) {
                 $('#bank_div').show();
                 $('#bank_id').prop('required', true);
                 addClassAsterisk('#bank_id');
+                $('.receiptDiv').show();
+                $('.referenceDiv').show();
+
+                $('#allocation').prop('required', true);
+                $('#reference').prop('required', true);
+
 
             } else {
                 $('#bank_id').prop('required', false).val('');
                 $('#cheque_no').prop('required', false).val('');
+                $('#allocation').prop('required', false).val('');
+                $('#reference').prop('required', false).val('');
+                $('.receiptDiv').hide();
             }
         }
 
         function checkRowCheckbox(rowId) {
+            $('input[id^="ichek"]').prop('checked', false);
             $('#ichek' + rowId).prop('checked', true);
         }
     </script>
@@ -1613,6 +1727,114 @@
                 );
             });
         }
+    </script>
+    <script>
+        let receivableAmount = 0;
+        let selectedPaymentId = null;
+        $(document).on('click', '.lossDiscountBtn', function() {
+            // $('#receivableClearForm')[0].reset();
+            let paymentDate = $(this).data('date');
+
+            if (paymentDate) {
+                let formattedDate = moment(paymentDate, ['YYYY-MM-DD', 'DD-MM-YYYY']).format('DD-MM-YYYY');
+                $('#loss_discount_date').val(formattedDate);
+            }
+
+            selectedPaymentId = $(this).data('id');
+            receivableAmount = parseFloat($(this).data('amount')) || 0;
+
+            $('#loss_discount_id').val(selectedPaymentId);
+            $('#balance_amount').val(receivableAmount.toFixed(2));
+            $('#loss_discount_amount').val('0.0');
+            $('#loss_discount_reason').val('');
+            $('#loss_type').prop('checked', true);
+            $('#clearing_diff_box').hide();
+        });
+        $('#loss_discount_amount').on('input', function() {
+            let entered = parseFloat($(this).val()) || 0;
+            let diff = receivableAmount - entered;
+            $('#balance_amount').val(diff);
+            if (entered <= 0) {
+                toastr.error('Amount should be greater than zero.');
+                $('#clearBtn').prop('disabled', true);
+            }
+            if (entered > receivableAmount) {
+                toastr.error('Entered amount cannot exceed the receivable amount.');
+                $('#clearBtn').prop('disabled', true);
+            } else {
+                $('#clearBtn').prop('disabled', false);
+            }
+
+
+            if (diff !== 0) {
+                console.log(diff);
+                let text = diff > 0 ?
+                    `Amount is short by AED ${diff}` :
+                    `Amount exceeds by AED ${Math.abs(diff)}`;
+
+                $('#clearing_diff_text').text(text);
+                $('#clearing_diff_box').show();
+            } else {
+                $('#clearing_diff_box').hide();
+            }
+        });
+
+        $('#lossDiscountForm').on('submit', function(e) {
+            e.preventDefault();
+
+            let amount = parseFloat($('#loss_discount_amount').val());
+            let date = $('#loss_discount_date').val();
+
+            if (!date) {
+                toastr.warning('Please select a date.');
+                return;
+            }
+
+            if (isNaN(amount) || amount <= 0) {
+                toastr.error('Amount should be greater than zero.');
+                return;
+            }
+
+            if (amount > receivableAmount) {
+                toastr.error('Amount cannot exceed the receivable amount.');
+                return;
+            }
+            showLoader();
+
+            $.ajax({
+                url: "{{ route('receivable.loss-discount') }}",
+                type: 'POST',
+                data: $(this).serialize(),
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                beforeSend: function() {
+                    $('#lossDiscountForm button[type="submit"]').prop('disabled', true);
+                },
+                success: function(response) {
+                    toastr.success(response.message || 'Loss / Discount saved successfully.');
+                    $('#modal-loss-discount').modal('hide');
+                    $('#lossDiscountForm')[0].reset();
+                    table.ajax.reload(null, false); // Reload DataTable without resetting pagination
+                    window.location.reload();
+                    hideLoader();
+                },
+                error: function(xhr) {
+                    hideLoader();
+                    if (xhr.status === 422 && xhr.responseJSON.errors) {
+                        Object.values(xhr.responseJSON.errors).forEach(function(errors) {
+                            toastr.error(errors[0]);
+                        });
+                    } else {
+                        toastr.error(xhr.responseJSON?.message || 'Something went wrong.');
+                    }
+                },
+                complete: function() {
+                    hideLoader();
+                    $('#lossDiscountForm button[type="submit"]').prop('disabled', false);
+                }
+            });
+        });
     </script>
     @include('admin.finance.receivable-allocation-js');
 @endsection

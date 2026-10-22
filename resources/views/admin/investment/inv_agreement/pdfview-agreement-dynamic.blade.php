@@ -44,6 +44,19 @@
         .customsignInvestor {
             margin-bottom: 100px !important;
         }
+
+        .sig-checker {
+            background: repeating-conic-gradient(#e5e5e5 0% 25%, #fff 0% 50%) 50% / 16px 16px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 6px;
+            text-align: center;
+        }
+
+        .sig-checker img {
+            max-width: 100%;
+            max-height: 120px;
+        }
     </style>
 
 </head>
@@ -92,13 +105,64 @@
                         <a href="{{ route('investmentContracts') }}" class="btn btn-secondary mr-2">
                             <i class="fas fa-arrow-left"></i> Back
                         </a>
-                        @if (auth()->user()->hasAnyPermission(['investment.add'], $contractDocument->company_id))
+                        {{-- @if (auth()->user()->hasAnyPermission(['investment.add'], $contractDocument->company_id))
                             @if (!$contractDocument->is_investor_signed || !$contractDocument->is_company_signed)
                                 <button onclick="openSendModal()" class="btn btn-success mr-2">
-                                    <i class="fas fa-paper-plane"></i> Send
+                                    <i class="fas fa-paper-plane"></i>
+                                    {{ $contractDocument->is_investor_signed ? 'Send to Company' : 'Send' }}
                                 </button>
                             @endif
+
+                            /** -- Investor signed, company not yet **/
+                            @if ($contractDocument->is_investor_signed && !$contractDocument->is_company_signed)
+                                <button onclick="openSendModal(true, 'investor')" class="btn btn-warning mr-2">
+                                    <i class="fas fa-redo"></i> Request Re-sign
+                                </button>
+                            @endif
+
+                            /** -- Company already signed **/
+                            @if ($contractDocument->is_company_signed)
+                                <button onclick="openSendModal(true, 'company')" class="btn btn-warning mr-2">
+                                    <i class="fas fa-redo"></i> Request Company Re-sign
+                                </button>
+                            @endif
+                        @endif --}}
+
+                        @php $resignPending = $contractDocument->resign_pending_for; @endphp
+
+                        @if (auth()->user()->hasAnyPermission(['investment.add'], $contractDocument->company_id))
+
+                            {{-- Normal send: acts as a reminder to whoever is pending --}}
+                            @if (!$contractDocument->is_investor_signed || !$contractDocument->is_company_signed)
+                                <button onclick="openSendModal()" class="btn btn-success mr-2">
+                                    <i class="fas fa-paper-plane"></i>
+                                    {{ $contractDocument->is_investor_signed ? 'Send to Company' : 'Send' }}
+                                </button>
+                            @endif
+
+                            @if ($resignPending)
+                                {{-- A request is already out: no re-sign buttons, just a notice --}}
+                                <span class="badge badge-dark p-2 mr-2">
+                                    Re-sign requested to {{ ucfirst($resignPending) }}
+                                    @if ($contractDocument->last_resign_at)
+                                        ({{ getformattedDate($contractDocument->last_resign_at) }})
+                                    @endif
+                                </span>
+                            @else
+                                @if ($contractDocument->is_investor_signed && !$contractDocument->is_company_signed)
+                                    <button onclick="openSendModal(true, 'investor')" class="btn btn-warning mr-2">
+                                        <i class="fas fa-redo"></i> Request Investor Re-sign
+                                    </button>
+                                @endif
+
+                                @if ($contractDocument->is_company_signed && !$contractDocument->signed_pdf_path)
+                                    <button onclick="openSendModal(true, 'company')" class="btn btn-warning mr-2">
+                                        <i class="fas fa-redo"></i> Request Company Re-sign
+                                    </button>
+                                @endif
+                            @endif
                         @endif
+
                         {{-- <button onclick="downloadPdfServer()" class="btn btn-outline-primary">
                             <i class="fas fa-file-pdf"></i> Download PDF
                         </button> --}}
@@ -159,9 +223,24 @@
                     <p style="font-size:11px;color:#aaa;">PNG, JPG — transparent background recommended</p>
                     <input type="file" id="sigFileInput" accept="image/*">
                 </div>
-                <div class="sig-upload-preview" id="sigUploadPreview">
+                {{-- <div class="sig-upload-preview" id="sigUploadPreview">
                     <img id="sigUploadImg" src="" alt="Signature preview">
                     <p style="font-size:11px;color:#888;margin-top:4px;">Preview — <a href="#" id="sigChangeFile"
+                            style="color:#007bff;">change file</a></p>
+                </div> --}}
+                <div class="sig-upload-preview" id="sigUploadPreview">
+                    <div class="sig-checker"><img id="sigUploadImg" src="" alt="Signature preview"></div>
+
+                    <label style="font-size:12px;margin:8px 0 2px;display:block;">
+                        <input type="checkbox" id="sigRemoveBg" checked> Remove background
+                    </label>
+                    <div id="sigThresholdWrap" style="font-size:11px;color:#888;">
+                        Adjust: <input type="range" id="sigBgThreshold" min="120" max="245" value="200"
+                            style="width:60%;vertical-align:middle;">
+                        <span>(drag right if the background is still visible)</span>
+                    </div>
+
+                    <p style="font-size:11px;color:#888;margin-top:4px;">Preview, <a href="#" id="sigChangeFile"
                             style="color:#007bff;">change file</a></p>
                 </div>
             </div>
@@ -175,7 +254,7 @@
         </div>
     </div>
 
-    <div class="sig-modal-overlay" id="sendModalOverlay">
+    {{-- <div class="sig-modal-overlay" id="sendModalOverlay">
         <div class="sig-modal" style="width:360px;">
             <h5>Send for Signature</h5>
             <p style="font-size:12px;color:#888;margin:-8px 0 14px;">
@@ -199,6 +278,52 @@
 
             <div class="sig-actions" style="justify-content:center;gap:12px;">
                 <button class="sig-btn" style="background:#25D366;color:#fff;" onclick="sendForSignature('whatsapp')">
+                    <i class="fab fa-whatsapp"></i> WhatsApp
+                </button>
+                <button class="sig-btn" style="background:#007bff;color:#fff;" onclick="sendForSignature('email')">
+                    <i class="fas fa-envelope"></i> Email
+                </button>
+            </div>
+            <div class="sig-actions">
+                <button class="sig-btn sig-btn-cancel" onclick="closeSendModal()">Cancel</button>
+            </div>
+        </div>
+    </div> --}}
+    <div class="sig-modal-overlay" id="sendModalOverlay">
+        <div class="sig-modal" style="width:360px;">
+            <h5 id="sendModalTitle">Send for Signature</h5>
+            <p id="sendModalSub" style="font-size:12px;color:#888;margin:-8px 0 14px;">
+                Choose how to deliver the signing link.
+            </p>
+
+            <div style="background:#f7f8fa;border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:13px;">
+
+                {{-- Investor block (always rendered, JS shows/hides) --}}
+                <div id="recipientInvestor" style="display:none;">
+                    <div style="font-weight:600;margin-bottom:4px;">Sending to: Investor</div>
+                    <div style="color:#444;">Name: {{ $contractDocument->investor->investor_name }}</div>
+                    <div style="color:#444;">Mobile: {{ $contractDocument->investor->investor_mobile }}</div>
+                    <div style="color:#444;">Email: {{ $contractDocument->investor->investor_email }}</div>
+                </div>
+
+                {{-- Company block (always rendered, JS shows/hides) --}}
+                <div id="recipientCompany" style="display:none;">
+                    <div style="font-weight:600;margin-bottom:4px;">Sending to: Company</div>
+                    <div style="color:#444;">Name: {{ $contractDocument->company->company_name }}</div>
+                    <div style="color:#444;">Mobile: {{ $contractDocument->company->owner_number }}</div>
+                    <div style="color:#444;">Email: {{ $contractDocument->company->owner_email }}</div>
+                </div>
+            </div>
+
+            <div id="resignReasonWrap" style="display:none;margin-bottom:14px;">
+                <label style="font-size:12px;font-weight:600;">Reason (Keeping for internal purpose only)</label>
+                <textarea id="resignReason" class="form-control" rows="3"
+                    placeholder="e.g. Signature does not match Emirates ID"></textarea>
+            </div>
+
+            <div class="sig-actions" style="justify-content:center;gap:12px;">
+                <button class="sig-btn" style="background:#25D366;color:#fff;"
+                    onclick="sendForSignature('whatsapp')">
                     <i class="fab fa-whatsapp"></i> WhatsApp
                 </button>
                 <button class="sig-btn" style="background:#007bff;color:#fff;" onclick="sendForSignature('email')">
@@ -606,6 +731,107 @@
         }
     </script>
 
+    {{-- signature bg remove --}}
+    <script>
+        let originalUploadDataUrl = null;
+
+        function loadImage(src) {
+            return new Promise((res, rej) => {
+                const img = new Image();
+                img.onload = () => res(img);
+                img.onerror = rej;
+                img.src = src;
+            });
+        }
+
+        // Crop transparent margins so the signature fills its box
+        function trimCanvas(c, pad = 6) {
+            const ctx2 = c.getContext('2d');
+            const {
+                width,
+                height
+            } = c;
+            const d = ctx2.getImageData(0, 0, width, height).data;
+            let minX = width,
+                minY = height,
+                maxX = -1,
+                maxY = -1;
+
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    if (d[(y * width + x) * 4 + 3] > 10) {
+                        if (x < minX) minX = x;
+                        if (x > maxX) maxX = x;
+                        if (y < minY) minY = y;
+                        if (y > maxY) maxY = y;
+                    }
+                }
+            }
+            if (maxX < 0) return c.toDataURL('image/png'); // nothing drawn
+
+            minX = Math.max(0, minX - pad);
+            minY = Math.max(0, minY - pad);
+            maxX = Math.min(width - 1, maxX + pad);
+            maxY = Math.min(height - 1, maxY + pad);
+
+            const out = document.createElement('canvas');
+            out.width = maxX - minX + 1;
+            out.height = maxY - minY + 1;
+            out.getContext('2d').drawImage(c, minX, minY, out.width, out.height, 0, 0, out.width, out.height);
+            return out.toDataURL('image/png');
+        }
+
+        async function processSignatureImage(src, {
+            removeBg,
+            threshold,
+            maxW = 700
+        }) {
+            const img = await loadImage(src);
+            const scale = Math.min(1, maxW / img.width); // keep the base64 small
+            const c = document.createElement('canvas');
+            c.width = Math.round(img.width * scale);
+            c.height = Math.round(img.height * scale);
+            const cx = c.getContext('2d', {
+                willReadFrequently: true
+            });
+            cx.drawImage(img, 0, 0, c.width, c.height);
+
+            if (removeBg) {
+                const frame = cx.getImageData(0, 0, c.width, c.height);
+                const d = frame.data;
+                const soft = 60; // width of the soft edge
+
+                for (let i = 0; i < d.length; i += 4) {
+                    const lum = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+
+                    if (lum >= threshold) {
+                        d[i + 3] = 0; // background -> transparent
+                    } else {
+                        const a = Math.min(1, (threshold - lum) / soft);
+                        d[i + 3] = Math.round(a * d[i + 3]); // only alpha changes, RGB stays original
+                    }
+                }
+                cx.putImageData(frame, 0, 0);
+                return trimCanvas(c);
+            }
+            return c.toDataURL('image/png');
+        }
+
+        async function refreshUploadPreview() {
+            if (!originalUploadDataUrl) return;
+            const removeBg = document.getElementById('sigRemoveBg').checked;
+            document.getElementById('sigThresholdWrap').style.display = removeBg ? 'block' : 'none';
+
+            uploadedDataUrl = await processSignatureImage(originalUploadDataUrl, {
+                removeBg,
+                threshold: +document.getElementById('sigBgThreshold').value
+            });
+            document.getElementById('sigUploadImg').src = uploadedDataUrl;
+            checkApplyBtn();
+        }
+    </script>
+    {{-- signature bg remove --}}
+
     <script>
         // ════════════════════════════════════════════════
         // SIGNATURE PAD
@@ -698,22 +924,48 @@
         });
 
         // ── File upload ───────────────────────────────────
+        // document.getElementById('sigFileInput').addEventListener('change', function() {
+        //     const file = this.files[0];
+        //     if (!file) return;
+        //     const reader = new FileReader();
+        //     reader.onload = e => {
+        //         uploadedDataUrl = e.target.result;
+        //         document.getElementById('sigUploadImg').src = uploadedDataUrl;
+        //         document.getElementById('sigUploadArea').style.display = 'none';
+        //         document.getElementById('sigUploadPreview').style.display = 'block';
+        //         checkApplyBtn();
+        //     };
+        //     reader.readAsDataURL(file);
+        // });
+
+        // document.getElementById('sigChangeFile').addEventListener('click', e => {
+        //     e.preventDefault();
+        //     uploadedDataUrl = null;
+        //     document.getElementById('sigFileInput').value = '';
+        //     document.getElementById('sigUploadArea').style.display = 'block';
+        //     document.getElementById('sigUploadPreview').style.display = 'none';
+        //     checkApplyBtn();
+        // });
+
         document.getElementById('sigFileInput').addEventListener('change', function() {
             const file = this.files[0];
             if (!file) return;
             const reader = new FileReader();
-            reader.onload = e => {
-                uploadedDataUrl = e.target.result;
-                document.getElementById('sigUploadImg').src = uploadedDataUrl;
+            reader.onload = async e => {
+                originalUploadDataUrl = e.target.result;
                 document.getElementById('sigUploadArea').style.display = 'none';
                 document.getElementById('sigUploadPreview').style.display = 'block';
-                checkApplyBtn();
+                await refreshUploadPreview();
             };
             reader.readAsDataURL(file);
         });
 
+        document.getElementById('sigRemoveBg').addEventListener('change', refreshUploadPreview);
+        document.getElementById('sigBgThreshold').addEventListener('input', refreshUploadPreview);
+
         document.getElementById('sigChangeFile').addEventListener('click', e => {
             e.preventDefault();
+            originalUploadDataUrl = null;
             uploadedDataUrl = null;
             document.getElementById('sigFileInput').value = '';
             document.getElementById('sigUploadArea').style.display = 'block';
@@ -1352,7 +1604,64 @@
     </script>
 
     <script>
-        function openSendModal() {
+        // function openSendModal() {
+        //     document.getElementById('sendModalOverlay').classList.add('active');
+        // }
+
+        // function closeSendModal() {
+        //     document.getElementById('sendModalOverlay').classList.remove('active');
+        // }
+
+        // async function sendForSignature(channel) {
+        //     closeSendModal();
+        //     try {
+        //         showLoader();
+        //         // const res = await fetch(`/agreements/{{ $contractDocument->id }}/send`, {
+        //         const res = await fetch(`{{ route('agreements.send', $contractDocument->id) }}`, {
+        //             method: 'POST',
+        //             credentials: 'same-origin',
+        //             headers: {
+        //                 'Content-Type': 'application/json',
+        //                 'Accept': 'application/json',
+        //                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        //             },
+        //             body: JSON.stringify({
+        //                 channel
+        //             })
+        //         });
+        //         const data = await res.json();
+        //         if (!res.ok) throw new Error(data.message || 'Send failed');
+        //         toastr.success(data.message);
+        //     } catch (err) {
+        //         console.error(err);
+        //         toastr.error('Could not send the agreement. Please try again.');
+        //     } finally {
+        //         hideLoader(); // always runs — success, thrown error, or network failure
+        //     }
+        // }
+
+        let resignMode = false;
+        let targetRole = 'investor';
+        const investorAlreadySigned = @json((bool) $contractDocument->is_investor_signed);
+        console.log(investorAlreadySigned);
+        console.log('targetRole', targetRole);
+
+        function openSendModal(resign = false, role = null) {
+            resignMode = resign;
+            targetRole = resign ? role : (investorAlreadySigned ? 'company' : 'investor');
+            console.log('targetRole', targetRole);
+            document.getElementById('recipientInvestor').style.display = targetRole === 'investor' ? 'block' : 'none';
+            document.getElementById('recipientCompany').style.display = targetRole === 'company' ? 'block' : 'none';
+            document.getElementById('resignReasonWrap').style.display = resign ? 'block' : 'none';
+            document.getElementById('resignReason').value = '';
+
+            const label = targetRole === 'company' ? 'Company' : 'Investor';
+            document.getElementById('sendModalTitle').textContent = resign ? `Request ${label} Re-sign` :
+                'Send for Signature';
+            document.getElementById('sendModalSub').textContent = resign ?
+                `The ${label.toLowerCase()} will receive a new link and must sign again.` :
+                'Choose how to deliver the signing link.';
+
             document.getElementById('sendModalOverlay').classList.add('active');
         }
 
@@ -1361,10 +1670,18 @@
         }
 
         async function sendForSignature(channel) {
+            let reason = null;
+            if (resignMode) {
+                reason = document.getElementById('resignReason').value.trim();
+                if (!reason) {
+                    toastr.error('Please enter a reason for re-signing.');
+                    return;
+                }
+            }
+
             closeSendModal();
             try {
                 showLoader();
-                // const res = await fetch(`/agreements/{{ $contractDocument->id }}/send`, {
                 const res = await fetch(`{{ route('agreements.send', $contractDocument->id) }}`, {
                     method: 'POST',
                     credentials: 'same-origin',
@@ -1374,17 +1691,21 @@
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                     },
                     body: JSON.stringify({
-                        channel
+                        channel,
+                        re_sign: resignMode,
+                        resign_role: resignMode ? targetRole : null,
+                        reason
                     })
                 });
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.message || 'Send failed');
                 toastr.success(data.message);
+                if (resignMode) setTimeout(() => location.reload(), 1200);
             } catch (err) {
                 console.error(err);
-                toastr.error('Could not send the agreement. Please try again.');
+                toastr.error(err.message || 'Could not send the agreement. Please try again.');
             } finally {
-                hideLoader(); // always runs — success, thrown error, or network failure
+                hideLoader();
             }
         }
 

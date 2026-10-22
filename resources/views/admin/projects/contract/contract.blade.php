@@ -161,7 +161,7 @@
                                                     ->exists();
                                             @endphp
                                             <button class="btn my-1 btn-primary filter-btn" add-class="btn-primary"
-                                                    data-filter="">All</button>
+                                                data-filter="">All</button>
                                             @if ($permission)
                                                 <button class="btn my-1 btn-outline-warning filter-btn pending"
                                                     add-class="btn-warning" data-filter="0">Pending</button>
@@ -674,9 +674,9 @@
                 }]
             });
 
-            @if ($permission == false) $(document).ready(function() {
-                    $('.approvalPending').click();
-                }); @endif
+            // @if ($permission == false) $(document).ready(function() {
+            //         $('.approvalPending').click();
+            //     }); @endif
 
             $(document).ready(function() {
 

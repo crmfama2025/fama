@@ -577,13 +577,14 @@ class InvestorAgreementService
         * The new maturity date must be later than
         * the current maturity date minus 45 days.
         */
-        $minimumMaturityDate = $oldMaturityDate->copy()->subDays(45);
+        $minimumMaturityDate = $oldMaturityDate->copy()->subDays(46);
 
         if ($newMaturityDate->lessThanOrEqualTo($minimumMaturityDate)) { //if not old nov do oldMaturityDate
             throw ValidationException::withMessages([
                 'novation_date' => sprintf(
-                    'The novation maturity date (%s) must be later than %s (45 days before the current maturity date %s).',
+                    'The novation maturity date (%s) must be greater than %s (45 days before the current maturity date %s).',
                     $newMaturityDate->toDateString(),
+                    $oldMaturityDate->copy()->subDays(46)->toDateString(),
                     $oldMaturityDate->toDateString()
                 ),
             ]);

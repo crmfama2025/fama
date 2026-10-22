@@ -104,9 +104,9 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
     Route::get('export-localities', [LocalityController::class, 'export'])->name('locality.export');
     Route::get('locality-list', [LocalityController::class, 'getLocalities'])->name('locality.list');
     Route::post('import-locality', [LocalityController::class, 'import'])->name('import.locality');
-   
-    Route::post('/locality/pricing',[LocalityController::class, 'storePricing'])->name('locality.pricing.store');
-    Route::get('/locality/{locality}/pricing',[LocalityController::class, 'getPricing'])->name('locality.pricing.show');
+
+    Route::post('/locality/pricing', [LocalityController::class, 'storePricing'])->name('locality.pricing.store');
+    Route::get('/locality/{locality}/pricing', [LocalityController::class, 'getPricing'])->name('locality.pricing.show');
 
     Route::get('propertyType-list', [PropertyTypeController::class, 'getPropertyType'])->name('property_type.list');
     Route::post('import-property-type', [PropertyTypeController::class, 'importPropertyType'])->name('import.propertytype');
@@ -222,6 +222,7 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
     Route::get('finance/payable-cheque-clearing', [PayableClearingController::class, 'payableChequeClearing'])->name('finance.payable.clearing');
     Route::get('finance/payable-list', [PayableClearingController::class, 'getPayables'])->name('payable.list');
     Route::post('finance/payable-save', [PayableClearingController::class, 'submitPayables'])->name('payable.save');
+    Route::post('finance/payable/discount', [PayableClearingController::class, 'saveDiscount'])->name('payable.discount');
     Route::post('finance/retun-save', [PayableClearingController::class, 'submitReturns'])->name('return.save');
     Route::get('finance/cleared-list', [PayableClearingController::class, 'crearedList'])->name('cleared.list');
     Route::get('finance/cleared-data', [PayableClearingController::class, 'getClearedData'])->name('cleared.data');
@@ -525,6 +526,9 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
     // routes/web.php
     Route::get('/leads/follow-ups/calendar', [LeadController::class, 'calendarEvents'])
         ->name('lead.calendar-events');
+
+    Route::post('/loss-discount', [ReceivablesClearingController::class, 'storeLossDiscount'])
+        ->name('receivable.loss-discount');
 });
 
 

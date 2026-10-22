@@ -20,6 +20,7 @@ class ReceiptAllocationsSeeder extends Seeder
             ['id' => 4, 'receipt_allocation_name' => 'CZAR ELITE REAL ESTATE', 'created_at' => now()],
             ['id' => 5, 'receipt_allocation_name' => 'CASH DEPOSIT', 'created_at' => now()],
             ['id' => 6, 'receipt_allocation_name' => 'OTHER B2B COMPANY', 'created_at' => now()],
+            ['id' => 7, 'receipt_allocation_name' => 'FAATEH DELIVERY SERVICES', 'created_at' => now()],
         ];
 
         foreach ($allocations as $allocation) {

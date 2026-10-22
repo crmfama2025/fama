@@ -217,6 +217,10 @@
                         data: 'company_name',
                         name: 'paidCompany.company_name'
                     },
+                    // {
+                    //     data: 'bank_name',
+                    //     name: 'paidBank.bank_name'
+                    // },
                     {
                         data: 'paid_amount',
                         name: 'cleared_receivables.paid_amount'
