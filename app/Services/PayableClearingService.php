@@ -242,7 +242,7 @@ class PayableClearingService
                 $q->orderByRaw("(contract_payment_details.payment_amount - COALESCE(paid_total, 0)) $order");
             })
 
-            ->rawColumns(['checkbox', 'project_number', 'action', 'status'])
+            ->rawColumns(['checkbox', 'project_number', 'payment_amount', 'action', 'status'])
             ->with(['columns' => $columns])
             ->toJson();
     }
