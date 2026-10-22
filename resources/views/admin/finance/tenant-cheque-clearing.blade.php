@@ -238,13 +238,13 @@
                                     </div>
 
                                     <div class="card-body">
-                                        <form class="form-row align-items-end fileterform justify-content-end">
+                                        <form class="form-row align-items-end fileterform justify-content-start">
                                             <!-- From Date -->
                                             <div class="form-group col-md-2">
-                                                <label for="dateFrom" class="asterisk">From</label>
+                                                <label for="dateFrom" class="">From</label>
                                                 <div class="input-group date" id="dateFrom" data-target-input="nearest">
                                                     <input type="text" class="form-control datetimepicker-input"
-                                                        required data-target="#dateFrom" placeholder="dd-mm-YYYY" />
+                                                        data-target="#dateFrom" placeholder="dd-mm-YYYY" />
                                                     <div class="input-group-append" data-target="#dateFrom"
                                                         data-toggle="datetimepicker">
                                                         <div class="input-group-text"><i class="fa fa-calendar"></i></div>
@@ -254,15 +254,37 @@
 
                                             <!-- To Date -->
                                             <div class="form-group col-md-2">
-                                                <label for="dateTo" class="asterisk">To</label>
+                                                <label for="dateTo" class="">To</label>
                                                 <div class="input-group date" id="dateTo" data-target-input="nearest">
                                                     <input type="text" class="form-control datetimepicker-input"
-                                                        required data-target="#dateTo" placeholder="dd-mm-YYYY" />
+                                                        data-target="#dateTo" placeholder="dd-mm-YYYY" />
                                                     <div class="input-group-append" data-target="#dateTo"
                                                         data-toggle="datetimepicker">
                                                         <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                                                     </div>
                                                 </div>
+                                            </div>
+                                            <!-- Company -->
+                                            <div class="form-group col-md-2">
+                                                <label for="companySelect">Company</label>
+                                                <select class="form-control select2" id="companySelectReceivable"
+                                                    name="company_id">
+                                                    <option value="">Select Company</option>
+                                                    @foreach ($companies as $company)
+                                                        <option value="{{ $company->id }}">
+                                                            {{ $company->company_name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+
+                                            <!-- Project -->
+                                            <div class="form-group col-md-2">
+                                                <label for="projectSelect">Project</label>
+                                                <select class="form-control select2" id="projectSelect"
+                                                    name="project_id">
+                                                    <option value="">Select Project</option>
+                                                </select>
                                             </div>
 
                                             <!-- Property -->
@@ -346,13 +368,12 @@
                                             class="btn btn-outline-maroon float-right mx-1 btn-flat"
                                             title="View Report"><i class="fa fa-book mr-1"></i>View
                                             Report</a>
-                                        {{-- <button type="button" class="btn btn-outline-info btn-block btn-flat"><i
-                                                class="fa fa-book"></i> .btn-block .btn-flat</button> --}}
+
                                     </div>
                                     <div class="card-body">
 
                                         <!-- Company Filter Buttons -->
-                                        <div class="card card-info mb-3">
+                                        {{-- <div class="card card-info mb-3">
                                             <div class="card-body text-center">
                                                 <div class="btn-group btn-group-toggle" data-toggle="buttons">
                                                     <label class="btn btn-outline-info active">
@@ -369,7 +390,7 @@
                                                     @endforeach
                                                 </div>
                                             </div>
-                                        </div>
+                                        </div> --}}
 
                                         <!-- Table -->
                                         <div class="card">
@@ -378,10 +399,7 @@
                                                     style="width:100%">
                                                     <thead>
                                                         <tr>
-                                                            {{-- <th class="text-center">
-                                                                <input type="checkbox" id="selectAll"
-                                                                    onclick="toggleAllCheckboxes()">Select All
-                                                            </th> --}}
+
                                                             <th>
                                                                 <div class="icheck-primary d-inline">
                                                                     <input type="checkbox" name="selectall"
@@ -395,16 +413,19 @@
                                                             <th>Action</th>
 
                                                             <th>Project</th>
+
                                                             <th>Company</th>
+                                                            <th>Amount</th>
+                                                            <th>Due Date</th>
+                                                            <th>Status</th>
+
+
                                                             <th>Tenant</th>
                                                             <th>Building</th>
                                                             <th>Unit</th>
                                                             <th>Subunit</th>
-                                                            <th>Due Date</th>
                                                             <th>Payment Mode</th>
-                                                            <th>Amount</th>
                                                             <th>Composition</th>
-                                                            <th>Status</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
@@ -992,10 +1013,12 @@
                 ajax: {
                     url: "{{ route('tenant.cheque.list') }}",
                     data: function(d) {
-                        let companyId = $('.companyFilter:checked').val() || 'all';
-                        if (companyId === 'all') {
-                            companyId = null;
-                        }
+                        // let companyId = $('.companyFilter:checked').val() || 'all';
+                        // if (companyId === 'all') {
+                        //     companyId = null;
+                        // }
+                        let companyId = $('#companySelectReceivable').val() || null;
+
                         d.company_id = companyId;
                         d.date_from = $('#dateFrom input').val();
                         d.date_to = $('#dateTo input').val();
@@ -1003,6 +1026,7 @@
                         d.unit_id = $('#unitSelect').val();
                         d.mode_id = $('#modeSelect').val();
                         d.tenant_id = $('#tenantSelect').val();
+                        d.contract_id = $('#projectSelect').val();
 
                     },
                 },
@@ -1033,9 +1057,62 @@
                         orderable: false,
                         searchable: true
                     },
+
+
                     {
                         data: 'company_name',
                         name: 'agreement.contract.company.company_name',
+                    },
+                    {
+                        data: 'payment_amount',
+                        name: 'agreement_payment_details.payment_amount',
+                    },
+                    {
+                        data: 'payment_date',
+                        name: 'agreement_payment_details.payment_date',
+
+                    },
+                    {
+                        data: 'is_payment_received',
+                        name: 'is_payment_received',
+                        render: function(data, type, row) {
+                            // Priority: Bounced
+                            let badges = '';
+
+                            if (row.has_bounced) {
+                                badges +=
+                                    '<span class="badge bg-danger mr-1">Bounced</span>';
+                            }
+
+                            switch (data) {
+                                case 0:
+                                    badges +=
+                                        '<span class="badge bg-warning mr-1">Pending</span>';
+                                    break;
+                                case 2:
+                                    badges +=
+                                        '<span class="badge bg-info mr-1">Partially Paid</span>';
+                                    break;
+                                case 1:
+                                    badges +=
+                                        '<span class="badge bg-success mr-1">Paid</span>';
+                                    break;
+                                default:
+                                    badges +=
+                                        '<span class="badge bg-secondary mr-1">-</span>';
+                            }
+
+                            if (row.loss_or_discount == 1) {
+                                badges += '<br><span class="badge bg-danger mr-1">Loss</span>';
+                            } else if (row.loss_or_discount == 2) {
+                                badges +=
+                                    '<br><span class="badge bg-primary mr-1">Discount</span>';
+                            }
+
+                            return badges;
+                        },
+                        orderable: true,
+                        searchable: true
                     },
                     {
                         data: 'tenant_name',
@@ -1045,7 +1122,8 @@
                         },
                         orderable: false,
                         searchable: true
-                    }, {
+                    },
+                    {
                         data: 'property_name',
                         name: 'agreement.contract.property.property_name',
                     },
@@ -1064,18 +1142,10 @@
                         searchable: true
 
                     },
-                    {
-                        data: 'payment_date',
-                        name: 'agreement_payment_details.payment_date',
 
-                    },
                     {
                         data: 'payment_mode_name',
                         name: 'paymentMode.payment_mode_name',
-                    },
-                    {
-                        data: 'payment_amount',
-                        name: 'agreement_payment_details.payment_amount',
                     },
 
                     {
@@ -1083,29 +1153,7 @@
                         name: 'agreementPayment.installment.installment_name',
                     },
 
-                    {
-                        data: 'is_payment_received',
-                        name: 'is_payment_received',
-                        render: function(data, type, row) {
-                            // Priority: Bounced
-                            if (row.has_bounced) {
-                                return '<span class="badge bg-danger">Bounced</span>';
-                            }
 
-                            switch (data) {
-                                case 0:
-                                    return '<span class="badge bg-warning">Pending</span>';
-                                case 2:
-                                    return '<span class="badge bg-info">Partially Paid</span>';
-                                case 1:
-                                    return '<span class="badge bg-success">Paid</span>';
-                                default:
-                                    return '<span class="badge bg-secondary">-</span>';
-                            }
-                        },
-                        orderable: true,
-                        searchable: true
-                    },
 
 
 
@@ -1149,10 +1197,21 @@
                         }));
 
                         // Add all filters
+                        // form.append($('<input>', {
+                        //     type: 'hidden',
+                        //     name: 'company_id',
+                        //     value: $('.companyFilter:checked').val() || ''
+                        // }));
                         form.append($('<input>', {
                             type: 'hidden',
                             name: 'company_id',
-                            value: $('.companyFilter:checked').val() || ''
+                            value: $('#companySelectReceivable')
+                                .val() || ''
+                        }));
+                        form.append($('<input>', {
+                            type: 'hidden',
+                            name: 'contract_id',
+                            value: $('#projectSelect').val() || ''
                         }));
                         form.append($('<input>', {
                             type: 'hidden',
@@ -1834,6 +1893,33 @@
                     $('#lossDiscountForm button[type="submit"]').prop('disabled', false);
                 }
             });
+        });
+    </script>
+    <script>
+        const contracts = @json($contracts);
+
+        $(document).on('change', '#companySelectReceivable', function() {
+            let companyId = $(this).val();
+            let projectSelect = $('#projectSelect');
+
+            projectSelect.empty().append('<option value="">Select Project</option>');
+
+            if (companyId) {
+                let filteredContracts = contracts.filter(function(contract) {
+                    return contract.company_id == companyId;
+                });
+
+                filteredContracts.forEach(function(contract) {
+                    projectSelect.append(
+                        $('<option>', {
+                            value: contract.id,
+                            text: contract.project_number
+                        })
+                    );
+                });
+            }
+
+            projectSelect.val('').trigger('change');
         });
     </script>
     @include('admin.finance.receivable-allocation-js');

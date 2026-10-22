@@ -6,6 +6,7 @@ use App\Exports\RecevableClearingExport;
 use App\Models\AgreementPaymentDetail;
 use App\Models\AgreementTenant;
 use App\Models\Bank;
+use App\Models\Contract;
 use App\Models\PaymentMode;
 use App\Models\ReceiptAllocation;
 use App\Repositories\TenantChequeRepository;
@@ -37,13 +38,14 @@ class ReceivablesClearingController extends Controller
         $tenants = AgreementTenant::all();
         $agreements = $this->agreementService->getAllAgreements();
         $receiptAlloctaions = ReceiptAllocation::all();
+        $contracts = Contract::select('id', 'project_number', 'company_id')->get();
         // dd($receiptAlloctaions);
         // dd($units);
         // $units = getUnitshaveAgreement();
         // $allReceivables = $this->tenantChequeService->getAllReceivables();
         // dd($allReceivables);
         // $allReceivables  = [];
-        return view('admin.finance.tenant-cheque-clearing', compact('payment_modes', 'receiptAlloctaions', 'banks', 'companies', 'properties', 'agpaymentmodes', 'units', 'tenants', 'agreements'));
+        return view('admin.finance.tenant-cheque-clearing', compact('payment_modes', 'contracts', 'receiptAlloctaions', 'banks', 'companies', 'properties', 'agpaymentmodes', 'units', 'tenants', 'agreements'));
     }
     public function receivableChequeClearingList(Request $request)
     {
@@ -59,7 +61,8 @@ class ReceivablesClearingController extends Controller
                 'property_id' => $request->property_id ?? null,
                 'unit_id'     => $request->unit_id ?? null,
                 'mode_id' => $request->mode_id ?? null,
-                'tenant_id' => $request->tenant_id ?? null
+                'tenant_id' => $request->tenant_id ?? null,
+                'contract_id' => $request->contract_id ?? null,
             ];
 
             return $this->tenantChequeService->getDataTable($filters);
@@ -107,7 +110,9 @@ class ReceivablesClearingController extends Controller
             'property_id' => $request->property_id ?? null,
             'unit_id'     => $request->unit_id ?? null,
             'mode_id' => $request->mode_id ?? null,
+            'contract_id' => $request->contract_id ?? null,
         ];
+        // dd($filters);
         return Excel::download(new \App\Exports\RecevableClearingExport($request->search, $filters), 'receivables.xlsx');
     }
     public function receivableReport()

@@ -96,6 +96,17 @@ class RecevableClearingExport implements FromCollection, WithHeadings, ShouldAut
             });
         }
 
+        if (!is_null($filters['company_id'])) {
+            $query->whereHas('agreement.contract', function ($q) use ($filters) {
+                $q->where('company_id', $filters['company_id']);
+            });
+            if (!is_null($filters['contract_id'])) {
+                $query->whereHas('agreement.contract', function ($q) use ($filters) {
+                    $q->where('id', $filters['contract_id']);
+                });
+            }
+        }
+
         if (!empty($filters['mode_id'])) {
             $query->where('payment_mode_id', $filters['mode_id']);
         }
@@ -103,6 +114,7 @@ class RecevableClearingExport implements FromCollection, WithHeadings, ShouldAut
         // Fetch results
         $results = $query->get();
         // dd($results);
+        // dd("test");
 
         // Map the results for export
         return $results->map(function ($row) {
@@ -124,6 +136,7 @@ class RecevableClearingExport implements FromCollection, WithHeadings, ShouldAut
 
                 'Payment Date' => $row->payment_date ? Carbon::parse($row->payment_date)->format('d-m-Y') : '-',
                 'Payment Amount' => $row->payment_amount ?? 0,
+                'Paid Amount' => $row->clearedReceivables->sum('paid_amount') ?? 0,
                 'Pending Amount' => $row->latestClearedReceivable->pending_amount ?? $row->payment_amount ?? 0,
                 'Payment Mode' => $row->paymentMode->payment_mode_name ?? '-',
                 'Bank' => $row->bank->bank_name ?? '-',
@@ -164,6 +177,7 @@ class RecevableClearingExport implements FromCollection, WithHeadings, ShouldAut
             'Unit Number',
             'Payment Date',
             'Payment Amount',
+            'Paid Amount',
             'Pending Amount',
             'Payment Mode',
             'Bank',

@@ -262,6 +262,11 @@ class TenantChequeRepository
             $query->whereHas('agreement.contract', function ($q) use ($filters) {
                 $q->where('company_id', $filters['company_id']);
             });
+            if (!is_null($filters['contract_id'])) {
+                $query->whereHas('agreement.contract', function ($q) use ($filters) {
+                    $q->where('id', $filters['contract_id']);
+                });
+            }
         }
         if (empty($filters['unit_id']) && !empty($filters['tenant_id'])) {
 
