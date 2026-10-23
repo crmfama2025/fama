@@ -187,7 +187,7 @@
                                         @enderror
                                     </div>
                                 </div>
-
+<!--                                 
 
                                 {{-- Required Location --}}
                                 <div class="col-md-6">
@@ -205,8 +205,82 @@
                                             <span class="invalid-feedback">{{ $message }}</span>
                                         @enderror
                                     </div>
+                                </div> -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="staff_per_room">Staff Per Room</label>
+                                        <input type="number" name="staff_per_room" id="staff_per_room" min="0"
+                                            class="form-control @error('staff_per_room') is-invalid @enderror"
+                                            value="{{ old('staff_per_room', $lead->staff_per_room ?? '') }}"
+                                            placeholder="Enter staff per room">
+                                        @error('staff_per_room')
+                                            <span class="invalid-feedback">{{ $message }}</span>
+                                        @enderror
+                                    </div>
                                 </div>
 
+                                {{-- Required Location (autocomplete) --}}
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="required_location">Required Location</label>
+                                       
+                                        <select name="required_location" id="required_location"
+                                            class="form-control @error('required_location') is-invalid @enderror">
+                                            <option></option>
+                                            @php $loc = old('required_location', $lead->required_location ?? ''); @endphp
+                                            @if ($loc)
+                                                <option value="{{ $loc }}" selected>{{ $loc }}</option>
+                                            @endif
+                                        </select>
+                                        @error('required_location')
+                                            <span class="invalid-feedback d-block">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                {{-- Budget --}}
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="budget">Budget</label>
+                                        <input type="number" step="0.01" min="0" name="budget" id="budget"
+                                            class="form-control @error('budget') is-invalid @enderror"
+                                            value="{{ old('budget', $lead->budget ?? '') }}" placeholder="Enter budget">
+                                        @error('budget')
+                                            <span class="invalid-feedback">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                {{-- Moving Date --}}
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="moving_date">Moving Date</label>
+                                        <input type="date" name="moving_date" id="moving_date"
+                                            class="form-control @error('moving_date') is-invalid @enderror"
+                                            value="{{ old('moving_date', optional($lead->moving_date ?? null)->format('Y-m-d')) }}">
+                                        @error('moving_date')
+                                            <span class="invalid-feedback">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                {{-- Category C1/C2/C3 --}}
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label class="asterisk">Category</label>
+                                        <div>
+                                            @foreach (['C1', 'C2', 'C3'] as $cat)
+                                                <div class="custom-control custom-radio custom-control-inline">
+                                                    <input type="radio" id="lead_category_{{ $cat }}" name="lead_category"
+                                                        class="custom-control-input" value="{{ $cat }}"
+                                                        {{ old('lead_category', $lead->lead_category ?? '') == $cat ? 'checked' : '' }} required>
+                                                    <label class="custom-control-label" for="lead_category_{{ $cat }}">{{ $cat }}</label>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                        <span class="text-danger small" id="lead_category_error"></span>
+                                    </div>
+                                </div>
 
                                 {{-- Requirement --}}
                                 <div class="col-md-12">
@@ -271,6 +345,7 @@
     <script src="{{ asset('assets/datatables-buttons/js/buttons.print.min.js') }}"></script>
     <script src="{{ asset('assets/datatables-buttons/js/buttons.colVis.min.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.5/dist/sweetalert2.all.min.js"></script>
+
     <script>
         $('#leadForm').on('submit', function(e) {
             e.preventDefault();
@@ -337,6 +412,34 @@
         });
         $('#phone_number').on('blur', function() {
             phoneValidation('#phone_number', 'phone_number');
+        });
+        $(window).on('load', function () {
+            var $loc = $('#required_location');
+            var current = $loc.val();  
+
+            $.get("{{ route('lead.locations') }}", { all: 1 }).done(function (r) {
+                if ($loc.data('select2')) {
+                    $loc.select2('destroy');
+                }
+
+                $loc.empty().append('<option></option>');
+
+                var found = false;
+                r.results.forEach(function (i) {
+                    if (i.id === current) found = true;
+                    $loc.append(new Option(i.text, i.id, false, i.id === current));
+                });
+
+                if (current && !found) {
+                    $loc.append(new Option(current, current, true, true));
+                }
+
+                $loc.select2({
+                    width: '100%',
+                    placeholder: 'Search location',
+                    allowClear: true
+                });
+            });
         });
     </script>
 @endsection
