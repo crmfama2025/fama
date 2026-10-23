@@ -693,12 +693,13 @@
 
                     action: function(e, dt, node, config) {
 
-                        let companyId = $('.companyFilter:checked').val() || '';
+                        let companyId = $('#companySelect').val() || '';
+                        // console.log('Selected Company ID:', companyId);
 
-                        // If "All" is selected, don't send a company ID
-                        if (companyId === 'all') {
-                            companyId = '';
-                        }
+                        // // If "All" is selected, don't send a company ID
+                        // if (companyId === 'all') {
+                        //     companyId = '';
+                        // }
 
                         let params = {
 
