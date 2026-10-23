@@ -346,6 +346,42 @@
         // accordion.innerHTML += accordionHTML;
         accordion.insertAdjacentHTML('beforeend', accordionHTML);
 
+        loopSource.forEach((pay, payIndex) => {
+            const uniqueId = `${unit.id}_${payIndex}`;
+            const paymentMode = $(`#payment_mode${uniqueId}`);
+            const dateContainer = $(`#otherPaymentDate_${uniqueId}`);
+
+            paymentMode.off('change').on('change', function() {
+                paymentModeChangeFF(unit.id, payIndex);
+            });
+
+            paymentModeChangeFF(unit.id, payIndex);
+            if (dateContainer.length) {
+                dateContainer.datetimepicker({
+                    format: 'DD-MM-YYYY',
+                    useCurrent: false
+                });
+
+                dateContainer.off('change.datetimepicker').on('change.datetimepicker', function() {
+                    calculatePaymentDatesFF(unit.id, payIndex);
+                });
+            }
+            const banks = getBanksByCompany(companyId);
+            // console.log("Banks :", banks);
+            const bankSelect = $(`#bank_name_${uniqueId}`);
+
+            bankSelect.empty().append(
+                `<option value="">Select Bank Name</option>`);
+
+            banks.forEach(bank => {
+                bankSelect.append(`
+                                <option value="${bank.id}" ${bank.id == pay.bank_id ? 'selected' : ''}>
+                                    ${bank.bank_name}
+                                </option>
+                            `);
+            });
+        });
+
         // console.log('termDATE', termDate);
 
         // Initialize datetimepickers, event listeners

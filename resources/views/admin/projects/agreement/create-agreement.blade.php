@@ -1049,6 +1049,7 @@
                 addClassAsterisk('#bank' + i);
                 addClassAsterisk('#chq' + i);
             } else if (payment_mode == '2') { // Bank Transfer
+                console.log("Bank Transfer selected for index:", i);
                 $('#bank' + i).show().find('input, select').prop('disabled', false).prop('required', true);
                 addClassAsterisk('#bank' + i);
                 $('#chq' + i).hide().find('input, select').prop('disabled', true);
@@ -2211,9 +2212,9 @@
                                     });
 
 
-                                    dateContainer.find('input').attr('readonly', true).off('focus');
-                                    dateContainer.find('.input-group-append').removeAttr(
-                                        'data-toggle');
+                                    // dateContainer.find('input').attr('readonly', true).off('focus');
+                                    // dateContainer.find('.input-group-append').removeAttr(
+                                    //     'data-toggle');
 
                                     // Event handlers
                                     $(`#payment_mode${uniqueId}`).off('change').on('change',
@@ -2448,10 +2449,17 @@
                                     'data-toggle');
                                 hidePayments(i);
 
-                                $('#payment_mode' + uniqueId).change(function() {
-                                    // console.log("paymentmodechange");
-                                    paymentModeChangeFF(unit.id, i);
-                                });
+                                // $('#payment_mode' + uniqueId).change(function() {
+                                //     // console.log("paymentmodechange");
+                                //     paymentModeChangeFF(unit.id, i);
+                                // });
+
+                                $(`#payment_mode${uniqueId}`)
+                                    .off('change')
+                                    .on('change', function() {
+                                        paymentModeChangeFF(unit.id, i);
+                                    });
+
 
                                 $('#otherPaymentDate_' + uniqueId).on('input change', function() {
                                     calculatePaymentDatesFF(unit.id, i);
@@ -2916,13 +2924,13 @@
                             format: 'DD-MM-YYYY'
                         });
 
-                        // // Bind change event to payment mode
-                        // $(paymentBlock).find(`#payment_mode${i}`).off('change').on('change', function() {
-                        //     paymentModeChange(i);
-                        // });
+                        // Bind change event to payment mode
+                        $(paymentBlock).find(`#payment_mode${i}`).off('change').on('change', function() {
+                            paymentModeChange(i);
+                        });
 
-                        // // Initial visibility setup
-                        // paymentModeChange(i);
+                        // Initial visibility setup
+                        paymentModeChange(i);
 
                         hidePayments(i);
 
@@ -3309,7 +3317,7 @@
             } else if (payment_mode == '2') { // Bank Transfer
                 // alert("called");
                 $(`#bank_${uniqueId}`).show().find('input, select').prop('disabled', false).prop('required', true);
-                $(`#chq_${uniqueId}`).hide().find('input, select').prop('disabled', true);
+                $(`#chq_${uniqueId}`).hide().find('input, select').prop('disabled', true).prop('required', false);
                 addClassAsterisk(`#bank_${uniqueId}`);
             } else { // Cash or others
                 $(`#bank_${uniqueId}`).hide().find('input, select').prop('disabled', true).prop('required', false);
