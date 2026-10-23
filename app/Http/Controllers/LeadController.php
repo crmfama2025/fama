@@ -294,4 +294,39 @@ class LeadController extends Controller
             ];
         });
     }
+    // public function locations(Request $request)
+    // {
+    //     $term = $request->get('q', '');
+    //     $items = \App\Models\Locality::query()
+    //         ->when($term, fn ($q) => $q->where('locality_name', 'like', "%{$term}%"))
+    //         ->orderBy('locality_name')
+    //         ->limit(20)
+    //         ->get(['id', 'locality_name']);
+
+    //     return response()->json([
+    //         'results' => $items->map(fn ($l) => [
+    //             'id'   => $l->locality_name,   
+    //             'text' => $l->locality_name,
+    //         ]),
+    //     ]);
+    // }
+    public function locations(Request $request)
+    {
+        $term = $request->get('q', '');
+
+        $items = \App\Models\Locality::query()
+            ->when($term, fn ($q) => $q->where('locality_name', 'like', "%{$term}%"))
+            ->when(!$request->boolean('all'), fn ($q) => $q->limit(20))
+            ->select('locality_name')
+            ->distinct()
+            ->orderBy('locality_name')
+            ->get();
+
+        return response()->json([
+            'results' => $items->map(fn ($l) => [
+                'id'   => $l->locality_name,
+                'text' => $l->locality_name,
+            ]),
+        ]);
+    }
 }
