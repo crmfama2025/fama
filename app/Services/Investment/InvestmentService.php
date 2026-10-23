@@ -1025,13 +1025,13 @@ class InvestmentService
                         </a>';
                     }
                 } else {
-                    // if (auth()->user()->hasAnyPermission(['investment.edit'], $row->company_id) && $row->is_profit_processed == 0 && $row->has_partial_withdrawal == 0) {
-                    $action .= '<a href="' . route('investment.edit', $row->id) . '"
+                    if (auth()->user()->hasAnyPermission(['investment.edit'], $row->company_id) && $row->is_profit_processed == 0 && $row->has_partial_withdrawal == 0) {
+                        $action .= '<a href="' . route('investment.edit', $row->id) . '"
                             class="btn btn-sm btn-info m-1 editInvestment"
                             title="Edit Investment">
                             <i class="fas fa-edit"></i>
                         </a>';
-                    // }
+                    }
                     if (auth()->user()->hasAnyPermission(['investment.view'], $row->company_id)) {
                         $action .= '<a href="' . route('investment.show', $row->id) . '"
                             class="btn btn-sm btn-primary m-1"
