@@ -374,6 +374,7 @@ class ReceivableReportRepository
             )
             ->select([
                 'apd.id',
+                'apd.loss_or_discount',
                 'c.project_number',
                 'co.company_name',
                 't.tenant_name',

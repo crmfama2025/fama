@@ -883,6 +883,7 @@ class ReceivableReportService
                     'Paid Cheque Number',
                     'Paid Company Name',
                     'Status',
+                    'Loss or Discount',
                     'Has Bounced',
                     'Bounced Date',
                     'Bounced Reason',
@@ -1002,6 +1003,12 @@ class ReceivableReportService
                         default => '-',
                     };
 
+                    $lossOrDiscount = match ((int) $row->loss_or_discount) {
+                        1 => 'Loss',
+                        2 => 'Discount',
+                        default => '-',
+                    };
+
                     $hasBounced = ((int) $row->has_bounced === 1)
                         ? 'Bounced'
                         : 'Not Bounced';
@@ -1044,10 +1051,11 @@ class ReceivableReportService
                         $paidChequeNumber,
                         $paidCompany,
                         $status,
+                        $lossOrDiscount,
                         $hasBounced,
                         $bouncedDate,
                         $bouncedReason,
-                        $terminateStatus
+                        $terminateStatus,
                     ]);
 
                     /*
