@@ -539,7 +539,7 @@
 
                 },
                 order: [
-                    [4, 'desc']
+                    [4, 'asc']
                 ],
                 dom: 'Bfrtip',
                 buttons: [{
