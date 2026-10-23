@@ -449,7 +449,10 @@ class InvestorPaymentDistributionService
             })
 
             ->orderColumn('payout_date', function ($query, $order) {
-                $query->orderByRaw("STR_TO_DATE(investor_payouts.original_profit_date, '%d-%m-%Y') {$order}");
+                $query->reorder()
+                    ->orderByRaw('investor_payouts.original_profit_date IS NULL')
+                    ->orderBy('investor_payouts.original_profit_date', $order)
+                    ->orderBy('investor_payouts.id', 'asc');
             })
 
             ->orderColumn('payout_type', function ($query, $order) {
