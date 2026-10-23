@@ -21,9 +21,11 @@ class ContractPayableClear extends Model
         'paid_mode',
         'paid_bank',
         'paid_cheque_number',
+        'bank_reference',
         'payment_remarks',
         'company_id',
-        'returned_status'
+        'returned_status',
+        'is_discount',
     ];
 
     public function contract()

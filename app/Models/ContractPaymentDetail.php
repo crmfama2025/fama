@@ -32,7 +32,12 @@ class ContractPaymentDetail extends Model
         'returned_date',
         'returned_reason',
         'returned_by',
-        'beneficiary_id'
+        'beneficiary_id',
+        'is_discounted',
+        'discount_amount',
+        'discount_date',
+        'discount_reason',
+        'discounted_by',
     ];
 
     public function contract()
@@ -124,5 +129,16 @@ class ContractPaymentDetail extends Model
     public function contractPayableClears()
     {
         return $this->hasMany(ContractPayableClear::class, 'contract_payment_detail_id', 'id');
+    }
+    public function setDiscountDateAttribute($value)
+    {
+        $this->attributes['discount_date'] = $value
+            ? Carbon::parse($value)->format('Y-m-d H:i:s')
+            : null;
+    }
+
+    public function getDiscountDateAttribute($value)
+    {
+        return $value ? Carbon::parse($value)->format('d-m-Y') : null;
     }
 }

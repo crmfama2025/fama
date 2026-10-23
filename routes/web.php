@@ -222,6 +222,7 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
     Route::get('finance/payable-cheque-clearing', [PayableClearingController::class, 'payableChequeClearing'])->name('finance.payable.clearing');
     Route::get('finance/payable-list', [PayableClearingController::class, 'getPayables'])->name('payable.list');
     Route::post('finance/payable-save', [PayableClearingController::class, 'submitPayables'])->name('payable.save');
+    Route::post('finance/payable/discount', [PayableClearingController::class, 'saveDiscount'])->name('payable.discount');
     Route::post('finance/retun-save', [PayableClearingController::class, 'submitReturns'])->name('return.save');
     Route::get('finance/cleared-list', [PayableClearingController::class, 'crearedList'])->name('cleared.list');
     Route::get('finance/cleared-data', [PayableClearingController::class, 'getClearedData'])->name('cleared.data');

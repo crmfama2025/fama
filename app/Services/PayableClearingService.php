@@ -119,22 +119,65 @@ class PayableClearingService
 
             //     return toNumeric($row->payment_amount) - $paid;
             // })
+            // ->addColumn('payment_amount', function ($row) {
+            //     return toNumeric($row->payment_amount) - (float) ($row->paid_total ?? 0);
+            // })
             ->addColumn('payment_amount', function ($row) {
-                return toNumeric($row->payment_amount) - (float) ($row->paid_total ?? 0);
+                $pending = toNumeric($row->payment_amount) - (float) ($row->paid_total ?? 0);
+                $badge = $row->is_discounted
+                    ? ' <span class="badge badge-warning">Discounted</span>'
+                    : '';
+                return $pending . $badge;
             })
             ->addColumn('action', function ($row) {
                 $action = '';
+                //  $remaining = toNumeric($row->payment_amount)
+                //     - (float) ($row->discount_amount ?? 0)
+                //     - (float) ($row->paid_total ?? 0);
+
+                // if ($remaining <= 0) {
+                //     return '-';
+                // }
+
+                // $action .= '<a class="btn btn-success  btn-sm" title="Clear cheque"
+                //                 data-toggle="modal" data-target="#modal-clear-payable"
+                //                 data-clear-type="single" data-det-id="' . $row->id . '" data-amount="' . (toNumeric($row->payment_amount) - (float) ($row->paid_total ?? 0)) . '" data-mode-id="' . ($row->payment_mode_id ?? '') . '"
+                // data-company-id="' . ($row->contract->company_id ?? '') . '"
+                // data-bank-id="' . ($row->bank_id ?? '') . '"
+                // data-cheque-no="' . e($row->cheque_no ?? '') . '">Clear</a>';
+
+                // $action .= '<a class="btn btn-warning btn-sm" title="Give discount"
+                // data-toggle="modal" data-target="#modal-discount"
+                // data-det-id="' . $row->id . '"
+                // data-amount="' . $remaining . '"><i class="fas fa-percent"></i></a>';
 
 
-                $action .= '<a class="btn btn-success  btn-sm" title="Clear cheque"
+                // return $action ?: '-';
+                // $remaining = toNumeric($row->payment_amount)
+                //     - (float) ($row->discount_amount ?? 0)
+                //     - (float) ($row->paid_total ?? 0);
+                $remaining = toNumeric($row->payment_amount) - (float) ($row->paid_total ?? 0);
+                $dueDate = \Carbon\Carbon::parse($row->payment_date)->format('d-m-Y');
+
+                $action = '<div class="d-flex flex-nowrap" style="gap:4px;">';
+                $action .= '<a class="btn btn-warning btn-sm lossDiscountBtn" title="Loss / Discount"
+                data-det-id="' . $row->id . '"
+                data-due-date="'.$dueDate.'"
+                data-amount="' . $remaining . '"><i class="fas fa-percent"></i></a>';
+
+                $action .= '<a class="btn btn-success btn-sm" title="Clear cheque"
                                 data-toggle="modal" data-target="#modal-clear-payable"
-                                data-clear-type="single" data-det-id="' . $row->id . '" data-amount="' . (toNumeric($row->payment_amount) - (float) ($row->paid_total ?? 0)) . '" data-mode-id="' . ($row->payment_mode_id ?? '') . '"
-                data-company-id="' . ($row->contract->company_id ?? '') . '"
-                data-bank-id="' . ($row->bank_id ?? '') . '"
-                data-cheque-no="' . e($row->cheque_no ?? '') . '">Clear</a>';
+                                data-clear-type="single"
+                                data-det-id="' . $row->id . '"
+                                data-amount="' . $remaining . '"
+                                data-mode-id="' . ($row->payment_mode_id ?? '') . '"
+                                data-company-id="' . ($row->contract->company_id ?? '') . '"
+                                data-bank-id="' . ($row->bank_id ?? '') . '"
+                                data-cheque-no="' . e($row->cheque_no ?? '') . '">Clear</a>';
 
+                $action .= '</div>';
 
-                return $action ?: '-';
+                return $action;
             })
 
             ->orderColumn('project_number', function ($q, $order) use ($contract) {
@@ -199,7 +242,7 @@ class PayableClearingService
                 $q->orderByRaw("(contract_payment_details.payment_amount - COALESCE(paid_total, 0)) $order");
             })
 
-            ->rawColumns(['checkbox', 'project_number', 'action', 'status'])
+            ->rawColumns(['checkbox', 'project_number','payment_amount', 'action', 'status'])
             ->with(['columns' => $columns])
             ->toJson();
     }
@@ -220,14 +263,26 @@ class PayableClearingService
         foreach ($paymentDetIds as $paymentDetId) {
             $paymentdetails = $this->paymentDetRepo->find($paymentDetId);
 
-            $pendingAmt = 0;
-            if ($data['method'] == 'single') {
+            $alreadyPaid = $paymentdetails->payables
+                ? $paymentdetails->payables->where('returned_status', 0)->sum('paid_amount')
+                : 0;
 
-                if ($paymentdetails->payables) {
-                    $paid = totalPaidPayable($paymentdetails->payables);
+            $pendingBefore = toNumeric($paymentdetails->payment_amount)
+                - (float) $alreadyPaid
+                - (float) ($paymentdetails->discount_amount ?? 0);
+
+            if ($data['method'] == 'single') {
+                $paidAmount = toNumeric($data['paid_amount']);
+
+                // can't be more than what is pending
+                if ($paidAmount > $pendingBefore) {
+                    throw new \Exception('Clearing amount cannot be more than the pending amount.');
                 }
 
-                $pendingAmt = toNumeric($paymentdetails->payment_amount) - $paid - toNumeric($data['paid_amount']);
+                $pendingAmt = $pendingBefore - $paidAmount;
+            } else {
+                $paidAmount = $pendingBefore;
+                $pendingAmt = 0;
             }
             $paidMode = $data['paid_mode'] ?? $paymentdetails->payment_mode_id;
 
@@ -236,7 +291,7 @@ class PayableClearingService
                 'company_id' => $data['company_id'],
                 'contract_payment_detail_id' => $paymentDetId,
                 'paid_date' => $data['paid_date'],
-                'paid_amount' => $data['paid_amount'] ?? toNumeric($paymentdetails->payment_amount),
+                'paid_amount' => $paidAmount,
                 'pending_amount' => $pendingAmt,
                 'paid_by' => auth()->user()->id,
                 'paid_mode' => $paidMode,
@@ -244,7 +299,7 @@ class PayableClearingService
                 // 'paid_cheque_number' => $data['paid_cheque_number'] ?? null,
                 'paid_cheque_number' => $paidMode == 3
                     ? ($data['paid_cheque_number'] ?? $paymentdetails->cheque_no)
-                    : null,
+                : null,
                 'bank_reference'             => $paidMode == 1 ? null : ($data['bank_reference'] ?? null),
                 'payment_remarks' => $data['payment_remarks'] ?? null,
             );
@@ -253,14 +308,14 @@ class PayableClearingService
                 'paid_status' => ($pendingAmt == 0) ? 1 : 2,
             );
         }
-
+// dd($payable);
         return DB::transaction(function () use ($paymentdet, $payable) {
             // DB::enableQueryLog();
             // dump($payable);
             // dd($paymentdet);
             $paidIds = $this->paymentDetRepo->updateMany($paymentdet);
 
-            $payableIds = $this->payableClearRepo->createMany($payable);
+        $payableIds = $this->payableClearRepo->createMany($payable);
 
             foreach ($paidIds as $paidId) {
                 $detail = $this->paymentDetRepo->find($paidId);

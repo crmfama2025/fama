@@ -8,6 +8,7 @@ use App\Models\ContractPayableClear;
 use App\Models\ContractPaymentDetail;
 use App\Services\BankService;
 use App\Services\CompanyService;
+use Illuminate\Support\Facades\DB;
 use App\Services\PayableClearingService;
 use App\Services\PaymentModeService;
 use Carbon\Carbon;
@@ -46,6 +47,7 @@ class PayableClearingController extends Controller
 
     public function submitPayables(Request $request)
     {
+        // dd($request->all());
         try {
             $paidDet = $this->payableClear->PayableSave($request->all());
 
@@ -152,5 +154,64 @@ class PayableClearingController extends Controller
         $search = request('search') ?? null;
 
         return Excel::download(new PayableExport($search, $filters), 'payable-paid-report.xlsx');
+    }
+    public function saveDiscount(Request $request)
+    {
+        $request->validate([
+            'id'                    => 'required|exists:contract_payment_details,id',
+            'loss_discount_date'    => 'required|date_format:d-m-Y',
+            'loss_discount_amount'  => 'required|numeric|gt:0',
+            'loss_discount_remarks' => 'nullable|string|max:1000',
+        ]);
+
+        try {
+            DB::transaction(function () use ($request) {
+                $detail = ContractPaymentDetail::lockForUpdate()->findOrFail($request->id);
+
+                // raw value, because the accessor returns a comma-formatted string
+                $total   = (float) $detail->getRawOriginal('payment_amount');
+                $already = (float) ContractPayableClear::where('contract_payment_detail_id', $detail->id)
+                    ->sum('paid_amount');
+                $pending = round($total - $already, 4);
+
+                $discount = (float) $request->loss_discount_amount;
+
+                if ($discount > $pending) {
+                    throw new \Exception('Discount cannot be more than the pending amount (' . $pending . ').');
+                }
+
+                $newPending = round($pending - $discount, 4);
+                $date = Carbon::createFromFormat('d-m-Y', $request->loss_discount_date)
+                    ->format('Y-m-d H:i:s');
+
+                // 1) discount info on the payment detail
+                $detail->update([
+                    'is_discounted'   => 1,
+                    'discount_amount' => (float) $detail->getRawOriginal('discount_amount') + $discount,
+                    'discount_date'   => $date,
+                    'discount_reason' => $request->loss_discount_remarks,
+                    'discounted_by'   => auth()->id(),
+                    // replace 1 with whatever value your system uses for "fully paid"
+                    'paid_status'     => $newPending <= 0 ? 1 : $detail->paid_status,
+                ]);
+
+                // 2) discount entry in the clearing table
+                ContractPayableClear::create([
+                    'contract_id'                => $detail->contract_id,
+                    'contract_payment_detail_id' => $detail->id,
+                    'paid_amount'                => $discount,
+                    'pending_amount'             => $newPending,
+                    'paid_date'                  => $date,
+                    'paid_mode'                  => 1,
+                    'paid_by'                    => auth()->id(),
+                    'payment_remarks'            => $request->loss_discount_remarks,
+                    'is_discount'                => 1,
+                ]);
+            });
+
+            return response()->json(['message' => 'Discount saved successfully.']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
     }
 }
