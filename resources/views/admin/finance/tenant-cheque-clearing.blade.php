@@ -1904,10 +1904,34 @@
 
             projectSelect.empty().append('<option value="">Select Project</option>');
 
+            // if (companyId) {
+            //     let filteredContracts = contracts.filter(function(contract) {
+            //         return contract.company_id == companyId;
+            //     });
+
+            //     filteredContracts.forEach(function(contract) {
+            //         projectSelect.append(
+            //             $('<option>', {
+            //                 value: contract.id,
+            //                 text: contract.project_number
+            //             })
+            //         );
+            //     });
+            // }
             if (companyId) {
-                let filteredContracts = contracts.filter(function(contract) {
-                    return contract.company_id == companyId;
-                });
+                let filteredContracts = contracts
+                    .filter(function(contract) {
+                        return contract.company_id == companyId;
+                    })
+                    .sort(function(a, b) {
+                        return String(a.project_number || '').localeCompare(
+                            String(b.project_number || ''),
+                            undefined, {
+                                numeric: true,
+                                sensitivity: 'base'
+                            }
+                        );
+                    });
 
                 filteredContracts.forEach(function(contract) {
                     projectSelect.append(
