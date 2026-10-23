@@ -52,6 +52,11 @@ class InvestorService
         return $this->investorRepo->allActive();
     }
 
+    public function getAllActiveHavingInvestments()
+    {
+        return $this->investorRepo->getAllActiveHaveInvestments();
+    }
+
     public function getById($id)
     {
         return $this->investorRepo->find($id);

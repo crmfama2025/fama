@@ -168,7 +168,6 @@ class PayableClearingController extends Controller
             DB::transaction(function () use ($request) {
                 $detail = ContractPaymentDetail::lockForUpdate()->findOrFail($request->id);
 
-                // raw value, because the accessor returns a comma-formatted string
                 $total   = (float) $detail->getRawOriginal('payment_amount');
                 $already = (float) ContractPayableClear::where('contract_payment_detail_id', $detail->id)
                     ->sum('paid_amount');
@@ -184,18 +183,15 @@ class PayableClearingController extends Controller
                 $date = Carbon::createFromFormat('d-m-Y', $request->loss_discount_date)
                     ->format('Y-m-d H:i:s');
 
-                // 1) discount info on the payment detail
                 $detail->update([
                     'is_discounted'   => 1,
                     'discount_amount' => (float) $detail->getRawOriginal('discount_amount') + $discount,
                     'discount_date'   => $date,
                     'discount_reason' => $request->loss_discount_remarks,
                     'discounted_by'   => auth()->id(),
-                    // replace 1 with whatever value your system uses for "fully paid"
                     'paid_status'     => $newPending <= 0 ? 1 : $detail->paid_status,
                 ]);
 
-                // 2) discount entry in the clearing table
                 ContractPayableClear::create([
                     'contract_id'                => $detail->contract_id,
                     'contract_payment_detail_id' => $detail->id,

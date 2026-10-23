@@ -131,36 +131,12 @@ class PayableClearingService
             })
             ->addColumn('action', function ($row) {
                 $action = '';
-                //  $remaining = toNumeric($row->payment_amount)
-                //     - (float) ($row->discount_amount ?? 0)
-                //     - (float) ($row->paid_total ?? 0);
-
-                // if ($remaining <= 0) {
-                //     return '-';
-                // }
-
-                // $action .= '<a class="btn btn-success  btn-sm" title="Clear cheque"
-                //                 data-toggle="modal" data-target="#modal-clear-payable"
-                //                 data-clear-type="single" data-det-id="' . $row->id . '" data-amount="' . (toNumeric($row->payment_amount) - (float) ($row->paid_total ?? 0)) . '" data-mode-id="' . ($row->payment_mode_id ?? '') . '"
-                // data-company-id="' . ($row->contract->company_id ?? '') . '"
-                // data-bank-id="' . ($row->bank_id ?? '') . '"
-                // data-cheque-no="' . e($row->cheque_no ?? '') . '">Clear</a>';
-
-                // $action .= '<a class="btn btn-warning btn-sm" title="Give discount"
-                // data-toggle="modal" data-target="#modal-discount"
-                // data-det-id="' . $row->id . '"
-                // data-amount="' . $remaining . '"><i class="fas fa-percent"></i></a>';
-
-
-                // return $action ?: '-';
-                // $remaining = toNumeric($row->payment_amount)
-                //     - (float) ($row->discount_amount ?? 0)
-                //     - (float) ($row->paid_total ?? 0);
+               
                 $remaining = toNumeric($row->payment_amount) - (float) ($row->paid_total ?? 0);
                 $dueDate = \Carbon\Carbon::parse($row->payment_date)->format('d-m-Y');
 
                 $action = '<div class="d-flex flex-nowrap" style="gap:4px;">';
-                $action .= '<a class="btn btn-warning btn-sm lossDiscountBtn" title="Loss / Discount"
+                $action .= '<a class="btn btn-warning btn-sm lossDiscountBtn" title="Discount"
                 data-det-id="' . $row->id . '"
                 data-due-date="'.$dueDate.'"
                 data-amount="' . $remaining . '"><i class="fas fa-percent"></i></a>';

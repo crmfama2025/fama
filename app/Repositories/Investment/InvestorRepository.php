@@ -19,6 +19,11 @@ class InvestorRepository
         return Investor::where('status', 1)->get();
     }
 
+    public function getAllActiveHaveInvestments()
+    {
+        return Investor::whereHas('investments')->where('status', 1)->get();
+    }
+
     public function find($id)
     {
         return Investor::findOrFail($id);
@@ -120,7 +125,7 @@ class InvestorRepository
 
     //     return $query; // ✅ ALWAYS return Builder
     // }
-    
+
     public function getQuery(array $filters = []): Builder
     {
         $query = Investor::query()
@@ -205,16 +210,16 @@ class InvestorRepository
                             'like',
                             "%{$search}%"
                         )
-                        ->orWhere(
-                            'investor_bank_name',
-                            'like',
-                            "%{$search}%"
-                        )
-                        ->orWhere(
-                            'investor_iban',
-                            'like',
-                            "%{$search}%"
-                        );
+                            ->orWhere(
+                                'investor_bank_name',
+                                'like',
+                                "%{$search}%"
+                            )
+                            ->orWhere(
+                                'investor_iban',
+                                'like',
+                                "%{$search}%"
+                            );
                     });
                 })
                 ->orWhereHas('referral', function ($related) use ($search) {
@@ -231,7 +236,7 @@ class InvestorRepository
 
     public function insertBulk(array $rows)
     {
-        return Investor::insert($rows); 
+        return Investor::insert($rows);
     }
 
     public function getInvestorsWithDetails()

@@ -30,13 +30,20 @@ class Lead extends Model
         'created_by',
         'updated_by',
         'deleted_by',
-        'total_allocation'
+        'total_allocation',
+        'staff_per_room',
+        'budget',
+        'moving_date',
+        'lead_category',
     ];
 
     protected $casts = [
         'total_staff' => 'integer',
         'status' => 'integer',
         'assigned_at' => 'datetime',
+        'staff_per_room' => 'integer',
+        'budget'         => 'decimal:2',
+        'moving_date'    => 'date:Y-m-d',
     ];
 
     /*

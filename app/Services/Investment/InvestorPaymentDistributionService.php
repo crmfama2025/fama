@@ -423,6 +423,42 @@ class InvestorPaymentDistributionService
                 );
             })
 
+            ->orderColumn('investor_name', function ($query, $order) {
+                $query->orderBy(
+                    \App\Models\Investor::select('investor_name')
+                        ->whereColumn('investors.id', 'investor_payouts.investor_id'),
+                    $order
+                );
+            })
+
+            ->orderColumn('investment_code', function ($query, $order) {
+                $query->orderBy(
+                    \App\Models\Investment::select('investment_code')
+                        ->whereColumn('investments.id', 'investor_payouts.investment_id'),
+                    $order
+                );
+            })
+
+            ->orderColumn('company_name', function ($query, $order) {
+                $query->orderBy(
+                    \App\Models\Company::select('company_name')
+                        ->join('investments', 'investments.company_id', '=', 'companies.id')
+                        ->whereColumn('investments.id', 'investor_payouts.investment_id'),
+                    $order
+                );
+            })
+
+            ->orderColumn('payout_date', function ($query, $order) {
+                $query->reorder()
+                    ->orderByRaw('investor_payouts.original_profit_date IS NULL')
+                    ->orderBy('investor_payouts.original_profit_date', $order)
+                    ->orderBy('investor_payouts.id', 'asc');
+            })
+
+            ->orderColumn('payout_type', function ($query, $order) {
+                $query->orderBy('investor_payouts.payout_type', $order);
+            })
+
             ->addColumn('action', function ($row) {
                 $action = '<div class="d-flex align-items-center">';
 

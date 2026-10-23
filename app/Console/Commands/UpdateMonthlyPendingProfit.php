@@ -137,7 +137,6 @@ class UpdateMonthlyPendingProfit extends Command
                                         ->exists();
 
                                     if (!$exists) {
-
                                         $payout =  $this->createInvestorpayout(
                                             1,
                                             $currentMonthStart,
@@ -189,10 +188,12 @@ class UpdateMonthlyPendingProfit extends Command
                                     $profitRecord = InvestmentProfitRecord::where('investment_id', $investment->id)
                                         ->whereMonth('profit_release_month', Carbon::parse($currentMonthStart)->month)
                                         ->whereYear('profit_release_month', Carbon::parse($currentMonthStart)->year)
+                                        ->where('has_profit_amount', 1)
                                         ->first();
                                     $profitRecordId = $profitRecord ? $profitRecord->id : null;
-
-                                    $payout = $this->createInvestorpayout(1, $currentMonthStart, $investment, null, null, $nextProfitRelease, $profitRecord);
+                                    if ($profitRecord) {
+                                        $payout = $this->createInvestorpayout(1, $currentMonthStart, $investment, null, null, $nextProfitRelease, $profitRecord);
+                                    }
                                 }
                                 // }
 
@@ -295,11 +296,13 @@ class UpdateMonthlyPendingProfit extends Command
             $originalDate,
             $profitRecord
         ) {
+
             $amount = 0;
             $payoutReferrenceId = null;
             $org = $originalDate ? $originalDate->copy() : null;
 
             switch ($payout_type) {
+
                 case 1: // PROFIT
                     if ($amountOverride > 0) { //partial withdrwal
                         $amount = $amountOverride;

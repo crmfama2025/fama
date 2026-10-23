@@ -110,15 +110,25 @@ class LeadService
             'email' => ['nullable', 'email', 'max:255'],
             'lead_source' => ['required', 'string', 'max:255'],
             'total_staff' => ['nullable', 'integer', 'min:0'],
+            'staff_per_room' => ['nullable', 'integer', 'min:0'],          // new
             'required_location' => ['nullable', 'string', 'max:255'],
+            'budget' => ['nullable', 'numeric', 'min:0'],                  // new
+            'moving_date' => ['nullable', 'date'],                         // new
+            'lead_category' => ['required', Rule::in(['C1', 'C2', 'C3'])], 
             'requirement' => ['required', 'string'],
             'status' => ['nullable', 'integer', Rule::in([0, 1])],
+            
         ], [
             'contact_person_name.required' => 'Contact person name is required.',
             'phone_number.required' => 'Phone number is required.',
             'email.email' => 'Please enter a valid email address.',
             'lead_source.required' => 'Lead source is required.',
             'total_staff.integer' => 'Total staff must be a number.',
+            'staff_per_room.integer' => 'Staff per room must be a number.',        // new
+            'budget.numeric' => 'Budget must be a valid number.',                  // new
+            'moving_date.date' => 'Please enter a valid moving date.',          
+            'lead_category.required' => 'Please select a category (C1, C2 or C3).', 
+            'lead_category.in' => 'Category must be C1, C2 or C3.',   
             'requirement.required' => 'Requirement is required.',
         ]);
 
