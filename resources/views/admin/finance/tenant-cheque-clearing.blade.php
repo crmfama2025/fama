@@ -1875,7 +1875,7 @@
                     $('#modal-loss-discount').modal('hide');
                     $('#lossDiscountForm')[0].reset();
                     table.ajax.reload(null, false); // Reload DataTable without resetting pagination
-                    window.location.reload();
+                    // window.location.reload();
                     hideLoader();
                 },
                 error: function(xhr) {
