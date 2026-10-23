@@ -82,9 +82,7 @@
                                             <div class="col-md-3">
                                                 <label for="company_id">Invested Company</label>
 
-                                                <select class="form-control select2"
-                                                        name="company_id"
-                                                        id="company_id">
+                                                <select class="form-control select2" name="company_id" id="company_id">
                                                     <option value="">Select Company</option>
 
                                                     @foreach ($investedCompanies as $company)
@@ -108,7 +106,7 @@
                                         <!-- <h3 class="card-title">Property Details</h3> -->
                                         <span class="float-right">
                                             <!-- <button class="btn btn-info float-right m-1" data-toggle="modal"
-                                                                                                                                                                                                                                                                                data-target="#modal-Property">Add Investor Payout</button> -->
+                                                                                                                                                                                                                                                                                                    data-target="#modal-Property">Add Investor Payout</button> -->
 
                                             <button class="btn btn-success float-right m-1 bulktriggerbtn"
                                                 data-toggle="modal" data-target="#modal-payout"
@@ -490,74 +488,45 @@
                 columns: [{
                         data: 'checkbox',
                         name: 'checkbox',
-                        orderable: false
-                        // searchable: false
+                        orderable: false,
+                        searchable: false
                     },
                     {
                         data: 'investor_name',
-                        name: 'investor_name',
+                        name: 'investor_name'
                     },
                     {
                         data: 'company_name',
-                        name: 'company_name',
+                        name: 'company_name'
                     },
                     {
                         data: 'investment_code',
-                        name: 'investment.investment_code',
+                        name: 'investment_code'
                     },
                     {
                         data: 'payout_date',
                         name: 'payout_date',
+                        searchable: false
                     },
                     {
                         data: 'payout_type',
-                        name: 'payout_type',
+                        name: 'payout_type'
                     },
-                    // {
-                    //     data: 'property_name',
-                    //     name: 'contract.property.property_name',
-                    // },
                     {
                         data: 'payout_amount',
-                        name: 'payout_amount',
+                        name: 'payout_amount'
                     },
                     {
                         data: 'payment_mode',
                         name: 'payment_mode',
+                        orderable: false,
+                        searchable: false
                     },
-                    // {
-                    //     data: 'cheque_no',
-                    //     name: 'contract_payment_details.cheque_no',
-                    // },
-                    // {
-                    //     data: 'payment_amount',
-                    //     name: 'payment_amount',
-                    // },
-                    // {
-                    //     data: 'composition',
-                    //     name: 'composition',
-                    // },
-                    // {
-                    //     data: 'has_returned',
-                    //     name: 'has_returned',
-                    //     render: function(data, type, row) {
-                    //         if (data == 1) {
-                    //             return '<span class="badge bg-danger text-white">Returned</span><i class="far fa-comments loadReason pl-1" onclick="loadReason(this)" data-reason="' +
-                    //                 row.returned_reason + '"></i>';
-
-
-
-                    //         }
-                    //         return '-';
-
-                    //     },
-                    // },
-
                     {
                         data: 'action',
                         name: 'action',
-                        orderable: false
-                        // searchable: false
+                        orderable: false,
+                        searchable: false
                     },
                 ],
                 rowCallback: function(row, data, index) {
@@ -570,7 +539,7 @@
 
                 },
                 order: [
-                    [0, 'desc']
+                    [4, 'desc']
                 ],
                 dom: 'Bfrtip',
                 buttons: [{

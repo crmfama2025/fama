@@ -815,7 +815,7 @@ class InvestmentService
         $columns = [
             ['data' => 'DT_RowIndex', 'name' => 'id'],
             ['data' => 'company_name', 'name' => 'company.company_name'],
-            ['data' => 'invested_company_name','name' => 'invested_company_name'],
+            ['data' => 'invested_company_name', 'name' => 'invested_company_name'],
             ['data' => 'investor_name', 'name' => 'investor.investor_name'],
             ['data' => 'investment_amount', 'name' => 'investment_amount'],
             ['data' => 'total_received_amount', 'name' => 'total_received_amount'],
@@ -909,7 +909,7 @@ class InvestmentService
 
                 return '-';
             })
-         
+
             ->filterColumn('added_by', function ($query, $keyword) {
                 $like = '%' . trim($keyword) . '%';
 
@@ -924,7 +924,7 @@ class InvestmentService
                     });
                 });
             })
-      
+
             ->filterColumn('invested_company_name', function ($query, $keyword) {
                 $query->where(function ($q) use ($keyword) {
                     $q->whereHas(
@@ -961,7 +961,7 @@ class InvestmentService
                 );
             })
 
-        
+
             ->orderColumn('invested_company_name', function ($query, $order) {
                 $direction = strtolower($order) === 'desc' ? 'desc' : 'asc';
 
@@ -1025,13 +1025,13 @@ class InvestmentService
                         </a>';
                     }
                 } else {
-                    if (auth()->user()->hasAnyPermission(['investment.edit'], $row->company_id) && $row->is_profit_processed == 0 && $row->has_partial_withdrawal == 0) {
-                        $action .= '<a href="' . route('investment.edit', $row->id) . '"
+                    // if (auth()->user()->hasAnyPermission(['investment.edit'], $row->company_id) && $row->is_profit_processed == 0 && $row->has_partial_withdrawal == 0) {
+                    $action .= '<a href="' . route('investment.edit', $row->id) . '"
                             class="btn btn-sm btn-info m-1 editInvestment"
                             title="Edit Investment">
                             <i class="fas fa-edit"></i>
                         </a>';
-                    }
+                    // }
                     if (auth()->user()->hasAnyPermission(['investment.view'], $row->company_id)) {
                         $action .= '<a href="' . route('investment.show', $row->id) . '"
                             class="btn btn-sm btn-primary m-1"
@@ -1203,7 +1203,7 @@ class InvestmentService
             ]);
         });
     }
-   
+
     public function getFormDataEdit()
     {
         $investors = $this->investorRepository->getInvestorsWithDetails();
