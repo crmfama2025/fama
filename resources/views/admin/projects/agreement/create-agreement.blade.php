@@ -1399,6 +1399,8 @@
             }
             //  else if (selectedContractType && selectedContractType.contract_type === 'Direct Fama') {
             else if (contract.contract_type_id == 1) {
+                console.log(contract.contract_unit.business_type, contract.contract_type_id);
+
                 if (contract.contract_unit.business_type === 2) {
                     $('#tenant_select_div').addClass('d-none');
                     $('#tenant_details_card').removeClass('d-none');
