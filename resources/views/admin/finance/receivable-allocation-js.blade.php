@@ -181,7 +181,7 @@
                 apReceivables = res.data || [];
 
                 if (apReceivables.length === 0) {
-                    toastr.info('No pending receivables found for this tenant.');
+                    toastr.info('No pending receivables found for this company.');
                     $('#ap_submit_btn').prop('disabled', true);
                     $('#ap_rows').html('');
                     $('#ap_summary').hide();
@@ -384,6 +384,7 @@
                 <div class="card-body py-2 px-3">
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
+                            <strong style="font-size:13px; color:#d63384; background:#fff0f6; padding:1px 6px; border-radius:4px;">${r.company_name}</strong> |
                             <strong style="font-size:13px;">P-${r.project_number}</strong> |
                              <strong style="font-size:13px;"> Unit - ${r.unit_number}</strong> |
                             ${r.subunit_number && r.subunit_number !== '-'

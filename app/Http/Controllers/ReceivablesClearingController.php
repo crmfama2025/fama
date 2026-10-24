@@ -160,9 +160,15 @@ class ReceivablesClearingController extends Controller
             'company_id' => 'required|integer|exists:companies,id',
 
         ]);
+        // dd($request->all());
+
+
 
         $tenantId = $request->tenant_id;
         $companyId = $request->company_id;
+        if (!auth()->user()->hasAnyPermission(['finance.receivable_cheque_clearing'], $companyId)) {
+            return response()->json(['data' => [], 'message' => 'Unauthorized'], 403);
+        }
         $fromDate = $request->from_date ? Carbon::createFromFormat('d-m-Y', $request->from_date)->format('Y-m-d') : null;
         $toDate   = $request->to_date ? Carbon::createFromFormat('d-m-Y', $request->to_date)->format('Y-m-d') : null;
 
@@ -248,6 +254,7 @@ class ReceivablesClearingController extends Controller
                 'unit_number' => $detail->agreementUnit->contractUnitDetail?->unit_number ?? '-',
                 'subunit_number' => $detail->agreementUnit->contractSubunitDetail?->subunit_no ?? '-',
                 'project_number' => $detail->agreement->contract->project_number ?? '-',
+                'company_name' => $detail->agreementPayment?->agreement?->contract?->company?->company_short_code ?? '-',
             ];
         });
         // dd($receivables);
