@@ -1179,7 +1179,7 @@
             console.log('test', renewalContractId);
             // alert("called");
             if (editedUnit) {
-                console.log('edited unit found', contract?.contract_type_id);
+                // console.log('edited unit found', contract?.contract_type_id);
                 // $(this).prop('readonly', true);
                 $('#contract_id').on('select2:opening', function(e) {
                     e.preventDefault();
