@@ -1302,6 +1302,7 @@
             // if (
             //     // (selectedContractType && selectedContractType.contract_type === 'Fama Faateh')
             // )
+            console.log('Contract Type:', contract.contract_type_id);
             if (contract.contract_type_id == 2) {
                 $('#tenant_details_card').addClass('d-none');
                 $('#tenant_select_div').removeClass('d-none');
