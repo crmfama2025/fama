@@ -466,7 +466,11 @@ class InvestorPaymentDistributionService
                     data-clear-type="single"
                     data-reinvest="0"
                     data-det-id="' . $row->id . '"
-                    data-amount="' . $row->amount_pending . '">
+                    data-amount="' . $row->amount_pending . '"
+                    data-mode-id="' . ($row->payment_mode_id ?? '') . '"
+                    data-company-id="' . ($row->investment->company_id ?? '') . '"
+                    data-bank-id="' . ($row->bank_id ?? '') . '"
+                    data-cheque-no="' . e($row->cheque_no ?? '') . '">
                     <i class="fas fa-dollar-sign"></i>
                 </a>';
 

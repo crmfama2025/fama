@@ -106,7 +106,7 @@
                                         <!-- <h3 class="card-title">Property Details</h3> -->
                                         <span class="float-right">
                                             <!-- <button class="btn btn-info float-right m-1" data-toggle="modal"
-                                                                                                                                                                                                                                                                                                    data-target="#modal-Property">Add Investor Payout</button> -->
+                                                                                                                                                                                                                                                                                                        data-target="#modal-Property">Add Investor Payout</button> -->
 
                                             <button class="btn btn-success float-right m-1 bulktriggerbtn"
                                                 data-toggle="modal" data-target="#modal-payout"
@@ -461,6 +461,25 @@
                     $('#submitBtn').text('Submit');
                     $('#paid_amount').attr('readonly', false);
                     $('#amountPending').text('Remaining Amount: ' + button.data('amount'));
+
+                    const modeId = button.attr('data-mode-id');
+                    const companyId = button.attr('data-company-id');
+                    const bankId = button.attr('data-bank-id');
+                    const chequeNo = button.attr('data-cheque-no');
+
+                    if (modeId) {
+                        $('.singleClear[value="' + modeId + '"]').prop('checked', true);
+                        applyPaymentMode(modeId);
+                    }
+
+                    if (companyId) {
+                        $('#paid_company').val(companyId).trigger('change').prop('disabled', true);
+                    }
+                    if (bankId) {
+                        $('#bank_name').val(bankId).trigger('change');
+                    }
+                    $('#cheque_no').val(chequeNo || '');
+
                 }
 
                 $('.clrngamnt').show();
