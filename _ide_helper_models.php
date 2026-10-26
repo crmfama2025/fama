@@ -1109,6 +1109,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property int|null $company_id
  * @property int $returned_status 0-Normal Clear, 1-Returned
+ * @property int $is_discount
  * @property-read \App\Models\Company|null $company
  * @property-read \App\Models\Contract|null $contract
  * @property-read \App\Models\ContractPaymentDetail|null $contractPaymentDetail
@@ -1124,6 +1125,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPayableClear whereContractPaymentDetailId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPayableClear whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPayableClear whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ContractPayableClear whereIsDiscount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPayableClear wherePaidAmount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPayableClear wherePaidBank($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPayableClear wherePaidBy($value)
@@ -1207,6 +1209,11 @@ namespace App\Models{
  * @property string|null $returned_reason
  * @property int $returned_by
  * @property int $terminate_status 0-Active, 1-Terminated
+ * @property int $is_discounted
+ * @property string $discount_amount
+ * @property string|null $discount_date
+ * @property string|null $discount_reason
+ * @property int|null $discounted_by
  * @property-read \App\Models\User|null $addedBy
  * @property-read \App\Models\Bank|null $bank
  * @property-read \App\Models\Contract|null $contract
@@ -1235,8 +1242,13 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPaymentDetail whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPaymentDetail whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPaymentDetail whereDeletedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ContractPaymentDetail whereDiscountAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ContractPaymentDetail whereDiscountDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ContractPaymentDetail whereDiscountReason($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ContractPaymentDetail whereDiscountedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPaymentDetail whereHasReturned($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPaymentDetail whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ContractPaymentDetail whereIsDiscounted($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPaymentDetail wherePaidStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPaymentDetail wherePaymentAmount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ContractPaymentDetail wherePaymentDate($value)
@@ -2320,7 +2332,7 @@ namespace App\Models{
  * @property string $release_status
  * @property string $released_total_amount
  * @property \Illuminate\Support\Carbon|null $last_released_at
- * @property string|null $last_released_by
+ * @property int|null $last_released_by
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
@@ -3181,21 +3193,13 @@ namespace App\Models{
  * @property string|null $email
  * @property string $lead_source
  * @property int|null $total_staff
+ * @property int|null $staff_per_room
  * @property string|null $required_location
+ * @property string|null $budget
+ * @property \Illuminate\Support\Carbon|null $moving_date
+ * @property string|null $lead_category
  * @property string $requirement
- * @property int $status 
- *                 0 = Pending,
- *                 1 = Processing,
- *                 2 = Interested,
- *                 3 = Call Back,
- *                 4 = No Answer,
- *                 5 = Not Interested,
- *                 6 = Meeting Scheduled,
- *                 7 = Proposal Sent,
- *                 8 = Negotiation,
- *                 9 = Converted,
- *                 10 = Lost,
- *                 11 = Others
+ * @property int $status 0 = Pending, 1 = processing
  * @property int|null $assigned_to
  * @property int|null $assigned_by
  * @property \Illuminate\Support\Carbon|null $assigned_at
@@ -3226,6 +3230,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Lead whereAssignedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Lead whereAssignedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Lead whereAssignedTo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Lead whereBudget($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Lead whereCompanyName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Lead whereContactPersonName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Lead whereCreatedAt($value)
@@ -3234,11 +3239,14 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|Lead whereDeletedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Lead whereEmail($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Lead whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Lead whereLeadCategory($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Lead whereLeadCode($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Lead whereLeadSource($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Lead whereMovingDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Lead wherePhoneNumber($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Lead whereRequiredLocation($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Lead whereRequirement($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Lead whereStaffPerRoom($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Lead whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Lead whereTotalAllocation($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Lead whereTotalStaff($value)

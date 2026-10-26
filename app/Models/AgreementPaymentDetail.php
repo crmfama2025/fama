@@ -51,6 +51,7 @@ class AgreementPaymentDetail extends Model
         'loss_discount_amount',
         'loss_discount_date',
         'loss_discount_remarks',
+        'loss_or_discounted_by'
     ];
 
     /**

@@ -899,6 +899,7 @@ class TenantChequeService
                 'loss_discount_amount' => $ld_amount,
                 'loss_discount_date' => $lossDiscountDate,
                 'loss_discount_remarks' => $data['loss_discount_remarks'] ?? null,
+                'loss_or_discounted_by' => auth()->id()
             ]);
 
             $cleared_data = [
