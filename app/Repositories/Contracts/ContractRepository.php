@@ -299,7 +299,7 @@ class ContractRepository
         ])
             ->withCount('contract_payment_receivables')
             ->withSum('contract_payment_receivables', 'receivable_amount')
-            ->whereIn('contract_status', [1, 7])
+            ->whereIn('contract_status', [1, 2, 7])
             ->where('is_vendor_contract_uploaded', 1)
             // ->where('is_agreement_added', 0)
             ->when($contractId, fn($q) => $q->where('contracts.id', $contractId))
@@ -419,7 +419,7 @@ class ContractRepository
             );
         }
 
-        
+
         if (!empty($filters['start_date'])) {
             $startDate = Carbon::createFromFormat(
                 'd-m-Y',
@@ -446,7 +446,7 @@ class ContractRepository
             );
         }
 
-                // dd($query->tosql());
+        // dd($query->tosql());
 
         return $query;
     }
