@@ -242,6 +242,7 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
 
 
     Route::get('payout/payout-pending-list', [InvestorPaymentDistributionController::class, 'getPayouts'])->name('payout.pending.list');
+    Route::get('payout/payout-pending-select-all', [InvestorPaymentDistributionController::class, 'getSelectAllPayouts'])->name('payout.pending.select_all');
     Route::get('payout/distributed-report', [InvestorPaymentDistributionController::class, 'distributedReport'])->name('distributed.report');
     Route::get('payout/distributed-list', [InvestorPaymentDistributionController::class, 'getDistributedList'])->name('distributed.list');
     Route::post('payout/payout-distribute-save', [InvestorPaymentDistributionController::class, 'savePayouts'])->name('payout.distribute.save');

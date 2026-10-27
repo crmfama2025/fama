@@ -1927,6 +1927,10 @@ if (!function_exists('getBankListByRegion')) {
                     'name' => 'Wio Bank',
                     'arabic' => 'بنك ويو',
                 ],
+                [
+                    'name' => 'National Bank of Abu Dhabi',
+                    'arabic' => 'بنك أبوظبي الوطني',
+                ],
             ],
 
             // International Banks

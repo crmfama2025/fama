@@ -220,6 +220,7 @@ class InvestorPaymentDistributionRepository
       
         return $query;
     }
+    
 
 
     public function getDistributedList(array $filters = []): Builder

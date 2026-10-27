@@ -872,6 +872,61 @@
                                             </div>
 
                                         </div>
+                                        {{-- Staff Per Room --}}
+                                        <div class="summary-item">
+                                            <div class="summary-icon">
+                                                <i class="fas fa-bed"></i>
+                                            </div>
+                                            <div class="summary-content">
+                                                <span class="summary-label">Staff Per Room</span>
+                                                <div class="summary-value">
+                                                    {{ $lead->staff_per_room !== null ? number_format($lead->staff_per_room) : '-' }}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {{-- Budget --}}
+                                        <div class="summary-item">
+                                            <div class="summary-icon">
+                                                <i class="fas fa-coins"></i>
+                                            </div>
+                                            <div class="summary-content">
+                                                <span class="summary-label">Budget</span>
+                                                <div class="summary-value">
+                                                    {{ $lead->budget !== null ? 'AED ' . number_format((float) $lead->budget, 2) : '-' }}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {{-- Moving Date --}}
+                                        <div class="summary-item">
+                                            <div class="summary-icon">
+                                                <i class="far fa-calendar-check"></i>
+                                            </div>
+                                            <div class="summary-content">
+                                                <span class="summary-label">Moving Date</span>
+                                                <div class="summary-value">
+                                                    {{ $lead->moving_date ? $lead->moving_date->format('d M Y') : '-' }}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {{-- Category --}}
+                                        <div class="summary-item">
+                                            <div class="summary-icon">
+                                                <i class="fas fa-layer-group"></i>
+                                            </div>
+                                            <div class="summary-content">
+                                                <span class="summary-label">Category</span>
+                                                <div class="summary-value">
+                                                    @if (!empty($lead->lead_category))
+                                                        <span class="source-badge">{{ $lead->lead_category }}</span>
+                                                    @else
+                                                        -
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
 
 
                                         {{-- Created Date --}}

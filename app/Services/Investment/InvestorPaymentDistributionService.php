@@ -241,7 +241,9 @@ class InvestorPaymentDistributionService
                         id="ichek' . $row->id . '"
                         class="groupCheckbox"
                         name="investor_payout_id[' . $row->id . ']"
-                        value="' . $row->id . '">
+                        value="' . $row->id . '"
+                        data-amount="' . $row->amount_pending . '"
+                        data-company-id="' . ($row->investment->company_id ?? '') . '">
                     <label for="ichek' . $row->id . '"></label>
                 </div>';
             })
@@ -459,22 +461,58 @@ class InvestorPaymentDistributionService
                 $query->orderBy('investor_payouts.payout_type', $order);
             })
 
+            // ->addColumn('action', function ($row) {
+            //     $action = '<div class="d-flex align-items-center">';
+
+            //     $action .= '<a class="btn btn-success btn-sm bulktriggerbtn mr-1"
+            //         title="Pay now"
+            //         data-toggle="modal"
+            //         data-target="#modal-payout"
+            //         data-clear-type="single"
+            //         data-reinvest="0"
+            //         data-det-id="' . $row->id . '"
+            //         data-amount="' . $row->amount_pending . '"
+            //         data-mode-id="' . ($row->payment_mode_id ?? '') . '"
+            //         data-company-id="' . ($row->investment->company_id ?? '') . '"
+            //         data-bank-id="' . ($row->bank_id ?? '') . '"
+            //         data-cheque-no="' . e($row->cheque_no ?? '') . '">
+            //         <i class="fas fa-dollar-sign"></i>
+            //     </a>';
+
+            //     if ((int) $row->payout_type === 1) {
+            //         $action .= '<a class="btn btn-secondary btn-sm bulktriggerbtn"
+            //             title="Re-Invest"
+            //             data-toggle="modal"
+            //             data-target="#modal-payout"
+            //             data-clear-type="single"
+            //             data-det-id="' . $row->id . '"
+            //             data-reinvest="1"
+            //             data-investmentid="' . $row->investment_id . '"
+            //             data-amount="' . $row->amount_pending . '">
+            //             <i class="fas fa-redo"></i>
+            //         </a>';
+            //     }
+
+            //     return $action . '</div>';
+            // })
             ->addColumn('action', function ($row) {
                 $action = '<div class="d-flex align-items-center">';
 
-                $action .= '<a class="btn btn-success btn-sm bulktriggerbtn mr-1"
+                $action .= '<a class="btn btn-success btn-sm mr-1"
                     title="Pay now"
                     data-toggle="modal"
                     data-target="#modal-payout"
                     data-clear-type="single"
                     data-reinvest="0"
                     data-det-id="' . $row->id . '"
-                    data-amount="' . $row->amount_pending . '">
+                    data-amount="' . $row->amount_pending . '"
+                    data-mode-id="' . ($row->investor->payment_mode_id ?? '') . '"
+                    data-company-id="' . ($row->investment->company_id ?? '') . '">
                     <i class="fas fa-dollar-sign"></i>
                 </a>';
 
                 if ((int) $row->payout_type === 1) {
-                    $action .= '<a class="btn btn-secondary btn-sm bulktriggerbtn"
+                    $action .= '<a class="btn btn-secondary btn-sm"
                         title="Re-Invest"
                         data-toggle="modal"
                         data-target="#modal-payout"
@@ -502,83 +540,292 @@ class InvestorPaymentDistributionService
             ->with(['columns' => $columns])
             ->toJson();
     }
+    public function getPendingSelection(array $filters = []): array
+    {
+        $rows = $this->investorDistRepo->getPendings($filters)
+            ->setEagerLoads([])
+            ->with('investment:id,company_id')
+            ->get([
+                'investor_payouts.id',
+                'investor_payouts.investment_id',
+                'investor_payouts.amount_pending',
+            ]);
+
+        $items = $rows->map(fn ($r) => [
+            'id'         => $r->id,
+            'amount'     => (float) $r->amount_pending,
+            'company_id' => $r->investment->company_id ?? null,
+        ])->values();
+
+        return [
+            'count'       => $items->count(),
+            'total'       => round($items->sum('amount'), 2),
+            'company_ids' => $items->pluck('company_id')->unique()->values(),
+            'items'       => $items,
+        ];
+    }
 
 
 
+    // public function savePayout(array $data)
+    // {
+    //     $this->validate($data);
+
+    //     if ($data['method'] == 'bulk') {
+    //         $payoutIds = explode(',', $data['payout_ids']);
+    //     } else {
+    //         $payoutIds = $data['payout_ids'];
+    //     }
+
+    //     $payoutIds = is_array($payoutIds) ? $payoutIds : [$payoutIds];
+
+    //     $distributions = [];
+    //     foreach ($payoutIds as $payoutId) {
+    //         $payoutDetails = InvestorPayout::find($payoutId);
+
+    //         $pendingAmt = 0;
+    //         if ($data['method'] == 'single') {
+    //             $pendingAmt = toNumeric($payoutDetails->amount_pending) - toNumeric($data['paid_amount']);
+    //         }
+
+    //         $distributions[] = array(
+    //             'payout_id' => $payoutDetails->id,
+    //             'investor_id' => $payoutDetails->investor_id,
+    //             'amount_paid' => $data['paid_amount'] ?? toNumeric($payoutDetails->amount_pending),
+    //             'investment_id' => $payoutDetails->investment_id,
+    //             'paid_company_id' => $data['paid_company_id'] ?? null,
+    //             // 'is_processed' => $pendingAmt == 0 ? 1 : 0,
+    //             'paid_date' => $data['paid_date'],
+    //             'paid_mode_id' => $data['paid_mode'] ?? 0,
+    //             'paid_bank' => $data['paid_bank'] ?? null,
+    //             'paid_cheque_number' => $data['paid_cheque_number'] ?? null,
+    //             'payment_remarks' => $data['payment_remarks'] ?? null,
+    //             'paid_by' => auth()->user()->id,
+    //         );
+    //     }
+
+    //     $distr_data = DB::transaction(function () use ($distributions) {
+    //         // DB::enableQueryLog();
+    //         // $paidIds = $this->investorDistRepo->updateMany($paymentdet);
+
+    //         $distributionDatas = $this->investorDistRepo->createMany($distributions);
+    //         // dd($distributionDatas);
+    //         foreach ($distributionDatas as $distributionData) {
+
+    //             // $payoutData = InvestorPayout::find($distributionData->payout_id);
+
+    //             $payoutData = InvestorPayout::query()
+    //                 ->lockForUpdate()
+    //                 ->findOrFail($distributionData->payout_id);
+
+    //             // $payoutDataArr = $payoutData;
+    //             // $balance = $payoutDataArr->amount_pending - $distributionData->amount_paid;
+    //             // // payout update
+    //             // $payoutDataArr->amount_paid = $payoutDataArr->amount_paid + $distributionData->amount_paid;
+    //             // $payoutDataArr->amount_pending = $balance;
+    //             // $payoutDataArr->is_processed = $balance == 0 ? 1 : 0;
+    //             // $payoutDataArr->update();
+
+    //             $payoutData = InvestorPayout::query()
+    //                 ->lockForUpdate()
+    //                 ->findOrFail($distributionData->payout_id);
+
+    //             $distributionAmount = round(toNumeric($distributionData->amount_paid), 2);
+    //             $currentPendingAmount = round(toNumeric($payoutData->amount_pending), 2);
+    //             $currentPaidAmount = round(toNumeric($payoutData->amount_paid), 2);
+
+    //             /*
+    //             * Prevent zero, negative, or excessive payments.
+    //             */
+    //             if ($distributionAmount <= 0) {
+    //                 throw ValidationException::withMessages([
+    //                     'paid_amount' =>
+    //                     'The paid amount must be greater than zero.',
+    //                 ]);
+    //             }
+
+    //             if ($distributionAmount > $currentPendingAmount) {
+    //                 throw ValidationException::withMessages([
+    //                     'paid_amount' => sprintf(
+    //                         'Payment amount %.2f exceeds the pending amount %.2f for payout %d.',
+    //                         $distributionAmount,
+    //                         $currentPendingAmount,
+    //                         $payoutData->id
+    //                     ),
+    //                 ]);
+    //             }
+
+    //             $balance = round(
+    //                 $currentPendingAmount - $distributionAmount,
+    //                 2
+    //             );
+
+    //             $newPaidAmount = round(
+    //                 $currentPaidAmount + $distributionAmount,
+    //                 2
+    //             );
+
+    //             /*
+    //             * Avoid a negative-zero floating-point value.
+    //             */
+    //             if (abs($balance) < 0.01) {
+    //                 $balance = 0.00;
+    //             }
+
+    //             $payoutData->update([
+    //                 'amount_paid' => $newPaidAmount,
+    //                 'amount_pending' => $balance,
+    //                 'is_processed' => $balance === 0.00 ? 1 : 0,
+    //             ]);
+
+    //             /*
+    //             * If this is a profit payout, update the linked profit record.
+    //             */
+    //             $this->updateProfitRecordOnPayout(
+    //                 $payoutData,
+    //                 $distributionAmount
+    //             );
+
+
+    //             // dd($payoutData);
+
+    //             // Withdrawal/Settlement
+    //             if ($payoutData->payout_type == 6 && $payoutData->bifurcation_id != null) {
+
+    //                 $bifurcation = PartialWithdrawalBifurcation::find($payoutData->bifurcation_id);
+    //                 $investment = $this->investmentRepository->find($bifurcation->investment_id);
+
+    //                 // bifucation table updation on withdrawal payout
+    //                 updateBifuractionOnWithdrawal($bifurcation, $balance, $distributionData->amount_paid);
+
+    //                 if ($investment->terminate_status == 1 && $balance == 0) {
+    //                     terminateStatusChange($investment->id);
+    //                 }
+    //                 updateInvestorLedgerOnPayout($bifurcation->ledger_id, $payoutData->payout_type);
+    //             }
+
+    //             // withdrawal month profit payout
+    //             if ($payoutData->payout_type == 1 && $payoutData->bifurcation_id != null) {
+    //                 $bifurcation = PartialWithdrawalBifurcation::find($payoutData->bifurcation_id);
+
+    //                 // bifucation table updation on profit payout
+    //                 updateBifuractionOnProfitPayout($bifurcation, $balance, $distributionData->amount_paid);
+
+    //                 updateInvestorLedgerOnPayout($bifurcation->ledger_id, $payoutData->payout_type);
+    //             }
+
+    //             // investment update
+    //             $investment = updateInvestmentOnDistribution($payoutData, $distributionData);
+
+    //             // referral update
+    //             if ($payoutData->payout_type == 2) {
+    //                 refCommUpdateOnDistribution($payoutData, $distributionData);
+    //             }
+
+
+    //             // investor update
+    //             investorUpdateOnDistribution($payoutData, $distributionData);
+    //         }
+
+
+    //         return $distributionDatas;
+    //     });
+    //     // dd($distr_data);
+
+    //     // if ($data['reinvest'] != 1) {
+    //     //     foreach ($distr_data as $distributionData) {
+    //     //         $payout_type = $distributionData->investorPayout?->payout_type;
+    //     //         if ($payout_type == 1) {
+    //     //             $this->sendDistributionMessages($distributionData);
+    //     //         }
+    //     //     }
+    //     // }
+
+    //     return $distr_data;
+    // }
     public function savePayout(array $data)
     {
         $this->validate($data);
 
-        if ($data['method'] == 'bulk') {
-            $payoutIds = explode(',', $data['payout_ids']);
-        } else {
-            $payoutIds = $data['payout_ids'];
-        }
+        $isBulk = ($data['method'] ?? 'single') === 'bulk';
+
+        $payoutIds = $isBulk
+            ? explode(',', (string) $data['payout_ids'])
+            : $data['payout_ids'];
 
         $payoutIds = is_array($payoutIds) ? $payoutIds : [$payoutIds];
+        $payoutIds = array_values(array_unique(array_filter($payoutIds, fn ($id) => $id !== null && $id !== '')));
+
+        if (empty($payoutIds)) {
+            throw new \Exception('Please select at least one payout.');
+        }
+
+        $payouts = InvestorPayout::with('investment:id,company_id')
+            ->whereIn('id', $payoutIds)
+            ->get()
+            ->keyBy('id');
+
+        if ($payouts->count() !== count($payoutIds)) {
+            throw new \Exception('One or more selected payouts could not be found.');
+        }
+
+        if ($isBulk) {
+            $companyCount = $payouts
+                ->pluck('investment.company_id')
+                ->unique()
+                ->count();
+
+            if ($companyCount > 1) {
+                throw new \Exception('You cannot pay out records of different companies together.');
+            }
+        }
 
         $distributions = [];
         foreach ($payoutIds as $payoutId) {
-            $payoutDetails = InvestorPayout::find($payoutId);
+            $payoutDetails = $payouts[$payoutId];
 
-            $pendingAmt = 0;
-            if ($data['method'] == 'single') {
-                $pendingAmt = toNumeric($payoutDetails->amount_pending) - toNumeric($data['paid_amount']);
+            if ((int) $payoutDetails->is_processed === 1 || toNumeric($payoutDetails->amount_pending) <= 0) {
+                throw new \Exception('Payout #' . $payoutDetails->id . ' is already paid.');
             }
 
-            $distributions[] = array(
-                'payout_id' => $payoutDetails->id,
-                'investor_id' => $payoutDetails->investor_id,
-                'amount_paid' => $data['paid_amount'] ?? toNumeric($payoutDetails->amount_pending),
-                'investment_id' => $payoutDetails->investment_id,
-                'paid_company_id' => $data['paid_company_id'] ?? null,
-                // 'is_processed' => $pendingAmt == 0 ? 1 : 0,
-                'paid_date' => $data['paid_date'],
-                'paid_mode_id' => $data['paid_mode'] ?? 0,
-                'paid_bank' => $data['paid_bank'] ?? null,
+            $distributions[] = [
+                'payout_id'          => $payoutDetails->id,
+                'investor_id'        => $payoutDetails->investor_id,
+                // single: the amount typed in the modal (can be partial)
+                // bulk:   each payout's own pending amount (never the combined total)
+                'amount_paid'        => $isBulk
+                    ? toNumeric($payoutDetails->amount_pending)
+                    : $data['paid_amount'],
+                'investment_id'      => $payoutDetails->investment_id,
+                'paid_company_id'    => $data['paid_company_id'] ?? null,
+                'paid_date'          => $data['paid_date'],
+                'paid_mode_id'       => $data['paid_mode'] ?? 0,
+                'paid_bank'          => $data['paid_bank'] ?? null,
                 'paid_cheque_number' => $data['paid_cheque_number'] ?? null,
-                'payment_remarks' => $data['payment_remarks'] ?? null,
-                'paid_by' => auth()->user()->id,
-            );
+                'payment_remarks'    => $data['payment_remarks'] ?? null,
+                'paid_by'            => auth()->user()->id,
+            ];
         }
 
         $distr_data = DB::transaction(function () use ($distributions) {
-            // DB::enableQueryLog();
-            // $paidIds = $this->investorDistRepo->updateMany($paymentdet);
 
             $distributionDatas = $this->investorDistRepo->createMany($distributions);
-            // dd($distributionDatas);
+
             foreach ($distributionDatas as $distributionData) {
 
-                // $payoutData = InvestorPayout::find($distributionData->payout_id);
-
+                // Lock the payout row so concurrent payments can't overpay it
                 $payoutData = InvestorPayout::query()
                     ->lockForUpdate()
                     ->findOrFail($distributionData->payout_id);
 
-                // $payoutDataArr = $payoutData;
-                // $balance = $payoutDataArr->amount_pending - $distributionData->amount_paid;
-                // // payout update
-                // $payoutDataArr->amount_paid = $payoutDataArr->amount_paid + $distributionData->amount_paid;
-                // $payoutDataArr->amount_pending = $balance;
-                // $payoutDataArr->is_processed = $balance == 0 ? 1 : 0;
-                // $payoutDataArr->update();
-
-                $payoutData = InvestorPayout::query()
-                    ->lockForUpdate()
-                    ->findOrFail($distributionData->payout_id);
-
-                $distributionAmount = round(toNumeric($distributionData->amount_paid), 2);
+                $distributionAmount   = round(toNumeric($distributionData->amount_paid), 2);
                 $currentPendingAmount = round(toNumeric($payoutData->amount_pending), 2);
-                $currentPaidAmount = round(toNumeric($payoutData->amount_paid), 2);
+                $currentPaidAmount    = round(toNumeric($payoutData->amount_paid), 2);
 
-                /*
-                * Prevent zero, negative, or excessive payments.
-                */
+                // Prevent zero, negative, or excessive payments
                 if ($distributionAmount <= 0) {
                     throw ValidationException::withMessages([
-                        'paid_amount' =>
-                        'The paid amount must be greater than zero.',
+                        'paid_amount' => 'The paid amount must be greater than zero.',
                     ]);
                 }
 
@@ -593,95 +840,66 @@ class InvestorPaymentDistributionService
                     ]);
                 }
 
-                $balance = round(
-                    $currentPendingAmount - $distributionAmount,
-                    2
-                );
+                $balance = round($currentPendingAmount - $distributionAmount, 2);
+                $newPaidAmount = round($currentPaidAmount + $distributionAmount, 2);
 
-                $newPaidAmount = round(
-                    $currentPaidAmount + $distributionAmount,
-                    2
-                );
-
-                /*
-                * Avoid a negative-zero floating-point value.
-                */
+                // Avoid a negative-zero floating-point value
                 if (abs($balance) < 0.01) {
                     $balance = 0.00;
                 }
 
                 $payoutData->update([
-                    'amount_paid' => $newPaidAmount,
+                    'amount_paid'    => $newPaidAmount,
                     'amount_pending' => $balance,
-                    'is_processed' => $balance === 0.00 ? 1 : 0,
+                    'is_processed'   => $balance === 0.00 ? 1 : 0,
                 ]);
 
-                /*
-                * If this is a profit payout, update the linked profit record.
-                */
-                $this->updateProfitRecordOnPayout(
-                    $payoutData,
-                    $distributionAmount
-                );
+                // If this is a profit payout, update the linked profit record
+                $this->updateProfitRecordOnPayout($payoutData, $distributionAmount);
 
-
-                // dd($payoutData);
-
-                // Withdrawal/Settlement
+                // Withdrawal / Settlement
                 if ($payoutData->payout_type == 6 && $payoutData->bifurcation_id != null) {
 
                     $bifurcation = PartialWithdrawalBifurcation::find($payoutData->bifurcation_id);
-                    $investment = $this->investmentRepository->find($bifurcation->investment_id);
+                    $investment  = $this->investmentRepository->find($bifurcation->investment_id);
 
-                    // bifucation table updation on withdrawal payout
+                    // bifurcation table update on withdrawal payout
                     updateBifuractionOnWithdrawal($bifurcation, $balance, $distributionData->amount_paid);
 
                     if ($investment->terminate_status == 1 && $balance == 0) {
                         terminateStatusChange($investment->id);
                     }
+
                     updateInvestorLedgerOnPayout($bifurcation->ledger_id, $payoutData->payout_type);
                 }
 
-                // withdrawal month profit payout
+                // Withdrawal-month profit payout
                 if ($payoutData->payout_type == 1 && $payoutData->bifurcation_id != null) {
                     $bifurcation = PartialWithdrawalBifurcation::find($payoutData->bifurcation_id);
 
-                    // bifucation table updation on profit payout
+                    // bifurcation table update on profit payout
                     updateBifuractionOnProfitPayout($bifurcation, $balance, $distributionData->amount_paid);
 
                     updateInvestorLedgerOnPayout($bifurcation->ledger_id, $payoutData->payout_type);
                 }
 
-                // investment update
+                // Investment update
                 $investment = updateInvestmentOnDistribution($payoutData, $distributionData);
 
-                // referral update
+                // Referral commission update
                 if ($payoutData->payout_type == 2) {
                     refCommUpdateOnDistribution($payoutData, $distributionData);
                 }
 
-
-                // investor update
+                // Investor update
                 investorUpdateOnDistribution($payoutData, $distributionData);
             }
 
-
             return $distributionDatas;
         });
-        // dd($distr_data);
-
-        // if ($data['reinvest'] != 1) {
-        //     foreach ($distr_data as $distributionData) {
-        //         $payout_type = $distributionData->investorPayout?->payout_type;
-        //         if ($payout_type == 1) {
-        //             $this->sendDistributionMessages($distributionData);
-        //         }
-        //     }
-        // }
 
         return $distr_data;
     }
-
     private function updateProfitRecordOnPayout(InvestorPayout $payout, float $distributionAmount): void
     {
         /*
