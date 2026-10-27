@@ -106,7 +106,7 @@
                                         <!-- <h3 class="card-title">Property Details</h3> -->
                                         <span class="float-right">
                                             <!-- <button class="btn btn-info float-right m-1" data-toggle="modal"
-                                                                                                                                                                                                                                                                                                    data-target="#modal-Property">Add Investor Payout</button> -->
+                                                                                                                                                                                                                                                                                                        data-target="#modal-Property">Add Investor Payout</button> -->
 
                                             <button class="btn btn-success float-right m-1 bulktriggerbtn"
                                                 data-toggle="modal" data-target="#modal-payout"
@@ -317,6 +317,117 @@
         $('#investmentdate').datetimepicker({
             format: 'DD-MM-YYYY'
         });
+        let selected = {};          
+        let allFilteredCount = null; 
+
+        const SELECT_ALL_URL = "{{ route('payout.pending.select_all') }}";
+
+        function currentFilters() {
+            return {
+                month: $('#month').val(),
+                batch_id: $('#batch_id').val(),
+                investor_id: $('#investor_id').val(),
+                company_id: $('#company_id').val()
+            };
+        }
+
+        function selectedIds() {
+            return Object.keys(selected);
+        }
+
+        function selectedCompanyIds() {
+            return [...new Set(Object.values(selected).map(s => String(s.company_id)))];
+        }
+
+        function getSelectedTotal() {
+            let cents = 0;
+            Object.values(selected).forEach(s => {
+                cents += Math.round((parseFloat(s.amount) || 0) * 100);
+            });
+            return cents / 100;
+        }
+
+        function updateSelectionInfo() {
+            const n = selectedIds().length;
+            $('#selectionInfo').text(n ? n + ' selected | Total: ' + getSelectedTotal().toFixed(2) : '');
+            $('#selectAll').prop('checked', allFilteredCount !== null && n === allFilteredCount && n > 0);
+        }
+
+        function clearSelection() {
+            selected = {};
+            allFilteredCount = null;
+            $('.groupCheckbox').prop('checked', false);
+            updateSelectionInfo();
+        }
+
+        $(document).on('change', '.groupCheckbox', function() {
+            const id = String($(this).val());
+            const companyId = String($(this).data('company-id'));
+
+            if (this.checked) {
+                const existing = selectedCompanyIds();
+                if (existing.length && existing[0] !== companyId) {
+                    this.checked = false;
+                    toastr.error('You cannot select payouts of different companies. Please select payouts of the same company.');
+                    return;
+                }
+                selected[id] = {
+                    amount: parseFloat($(this).data('amount')) || 0,
+                    company_id: companyId
+                };
+            } else {
+                delete selected[id];
+            }
+            updateSelectionInfo();
+        });
+
+        $(document).on('change', '#selectAll', function() {
+            const el = this;
+
+            if (!el.checked) {
+                clearSelection();
+                return;
+            }
+
+            showLoader();
+            $.ajax({
+                url: SELECT_ALL_URL,
+                type: 'GET',
+                data: currentFilters(),
+                dataType: 'json'
+            }).done(function(res) {
+                hideLoader();
+
+                if (!res.count) {
+                    el.checked = false;
+                    toastr.error('No records found for the selected filters.');
+                    return;
+                }
+
+                if (res.company_ids.length > 1) {
+                    el.checked = false;
+                    clearSelection(); 
+                    toastr.error('The filtered records belong to different companies. Please filter by company first.');
+                    return;
+                }
+
+                selected = {};
+                res.items.forEach(function(i) {
+                    selected[String(i.id)] = {
+                        amount: parseFloat(i.amount) || 0,
+                        company_id: String(i.company_id)
+                    };
+                });
+                allFilteredCount = res.count;
+
+                $('.groupCheckbox').prop('checked', true);
+                updateSelectionInfo();
+            }).fail(function(xhr) {
+                hideLoader();
+                el.checked = false;
+                toastr.error(xhr.responseJSON?.message || 'Unable to select records.');
+            });
+        });
 
 
         function toggleAllCheckboxes() {
@@ -358,12 +469,14 @@
         function hidelemnetsonload() {
             $('.banksingle, .companySingle, .cheque, .modechange').hide();
         }
+        function applyPaymentMode(modeId) {
+            $('.singleClear').not('[value="' + modeId + '"]').prop('checked', false);
+            $('.singleClear[value="' + modeId + '"]').prop('checked', true).trigger('change');
+        }
 
         $('.singleClear').on('change', function() {
             $('.singleClear').not(this).prop('checked', false);
-            console.log($(this).val());
             if ($(this).prop('checked')) {
-
                 $('.modechange').show();
                 if ($(this).val() == 2) {
                     $('.banksingle').show();
@@ -386,219 +499,395 @@
             }
         });
 
-        // $('#bankBulk').click(function() {
-        //     if ($(this).prop('checked')) {
-        //         $('.banksingle').show();
-        //     } else {
-        //         $('.banksingle').hide();
-        //     }
-        // });
-
         $('.bulktriggerbtn').click(function(e) {
             e.preventDefault();
-            if ($('.groupCheckbox:checked').length === 0) {
+
+            if (selectedIds().length === 0) {
                 toastr.error('Please select one or more items to continue.');
                 return false;
-            } else {
-                $('#modal-clear-payable').show();
+            }
+            if (selectedCompanyIds().length > 1) {
+                toastr.error('You cannot select payouts of different companies.');
+                return false;
             }
         });
 
-
-
         $('#modal-payout').on('show.bs.modal', function(event) {
-            var button = $(event.relatedTarget); // Button that triggered the modal
-            var clearType = button.data('clear-type'); // Extract info from data-* attributes
+            var button = $(event.relatedTarget);
+            var clearType = button.data('clear-type');
+
             $('#PayoutSubmitForm')[0].reset();
             hidelemnetsonload();
-
             $(this).find('input, select, textarea').removeClass('is-invalid is-valid');
-
             $('#method').val(clearType);
 
-            // $('.modechange').hide();
             if (clearType === 'bulk') {
+                const total = getSelectedTotal();
+                const count = selectedIds().length;
 
-                $('.clrngamnt').hide();
-                $('.chq').hide().css('display', 'none', 'important');
+                $('#paid_amount').off('input.payoutModal')
+                    .val(total.toFixed(2))
+                    .attr('readonly', true);
+                $('#amountLabel').text('Total Payout Amount (' + count + ' selected)');
+                $('#amountPending').text('');
+                $('#submitBtn').text('Submit');
+                $('#reinvest').val('');
+                $('#paid_company').prop('disabled', false);
+
+                $('.clrngamnt').show();
+                $('.chq').hide().css('display', 'none');   
             } else {
+                $('#amountLabel').text('Payout Amount');
+                $('.chq').css('display', '');              
                 $('#payoutId').val(button.data('det-id'));
+
                 let reinvest = button.data('reinvest');
                 $('#reinvest').val(reinvest);
 
-                let totalAmount = button.data('amount');
+                let totalAmount = parseFloat(button.data('amount')) || 0;
+                $('#paid_amount').off('input.payoutModal').val(totalAmount.toFixed(2));
 
                 if (reinvest) {
                     $('#submitBtn').text('Re-Invest');
-                    $('#paid_amount').val(totalAmount).attr('readonly', true);
+                    $('#paid_amount').off('input.payoutModal').val(totalAmount).attr('readonly', true);
+                    $('#amountPending').text('');
                 } else {
-                    // document.getElementById('paid_amount').addEventListener('input', function() {
+                    // $('#paid_amount').off('input.payoutModal').on('input.payoutModal', function() {
                     //     let paid = parseFloat(this.value) || 0;
-                    //     // Prevent entering more than total amount
                     //     if (paid > totalAmount) {
                     //         paid = totalAmount;
                     //         this.value = totalAmount;
                     //     }
-
                     //     let remaining = totalAmount - paid;
-
-                    //     document.getElementById('amountPending').innerText =
-                    //         'Remaining Amount: ' + remaining;
+                    //     $('#amountPending').text('Remaining Amount: ' + remaining.toFixed(2));
                     // });
-                    $('#paid_amount').off('input.payoutModal').on('input.payoutModal', function() {
-                        let paid = parseFloat(this.value) || 0;
-                        console.log('paid', paid);
-                        if (paid > totalAmount) {
-                            paid = totalAmount;
-                            this.value = totalAmount;
-                        }
-
-                        let remaining = totalAmount - paid;
-
-                        $('#amountPending').text('Remaining Amount: ' + remaining.toFixed(2));
-                    });
 
                     $('#submitBtn').text('Submit');
                     $('#paid_amount').attr('readonly', false);
-                    $('#amountPending').text('Remaining Amount: ' + button.data('amount'));
+                    // $('#amountPending').text('Remaining Amount: ' + totalAmount);
+                    $('#amountPending').text('Remaining Amount: 0.00');
+
+        $('#paid_amount').on('input.payoutModal', function () {
+            let paid = parseFloat(this.value) || 0;
+            if (paid > totalAmount) {
+                paid = totalAmount;
+                this.value = totalAmount.toFixed(2);
+            }
+            $('#amountPending').text('Remaining Amount: ' + (totalAmount - paid).toFixed(2));
+        });
+
+                    const modeId = button.attr('data-mode-id');
+                    const companyId = button.attr('data-company-id');
+                    const bankId = button.attr('data-bank-id');
+                    const chequeNo = button.attr('data-cheque-no');
+
+                    if (modeId) {
+                        applyPaymentMode(modeId);
+                    }
+                    if (companyId) {
+                        $('#paid_company').val(companyId).trigger('change').prop('disabled', true);
+                    }
+                    if (bankId) {
+                        $('#bank_name').val(bankId).trigger('change');
+                    }
+                    $('#cheque_no').val(chequeNo || '');
                 }
 
                 $('.clrngamnt').show();
-                $('.chq').show();
             }
         });
+
+    
+
+        // $('.bulktriggerbtn').click(function(e) {
+        //     e.preventDefault();
+        //     if ($('.groupCheckbox:checked').length === 0) {
+        //         toastr.error('Please select one or more items to continue.');
+        //         return false;
+        //     } else {
+        //         $('#modal-clear-payable').show();
+        //     }
+        // });
+
+
+
+        // $('#modal-payout').on('show.bs.modal', function(event) {
+        //     var button = $(event.relatedTarget); // Button that triggered the modal
+        //     var clearType = button.data('clear-type'); // Extract info from data-* attributes
+        //     $('#PayoutSubmitForm')[0].reset();
+        //     hidelemnetsonload();
+
+        //     $(this).find('input, select, textarea').removeClass('is-invalid is-valid');
+
+        //     $('#method').val(clearType);
+
+        //     // $('.modechange').hide();
+        //     if (clearType === 'bulk') {
+
+        //         $('.clrngamnt').hide();
+        //         $('.chq').hide().css('display', 'none', 'important');
+        //     } else {
+        //         $('#payoutId').val(button.data('det-id'));
+        //         let reinvest = button.data('reinvest');
+        //         $('#reinvest').val(reinvest);
+
+        //         let totalAmount = button.data('amount');
+
+        //         if (reinvest) {
+        //             $('#submitBtn').text('Re-Invest');
+        //             $('#paid_amount').val(totalAmount).attr('readonly', true);
+        //         } else {
+        //             // document.getElementById('paid_amount').addEventListener('input', function() {
+        //             //     let paid = parseFloat(this.value) || 0;
+        //             //     // Prevent entering more than total amount
+        //             //     if (paid > totalAmount) {
+        //             //         paid = totalAmount;
+        //             //         this.value = totalAmount;
+        //             //     }
+
+        //             //     let remaining = totalAmount - paid;
+
+        //             //     document.getElementById('amountPending').innerText =
+        //             //         'Remaining Amount: ' + remaining;
+        //             // });
+        //             $('#paid_amount').off('input.payoutModal').on('input.payoutModal', function() {
+        //                 let paid = parseFloat(this.value) || 0;
+        //                 console.log('paid', paid);
+        //                 if (paid > totalAmount) {
+        //                     paid = totalAmount;
+        //                     this.value = totalAmount;
+        //                 }
+
+        //                 let remaining = totalAmount - paid;
+
+        //                 $('#amountPending').text('Remaining Amount: ' + remaining.toFixed(2));
+        //             });
+
+        //             $('#submitBtn').text('Submit');
+        //             $('#paid_amount').attr('readonly', false);
+        //             $('#amountPending').text('Remaining Amount: ' + button.data('amount'));
+
+        //             const modeId = button.attr('data-mode-id');
+        //             const companyId = button.attr('data-company-id');
+        //             const bankId = button.attr('data-bank-id');
+        //             const chequeNo = button.attr('data-cheque-no');
+
+        //             if (modeId) {
+        //                 $('.singleClear[value="' + modeId + '"]').prop('checked', true);
+        //                 applyPaymentMode(modeId);
+        //             }
+
+        //             if (companyId) {
+        //                 $('#paid_company').val(companyId).trigger('change').prop('disabled', true);
+        //             }
+        //             if (bankId) {
+        //                 $('#bank_name').val(bankId).trigger('change');
+        //             }
+        //             $('#cheque_no').val(chequeNo || '');
+
+        //         }
+
+        //         $('.clrngamnt').show();
+        //         $('.chq').show();
+        //     }
+        // });
     </script>
 
     <script>
+        // $(function() {
+        //     let table = $('#payoutPendingTable').DataTable({
+        //         processing: true,
+        //         serverSide: true,
+        //         responsive: true,
+
+        //         ajax: {
+        //             url: "{{ route('payout.pending.list') }}",
+        //             data: function(d) {
+        //                 d.month = $('#month').val();
+        //                 d.batch_id = $('#batch_id').val();
+        //                 d.investor_id = $('#investor_id').val();
+        //                 d.company_id = $('#company_id').val();
+        //             }
+        //         },
+        //         columns: [{
+        //                 data: 'checkbox',
+        //                 name: 'checkbox',
+        //                 orderable: false,
+        //                 searchable: false
+        //             },
+        //             {
+        //                 data: 'investor_name',
+        //                 name: 'investor_name'
+        //             },
+        //             {
+        //                 data: 'company_name',
+        //                 name: 'company_name'
+        //             },
+        //             {
+        //                 data: 'investment_code',
+        //                 name: 'investment_code'
+        //             },
+        //             {
+        //                 data: 'payout_date',
+        //                 name: 'payout_date',
+        //                 searchable: false
+        //             },
+        //             {
+        //                 data: 'payout_type',
+        //                 name: 'payout_type'
+        //             },
+        //             {
+        //                 data: 'payout_amount',
+        //                 name: 'payout_amount'
+        //             },
+        //             {
+        //                 data: 'payment_mode',
+        //                 name: 'payment_mode',
+        //                 orderable: false,
+        //                 searchable: false
+        //             },
+        //             {
+        //                 data: 'action',
+        //                 name: 'action',
+        //                 orderable: false,
+        //                 searchable: false
+        //             },
+        //         ],
+        //         rowCallback: function(row, data, index) {
+        //             // Example: Highlight pending payments
+        //             console.log(data.has_returned);
+        //             if (data.has_returned === 1) {
+        //                 console.log(data.has_returned);
+        //                 $(row).css('background-color', '#ffe1e1'); // light red
+        //             }
+
+        //         },
+        //         order: [
+        //             [4, 'asc']
+        //         ],
+        //         dom: 'Bfrtip',
+        //         buttons: [{
+        //             extend: 'excelHtml5',
+        //             text: 'Export Excel',
+        //             title: 'Contract Data',
+        //             action: function(e, dt, node, config) {
+        //                 let searchValue = dt.search();
+
+        //                 let params = dt.ajax.params();
+
+        //                 params.month = $('#month').val();
+        //                 params.batch_id = $('#batch_id').val();
+        //                 params.investor_id = $('#investor_id').val();
+        //                 params.company_id = $('#company_id').val();
+        //                 params.search = dt.search();
+
+        //                 let queryString = $.param(params);
+
+        //                 let url = "{{ route('payout.pending.export') }}?" + queryString;
+        //                 window.location.href = url;
+        //             }
+        //         }]
+        //     });
+
+        //     // Filter buttons
+        //     $('.filter-btn').on('click', function() {
+        //         let filterValue = $(this).data('filter');
+
+        //         // Reset ALL buttons
+        //         $('.filter-btn').each(function() {
+        //             let solidClass = $(this).attr('add-class'); // btn-warning
+        //             let outlineClass = solidClass ? 'btn-outline-' + solidClass.replace('btn-',
+        //                 '') : '';
+
+        //             if (solidClass) {
+        //                 $(this).removeClass(solidClass).addClass(outlineClass);
+        //             }
+        //         });
+
+        //         // Apply ACTIVE state to clicked button
+        //         let solidClass = $(this).attr('add-class'); // e.g. btn-warning
+        //         let outlineClass = solidClass ? 'btn-outline-' + solidClass.replace('btn-', '') : '';
+
+
+        //         if (solidClass) {
+        //             $(this).removeClass(outlineClass).addClass(solidClass);
+        //         }
+
+        //         // Apply DataTable search column filter (status = column index 1)
+        //         table.column(2).search(filterValue).draw();
+        //     });
+
+        //     $('.searchbtnchq').on('click', function(e) {
+        //         e.preventDefault();
+        //         table.ajax.reload();
+        //     });
+
+        // });
         $(function() {
-            let table = $('#payoutPendingTable').DataTable({
-                processing: true,
-                serverSide: true,
-                responsive: true,
+        let table = $('#payoutPendingTable').DataTable({
+            processing: true,
+            serverSide: true,
+            responsive: true,
 
-                ajax: {
-                    url: "{{ route('payout.pending.list') }}",
-                    data: function(d) {
-                        d.month = $('#month').val();
-                        d.batch_id = $('#batch_id').val();
-                        d.investor_id = $('#investor_id').val();
-                        d.company_id = $('#company_id').val();
-                    }
-                },
-                columns: [{
-                        data: 'checkbox',
-                        name: 'checkbox',
-                        orderable: false,
-                        searchable: false
-                    },
-                    {
-                        data: 'investor_name',
-                        name: 'investor_name'
-                    },
-                    {
-                        data: 'company_name',
-                        name: 'company_name'
-                    },
-                    {
-                        data: 'investment_code',
-                        name: 'investment_code'
-                    },
-                    {
-                        data: 'payout_date',
-                        name: 'payout_date',
-                        searchable: false
-                    },
-                    {
-                        data: 'payout_type',
-                        name: 'payout_type'
-                    },
-                    {
-                        data: 'payout_amount',
-                        name: 'payout_amount'
-                    },
-                    {
-                        data: 'payment_mode',
-                        name: 'payment_mode',
-                        orderable: false,
-                        searchable: false
-                    },
-                    {
-                        data: 'action',
-                        name: 'action',
-                        orderable: false,
-                        searchable: false
-                    },
-                ],
-                rowCallback: function(row, data, index) {
-                    // Example: Highlight pending payments
-                    console.log(data.has_returned);
-                    if (data.has_returned === 1) {
-                        console.log(data.has_returned);
-                        $(row).css('background-color', '#ffe1e1'); // light red
-                    }
-
-                },
-                order: [
-                    [4, 'asc']
-                ],
-                dom: 'Bfrtip',
-                buttons: [{
-                    extend: 'excelHtml5',
-                    text: 'Export Excel',
-                    title: 'Contract Data',
-                    action: function(e, dt, node, config) {
-                        let searchValue = dt.search();
-
-                        let params = dt.ajax.params();
-
-                        params.month = $('#month').val();
-                        params.batch_id = $('#batch_id').val();
-                        params.investor_id = $('#investor_id').val();
-                        params.company_id = $('#company_id').val();
-                        params.search = dt.search();
-
-                        let queryString = $.param(params);
-
-                        let url = "{{ route('payout.pending.export') }}?" + queryString;
-                        window.location.href = url;
-                    }
-                }]
-            });
-
-            // Filter buttons
-            $('.filter-btn').on('click', function() {
-                let filterValue = $(this).data('filter');
-
-                // Reset ALL buttons
-                $('.filter-btn').each(function() {
-                    let solidClass = $(this).attr('add-class'); // btn-warning
-                    let outlineClass = solidClass ? 'btn-outline-' + solidClass.replace('btn-',
-                        '') : '';
-
-                    if (solidClass) {
-                        $(this).removeClass(solidClass).addClass(outlineClass);
+            ajax: {
+                url: "{{ route('payout.pending.list') }}",
+                data: function(d) {
+                    d.month = $('#month').val();
+                    d.batch_id = $('#batch_id').val();
+                    d.investor_id = $('#investor_id').val();
+                    d.company_id = $('#company_id').val();
+                }
+            },
+            columns: [
+                { data: 'checkbox', name: 'checkbox', orderable: false, searchable: false },
+                { data: 'investor_name', name: 'investor_name' },
+                { data: 'company_name', name: 'company_name' },
+                { data: 'investment_code', name: 'investment_code' },
+                { data: 'payout_date', name: 'payout_date', searchable: false },
+                { data: 'payout_type', name: 'payout_type' },
+                { data: 'payout_amount', name: 'payout_amount' },
+                { data: 'payment_mode', name: 'payment_mode', orderable: false, searchable: false },
+                { data: 'action', name: 'action', orderable: false, searchable: false },
+            ],
+            rowCallback: function(row, data) {
+                if (data.has_returned === 1) {
+                    $(row).css('background-color', '#ffe1e1');
+                }
+            },
+            // Re-tick the rows that are already selected after paging/sorting/searching
+            drawCallback: function() {
+                $('.groupCheckbox').each(function() {
+                    if (selected[String($(this).val())]) {
+                        this.checked = true;
                     }
                 });
+                updateSelectionInfo();
+            },
+            order: [[4, 'asc']],
+            dom: 'Bfrtip',
+            buttons: [{
+                extend: 'excelHtml5',
+                text: 'Export Excel',
+                title: 'Contract Data',
+                action: function(e, dt) {
+                    let params = dt.ajax.params();
+                    params.month = $('#month').val();
+                    params.batch_id = $('#batch_id').val();
+                    params.investor_id = $('#investor_id').val();
+                    params.company_id = $('#company_id').val();
+                    params.search = dt.search();
 
-                // Apply ACTIVE state to clicked button
-                let solidClass = $(this).attr('add-class'); // e.g. btn-warning
-                let outlineClass = solidClass ? 'btn-outline-' + solidClass.replace('btn-', '') : '';
-
-
-                if (solidClass) {
-                    $(this).removeClass(outlineClass).addClass(solidClass);
+                    window.location.href = "{{ route('payout.pending.export') }}?" + $.param(params);
                 }
-
-                // Apply DataTable search column filter (status = column index 1)
-                table.column(2).search(filterValue).draw();
-            });
-
-            $('.searchbtnchq').on('click', function(e) {
-                e.preventDefault();
-                table.ajax.reload();
-            });
-
+            }]
         });
+
+        $('.searchbtnchq').on('click', function(e) {
+            e.preventDefault();
+            clearSelection();          // filters changed, so the old selection is no longer valid
+            table.ajax.reload();
+        });
+    });
     </script>
 
 
@@ -676,6 +965,69 @@
             );
         }
 
+        // function submitForm() {
+        //     var form = document.getElementById('PayoutSubmitForm');
+        //     var fdata = new FormData(form);
+
+        //     fdata.append('_token', $('meta[name="csrf-token"]').attr('content'));
+
+        //     var selectedValues = [];
+
+        //     if ($('#method').val() == 'single') {
+        //         selectedValues.push($('#payoutId').val());
+        //     } else {
+        //         $('.groupCheckbox:checked').each(function() {
+        //             selectedValues.push($(this).val());
+        //         });
+        //     }
+
+        //     fdata.append('payout_ids', selectedValues);
+
+        //     showLoader();
+
+        //     $.ajax({
+        //         type: "POST",
+        //         url: "{{ route('payout.distribute.save') }}",
+        //         data: fdata,
+        //         dataType: "json",
+        //         processData: false,
+        //         contentType: false,
+        //         success: function(response) {
+        //             console.log(response);
+        //             $('#modal-payout').modal('hide');
+        //             hideLoader();
+        //             toastr.success(response.message);
+
+        //             if ($('#reinvest').val() == 1) {
+        //                 let params = {};
+
+        //                 // add your custom filters manually (important)
+        //                 params.reinvestment = $('#reinvest').val();
+        //                 params.parent_id = response.data[0].investment_id;
+        //                 params.investor_id = response.data[0].investor_id;
+        //                 params.amount = response.data[0].amount_paid;
+        //                 params.date = response.data[0].paid_date;
+
+        //                 // build query string
+        //                 let queryString = $.param(params);
+
+        //                 let url = "{{ route('investment.create') }}?" + queryString;
+        //                 window.location.href = url;
+        //                 // window.location.href = "/investment/create?" + queryString;
+
+
+        //             } else {
+        //                 $('#payoutPendingTable').DataTable().ajax.reload();
+        //             }
+
+        //             // window.location.href = "{{ route('investorPayout.index') }}";
+        //         },
+        //         error: function(errors) {
+        //             hideLoader();
+        //             toastr.error(errors.responseJSON.message);
+        //         }
+        //     });
+        // }
         function submitForm() {
             var form = document.getElementById('PayoutSubmitForm');
             var fdata = new FormData(form);
@@ -687,9 +1039,7 @@
             if ($('#method').val() == 'single') {
                 selectedValues.push($('#payoutId').val());
             } else {
-                $('.groupCheckbox:checked').each(function() {
-                    selectedValues.push($(this).val());
-                });
+                selectedValues = selectedIds();   // all selected, including other pages
             }
 
             fdata.append('payout_ids', selectedValues);
@@ -704,38 +1054,27 @@
                 processData: false,
                 contentType: false,
                 success: function(response) {
-                    console.log(response);
                     $('#modal-payout').modal('hide');
                     hideLoader();
                     toastr.success(response.message);
 
                     if ($('#reinvest').val() == 1) {
-                        let params = {};
-
-                        // add your custom filters manually (important)
-                        params.reinvestment = $('#reinvest').val();
-                        params.parent_id = response.data[0].investment_id;
-                        params.investor_id = response.data[0].investor_id;
-                        params.amount = response.data[0].amount_paid;
-                        params.date = response.data[0].paid_date;
-
-                        // build query string
-                        let queryString = $.param(params);
-
-                        let url = "{{ route('investment.create') }}?" + queryString;
-                        window.location.href = url;
-                        // window.location.href = "/investment/create?" + queryString;
-
-
+                        let params = {
+                            reinvestment: $('#reinvest').val(),
+                            parent_id: response.data[0].investment_id,
+                            investor_id: response.data[0].investor_id,
+                            amount: response.data[0].amount_paid,
+                            date: response.data[0].paid_date
+                        };
+                        window.location.href = "{{ route('investment.create') }}?" + $.param(params);
                     } else {
+                        clearSelection();
                         $('#payoutPendingTable').DataTable().ajax.reload();
                     }
-
-                    // window.location.href = "{{ route('investorPayout.index') }}";
                 },
                 error: function(errors) {
                     hideLoader();
-                    toastr.error(errors.responseJSON.message);
+                    toastr.error(errors.responseJSON?.message || 'Something went wrong.');
                 }
             });
         }

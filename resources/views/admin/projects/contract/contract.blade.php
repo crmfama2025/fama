@@ -243,7 +243,7 @@
                             <input type="hidden" name="contract_id" id="approval_contract_id">
                             <input type="hidden" name="_token" id="approval_token">
                             <input type="hidden" name="contract_status" id="approval_status">
-                            <input type="hidden" name="user_id" value="{{ auth()->user()->id }}">
+                            <input type="hidden" name="user_id" id="approvalUserId" value="{{ auth()->user()->id }}">
                             <div class="modal-body">
                                 <div class="card-body">
                                     <div class="form-group row">
@@ -804,13 +804,17 @@
                         success: function(response) {
                             toastr.success(response.message);
                             $('#modal-send-approval').modal('hide');
-                            $('#modal-send-approval').find('input, textarea, select').val('');
 
-                            $('#contractTable').DataTable().ajax.reload();
+                            $('#contractTable').DataTable().ajax.reload(null, false);
+                            hideLoader();
+                        },
+                        error: function(xhr) {
+                            toastr.error(xhr.responseJSON?.message || 'Something went wrong.');
                             hideLoader();
                         }
                     });
                 }
+
             });
         }
 
@@ -821,9 +825,17 @@
             var id = button.getAttribute('data-id');
 
             // set to modal fields
+            $('#approvalUserId').val('{{ auth()->user()->id }}');
             $('#approval_contract_id').val(id);
             $('#approval_token').val($('meta[name="csrf-token"]').attr('content'));
             $('#approval_status').val(4);
+        });
+
+        $('#modal-send-approval').on('hidden.bs.modal', function() {
+            const form = document.getElementById('ContractCommentsForm');
+            form.reset();
+            $(form).find('.is-invalid, .is-valid').removeClass('is-invalid is-valid');
+            $(form).find('.error-text').remove();
         });
     </script>
 
