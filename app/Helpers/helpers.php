@@ -1589,7 +1589,9 @@ function getSubModuleArray()
         'investment_report',
         'assign',
         'convert',
-        'location_pricing'
+        'location_pricing',
+        'add_excess',
+        'add_loss_or_discount'
     ];
 }
 

@@ -246,6 +246,7 @@ namespace App\Models{
  * @property string|null $loss_discount_amount
  * @property string|null $loss_discount_date
  * @property string|null $loss_discount_remarks
+ * @property int|null $loss_or_discounted_by
  * @property-read \App\Models\Agreement|null $agreement
  * @property-read \App\Models\AgreementPayment|null $agreementPayment
  * @property-read \App\Models\AgreementUnit|null $agreementUnit
@@ -289,6 +290,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail whereLossDiscountDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail whereLossDiscountRemarks($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail whereLossOrDiscount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail whereLossOrDiscountedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail wherePaymentAmount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail wherePaymentDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail wherePaymentModeId($value)
@@ -2107,7 +2109,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \App\Models\InvestmentDocument $investmentDocument
+ * @property-read \App\Models\InvestmentDocument|null $investmentDocument
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentAdditionalDocuments newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentAdditionalDocuments newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentAdditionalDocuments onlyTrashed()
@@ -2140,9 +2142,9 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \App\Models\Company $company
+ * @property-read \App\Models\Company|null $company
  * @property-read \App\Models\User|null $deletedBy
- * @property-read \App\Models\Investment $investment
+ * @property-read \App\Models\Investment|null $investment
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentCompanyAllocation newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentCompanyAllocation newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentCompanyAllocation onlyTrashed()
@@ -2519,7 +2521,7 @@ namespace App\Models{
  * @property array $schedule_changes
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Investment $investment
+ * @property-read \App\Models\Investment|null $investment
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentRenewalEditLog newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentRenewalEditLog newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|InvestmentRenewalEditLog query()
@@ -3199,7 +3201,19 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $moving_date
  * @property string|null $lead_category
  * @property string $requirement
- * @property int $status 0 = Pending, 1 = processing
+ * @property int $status 
+ *                 0 = Pending,
+ *                 1 = Processing,
+ *                 2 = Interested,
+ *                 3 = Call Back,
+ *                 4 = No Answer,
+ *                 5 = Not Interested,
+ *                 6 = Meeting Scheduled,
+ *                 7 = Proposal Sent,
+ *                 8 = Negotiation,
+ *                 9 = Converted,
+ *                 10 = Lost,
+ *                 11 = Others
  * @property int|null $assigned_to
  * @property int|null $assigned_by
  * @property \Illuminate\Support\Carbon|null $assigned_at
@@ -3272,7 +3286,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read \App\Models\User|null $assignedBy
  * @property-read \App\Models\User|null $assignedTo
- * @property-read \App\Models\Lead $lead
+ * @property-read \App\Models\Lead|null $lead
  * @method static \Illuminate\Database\Eloquent\Builder|LeadAssignment newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|LeadAssignment newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|LeadAssignment onlyTrashed()
@@ -3315,7 +3329,7 @@ namespace App\Models{
  * @property-read \App\Models\User|null $followedUpBy
  * @property-read mixed $follow_up_type_name
  * @property-read mixed $outcome_name
- * @property-read \App\Models\Lead $lead
+ * @property-read \App\Models\Lead|null $lead
  * @method static \Illuminate\Database\Eloquent\Builder|LeadFollowUp newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|LeadFollowUp newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|LeadFollowUp onlyTrashed()
@@ -3399,7 +3413,7 @@ namespace App\Models{
  * @property string|null $price
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\UnitType $unitType
+ * @property-read \App\Models\UnitType|null $unitType
  * @method static \Illuminate\Database\Eloquent\Builder|LocalityPricing newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|LocalityPricing newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|LocalityPricing query()

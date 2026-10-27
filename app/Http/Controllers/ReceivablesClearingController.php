@@ -286,16 +286,16 @@ class ReceivablesClearingController extends Controller
             return response()->json(['success' => false, 'message' => $e->getMessage(), 'error'   => $e], 500);
         }
     }
-    // public function saveExcessAmount(Request $request)
-    // {
-    //     // dd($request->all());
-    //     try {
-    //         $update = $this->tenantChequeService->saveExcessAmount($request->all());
+    public function saveExcessAmount(Request $request)
+    {
+        // dd($request->all());
+        try {
+            $update = $this->tenantChequeService->saveExcessAmount($request->all());
 
-    //         return response()->json(['success' => true, 'data' => $update, 'message' => 'Excess Data Updated Successfully.'], 200);
-    //     } catch (\Exception $e) {
+            return response()->json(['success' => true, 'data' => $update, 'message' => 'Excess Data Updated Successfully.'], 200);
+        } catch (\Exception $e) {
 
-    //         return response()->json(['success' => false, 'message' => $e->getMessage(), 'error'   => $e], 500);
-    //     }
-    // }
+            return response()->json(['success' => false, 'message' => $e->getMessage(), 'error'   => $e], 500);
+        }
+    }
 }

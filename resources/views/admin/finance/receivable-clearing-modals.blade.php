@@ -139,6 +139,7 @@
     </div>
 </div>
 
+{{-- Loss Discount Modal --}}
 <div class="modal fade" id="modal-loss-discount">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -213,6 +214,66 @@
                         Cancel
                     </button>
 
+                    <button type="submit" class="btn btn-primary">
+                        Save
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{-- Excess add modal --}}
+<div class="modal fade" id="modal-excess-amount">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Excess Amount</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+
+            <form id="excessAmountForm">
+                <div class="modal-body">
+                    <input type="hidden" name="id" id="excess_amount_id">
+
+                    <div class="form-group">
+                        <label class="asterisk">Excess Amount Date</label>
+                        <div class="input-group date" id="excessDate" data-target-input="nearest">
+                            <input type="text" name="excess_date" class="form-control datetimepicker-input"
+                                id="excess_date" data-target="#excessDate" placeholder="dd-mm-YYYY" required>
+                            <div class="input-group-append" data-target="#excessDate" data-toggle="datetimepicker">
+                                <span class="input-group-text">
+                                    <i class="fa fa-calendar"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="asterisk">Amount</label>
+                        <input type="number" name="excess_amount" id="excess_amount" class="form-control"
+                            step="0.0001" min="0" value="0"
+                            oninput="if (this.value < 0) this.value = 0;" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Actual Payment Amount</label>
+                        <input type="number" name="actual_payment_amount" id="actual_payment_amount"
+                            class="form-control" step="0.0001" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Reason</label>
+                        <textarea name="excess_reason" id="excess_reason" class="form-control" rows="3" placeholder="Enter reason"></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        Cancel
+                    </button>
                     <button type="submit" class="btn btn-primary">
                         Save
                     </button>

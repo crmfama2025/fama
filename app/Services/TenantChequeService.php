@@ -344,8 +344,8 @@ class TenantChequeService
                   data-toggle="modal" data-target="#modal-single-clear">Clear</a>';
 
 
-
-                $action .= '<a class="btn btn-warning mr-1 btn-sm lossDiscountBtn m-1"
+                if (auth()->user()->hasAnyPermission(['finance.add_loss_or_discount'], $row->company_id)) {
+                    $action .= '<a class="btn btn-warning mr-1 btn-sm lossDiscountBtn m-1"
                     title="Loss / Discount"
                     data-id="' . $row->id . '"
                     data-date="' . $row->payment_date . '"
@@ -357,7 +357,21 @@ class TenantChequeService
                     data-target="#modal-loss-discount">
                     <i class="fas fa-percentage"></i>
                 </a>';
-
+                }
+                if (auth()->user()->hasAnyPermission(['finance.add_excess'], $row->company_id)) {
+                    $action .= '<a class="btn btn-maroon mr-1 btn-sm excessAmountBtn m-1"
+                    title="Add Excess Amount"
+                    data-id="' . $row->id . '"
+                    data-date="' . $row->payment_date . '"
+                    data-amount="' . getReceivableAmount($row->id) . '"
+                    data-payment-mode="' . $row->payment_mode_id . '"
+                    data-bank-id="' . $row->bank_id . '"
+                    data-cheque-number="' . $row->cheque_number . '"
+                    data-toggle="modal"
+                    data-target="#modal-excess-amount">
+                    <i class="fas fa-plus-circle"></i>
+                </a>';
+                }
 
 
 
@@ -899,7 +913,9 @@ class TenantChequeService
                 'loss_discount_amount' => $ld_amount,
                 'loss_discount_date' => $lossDiscountDate,
                 'loss_discount_remarks' => $data['loss_discount_remarks'] ?? null,
-                'loss_or_discounted_by' => auth()->id()
+                'loss_or_discounted_by' => auth()->id(),
+                'loss_discounted_at' => now()
+
             ]);
 
             $cleared_data = [
@@ -916,6 +932,44 @@ class TenantChequeService
             ];
             $cleared =  $this->tenantChequeRepository->createClearedReceivables($cleared_data);
 
+            return true;
+        });
+    }
+
+    public function saveExcessAmount($data)
+    {
+        return DB::transaction(function () use ($data) {
+            $payment = $this->tenantChequeRepository->getPaymentDetailById($data['id']);
+
+            if (!$payment) {
+                throw new \Exception('Payment detail not found.');
+            }
+
+            $excessAmount = $data['excess_amount'] ?? 0;
+            if ($payment->excess_amount != null) {
+                $ex_amount = $payment->excess_amount + $excessAmount;
+            } else {
+                $ex_amount =  $excessAmount;
+            }
+
+            $updateData = [
+                'excess_amount' => $ex_amount,
+                'payment_amount' => $data['actual_payment_amount'],
+                'has_excess_amount' => $excessAmount > 0 ? 1 : 0,
+                'excess_date' => parseDate($data['excess_date']) ?? null,
+                'excess_reason' => $data['excess_reason'] ?? null,
+                'excess_added_by' => auth()->id(),
+                'excess_added_at' => $excessAmount > 0 ? now() : null,
+            ];
+
+            // dd($payment);
+            if ($payment->has_excess == 0) {
+                // dd("test");
+                $updateData['actual_payment_amount'] = $payment->payment_amount;
+            }
+            // dd($updateData);
+
+            $payment->update($updateData);
             return true;
         });
     }

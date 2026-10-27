@@ -530,6 +530,9 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
 
     Route::post('/loss-discount', [ReceivablesClearingController::class, 'storeLossDiscount'])
         ->name('receivable.loss-discount');
+
+    Route::post('/receivables/excess-amount', [ReceivablesClearingController::class, 'saveExcessAmount'])
+        ->name('receivables.excess-amount');
 });
 
 

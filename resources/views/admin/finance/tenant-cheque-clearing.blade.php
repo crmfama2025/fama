@@ -1007,7 +1007,7 @@
             table = $('#tenantChequeTable').DataTable({
                 processing: true,
                 serverSide: true,
-                pageLength: 5,
+                pageLength: 10,
 
 
                 ajax: {
@@ -1107,6 +1107,10 @@
                             } else if (row.loss_or_discount == 2) {
                                 badges +=
                                     '<br><span class="badge bg-primary mr-1">Discount</span>';
+                            }
+
+                            if (row.has_excess_amount == 1) {
+                                badges += '<br><span class="badge bg-success mr-1">Excess</span>';
                             }
 
                             return badges;
@@ -1944,6 +1948,82 @@
             }
 
             projectSelect.val('').trigger('change');
+        });
+    </script>
+    <script>
+        $('#excessDate').datetimepicker({
+            format: 'DD-MM-YYYY',
+            useCurrent: false
+        });
+        $(document).on('click', '.excessAmountBtn', function() {
+            let id = $(this).data('id');
+            let date = $(this).data('date');
+            let amount = $(this).data('amount');
+
+            $('#excess_amount_id').val(id);
+            $('#excess_date').val(date ? moment(date).format('DD-MM-YYYY') : moment().format('DD-MM-YYYY'));
+            $('#excess_amount').val(0);
+            $('#actual_payment_amount').val(amount);
+            $('#excess_reason').val('');
+
+            $('#excessDate').datetimepicker('date', date ? moment(date) : moment());
+        });
+        $('#excess_amount').on('input', function() {
+            let entered_amount = parseFloat($(this).val()) || 0;
+            let payment_amount = parseFloat($('#actual_payment_amount').val()) || 0;
+
+            $('#actual_payment_amount').val((payment_amount + entered_amount).toFixed(2));
+        });
+        $('#excessAmountForm').on('submit', function(e) {
+            e.preventDefault();
+
+            let excessAmount = parseFloat($('#excess_amount').val());
+
+            if (isNaN(excessAmount) || excessAmount <= 0) {
+                toastr.error('Excess amount must be greater than zero.');
+                return;
+            }
+            let formData = new FormData(this);
+
+
+
+            $.ajax({
+                url: "{{ route('receivables.excess-amount') }}",
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                beforeSend: function() {
+                    $('#excessAmountForm button[type="submit"]').prop('disabled', true);
+                },
+                success: function(response) {
+                    $('#modal-excess-amount').modal('hide');
+                    $('#excessAmountForm')[0].reset();
+
+                    toastr.success(response.message || 'Excess amount saved successfully.');
+
+                    if (typeof table !== 'undefined') {
+                        table.ajax.reload(null, false);
+                    }
+
+                },
+                error: function(xhr) {
+                    if (xhr.status === 422) {
+                        let errors = xhr.responseJSON.errors;
+                        $.each(errors, function(key, messages) {
+                            toastr.error(messages[0]);
+                        });
+                    } else {
+                        toastr.error(xhr.responseJSON?.message || 'Something went wrong.');
+                    }
+                },
+                complete: function() {
+                    $('#excessAmountForm button[type="submit"]').prop('disabled', false);
+                }
+            });
         });
     </script>
     @include('admin.finance.receivable-allocation-js');
