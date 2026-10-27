@@ -200,7 +200,7 @@ class ReceivablesClearingController extends Controller
                 // fallback to original default window when no range is given
                 $q->whereDate('payment_date', '<=', Carbon::today()->addWeeks(2));
             })
-            ->orderBy('payment_date', 'asc') // oldest first
+            // ->orderBy('payment_date', 'asc') // oldest first
             // dd($receivables->toSql(), $receivables->getBindings(), $receivables->count());
             ->orderBy('agreement_payment_details.payment_date', 'asc')
             ->orderBy('agreement_payment_details.id', 'asc')
@@ -286,4 +286,16 @@ class ReceivablesClearingController extends Controller
             return response()->json(['success' => false, 'message' => $e->getMessage(), 'error'   => $e], 500);
         }
     }
+    // public function saveExcessAmount(Request $request)
+    // {
+    //     // dd($request->all());
+    //     try {
+    //         $update = $this->tenantChequeService->saveExcessAmount($request->all());
+
+    //         return response()->json(['success' => true, 'data' => $update, 'message' => 'Excess Data Updated Successfully.'], 200);
+    //     } catch (\Exception $e) {
+
+    //         return response()->json(['success' => false, 'message' => $e->getMessage(), 'error'   => $e], 500);
+    //     }
+    // }
 }
