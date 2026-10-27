@@ -344,8 +344,8 @@ class TenantChequeService
                   data-toggle="modal" data-target="#modal-single-clear">Clear</a>';
 
 
-                if (auth()->user()->hasAnyPermission(['finance.add_loss_or_discount'], $row->company_id)) {
-                    $action .= '<a class="btn btn-warning mr-1 btn-sm lossDiscountBtn m-1"
+                // if (auth()->user()->hasAnyPermission(['finance.add_loss_or_discount'], $row->company_id)) {
+                $action .= '<a class="btn btn-warning mr-1 btn-sm lossDiscountBtn m-1"
                     title="Loss / Discount"
                     data-id="' . $row->id . '"
                     data-date="' . $row->payment_date . '"
@@ -357,9 +357,9 @@ class TenantChequeService
                     data-target="#modal-loss-discount">
                     <i class="fas fa-percentage"></i>
                 </a>';
-                }
-                if (auth()->user()->hasAnyPermission(['finance.add_excess'], $row->company_id)) {
-                    $action .= '<a class="btn btn-maroon mr-1 btn-sm excessAmountBtn m-1"
+                // }
+                // if (auth()->user()->hasAnyPermission(['finance.add_excess'], $row->company_id)) {
+                $action .= '<a class="btn btn-maroon mr-1 btn-sm excessAmountBtn m-1"
                     title="Add Excess Amount"
                     data-id="' . $row->id . '"
                     data-date="' . $row->payment_date . '"
@@ -371,7 +371,7 @@ class TenantChequeService
                     data-target="#modal-excess-amount">
                     <i class="fas fa-plus-circle"></i>
                 </a>';
-                }
+                // }
 
 
 
