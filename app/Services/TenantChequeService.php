@@ -963,7 +963,7 @@ class TenantChequeService
             ];
 
             // dd($payment);
-            if ($payment->has_excess == 0) {
+            if ($payment->has_excess_amount == 0) {
                 // dd("test");
                 $updateData['actual_payment_amount'] = $payment->payment_amount;
             }

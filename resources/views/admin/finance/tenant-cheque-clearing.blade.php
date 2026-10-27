@@ -1955,24 +1955,27 @@
             format: 'DD-MM-YYYY',
             useCurrent: false
         });
+        let originalPaymentAmount = 0;
         $(document).on('click', '.excessAmountBtn', function() {
             let id = $(this).data('id');
             let date = $(this).data('date');
             let amount = $(this).data('amount');
+            originalPaymentAmount = parseFloat($(this).data('amount')) || 0;
 
             $('#excess_amount_id').val(id);
             $('#excess_date').val(date ? moment(date).format('DD-MM-YYYY') : moment().format('DD-MM-YYYY'));
             $('#excess_amount').val(0);
-            $('#actual_payment_amount').val(amount);
+            $('#actual_payment_amount').val(originalPaymentAmount.toFixed(2));
             $('#excess_reason').val('');
 
             $('#excessDate').datetimepicker('date', date ? moment(date) : moment());
         });
         $('#excess_amount').on('input', function() {
-            let entered_amount = parseFloat($(this).val()) || 0;
-            let payment_amount = parseFloat($('#actual_payment_amount').val()) || 0;
+            let excessAmount = parseFloat($(this).val()) || 0;
 
-            $('#actual_payment_amount').val((payment_amount + entered_amount).toFixed(2));
+            $('#actual_payment_amount').val(
+                (originalPaymentAmount + excessAmount).toFixed(2)
+            );
         });
         $('#excessAmountForm').on('submit', function(e) {
             e.preventDefault();
@@ -1986,7 +1989,7 @@
             let formData = new FormData(this);
 
 
-
+            showLoader();
             $.ajax({
                 url: "{{ route('receivables.excess-amount') }}",
                 type: "POST",
@@ -2008,9 +2011,13 @@
                     if (typeof table !== 'undefined') {
                         table.ajax.reload(null, false);
                     }
+                    hideLoader();
+
 
                 },
                 error: function(xhr) {
+                    hideLoader();
+
                     if (xhr.status === 422) {
                         let errors = xhr.responseJSON.errors;
                         $.each(errors, function(key, messages) {
@@ -2021,6 +2028,8 @@
                     }
                 },
                 complete: function() {
+                    hideLoader();
+
                     $('#excessAmountForm button[type="submit"]').prop('disabled', false);
                 }
             });
