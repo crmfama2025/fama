@@ -242,9 +242,32 @@ class DashboardService
             });
         })->count();
 
-        $wid_totalInvestments = Investment::when($companyId, function ($q) use ($companyId) {
-            $q->where('company_id', $companyId);
-        })->count();
+        $investmentsBase = Investment::query()
+            ->when($companyId, fn ($q) => $q->where('company_id', $companyId));
+
+        $wid_totalInvestments = (clone $investmentsBase)
+            ->where('investment_status', 1)
+            ->where(function ($q) {
+                $q->whereNull('terminate_status')
+                ->orWhere('terminate_status', '!=', 2);
+            })
+            ->count();
+            $wid_investments_new = (clone $investmentsBase)
+                ->where('investment_status', 1)
+                ->where(fn ($q) => $q->whereNull('renewal_count')->orWhere('renewal_count', 0))
+                ->where(fn ($q) => $q->whereNull('terminate_status')->orWhere('terminate_status', 0))
+                ->count();
+
+            $wid_investments_renewal = (clone $investmentsBase)
+                ->where('investment_status', 1)
+                ->where('renewal_count', '>', 0)
+                ->count();
+
+            $wid_investments_terminated = (clone $investmentsBase)
+                ->where('investment_status', 1)
+                ->where('terminate_status', 2)
+                ->count();
+       
 
         $wid_revenue = ContractRental::when($companyId, function ($q) use ($companyId) {
             $q->whereHas('contract', function ($c) use ($companyId) {
@@ -283,7 +306,10 @@ class DashboardService
             'b2cTenants',
             'totalSubunitsB2B',
             'b2bTenantsCount',
-            'b2cTenantsCount'
+            'b2cTenantsCount',
+            'wid_investments_new',
+            'wid_investments_renewal',
+            'wid_investments_terminated'
         );
     }
 
