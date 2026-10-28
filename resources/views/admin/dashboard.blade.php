@@ -184,8 +184,8 @@
                         </div>
                     </div>
                     <!-- ./col -->
-                    <div class="col-lg-3 ">
-                        <!-- small box -->
+                    <!-- <div class="col-lg-3 ">
+                        
                         <div class="small-box bg-gradient-investments">
 
                             <div class="inner">
@@ -201,8 +201,47 @@
                             {{-- <a href="{{ route('investment.index') }}" class="small-box-footer">More info <i
                                     class="fas fa-arrow-circle-right"></i></a> --}}
                         </div>
-                    </div>
+                    </div> -->
                     <!-- ./col -->
+
+                    <div class="col-lg-3">
+                        <div class="project-widget position-relative">
+                            <div class="small-box bg-gradient-investments">
+                                <div class="inner">
+                                    <h3 id="totalInvestments">{{ format_k($wid_totalInvestments) }}</h3>
+                                    <p>Investments</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="ion ion-briefcase"></i>
+                                </div>
+                            </div>
+
+                            <div class="project-hover-box">
+                                <div class="d-flex text-center">
+                                    <div class="flex-fill">
+                                        <div class="text-success font-weight-bold" id="investments_new">
+                                            {{ format_k($wid_investments_new) }}
+                                        </div>
+                                        <small>New</small>
+                                    </div>
+
+                                    <div class="flex-fill">
+                                        <div class="text-info font-weight-bold" id="investments_renewal">
+                                            {{ format_k($wid_investments_renewal) }}
+                                        </div>
+                                        <small>Renewal</small>
+                                    </div>
+
+                                    <div class="flex-fill">
+                                        <div class="text-warning font-weight-bold" id="investments_terminated">
+                                            {{ format_k($wid_investments_terminated) }}
+                                        </div>
+                                        <small>Terminated</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="col-lg-3 ">
                         <div class="project-widget position-relative">
                             <div class="small-box bg-gradient-revenue">
@@ -1099,7 +1138,6 @@
     </script>
     <script>
         $('#companyFilter').on('change', function() {
-            // alert("test");
             $.get("{{ route('dashboard.filter') }}", {
                 company_id: $(this).val()
             }, function(res) {
@@ -1118,6 +1156,9 @@
                 $('#totalContractsfull').text(res.widgets.wid_totalContracts);
                 $('#b2cTenantsCount').text(res.widgets.b2cTenantsCount);
                 $('#b2bTenantsCount').text(res.widgets.totalSubunitsB2B);
+                $('#investments_new').text(res.widgets.wid_investments_new);
+                $('#investments_renewal').text(res.widgets.wid_investments_renewal);
+                $('#investments_terminated').text(res.widgets.wid_investments_terminated);
 
 
                 // console.log("top investors", res.topInvestors)

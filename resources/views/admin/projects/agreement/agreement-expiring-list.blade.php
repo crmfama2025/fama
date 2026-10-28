@@ -461,8 +461,19 @@
                 return;
             }
 
-            let companyContracts = contracts.filter(function(contract) {
+            // let companyContracts = contracts.filter(function(contract) {
+            //     return contract.company_id == companyId;
+            // });
+            let companyContracts = contracts
+            .filter(function(contract) {
                 return contract.company_id == companyId;
+            })
+            .sort(function(a, b) {
+                return String(a.project_number).localeCompare(
+                    String(b.project_number),
+                    undefined,
+                    { numeric: true, sensitivity: 'base' }
+                );
             });
 
             $.each(companyContracts, function(index, contract) {
