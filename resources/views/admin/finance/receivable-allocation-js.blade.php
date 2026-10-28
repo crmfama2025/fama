@@ -658,10 +658,10 @@
                     $('#companySelectAllocation').val(null).trigger('change.select2');
                     $('#modal-ap-confirm').find('select').val(null).trigger('change');
 
-                    $.get("{{ route('tenant.pending.receivables.all') }}", function(res) {
-                        allReceivables = res.data || [];
-                        console.log('Receivables refreshed:', allReceivables.length);
-                    });
+                    // $.get("{{ route('tenant.pending.receivables.all') }}", function(res) {
+                    //     allReceivables = res.data || [];
+                    //     // console.log('Receivables refreshed:', allReceivables.length);
+                    // });
                     // reload datatable
                     table.ajax.reload(null, false);
 

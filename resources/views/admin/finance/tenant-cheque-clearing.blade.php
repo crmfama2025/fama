@@ -1470,7 +1470,7 @@
             unitSelect.append('<option value="">Select Unit</option>');
 
             if (property_id) {
-                let filteredUnits = units.filter(u => u.contract.property_id == property_id);
+                let filteredUnits = units.filter(u => u.property_id == property_id);
 
                 filteredUnits.forEach(u => {
                     unitSelect.append('<option value="' + u.id + '">' + u.unit_number + '</option>');
@@ -1594,7 +1594,8 @@
                     if (response.success) {
                         $('#modal-single-clear').modal('hide');
                         toastr.success(response.message);
-                        location.reload();
+                        // location.reload();
+                        table.ajax.reload(null, false);
                         // Optionally reload table/list
                         // location.reload();
                     } else {

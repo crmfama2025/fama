@@ -668,6 +668,10 @@ function getPropertiesHaveContract()
 
     return $properties;
 }
+function getPropertiesHaveContractLean()
+{
+    return Property::select('id', 'property_name')->where('status', 1)->whereHas('contracts')->get();
+}
 function getPropertiesHaveContractB2b()
 {
     $properties = Property::select('id', 'property_name')->where('status', 1)

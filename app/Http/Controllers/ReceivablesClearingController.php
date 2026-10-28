@@ -32,8 +32,11 @@ class ReceivablesClearingController extends Controller
         $payment_modes = PaymentMode::all();
         $banks = Bank::all();
         $companies = $this->companyService->getWithIndustry('finance', 'receivable_cheque_clearing');
-        $properties = getPropertiesHaveContract();
-        $units = getUnitshaveAgreement();
+        // $properties = getPropertiesHaveContract();
+        $properties = getPropertiesHaveContractLean();
+        // $units = getUnitshaveAgreement();
+        $units = getUnitsHaveAgreementForReport();
+
         $agpaymentmodes = getPaymentModeHaveAgreement();
         $tenants = AgreementTenant::all();
         $agreements = $this->agreementService->getAllAgreements();
