@@ -986,7 +986,7 @@ class InvestorService
                 }
                 if (auth()->user()->hasAnyPermission(['investor.withdrawal-approve'], $row->company_id) && $row->withdrawal_status == 1 &&  $row->investor_transaction_type_id == 3) {
                     $action .= '<button
-                    class="btn btn-success btn-sm open-approval-modal" title="Approve Withdrawal"
+                    class="btn btn-success btn-sm open-approval-modal mr-1" title="Approve Withdrawal"
                     data-id="' . $row->id . '">
                     <i class="fas fa-check"></i>
                 </button>';
@@ -994,7 +994,7 @@ class InvestorService
                 // Delete termination / withdrawal
                 if (
                     auth()->user()->hasAnyPermission(['investor.withdrawal-delete'], $row->company_id) &&
-                    $row->investor_transaction_type_id == 4
+                    in_array($row->investor_transaction_type_id, [3, 4])
                     && $row->withdrawal_status == 1
                 ) {
                     $action .= '<button
@@ -1395,9 +1395,9 @@ class InvestorService
             $ledger = $this->investorLedgerRepo->find($ledgerId);
 
             // Make sure this is a termination
-            if ($ledger->investor_transaction_type_id != 4) {
-                throw new \Exception('This is not a termination transaction.');
-            }
+            // if ($ledger->investor_transaction_type_id != 4) {
+            //     throw new \Exception('This is not a termination transaction.');
+            // }
 
             $partialWithdrawals = PartialWithdrawalBifurcation::where(
                 'ledger_id',
@@ -1443,7 +1443,7 @@ class InvestorService
                 $investment->termination_requested_by = null;
 
                 // Restore active status
-                $investment->investment_status = 0;
+                $investment->investment_status = 1;
 
                 $investment->save();
             }
