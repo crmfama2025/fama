@@ -420,10 +420,11 @@
                                                             <th>Status</th>
 
 
-                                                            <th>Tenant</th>
                                                             <th>Building</th>
                                                             <th>Unit</th>
                                                             <th>Subunit</th>
+                                                            <th>Tenant</th>
+
                                                             <th>Payment Mode</th>
                                                             <th>Composition</th>
                                                         </tr>
@@ -1118,15 +1119,7 @@
                         orderable: true,
                         searchable: true
                     },
-                    {
-                        data: 'tenant_name',
-                        name: 'agreement.tenant.tenant_name',
-                        render: function(data, type, row) {
-                            return data ? data : '';
-                        },
-                        orderable: false,
-                        searchable: true
-                    },
+
                     {
                         data: 'property_name',
                         name: 'agreement.contract.property.property_name',
@@ -1146,7 +1139,15 @@
                         searchable: true
 
                     },
-
+                    {
+                        data: 'tenant_name',
+                        name: 'agreement.tenant.tenant_name',
+                        render: function(data, type, row) {
+                            return data ? data : '';
+                        },
+                        orderable: false,
+                        searchable: true
+                    },
                     {
                         data: 'payment_mode_name',
                         name: 'paymentMode.payment_mode_name',
