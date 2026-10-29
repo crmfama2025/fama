@@ -435,7 +435,8 @@
                             </li>
                         @endif
 
-                        @if (hasPermission(auth()->id(), ['investor', 'investment', 'finance'], $companyId = null))
+                        @if (hasPermission(auth()->id(), ['investor', 'investment'], $companyId = null) ||
+                                auth()->user()->hasAnyPermission(['finance.payout']))
                             <li class="nav-item {{ $invest ? 'menu-open' : '' }}">
                                 <a href="#"
                                     class="nav-link {{ $invest ? 'active bg-gradient-projects' : '' }}">
