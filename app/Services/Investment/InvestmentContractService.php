@@ -1776,7 +1776,7 @@ class InvestmentContractService
         if ($document->investor_agreement_type_id === 3) {
             $investments->whereDate('investment_date', '<=', $document->generated_date); // if partial withdrawal then only show investments before the withdrawal date
         }
-        $investments->orderBy('investment_date')
+        $investments = $investments->orderBy('investment_date')
             ->orderBy('id')
             ->get();
 
