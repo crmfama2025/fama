@@ -213,12 +213,12 @@ class TenantChequeService
                 $businessClass = ($b_type_id == 1) ? 'text-olive' : 'text-cyan';
 
                 return "<strong>{$number}</strong>
-            <p class='mb-0'>
-                <span class='{$badgeClass}'>{$type}</span>
-            </p>
-           <strong class='{$businessClass}'>
-            {$b_type}
-        </strong>";
+                        <p class='mb-0'>
+                            <span class='{$badgeClass}'>{$type}</span>
+                        </p>
+                    <strong class='{$businessClass}'>
+                        {$b_type}
+                    </strong>";
             })
             ->addColumn('company_name', fn($row) => $row->agreement?->contract?->company->company_name ?? '-')
             ->addColumn('tenant_name', function ($row) {
@@ -228,8 +228,8 @@ class TenantChequeService
                 $phone = $row->agreement?->tenant->tenant_mobile ?? '-';
 
                 return "<strong class='text-capitalize'>{$name}</strong><p class='mb-0 text-primary'>{$email}</p><p class='text-muted small'>
-                    <i class='fa fa-phone-alt text-danger'></i> <span class='font-weight-bold'>{$phone}</span>
-                </p>";
+                                <i class='fa fa-phone-alt text-danger'></i> <span class='font-weight-bold'>{$phone}</span>
+                            </p>";
             })
             ->addColumn('property_name', fn($row) => $row->agreement?->contract?->property->property_name ?? '-')
             ->addColumn('unit_number', function ($row) {
@@ -326,51 +326,51 @@ class TenantChequeService
                     $date = $row->bounced_date ? \Carbon\Carbon::parse($row->bounced_date)->format('d-m-Y') : '-';
 
                     $action .= '<a class="btn btn-danger btn-sm bouncedInfoBtn m-1"
-                        data-reason="' . htmlspecialchars($reason, ENT_QUOTES) . '"
-                        data-date="' . $date . '"
-                        data-bs-toggle="modal"
-                        data-bs-target="#bouncedChequeModal">
-                         <i class="fas fa-exclamation-triangle"></i>
-                    </a>';
+                                    data-reason="' . htmlspecialchars($reason, ENT_QUOTES) . '"
+                                    data-date="' . $date . '"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#bouncedChequeModal">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </a>';
                 }
 
 
 
                 $action .= '<a class="btn btn-success mr-1 btn-sm clearChequeBtn m-1" title="Clear cheque"
-                 data-date="' . $row->payment_date . '" data-id="' . $row->id . '" data-form="single"
-                 data-amount = "' . getReceivableAmount($row->id) . '" data-payment-mode ="' . $row->payment_mode_id . '"
-                  data-bank-id="' . $row->bank_id . '" data-cheque-number="' . $row->cheque_number . '"
+                            data-date="' . $row->payment_date . '" data-id="' . $row->id . '" data-form="single"
+                            data-amount = "' . getReceivableAmount($row->id) . '" data-payment-mode ="' . $row->payment_mode_id . '"
+                            data-bank-id="' . $row->bank_id . '" data-cheque-number="' . $row->cheque_number . '"
 
-                  data-toggle="modal" data-target="#modal-single-clear">Clear</a>';
+                            data-toggle="modal" data-target="#modal-single-clear">Clear</a>';
 
 
                 // if (auth()->user()->hasAnyPermission(['finance.add_loss_or_discount'], $row->company_id)) {
                 $action .= '<a class="btn btn-warning mr-1 btn-sm lossDiscountBtn m-1"
-                    title="Loss / Discount"
-                    data-id="' . $row->id . '"
-                    data-date="' . $row->payment_date . '"
-                    data-amount="' . getReceivableAmount($row->id) . '"
-                    data-payment-mode="' . $row->payment_mode_id . '"
-                    data-bank-id="' . $row->bank_id . '"
-                    data-cheque-number="' . $row->cheque_number . '"
-                    data-toggle="modal"
-                    data-target="#modal-loss-discount">
-                    <i class="fas fa-percentage"></i>
-                </a>';
+                                title="Loss / Discount"
+                                data-id="' . $row->id . '"
+                                data-date="' . $row->payment_date . '"
+                                data-amount="' . getReceivableAmount($row->id) . '"
+                                data-payment-mode="' . $row->payment_mode_id . '"
+                                data-bank-id="' . $row->bank_id . '"
+                                data-cheque-number="' . $row->cheque_number . '"
+                                data-toggle="modal"
+                                data-target="#modal-loss-discount">
+                                <i class="fas fa-percentage"></i>
+                            </a>';
                 // }
                 // if (auth()->user()->hasAnyPermission(['finance.add_excess'], $row->company_id)) {
                 $action .= '<a class="btn btn-maroon mr-1 btn-sm excessAmountBtn m-1"
-                    title="Add Excess Amount"
-                    data-id="' . $row->id . '"
-                    data-date="' . $row->payment_date . '"
-                    data-amount="' . getReceivableAmount($row->id) . '"
-                    data-payment-mode="' . $row->payment_mode_id . '"
-                    data-bank-id="' . $row->bank_id . '"
-                    data-cheque-number="' . $row->cheque_number . '"
-                    data-toggle="modal"
-                    data-target="#modal-excess-amount">
-                    <i class="fas fa-plus-circle"></i>
-                </a>';
+                                title="Add Excess Amount"
+                                data-id="' . $row->id . '"
+                                data-date="' . $row->payment_date . '"
+                                data-amount="' . getReceivableAmount($row->id) . '"
+                                data-payment-mode="' . $row->payment_mode_id . '"
+                                data-bank-id="' . $row->bank_id . '"
+                                data-cheque-number="' . $row->cheque_number . '"
+                                data-toggle="modal"
+                                data-target="#modal-excess-amount">
+                                <i class="fas fa-plus-circle"></i>
+                            </a>';
                 // }
 
 
@@ -480,6 +480,7 @@ class TenantChequeService
             }
             // dd($data);
             $clearedReceivableIds = [];
+            $companyId = null;
             foreach ($paymentIds as $paymentId) {
 
                 $payment = $this->tenantChequeRepository->getPaymentDetailById($paymentId);
@@ -488,7 +489,7 @@ class TenantChequeService
                 }
                 // dd($payment->agreementPaymentDetail);
                 // dd($payment);
-
+                $companyId = $payment->agreement->company_id ?? null;
 
                 // Use existing mode info if none provided
                 $paidModeId = $data['paid_mode_id'] ?? $payment->payment_mode_id;
@@ -576,7 +577,8 @@ class TenantChequeService
                     'receipt_allocation_id' => $data['receipt_allocation_id'] ?? null,
                     'bank_reference' => $data['bank_reference'] ?? null,
                     'have_other_adjustmants' => $data['have_other_adjustmants'] ?? null,
-                    'loss_or_discount' => 0
+                    'loss_or_discount' => 0,
+                    'company_id' => $payment->agreement->company_id ?? null
                 ];
                 // dd($cleared_data);
                 // dd($detail_date);
@@ -631,6 +633,7 @@ class TenantChequeService
                     'receipt_allocation_id' => $data['receipt_allocation_id'] ?? null,
                     'bank_reference' => $data['bank_reference'] ?? null,
                     'have_other_adjustmants' => $data['have_other_adjustmants'] ?? null,
+                    'company_id' => $companyId
                 ];
                 $this->tenantChequeRepository->createallocation($allocation);
             }
@@ -972,5 +975,65 @@ class TenantChequeService
             $payment->update($updateData);
             return true;
         });
+    }
+    public function getAllocationsTable(array $filters = [])
+    {
+        $query = $this->tenantChequeRepository->getAllocationsQuery($filters);
+
+        return datatables()
+            ->eloquent($query)
+            ->addIndexColumn()
+            ->addColumn('allocation_amount', function ($row) {
+                return number_format((float) $row->allocated_amount, 2);
+            })
+            ->addColumn('allocation_date', function ($row) {
+                return $row->cleared_date
+                    ? Carbon::parse($row->cleared_date)->format('d-m-Y')
+                    : '-';
+            })
+            ->addColumn('bank_reference', function ($row) {
+                return $row->bank_reference
+                    ? $row->bank_reference
+                    : '-';
+            })
+            ->addColumn('allocated_by', function ($row) {
+                if ($row->addedBy) {
+                    $name = $row->addedBy->first_name . ' ' . $row->addedBy->last_name;
+                    $image = $row->addedBy->profile_path
+                        ? asset('storage/' . $row->addedBy->profile_path)
+                        : asset('images/default-avatar.png');
+
+                    return '
+            <div style="display:flex; align-items:center; gap:8px;">
+                <img src="' . $image . '"
+                     style="width:30px; height:30px; border-radius:50%; object-fit:cover;">
+                <span>' . $name . '</span>
+            </div>
+        ';
+                }
+
+
+                return '-';
+            })
+            ->addColumn('created_at', function ($row) {
+                return $row->created_at
+                    ? Carbon::parse($row->cleared_at)->format('d-m-Y h:i A')
+                    : '-';
+            })
+            ->addColumn('company_name', function ($row) {
+                return $row->company->company_name
+                    ? $row->company->company_name
+                    : '-';
+            })
+            ->addColumn('action', function ($row) {
+                return '<button type="button"
+                        class="btn btn-info btn-sm viewAllocationBtn"
+                        data-id="' . $row->id . '"
+                        title="View Allocation">
+                        <i class="fas fa-eye"></i> View
+                    </button>';
+            })
+            ->rawColumns(['action', 'allocated_by'])
+            ->toJson();
     }
 }

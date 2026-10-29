@@ -26,7 +26,8 @@ class ClearedReceivable extends Model
         'bank_reference',
         'receipt_allocation_id',
         'have_other_adjustments',
-        'loss_or_discount'
+        'loss_or_discount',
+        'company_id'
     ];
 
 
