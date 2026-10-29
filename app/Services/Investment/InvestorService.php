@@ -831,6 +831,7 @@ class InvestorService
                     'investor_agreement_type_id' => 5,
                     'added_by' => auth()->user()->id,
                     'applied_investments' => $appliedInvestments,
+                    'generated_date' => parseDate($data['requested_date']),
                     'investment_id' => 0,
                 ];
                 // dd("test");
@@ -862,6 +863,7 @@ class InvestorService
                     'investor_agreement_type_id' => 3,
                     'added_by' => auth()->user()->id,
                     'applied_investments' => $appliedInvestments,
+                    'generated_date' => parseDate($data['requested_date']),
                     'investment_id' => 0,
                 ];
                 $document = $this->investmentContractDocumentService->createInvestorDocument($investorId, $data['company_id'], $Document_data);
