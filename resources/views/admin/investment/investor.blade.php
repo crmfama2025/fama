@@ -42,10 +42,12 @@
                         <div class="card">
                             <div class="card-header">
                                 <!-- <h3 class="card-title">Property Details</h3> -->
-                                <span class="float-right">
-                                    <a class="btn btn-info float-right m-1" href="{{ route('investor.create') }}">Add
-                                        Investor</a>
-                                </span>
+                                @if (auth()->user()->hasAnyPermission(['investor.add']))
+                                    <span class="float-right">
+                                        <a class="btn btn-info float-right m-1" href="{{ route('investor.create') }}">Add
+                                            Investor</a>
+                                    </span>
+                                @endif
                             </div>
                             <!-- /.card-header -->
                             <div class="card-body">
@@ -256,33 +258,31 @@
                     [0, 'desc']
                 ],
                 dom: 'Bfrtip', // This is important for buttons
-                buttons: [
-    {
-        text: 'Export Excel',
-        action: function (e, dt) {
-            const url = "{{ route('investor.export') }}";
-            const params = new URLSearchParams();
+                buttons: [{
+                    text: 'Export Excel',
+                    action: function(e, dt) {
+                        const url = "{{ route('investor.export') }}";
+                        const params = new URLSearchParams();
 
-            params.set('search', dt.search() || '');
+                        params.set('search', dt.search() || '');
 
-            const order = dt.order();
+                        const order = dt.order();
 
-            if (order.length) {
-                params.set('order[0][column]', order[0][0]);
-                params.set('order[0][dir]', order[0][1]);
-            }
+                        if (order.length) {
+                            params.set('order[0][column]', order[0][0]);
+                            params.set('order[0][dir]', order[0][1]);
+                        }
 
-            dt.settings()[0].aoColumns.forEach(function (column, index) {
-                params.set(
-                    `columns[${index}][data]`,
-                    typeof column.data === 'string' ? column.data : ''
-                );
-            });
+                        dt.settings()[0].aoColumns.forEach(function(column, index) {
+                            params.set(
+                                `columns[${index}][data]`,
+                                typeof column.data === 'string' ? column.data : ''
+                            );
+                        });
 
-            window.location.href = url + '?' + params.toString();
-        }
-    }
-]
+                        window.location.href = url + '?' + params.toString();
+                    }
+                }]
             });
 
 
