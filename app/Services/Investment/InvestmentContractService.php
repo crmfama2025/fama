@@ -1769,9 +1769,14 @@ class InvestmentContractService
             'investor_id' => $investorId,
             'company_id' => $companyId,
         ])
-            ->activeLongTerm()
-            ->whereDate('investment_date', '<=', $currentInvestment->investment_date)
-            ->orderBy('investment_date')
+            ->activeLongTerm();
+        if ($document->investor_agreement_type_id === 2) {
+            $investments->whereDate('investment_date', '<=', $currentInvestment->investment_date); //if addendum then only show investments before the addendum investment date
+        }
+        if ($document->investor_agreement_type_id === 3) {
+            $investments->whereDate('investment_date', '<=', $document->generated_date); // if partial withdrawal then only show investments before the withdrawal date
+        }
+        $investments = $investments->orderBy('investment_date')
             ->orderBy('id')
             ->get();
 
