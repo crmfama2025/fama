@@ -247,6 +247,14 @@ namespace App\Models{
  * @property string|null $loss_discount_date
  * @property string|null $loss_discount_remarks
  * @property int|null $loss_or_discounted_by
+ * @property int $has_excess_amount 0-No,1-Yes
+ * @property string $excess_amount
+ * @property string|null $actual_payment_amount
+ * @property int|null $excess_added_by
+ * @property string|null $excess_added_at
+ * @property string|null $loss_discount_added_at
+ * @property string|null $excess_date
+ * @property string|null $excess_reason
  * @property-read \App\Models\Agreement|null $agreement
  * @property-read \App\Models\AgreementPayment|null $agreementPayment
  * @property-read \App\Models\AgreementUnit|null $agreementUnit
@@ -266,6 +274,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail query()
+ * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail whereActualPaymentAmount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail whereAddedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail whereAgreementId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail whereAgreementPaymentId($value)
@@ -282,10 +291,17 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail whereDeletedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail whereExcessAddedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail whereExcessAddedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail whereExcessAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail whereExcessDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail whereExcessReason($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail whereHasBounced($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail whereHasExcessAmount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail whereIsInvoiceAdded($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail whereIsPaymentReceived($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail whereLossDiscountAddedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail whereLossDiscountAmount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail whereLossDiscountDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AgreementPaymentDetail whereLossDiscountRemarks($value)
@@ -634,6 +650,7 @@ namespace App\Models{
 namespace App\Models{
 /**
  * @property int $id
+ * @property int|null $company_id
  * @property int $agreement_id
  * @property int $agreement_payment_details_id
  * @property string $paid_amount
@@ -662,6 +679,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable whereAgreementId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable whereAgreementPaymentDetailsId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable whereBankReference($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable whereCompanyId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable whereHaveOtherAdjustments($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable whereId($value)
@@ -684,6 +702,7 @@ namespace App\Models{
 namespace App\Models{
 /**
  * @property int $id
+ * @property int|null $company_id
  * @property string $allocated_amount
  * @property array $cleared_receivable_ids
  * @property string|null $cleared_date
@@ -694,6 +713,11 @@ namespace App\Models{
  * @property string|null $bank_reference
  * @property int|null $receipt_allocation_id
  * @property int $have_other_adjustments 0-No, 1-Yes
+ * @property-read \App\Models\User|null $addedBy
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ClearedReceivable> $clearedReceivables
+ * @property-read int|null $cleared_receivables_count
+ * @property-read \App\Models\Company|null $company
+ * @property-read array $project_units_grouped
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation query()
@@ -702,6 +726,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereBankReference($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereClearedDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereClearedReceivableIds($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereCompanyId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereHaveOtherAdjustments($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereId($value)

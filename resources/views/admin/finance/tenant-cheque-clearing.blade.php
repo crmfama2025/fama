@@ -368,6 +368,9 @@
                                             class="btn btn-outline-maroon float-right mx-1 btn-flat"
                                             title="View Report"><i class="fa fa-book mr-1"></i>View
                                             Report</a>
+                                        <a href="{{ route('finance.receivables.allocations-report') }}" target="_blank"
+                                            class="btn btn-outline-maroon float-right mx-1 btn-flat"
+                                            title="View Report"><i class="fa fa-book mr-1"></i>Allocations Report</a>
 
                                     </div>
                                     <div class="card-body">

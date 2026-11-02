@@ -460,4 +460,58 @@ class TenantChequeRepository
     {
         return ClearedReceivableAllocation::create($data);
     }
+
+    public function getAllocationsQuery(array $filters = []): Builder
+    {
+        $query = ClearedReceivableAllocation::query()
+            ->with('addedBy:id,first_name,last_name,profile_path')
+            ->with('company:id,company_name')
+            ->select([
+                'id',
+                'company_id',
+                'allocated_amount',
+                'cleared_date',
+                'added_by',
+                'bank_reference',
+                'receipt_allocation_id',
+                'have_other_adjustments',
+                'cleared_receivable_ids',
+                'created_at'
+            ])
+            ;
+
+        if (!empty($filters['search'])) {
+            $search = $filters['search'];
+
+            $query->where(function ($q) use ($search) {
+                $q->where('allocated_amount', 'like', "%{$search}%")
+                    ->orWhere('cleared_date', 'like', "%{$search}%")
+                    ->orWhere('bank_reference', 'like', "%{$search}%")
+                    ->orWhereHas('addedBy', function ($userQuery) use ($search) {
+                        $userQuery->where('first_name', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('company', function ($companyQuery) use ($search) {
+                        $companyQuery->where('company_name', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        if (!empty($filters['company_id'])) {
+    $query->where('company_id', $filters['company_id']);
+}
+
+if (!empty($filters['added_by'])) {
+    $query->where('added_by', $filters['added_by']);
+}
+
+if (!empty($filters['paid_date'])) {
+    $query->whereDate('cleared_date', $filters['paid_date']);
+}
+        // $query->orderBy('id', 'desc');
+        // dd($query->get()->toArray());
+
+        return $query->orderBy('id', 'desc');
+    }
+
+
 }

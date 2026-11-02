@@ -36,4 +36,23 @@ class ClearedReceivableAllocation extends Model
     {
         return $this->belongsTo(Company::class, 'company_id');
     }
+
+    protected $appends = ['project_units_grouped'];
+
+    public function getProjectUnitsGroupedAttribute(): array
+    {
+        $grouped = [];
+
+        foreach (array_filter(explode(';;', $this->attributes['project_units'] ?? '')) as $row) {
+            [$project, $unit, $subunit] = array_pad(explode('||', $row, 3), 3, '');
+
+            $grouped[$project] ??= [];
+
+            if ($unit !== '') {
+                $grouped[$project][] = $subunit !== '' ? "{$unit}-{$subunit}" : $unit;
+            }
+        }
+
+        return $grouped;
+    }
 }

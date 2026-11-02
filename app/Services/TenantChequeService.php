@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\AgreementPaymentDetail;
+use App\Models\ClearedReceivable;
 use App\Repositories\Agreement\AgreementDocRepository;
 use App\Repositories\Agreement\AgreementPaymentRepository;
 use App\Repositories\TenantChequeRepository;
@@ -1001,7 +1002,7 @@ class TenantChequeService
                     $name = $row->addedBy->first_name . ' ' . $row->addedBy->last_name;
                     $image = $row->addedBy->profile_path
                         ? asset('storage/' . $row->addedBy->profile_path)
-                        : asset('images/default-avatar.png');
+                        : ' - ';
 
                     return '
             <div style="display:flex; align-items:center; gap:8px;">
@@ -1027,13 +1028,115 @@ class TenantChequeService
             })
             ->addColumn('action', function ($row) {
                 return '<button type="button"
-                        class="btn btn-info btn-sm viewAllocationBtn"
+                        class="btn btn-danger btn-sm viewAllocationBtn"
                         data-id="' . $row->id . '"
-                        title="View Allocation">
-                        <i class="fas fa-eye"></i> View
-                    </button>';
+                        title="Delete">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                    ';
             })
-            ->rawColumns(['action', 'allocated_by'])
+
+            ->addColumn('project_numbers', function ($row) {
+                return "-";
+                // return '<button type="button"
+                //             class="btn btn-sm btn-outline-primary view-units"
+                //             data-id="' . $row->id . '">
+                //             <i class="fas fa-building"></i> Projects & Units
+                //         </button>';
+            })
+
+            ->rawColumns(['action', 'allocated_by',  'project_numbers'])
             ->toJson();
     }
+
+    public function getAllocationsExportData(array $filters = [])
+{
+    $allocations = $this->tenantChequeRepository
+        ->getAllocationsQuery($filters)
+        ->get();
+
+    // Normalise cleared_receivable_ids per allocation (handles double-encoded rows)
+    $idsByAllocation = $allocations->mapWithKeys(function ($a) {
+        $ids = $a->cleared_receivable_ids;
+        if (is_string($ids)) {
+            $ids = json_decode($ids, true);
+        }
+        return [$a->id => is_array($ids) ? $ids : []];
+    });
+
+    $allIds = $idsByAllocation->flatten()->unique()->values()->all();
+
+    // One query for every receivable used by the exported allocations
+    $details = ClearedReceivable::query()
+        ->whereIn('cleared_receivables.id', $allIds)
+        ->join('agreement_payment_details', 'agreement_payment_details.id', '=', 'cleared_receivables.agreement_payment_details_id')
+        ->join('agreements', 'agreements.id', '=', 'agreement_payment_details.agreement_id')
+        ->join('contracts', 'contracts.id', '=', 'agreements.contract_id')
+        ->leftJoin('agreement_units', 'agreement_units.agreement_id', '=', 'agreements.id')
+        ->leftJoin('contract_unit_details', 'contract_unit_details.id', '=', 'agreement_units.contract_unit_details_id')
+        ->leftJoin('contract_subunit_details', 'contract_subunit_details.id', '=', 'agreement_units.contract_subunit_details_id')
+        ->select(
+            'cleared_receivables.id as cleared_receivable_id',
+            'contracts.project_number',
+            'contract_unit_details.unit_number',
+            'contract_subunit_details.subunit_no'
+        )
+        ->get()
+        ->groupBy('cleared_receivable_id');
+
+    return $allocations->values()->map(function ($row, $index) use ($idsByAllocation, $details) {
+        $grouped = [];
+
+        foreach ($idsByAllocation[$row->id] ?? [] as $receivableId) {
+            foreach ($details->get($receivableId, collect()) as $d) {
+                $grouped[$d->project_number] ??= [];
+
+                if ($d->unit_number) {
+                    $grouped[$d->project_number][] = $d->subunit_no
+                        ? "{$d->unit_number}-{$d->subunit_no}"
+                        : $d->unit_number;
+                }
+            }
+        }
+
+        $projects = implode(', ', array_keys($grouped));
+
+        $units = collect($grouped)
+            ->map(fn ($u, $project) => $project . ': ' . (implode(', ', array_unique($u)) ?: '-'))
+            ->implode(' | ');
+
+        return [
+            $index + 1,
+            $row->company->company_name ?? '-',
+            (float) $row->allocated_amount,
+            $row->cleared_date
+                ? Carbon::parse($row->cleared_date)->format('d-m-Y')
+                : '-',
+            $row->bank_reference ?: '-',
+            $row->addedBy
+                ? trim($row->addedBy->first_name . ' ' . $row->addedBy->last_name)
+                : '-',
+            $projects ?: '-',
+            $units ?: '-',
+            $row->created_at
+                ? Carbon::parse($row->created_at)->format('d-m-Y h:i A')
+                : '-',
+        ];
+    });
+}
+
+public function allocationsExportHeadings(): array
+{
+    return [
+        '#',
+        'Company Name',
+        'Allocated Amount',
+        'Allocation Date',
+        'Bank Reference',
+        'Allocated By',
+        'Project Numbers',
+        'Units (Project: Units)',
+        'Created At',
+    ];
+}
 }

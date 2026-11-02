@@ -534,6 +534,16 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
 
     Route::post('/receivables/excess-amount', [ReceivablesClearingController::class, 'saveExcessAmount'])
         ->name('receivables.excess-amount');
+    Route::get('/receivables/allocations', [ReceivablesClearingController::class, 'receivableAllocations'])
+        ->name('finance.receivables.allocations-report');
+    Route::get(
+        '/receivable/data',
+        [ReceivablesClearingController::class, 'receivableAllocationslist']
+    )->name('receivable.allocations.data');
+   Route::get('allocations/{allocation}/project-units', [ReceivablesClearingController::class, 'projectUnits'])
+    ->name('allocations.project-units');
+
+    Route::get('allocations/export', [ReceivablesClearingController::class, 'allocationsExport'])->name('receipt-allocation.export');
 });
 
 

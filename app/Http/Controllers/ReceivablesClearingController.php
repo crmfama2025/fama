@@ -2,13 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\GenericExport;
 use App\Exports\RecevableClearingExport;
 use App\Models\AgreementPaymentDetail;
 use App\Models\AgreementTenant;
 use App\Models\Bank;
+use App\Models\ClearedReceivable;
+use App\Models\ClearedReceivableAllocation;
 use App\Models\Contract;
 use App\Models\PaymentMode;
 use App\Models\ReceiptAllocation;
+use App\Models\User;
 use App\Repositories\TenantChequeRepository;
 use App\Services\Agreement\AgreementService;
 use App\Services\CompanyService;
@@ -300,5 +304,83 @@ class ReceivablesClearingController extends Controller
 
             return response()->json(['success' => false, 'message' => $e->getMessage(), 'error'   => $e], 500);
         }
+    }
+    public function receivableAllocations()
+    {
+        $title = "Receivable Allocations";
+         $companies = $this->companyService->getWithIndustry('finance', 'receivable_cheque_clearing');
+         $users =User::select('id', 'first_name','last_name')->get();
+        return view('admin.finance.receivable-allocations', compact('title', 'companies', 'users'));
+    }
+
+    public function receivableAllocationslist(Request $request)
+    {
+        if ($request->ajax()) {
+            $filters = [
+                // 'company_id'  => $request->company_id,
+                'search'      => $request->search['value'] ?? null,
+                'company_id' => request('company_id'),
+    'added_by' => request('added_by'),
+    'paid_date' => request('paid_date'),
+            ];
+        // dd($filters);
+
+
+            return $this->tenantChequeService->getAllocationsTable($filters);
+        }
+    }
+
+    public function projectUnits(ClearedReceivableAllocation $allocation)
+{
+    $ids = $allocation->cleared_receivable_ids;
+
+if (is_string($ids)) {
+    $ids = json_decode($ids, true); // double-encoded rows come through the cast as a string
+}
+
+$ids = is_array($ids) ? $ids : [];
+
+    $rows = ClearedReceivable::query()
+        ->whereIn('cleared_receivables.id', $ids ?: [])
+        ->join('agreement_payment_details', 'agreement_payment_details.id', '=', 'cleared_receivables.agreement_payment_details_id')
+        ->join('agreements', 'agreements.id', '=', 'agreement_payment_details.agreement_id')
+        ->join('contracts', 'contracts.id', '=', 'agreements.contract_id')
+        ->leftJoin('agreement_units', 'agreement_units.agreement_id', '=', 'agreements.id')
+        ->leftJoin('contract_unit_details', 'contract_unit_details.id', '=', 'agreement_units.contract_unit_details_id')
+        ->leftJoin('contract_subunit_details', 'contract_subunit_details.id', '=', 'agreement_units.contract_subunit_details_id')
+        ->select('contracts.project_number', 'contract_unit_details.unit_number', 'contract_subunit_details.subunit_no')
+        ->distinct()
+        ->orderBy('contracts.project_number')
+        ->orderBy('contract_unit_details.unit_number')
+        ->get();
+
+    return response()->json(
+        $rows->groupBy('project_number')->map(function ($group) {
+            return $group
+                ->map(fn ($r) => $r->subunit_no ? "{$r->unit_number}-{$r->subunit_no}" : $r->unit_number)
+                ->filter()
+                ->values();
+        })
+    );
+}
+public function allocationsExport(Request $request)
+    {
+        // dd($request);
+        $filters = [
+            'search' => $request->input('search'),
+            'company_id' => request('company_id'),
+            'added_by' => request('added_by'),
+            'paid_date' => request('paid_date'),
+        ];
+        // dd($filters);
+        $data = $this->tenantChequeService->getAllocationsExportData($filters);
+
+        return Excel::download(
+            new GenericExport(
+                $data,
+                $this->tenantChequeService->allocationsExportHeadings()
+            ),
+            'allocations.xlsx'
+        );
     }
 }
