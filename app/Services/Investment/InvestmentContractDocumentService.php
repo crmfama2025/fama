@@ -420,27 +420,117 @@ class InvestmentContractDocumentService
 
         return $document;
     }
+
+    /******************** old doc 02/11/2026 Rasmiya ****************/
+    // public function createInvestorDocument($investorId, $companyId, $docInsertData)
+    // {
+    //     $docInsertData['generated_date'] = isset($docInsertData['generated_date']) ?
+    //         Carbon::parse($docInsertData['generated_date'])->format('Y-m-d H:i:s') : now()->format('Y-m-d H:i:s');
+
+    //     $docInsertData['generated_by'] = auth()->user()->id;
+    //     // dd($docInsertData);
+
+    //     $lastMudarabah = InvestmentContractDocuments::where('investor_id', $investorId)
+    //         ->where('company_id', $companyId)
+    //         ->where('investor_agreement_type_id', 1)
+    //         ->where(function ($query) {
+    //             $query->whereHas('investment', function ($investmentQuery) {
+    //                 $investmentQuery->where('investment_term_type', 1);
+    //             })
+    //                 ->orWhere(function ($novationQuery) {
+    //                     $novationQuery->where('investment_id', 0)
+    //                         ->whereNotNull('reference_mudarabah_id');
+    //                 });
+    //         })
+    //         ->latest('id')
+    //         ->first();
+    //     // dd($lastMudarabah);
+
+    //     $docInsertData['reference_mudarabah_id'] = $lastMudarabah ? $lastMudarabah->id : null;
+    //     // dd($docInsertData);
+        
+    //     //  Explicit agreement type:
+    //     //  3 = Partial Withdrawal
+    //     //  5 = Settlement/Termination
+    //     //  4 = Novation
+    //     //  1 = Mudarabah
+    //     //  2 = Addendum
+         
+    //     if ($docInsertData['investment_id'] == 0) {
+    //         if (isset($docInsertData['investor_agreement_type_id'])) {
+    //             if ($docInsertData['investor_agreement_type_id'] == 3) {
+    //                 return $this->createAgreement($docInsertData, $companyId, 3); //Partial Withdrawal
+    //             } elseif ($docInsertData['investor_agreement_type_id'] == 5) {
+    //                 return  $this->createAgreement($docInsertData, $companyId, 5); //Settlement Or Termination
+    //             }
+    //         } else {
+    //             $docData = $this->createAgreement($docInsertData, $companyId, 4); // Novation
+    //             return $this->createAgreement($docInsertData, $companyId, 1); // Mudarabah
+
+    //         }
+    //     } else {
+    //         $companyInvestmentCount = Investment::where('investor_id', $investorId)
+    //             ->where('company_id', $companyId)
+    //             ->where('investment_term_type', 1)
+    //             ->count();
+
+    //         if ($companyInvestmentCount == 1 || $docInsertData['term'] == 2) {
+    //             return $this->createAgreement($docInsertData, $companyId, 1); // Mudarabah
+    //         } elseif ($companyInvestmentCount > 1) {
+    //     // dd($this->isMudarabahClosed($lastMudarabah, $investorId, $companyId));
+
+
+    //             // Previous Mudarabah finished -> start a fresh Mudarabah, otherwise Addendum
+    //             if ($this->isMudarabahClosed($lastMudarabah, $investorId, $companyId)) {
+    //                 $docInsertData['reference_mudarabah_id'] = null; // new base agreement, don't point at the old one
+    //                 return $this->createAgreement($docInsertData, $companyId, 1); // Mudarabah
+    //             }
+    //     // dd('hii');
+    //             return $this->createAgreement($docInsertData, $companyId, 2); // Addendum
+    //         }
+    //     }
+    // }
+
+    /**
+     * A Mudarabah is "closed" when its investment is terminated (2), or termination
+     * is requested (1) and the investor has signed the Mudarabah completion document.
+     */
+    // private function isMudarabahClosed(?InvestmentContractDocuments $lastMudarabah, $investorId, $companyId): bool
+    // {
+    //     $investment = $lastMudarabah?->investment;
+    //     // dd($lastMudarabah);
+    //     if (!$investment) {
+    //         return false;                       // nothing to judge -> keep Addendum behaviour
+    //     }
+
+    //     $status = (int) $investment->terminate_status;
+    //     // dd($status);
+    //     if ($status === 2) {
+    //         return true;
+    //     }
+
+    //     if ($status === 1) {
+    //         return InvestmentContractDocuments::where('investor_id', $investorId)
+    //             ->where('company_idd', $companyId)
+    //             ->where('investor_agreement_type_id', 5)          // Settlement/Termination = completion doc
+    //             ->where('reference_mudarabah_id', $lastMudarabah->id)
+    //             ->where('is_investor_signed', 1)               // <- change to your real "signed" column
+    //             ->exists();
+    //     }
+
+    //     return false;
+    // }
+    /******************** old doc 02/11/2026 Rasmiya ****************/
+
     public function createInvestorDocument($investorId, $companyId, $docInsertData)
     {
-        // dump('createInvestorDocument');
-        // dump($investorId);
-        // dd($docInsertData);
-        // dd($docInsertData);
-        $docInsertData['generated_date'] = isset($docInsertData['generated_date']) ?
-            Carbon::parse($docInsertData['generated_date'])->format('Y-m-d H:i:s') : now()->format('Y-m-d H:i:s');
+        $docInsertData['generated_date'] = isset($docInsertData['generated_date'])
+            ? Carbon::parse($docInsertData['generated_date'])->format('Y-m-d H:i:s')
+            : now()->format('Y-m-d H:i:s');
 
         $docInsertData['generated_by'] = auth()->user()->id;
-        // dd($docInsertData);
 
-        // $lastMudarabah = InvestmentContractDocuments::where('investor_id', $investorId)
-        //     ->where('company_id', $companyId)
-        //     ->where('investor_agreement_type_id', 1) // Mudarabah
-        //     ->whereHas('investment', function ($query) {
-        //         $query->where('investment_term_type', 1); // take only long term investments
-        //     })
-        //     ->latest('id') // or latest('created_at')
-        //     ->first();
-
+        // Latest long-term Mudarabah (normal, or a novated one)
         $lastMudarabah = InvestmentContractDocuments::where('investor_id', $investorId)
             ->where('company_id', $companyId)
             ->where('investor_agreement_type_id', 1)
@@ -455,54 +545,99 @@ class InvestmentContractDocumentService
             })
             ->latest('id')
             ->first();
-        // dd($lastMudarabah);
 
-        $docInsertData['reference_mudarabah_id'] = $lastMudarabah ? $lastMudarabah->id : null;
-        // dd($docInsertData);
+        $docInsertData['reference_mudarabah_id'] = $lastMudarabah?->id;
+
         /*
-         Explicit agreement type:
-         3 = Partial Withdrawal
-         5 = Settlement/Termination
-         4 = Novation
-         1 = Mudarabah
-         2 = Addendum
-         */
-        if ($docInsertData['investment_id'] == 0) {
-            if (isset($docInsertData['investor_agreement_type_id'])) {
-                if ($docInsertData['investor_agreement_type_id'] == 3) {
-                    return $this->createAgreement($docInsertData, $companyId, 3); //Partial Withdrawal
-                } elseif ($docInsertData['investor_agreement_type_id'] == 5) {
-                    return  $this->createAgreement($docInsertData, $companyId, 5); //Settlement Or Termination
-                }
-            } else {
-                $docData = $this->createAgreement($docInsertData, $companyId, 4); // Novation
-                return $this->createAgreement($docInsertData, $companyId, 1); // Mudarabah
+        Agreement types:
+        1 = Mudarabah, 2 = Addendum, 3 = Partial Withdrawal,
+        4 = Novation,  5 = Settlement / Termination (full withdrawal)
+        */
 
+        // ── Documents not tied to a single investment ───────────────────────────
+        if ((int) $docInsertData['investment_id'] === 0) {
+            $typeId = (int) ($docInsertData['investor_agreement_type_id'] ?? 0);
+
+            if ($typeId === 3 || $typeId === 5) {
+                return $this->createAgreement($docInsertData, $companyId, $typeId);
             }
-        } else {
-            // dd("test1");
 
-            // if (isset($docInsertData['investor_agreement_type_id'])) {
-            //     if ($docInsertData['investor_agreement_type_id'] == 5) {
-            //         return  $this->createAgreement($docInsertData, $companyId, 5);
-            //     }
-            // } else {
-            $companyInvestmentCount = Investment::where('investor_id', $investorId)
-                ->where('company_id', $companyId)
-                ->where('investment_term_type', 1)
-                ->count();
-            // dd($companyInvestmentCount);
-
-            if ($companyInvestmentCount == 1 || $docInsertData['term'] == 2) {
-                // dd('inv');
-                return $this->createAgreement($docInsertData, $companyId, 1); // Mudarabah
-            } elseif ($companyInvestmentCount > 1) {
-
-                // dd('add');
-                return $this->createAgreement($docInsertData, $companyId, 2); // Addendum
+            if ($typeId === 0) {
+                $this->createAgreement($docInsertData, $companyId, 4);        // Novation
+                return $this->createAgreement($docInsertData, $companyId, 1); // Novated Mudarabah
             }
-            // }
+
+            return null;
         }
+
+        // ── Normal investment ───────────────────────────────────────────────────
+
+        // Short-term investments always get their own Mudarabah
+        if ((int) ($docInsertData['term'] ?? 0) === 2) {
+            return $this->createAgreement($docInsertData, $companyId, 1);
+        }
+
+        // Long-term: start a fresh Mudarabah when there is no open one,
+        // i.e. nothing exists yet OR the last one was closed by a full withdrawal.
+        if (!$lastMudarabah || $this->isMudarabahClosed($lastMudarabah, $investorId, $companyId)) {
+            $docInsertData['reference_mudarabah_id'] = null; // new base agreement, do not point at the old one
+            return $this->createAgreement($docInsertData, $companyId, 1);
+        }
+
+        return $this->createAgreement($docInsertData, $companyId, 2); // Addendum
+    }
+
+    /**
+     * A Mudarabah is closed after a FULL withdrawal:
+     *  - its own investment is terminated (terminate_status = 2), or
+     *  - a Settlement/Termination document (type 5) exists for it and covers
+     *    long-term investments.
+     *
+     * Works for normal and novated Mudarabahs (novated ones have investment_id = 0,
+     * so we cannot rely on $lastMudarabah->investment).
+     */
+    private function isMudarabahClosed(InvestmentContractDocuments $lastMudarabah, $investorId, $companyId): bool
+    {
+        // 1. Investment-level flag (only exists for a normal Mudarabah)
+        if ((int) $lastMudarabah->investment?->terminate_status === 2) {
+            return true;
+        }
+
+        // 2. Termination document
+        $terminationDocs = InvestmentContractDocuments::where('investor_id', $investorId)
+            ->where('company_id', $companyId)
+            ->where('investor_agreement_type_id', 5)               // Settlement/Termination
+            ->where('reference_mudarabah_id', $lastMudarabah->id)
+            ->where('is_investor_signed', 1)                    // uncomment to require the investor's signature first
+            ->get(['id', 'applied_investments']);
+
+        foreach ($terminationDocs as $doc) {
+            $ids = $this->decodeInvestmentIds($doc->applied_investments);
+
+            if (empty($ids)) {
+                continue;
+            }
+
+            // Short-term terminations also create a type-5 document.
+            // Only a termination that covers long-term investments closes the Mudarabah.
+            if (Investment::whereIn('id', $ids)->where('investment_term_type', 1)->exists()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * applied_investments can be an array, a JSON string "[1,2,3]", or a scalar JSON "123".
+     */
+    private function decodeInvestmentIds($raw): array
+    {
+        if (is_string($raw)) {
+            $raw = json_decode($raw, true);
+        }
+
+        return array_values(array_unique(array_map('intval', (array) $raw)));
     }
 
     private function createAgreement(array $data, int $companyId, int $agreementTypeId)
@@ -528,23 +663,13 @@ class InvestmentContractDocumentService
         $contract_doc = InvestmentContractDocuments::where('investment_id', $docInsertData['investment_id'])
             ->whereIn('investor_agreement_type_id', [1, 2])
             ->first();
-        // dd($companyInvestmentCount);
-        if (
-            $companyInvestmentCount == 1 || $docInsertData['term'] == 2
-        ) {
-            // Mudaraba contract
-            $docInsertData['company_id'] = $companyId;
-            $docInsertData['investor_agreement_type_id'] = 1;
-            $docInsertData['investor_agreement_template_id'] = $this->InvestorAgreementRepository->getActiveIdBytype($docInsertData['investor_agreement_type_id']);
-            // dd($docInsertData);
-            return $this->update($contract_doc->id, $docInsertData);
-        } elseif ($companyInvestmentCount > 1) {
-            // Addendum contract
-            $docInsertData['company_id'] = $companyId;
-            $docInsertData['investor_agreement_type_id'] = 2;
-            $docInsertData['investor_agreement_template_id'] = $this->InvestorAgreementRepository->getActiveIdBytype($docInsertData['investor_agreement_type_id']);
-            // dd($docInsertData);
-            return $this->update($contract_doc->id, $docInsertData);
-        }
+
+        $typeId = ((int) ($docInsertData['term'] ?? 0) === 2) ? 1 : (int) $contract_doc->investor_agreement_type_id;
+
+        $docInsertData['company_id'] = $companyId;
+        $docInsertData['investor_agreement_type_id'] = $typeId;
+        $docInsertData['investor_agreement_template_id'] = $this->InvestorAgreementRepository->getActiveIdBytype($typeId);
+
+        return $this->update($contract_doc->id, $docInsertData);
     }
 }
