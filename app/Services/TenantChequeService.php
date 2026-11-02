@@ -1027,22 +1027,23 @@ class TenantChequeService
                     : '-';
             })
             ->addColumn('action', function ($row) {
-                return '<button type="button"
-                        class="btn btn-danger btn-sm viewAllocationBtn"
-                        data-id="' . $row->id . '"
-                        title="Delete">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                    ';
+                return "-";
+                // return '<button type="button"
+                //         class="btn btn-danger btn-sm viewAllocationBtn"
+                //         data-id="' . $row->id . '"
+                //         title="Delete">
+                //         <i class="fas fa-trash"></i>
+                //     </button>
+                //     ';
             })
 
             ->addColumn('project_numbers', function ($row) {
-                return "-";
-                // return '<button type="button"
-                //             class="btn btn-sm btn-outline-primary view-units"
-                //             data-id="' . $row->id . '">
-                //             <i class="fas fa-building"></i> Projects & Units
-                //         </button>';
+                // return "-";
+                return '<button type="button"
+                            class="btn btn-sm btn-outline-primary view-units"
+                            data-id="' . $row->id . '">
+                            <i class="fas fa-building"></i> Projects & Units
+                        </button>';
             })
 
             ->rawColumns(['action', 'allocated_by',  'project_numbers'])
