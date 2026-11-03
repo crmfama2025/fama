@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ClearedReceivable extends Model
 {
-    use HasFactory;
+    use HasFactory,SoftDeletes;
 
     protected $table = 'cleared_receivables';
 
@@ -27,7 +28,7 @@ class ClearedReceivable extends Model
         'receipt_allocation_id',
         'have_other_adjustments',
         'loss_or_discount',
-        'company_id'
+        'company_id','deleted_by'
     ];
 
 

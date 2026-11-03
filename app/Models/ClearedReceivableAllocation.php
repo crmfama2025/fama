@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ClearedReceivableAllocation extends Model
 {
-    use HasFactory;
+    use HasFactory,SoftDeletes;
     protected $fillable = [
         'allocated_amount',
         'cleared_receivable_ids',
@@ -17,7 +18,8 @@ class ClearedReceivableAllocation extends Model
         'bank_reference',
         'receipt_allocation_id',
         'have_other_adjustments',
-        'company_id'
+        'company_id',
+        'deleted_by'
     ];
 
     protected $casts = [
