@@ -73,7 +73,7 @@ class UpdateMonthlyPendingProfit extends Command
                                     $investment,
                                     $wd->balance_to_pay,
                                     $wd->id,
-                                    Carbon::parse($bifurcation->withdrawal_date),
+                                    Carbon::parse($wd->withdrawal_date),
                                     null
                                 );
                             }
