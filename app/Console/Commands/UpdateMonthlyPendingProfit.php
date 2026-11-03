@@ -50,8 +50,9 @@ class UpdateMonthlyPendingProfit extends Command
                     // Get partial withdrawal for current month partial  withdrawal
                     $withdrawal = DB::table('partial_withdrawal_bifurcations')
                         ->where('investment_id', $investment->id)
-                        ->whereMonth('withdrawal_date', $currentMonthStart->month)
-                        ->whereYear('withdrawal_date', $currentMonthStart->year)
+                        // ->whereMonth('withdrawal_date', $currentMonthStart->month)
+                        // ->whereYear('withdrawal_date', $currentMonthStart->year)
+                        ->whereDate('withdrawal_date', '<=', $currentMonthEnd)
                         ->where('payout_status', '!=', 2)
                         ->get();
 
@@ -103,8 +104,9 @@ class UpdateMonthlyPendingProfit extends Command
                         // Get partial withdrawal for current month profit
                         $partialWithdrawal = DB::table('partial_withdrawal_bifurcations')
                             ->where('investment_id', $investment->id)
-                            ->whereMonth('withdrawal_date', $currentMonthStart->month)
-                            ->whereYear('withdrawal_date', $currentMonthStart->year)
+                                // ->whereMonth('withdrawal_date', $currentMonthStart->month)
+                                // ->whereYear('withdrawal_date', $currentMonthStart->year)
+                            ->whereDate('withdrawal_date', '<=', $currentMonthEnd)
                             ->where('profit_payout_status', '!=', 2)
                             ->get();
 
