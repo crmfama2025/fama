@@ -129,42 +129,42 @@ class GenerateAndSendSignedAgreementPdf implements ShouldQueue
 
         // $companyname = preg_replace('/[^A-Za-z0-9 ]/', ' ', $contract->company->company_name);
 
-        // --- send to investor ---
-        $this->sendAndLog(
-            $brevoService,
-            $contract,
-            'investor',
-            $contract->investor->investor_name,
-            $contract->investor->investor_email,
-            $pdfBinary,
-            $investorName,
-            $companyName
-        );
+        // // --- send to investor ---
+        // $this->sendAndLog(
+        //     $brevoService,
+        //     $contract,
+        //     'investor',
+        //     $contract->investor->investor_name,
+        //     $contract->investor->investor_email,
+        //     $pdfBinary,
+        //     $investorName,
+        //     $companyName
+        // );
 
-        // --- send to company ---
-        $this->sendAndLog(
-            $brevoService,
-            $contract,
-            'company',
-            $contract->company->company_name,
-            $contract->company->owner_email,
-            $pdfBinary,
-            $investorName,
-            $companyName
-        );
+        // // --- send to company ---
+        // $this->sendAndLog(
+        //     $brevoService,
+        //     $contract,
+        //     'company',
+        //     $contract->company->company_name,
+        //     $contract->company->owner_email,
+        //     $pdfBinary,
+        //     $investorName,
+        //     $companyName
+        // );
 
-        // dd($response->successful());
-        // if (!$response->successful()) {
-        //     Log::warning('Brevo signed-agreement email failed', [
-        //         'contract_id' => $contract->id,
-        //         'status'      => $response->status(),
-        //         'body'        => $response->body(),
-        //     ]);
-        // }
+        // // dd($response->successful());
+        // // if (!$response->successful()) {
+        // //     Log::warning('Brevo signed-agreement email failed', [
+        // //         'contract_id' => $contract->id,
+        // //         'status'      => $response->status(),
+        // //         'body'        => $response->body(),
+        // //     ]);
+        // // }
 
-        $contract->forceFill([
-            'both_notified_at' => now(),
-        ])->save();
+        // $contract->forceFill([
+        //     'both_notified_at' => now(),
+        // ])->save();
     }
 
     /**
