@@ -338,6 +338,7 @@ class InvestorRepository
             ->filter(function ($investment) {
                 return (int) $investment->investment_term_type === 1;
             })
+            ->sortBy('investment_date')
             ->pluck('company')     // extract company
             ->filter()             // remove nulls (important)
             ->unique('id')         // remove duplicates
