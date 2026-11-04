@@ -276,8 +276,8 @@
                                                 <thead>
                                                     <tr style="background-color: #e9ecef;">
                                                         <th style="width: 40%;">Company Name</th>
-                                                        <th class="text-right">Short Term Amount</th>
                                                         <th class="text-right">Long Term Amount</th>
+                                                        <th class="text-right">Short Term Amount</th>
                                                         <th class="text-right">Invested Amount</th>
                                                     </tr>
                                                 </thead>
@@ -381,26 +381,25 @@
     @include('admin.investment.investor-bank-modal')
 
     <script>
+        $(function() {
 
-    $(function () {
+            const investorId = @json($investor->id);
+            let breakdownLoaded = false;
 
-        const investorId = @json($investor->id);
-        let breakdownLoaded = false;
-
-        function formatAED(amount) {
-            return 'AED ' + Number(amount || 0).toLocaleString('en-US', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            }) + '/-';
-        }
-
-        function loadInvestmentBreakdown(forceReload = false) {
-
-            if (breakdownLoaded && !forceReload) {
-                return;
+            function formatAED(amount) {
+                return 'AED ' + Number(amount || 0).toLocaleString('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }) + '/-';
             }
 
-            $('#investmentBreakdownBody').html(`
+            function loadInvestmentBreakdown(forceReload = false) {
+
+                if (breakdownLoaded && !forceReload) {
+                    return;
+                }
+
+                $('#investmentBreakdownBody').html(`
                 <tr>
                     <td colspan="2" class="text-center">
                         Loading investment breakdown...
@@ -408,81 +407,81 @@
                 </tr>
             `);
 
-            $.ajax({
-                url: "{{ route('investment.breakdown') }}",
-                type: 'GET',
-                data: {
-                    investor_id: investorId
-                },
-                dataType: 'json',
+                $.ajax({
+                    url: "{{ route('investment.breakdown') }}",
+                    type: 'GET',
+                    data: {
+                        investor_id: investorId
+                    },
+                    dataType: 'json',
 
-                success: function (response) {
-                    const tbody = $('#investmentBreakdownBody');
-                    tbody.empty();
+                    success: function(response) {
+                        const tbody = $('#investmentBreakdownBody');
+                        tbody.empty();
 
-                    if (!response.companies || response.companies.length === 0) {
-                        tbody.append(
-                            $('<tr>').append(
-                                $('<td>')
+                        if (!response.companies || response.companies.length === 0) {
+                            tbody.append(
+                                $('<tr>').append(
+                                    $('<td>')
                                     .attr('colspan', 4)
                                     .addClass('text-center')
                                     .text('No investment details available.')
-                            )
-                        );
-                    } else {
-                        response.companies.forEach(function (company) {
-                            const row = $('<tr>');
-
-                            row.append(
-                                $('<td>').text(company.company_name)
+                                )
                             );
+                        } else {
+                            response.companies.forEach(function(company) {
+                                const row = $('<tr>');
 
-                            row.append(
-                                $('<td>')
+                                row.append(
+                                    $('<td>').text(company.company_name)
+                                );
+
+                                row.append(
+                                    $('<td>')
                                     .addClass('text-right')
                                     .text(formatAED(company.short_term_amount))
-                            );
+                                );
 
-                            row.append(
-                                $('<td>')
+                                row.append(
+                                    $('<td>')
                                     .addClass('text-right')
                                     .text(formatAED(company.long_term_amount))
-                            );
+                                );
 
-                            row.append(
-                                $('<td>')
+                                row.append(
+                                    $('<td>')
                                     .addClass('text-right')
                                     .text(formatAED(company.total_invested))
-                            );
+                                );
 
-                            tbody.append(row);
-                        });
-                    }
+                                tbody.append(row);
+                            });
+                        }
 
-                    $('#investmentBreakdownShortTotal').text(
-                        formatAED(response.short_term_total)
-                    );
+                        $('#investmentBreakdownShortTotal').text(
+                            formatAED(response.short_term_total)
+                        );
 
-                    $('#investmentBreakdownLongTotal').text(
-                        formatAED(response.long_term_total)
-                    );
+                        $('#investmentBreakdownLongTotal').text(
+                            formatAED(response.long_term_total)
+                        );
 
-                    $('#investmentBreakdownTotal').text(
-                        formatAED(response.grand_total)
-                    );
+                        $('#investmentBreakdownTotal').text(
+                            formatAED(response.grand_total)
+                        );
 
-                    breakdownLoaded = true;
-                },
+                        breakdownLoaded = true;
+                    },
 
-                error: function (xhr) {
-                    breakdownLoaded = false;
+                    error: function(xhr) {
+                        breakdownLoaded = false;
 
-                    console.error(
-                        'Investment breakdown error:',
-                        xhr.responseText
-                    );
+                        console.error(
+                            'Investment breakdown error:',
+                            xhr.responseText
+                        );
 
-                    $('#investmentBreakdownBody').html(`
+                        $('#investmentBreakdownBody').html(`
                         <tr>
                             <td colspan="4" class="text-center text-danger">
                                 Failed to load investment breakdown.
@@ -490,120 +489,118 @@
                         </tr>
                     `);
 
-                    $('#investmentBreakdownShortTotal').text('AED 0.00/-');
-                    $('#investmentBreakdownLongTotal').text('AED 0.00/-');
-                    $('#investmentBreakdownTotal').text('AED 0.00/-');
-                }
+                        $('#investmentBreakdownShortTotal').text('AED 0.00/-');
+                        $('#investmentBreakdownLongTotal').text('AED 0.00/-');
+                        $('#investmentBreakdownTotal').text('AED 0.00/-');
+                    }
 
-                
-            });
-        }
 
-        // Initialize Investment Details DataTable
-        const table = $('#investmentsTable').DataTable({
+                });
+            }
 
-            processing: true,
-            serverSide: true,
-            responsive: true,
-            pageLength: 10,
+            // Initialize Investment Details DataTable
+            const table = $('#investmentsTable').DataTable({
 
-            ajax: {
-                url: "{{ route('investment.list') }}",
-                data: function (d) {
-                    d.investor_id = investorId;
-                }
-            },
+                processing: true,
+                serverSide: true,
+                responsive: true,
+                pageLength: 10,
 
-            columns: [
-                {
-                    data: 'DT_RowIndex',
-                    name: 'id'
+                ajax: {
+                    url: "{{ route('investment.list') }}",
+                    data: function(d) {
+                        d.investor_id = investorId;
+                    }
                 },
-                {
-                    data: 'action',
-                    name: 'action',
-                    orderable: false,
-                    searchable: false
-                },
-                {
-                    data: 'company_name',
-                    name: 'company.company_name'
-                },
-                {
-                    data: 'investment_code',
-                    name: 'investment_code'
-                },
-                {
-                    data: 'investment_amount',
-                    name: 'investment_amount'
-                },
-                {
-                    data: 'investment_date',
-                    name: 'investment_date'
-                },
-                {
-                    data: 'profit_interval',
-                    name: 'profitInterval.profit_interval_name'
-                },
-                {
-                    data: 'investment_term_type',
-                    name: 'investment_term_type'
-                },
-                {
-                    data: 'profit_perc',
-                    name: 'profit_perc'
-                },
-                {
-                    data: 'profit_amount',
-                    name: 'profit_amount'
-                },
-                {
-                    data: 'invested_company_name',
-                    name: 'investedCompany.company_name'
-                },
-                {
-                    data: 'maturity_date',
-                    name: 'maturity_date'
-                },
-                {
-                    data: 'total_profit_released',
-                    name: 'total_profit_released'
-                },
-                {
-                    data: 'current_month_released',
-                    name: 'current_month_released'
-                },
-                {
-                    data: 'outstanding_profit',
-                    name: 'outstanding_profit'
-                },
-                {
-                    data: 'grace_period',
-                    name: 'grace_period'
-                },
-                {
-                    data: 'batch_name',
-                    name: 'payoutBatch.batch_name'
-                },
-                {
-                    data: 'nominee_details',
-                    name: 'nominee_name'
-                }
-            ],
 
-            order: [
-                [0, 'desc']
-            ],
+                columns: [{
+                        data: 'DT_RowIndex',
+                        name: 'id'
+                    },
+                    {
+                        data: 'action',
+                        name: 'action',
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: 'company_name',
+                        name: 'company.company_name'
+                    },
+                    {
+                        data: 'investment_code',
+                        name: 'investment_code'
+                    },
+                    {
+                        data: 'investment_amount',
+                        name: 'investment_amount'
+                    },
+                    {
+                        data: 'investment_date',
+                        name: 'investment_date'
+                    },
+                    {
+                        data: 'profit_interval',
+                        name: 'profitInterval.profit_interval_name'
+                    },
+                    {
+                        data: 'investment_term_type',
+                        name: 'investment_term_type'
+                    },
+                    {
+                        data: 'profit_perc',
+                        name: 'profit_perc'
+                    },
+                    {
+                        data: 'profit_amount',
+                        name: 'profit_amount'
+                    },
+                    {
+                        data: 'invested_company_name',
+                        name: 'investedCompany.company_name'
+                    },
+                    {
+                        data: 'maturity_date',
+                        name: 'maturity_date'
+                    },
+                    {
+                        data: 'total_profit_released',
+                        name: 'total_profit_released'
+                    },
+                    {
+                        data: 'current_month_released',
+                        name: 'current_month_released'
+                    },
+                    {
+                        data: 'outstanding_profit',
+                        name: 'outstanding_profit'
+                    },
+                    {
+                        data: 'grace_period',
+                        name: 'grace_period'
+                    },
+                    {
+                        data: 'batch_name',
+                        name: 'payoutBatch.batch_name'
+                    },
+                    {
+                        data: 'nominee_details',
+                        name: 'nominee_name'
+                    }
+                ],
 
-            dom: 'Bflrtip',
+                order: [
+                    [0, 'desc']
+                ],
 
-            buttons: [
-                {
+                dom: 'Bflrtip',
+
+                buttons: [{
                     extend: 'excelHtml5',
                     text: 'Export Excel',
                     title: 'Investments Data',
 
-                    action: function (e, dt, node, config) {
+                    action: function(e, dt, node, config) {
 
                         const searchValue = dt.search();
 
@@ -632,28 +629,27 @@
 
                         form.appendTo('body').trigger('submit');
                     }
+                }]
+            });
+
+            // Load the breakdown when the Investment tab becomes visible.
+            $(document).on(
+                'shown.bs.tab',
+                'a[data-toggle="tab"][href="#investment"], ' +
+                'a[data-bs-toggle="tab"][href="#investment"], ' +
+                'button[data-bs-toggle="tab"][data-bs-target="#investment"]',
+                function() {
+                    loadInvestmentBreakdown();
+                    table.columns.adjust();
                 }
-            ]
-        });
+            );
 
-        // Load the breakdown when the Investment tab becomes visible.
-        $(document).on(
-            'shown.bs.tab',
-            'a[data-toggle="tab"][href="#investment"], ' +
-            'a[data-bs-toggle="tab"][href="#investment"], ' +
-            'button[data-bs-toggle="tab"][data-bs-target="#investment"]',
-            function () {
+            // If the Investment tab is already open on page load.
+            if ($('#investment').hasClass('active')) {
                 loadInvestmentBreakdown();
-                table.columns.adjust();
             }
-        );
 
-        // If the Investment tab is already open on page load.
-        if ($('#investment').hasClass('active')) {
-            loadInvestmentBreakdown();
-        }
-
-    });
+        });
         // let table = '';
         // $(function() {
         //     table = $('#investmentsTable').DataTable({
