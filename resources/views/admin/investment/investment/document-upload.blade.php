@@ -41,6 +41,7 @@
 
                 <div class="card">
                     <div class="card-body">
+                        <small class="text-danger">* Max File size 10MB</small>
 
                         <form id="documentForm" method="POST" enctype="multipart/form-data"
                             action="{{ route('investment.contracts.upload', $document->id) }}">
@@ -744,16 +745,14 @@
 
                         let errors = xhr.responseJSON?.errors;
 
-                        if (errors) {
-                            let msg = '';
-
-                            $.each(errors, function(key, value) {
-                                msg += value[0] + '\n';
+                        if (xhr.status === 422 && errors) {
+                            $.each(errors, function(key, messages) {
+                                messages.forEach(function(message) {
+                                    toastr.error(message);
+                                });
                             });
-
-                            toastr.error(msg);
                         } else {
-                            toastr.error('Server error');
+                            toastr.error(xhr.responseJSON?.message || 'Server error');
                         }
                     }
                 });

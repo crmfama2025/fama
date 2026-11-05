@@ -2007,6 +2007,7 @@ class InvestmentService
     }
     public function uploadContracts($data, $id)
     {
+        $this->validateContractDocuments($data);
         // dd($data);
         return DB::transaction(function () use ($data, $id) {
             $document = InvestmentContractDocuments::findOrFail($id);
@@ -2115,6 +2116,40 @@ class InvestmentService
             return true;
         });
     }
+
+    private function validateContractDocuments(array $data)
+{
+    $validator = Validator::make($data, [
+        'documents' => ['required', 'array'],
+
+        'documents.*.document' => [
+            'nullable',
+            'file',
+            'max:10240',
+        ],
+
+        'documents.*.additional_documents' => [
+            'nullable',
+            'array',
+        ],
+
+        'documents.*.additional_documents.*.file' => [
+            'nullable',
+            'file',
+            'max:10240',
+        ],
+    ], [
+        'documents.required' => 'Please upload at least one contract document.',
+        'documents.*.document.file' => 'Contract document must be a valid file.',
+        'documents.*.document.max' => 'Contract document size must not exceed 10MB.',
+        'documents.*.additional_documents.*.file.file' => 'Additional document must be a valid file.',
+        'documents.*.additional_documents.*.file.max' => 'Additional document size must not exceed 10MB.',
+    ]);
+
+    if ($validator->fails()) {
+        throw new ValidationException($validator);
+    }
+}
 
     public function deleteContracts($id)
     {
