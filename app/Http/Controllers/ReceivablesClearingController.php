@@ -345,7 +345,7 @@ $ids = is_array($ids) ? $ids : [];
         ->join('agreement_payment_details', 'agreement_payment_details.id', '=', 'cleared_receivables.agreement_payment_details_id')
         ->join('agreements', 'agreements.id', '=', 'agreement_payment_details.agreement_id')
         ->join('contracts', 'contracts.id', '=', 'agreements.contract_id')
-        ->leftJoin('agreement_units', 'agreement_units.agreement_id', '=', 'agreements.id')
+        ->leftJoin('agreement_units', 'agreement_units.id', '=', 'agreement_payment_details.agreement_unit_id')
         ->leftJoin('contract_unit_details', 'contract_unit_details.id', '=', 'agreement_units.contract_unit_details_id')
         ->leftJoin('contract_subunit_details', 'contract_subunit_details.id', '=', 'agreement_units.contract_subunit_details_id')
         ->select('contracts.project_number', 'contract_unit_details.unit_number', 'contract_subunit_details.subunit_no')
@@ -383,4 +383,22 @@ public function allocationsExport(Request $request)
             'allocations.xlsx'
         );
     }
+    public function deleteAllocation($id)
+{
+    try {
+        $this->tenantChequeService->deleteAllocation($id);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Allocation deleted successfully.'
+        ]);
+
+    } catch (\Throwable $e) {
+
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ], 500);
+    }
+}
 }

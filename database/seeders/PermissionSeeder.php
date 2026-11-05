@@ -23,7 +23,7 @@ class PermissionSeeder extends Seeder
             ]);
 
             if ($module == 'finance') {
-                $subModule = ['payout', 'payable_cheque_clearing', 'receivable_cheque_clearing', 'add_excess', 'add_loss_or_discount'];
+                $subModule = ['payout', 'payable_cheque_clearing', 'receivable_cheque_clearing', 'add_excess', 'add_loss_or_discount','delete-allocation'];
             } elseif ($module == 'report') {
                 $subModule = [
                     'view',

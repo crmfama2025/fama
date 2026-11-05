@@ -58,4 +58,11 @@ class ClearedReceivable extends Model
     {
         return $this->belongsTo(Company::class, 'paid_company_id', 'id');
     }
+    protected static function booted()
+{
+    static::deleting(function ($allocation) {
+        $allocation->deleted_by = auth()->id();
+        $allocation->saveQuietly();
+    });
+}
 }

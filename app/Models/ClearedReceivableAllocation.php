@@ -57,4 +57,12 @@ class ClearedReceivableAllocation extends Model
 
         return $grouped;
     }
+        protected static function booted()
+{
+    static::deleting(function ($allocation) {
+        $allocation->deleted_by = auth()->id();
+        $allocation->saveQuietly();
+    });
+
+}
 }

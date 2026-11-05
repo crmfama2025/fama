@@ -869,13 +869,16 @@ function updateContractUnitPayments($contract_unit_details_id, $paid_amount)
         return false;
     }
 
-    $contract_unit = $contract_unit_detail->contractUnit;
+    $contract_unit = $contract_unit_detail->contract_unit;
+    // dd($contract_unit);
     if ($contract_unit) {
+        // dd($contract_unit);
         $contract_unit->total_payment_received += $paid_amount;
         $contract_unit->total_payment_pending -= $paid_amount;
         $contract_unit->save();
     }
 
+    // dd($contract_unit_detail);
     $contract_unit_detail->total_payment_received += $paid_amount;
     $contract_unit_detail->total_payment_pending -= $paid_amount;
     $contract_unit_detail->save();
@@ -1595,7 +1598,8 @@ function getSubModuleArray()
         'convert',
         'location_pricing',
         'add_excess',
-        'add_loss_or_discount'
+        'add_loss_or_discount',
+        'delete-allocation'
     ];
 }
 

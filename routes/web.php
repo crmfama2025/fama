@@ -544,6 +544,7 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
     ->name('allocations.project-units');
 
     Route::get('allocations/export', [ReceivablesClearingController::class, 'allocationsExport'])->name('receipt-allocation.export');
+    Route::delete('allocations/delete/{allocation}', [ReceivablesClearingController::class, 'deleteAllocation'])->name('cleared-receivable-allocation.destroy');
 });
 
 

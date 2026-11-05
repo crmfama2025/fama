@@ -668,6 +668,8 @@ namespace App\Models{
  * @property int|null $receipt_allocation_id
  * @property int $have_other_adjustments 0-No, 1-Yes
  * @property int $loss_or_discount 0-None, 1-Loss, 2-Discount
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property int|null $deleted_by
  * @property-read \App\Models\AgreementPaymentDetail|null $agreementPaymentDetail
  * @property-read \App\Models\Bank|null $paidBank
  * @property-read \App\Models\User|null $paidBy
@@ -675,12 +677,15 @@ namespace App\Models{
  * @property-read \App\Models\PaymentMode|null $paidMode
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable query()
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable whereAgreementId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable whereAgreementPaymentDetailsId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable whereBankReference($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable whereCompanyId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable whereDeletedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable whereHaveOtherAdjustments($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable whereLossOrDiscount($value)
@@ -695,6 +700,8 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable wherePendingAmount($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable whereReceiptAllocationId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivable withoutTrashed()
  */
 	class ClearedReceivable extends \Eloquent {}
 }
@@ -713,6 +720,8 @@ namespace App\Models{
  * @property string|null $bank_reference
  * @property int|null $receipt_allocation_id
  * @property int $have_other_adjustments 0-No, 1-Yes
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property int|null $deleted_by
  * @property-read \App\Models\User|null $addedBy
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ClearedReceivable> $clearedReceivables
  * @property-read int|null $cleared_receivables_count
@@ -720,6 +729,7 @@ namespace App\Models{
  * @property-read array $project_units_grouped
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation query()
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereAddedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereAllocatedAmount($value)
@@ -728,11 +738,15 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereClearedReceivableIds($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereCompanyId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereDeletedBy($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereHaveOtherAdjustments($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereReceiptAllocationId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation whereUpdatedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|ClearedReceivableAllocation withoutTrashed()
  */
 	class ClearedReceivableAllocation extends \Eloquent {}
 }

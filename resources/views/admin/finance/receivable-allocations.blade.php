@@ -259,18 +259,21 @@
                 confirmButtonText: "Yes, delete it!"
             }).then((result) => {
                 if (result.isConfirmed) {
+                    showLoader();
                     $.ajax({
                         type: "DELETE",
                         // url: '/company/' + id,
 
-                        url: "{{ route('company.destroy', ':id') }}".replace(':id', id),
+                        url: "{{ route('cleared-receivable-allocation.destroy', ':id') }}".replace(':id',
+                            id),
                         data: {
                             _token: $('meta[name="csrf-token"]').attr('content')
                         },
                         dataType: "json",
                         success: function(response) {
+                            hideLoader();
                             toastr.success(response.message);
-                            $('#companyTable').DataTable().ajax.reload();
+                            $('#allocationsTable').DataTable().ajax.reload(null, false);
                         }
                     });
 
