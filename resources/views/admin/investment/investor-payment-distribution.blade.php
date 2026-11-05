@@ -58,7 +58,16 @@
                                                     <?php } ?>
                                                 </select>
                                             </div>
-                                            <div class="col-md-3">
+                                            <div class="col-md-2">
+                                                <label for="inputPassword3">Year</label>
+                                                <select class="form-control select2" name="year" id="year">
+                                                    <option value="">Select Year</option>
+                                                    <?php for ($y = 2022; $y <= date('Y') + 2; ++$y) { ?>
+                                                        <option value="{{ $y }}">{{ $y }}</option>
+                                                    <?php } ?>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-2">
                                                 <label for="inputPassword3">Batch</label>
                                                 <select class="form-control select2" name="batch_id" id="batch_id">
                                                     <option value="">Select Batch</option>
@@ -79,7 +88,7 @@
 
                                                 </select>
                                             </div>
-                                            <div class="col-md-3">
+                                            <div class="col-md-2">
                                                 <label for="company_id">Invested Company</label>
 
                                                 <select class="form-control select2" name="company_id" id="company_id">
@@ -325,6 +334,7 @@
         function currentFilters() {
             return {
                 month: $('#month').val(),
+                year: $('#year').val(),
                 batch_id: $('#batch_id').val(),
                 investor_id: $('#investor_id').val(),
                 company_id: $('#company_id').val()
@@ -833,6 +843,7 @@
                 url: "{{ route('payout.pending.list') }}",
                 data: function(d) {
                     d.month = $('#month').val();
+                    d.year = $('#year').val();
                     d.batch_id = $('#batch_id').val();
                     d.investor_id = $('#investor_id').val();
                     d.company_id = $('#company_id').val();
@@ -872,6 +883,7 @@
                 action: function(e, dt) {
                     let params = dt.ajax.params();
                     params.month = $('#month').val();
+                    params.year = $('#year').val();
                     params.batch_id = $('#batch_id').val();
                     params.investor_id = $('#investor_id').val();
                     params.company_id = $('#company_id').val();
