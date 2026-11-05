@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exports\PayableExport;
 use App\Exports\PayablePendingExport;
+use App\Models\Contract;
 use App\Models\ContractPayableClear;
 use App\Models\ContractPaymentDetail;
 use App\Services\BankService;
@@ -35,13 +36,15 @@ class PayableClearingController extends Controller
         $properties = getPropertiesHaveContract();
         // $paymentmodes = getPaymentModeHaveContract();
         $companies = $this->companyService->getAll('finance', 'payable_cheque_clearing');
+        $contracts = Contract::select('id', 'project_number', 'company_id')->get();
 
         return view('admin.finance.payable-cheque-clearing', compact(
             'banks',
             'vendors',
             'properties',
             'paymentmodes',
-            'companies'
+            'companies',
+            'contracts'
         ));
     }
 
@@ -68,6 +71,8 @@ class PayableClearingController extends Controller
                 'property_id' => $request->property_id,
                 'payment_mode' => $request->payment_mode,
                 'company_id' => $request->company_id,
+                'contract_company_id' => $request->contract_company_id,
+                'contract_id' => $request->contract_id,
             );
 
             $filters = [
@@ -139,7 +144,10 @@ class PayableClearingController extends Controller
             'property_id' => $request->property_id ?? null,
             'vendor_id'     => $request->vendor_id ?? null,
             'mode_id' => $request->payment_mode ?? null,
+            'contract_company_id' => $request->contract_company_id ?? null,
+            'contract_id' => $request->contract_id ?? null,
         ];
+        // dd($filters);
 
         return Excel::download(new PayablePendingExport($request->search, $filters), 'payable-pending-report.xlsx');
     }

@@ -80,6 +80,31 @@
                                                 </select>
                                             </div> --}}
 
+                                            <!-- Company -->
+                                            <div class="form-group col-md-2">
+                                                <label for="companySelect">Company</label>
+                                                <select class="form-control select2" id="companySelectReceivable"
+                                                    name="company_id">
+                                                    <option value="">Select Company</option>
+
+                                                    @foreach ($companies as $company)
+                                                        @if (auth()->user()->hasAnyPermission(['finance.payable_cheque_clearing'], $company->id))
+                                                            <option value="{{ $company->id }}">
+                                                                {{ $company->company_name }}
+                                                            </option>
+                                                        @endif
+                                                    @endforeach
+                                                </select>
+                                            </div>
+
+                                            <!-- Project -->
+                                            <div class="form-group col-md-2">
+                                                <label for="projectSelect">Project</label>
+                                                <select class="form-control select2" id="projectSelect" name="project_id">
+                                                    <option value="">Select Project</option>
+                                                </select>
+                                            </div>
+
                                             <div class="col-md-2 vendorselect">
                                                 <label for="inputPassword3">Vendor</label>
                                                 <select class="form-control select2" id="vendor_id">
@@ -129,8 +154,9 @@
                                             data-toggle="modal" data-target="#modal-clear-payable"
                                             data-clear-type="bulk">Clear All</button>
 
-                                        <button class="btn btn-danger float-right mr-1" title="return" data-toggle="modal"
-                                            data-target="#modal-return-cheque" id="returnBtn">Returns</button>
+                                        <button class="btn btn-danger float-right mr-1" title="return"
+                                            data-toggle="modal" data-target="#modal-return-cheque"
+                                            id="returnBtn">Returns</button>
 
                                         <a href="{{ route('cleared.list') }}"
                                             class="btn btn-outline-maroon float-right mr-1"><i class="fas fa-book"></i>
@@ -363,8 +389,8 @@
                                     </div>
                                     <div class="form-group  bankref">
                                         <label class="asterisk">Bank Reference</label>
-                                        <input type="text" class="form-control" name="bank_reference" id="bank_reference"
-                                            placeholder="Bank Reference" required>
+                                        <input type="text" class="form-control" name="bank_reference"
+                                            id="bank_reference" placeholder="Bank Reference" required>
                                     </div>
                                     <div class="form-group row modechange">
                                         <label for="exampleInputEmail1">Remarks</label>
@@ -464,14 +490,14 @@
                             <div class="modal-body">
                                 <input type="hidden" name="id" id="loss_discount_id">
 
-                             
+
 
                                 <div class="form-group">
                                     <label class="asterisk">Date</label>
                                     <div class="input-group date" id="lossDiscountDate" data-target-input="nearest">
-                                        <input type="text" name="loss_discount_date" class="form-control datetimepicker-input"
-                                            id="loss_discount_date" data-target="#lossDiscountDate" placeholder="dd-mm-YYYY"
-                                            required>
+                                        <input type="text" name="loss_discount_date"
+                                            class="form-control datetimepicker-input" id="loss_discount_date"
+                                            data-target="#lossDiscountDate" placeholder="dd-mm-YYYY" required>
 
                                         <div class="input-group-append" data-target="#lossDiscountDate"
                                             data-toggle="datetimepicker">
@@ -559,17 +585,18 @@
         function hidelemnetsonload() {
             $('.banksingle, .cheque, .modechange, .companyTerminate').hide();
         }
-       function applyPaymentMode(modeId) {
+
+        function applyPaymentMode(modeId) {
             modeId = parseInt(modeId) || 0;
             hidelemnetsonload();
             if (!modeId) return;
 
-            $('.modechange').show(); 
-             if (modeId === 1) { 
+            $('.modechange').show();
+            if (modeId === 1) {
                 $('.bankref').hide();
-            } else { 
+            } else {
                 $('.companyTerminate, .banksingle, .bankref').show();
-                if (modeId === 3) $('.cheque').show(); 
+                if (modeId === 3) $('.cheque').show();
             }
         }
 
@@ -596,7 +623,7 @@
         }
         let lossDiscountBalance = 0;
 
-        $(document).on('input', '#loss_discount_amount', function () {
+        $(document).on('input', '#loss_discount_amount', function() {
             let amt = parseFloat(this.value) || 0;
 
             if (amt > lossDiscountBalance) {
@@ -606,8 +633,8 @@
 
             $('#balance_amount').val((lossDiscountBalance - amt).toFixed(2));
         });
-      
-        $(document).on('click', '.lossDiscountBtn', function (e) {
+
+        $(document).on('click', '.lossDiscountBtn', function(e) {
             e.preventDefault();
 
             $('.modal.show').not('#modal-loss-discount').modal('hide');
@@ -630,7 +657,7 @@
 
             $('#modal-loss-discount').modal('show');
         });
-        $('#lossDiscountForm').on('submit', function (e) {
+        $('#lossDiscountForm').on('submit', function(e) {
             e.preventDefault();
 
             const fdata = new FormData(this);
@@ -644,23 +671,24 @@
                 dataType: 'json',
                 processData: false,
                 contentType: false,
-                success: function (response) {
+                success: function(response) {
                     hideLoader();
                     $('#modal-loss-discount').modal('hide');
                     $('#PayableList').DataTable().ajax.reload();
                     toastr.success(response.message);
                 },
-                error: function (xhr) {
+                error: function(xhr) {
                     hideLoader();
                     const errs = xhr.responseJSON?.errors;
-                    toastr.error(errs ? Object.values(errs)[0][0] : (xhr.responseJSON?.message || 'Something went wrong'));
+                    toastr.error(errs ? Object.values(errs)[0][0] : (xhr.responseJSON?.message ||
+                        'Something went wrong'));
                 }
             });
         });
         $('#modal-clear-payable').on('show.bs.modal', function(event) {
             var button = $(event.relatedTarget);
             var clearType = button.data('clear-type');
-        
+
             if (clearType === 'bulk' && $('.groupCheckbox:checked').length === 0) {
                 toastr.error('Please select one or more items to continue.');
                 event.preventDefault();
@@ -709,7 +737,7 @@
                     $('#bank_name').val(bankId).trigger('change');
                 }
                 $('#cheque_no').val(chequeNo || '');
-           
+
             }
         });
 
@@ -725,7 +753,7 @@
                 const itemCheckboxes = document.querySelectorAll('.groupCheckbox');
                 itemCheckboxes.forEach(checkbox => {
                     checkbox.checked = this
-                        .checked; 
+                        .checked;
                 });
             });
         }
@@ -864,6 +892,8 @@
                         d.payment_mode = $('#payment_mode').val();
                         d.company_id = $('#statusFilters .btn.btn-info').attr(
                             'data-companyid');
+                        d.contract_companyId = $('#companySelectReceivable').val() || null;
+                        d.contract_id = $('#projectSelect').val();
                     }
                 },
                 columns: [{
@@ -947,7 +977,7 @@
                 order: [
                     [0, 'desc']
                 ],
-                dom: 'Bfrtip', 
+                dom: 'Bfrtip',
                 buttons: [{
                     extend: 'excelHtml5',
                     text: 'Export Excel',
@@ -1011,6 +1041,17 @@
                             value: $('#statusFilters .btn.btn-info').attr(
                                 'data-companyid')
                         }));
+                        form.append($('<input>', {
+                            type: 'hidden',
+                            name: 'contract_company_id',
+                            value: $('#companySelectReceivable')
+                                .val() || ''
+                        }));
+                        form.append($('<input>', {
+                            type: 'hidden',
+                            name: 'contract_id',
+                            value: $('#projectSelect').val() || ''
+                        }));
 
                         // Append to body and submit
                         form.appendTo('body').submit();
@@ -1061,7 +1102,7 @@
             e.preventDefault();
 
             let isValid = true;
-            $(".error-text").remove(); 
+            $(".error-text").remove();
 
             $("#PaymentSubmitForm").find("[required]:visible").each(function() {
                 const value = $(this).val()?.trim();
@@ -1084,7 +1125,7 @@
                 }
             }
 
-            $("#PaymentSubmitForm").find('select.select2[required]').each(function () {
+            $("#PaymentSubmitForm").find('select.select2[required]').each(function() {
                 const container = $(this).next('.select2-container');
 
                 if (!container.is(':visible')) {
@@ -1122,7 +1163,7 @@
 
             if (!isValid) return;
 
-            submitForm(); 
+            submitForm();
 
 
         });
@@ -1198,7 +1239,7 @@
         }
 
         function resetPaymentModal() {
-            $('#paid_company').prop('disabled', false); 
+            $('#paid_company').prop('disabled', false);
             var form = document.getElementById('PaymentSubmitForm');
             form.reset();
 
@@ -1326,5 +1367,42 @@
 
         //     $('#commentsModal').modal('show');
         // }
+    </script>
+    <script>
+        const contracts = @json($contracts);
+
+        $(document).on('change', '#companySelectReceivable', function() {
+            let companyId = $(this).val();
+            let projectSelect = $('#projectSelect');
+
+            projectSelect.empty().append('<option value="">Select Project</option>');
+
+            if (companyId) {
+                let filteredContracts = contracts
+                    .filter(function(contract) {
+                        return contract.company_id == companyId;
+                    })
+                    .sort(function(a, b) {
+                        return String(a.project_number || '').localeCompare(
+                            String(b.project_number || ''),
+                            undefined, {
+                                numeric: true,
+                                sensitivity: 'base'
+                            }
+                        );
+                    });
+
+                filteredContracts.forEach(function(contract) {
+                    projectSelect.append(
+                        $('<option>', {
+                            value: contract.id,
+                            text: contract.project_number
+                        })
+                    );
+                });
+            }
+
+            projectSelect.val('').trigger('change');
+        });
     </script>
 @endsection
