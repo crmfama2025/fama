@@ -502,13 +502,16 @@
             $(document).on('change', '.investment-checkbox', function() {
                 const $row = $(this).closest('.investment-row');
                 const $amountInput = $row.find('.withdrawal-amount-input');
+                const $profittInput = $row.find('.profit-input');
 
                 if ($(this).is(':checked')) {
                     $amountInput.prop('disabled', false).focus();
+                    $profittInput.prop('disabled', false);
                     // $availableInput.prop('disabled', false);
                     $row.removeClass('disabled-row');
                 } else {
                     $amountInput.prop('disabled', true).val('').removeClass('amount-invalid');
+                    $profittInput.prop('disabled', true);
                     // $availableInput.prop('disabled', true);
                     $row.addClass('disabled-row');
                 }

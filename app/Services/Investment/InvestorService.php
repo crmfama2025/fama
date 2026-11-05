@@ -1126,7 +1126,7 @@ class InvestorService
                 ];
 
                 $isTermination = abs($availableBalance - $withdrawalAmount) < 0.01;
-                $investmentData['investment_status'] = ($isTermination && !empty($data['requested_date']) && !empty($data['withdrawal_date'])) ? 1 : 0;
+                $investmentData['investment_status'] = ($isTermination && !empty($data['requested_date']) && !empty($data['withdrawal_date'])) ? 0 : 1;
 
                 $this->investmentRepository->update($investmentId, $investmentData);
 
@@ -1134,9 +1134,12 @@ class InvestorService
                     'withdrawalAmount' => $withdrawalAmount,
                     'availableBalance' => $availableBalance,
                     'balance_investment_amount' => $balance_investment_amount,
+                    'withdrawal_month_profit' => $row['profit'] ?? 0
                 ];
             }
+            // dd($investmentUpdates);
 
+            // dd("tset");
             // --- 5. Investor-level termination check — same branch structure as create() ---
             $checkTermination = $this->checkIftermination($investorId, $data['company_id']);
 
@@ -1209,6 +1212,7 @@ class InvestorService
                 ];
                 $this->investorLedgerRepo->update($ledgerId, $ledgerData);
             }
+            // dd("test");
 
             // --- 6. Recreate bifurcation records against this ledger ---
             foreach ($investmentUpdates as $investmentId => $vals) {
