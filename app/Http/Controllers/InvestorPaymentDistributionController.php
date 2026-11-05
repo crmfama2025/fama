@@ -76,6 +76,7 @@ class InvestorPaymentDistributionController extends Controller
 
         $filterData = array_filter([
             'month'        => $request->input('month'),
+            'year'        => $request->input('year'),
             'batch_id'     => $request->input('batch_id'),
             'investor_id'  => $request->input('investor_id'),
             'investment_id' => $request->input('investment_id'),
@@ -199,6 +200,7 @@ class InvestorPaymentDistributionController extends Controller
     {
         $filters = array_filter([
             'month'         => request('month'),
+            'year'         => request('year'),
             'batch_id'      => request('batch_id'),
             'investor_id'   => request('investor_id'),
             'investment_id' => request('investment_id'),

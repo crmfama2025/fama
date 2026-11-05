@@ -191,6 +191,17 @@ class InvestorPaymentDistributionRepository
             }
         }
 
+        if (!empty($filter['year'])) {
+            $year = (int) $filter['year'];
+
+            if ($year >= 2022 && $year <= date('Y') + 2) {
+                $query->whereYear(
+                    'investor_payouts.original_profit_date',
+                    $year
+                );
+            }
+        }
+
         if (!empty($filter['batch_id'])) {
             $query->whereHas('investment', function ($q) use ($filter) {
                 $q->where('payout_batch_id', $filter['batch_id']);

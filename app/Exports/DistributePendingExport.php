@@ -56,6 +56,14 @@ class DistributePendingExport implements FromCollection, WithHeadings, ShouldAut
             }
         }
 
+        if (!empty($filters['year'])) {
+            $year = (int) $filters['year'];
+
+            if ($year >= 2022 && $year <= date('Y') + 2) {
+                $query->whereYear('investor_payouts.original_profit_date', $year);
+            }
+        }
+
         if (!empty($filters['batch_id'])) {
             $query->whereHas('investment', function ($q) use ($filters) {
                 $q->where('payout_batch_id', $filters['batch_id']);
