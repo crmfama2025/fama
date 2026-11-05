@@ -29,6 +29,7 @@ class PayablePendingExport implements FromCollection, WithHeadings
     public function collection()
     {
          $twoWeeksLater = now()->addDays(14)->toDateString();
+          $filters = $this->filters ?? [];
 
         // Get company IDs where user has finance.payable permission
         $permittedCompanyIds = getUserPermittedCompanyIds(auth()->id(), 'finance.payable_cheque_clearing');
@@ -52,11 +53,11 @@ class PayablePendingExport implements FromCollection, WithHeadings
         // dd($this->filters);
 
 
-             $query->where(
-                'payment_date',
-                '<=',
-                $twoWeeksLater
-            );
+            $todate = '';
+        $fromDate = '';
+        if (empty($filters['filter']) || empty($filters['filter']['date_to'])) {
+            $todate = $twoWeeksLater;
+        }
 
 
 
@@ -103,6 +104,30 @@ class PayablePendingExport implements FromCollection, WithHeadings
                 $query->where('contract_id', $filter['contract_id']);
 
             }
+            // Date filters
+        $fromDate = !empty($filters['date_from'])
+            ? Carbon::createFromFormat('d-m-Y', $filters['date_from'])->startOfDay()
+            : null;
+            // dd($fromDate);
+
+        $todate = !empty($filters['date_to'])
+            ? Carbon::createFromFormat('d-m-Y', $filters['date_to'])->endOfDay()
+            : Carbon::parse($twoWeeksLater)->endOfDay();
+            }
+
+        // dd($fromDate, $todate);
+
+            if ($fromDate) {
+            $query->whereBetween('payment_date', [
+                $fromDate,
+                $todate
+            ]);
+        } else {
+            $query->where(
+                'payment_date',
+                '<=',
+                $todate
+            );
         }
         // if ($this->search) {
         //     $search = $this->search;

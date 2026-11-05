@@ -164,7 +164,7 @@
                                             Report</a>
                                     </div>
                                     <div class="card-body">
-                                        <div class="d-flex justify-content-center">
+                                        {{-- <div class="d-flex justify-content-center">
                                             <div class="mb-2" id="statusFilters">
 
                                                 <button class="btn btn-info filter-btn" add-class="btn-info"
@@ -175,7 +175,7 @@
                                                         data-filter="{{ $company->company_name }}">{{ $company->company_short_code }}</button>
                                                 @endforeach
                                             </div>
-                                        </div>
+                                        </div> --}}
                                         <div class="table-responsive">
                                             <table id="PayableList" class="table table-striped projects">
                                                 <thead>
@@ -890,9 +890,9 @@
                         d.vendor_id = $('#vendor_id').val();
                         d.property_id = $('#property_id').val();
                         d.payment_mode = $('#payment_mode').val();
-                        d.company_id = $('#statusFilters .btn.btn-info').attr(
-                            'data-companyid');
-                        d.contract_companyId = $('#companySelectReceivable').val() || null;
+                        // d.company_id = $('#statusFilters .btn.btn-info').attr(
+                        //     'data-companyid');
+                        d.contract_company_id = $('#companySelectReceivable').val() || null;
                         d.contract_id = $('#projectSelect').val();
                     }
                 },
