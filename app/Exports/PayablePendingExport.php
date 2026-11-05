@@ -28,6 +28,8 @@ class PayablePendingExport implements FromCollection, WithHeadings
 
     public function collection()
     {
+         $twoWeeksLater = now()->addDays(14)->toDateString();
+
         // Get company IDs where user has finance.payable permission
         $permittedCompanyIds = getUserPermittedCompanyIds(auth()->id(), 'finance.payable_cheque_clearing');
 
@@ -48,6 +50,15 @@ class PayablePendingExport implements FromCollection, WithHeadings
         })
             ->where('paid_status', '!=', 1);
         // dd($this->filters);
+
+
+             $query->where(
+                'payment_date',
+                '<=',
+                $twoWeeksLater
+            );
+
+
 
         if (!empty($this->filters)) {
             $filter = $this->filters;
@@ -78,6 +89,19 @@ class PayablePendingExport implements FromCollection, WithHeadings
                 $query->whereHas('payment_mode', function ($q) use ($filter) {
                     $q->where('payment_mode_id', $filter['mode_id']);
                 });
+            }
+
+             // company filter
+            if ($filter['contract_company_id']) {
+                $query->whereHas('contract', function ($q) use ($filter) {
+                    $q->where('company_id', $filter['contract_company_id']);
+                });
+            }
+
+            // project filter
+            if ($filter['contract_id']) {
+                $query->where('contract_id', $filter['contract_id']);
+
             }
         }
         // if ($this->search) {
@@ -131,6 +155,7 @@ class PayablePendingExport implements FromCollection, WithHeadings
                 'Buliding' => $payable->contract->property->property_name,
                 'Locality' => $payable->contract->locality->locality_name ?? '',
                 'Payment Due' => $payable->payment_date,
+                'Composition' => getComposition($payable->contract_id, $payable->id) ?? '-',
                 'Payment Amount' => $payable->payment_amount,
                 'Paid Amount' => totalPaidPayable($payable->payables),
                 'Balance' => (toNumeric($payable->payment_amount) - totalPaidPayable($payable->payables)),
@@ -169,6 +194,7 @@ class PayablePendingExport implements FromCollection, WithHeadings
             'Buliding',
             'Locality',
             'Payment Due',
+            'Composition',
             'Payment Amount',
             'Paid Amount',
             'Balance',
