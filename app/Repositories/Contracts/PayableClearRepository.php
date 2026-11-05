@@ -147,6 +147,19 @@ class PayableClearRepository
                 });
             }
 
+             // company filter
+            if ($filter['contract_company_id']) {
+                $query->whereHas('contract', function ($q) use ($filter) {
+                    $q->where('company_id', $filter['contract_company_id']);
+                });
+            }
+
+            // project filter
+            if ($filter['contract_id']) {
+                $query->where('contract_id', $filter['contract_id']);
+
+            }
+
             // // Date filter
             // if (!empty($filters['date_from']) && !empty($filters['date_to'])) {
             //     $query->whereBetween('paid_date', [
