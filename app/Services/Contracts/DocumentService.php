@@ -91,16 +91,16 @@ class DocumentService
                 // $path = $file->storeAs('projects/' . $contract->project_code . '/contract_documents', $filename, 'public');
                 // dd($path);
                 $pdfservice = new PdfCompressionService();
-                if ($file->getClientOriginalExtension() == 'pdf') {
+                // if ($file->getClientOriginalExtension() == 'pdf') {
 
-                    $path = $pdfservice->compress(
-                        $file,
-                        'projects/' . $contract->project_code . '/contract_documents',
-                        $filename
-                    );
-                } else {
+                //     $path = $pdfservice->compress(
+                //         $file,
+                //         'projects/' . $contract->project_code . '/contract_documents',
+                //         $filename
+                //     );
+                // } else {
                     $path = $file->storeAs('projects/' . $contract->company->company_code . '/' . $contract->project_code . '/contract_documents', $filename, 'public');
-                }
+                // }
                 // dd($path);
 
                 $documentData['document_type_id'] = $value['document_type'];
