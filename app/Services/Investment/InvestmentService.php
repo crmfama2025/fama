@@ -2046,19 +2046,19 @@ class InvestmentService
                     $file = $documentData['document'];
                     $fileName = $file->getClientOriginalName();
 
-                    if (strtolower($file->getClientOriginalExtension()) === 'pdf') {
-                        $filePath = $pdfservice->compress(
-                            $file,
-                            'investments/documents/' . $investmentCode,
-                            $fileName
-                        );
-                    } else {
+                    // if (strtolower($file->getClientOriginalExtension()) === 'pdf') {
+                    //     $filePath = $pdfservice->compress(
+                    //         $file,
+                    //         'investments/documents/' . $investmentCode,
+                    //         $fileName
+                    //     );
+                    // } else {
                         $filePath = $file->storeAs(
                             'investments/documents/' . $investmentCode,
                             $fileName,
                             'public'
                         );
-                    }
+                    // }
                 }
 
                 $documentDate = !empty($documentData['generated_date'])
@@ -2088,19 +2088,19 @@ class InvestmentService
                         $addFile = $additionalDocument['file'];
                         $addFileName = $addFile->getClientOriginalName();
 
-                        if (strtolower($addFile->getClientOriginalExtension()) === 'pdf') {
-                            $addFilePath = $pdfservice->compress(
-                                $addFile,
-                                'investments/documents/' . $investmentCode . '/additional_documents',
-                                $addFileName
-                            );
-                        } else {
+                        // if (strtolower($addFile->getClientOriginalExtension()) === 'pdf') {
+                        //     $addFilePath = $pdfservice->compress(
+                        //         $addFile,
+                        //         'investments/documents/' . $investmentCode . '/additional_documents',
+                        //         $addFileName
+                        //     );
+                        // } else {
                             $addFilePath = $addFile->storeAs(
                                 'investments/documents/' . $investmentCode . '/additional_documents',
                                 $addFileName,
                                 'public'
                             );
-                        }
+                        // }
                         $investmentDocument->additionalDocuments()->create([
                             'document_name' => $additionalDocument['type'],
                             'document_path' => $addFilePath,
