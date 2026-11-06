@@ -402,6 +402,7 @@ class ReceivableReportRepository
                 'apd.loss_discount_amount',
                 'apd.has_excess_amount',
                 'apd.excess_amount',
+                'apd.actual_payment_amount',
                 DB::raw('
                 COALESCE(
                     cleared.paid_amount_total,

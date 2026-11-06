@@ -887,6 +887,7 @@ class ReceivableReportService
                     'loss or discount amount',
                     'Has Excess Amount',
                     'Excess Amount',
+                    'Actual Payment Amount',
                     'Has Bounced',
                     'Bounced Date',
                     'Bounced Reason',
@@ -1040,6 +1041,7 @@ class ReceivableReportService
                         default => '-',
                     };
                     $excessAmount = $row->excess_amount ?? 0;
+                    $actualPaymentAmount = $row->actual_payment_amount ?? "-";
 
                     fputcsv($output, [
                         $projectNumber,
@@ -1067,6 +1069,7 @@ class ReceivableReportService
                         $lossOrDiscountAmount,
                         $has_excess,
                         $excessAmount,
+                        $actualPaymentAmount,
                         $hasBounced,
                         $bouncedDate,
                         $bouncedReason,
