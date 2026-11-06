@@ -885,6 +885,8 @@ class ReceivableReportService
                     'Status',
                     'Loss or Discount',
                     'loss or discount amount',
+                    'Has Excess Amount',
+                    'Excess Amount',
                     'Has Bounced',
                     'Bounced Date',
                     'Bounced Reason',
@@ -1032,6 +1034,12 @@ class ReceivableReportService
                         : 'Not Terminated';
 
                         $lossOrDiscountAmount = $row->loss_discount_amount ?? 0;
+                         $has_excess = match ((int) $row->has_excess_amount) {
+                        0 => 'No',
+                        1 => 'Yes',
+                        default => '-',
+                    };
+                    $excessAmount = $row->excess_amount ?? 0;
 
                     fputcsv($output, [
                         $projectNumber,
@@ -1057,6 +1065,8 @@ class ReceivableReportService
                         $status,
                         $lossOrDiscount,
                         $lossOrDiscountAmount,
+                        $has_excess,
+                        $excessAmount,
                         $hasBounced,
                         $bouncedDate,
                         $bouncedReason,
