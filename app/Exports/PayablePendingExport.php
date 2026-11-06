@@ -8,8 +8,12 @@ use App\Models\ContractPaymentDetail;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use PhpOffice\PhpSpreadsheet\Shared\Date;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 
-class PayablePendingExport implements FromCollection, WithHeadings
+class PayablePendingExport implements FromCollection, WithHeadings, WithColumnFormatting
 {
     /**
      * @return \Illuminate\Support\Collection
@@ -30,6 +34,8 @@ class PayablePendingExport implements FromCollection, WithHeadings
     {
          $twoWeeksLater = now()->addDays(14)->toDateString();
           $filters = $this->filters ?? [];
+
+        //   dd($filters);
 
         // Get company IDs where user has finance.payable permission
         $permittedCompanyIds = getUserPermittedCompanyIds(auth()->id(), 'finance.payable_cheque_clearing');
@@ -173,13 +179,23 @@ class PayablePendingExport implements FromCollection, WithHeadings
             return [
                 'Project No' => "P - " . $payable->contract->project_number,
                 'Contract Type' => $payable->contract->contract_type->contract_type,
-                'Start Date'  => $payable->contract->contract_detail->start_date,
-                'End Date'  => $payable->contract->contract_detail->end_date,
+                // 'Start Date'  => $payable->contract->contract_detail->start_date,
+                // 'End Date'  => $payable->contract->contract_detail->end_date,
+                'Start Date' => $payable->contract->contract_detail->start_date
+                    ? Date::dateTimeToExcel(Carbon::parse($payable->contract->contract_detail->start_date))
+                    : null,
+
+                'End Date' => $payable->contract->contract_detail->end_date
+                    ? Date::dateTimeToExcel(Carbon::parse($payable->contract->contract_detail->end_date))
+                    : null,
                 'Company Name' => $payable->contract->company->company_name,
                 'Vendor Name' => $payable->contract->vendor->vendor_name,
                 'Buliding' => $payable->contract->property->property_name,
                 'Locality' => $payable->contract->locality->locality_name ?? '',
-                'Payment Due' => $payable->payment_date,
+                // 'Payment Due' => $payable->payment_date,
+                'Payment Due' => $payable->payment_date
+                ? Date::dateTimeToExcel(Carbon::parse($payable->payment_date))
+                : null,
                 'Composition' => getComposition($payable->contract_id, $payable->id) ?? '-',
                 'Payment Amount' => $payable->payment_amount,
                 'Paid Amount' => totalPaidPayable($payable->payables),
@@ -193,7 +209,10 @@ class PayablePendingExport implements FromCollection, WithHeadings
                     0 => '-',
                     1 => 'Returned',
                 },
-                'Cheque Returned Date' => $payable->returned_date ?? '-',
+                // 'Cheque Returned Date' => $payable->returned_date ?? '-',
+                'Cheque Returned Date' => $payable->returned_date
+                    ? Date::dateTimeToExcel(Carbon::parse($payable->returned_date))
+                    : null,
                 'Cheque Returned By' => $payable->returnedBy?->first_name . ' ' . $payable->returnedBy?->last_name,
                 'Payment Mode' => $payable->payment_mode->payment_mode_name,
                 'Bank Name' => $payable->bank?->bank_name,
@@ -202,7 +221,10 @@ class PayablePendingExport implements FromCollection, WithHeadings
                     0 => 'New',
                     1 => 'Renewal (' . ($payable->contract->renewal_count ?? 0) . ')',
                 },
-                'Created_at' => $payable->created_at->format('d/m/Y'),
+                // 'Created_at' => $payable->created_at->format('d/m/Y'),
+                'Created_at' => $payable->created_at
+                    ? Date::dateTimeToExcel(Carbon::parse($payable->created_at))
+                    : null,
             ];
         });
     }
@@ -234,4 +256,15 @@ class PayablePendingExport implements FromCollection, WithHeadings
             'Created_at',
         ];
     }
+
+    public function columnFormats(): array
+{
+    return [
+        'C' => 'dd/mm/yyyy', // Start Date
+        'D' => 'dd/mm/yyyy', // End Date
+        'I' => 'dd/mm/yyyy', // Payment Due
+        'P' => 'dd/mm/yyyy', // Cheque Returned Date
+        'V' => 'dd/mm/yyyy', // Created_at
+    ];
+}
 }
