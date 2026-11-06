@@ -399,6 +399,7 @@ class ReceivableReportRepository
                 'apd.is_invoice_added',
                 'apd.terminate_status',
                 'apd.has_bounced',
+                'apd.loss_discount_amount',
                 DB::raw('
                 COALESCE(
                     cleared.paid_amount_total,

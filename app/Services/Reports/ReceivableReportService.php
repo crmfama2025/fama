@@ -884,10 +884,12 @@ class ReceivableReportService
                     'Paid Company Name',
                     'Status',
                     'Loss or Discount',
+                    'loss or discount amount',
                     'Has Bounced',
                     'Bounced Date',
                     'Bounced Reason',
-                    'Terminate Status'
+                    'Terminate Status',
+
                 ]);
 
                 /*
@@ -1029,6 +1031,8 @@ class ReceivableReportService
                         ? 'Terminated'
                         : 'Not Terminated';
 
+                        $lossOrDiscountAmount = $row->loss_or_discount_amount ?? 0;
+
                     fputcsv($output, [
                         $projectNumber,
                         $companyName,
@@ -1052,6 +1056,7 @@ class ReceivableReportService
                         $paidCompany,
                         $status,
                         $lossOrDiscount,
+                        $lossOrDiscountAmount,
                         $hasBounced,
                         $bouncedDate,
                         $bouncedReason,
