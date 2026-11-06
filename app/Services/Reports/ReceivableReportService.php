@@ -1031,7 +1031,7 @@ class ReceivableReportService
                         ? 'Terminated'
                         : 'Not Terminated';
 
-                        $lossOrDiscountAmount = $row->loss_or_discount_amount ?? 0;
+                        $lossOrDiscountAmount = $row->loss_discount_amount ?? 0;
 
                     fputcsv($output, [
                         $projectNumber,
