@@ -72,9 +72,12 @@ class InvoiceController extends Controller
     }
     public function show(TenantInvoice $invoice)
     {
-        // dd("test");
         $invoice = $this->invoiceService->getDetails($invoice->id);
         // dd($invoice);
+
+        if ($invoice->agreementUnit?->agreementSubunitRentBifurcation?->isNotEmpty()) {
+            return redirect()->back()->with('error', 'Please add the rent bifurcation before viewing this invoice.');
+        }
 
         return view('admin.invoices.invoice_view', compact('invoice'));
     }
