@@ -256,6 +256,7 @@ class AgreementService
                             'bank_id' => $detail['bank_id'] ?? null,
                             'cheque_number' => $detail['cheque_number'] ?? null,
                             'added_by' => $data['added_by'],
+                            'contract_unit_id' => $unit['contract_unit_details_id'],
                         ];
 
                         $this->agreementPaymentDetailService->create($detail_data);
@@ -994,6 +995,7 @@ class AgreementService
                             'cheque_number' => $detail['cheque_number'] ?? null,
                             'updated_by' => $data['updated_by'],
                             'id' => $detail['detail_id'] ?? null,
+                            'contract_unit_id' => $unit['contract_unit_details_id'],
                         ];
                         $this->agreementPaymentDetailService->updateOrCreate($detail_data);
                     }
