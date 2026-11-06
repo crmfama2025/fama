@@ -38,6 +38,9 @@ class PayableClearingController extends Controller
         $companies = $this->companyService->getAll('finance', 'payable_cheque_clearing');
         $contracts = Contract::select('id', 'project_number', 'company_id')->get();
 
+        // $contracts = Contract::whereHas('contract_payments', fn($q) => $q->where('has_fully_paid', 0))
+        //     ->select('id', 'project_number', 'company_id')
+        //     ->get();
         return view('admin.finance.payable-cheque-clearing', compact(
             'banks',
             'vendors',
