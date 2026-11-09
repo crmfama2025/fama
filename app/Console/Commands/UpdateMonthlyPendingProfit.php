@@ -76,6 +76,7 @@ class UpdateMonthlyPendingProfit extends Command
                                     Carbon::parse($wd->withdrawal_date),
                                     null
                                 );
+                                print('withdraw 1');
                             }
                         }
                     }
@@ -104,8 +105,8 @@ class UpdateMonthlyPendingProfit extends Command
                         // Get partial withdrawal for current month profit
                         $partialWithdrawal = DB::table('partial_withdrawal_bifurcations')
                             ->where('investment_id', $investment->id)
-                                // ->whereMonth('withdrawal_date', $currentMonthStart->month)
-                                // ->whereYear('withdrawal_date', $currentMonthStart->year)
+                            // ->whereMonth('withdrawal_date', $currentMonthStart->month)
+                            // ->whereYear('withdrawal_date', $currentMonthStart->year)
                             ->whereDate('withdrawal_date', '<=', $currentMonthEnd)
                             ->where('profit_payout_status', '!=', 2)
                             ->get();
@@ -148,6 +149,7 @@ class UpdateMonthlyPendingProfit extends Command
                                             Carbon::parse($bifurcation->withdrawal_date),
                                             null
                                         );
+                                        print('partial bifur 1');
                                     }
                                 }
                             } else {
@@ -179,6 +181,8 @@ class UpdateMonthlyPendingProfit extends Command
                                                     $profitRecord
                                                 );
 
+                                                print('profit 1');
+
                                                 if ($payout) {
                                                     $payoutMultiple[] = $payout;
                                                 }
@@ -195,6 +199,8 @@ class UpdateMonthlyPendingProfit extends Command
                                     $profitRecordId = $profitRecord ? $profitRecord->id : null;
                                     if ($profitRecord) {
                                         $payout = $this->createInvestorpayout(1, $currentMonthStart, $investment, null, null, $nextProfitRelease, $profitRecord);
+
+                                        print('profit 2');
                                     }
                                 }
                                 // }
@@ -252,6 +258,7 @@ class UpdateMonthlyPendingProfit extends Command
                                     ->exists();
                                 if (!$exists) {
                                     $this->createInvestorpayout(2, $currentMonthStart, $investment);
+                                    print('referral payout 2');
                                 }
                             }
                         }
@@ -306,6 +313,15 @@ class UpdateMonthlyPendingProfit extends Command
             switch ($payout_type) {
 
                 case 1: // PROFIT
+                    var_dump([
+                        'investment'    => $investment,
+                        'currentMonth'  => $currentMonth,
+                        'payout_type'   => $payout_type,
+                        'amountOverride' => $amountOverride,
+                        'bifurcationId' => $bifurcationId,
+                        'originalDate'  => $originalDate,
+                        'profitRecord'  => $profitRecord,
+                    ]);
                     if ($amountOverride > 0) { //partial withdrwal
                         $amount = $amountOverride;
                         $payoutReferrenceId = $bifurcationId;
