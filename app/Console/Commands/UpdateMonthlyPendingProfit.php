@@ -163,7 +163,7 @@ class UpdateMonthlyPendingProfit extends Command
                                         ->get();
                                     // ->toRawSql();
 
-                                    if ($profitRecords) {
+                                    if ($profitRecords->isNotEmpty()) {
                                         foreach ($profitRecords as $profitRecord) {
                                             $exists = InvestorPayout::where('payout_type', 1)
                                                 ->where('investment_id', $investment->id)
@@ -191,16 +191,47 @@ class UpdateMonthlyPendingProfit extends Command
                                     }
                                 } else {
 
+                                    // $profitRecord = InvestmentProfitRecord::where('investment_id', $investment->id)
+                                    //     ->whereMonth('profit_release_month', Carbon::parse($currentMonthStart)->month)
+                                    //     ->whereYear('profit_release_month', Carbon::parse($currentMonthStart)->year)
+                                    //     ->where('has_profit_amount', 1)
+                                    //     ->first();
+                                    // $profitRecordId = $profitRecord ? $profitRecord->id : null;
+                                    // if ($profitRecord) {
+                                    //     $payout = $this->createInvestorpayout(1, $currentMonthStart, $investment, null, null, $nextProfitRelease, $profitRecord);
+
+                                    //     print('profit 2');
+                                    // }
+
                                     $profitRecord = InvestmentProfitRecord::where('investment_id', $investment->id)
-                                        ->whereMonth('profit_release_month', Carbon::parse($currentMonthStart)->month)
-                                        ->whereYear('profit_release_month', Carbon::parse($currentMonthStart)->year)
+                                        ->whereMonth('profit_release_month', $currentMonthStart->month)
+                                        ->whereYear('profit_release_month', $currentMonthStart->year)
                                         ->where('has_profit_amount', 1)
                                         ->first();
-                                    $profitRecordId = $profitRecord ? $profitRecord->id : null;
-                                    if ($profitRecord) {
-                                        $payout = $this->createInvestorpayout(1, $currentMonthStart, $investment, null, null, $nextProfitRelease, $profitRecord);
 
-                                        print('profit 2');
+                                    $profitRecordId = $profitRecord ? $profitRecord->id : null;
+
+                                    if ($profitRecord) {
+
+                                        $exists = InvestorPayout::where('payout_type', 1)
+                                            ->where('investment_id', $investment->id)
+                                            ->where('investment_profit_record_id', $profitRecord->id)
+                                            ->exists();
+
+                                        if (!$exists) {
+
+                                            $payout = $this->createInvestorpayout(
+                                                1,
+                                                $currentMonthStart,
+                                                $investment,
+                                                null,
+                                                null,
+                                                $nextProfitRelease,
+                                                $profitRecord
+                                            );
+
+                                            print('profit 2');
+                                        }
                                     }
                                 }
                                 // }
@@ -314,8 +345,7 @@ class UpdateMonthlyPendingProfit extends Command
 
                 case 1: // PROFIT
                     var_dump([
-                        'investment'    => $investment,
-                        'currentMonth'  => $currentMonth,
+                        'investment'    => $investment->id,
                         'payout_type'   => $payout_type,
                         'amountOverride' => $amountOverride,
                         'bifurcationId' => $bifurcationId,
@@ -327,7 +357,8 @@ class UpdateMonthlyPendingProfit extends Command
                         $payoutReferrenceId = $bifurcationId;
                     } else { //profit payout
 
-                        if ($originalDate->startOfMonth() != $currentMonth) {
+                        // if ($originalDate->startOfMonth() != $currentMonth) {
+                        if (!$originalDate->isSameMonth($currentMonth)) {
                             // $amount = $investment->profit_amount_per_interval;
                             $amount = $profitRecord->profit_amount;
                         } else {
