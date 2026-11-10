@@ -69,18 +69,23 @@ class DocumentService
                 // dd($value['status_change']);
                 // dump(!$cDocument);
                 if ($contract->{$value['status_change']} == 1 && $cDocument) {
+
+                    // Delete original document
                     if (
-                        $cDocument->original_document_name && Storage::disk('public')->exists($cDocument->original_document_path) ||
-                        $cDocument->signed_document_name && Storage::disk('public')->exists($cDocument->signed_document_path)
+                        !empty($value['file']) &&
+                        !empty($cDocument->original_document_path) &&
+                        Storage::disk('public')->exists($cDocument->original_document_path)
                     ) {
+                        Storage::disk('public')->delete($cDocument->original_document_path);
+                    }
 
-                        if (!empty($value['file'])) {
-                            Storage::disk('public')->delete($cDocument->original_document_path);
-                        }
-
-                        if (!empty($value['signed_contract'])) {
-                            Storage::disk('public')->delete($cDocument->signed_document_path);
-                        }
+                    // Delete signed document
+                    if (
+                        !empty($value['signed_contract']) &&
+                        !empty($cDocument->signed_document_path) &&
+                        Storage::disk('public')->exists($cDocument->signed_document_path)
+                    ) {
+                        Storage::disk('public')->delete($cDocument->signed_document_path);
                     }
                 }
 
@@ -99,7 +104,7 @@ class DocumentService
                 //         $filename
                 //     );
                 // } else {
-                    $path = $file->storeAs('projects/' . $contract->company->company_code . '/' . $contract->project_code . '/contract_documents', $filename, 'public');
+                $path = $file->storeAs('projects/' . $contract->company->company_code . '/' . $contract->project_code . '/contract_documents', $filename, 'public');
                 // }
                 // dd($path);
 
