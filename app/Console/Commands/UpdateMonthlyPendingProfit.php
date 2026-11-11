@@ -82,6 +82,27 @@ class UpdateMonthlyPendingProfit extends Command
                     // ----------------------------
                     // PROFIT PAYOUT
                     // ----------------------------
+                    // restore a missing next profit date from the profit records table
+                    if ($investment->profitInterval && !$investment->next_profit_release_date && !$termDate) {
+
+                        $nextRecord = InvestmentProfitRecord::where('investment_id', $investment->id)
+                            ->where('has_profit_amount', 1)
+                            ->whereNotExists(function ($q) {
+                                $q->select(DB::raw(1))
+                                    ->from('investor_payouts')
+                                    ->whereColumn('investor_payouts.investment_profit_record_id', 'investment_profit_records.id')
+                                    ->where('investor_payouts.payout_type', 1);
+                                // add ->whereNull('investor_payouts.deleted_at') if InvestorPayout uses SoftDeletes
+                            })
+                            ->orderBy('profit_release_month', 'asc')
+                            ->first();
+
+                        if ($nextRecord) {
+                            $investment->next_profit_release_date = Carbon::parse($nextRecord->profit_release_month)->format('Y-m-d');
+                            $investment->save();
+                        }
+                    }
+
                     if ($investment->profitInterval && $investment->next_profit_release_date) {
                         $nextProfitRelease = Carbon::parse($investment->next_profit_release_date);
 
