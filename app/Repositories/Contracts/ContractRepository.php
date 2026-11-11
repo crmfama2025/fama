@@ -284,7 +284,7 @@ class ContractRepository
         ])
             ->withCount('contract_payment_receivables')
             ->withSum('contract_payment_receivables', 'receivable_amount')
-            ->whereIn('contract_status', [1, 7])
+            ->whereIn('contract_status', [1, 7, 2])
             ->where('is_vendor_contract_uploaded', 1)
             ->where('is_agreement_added', 0)
             ->get();

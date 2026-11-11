@@ -1543,7 +1543,7 @@ class AgreementService
                     $contract &&
                     $contract->children->isNotEmpty() &&
                     // $contract->children->contains('contract_status', 7);
-                    $contract->children->whereIn('contract_status', [1, 7])->isNotEmpty();
+                    $contract->children->whereIn('contract_status', [1, 7, 2])->where('is_vendor_contract_uploaded', 1)->isNotEmpty();
 
                 $hasRenewal = Agreement::where('parent_agreement_id', $row->id)
                     ->exists();
