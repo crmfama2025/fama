@@ -83,6 +83,11 @@ class PermissionSeeder extends Seeder
                 if (in_array($module, ['leads'])) {
                     $subModule[] = 'assign';
                     $subModule[] = 'convert';
+                    $subModule[] = 'approve';
+                    $subModule[] = 'reject';
+                    $subModule[] = 'comment_add';
+                    $subModule[] = 'approved_list';
+                
                 }
                 if (in_array($module, ['locality'])) {
                     $subModule[] = 'location_pricing';

@@ -127,6 +127,17 @@
                                         </span>
                                     </div>
                                     <div class="card-body">
+                                         <div id="selectionInfo" class="alert alert-info d-none mb-3">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <strong id="selectedCount">0</strong> Payouts Selected
+                                                </div>
+                                                <div>
+                                                    Total Payout Amount:
+                                                    <strong id="selectedTotal">0.00</strong>
+                                                </div>
+                                            </div>
+                                        </div>
                                         <table id="payoutPendingTable" class="table table-bordered table-hover">
                                             <thead>
                                                 <tr>
@@ -357,10 +368,39 @@
             return cents / 100;
         }
 
-        function updateSelectionInfo() {
-            const n = selectedIds().length;
-            $('#selectionInfo').text(n ? n + ' selected | Total: ' + getSelectedTotal().toFixed(2) : '');
-            $('#selectAll').prop('checked', allFilteredCount !== null && n === allFilteredCount && n > 0);
+        // function updateSelectionInfo() {
+        //     const n = selectedIds().length;
+        //     $('#selectionInfo').text(n ? n + ' selected | Total: ' + getSelectedTotal().toFixed(2) : '');
+        //     $('#selectAll').prop('checked', allFilteredCount !== null && n === allFilteredCount && n > 0);
+        // }
+        function updateSelectionInfo()
+        {
+            const count = selectedIds().length;
+            const total = getSelectedTotal();
+
+            if (count > 0) {
+
+                $('#selectionInfo').removeClass('d-none');
+
+                $('#selectedCount').text(count);
+
+                $('#selectedTotal').text(
+                    total.toLocaleString('en-US', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    })
+                );
+            } else {
+                $('#selectionInfo').addClass('d-none');
+                $('#selectedCount').text(0);
+                $('#selectedTotal').text('0.00');
+            }
+            $('#selectAll').prop(
+                'checked',
+                allFilteredCount !== null &&
+                count === allFilteredCount &&
+                count > 0
+            );
         }
 
         function clearSelection() {
@@ -390,6 +430,7 @@
             }
             updateSelectionInfo();
         });
+        
 
         $(document).on('change', '#selectAll', function() {
             const el = this;
@@ -429,7 +470,6 @@
                     };
                 });
                 allFilteredCount = res.count;
-
                 $('.groupCheckbox').prop('checked', true);
                 updateSelectionInfo();
             }).fail(function(xhr) {
@@ -445,7 +485,7 @@
                 const itemCheckboxes = document.querySelectorAll('.groupCheckbox');
                 itemCheckboxes.forEach(checkbox => {
                     checkbox.checked = this
-                        .checked; // Set checked status based on the "Select All" checkbox
+                        .checked;
                 });
             });
         }

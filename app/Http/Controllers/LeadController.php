@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Exports\GenericExport;
 use App\Models\LeadFollowUp;
 use App\Services\LeadService;
+use App\Models\Lead;
 use App\Services\UserService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -16,8 +17,6 @@ class LeadController extends Controller
     public function __construct(
         protected LeadService $leadService,
         protected UserService $userService
-
-
     ) {}
 
 
@@ -95,43 +94,196 @@ class LeadController extends Controller
             return $this->leadService->getDataTable($filters);
         }
     }
+    // public function show($id)
+    // {
+    //     $title = "Lead Details";
+
+    //     $lead = $this->leadService->getById($id);
+    //     $user = auth()->user();
+
+    //     // alex: approved leads only
+    //     // if ($user->hasAnyPermission(['leads.approved_list']) && (int) $lead->approval_status !== 1) {
+    //     //     abort(403, 'This lead is not approved yet.');
+    //     // }
+    //     if (
+    //         $user->hasAnyPermission(['leads.approved_list'])
+    //         && !in_array((int) $lead->approval_status, [1, 3, 4], true)
+    //     ) {
+    //         abort(403, 'This lead is not available for your review yet.');
+    //     }
+    //     $salesPerson = $this->userService->getUserByType(3);
+    //     $allocations = $lead->salesAgreement()
+    //         ->orderBy('created_at', 'asc')
+    //         ->get();
+
+    //     $user = auth()->user();
+
+    //     $isAssignedSalesPerson =
+    //         (int) $user->user_type_id === 3 &&
+    //         (int) $lead->assigned_to === (int) $user->id;
+
+    //     // If assigned salesperson is viewing the lead
+    //     if ($isAssignedSalesPerson) {
+
+    //         // Change Pending -> Processing
+    //         if ((int) $lead->status === 0) {
+    //             $lead->update([
+    //                 'status' => 1,
+    //                 // 'updated_by' => $user->id,
+    //             ]);
+
+    //             $lead->refresh();
+    //         }
+
+    //         // Salesperson-specific view
+    //         return view(
+    //             'admin.leads.sales-view',
+    //             compact('title', 'lead', 'allocations')
+    //         );
+    //     }
+
+    //     return view('admin.leads.view-lead', compact('title', 'lead', 'salesPerson', 'allocations'));
+    // }
     public function show($id)
     {
         $title = "Lead Details";
+        $user  = auth()->user();
+        $lead  = $this->leadService->getById($id); // make sure this uses findOrFail
 
-        $lead = $this->leadService->getById($id);
-        $salesPerson = $this->userService->getUserByType(3);
-        $allocations = $lead->salesAgreement()
-            ->orderBy('created_at', 'asc')
-            ->get();
+        $isSuperAdmin = (int) $user->user_type_id === 1;
+        $isAssignedSalesPerson = (int) $user->user_type_id === 3
+            && (int) $lead->assigned_to === (int) $user->id;
 
-        $user = auth()->user();
-
-        $isAssignedSalesPerson =
-            (int) $user->user_type_id === 3 &&
-            (int) $lead->assigned_to === (int) $user->id;
-
-        // If assigned salesperson is viewing the lead
-        if ($isAssignedSalesPerson) {
-
-            // Change Pending -> Processing
-            if ((int) $lead->status === 0) {
-                $lead->update([
-                    'status' => 1,
-                    // 'updated_by' => $user->id,
-                ]);
-
-                $lead->refresh();
+        if (!$isSuperAdmin) {
+            if ($user->hasAnyPermission(['leads.approve', 'leads.reject'])) {
+                // manager: no extra restriction (adjust to match the list)
+            } elseif ($user->hasAnyPermission(['leads.approved_list'])) {
+                abort_unless(
+                    in_array((int) $lead->approval_status, [1, 3, 4], true)
+                        && (int) $lead->verifier_id === (int) $user->id
+                        && (int) $lead->status !== 0,
+                    403,
+                    'This lead is not available for your review yet.'
+                );
+            } else {
+                abort_unless(
+                    (int) $lead->created_by === (int) $user->id || $isAssignedSalesPerson,
+                    403
+                );
             }
-
-            // Salesperson-specific view
-            return view(
-                'admin.leads.sales-view',
-                compact('title', 'lead', 'allocations')
-            );
         }
 
+        $allocations = $lead->salesAgreement()->orderBy('created_at')->get();
+
+        if ($isAssignedSalesPerson) {
+            if ((int) $lead->status === 0) {
+                $lead->update(['status' => 1]);
+            }
+            return view('admin.leads.sales-view', compact('title', 'lead', 'allocations'));
+        }
+
+        $salesPerson = $this->userService->getUserByType(3);
+
         return view('admin.leads.view-lead', compact('title', 'lead', 'salesPerson', 'allocations'));
+    }
+    public function approve(Request $request, $id)
+    {
+        abort_unless(auth()->user()->hasAnyPermission(['leads.approve']), 403);
+
+        $lead = $this->leadService->getById($id);
+
+        // 0 = pending
+        if ((int) $lead->approval_status !== 0) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This lead has already been reviewed.',
+            ], 422);
+        }
+
+        $validated = $request->validate([
+            'verifier_id' => ['nullable', 'exists:users,id'],
+            'remarks'     => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $lead->update([
+            'approval_status'  => 1, // approved
+            'approved_by'      => auth()->id(),
+            'approved_at'      => now(),
+            'verifier_id'      => $validated['verifier_id'] ?? Lead::DEFAULT_VERIFIER_ID,
+            'approval_remarks' => $validated['remarks'] ?? null,
+            'rejection_reason' => null,
+            'updated_by'       => auth()->id(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Lead approved successfully.',
+        ]);
+    }
+    public function reject(Request $request, $id)
+    {
+        abort_unless(auth()->user()->hasAnyPermission(['leads.reject']), 403);
+
+        $lead = $this->leadService->getById($id);
+
+        // 0 = pending
+        if ((int) $lead->approval_status !== 0) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This lead has already been reviewed.',
+            ], 422);
+        }
+
+        $validated = $request->validate([
+            'rejection_reason' => ['required', 'string', 'max:1000'],
+        ]);
+
+        $lead->update([
+            'approval_status'  => 2, // rejected
+            'approved_by'      => auth()->id(), // reviewer, reused for rejection
+            'approved_at'      => now(),
+            'rejection_reason' => $validated['rejection_reason'],
+            'updated_by'       => auth()->id(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Lead rejected.',
+        ]);
+    }
+    public function addComment(Request $request, Lead $lead)
+    {
+        $user = auth()->user();
+
+        abort_unless($user->hasAnyPermission(['leads.comment_add']), 403);
+
+        // Same visibility rules as the list
+        $isManager = $user->hasAnyPermission(['leads.approve', 'leads.reject']);
+        $isAlex    = $user->hasAnyPermission(['leads.approved_list']);
+
+        if (!$isManager && !$isAlex && (int) $lead->created_by !== (int) $user->id) {
+            abort(403);
+        }
+
+        // Comments only after approval
+        if (!in_array((int) $lead->approval_status, [1, 3, 4], true)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Comments can be added only after the lead is approved.',
+            ], 422);
+        }
+
+        $data = $request->validate([
+            'comment'         => ['required', 'string', 'max:2000'],
+            'approval_status' => ['nullable', 'in:3,4'],
+        ]);
+
+        $this->leadService->addComment($lead, $data);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Comment added successfully.',
+        ]);
     }
     public function export(Request $request)
     {
@@ -173,7 +325,6 @@ class LeadController extends Controller
             'message' => 'Lead assigned successfully.',
         ]);
     }
-
     public function storeFollowUp(Request $request, $id)
     {
         $this->leadService->storeFollowUp(
@@ -315,18 +466,34 @@ class LeadController extends Controller
         $term = $request->get('q', '');
 
         $items = \App\Models\Locality::query()
-            ->when($term, fn ($q) => $q->where('locality_name', 'like', "%{$term}%"))
-            ->when(!$request->boolean('all'), fn ($q) => $q->limit(20))
+            ->when($term, fn($q) => $q->where('locality_name', 'like', "%{$term}%"))
+            ->when(!$request->boolean('all'), fn($q) => $q->limit(20))
             ->select('locality_name')
             ->distinct()
             ->orderBy('locality_name')
             ->get();
 
         return response()->json([
-            'results' => $items->map(fn ($l) => [
+            'results' => $items->map(fn($l) => [
                 'id'   => $l->locality_name,
                 'text' => $l->locality_name,
             ]),
+        ]);
+    }
+    public function updateVerification(Request $request, Lead $lead)
+    {
+        abort_unless(auth()->user()->hasAnyPermission(['leads.approved_list']), 403);
+
+        $data = $request->validate([
+            'approval_status'          => ['required', 'in:3,4'],
+            'verification_description' => ['required', 'string', 'max:5000'],
+        ]);
+
+        $this->leadService->updateVerification($lead, $data);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Verification updated successfully.',
         ]);
     }
 }

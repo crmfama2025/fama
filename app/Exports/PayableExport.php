@@ -28,7 +28,6 @@ class PayableExport implements FromCollection, WithHeadings
     public function collection()
     {
 
-        // Get company IDs where user has finance.payable permission
         $permittedCompanyIds = getUserPermittedCompanyIds(auth()->id(), 'finance.payable_cheque_clearing');
 
         $query = ContractPayableClear::query()

@@ -72,10 +72,12 @@ class LeadRepository
     /**
      * Get leads by phone number.
      */
+
     public function getByPhone($phoneNumber)
     {
         return Lead::where('phone_number', $phoneNumber)->first();
     }
+
 
 
     /**
@@ -133,6 +135,35 @@ class LeadRepository
                 $q->where('created_by', $filters['user_id'])
                     ->orWhere('assigned_to', $filters['user_id']);
             });
+        }
+        if (!empty($filters['approved_only'])) {
+            $query->whereIn('leads.approval_status', [1, 3, 4]);
+        }
+        // if (isset($filters['exclude_status']) && $filters['exclude_status'] !== '') {
+        //     $query->where('leads.status', '!=', (int) $filters['exclude_status']);
+        // }
+        if (isset($filters['exclude_status']) && $filters['exclude_status'] !== '') {
+            $query->where('leads.status', '!=', (int) $filters['exclude_status']);
+        }
+
+        // NEW
+        if (!empty($filters['exclude_statuses'])) {
+            $query->whereNotIn('leads.status', (array) $filters['exclude_statuses']);
+        }
+
+        if (!empty($filters['only_statuses'])) {
+            $query->whereIn('leads.status', (array) $filters['only_statuses']);
+        }
+
+        if (!empty($filters['verifier_id'])) {
+            $query->where('leads.verifier_id', $filters['verifier_id']);
+        }
+
+        if (isset($filters['approval_status']) && $filters['approval_status'] !== '') {
+            $query->where('leads.approval_status', (int) $filters['approval_status']);
+        }
+        if (!empty($filters['created_by'])) {
+            $query->where('leads.created_by', $filters['created_by']);
         }
 
         if (

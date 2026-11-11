@@ -411,6 +411,9 @@
             }
 
         }
+    
+
+        
     </style>
 @endsection
 
@@ -612,7 +615,83 @@
 
 
                         {{-- Follow Up --}}
+                        {{-- @include('admin.leads.follow-up-list', ['followUps' => $lead->followUps]) --}}
+                        @php
+                            $isVerifier = auth()->user()->hasAnyPermission(['leads.approved_list'])
+                                && (int) $lead->verifier_id === (int) auth()->id();
+
+                            $canSeeVerification = $isVerifier
+                                || (int) $lead->created_by === (int) auth()->id()
+                                || auth()->user()->hasAnyPermission(['leads.approve', 'leads.reject']);
+                        @endphp
+
+
+                        {{-- Verification --}}
+                        @if ($canSeeVerification)
+                            @include('admin.leads.verification-form', ['lead' => $lead, 'isVerifier' => $isVerifier])
+                        @endif
+
+                        {{-- Follow Up --}}
                         @include('admin.leads.follow-up-list', ['followUps' => $lead->followUps])
+
+                        {{-- Lead Activity + Comments --}}
+                        <div class="row">
+                            <div class="col-lg-6 mb-4">
+                                <div class="info-card">
+                                    <div class="info-card-header">
+                                        <h5>
+                                            <i class="fas fa-history mr-2 text-primary"></i>
+                                            Lead Activity
+                                        </h5>
+                                    </div>
+
+                                    <div class="info-card-body activity-no-line">
+                                        <div class="sales-activity">
+                                            <div class="sales-activity-title">Lead Created</div>
+                                            <div class="sales-activity-date">
+                                                <i class="far fa-clock mr-1"></i>
+                                                {{ $lead->created_at ? $lead->created_at->format('d M Y, h:i A') : '-' }}
+                                            </div>
+                                            @if ($lead->addedBy)
+                                                <div class="sales-activity-date">
+                                                    <i class="fas fa-user mr-1"></i>
+                                                    {{ $lead->addedBy->first_name ?? '' }} {{ $lead->addedBy->last_name ?? '' }}
+                                                </div>
+                                            @endif
+                                        </div>
+
+                                        <div class="sales-activity">
+                                            <div class="sales-activity-title">Last Updated</div>
+                                            <div class="sales-activity-date">
+                                                <i class="far fa-clock mr-1"></i>
+                                                {{ $lead->updated_at ? $lead->updated_at->format('d M Y, h:i A') : '-' }}
+                                            </div>
+                                            @if ($lead->updatedBy)
+                                                <div class="sales-activity-date">
+                                                    <i class="fas fa-user-edit mr-1"></i>
+                                                    {{ $lead->updatedBy->first_name ?? '' }} {{ $lead->updatedBy->last_name ?? '' }}
+                                                </div>
+                                            @endif
+                                        </div>
+
+                                        <div class="sales-activity">
+                                            <div class="sales-activity-title">Current Status</div>
+                                            <div class="sales-activity-date">
+                                                @if ((int) $lead->status === 1)
+                                                    <span class="text-primary"><i class="fas fa-spinner mr-1"></i> Processing</span>
+                                                @else
+                                                    <span class="text-secondary"><i class="fas fa-clock mr-1"></i> Pending</span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-6 mb-4">
+                                @include('admin.leads.comments', ['lead' => $lead])
+                            </div>
+                        </div>
 
 
                     </div>
@@ -935,6 +1014,48 @@
                             });
                         }
                     });
+                }
+            });
+        });
+        $('#leadCommentForm').on('submit', function (e) {
+            e.preventDefault();
+
+            const form   = $(this);
+            const button = form.find('button[type="submit"]');
+            button.prop('disabled', true);
+
+            $.ajax({
+                url: form.attr('action'),
+                type: 'POST',
+                data: form.serialize(),
+
+                success: function (response) {
+                    if (response.success) {
+                        toastr.success(response.message);
+                        setTimeout(function () { location.reload(); }, 500);
+                    } else {
+                        toastr.error(response.message);
+                    }
+                },
+
+                error: function (xhr) {
+                    if (xhr.status === 422 && xhr.responseJSON) {
+                        if (xhr.responseJSON.errors) {
+                            $.each(xhr.responseJSON.errors, function (key, value) {
+                                toastr.error(value[0]);
+                            });
+                        } else if (xhr.responseJSON.message) {
+                            toastr.error(xhr.responseJSON.message);
+                        }
+                    } else if (xhr.status === 403) {
+                        toastr.error('You are not allowed to perform this action.');
+                    } else {
+                        toastr.error('Something went wrong. Please try again.');
+                    }
+                },
+
+                complete: function () {
+                    button.prop('disabled', false);
                 }
             });
         });

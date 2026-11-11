@@ -264,60 +264,7 @@
             font-weight: 500;
         }
 
-        .activity-item {
-            position: relative;
-            padding-left: 32px;
-            padding-bottom: 25px;
-        }
-
-        .activity-item:last-child {
-            padding-bottom: 0;
-        }
-
-        .activity-item::before {
-            content: '';
-            position: absolute;
-            left: 5px;
-            top: 4px;
-            width: 11px;
-            height: 11px;
-            background: #2f75b5;
-            border-radius: 50%;
-            z-index: 2;
-        }
-
-        .activity-item::after {
-            content: '';
-            position: absolute;
-            left: 9px;
-            top: 15px;
-            width: 2px;
-            height: calc(100% - 5px);
-            background: #dee2e6;
-        }
-
-        .activity-item:last-child::after {
-            display: none;
-        }
-
-        .activity-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: #343a40;
-        }
-
-        .activity-date {
-            font-size: 12px;
-            color: #6c757d;
-            margin-top: 3px;
-        }
-
-        .activity-user {
-            font-size: 12px;
-            color: #6c757d;
-            margin-top: 4px;
-        }
-
+      
 
 
         .action-buttons .btn {
@@ -430,6 +377,70 @@
                 margin-bottom: 8px;
             }
         }
+        .lead-review-actions {
+            padding: 16px 20px 0px 20px;
+            /* background: #f8fafc;
+            border: 1px solid #e2e8f0; */
+            border-radius: 8px;
+            justify-content: flex-end;
+        }
+
+        .review-label {
+            color: #64748b;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-approve,
+        .btn-reject {
+            padding: 9px 18px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .btn-approve {
+            color: #fff;
+            background: #16a34a;
+            border: 1px solid #16a34a;
+        }
+
+        .btn-approve:hover {
+            background: #15803d;
+            border-color: #15803d;
+            color: #fff;
+        }
+
+        .btn-reject {
+            color: #dc2626;
+            background: #fff;
+            border: 1px solid #dc2626;
+        }
+
+        .btn-reject:hover {
+            color: #fff;
+            background: #dc2626;
+        }
+
+        @media (max-width: 576px) {
+            .lead-review-actions {
+                justify-content: flex-start !important;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .review-label {
+                width: 100%;
+                margin-bottom: 4px;
+            }
+        }
+        .activity-no-line .activity-item::after {
+            display: none;
+        }
+        
     </style>
 @endsection
 
@@ -533,8 +544,10 @@
                                     </span>
                                 </div>
                             </div>
+                        
 
                             <div class="lead-header-actions ml-auto">
+                                   
                                 @if (auth()->user()->hasAnyPermission(['leads.assign']) && $lead->status == 0)
                                     @if (!$lead->assigned_to)
                                         <button type="button" class="btn btn-success btn-sm mr-2" data-toggle="modal"
@@ -576,16 +589,36 @@
                             </div>
 
                         </div>
+                        
                     </div>
+ 
+                 
+                    @if (auth()->user()->hasAnyPermission(['leads.approve', 'leads.reject']) && (int) $lead->approval_status === 0 && (int) $lead->status !== 0 )
+ 
+                        <div class="lead-review-actions d-flex align-items-center">
+                            <span class="review-label mr-3">Pending your review</span>
 
+                            @if (auth()->user()->hasAnyPermission(['leads.approve']))
+                                <button type="button" class="btn btn-success mr-2" data-toggle="modal" data-target="#approveLeadModal">
+                                    <i class="fas fa-check-circle mr-1"></i> Approve Lead
+                                </button>
+                            @endif
+
+                            @if (auth()->user()->hasAnyPermission(['leads.reject']))
+                                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#rejectLeadModal">
+                                    <i class="fas fa-times-circle mr-1"></i> Reject Lead
+                                </button>
+                            @endif
+                        </div>
+                    @endif
+                
 
                     {{-- =================================
                          CARD BODY
                     ================================== --}}
 
                     <div class="card-body">
-
-
+                      
                         {{-- =================================
                              CONTACT INFORMATION
                         ================================== --}}
@@ -719,6 +752,7 @@
                             </div>
 
                         </div>
+                        
 
 
                         {{-- =================================
@@ -1049,13 +1083,101 @@
                         @include('admin.leads.allocations', ['allocations' => $allocations])
 
 
+                    @php
+                        $isVerifier = auth()->user()->hasAnyPermission(['leads.approved_list'])
+                            && (int) $lead->verifier_id === (int) auth()->id();
+
+                        $canSeeVerification = $isVerifier
+                            || (int) $lead->created_by === (int) auth()->id()
+                            || auth()->user()->hasAnyPermission(['leads.approve', 'leads.reject']);
+                    @endphp
+
+                    @if ($canSeeVerification)
+                        @include('admin.leads.verification-form', ['lead' => $lead, 'isVerifier' => $isVerifier])
+                    @endif
+
+                    {{-- @if (!$isVerifier) --}}
                         @include('admin.leads.follow-up-list', ['followUps' => $lead->followUps])
+                    {{-- @endif --}}
+                        <div class="row">
+
+                            {{-- Lead Activity (left) --}}
+                            <div class="col-lg-6 mb-4">
+                                <div class="info-card">
+                                    <div class="info-card-header">
+                                        <h5>
+                                            <i class="fas fa-history mr-2 text-primary"></i>
+                                            Lead Activity
+                                        </h5>
+                                    </div>
+
+                                    <div class="info-card-body activity-no-line">
+
+                                        {{-- Created --}}
+                                        <div class="activity-item">
+                                            <div class="activity-title">Lead Created</div>
+                                            <div class="activity-date">
+                                                <i class="far fa-clock mr-1"></i>
+                                                {{ $lead->created_at ? $lead->created_at->format('d M Y, h:i A') : '-' }}
+                                            </div>
+                                            @if ($lead->addedBy)
+                                                <div class="activity-user">
+                                                    <i class="fas fa-user mr-1"></i>
+                                                    {{ $lead->addedBy->first_name ?? '' }}
+                                                    {{ $lead->addedBy->last_name ?? '' }}
+                                                </div>
+                                            @endif
+                                        </div>
+
+                                        {{-- Updated --}}
+                                        <div class="activity-item">
+                                            <div class="activity-title">Last Updated</div>
+                                            <div class="activity-date">
+                                                <i class="far fa-clock mr-1"></i>
+                                                {{ $lead->updated_at ? $lead->updated_at->format('d M Y, h:i A') : '-' }}
+                                            </div>
+                                            @if ($lead->updatedBy)
+                                                <div class="activity-user">
+                                                    <i class="fas fa-user-edit mr-1"></i>
+                                                    {{ $lead->updatedBy->first_name ?? '' }}
+                                                    {{ $lead->updatedBy->last_name ?? '' }}
+                                                </div>
+                                            @endif
+                                        </div>
+
+                                        {{-- Status --}}
+                                        <div class="activity-item">
+                                            <div class="activity-title">Current Status</div>
+                                            <div class="activity-date">
+                                                @if ((int) $lead->status === 1)
+                                                    <span class="text-primary">
+                                                        <i class="fas fa-spinner mr-1"></i> Processing
+                                                    </span>
+                                                @else
+                                                    <span class="text-secondary">
+                                                        <i class="fas fa-clock mr-1"></i> Pending
+                                                    </span>
+                                                @endif
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- Comments (right) --}}
+                            <div class="col-lg-6 mb-4">
+                                @include('admin.leads.comments', ['lead' => $lead])
+                            </div>
+
+                        </div>
+                    
 
                         {{-- =================================
                              ACTIVITY / AUDIT
                         ================================== --}}
 
-                        <div class="info-card mb-4">
+                        <!-- <div class="info-card mb-4">
 
                             <div class="info-card-header">
 
@@ -1186,7 +1308,7 @@
 
                             </div>
 
-                        </div>
+                        </div> -->
 
 
                     </div>
@@ -1212,6 +1334,7 @@
 
 
                             {{-- Edit --}}
+                            @if (auth()->user()->hasAnyPermission(['leads.edit']))
                             <a href="{{ route('lead.edit', $lead->id) }}" class="btn btn-primary">
 
                                 <i class="fas fa-edit mr-1"></i>
@@ -1219,6 +1342,7 @@
                                 Edit Lead
 
                             </a>
+                            @endif
 
 
                         </div>
@@ -1238,6 +1362,8 @@
         'lead' => $lead,
         'salesPersons' => $salesPerson,
     ])
+    @include('admin.leads.review-modals', ['lead' => $lead])
+    
 @endsection
 
 @section('custom_js')
@@ -1315,6 +1441,140 @@
                 }
             });
 
+        });
+        $('.lead-ajax-form').on('submit', function (e) {
+            e.preventDefault();
+
+            const form   = $(this);
+            const button = form.find('button[type="submit"]');
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: form.data('confirm-text'),
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: form.data('confirm-button'),
+                cancelButtonText: 'Cancel'
+            }).then(function (result) {
+                if (!result.isConfirmed) {
+                    return;
+                }
+
+                button.prop('disabled', true);
+
+                $.ajax({
+                    url: form.attr('action'),
+                    type: 'POST',
+                    data: form.serialize(),
+
+                    success: function (response) {
+                        if (response.success) {
+                            form.closest('.modal').modal('hide');
+                            toastr.success(response.message);
+                            setTimeout(function () {
+                                window.location.href = "{{ route('lead.index') }}";
+                            }, 600);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+
+                    error: function (xhr) {
+                        if (xhr.status === 422 && xhr.responseJSON) {
+                            if (xhr.responseJSON.errors) {
+                                $.each(xhr.responseJSON.errors, function (key, value) {
+                                    toastr.error(value[0]);
+                                });
+                            } else if (xhr.responseJSON.message) {
+                                toastr.error(xhr.responseJSON.message);
+                            }
+                        } else if (xhr.status === 403) {
+                            toastr.error('You are not allowed to perform this action.');
+                        } else {
+                            toastr.error('Something went wrong. Please try again.');
+                        }
+                    },
+
+                    complete: function () {
+                        button.prop('disabled', false);
+                    }
+                });
+            });
+        });
+        $('#leadCommentForm').on('submit', function (e) {
+            e.preventDefault();
+
+            const form   = $(this);
+            const button = form.find('button[type="submit"]');
+            button.prop('disabled', true);
+
+            $.ajax({
+                url: form.attr('action'),
+                type: 'POST',
+                data: form.serialize(),
+
+                success: function (response) {
+                    if (response.success) {
+                        toastr.success(response.message);
+                        setTimeout(function () { location.reload(); }, 500);
+                    } else {
+                        toastr.error(response.message);
+                    }
+                },
+
+                error: function (xhr) {
+                    if (xhr.status === 422 && xhr.responseJSON) {
+                        if (xhr.responseJSON.errors) {
+                            $.each(xhr.responseJSON.errors, function (key, value) {
+                                toastr.error(value[0]);
+                            });
+                        } else if (xhr.responseJSON.message) {
+                            toastr.error(xhr.responseJSON.message);
+                        }
+                    } else if (xhr.status === 403) {
+                        toastr.error('You are not allowed to perform this action.');
+                    } else {
+                        toastr.error('Something went wrong. Please try again.');
+                    }
+                },
+
+                complete: function () {
+                    button.prop('disabled', false);
+                }
+            });
+        });
+        $('#verificationForm').on('submit', function (e) {
+            e.preventDefault();
+
+            const form   = $(this);
+            const button = form.find('button[type="submit"]');
+            button.prop('disabled', true);
+
+            $.ajax({
+                url: form.attr('action'),
+                type: 'POST',
+                data: form.serialize(),
+                success: function (response) {
+                    if (response.success) {
+                        toastr.success(response.message);
+                        setTimeout(function () { location.reload(); }, 500);
+                    } else {
+                        toastr.error(response.message);
+                    }
+                },
+                error: function (xhr) {
+                    if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
+                        $.each(xhr.responseJSON.errors, function (k, v) { toastr.error(v[0]); });
+                    } else if (xhr.status === 403) {
+                        toastr.error('You are not allowed to perform this action.');
+                    } else {
+                        toastr.error('Something went wrong. Please try again.');
+                    }
+                },
+                complete: function () { button.prop('disabled', false); }
+            });
         });
     </script>
 @endsection

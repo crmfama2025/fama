@@ -114,10 +114,10 @@ class LeadService
             'required_location' => ['nullable', 'string', 'max:255'],
             'budget' => ['nullable', 'numeric', 'min:0'],                  // new
             'moving_date' => ['nullable', 'date'],                         // new
-            'lead_category' => ['required', Rule::in(['C1', 'C2', 'C3'])], 
+            'lead_category' => ['required', Rule::in(['C1', 'C2', 'C3'])],
             'requirement' => ['required', 'string'],
             'status' => ['nullable', 'integer', Rule::in([0, 1])],
-            
+
         ], [
             'contact_person_name.required' => 'Contact person name is required.',
             'phone_number.required' => 'Phone number is required.',
@@ -126,9 +126,9 @@ class LeadService
             'total_staff.integer' => 'Total staff must be a number.',
             'staff_per_room.integer' => 'Staff per room must be a number.',        // new
             'budget.numeric' => 'Budget must be a valid number.',                  // new
-            'moving_date.date' => 'Please enter a valid moving date.',          
-            'lead_category.required' => 'Please select a category (C1, C2 or C3).', 
-            'lead_category.in' => 'Category must be C1, C2 or C3.',   
+            'moving_date.date' => 'Please enter a valid moving date.',
+            'lead_category.required' => 'Please select a category (C1, C2 or C3).',
+            'lead_category.in' => 'Category must be C1, C2 or C3.',
             'requirement.required' => 'Requirement is required.',
         ]);
 
@@ -144,23 +144,24 @@ class LeadService
     public function getDataTable(array $filters = [])
     {
         $user = auth()->user();
+        $isSuperAdmin = (int) $user->user_type_id === 1;
 
-        // if ((int) $user->user_type_id === 3) {
-        //     $filters['assigned_to'] = $user->id;
-        //     $filters['created_by'] = $user->id;
-        // }
-        // if ((int) $user->user_type_id === 4) {
-        //     $filters['assigned_to'] = $user->id;
-        //     $filters['created_by'] = $user->id;
-        // }
+        if ($isSuperAdmin) {
+            // Super admin: all leads, no restriction
+        } elseif ($user->hasAnyPermission(['leads.approve', 'leads.reject'])) {
+            // all leads except pending (0) and processing (1)
+            $filters['exclude_statuses'] = [0, 1];
+        } elseif ($user->hasAnyPermission(['leads.approved_list'])) {
 
-        if (in_array((int) $user->user_type_id, [3, 4])) {
-            $filters['user_id'] = $user->id;
+            $filters['approved_only']    = true;
+            $filters['verifier_id']      = $user->id;
+            $filters['exclude_statuses'] = [0];
+        } else {
+            // sales users
+            $filters['created_by'] = $user->id;
         }
 
-
         $query = $this->leadRepository->getQuery($filters);
-        // Clone before DataTable modifies the query
         $countQuery = clone $query;
 
         $statusCounts = [
@@ -213,6 +214,15 @@ class LeadService
             ->addColumn('status', function ($row) {
                 return $this->getLeadStatus($row->status, true);
             })
+            ->addColumn('approval_status', function ($row) {
+                return match ((int) $row->approval_status) {
+                    1       => '<span class="badge badge-success">Approved</span>',
+                    2       => '<span class="badge badge-danger">Rejected</span>',
+                    3       => '<span class="badge badge-secondary">Unavailable</span>',
+                    4       => '<span class="badge badge-primary">Completed</span>',
+                    default => '<span class="badge badge-warning">Pending</span>',
+                };
+            })
             ->addColumn('added_by', function ($row) {
                 if ($row->createdBy) {
                     $name = $row->createdBy->first_name . ' ' . $row->createdBy->last_name;
@@ -256,11 +266,35 @@ class LeadService
 
                 return $action . '</div>';
             })
-            ->rawColumns(['status', 'action', 'added_by'])
+            ->rawColumns(['status', 'approval_status', 'action', 'added_by'])
             ->with(['columns' => $columns, 'status_counts' => $statusCounts,])
             ->toJson();
     }
+    public function addComment(Lead $lead, array $data): void
+    {
+        $lead->comments()->create([
+            'user_id' => auth()->id(),
+            'comment' => $data['comment'],
+        ]);
+    }
 
+    public function updateVerification(Lead $lead, array $data): void
+    {
+        $user = auth()->user();
+
+        abort_unless(
+            (int) $lead->verifier_id === (int) $user->id
+                && in_array((int) $lead->approval_status, [1, 3], true),
+            403
+        );
+
+        $lead->update([
+            'approval_status'           => (int) $data['approval_status'],
+            'verification_description'  => $data['verification_description'],
+            'verification_completed_by' => $user->id,
+            'verification_completed_at' => now(),
+        ]);
+    }
 
 
     public function getLeadExportData(array $filters = [])
@@ -316,7 +350,6 @@ class LeadService
         });
     }
 
-
     public function leadExportHeadings()
     {
         return [
@@ -338,6 +371,7 @@ class LeadService
             'Updated At',
         ];
     }
+
     public function assignLead($leadId, array $data)
     {
         return DB::transaction(function () use ($leadId, $data) {

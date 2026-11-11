@@ -491,8 +491,58 @@ color: white;
 .card-df{
     border-top: 3px solid #ad9b63;
 }
+.activity-item {
+    position: relative;
+    padding-left: 32px;
+    padding-bottom: 25px;
+}
 
+.activity-item:last-child {
+    padding-bottom: 0;
+}
 
+.activity-item::before {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 4px;
+    width: 11px;
+    height: 11px;
+    background: #2f75b5;
+    border-radius: 50%;
+    z-index: 2;
+}
+
+.activity-item::after {
+    content: '';
+    position: absolute;
+    left: 9px;
+    top: 15px;
+    width: 2px;
+    height: calc(100% - 5px);
+    background: #dee2e6;
+}
+
+.activity-item:last-child::after {
+    display: none;
+}
+.activity-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #343a40;
+}
+
+.activity-date {
+    font-size: 12px;
+    color: #6c757d;
+    margin-top: 3px;
+}
+
+.activity-user {
+    font-size: 12px;
+    color: #6c757d;
+    margin-top: 4px;
+}
 
 
 

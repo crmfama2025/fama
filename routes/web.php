@@ -486,6 +486,10 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
     Route::get('lead-locations', [LeadController::class, 'locations'])->name('lead.locations');
     Route::get('lead-export', [LeadController::class, 'export'])->name('lead.export');
     Route::post('lead-assign/{id}', [LeadController::class, 'assign'])->name('lead.assign');
+    Route::post('lead/{id}/approve', [LeadController::class, 'approve'])->name('lead.approve');
+    Route::post('lead/{id}/reject',  [LeadController::class, 'reject'])->name('lead.reject');
+    Route::post('leads/{lead}/comments', [LeadController::class, 'addComment'])->name('lead.comment.store');
+    Route::post('leads/{lead}/verification', [LeadController::class, 'updateVerification'])->name('lead.verification.update');
     Route::post('lead/{id}/follow-up', [LeadController::class, 'storeFollowUp'])
         ->name('lead.follow-up.store');
 

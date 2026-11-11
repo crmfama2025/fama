@@ -6,12 +6,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\LeadComment;
 
 class Lead extends Model
 {
     use HasFactory, SoftDeletes;
 
     protected $table = 'leads';
+    public const DEFAULT_VERIFIER_ID = 4;
 
     protected $fillable = [
         'lead_code',
@@ -35,6 +37,16 @@ class Lead extends Model
         'budget',
         'moving_date',
         'lead_category',
+        'approval_status',
+        'approved_by',
+        'approved_at',
+        'rejection_reason',
+        'verifier_id',
+        'verification_status',
+        'verification_description',
+        'verification_completed_by',
+        'verification_completed_at',
+        'approval_remarks',
     ];
 
     protected $casts = [
@@ -145,5 +157,9 @@ class Lead extends Model
     public function salesAgreement()
     {
         return $this->hasMany(SalesTenantAgreement::class, 'lead_id');
+    }
+    public function comments()
+    {
+        return $this->hasMany(LeadComment::class, 'lead_id')->with('user')->latest();
     }
 }

@@ -1072,9 +1072,6 @@
                 return;
             }
 
-            // let companyContracts = contracts.filter(function(contract) {
-            //     return contract.company_id == companyId;
-            // });
             let companyContracts = contracts
             .filter(function(contract) {
                 return contract.company_id == companyId;

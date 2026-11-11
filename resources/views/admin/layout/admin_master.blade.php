@@ -617,7 +617,7 @@
                         @endif
                         {{-- Leads --}}
                         {{-- {{ dd(auth()->user()->permissions()->pluck('permission_name')->toArray()) }} --}}
-                        @if (auth()->user()->hasAnyPermission(['Leads', 'leads.add', 'leads.view', 'leads.edit', 'leads.delete']))
+                        @if (auth()->user()->hasAnyPermission(['Leads', 'leads.add', 'leads.view', 'leads.edit', 'leads.delete', 'leads.approved_list']))
                             <li class="nav-item {{ request()->is('lead') ? 'menu-open' : '' }}">
                                 <a href="{{ route('lead.index') }}"
                                     class="nav-link {{ request()->is('lead*') ? 'active bg-gradient-projects' : '' }}">

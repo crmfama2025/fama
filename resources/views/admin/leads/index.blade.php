@@ -599,6 +599,7 @@
                                             <th>Contact Person</th>
                                             <th>Phone Number</th>
                                             <th>Status</th>
+                                            <th>Approval Status</th>
                                             {{-- <th>Email</th> --}}
                                             <th>Lead Source</th>
                                             <th>Total Staff</th>
@@ -770,6 +771,10 @@
                     {
                         data: 'status',
                         name: 'leads.status',
+                    },
+                    {
+                        data: 'approval_status',
+                        name: 'leads.approval_status',
                     },
 
                     // {
