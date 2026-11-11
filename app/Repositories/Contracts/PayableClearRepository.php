@@ -223,7 +223,6 @@ class PayableClearRepository
         $fromDate = now()->startOfMonth()->toDateString();
         $todate = now()->toDateString();
 
-        // Get company IDs where user has finance.payable permission
         $permittedCompanyIds = getUserPermittedCompanyIds(auth()->id(), 'finance.payable_cheque_clearing');
 
         $query = ContractPayableClear::query()
@@ -324,6 +323,7 @@ class PayableClearRepository
         //     $query->Where('contracts.company_id', $filters['company_id']);
         // }
         // dd($query);
+        // dd($query->toSql(), $query->getBindings());
         return $query;
     }
 }

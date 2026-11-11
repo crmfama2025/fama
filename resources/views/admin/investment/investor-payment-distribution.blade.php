@@ -380,15 +380,11 @@
                         maximumFractionDigits: 2
                     })
                 );
-
             } else {
-
                 $('#selectionInfo').addClass('d-none');
-
                 $('#selectedCount').text(0);
                 $('#selectedTotal').text('0.00');
             }
-
             $('#selectAll').prop(
                 'checked',
                 allFilteredCount !== null &&
@@ -464,7 +460,6 @@
                     };
                 });
                 allFilteredCount = res.count;
-
                 $('.groupCheckbox').prop('checked', true);
                 updateSelectionInfo();
             }).fail(function(xhr) {
@@ -480,7 +475,7 @@
                 const itemCheckboxes = document.querySelectorAll('.groupCheckbox');
                 itemCheckboxes.forEach(checkbox => {
                     checkbox.checked = this
-                        .checked; // Set checked status based on the "Select All" checkbox
+                        .checked;
                 });
             });
         }

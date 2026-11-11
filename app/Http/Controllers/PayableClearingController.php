@@ -113,6 +113,7 @@ class PayableClearingController extends Controller
                 'search' => $request->search['value'] ?? null,
                 'filter' => $filterData,
             ];
+         
 
             return $this->payableClear->getClearedList($filters);
         }

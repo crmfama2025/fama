@@ -1589,7 +1589,9 @@ function getSubModuleArray()
         'investment_report',
         'assign',
         'convert',
-        'location_pricing'
+        'location_pricing',
+        'comment_add',
+        'approved_list'
     ];
 }
 
@@ -1612,6 +1614,7 @@ function getAgreementDocumentExpiringCounts()
         ->where('expiry_date', '<=', $nextMonth)
         ->count();
 }
+
 
 function unitDetailCount($payment_details, $type, $stage = null)
 {

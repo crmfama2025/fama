@@ -740,7 +740,7 @@ class ContractService
     public function terminateContract(array $data)
     {
         $this->terminate_validate($data);
-        // dd($data);
+
         DB::transaction(function () use ($data) {
 
             $this->contractRepo->terminate($data);
