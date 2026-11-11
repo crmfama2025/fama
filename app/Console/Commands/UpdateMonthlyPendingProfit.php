@@ -94,6 +94,7 @@ class UpdateMonthlyPendingProfit extends Command
                                     ->where('investor_payouts.payout_type', 1);
                                 // add ->whereNull('investor_payouts.deleted_at') if InvestorPayout uses SoftDeletes
                             })
+                            ->where('profit_amount', '>', 0)
                             ->orderBy('profit_release_month', 'asc')
                             ->first();
 
@@ -183,6 +184,7 @@ class UpdateMonthlyPendingProfit extends Command
                                             [$currentMonth->format('Y-m')]
                                         )
                                         ->where('has_profit_amount', 1)
+                                        ->where('profit_amount', '>', 0)
                                         ->get();
                                     // ->toRawSql();
 
@@ -229,6 +231,7 @@ class UpdateMonthlyPendingProfit extends Command
                                         ->whereMonth('profit_release_month', $currentMonthStart->month)
                                         ->whereYear('profit_release_month', $currentMonthStart->year)
                                         ->where('has_profit_amount', 1)
+                                        ->where('profit_amount', '>', 0)
                                         ->first();
 
                                     $profitRecordId = $profitRecord ? $profitRecord->id : null;
@@ -370,14 +373,14 @@ class UpdateMonthlyPendingProfit extends Command
             switch ($payout_type) {
 
                 case 1: // PROFIT
-                    var_dump([
-                        'investment'    => $investment->id,
-                        'payout_type'   => $payout_type,
-                        'amountOverride' => $amountOverride,
-                        'bifurcationId' => $bifurcationId,
-                        'originalDate'  => $originalDate,
-                        'profitRecord'  => $profitRecord,
-                    ]);
+                    // var_dump([
+                    //     'investment'    => $investment->id,
+                    //     'payout_type'   => $payout_type,
+                    //     'amountOverride' => $amountOverride,
+                    //     'bifurcationId' => $bifurcationId,
+                    //     'originalDate'  => $originalDate,
+                    //     'profitRecord'  => $profitRecord,
+                    // ]);
                     if ($amountOverride > 0) { //partial withdrwal
                         $amount = $amountOverride;
                         $payoutReferrenceId = $bifurcationId;

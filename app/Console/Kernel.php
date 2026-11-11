@@ -81,13 +81,13 @@ class Kernel extends ConsoleKernel
 
 
         // auto renew profit records investment
-        $schedule
-            ->command('investments:process-auto-renewals')
-            ->dailyAt('00:30')
-            ->withoutOverlapping()
-            ->appendOutputTo(
-                storage_path('logs/investment-auto-renewals.log')
-            );
+        // $schedule
+        //     ->command('investments:process-auto-renewals')
+        //     ->dailyAt('00:30')
+        //     ->withoutOverlapping()
+        //     ->appendOutputTo(
+        //         storage_path('logs/investment-auto-renewals.log')
+        //     );
 
 
         // $schedule->call(function () {

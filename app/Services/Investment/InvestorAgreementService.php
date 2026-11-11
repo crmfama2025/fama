@@ -908,7 +908,7 @@ class InvestorAgreementService
                         'profit_amount' => $template->profit_amount,
                         'investor_id' => $investment->investor_id,
                         'released_total_amount' => 0,
-                        'has_profit_amount' => 1,
+                        'has_profit_amount' => $template->profit_amount > 0 ? 1 : 0,
                         'renewal_count' => $investment->renewal_count,
                     ]);
 

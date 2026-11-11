@@ -976,11 +976,17 @@ function updateInvestmentBalance($investmentId)
 
 function calculateNextProfitDateFromRecord($investmentId, $profitRecordId)
 {
-    // $currentProfitRecord = InvestmentProfitRecord::find($profitRecordId);
+    $currentProfitRecord = InvestmentProfitRecord::find($profitRecordId);
+
+    if (!$currentProfitRecord) {
+        return null;
+    }
 
     $nextProfitRecord = InvestmentProfitRecord::where('investment_id', $investmentId)
-        ->where('id', '>', $profitRecordId)
+        ->where('profit_release_month', '>', $currentProfitRecord->profit_release_month)
+        // ->where('id', '>', $profitRecordId)
         ->where('has_profit_amount', 1)
+        ->where('profit_amount', '>', 0)
         ->orderBy('profit_release_month', 'asc')
         ->first();
     // dd($nextProfitRecord ? Carbon::parse($nextProfitRecord->profit_release_month) : null);
