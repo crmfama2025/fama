@@ -108,6 +108,7 @@ class DistributeReportExport implements FromCollection, WithHeadings
                 return [
                     'Investor Name' => $row->investor->investor_name,
                     'Company Name' => $row->investment?->company?->company_name ?? '-',
+                    'Investment Code' => $row->investment?->investment_code ?? '-',
                     'Paid Date' => $row->paid_date,
                     'Payout Type' => match ($row->investorPayout->payout_type) {
                         1 => 'Profit',
@@ -126,6 +127,7 @@ class DistributeReportExport implements FromCollection, WithHeadings
         return [
             'Investor Name',
             'Company Name',
+            'Investment Code',
             'Paid Date',
             'Payout Type',
             'Amount Paid',
