@@ -66,7 +66,7 @@ class UpdateMonthlyPendingProfit extends Command
                                 ->exists();
 
                             if (!$exists) {
-
+                                print('withdraw 1 ---------------');
                                 $this->createInvestorpayout(
                                     6,
                                     $currentMonthStart,
@@ -76,7 +76,6 @@ class UpdateMonthlyPendingProfit extends Command
                                     Carbon::parse($wd->withdrawal_date),
                                     null
                                 );
-                                print('withdraw 1');
                             }
                         }
                     }
@@ -140,6 +139,7 @@ class UpdateMonthlyPendingProfit extends Command
                                         ->exists();
 
                                     if (!$exists) {
+                                        print('partial bifur 1 ----------');
                                         $payout =  $this->createInvestorpayout(
                                             1,
                                             $currentMonthStart,
@@ -149,7 +149,6 @@ class UpdateMonthlyPendingProfit extends Command
                                             Carbon::parse($bifurcation->withdrawal_date),
                                             null
                                         );
-                                        print('partial bifur 1');
                                     }
                                 }
                             } else {
@@ -171,6 +170,7 @@ class UpdateMonthlyPendingProfit extends Command
                                                 ->exists();
 
                                             if (!$exists) {
+                                                print('profit 1 -------------------');
                                                 $payout =  $this->createInvestorpayout(
                                                     1,
                                                     $currentMonthStart,
@@ -180,8 +180,6 @@ class UpdateMonthlyPendingProfit extends Command
                                                     Carbon::parse($profitRecord->profit_release_month),
                                                     $profitRecord
                                                 );
-
-                                                print('profit 1');
 
                                                 if ($payout) {
                                                     $payoutMultiple[] = $payout;
@@ -219,7 +217,7 @@ class UpdateMonthlyPendingProfit extends Command
                                             ->exists();
 
                                         if (!$exists) {
-
+                                            print('profit 2 ----------------- ');
                                             $payout = $this->createInvestorpayout(
                                                 1,
                                                 $currentMonthStart,
@@ -229,8 +227,6 @@ class UpdateMonthlyPendingProfit extends Command
                                                 $nextProfitRelease,
                                                 $profitRecord
                                             );
-
-                                            print('profit 2');
                                         }
                                     }
                                 }
@@ -288,8 +284,8 @@ class UpdateMonthlyPendingProfit extends Command
                                     ->where('payout_release_month', $currentMonthStart->format('Y-m'))
                                     ->exists();
                                 if (!$exists) {
+                                    print('referral payout 2 -------------');
                                     $this->createInvestorpayout(2, $currentMonthStart, $investment);
-                                    print('referral payout 2');
                                 }
                             }
                         }
