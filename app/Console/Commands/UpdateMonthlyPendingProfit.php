@@ -245,23 +245,29 @@ class UpdateMonthlyPendingProfit extends Command
                                 $investment->save();
                             }
                         }
-                        if ($payout) {
+                        // if ($payout) {
 
-                            if (!empty($payoutMultiple)) {
-                                $outstandingProfit = collect($payoutMultiple)
-                                    ->sum(function ($payout) {
-                                        return $payout->amount_pending ?? $payout->pending_amount ?? 0;
-                                    });
-                            } else {
-                                $outstandingProfit = $payout->amount_pending;
-                            }
+                        // if (!empty($payoutMultiple)) {
+                        //     $outstandingProfit = collect($payoutMultiple)
+                        //         ->sum(function ($payout) {
+                        //             return $payout->amount_pending ?? $payout->pending_amount ?? 0;
+                        //         });
+                        // } else {
+                        //     $outstandingProfit = $payout->amount_pending;
+                        // }
 
-                            // $outstandingProfit += $payout->pending_amount;
-                            $investment->update([
-                                'outstanding_profit' => $outstandingProfit,
-                                'is_profit_processed' => 1
-                            ]);
-                        }
+                        $allProfitPayouts = InvestorPayout::where('investment_id', $investment->id)
+                            ->where('payout_type', 1)
+                            ->get();
+
+                        $outstandingProfit = $allProfitPayouts->sum('amount_pending');
+
+                        // $outstandingProfit += $payout->pending_amount;
+                        $investment->update([
+                            'outstanding_profit' => $outstandingProfit,
+                            'is_profit_processed' => 1
+                        ]);
+                        // }
                         // dd($investment->investmentReferral->next_referral_commission_release_date);
 
                     }
