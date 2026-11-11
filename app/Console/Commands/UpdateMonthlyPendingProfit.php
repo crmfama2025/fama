@@ -138,7 +138,7 @@ class UpdateMonthlyPendingProfit extends Command
                                         ->where('bifurcation_id', $bifurcation->id)
                                         ->exists();
 
-                                    if (!$exists) {
+                                    if (!$exists && !empty($bifurcation->withdrawal_month_profit)) {
                                         print('partial bifur 1 ----------');
                                         $payout =  $this->createInvestorpayout(
                                             1,
