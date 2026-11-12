@@ -158,91 +158,165 @@ class ContractRepository
             ->leftJoin('contract_units', 'contract_units.contract_id', '=', 'contracts.id')
             ->leftJoin('contract_rentals', 'contract_rentals.contract_id', '=', 'contracts.id');
 
-        if (!empty($filters['search'])) {
+        // if (!empty($filters['search'])) {
+        //     $search     = trim($filters['search']);
+        //     $like       = '%' . $search . '%';
+        //     $searchLike = '%' . str_replace('-', '%', $search) . '%';
 
-            $search = trim($filters['search']);
-            $searchLike = str_replace('-', '%', $search);
+        //     $query->where(function ($main) use ($like, $searchLike) {
+        //         $main->where('project_code', 'like', $like)
+        //             ->orWhereRaw("CONCAT('P-', project_number) LIKE ?", [$like])
 
-            $query->where('project_code', 'like', '%' . $filters['search'] . '%')
-                ->orWhereRaw("CONCAT('P-', project_number) LIKE ?", ['%' . $filters['search'] . '%'])
+        //             ->orWhereHas('company', fn($q) => $q->where('company_name', 'like', $like))
+        //             ->orWhereHas('vendor', fn($q) => $q->where('vendor_name', 'like', $like))
 
-                ->orWhereHas('company', function ($q) use ($filters) {
-                    $q->where('company_name', 'like', '%' . $filters['search'] . '%');
-                })
-                // ->orWhereHas('indirectCompany', function ($q) use ($filters) {
-                //     $q->where('company_name', 'like', '%' . $filters['search'] . '%');
-                // })
-                ->orWhereHas('vendor', function ($q) use ($filters) {
-                    $q->where('vendor_name', 'like', '%' . $filters['search'] . '%');
-                })
-                ->orWhereHas('addedBy', function ($q) use ($filters) {
-                    $q->where('first_name', 'like', '%' . $filters['search'] . '%')
-                        ->orWhere('last_name', 'like', '%' . $filters['search'] . '%');
-                })
-                ->orWhereHas('contract_type', function ($q) use ($filters) {
-                    $q->where('contract_type', 'like', '%' . $filters['search'] . '%')
-                        ->orWhere('shortcode', 'like', '%' . $filters['search'] . '%');
-                })
-                ->orWhereHas('contract_detail', function ($q) use ($filters, $searchLike) {
-                    $q->where('start_date', 'like', "%{$searchLike}%")
-                        ->orWhere('end_date', 'like', "%{$searchLike}%");
-                })
-                ->orWhereHas('contract_unit', function ($q) use ($filters) {
-                    $search = '%' . $filters['search'] . '%';
+        //             ->orWhereHas('addedBy', function ($q) use ($like) {
+        //                 $q->where('first_name', 'like', $like)
+        //                     ->orWhere('last_name', 'like', $like);
+        //             })
+        //             ->orWhereHas('contract_type', function ($q) use ($like) {
+        //                 $q->where('contract_type', 'like', $like)
+        //                     ->orWhere('shortcode', 'like', $like);
+        //             })
+        //             ->orWhereHas('contract_detail', function ($q) use ($searchLike) {
+        //                 $q->where('start_date', 'like', $searchLike)
+        //                     ->orWhere('end_date', 'like', $searchLike);
+        //             })
+        //             ->orWhereHas('contract_unit', function ($q) use ($like) {
+        //                 $q->where(function ($sub) use ($like) {
+        //                     $sub->whereRaw("IF(business_type = 1, 'B2B', IF(business_type = 2, 'B2C', '')) LIKE ?", [$like])
+        //                         ->orWhereRaw("IF(building_type = 1, 'Full Building', '') LIKE ?", [$like])
+        //                         ->orWhereRaw("IF(floor_type = 1, 'Full Floor', '') LIKE ?", [$like]);
+        //                 });
+        //             })
+        //             ->orWhereHas('contract_rentals', function ($q) use ($like) {
+        //                 $q->where('roi_perc', 'like', $like)
+        //                     ->orWhere('expected_profit', 'like', $like);
+        //             })
+        //             ->orWhereHas('locality', fn($q) => $q->where('locality_name', 'like', $like))
+        //             ->orWhereHas('property', fn($q) => $q->where('property_name', 'like', $like))
 
-                    $q->where(function ($query) use ($search) {
-                        $query->whereRaw("IF(business_type = 1, 'B2B', IF(business_type = 2, 'B2C', '')) LIKE ?", [$search])
-                            ->orWhereRaw("IF(building_type = 1, 'Full Building', '') LIKE ?", [$search])
-                            ->orWhereRaw("IF(floor_type = 1, 'Full Floor', '') LIKE ?", [$search]);
-                    });
-                })
-                ->orWhereHas('contract_rentals', function ($q) use ($filters) {
-                    $q->where('roi_perc', 'like', '%' . $filters['search'] . '%')
-                        ->orWhere('expected_profit', 'like', '%' . $filters['search'] . '%');
-                })
-                ->orWhereHas('locality', function ($q) use ($filters) {
-                    $q->where('locality_name', 'like', '%' . $filters['search'] . '%');
-                })
-                ->orWhereHas('property', function ($q) use ($filters) {
-                    $q->where('property_name', 'like', '%' . $filters['search'] . '%');
-                })
-                ->orWhereRaw("
-                    CASE
-                        WHEN contract_status = 0 THEN 'Pending'
-                        WHEN contract_status = 1 THEN 'Processing'
-                        WHEN contract_status = 2 THEN 'Approved'
-                        WHEN contract_status = 3 THEN 'Rejected'
-                        WHEN contract_status = 4 THEN 'Approval Pending'
-                        WHEN contract_status = 5 THEN 'Approval on Hold'
-                        WHEN contract_status = 6 THEN 'Partially Signed'
-                        WHEN contract_status = 7 THEN 'Fully Signed'
-                        WHEN contract_status = 8 THEN 'Expired'
-                        WHEN contract_status = 9 THEN 'Terminated'
-                    END LIKE ?
-                ", ['%' . $filters['search'] . '%'])
-                ->orWhereRaw("
-                    CASE
-                        WHEN indirect_status = 1 THEN 'indirect'
+        //             ->orWhereRaw("
+        //         CASE
+        //             WHEN contract_status = 0 THEN 'Pending'
+        //             WHEN contract_status = 1 THEN 'Processing'
+        //             WHEN contract_status = 2 THEN 'Approved'
+        //             WHEN contract_status = 3 THEN 'Rejected'
+        //             WHEN contract_status = 4 THEN 'Approval Pending'
+        //             WHEN contract_status = 5 THEN 'Approval on Hold'
+        //             WHEN contract_status = 6 THEN 'Partially Signed'
+        //             WHEN contract_status = 7 THEN 'Fully Signed'
+        //             WHEN contract_status = 8 THEN 'Expired'
+        //             WHEN contract_status = 9 THEN 'Terminated'
+        //         END LIKE ?
+        //     ", [$like])
+        //             ->orWhereRaw("
+        //         CASE
+        //             WHEN indirect_status = 1 THEN 'indirect'
+        //         END LIKE ?
+        //     ", [$like])
+        //             ->orWhereRaw("
+        //         CASE
+        //             WHEN renew_reject_status = 1 THEN 'Rejected Renewal'
+        //             WHEN parent_contract_id > 0 THEN 'Renewal'
+        //             ELSE 'New'
+        //         END LIKE ?
+        //     ", [$like])
+        //             ->orWhereRaw("
+        //         CASE
+        //             WHEN is_agreement_added = 0 THEN 'Not Added'
+        //             WHEN is_agreement_added = 1 THEN 'Agreement Added'
+        //         END LIKE ?
+        //     ", [$like])
 
-                    END LIKE ?
-                ", ['%' . $filters['search'] . '%'])
-                ->orWhereRaw("
-                    CASE
-                        WHEN renew_reject_status = 1 THEN 'Rejected Renewal'
-                        WHEN parent_contract_id > 0 THEN 'Renewal'
-                        ELSE 'New'
-                    END LIKE ?
-                ", ['%' . $filters['search'] . '%'])
-                ->orWhereRaw("
-                    CASE
-                        WHEN is_agreement_added = 0 THEN 'Not Added'
-                        WHEN is_agreement_added = 1 THEN 'Agreement Added'
+        //             ->orWhereRaw("CAST(contracts.id AS CHAR) LIKE ?", [$like]);
+        //     });
+        // }
+        // if (!empty($filters['search'])) {
 
-                    END LIKE ?
-                ", ['%' . $filters['search'] . '%'])
+        //     $search = trim($filters['search']);
+        //     $searchLike = str_replace('-', '%', $search);
 
-                ->orWhereRaw("CAST(contracts.id AS CHAR) LIKE ?", ['%' . $filters['search'] . '%']);
-        }
+        //     $query->where('project_code', 'like', '%' . $filters['search'] . '%')
+        //         ->orWhereRaw("CONCAT('P-', project_number) LIKE ?", ['%' . $filters['search'] . '%'])
+
+        //         ->orWhereHas('company', function ($q) use ($filters) {
+        //             $q->where('company_name', 'like', '%' . $filters['search'] . '%');
+        //         })
+        //         // ->orWhereHas('indirectCompany', function ($q) use ($filters) {
+        //         //     $q->where('company_name', 'like', '%' . $filters['search'] . '%');
+        //         // })
+        //         ->orWhereHas('vendor', function ($q) use ($filters) {
+        //             $q->where('vendor_name', 'like', '%' . $filters['search'] . '%');
+        //         })
+        //         ->orWhereHas('addedBy', function ($q) use ($filters) {
+        //             $q->where('first_name', 'like', '%' . $filters['search'] . '%')
+        //                 ->orWhere('last_name', 'like', '%' . $filters['search'] . '%');
+        //         })
+        //         ->orWhereHas('contract_type', function ($q) use ($filters) {
+        //             $q->where('contract_type', 'like', '%' . $filters['search'] . '%')
+        //                 ->orWhere('shortcode', 'like', '%' . $filters['search'] . '%');
+        //         })
+        //         ->orWhereHas('contract_detail', function ($q) use ($filters, $searchLike) {
+        //             $q->where('start_date', 'like', "%{$searchLike}%")
+        //                 ->orWhere('end_date', 'like', "%{$searchLike}%");
+        //         })
+        //         ->orWhereHas('contract_unit', function ($q) use ($filters) {
+        //             $search = '%' . $filters['search'] . '%';
+
+        //             $q->where(function ($query) use ($search) {
+        //                 $query->whereRaw("IF(business_type = 1, 'B2B', IF(business_type = 2, 'B2C', '')) LIKE ?", [$search])
+        //                     ->orWhereRaw("IF(building_type = 1, 'Full Building', '') LIKE ?", [$search])
+        //                     ->orWhereRaw("IF(floor_type = 1, 'Full Floor', '') LIKE ?", [$search]);
+        //             });
+        //         })
+        //         ->orWhereHas('contract_rentals', function ($q) use ($filters) {
+        //             $q->where('roi_perc', 'like', '%' . $filters['search'] . '%')
+        //                 ->orWhere('expected_profit', 'like', '%' . $filters['search'] . '%');
+        //         })
+        //         ->orWhereHas('locality', function ($q) use ($filters) {
+        //             $q->where('locality_name', 'like', '%' . $filters['search'] . '%');
+        //         })
+        //         ->orWhereHas('property', function ($q) use ($filters) {
+        //             $q->where('property_name', 'like', '%' . $filters['search'] . '%');
+        //         })
+        //         ->orWhereRaw("
+        //             CASE
+        //                 WHEN contract_status = 0 THEN 'Pending'
+        //                 WHEN contract_status = 1 THEN 'Processing'
+        //                 WHEN contract_status = 2 THEN 'Approved'
+        //                 WHEN contract_status = 3 THEN 'Rejected'
+        //                 WHEN contract_status = 4 THEN 'Approval Pending'
+        //                 WHEN contract_status = 5 THEN 'Approval on Hold'
+        //                 WHEN contract_status = 6 THEN 'Partially Signed'
+        //                 WHEN contract_status = 7 THEN 'Fully Signed'
+        //                 WHEN contract_status = 8 THEN 'Expired'
+        //                 WHEN contract_status = 9 THEN 'Terminated'
+        //             END LIKE ?
+        //         ", ['%' . $filters['search'] . '%'])
+        //         ->orWhereRaw("
+        //             CASE
+        //                 WHEN indirect_status = 1 THEN 'indirect'
+
+        //             END LIKE ?
+        //         ", ['%' . $filters['search'] . '%'])
+        //         ->orWhereRaw("
+        //             CASE
+        //                 WHEN renew_reject_status = 1 THEN 'Rejected Renewal'
+        //                 WHEN parent_contract_id > 0 THEN 'Renewal'
+        //                 ELSE 'New'
+        //             END LIKE ?
+        //         ", ['%' . $filters['search'] . '%'])
+        //         ->orWhereRaw("
+        //             CASE
+        //                 WHEN is_agreement_added = 0 THEN 'Not Added'
+        //                 WHEN is_agreement_added = 1 THEN 'Agreement Added'
+
+        //             END LIKE ?
+        //         ", ['%' . $filters['search'] . '%'])
+
+        //         ->orWhereRaw("CAST(contracts.id AS CHAR) LIKE ?", ['%' . $filters['search'] . '%']);
+        // }
 
 
 
@@ -263,6 +337,86 @@ class ContractRepository
         }
 
         return $query;
+    }
+
+    public function applySearch(Builder $query, ?string $search): Builder
+    {
+        if (empty($search)) {
+            return $query;
+        }
+
+        $search     = trim($search);
+        $like       = '%' . $search . '%';
+        $searchLike = '%' . str_replace('-', '%', $search) . '%';
+
+        return $query->where(function ($main) use ($like, $searchLike) {
+            $main->where('project_code', 'like', $like)
+                ->orWhereRaw("CONCAT('P-', project_number) LIKE ?", [$like])
+
+                ->orWhereHas('company', fn($q) => $q->where('company_name', 'like', $like))
+                ->orWhereHas('vendor', fn($q) => $q->where('vendor_name', 'like', $like))
+
+                ->orWhereHas('addedBy', function ($q) use ($like) {
+                    $q->where('first_name', 'like', $like)
+                        ->orWhere('last_name', 'like', $like);
+                })
+                ->orWhereHas('contract_type', function ($q) use ($like) {
+                    $q->where('contract_type', 'like', $like)
+                        ->orWhere('shortcode', 'like', $like);
+                })
+                ->orWhereHas('contract_detail', function ($q) use ($searchLike) {
+                    $q->where('start_date', 'like', $searchLike)
+                        ->orWhere('end_date', 'like', $searchLike);
+                })
+                ->orWhereHas('contract_unit', function ($q) use ($like) {
+                    $q->where(function ($sub) use ($like) {
+                        $sub->whereRaw("IF(business_type = 1, 'B2B', IF(business_type = 2, 'B2C', '')) LIKE ?", [$like])
+                            ->orWhereRaw("IF(building_type = 1, 'Full Building', '') LIKE ?", [$like])
+                            ->orWhereRaw("IF(floor_type = 1, 'Full Floor', '') LIKE ?", [$like]);
+                    });
+                })
+                ->orWhereHas('contract_rentals', function ($q) use ($like) {
+                    $q->where('roi_perc', 'like', $like)
+                        ->orWhere('expected_profit', 'like', $like);
+                })
+                ->orWhereHas('locality', fn($q) => $q->where('locality_name', 'like', $like))
+                ->orWhereHas('property', fn($q) => $q->where('property_name', 'like', $like))
+
+                ->orWhereRaw("
+                CASE
+                    WHEN contract_status = 0 THEN 'Pending'
+                    WHEN contract_status = 1 THEN 'Processing'
+                    WHEN contract_status = 2 THEN 'Approved'
+                    WHEN contract_status = 3 THEN 'Rejected'
+                    WHEN contract_status = 4 THEN 'Approval Pending'
+                    WHEN contract_status = 5 THEN 'Approval on Hold'
+                    WHEN contract_status = 6 THEN 'Partially Signed'
+                    WHEN contract_status = 7 THEN 'Fully Signed'
+                    WHEN contract_status = 8 THEN 'Expired'
+                    WHEN contract_status = 9 THEN 'Terminated'
+                END LIKE ?
+            ", [$like])
+                ->orWhereRaw("
+                CASE
+                    WHEN indirect_status = 1 THEN 'indirect'
+                END LIKE ?
+            ", [$like])
+                ->orWhereRaw("
+                CASE
+                    WHEN renew_reject_status = 1 THEN 'Rejected Renewal'
+                    WHEN parent_contract_id > 0 THEN 'Renewal'
+                    ELSE 'New'
+                END LIKE ?
+            ", [$like])
+                ->orWhereRaw("
+                CASE
+                    WHEN is_agreement_added = 0 THEN 'Not Added'
+                    WHEN is_agreement_added = 1 THEN 'Agreement Added'
+                END LIKE ?
+            ", [$like])
+
+                ->orWhereRaw("CAST(contracts.id AS CHAR) LIKE ?", [$like]);
+        });
     }
 
     public function allwithUnits()

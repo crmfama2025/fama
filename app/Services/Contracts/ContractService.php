@@ -299,6 +299,9 @@ class ContractService
 
         return datatables()
             ->of($query)
+            ->filter(function ($query) use ($filters) {
+                $this->contractRepo->applySearch($query, $filters['search'] ?? null);
+            })
             ->addIndexColumn()
             ->addColumn('project_number', function ($row) {
 

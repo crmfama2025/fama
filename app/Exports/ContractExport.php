@@ -180,6 +180,7 @@ class ContractExport implements FromCollection, WithHeadings, WithColumnFormatti
                     'Total Sub Units' => $contract->contract_unit->total_subunit_count_per_contract,
                     'Allocated Sub Units' => getOccupiedUnits($contract->id)['occupied'],
                     'Vacant Sub Units' => getOccupiedUnits($contract->id)['vacant'],
+                    'Contract Status' => contractStatusName($contract->contract_status),
                     'Status' => match ($contract->contract_renewal_status) {
                         0 => 'New',
                         1 => 'Renewal',
@@ -235,6 +236,7 @@ class ContractExport implements FromCollection, WithHeadings, WithColumnFormatti
             'Total Sub Units',
             'Allocated Sub Units',
             'Vacant Sub Units',
+            'Contract Status',
             'Status',
             'Project Status',
             'Created_at',
