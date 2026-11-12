@@ -185,10 +185,13 @@ class ContractExport implements FromCollection, WithHeadings, WithColumnFormatti
                         0 => 'New',
                         1 => 'Renewal',
                     },
-                    'Project Status' => match ($contract->contract_renewal_status) {
-                        0 => 'New',
-                        1 => 'Renewal (' . ($contract->renewal_count ?? 0) . ')',
-                    },
+                    'Project Status' => $contract->renew_reject_status == 1
+                        ? 'Renewal Rejected'
+                        : match ($contract->contract_renewal_status) {
+                            0       => 'New',
+                            1       => 'Renewal (' . ($contract->renewal_count ?? 0) . ')',
+                            default => '-',
+                        },
 
                     'Created_at' => $contract->created_at
                         ? Date::PHPToExcel($contract->created_at)
