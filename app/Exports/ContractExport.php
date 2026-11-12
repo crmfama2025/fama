@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Models\Contract;
+use App\Repositories\Contracts\ContractRepository;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
