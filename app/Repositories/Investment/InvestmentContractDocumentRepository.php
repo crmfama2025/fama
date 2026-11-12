@@ -38,7 +38,13 @@ class InvestmentContractDocumentRepository
         $query = InvestmentContractDocuments::query();
 
         // Always needed relations
-        $with = ['investor', 'agreementType', 'agreementTemplate', 'company', 'investmentDocuments.additionalDocuments'];
+        // $with = ['investor', 'agreementType', 'agreementTemplate', 'company', 'investmentDocuments.additionalDocuments'];
+        $with = [
+            'investor:id,investor_name,investor_code',
+            'agreementType:id,investor_agreement_type',
+            'agreementTemplate:id,version_no',
+            'company:id,company_name',
+        ];
 
         // Only add investment if filter exists
         if (!empty($filters['investment_id'])) {
@@ -81,37 +87,47 @@ class InvestmentContractDocumentRepository
 
 
 
-        $result = $query->get();
+        // $result = $query->get();
         // dd($result);
-        if (!empty($filters['search'])) {
-            $query
-                // ->orWhere('investment_amount', 'like', '%' . $filters['search'] . '%')
-                // ->orWhere('investment_date', 'like', '%' . $filters['search'] . '%')
-                // ->orWhere('investment_code', 'like', '%' . $filters['search'] . '%')
-                // ->orWhere('maturity_date', 'like', '%' . $filters['search'] . '%')
-                // ->orWhere('profit_perc', 'like', '%' . $filters['search'] . '%')
-                // ->orWhere('received_amount', 'like', '%' . $filters['search'] . '%')
-                // ->orWhere('profit_release_date', 'like', '%' . $filters['search'] . '%')
-                // ->orWhere('nominee_name', 'like', '%' . $filters['search'] . '%')
-                // ->orWhere('nominee_email', 'like', '%' . $filters['search'] . '%')
-                // ->orWhere('nominee_phone', 'like', '%' . $filters['search'] . '%')
-                ->WhereHas('investor', function ($q) use ($filters) {
-                    $q->where('investor_name', 'like', '%' . $filters['search'] . '%');
-                })
-                // ->orWhereHas('investment', function ($q) use ($filters) {
-                //     $q->where('investment_code', 'like', '%' . $filters['search'] . '%');
-                // })
+        // if (!empty($filters['search'])) {
+        //     $query
+        //         // ->orWhere('investment_amount', 'like', '%' . $filters['search'] . '%')
+        //         // ->orWhere('investment_date', 'like', '%' . $filters['search'] . '%')
+        //         // ->orWhere('investment_code', 'like', '%' . $filters['search'] . '%')
+        //         // ->orWhere('maturity_date', 'like', '%' . $filters['search'] . '%')
+        //         // ->orWhere('profit_perc', 'like', '%' . $filters['search'] . '%')
+        //         // ->orWhere('received_amount', 'like', '%' . $filters['search'] . '%')
+        //         // ->orWhere('profit_release_date', 'like', '%' . $filters['search'] . '%')
+        //         // ->orWhere('nominee_name', 'like', '%' . $filters['search'] . '%')
+        //         // ->orWhere('nominee_email', 'like', '%' . $filters['search'] . '%')
+        //         // ->orWhere('nominee_phone', 'like', '%' . $filters['search'] . '%')
+        //         ->WhereHas('investor', function ($q) use ($filters) {
+        //             $q->where('investor_name', 'like', '%' . $filters['search'] . '%');
+        //         })
+        //         // ->orWhereHas('investment', function ($q) use ($filters) {
+        //         //     $q->where('investment_code', 'like', '%' . $filters['search'] . '%');
+        //         // })
 
-                ->orWhereHas('agreementType', function ($q) use ($filters) {
-                    $q->where('investor_agreement_type', 'like', '%' . $filters['search'] . '%');
-                })
-                ->orWhereHas('agreementTemplate', function ($q) use ($filters) {
-                    $q->whereRaw("CONCAT('V', version_no) LIKE ?", ['%' . $filters['search'] . '%']);
-                })
-                ->orWhereHas('company', function ($q) use ($filters) {
-                    $q->where('company_name', 'like', '%' . $filters['search'] . '%');
-                })
-                ->orWhereRaw("CAST(investment_contract_documents.id AS CHAR) LIKE ?", ['%' . $filters['search'] . '%']);
+        //         ->orWhereHas('agreementType', function ($q) use ($filters) {
+        //             $q->where('investor_agreement_type', 'like', '%' . $filters['search'] . '%');
+        //         })
+        //         ->orWhereHas('agreementTemplate', function ($q) use ($filters) {
+        //             $q->whereRaw("CONCAT('V', version_no) LIKE ?", ['%' . $filters['search'] . '%']);
+        //         })
+        //         ->orWhereHas('company', function ($q) use ($filters) {
+        //             $q->where('company_name', 'like', '%' . $filters['search'] . '%');
+        //         })
+        //         ->orWhereRaw("CAST(investment_contract_documents.id AS CHAR) LIKE ?", ['%' . $filters['search'] . '%']);
+        // }
+        if (!empty($filters['search'])) {
+            $s = '%' . $filters['search'] . '%';
+            $query->where(function ($q) use ($s) {
+                $q->whereHas('investor', fn($q) => $q->where('investor_name', 'like', $s))
+                    ->orWhereHas('agreementType', fn($q) => $q->where('investor_agreement_type', 'like', $s))
+                    ->orWhereHas('agreementTemplate', fn($q) => $q->whereRaw("CONCAT('V', version_no) LIKE ?", [$s]))
+                    ->orWhereHas('company', fn($q) => $q->where('company_name', 'like', $s))
+                    ->orWhereRaw("CAST(investment_contract_documents.id AS CHAR) LIKE ?", [$s]);
+            });
         }
 
         if (isset($filters['status']) && $filters['status'] !== 'all') {

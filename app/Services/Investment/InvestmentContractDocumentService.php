@@ -105,7 +105,7 @@ class InvestmentContractDocumentService
             $row->company->company_name ?? '-')
             // ->addColumn('investment_code', fn($row) =>
             // $row->investment->investment_code ?? '-')
-            ->addColumn('investor_agreement_type', fn($row) => $row->agreementType->investor_agreement_type)
+            ->addColumn('investor_agreement_type', fn($row) => $row->agreementType?->investor_agreement_type)
             ->addColumn('investor_agreement_template', function ($row) {
                 return $row->action_type == 0
                     ? 'V' . $row->version_number
@@ -302,6 +302,19 @@ class InvestmentContractDocumentService
                 return $action;
             })
             ->rawColumns(['action', 'signed_status', 'investor_agreement_type', 'main_doc_view', 'additional_doc_view', 'generated_date', 'investor_agreement_template', 'status'])
+            ->only([
+                'DT_RowIndex',
+                'action',
+                'company_name',
+                'investor_name',
+                'status',
+                'signed_status',
+                'investor_agreement_type',
+                'main_doc_view',
+                'additional_doc_view',
+                'investor_agreement_template',
+                'generated_date'
+            ])
             ->toJson();
     }
     public function documentsFormData()

@@ -368,7 +368,7 @@
                  * Sending emails changes application state,
                  * so POST is more appropriate than GET.
                  */
-                type: 'GET',
+                type: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
                     'Accept': 'application/json'
