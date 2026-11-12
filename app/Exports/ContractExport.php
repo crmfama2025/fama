@@ -96,7 +96,6 @@ class ContractExport implements FromCollection, WithHeadings, WithColumnFormatti
                     'Total Vendor Payment' => (float) ($contract->contract_rentals->total_payment_to_vendor ?? 0),
                     'Total OTC' => (float) ($contract->contract_rentals->total_otc ?? 0),
                     'Total Project Cost' => (float) ($contract->contract_rentals->final_cost ?? 0),
-                    'Total Vendor Payment' => (float) ($contract->contract_rentals->total_payment_to_vendor ?? 0),
                     'Tenure' => $contract->contract_detail->duration_in_months . "M",
                     'Rent Receivable per Annum' => $contract->contract_rentals->rent_receivable_per_annum,
                     'Rent Receivable per Month' => $contract->contract_rentals->rent_receivable_per_month,
