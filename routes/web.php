@@ -427,7 +427,7 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
         ->name('investment.profitRecord.destroy');
 
 
-    Route::get('/sendpdf/{contract}', [InvestorAgreementTemplateController::class, 'sendPDFEmail'])
+    Route::post('/sendpdf/{contract}', [InvestorAgreementTemplateController::class, 'sendPDFEmail'])
         ->name('agreements.sendpdf');
     Route::get('/agreements/{contract}/signed-pdf', [InvestmentContractsController::class, 'viewSignedPdf'])->name('agreements.viewpdf');
 
@@ -544,8 +544,8 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
         '/receivable/data',
         [ReceivablesClearingController::class, 'receivableAllocationslist']
     )->name('receivable.allocations.data');
-   Route::get('allocations/{allocation}/project-units', [ReceivablesClearingController::class, 'projectUnits'])
-    ->name('allocations.project-units');
+    Route::get('allocations/{allocation}/project-units', [ReceivablesClearingController::class, 'projectUnits'])
+        ->name('allocations.project-units');
 
     Route::get('allocations/export', [ReceivablesClearingController::class, 'allocationsExport'])->name('receipt-allocation.export');
     Route::delete('allocations/delete/{allocation}', [ReceivablesClearingController::class, 'deleteAllocation'])->name('cleared-receivable-allocation.destroy');
