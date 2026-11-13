@@ -21,6 +21,7 @@ use App\Models\{
     UnitSizeUnit,
     User
 };
+use App\Repositories\Agreement\AgreementRepository;
 use App\Services\AreaService;
 use App\Services\CompanyService;
 use App\Services\FcmService;
@@ -29,6 +30,7 @@ use App\Services\LocalityService;
 use App\Services\PayableClearingService;
 use App\Services\PropertyService;
 use App\Services\PropertyTypeService;
+use App\Services\TenantChequeService;
 use App\Services\VendorService;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
@@ -57,6 +59,7 @@ class ContractService
 
         protected VendorContractSign $vendorSignServ,
         protected PayableClearingService $payableServ,
+        protected AgreementRepository $agreeRepo,
         protected FcmService $fcmService
     ) {}
 
@@ -737,12 +740,32 @@ class ContractService
     // }
 
 
+    // public function terminateContract(array $data)
+    // {
+    //     $this->terminate_validate($data);
+
+
+    //     DB::transaction(function () use ($data) {
+    //         $this->contractRepo->terminate($data);
+
+    //         $this->paymentdetServ->terminatePendingPayments(
+    //             $data['contract_id'],
+    //             $data['terminated_date'],
+    //             $data['balance_amount']
+    //         );
+
+    //         $this->agreeServ->terminateByContract($data['contract_id'], $data);
+
+    //         $this->payableServ->terminateContractPayables($data);
+    //     });
+    // }
     public function terminateContract(array $data)
     {
+        $data['balance_amount'] = (float) ($data['balance_amount'] ?? 0);
+
         $this->terminate_validate($data);
 
         DB::transaction(function () use ($data) {
-
             $this->contractRepo->terminate($data);
 
             $this->paymentdetServ->terminatePendingPayments(
@@ -751,25 +774,45 @@ class ContractService
                 $data['balance_amount']
             );
 
-            $this->payableServ->terminateContractPayables(
-                $data
-            );
+            $this->agreeRepo->terminateByContract($data['contract_id'], $data);
 
-            // logger('Contract termination completed');
+            $this->payableServ->terminateContractPayables($data);
         });
     }
 
 
+    // private function terminate_validate(array $data, $id = null)
+    // {
+    //     $validator = Validator::make($data, [
+    //         'contract_id'     => 'required|integer',
+    //         'terminated_date'  => 'required|date',
+    //         'terminated_reason'          => 'required|string',
+    //         'balance_amount'  => 'nullable|numeric',
+    //         'received'        => 'nullable|boolean'
+    //     ]);
+
+
+    //     if ($validator->fails()) {
+    //         throw new ValidationException($validator);
+    //     }
+    // }
     private function terminate_validate(array $data, $id = null)
     {
         $validator = Validator::make($data, [
-            'contract_id'     => 'required|integer',
-            'terminated_date'  => 'required|date',
-            'terminated_reason'          => 'required|string',
-            'balance_amount'  => 'nullable|numeric',
-            'received'        => 'nullable|boolean'
+            'contract_id'       => 'required|integer',
+            'terminated_date'   => 'required|date',
+            'terminated_reason' => 'required|string',
+            'balance_amount'    => 'nullable|numeric|min:0',
+            'paid_mode'         => 'nullable',
         ]);
 
+        $balance = (float) ($data['balance_amount'] ?? 0);
+        $mode    = $data['paid_mode'] ?? null;
+        $needsBank = $balance > 0 && in_array($mode, [2, 3]);   // bank transfer / cheque
+
+        $validator->sometimes('company_id', 'required', fn() => $needsBank);
+        $validator->sometimes('paid_bank', 'required', fn() => $needsBank);
+        $validator->sometimes('paid_cheque_number', 'required', fn() => $balance > 0 && $mode == 3);
 
         if ($validator->fails()) {
             throw new ValidationException($validator);

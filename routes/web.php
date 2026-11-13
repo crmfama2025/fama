@@ -115,6 +115,7 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
     Route::get('property-list', [propertyController::class, 'getProperties'])->name('property.list');
     Route::get('export-property', [PropertyController::class, 'exportProperty'])->name('property.export');
     Route::post('import-property', [PropertyController::class, 'importProperty'])->name('import.property');
+    Route::post('property/makani-check', [PropertyController::class, 'checkMakani'])->name('property.makani.check');
 
     Route::get('vendor-list', [VendorController::class, 'getVendors'])->name('vendor.list');
     Route::post('import-vendor', [VendorController::class, 'importVendor'])->name('import.vendor');

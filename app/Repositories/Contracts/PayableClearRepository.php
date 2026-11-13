@@ -89,7 +89,8 @@ class PayableClearRepository
             $q->where('contract_status', '>=', 2)
                 ->whereIn('company_id', $permittedCompanyIds);
         })
-            ->where('paid_status', '!=', 1);
+            ->where('paid_status', '!=', 1)
+            ->where('terminate_status', 0);
 
 
         $todate = '';
@@ -147,7 +148,7 @@ class PayableClearRepository
                 });
             }
 
-             // company filter
+            // company filter
             if ($filter['contract_company_id']) {
                 $query->whereHas('contract', function ($q) use ($filter) {
                     $q->where('company_id', $filter['contract_company_id']);
@@ -157,7 +158,6 @@ class PayableClearRepository
             // project filter
             if ($filter['contract_id']) {
                 $query->where('contract_id', $filter['contract_id']);
-
             }
 
             // // Date filter

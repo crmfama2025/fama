@@ -7,6 +7,7 @@ use App\Models\LeadFollowUp;
 use App\Services\LeadService;
 use App\Models\Lead;
 use App\Services\UserService;
+use App\Services\LeadNotificationService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
@@ -16,7 +17,8 @@ class LeadController extends Controller
     //
     public function __construct(
         protected LeadService $leadService,
-        protected UserService $userService
+        protected UserService $userService,
+        protected LeadNotificationService $leadNotifier,
     ) {}
 
 
@@ -148,7 +150,7 @@ class LeadController extends Controller
     {
         $title = "Lead Details";
         $user  = auth()->user();
-        $lead  = $this->leadService->getById($id); // make sure this uses findOrFail
+        $lead  = $this->leadService->getById($id);
 
         $isSuperAdmin = (int) $user->user_type_id === 1;
         $isAssignedSalesPerson = (int) $user->user_type_id === 3
@@ -214,6 +216,8 @@ class LeadController extends Controller
             'rejection_reason' => null,
             'updated_by'       => auth()->id(),
         ]);
+        $lead->refresh();
+        $this->leadNotifier->leadApproved($lead);
 
         return response()->json([
             'success' => true,
@@ -245,6 +249,8 @@ class LeadController extends Controller
             'rejection_reason' => $validated['rejection_reason'],
             'updated_by'       => auth()->id(),
         ]);
+        $lead->refresh();
+        $this->leadNotifier->leadRejected($lead);
 
         return response()->json([
             'success' => true,

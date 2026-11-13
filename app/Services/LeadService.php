@@ -19,6 +19,7 @@ class LeadService
 {
     public function __construct(
         protected LeadRepository $leadRepository,
+        protected LeadNotificationService $notifier,
     ) {}
 
 
@@ -55,7 +56,9 @@ class LeadService
         $data['lead_code'] = $this->setLeadCode();
 
         // dd($data);
-        return $this->leadRepository->create($data);
+        $lead = $this->leadRepository->create($data);
+        $this->notifier->leadCreated($lead);
+        return $lead;
     }
     public function setLeadCode($addval = 1)
     {
@@ -147,17 +150,14 @@ class LeadService
         $isSuperAdmin = (int) $user->user_type_id === 1;
 
         if ($isSuperAdmin) {
-            // Super admin: all leads, no restriction
         } elseif ($user->hasAnyPermission(['leads.approve', 'leads.reject'])) {
-            // all leads except pending (0) and processing (1)
-            $filters['exclude_statuses'] = [0, 1];
+            $filters['exclude_statuses'] = [0, 1, 5];
         } elseif ($user->hasAnyPermission(['leads.approved_list'])) {
 
             $filters['approved_only']    = true;
             $filters['verifier_id']      = $user->id;
             $filters['exclude_statuses'] = [0];
         } else {
-            // sales users
             $filters['created_by'] = $user->id;
         }
 
@@ -276,6 +276,7 @@ class LeadService
             'user_id' => auth()->id(),
             'comment' => $data['comment'],
         ]);
+        $this->notifier->commentAdded($lead, $data['comment']);
     }
 
     public function updateVerification(Lead $lead, array $data): void
@@ -294,6 +295,7 @@ class LeadService
             'verification_completed_by' => $user->id,
             'verification_completed_at' => now(),
         ]);
+        $this->notifier->verificationUpdated($lead->fresh());
     }
 
 
@@ -372,9 +374,33 @@ class LeadService
         ];
     }
 
+    // public function assignLead($leadId, array $data)
+    // {
+    //     return DB::transaction(function () use ($leadId, $data) {
+
+    //         $lead = Lead::findOrFail($leadId);
+
+    //         $lead->update([
+    //             'assigned_to' => $data['assigned_to'],
+    //             'assigned_by' => auth()->id(),
+    //             'assignment_remarks' => $data['assignment_remarks'] ?? null,
+    //             'assigned_at' => now(),
+    //         ]);
+
+    //         LeadAssignment::create([
+    //             'lead_id' => $lead->id,
+    //             'assigned_to' => $data['assigned_to'],
+    //             'assigned_by' => auth()->id(),
+    //             'remarks' => $data['assignment_remarks'] ?? null,
+    //             'assigned_at' => now(),
+    //         ]);
+
+    //         return $lead->fresh();
+    //     });
+    // }
     public function assignLead($leadId, array $data)
     {
-        return DB::transaction(function () use ($leadId, $data) {
+        $lead = DB::transaction(function () use ($leadId, $data) {
 
             $lead = Lead::findOrFail($leadId);
 
@@ -395,6 +421,10 @@ class LeadService
 
             return $lead->fresh();
         });
+
+        $this->notifier->leadAssigned($lead);
+
+        return $lead;
     }
 
     public function validateFollowUp(array $data)
@@ -427,7 +457,7 @@ class LeadService
     {
         $data = $this->validateFollowUp($data);
 
-        return DB::transaction(function () use ($leadId, $data) {
+        $followUp = DB::transaction(function () use ($leadId, $data) {
             $lead = $this->leadRepository->find($leadId);
 
             if (!$lead) {
@@ -441,7 +471,6 @@ class LeadService
 
             $followUp = LeadFollowUp::create($followUpData);
 
-            // dd($data);
             $lead->status = $data['follow_up_status'];
             if ($data['follow_up_status'] == 9) {
                 $lead->total_staff = $data['total_staff'];
@@ -451,12 +480,17 @@ class LeadService
 
             return $followUp;
         });
+
+        $lead = $followUp->lead->fresh();
+        $this->notifier->followUpSaved($lead, 'added', $this->getLeadStatus($lead->status));
+
+        return $followUp;
     }
     public function updateFollowUp($leadId, $followUpId, array $data)
     {
         $data = $this->validateFollowUp($data);
 
-        return DB::transaction(function () use ($leadId, $followUpId, $data) {
+        $followUp = DB::transaction(function () use ($leadId, $followUpId, $data) {
             $lead = $this->leadRepository->find($leadId);
 
             if (!$lead) {
@@ -510,6 +544,12 @@ class LeadService
 
             return $followUp;
         });
+
+        // Notify after the transaction has committed
+        $lead = $followUp->lead->fresh();
+        $this->notifier->followUpSaved($lead, 'updated', $this->getLeadStatus($lead->status));
+
+        return $followUp;
     }
 
     public function deleteFollowUp($id)
@@ -570,7 +610,7 @@ class LeadService
             ]);
         });
     }
-    private function getLeadStatus($status, $html = false)
+    public function getLeadStatus($status, $html = false)
     {
         return match ((int) $status) {
             1 => $html

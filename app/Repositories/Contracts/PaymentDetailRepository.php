@@ -59,21 +59,23 @@ class PaymentDetailRepository
 
     public function terminatePendingPayments($contractId, $terminateDate, $balanceAmount)
     {
-        // logger('Terminating payments', [
-        //     'contract_id' => $contractId,
-        //     'date' => $terminateDate
-        // ]);
+
+
+        // $details = ContractPaymentDetail::where('contract_id', $contractId)
+        //     ->where('paid_status', 0)
+        //     ->update([
+        //         'terminate_status'        => 1,
+        //         // 'terminated_at' => $terminateDate,
+        //         'updated_at'    => now()
+        //     ]);
+        $terminateDate = Carbon::parse($terminateDate)->format('Y-m-d');
 
         $details = ContractPaymentDetail::where('contract_id', $contractId)
-            ->where('paid_status', 0)
-            ->update([
-                'terminate_status'        => 1,
-                // 'terminated_at' => $terminateDate,
-                'updated_at'    => now()
-            ]);
+            ->whereDate('payment_date', '>', $terminateDate)
+            ->where('paid_status', '!=', 1)
+            ->update(['terminate_status' => 1]);
 
-        // if ($balanceAmount) {
-        // }
+
 
         return $details;
     }

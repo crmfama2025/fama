@@ -408,6 +408,23 @@ class AgreementRepository
             return;
         });
     }
+    public function terminateByContract($contractId, array $data)
+    {
+        $agreementIds = \App\Models\Agreement::withoutGlobalScopes()
+            ->where('contract_id', $contractId)
+            ->where('agreement_status', 0)
+            ->pluck('id');
+
+        foreach ($agreementIds as $agreementId) {
+            $this->terminate([
+                'agreement_id'      => $agreementId,
+                'terminated_date'   => $data['terminated_date'],
+                'terminated_reason' => $data['terminated_reason'] ?? 'Vendor contract terminated',
+            ]);
+        }
+
+        return $agreementIds->count();
+    }
     public function updatePaymentDetails($agreement_id, $terminated_date)
     {
         $terminated_date = \Carbon\Carbon::parse($terminated_date);
@@ -606,5 +623,18 @@ class AgreementRepository
         ])
             ->select('id', 'tenant_id')
             ->get();
+    }
+    public function terminateReceivablesByContract($contractId, $terminatedDate)
+    {
+        $date = \Carbon\Carbon::parse($terminatedDate)->format('Y-m-d');
+
+        return AgreementPaymentDetail::whereIn('agreement_id', function ($q) use ($contractId) {
+            $q->select('id')->from('agreements')
+                ->where('contract_id', $contractId)
+                ->whereNull('deleted_at');
+        })
+            ->whereDate('payment_date', '>', $date)
+            ->where('is_payment_received', '!=', 1)
+            ->update(['terminate_status' => 1]);
     }
 }

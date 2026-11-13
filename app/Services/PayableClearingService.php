@@ -131,14 +131,14 @@ class PayableClearingService
             })
             ->addColumn('action', function ($row) {
                 $action = '';
-               
+
                 $remaining = toNumeric($row->payment_amount) - (float) ($row->paid_total ?? 0);
                 $dueDate = \Carbon\Carbon::parse($row->payment_date)->format('d-m-Y');
 
                 $action = '<div class="d-flex flex-nowrap" style="gap:4px;">';
                 $action .= '<a class="btn btn-warning btn-sm lossDiscountBtn" title="Discount"
                 data-det-id="' . $row->id . '"
-                data-due-date="'.$dueDate.'"
+                data-due-date="' . $dueDate . '"
                 data-amount="' . $remaining . '"><i class="fas fa-percent"></i></a>';
 
                 $action .= '<a class="btn btn-success btn-sm" title="Clear cheque"
@@ -218,7 +218,7 @@ class PayableClearingService
                 $q->orderByRaw("(contract_payment_details.payment_amount - COALESCE(paid_total, 0)) $order");
             })
 
-            ->rawColumns(['checkbox', 'project_number','payment_amount', 'action', 'status'])
+            ->rawColumns(['checkbox', 'project_number', 'payment_amount', 'action', 'status'])
             ->with(['columns' => $columns])
             ->toJson();
     }
@@ -275,7 +275,7 @@ class PayableClearingService
                 // 'paid_cheque_number' => $data['paid_cheque_number'] ?? null,
                 'paid_cheque_number' => $paidMode == 3
                     ? ($data['paid_cheque_number'] ?? $paymentdetails->cheque_no)
-                : null,
+                    : null,
                 'bank_reference'             => $paidMode == 1 ? null : ($data['bank_reference'] ?? null),
                 'payment_remarks' => $data['payment_remarks'] ?? null,
             );
@@ -284,14 +284,14 @@ class PayableClearingService
                 'paid_status' => ($pendingAmt == 0) ? 1 : 2,
             );
         }
-// dd($payable);
+        // dd($payable);
         return DB::transaction(function () use ($paymentdet, $payable) {
             // DB::enableQueryLog();
             // dump($payable);
             // dd($paymentdet);
             $paidIds = $this->paymentDetRepo->updateMany($paymentdet);
 
-        $payableIds = $this->payableClearRepo->createMany($payable);
+            $payableIds = $this->payableClearRepo->createMany($payable);
 
             foreach ($paidIds as $paidId) {
                 $detail = $this->paymentDetRepo->find($paidId);
@@ -440,25 +440,57 @@ class PayableClearingService
     }
 
 
+    // public function terminateContractPayables(array $data)
+    // {
+    //     try {
+    //         $createData = [
+    //             'contract_id' => $data['contract_id'],
+    //             'contract_payment_detail_id' => 0,
+    //             'paid_date' => $data['terminated_date'],
+    //             'paid_amount' => $data['balance_amount'],
+    //             'paid_mode' => $data['paid_mode'], // Assuming 1 is for termination or a specific mode
+    //             'paid_bank' => $data['paid_bank'] ?? null,
+    //             'paid_cheque_number' => $data['paid_cheque_number'] ?? null,
+    //             'paid_by' => $data['user_id'] ?? auth()->user()->id,
+    //             'company_id' => $data['company_id'],
+    //             'returned_status' => 1,
+    //         ];
+    //         $this->payableClearRepo->create($createData);
+    //     } catch (\Exception $e) {
+    //         logger('Error terminating contract payables: ' . $e->getMessage(), ['exception' => $e]);
+    //         throw $e; // rethrow the exception after logging
+    //     }
+    // }
     public function terminateContractPayables(array $data)
     {
+        $balance = (float) ($data['balance_amount'] ?? 0);
+
+        if ($balance <= 0) {
+            return;
+        }
+
         try {
+            $mode      = $data['paid_mode'] ?? null;
+            $needsBank = in_array($mode, [2, 3]);
+
             $createData = [
-                'contract_id' => $data['contract_id'],
+                'contract_id'                => $data['contract_id'],
                 'contract_payment_detail_id' => 0,
-                'paid_date' => $data['terminated_date'],
-                'paid_amount' => $data['balance_amount'],
-                'paid_mode' => $data['paid_mode'], // Assuming 1 is for termination or a specific mode
-                'paid_bank' => $data['paid_bank'] ?? null,
-                'paid_cheque_number' => $data['paid_cheque_number'] ?? null,
-                'paid_by' => $data['user_id'] ?? auth()->user()->id,
-                'company_id' => $data['company_id'],
-                'returned_status' => 1,
+                'paid_date'                  => \Carbon\Carbon::parse($data['terminated_date'])->format('Y-m-d'),
+                'paid_amount'                => $balance,
+                'paid_mode'                  => $mode ?: 0,
+                'paid_bank'                  => $needsBank ? ($data['paid_bank'] ?? null) : null,
+                'paid_cheque_number'         => $mode == 3 ? ($data['paid_cheque_number'] ?? null) : null,
+                'paid_by'                    => $data['user_id'] ?? auth()->user()->id,
+                'company_id'                 => $data['company_id']
+                    ?? Contract::find($data['contract_id'])->company_id,
+                'returned_status'            => 1,
             ];
+
             $this->payableClearRepo->create($createData);
         } catch (\Exception $e) {
             logger('Error terminating contract payables: ' . $e->getMessage(), ['exception' => $e]);
-            throw $e; // rethrow the exception after logging
+            throw $e;
         }
     }
 }
