@@ -119,14 +119,14 @@
                                             <th>#</th>
                                             <th>Action</th>
                                             <th>Investment Code</th>
-                                            <th>Added By</th>
+                                            <th>Investment Date</th>
                                             <th>Status</th>
                                             <th>Company Name</th>
                                             <th>Invested Company</th>
                                             <th>Investor Name</th>
                                             <th>Investment Amount</th>
                                             <th>Received Amount</th>
-                                            <th>Investment Date</th>
+                                            <th>Added By</th>
                                             <th>Profit Interval</th>
                                             <th>Profit %</th>
                                             <th>Maturity date</th>
@@ -474,8 +474,8 @@
                         name: 'investment_code'
                     },
                     {
-                        data: 'added_by',
-                        name: 'added_by',
+                        data: 'investment_date',
+                        name: 'investment_date',
                         orderable: true,
                         searchable: true
                     },
@@ -543,11 +543,12 @@
                         searchable: true
                     },
                     {
-                        data: 'investment_date',
-                        name: 'investment_date',
+                        data: 'added_by',
+                        name: 'added_by',
                         orderable: true,
                         searchable: true
                     },
+                    
                     {
                         data: 'profit_interval',
                         name: 'profitInterval.profit_interval_name'
