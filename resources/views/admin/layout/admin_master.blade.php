@@ -202,7 +202,7 @@
                          with font-awesome or any other icon font library -->
                         <li class="nav-item">
                             <a href="{{ route('dashboard.index') }}"
-                                class="nav-link {{ request()->is('dashboard') ? 'active bg-gradient-projects' : '' }}">
+                                class="nav-link {{ request()->is('dashboard') ? 'active ' : '' }}">
                                 <i class="nav-icon fas fa-tachometer-alt"></i>
                                 <p>Dashboard</p>
                             </a>
@@ -250,7 +250,7 @@
                         @if (auth()->user()->hasPermissionInRange(1, 45) || auth()->user()->hasPermissionInRange(98, 102))
                             <li class="nav-item {{ $master ? 'menu-open' : '' }}">
                                 <a href="#"
-                                    class="nav-link {{ $master ? 'active bg-gradient-projects' : '' }}">
+                                    class="nav-link {{ $master ? 'active ' : '' }}">
                                     <i class="nav-icon fas fa-copy"></i>
                                     <p>
                                         Masters
@@ -372,7 +372,7 @@
                                 Gate::any(['contract.send_for_approval', 'contract.sign_after_approval'])) --}}
                             <li class="nav-item {{ $project ? 'menu-open' : '' }}">
                                 <a href="#"
-                                    class="nav-link {{ $project ? 'active bg-gradient-projects' : '' }}">
+                                    class="nav-link {{ $project ? 'active ' : '' }}">
                                     <i class="nav-icon fas fa-edit"></i>
                                     <p>
                                         Project
@@ -405,7 +405,7 @@
                         @if (hasPermission(auth()->id(), ['finance'], $companyId = null))
                             <li class="nav-item {{ $finance ? 'menu-open' : '' }}">
                                 <a href="#"
-                                    class="nav-link {{ $finance ? 'active bg-gradient-projects' : '' }}">
+                                    class="nav-link {{ $finance ? 'active ' : '' }}">
                                     <i class="nav-icon fas fa-file-invoice"></i>
                                     <p>
                                         Finance
@@ -439,7 +439,7 @@
                                 auth()->user()->hasAnyPermission(['finance.payout']))
                             <li class="nav-item {{ $invest ? 'menu-open' : '' }}">
                                 <a href="#"
-                                    class="nav-link {{ $invest ? 'active bg-gradient-projects' : '' }}">
+                                    class="nav-link {{ $invest ? 'active ' : '' }}">
                                     <i class="nav-icon fas fa-coins"></i>
                                     <p>
                                         Investment
@@ -536,7 +536,7 @@
                                 $companyId = null))
                             <li class="nav-item {{ $report ? 'menu-open' : '' }}">
                                 <a href="#"
-                                    class="nav-link {{ $report ? 'active bg-gradient-projects' : '' }}">
+                                    class="nav-link {{ $report ? 'active ' : '' }}">
                                     <i class="nav-icon fas fa-chart-line"></i>
                                     <p>
                                         Reports
@@ -620,7 +620,7 @@
                         @if (auth()->user()->hasAnyPermission(['Leads', 'leads.add', 'leads.view', 'leads.edit', 'leads.delete', 'leads.approved_list']))
                             <li class="nav-item {{ request()->is('lead') ? 'menu-open' : '' }}">
                                 <a href="{{ route('lead.index') }}"
-                                    class="nav-link {{ request()->is('lead*') ? 'active bg-gradient-projects' : '' }}">
+                                    class="nav-link {{ request()->is('lead*') ? 'active ' : '' }}">
                                     <i class="nav-icon fas fa-user-tie"></i>
                                     <p>
                                         Lead
@@ -631,7 +631,7 @@
                         @if (auth()->user()->hasAnyPermission(['User', 'user.add', 'user.view', 'user.edit', 'user.delete']))
                             <li class="nav-item {{ request()->is('user') ? 'menu-open' : '' }}">
                                 <a href="{{ route('user.index') }}"
-                                    class="nav-link {{ request()->is('user*') ? 'active bg-gradient-projects' : '' }}">
+                                    class="nav-link {{ request()->is('user*') ? 'active ' : '' }}">
                                     <i class="nav-icon fas fa-user"></i>
                                     <p>
                                         Users
@@ -642,7 +642,7 @@
                         @if (auth()->user()->hasAnyPermission(['Company', 'company.add', 'company.view', 'company.edit', 'company.delete']))
                             <li class="nav-item {{ request()->is('company') ? 'menu-open' : '' }}">
                                 <a href="{{ route('company.index') }}"
-                                    class="nav-link {{ request()->is('company*') ? 'active bg-gradient-projects' : '' }}">
+                                    class="nav-link {{ request()->is('company*') ? 'active ' : '' }}">
                                     <i class="nav-icon fas fa-building"></i>
                                     <p>
                                         Company
@@ -663,7 +663,7 @@
                                 ]))
                             <li class="nav-item {{ request()->is('tenant-registration') ? 'menu-open' : '' }}">
                                 <a href="{{ route('tenant-registration.index') }}"
-                                    class="nav-link {{ request()->is('tenant-registration*') ? 'active bg-gradient-projects' : '' }}">
+                                    class="nav-link {{ request()->is('tenant-registration*') ? 'active ' : '' }}">
                                     <i class="nav-icon fas fa-users"></i>
                                     <p>
                                         Tenant Registration
@@ -682,7 +682,7 @@
                             {{-- @dd('test') --}}
                             <li class="nav-item {{ request()->is('invoices*') ? 'menu-open' : '' }}">
                                 <a href="{{ route('invoices.index') }}"
-                                    class="nav-link {{ request()->is('invoices*') ? 'active bg-gradient-projects' : '' }}">
+                                    class="nav-link {{ request()->is('invoices*') ? 'active ' : '' }}">
                                     <i class="nav-icon fas fa-file-invoice"></i>
                                     <p>
                                         Invoices

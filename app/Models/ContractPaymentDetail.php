@@ -32,6 +32,7 @@ class ContractPaymentDetail extends Model
         'returned_date',
         'returned_reason',
         'returned_by',
+        'terminate_status',
         'beneficiary_id',
         'is_discounted',
         'discount_amount',

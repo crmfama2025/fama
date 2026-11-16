@@ -298,27 +298,33 @@
                                                     </td>
                                                 </tr>
                                             @endforeach
+                                         
                                             @if ($returned)
-                                                <tr style="background-color: #dbffdb">
+                                                @php
+                                                    $returnedReceived = !empty($returned->paid_mode) && (int) $returned->paid_mode !== 0;
+                                                    $returnedBg  = $returnedReceived ? '#dbffdb' : '#ffe0b3';   // green / orange
+                                                    $returnedAmt = $returnedReceived
+                                                        ? '-' . $returned->paid_amount   
+                                                        : $returned->paid_amount;   
+                                                  
+                                                @endphp
+
+                                                <tr style="background-color: {{ $returnedBg }}">
                                                     <td>{{ $returned->paid_date }}</td>
-                                                    <td> {{ strtoupper($returned->paidMode->payment_mode_name) }}</td>
+                                                    <td>{{ $returned->paidMode?->payment_mode_name ? strtoupper($returned->paidMode->payment_mode_name) : '-' }}</td>
                                                     <td>
-                                                        @if ($returned->paidMode->payment_mode_name == 'Cheque')
-                                                            {!! 'Cheque no -' . $returned->paid_cheque_number . ' , ' . strtoupper($returned->paidBank->bank_name) !!}
-                                                        @elseif($returned->paidMode->payment_mode_name == 'Bank Transfer')
-                                                            {{ strtoupper($returned->paidBank->bank_name) }}
+                                                        @if ($returned->paidMode?->payment_mode_name == 'Cheque')
+                                                            {!! 'Cheque no -' . $returned->paid_cheque_number . ' , ' . strtoupper($returned->paidBank?->bank_name) !!}
+                                                        @elseif($returned->paidMode?->payment_mode_name == 'Bank Transfer')
+                                                            {{ strtoupper($returned->paidBank?->bank_name) }}
                                                         @else
                                                             -
                                                         @endif
                                                     </td>
-                                                    <td>{{ '-' . $returned->paid_amount }}</td>
+                                                    <td>{{ $returnedAmt }}</td>
                                                     <td>{{ strtoupper($returned->contract->company->company_name) }}</td>
-                                                    <td>{{ $returned->paid_date ?? ' - ' }}</td>
-                                                    <td>
-                                                        1
-                                                    </td>
-
-
+                                                    <td>{{ \Carbon\Carbon::parse($returned->paid_date)->format('d/m/Y') }}</td>
+                                                    <td>-</td>
                                                 </tr>
                                             @endif
 
@@ -326,6 +332,7 @@
                                     </table>
 
 
+                                  
                                     @php
                                         $total_to_pay = 0;
 
@@ -333,14 +340,12 @@
                                             if ($details->terminate_status == 1) {
                                                 continue;
                                             }
-                                            $payment_amount = toNumeric($details->payment_amount);
-                                            $total_to_pay += $payment_amount;
+                                            $total_to_pay += toNumeric($details->payment_amount);
                                         }
 
-                                        // NET PAID (returned deducted, terminate_status/returned_status = 0)
-                                        $total_paid = totalPaidPayablesByContract($contract->id)['totalPaid'];
-
-                                        $remaining_amount = $total_to_pay - $total_paid;
+                                        $paidData         = totalPaidPayablesByContract($contract->id);
+                                        $net_paid         = $paidData['netPaid'];
+                                        $remaining_amount = $total_to_pay - $net_paid;
                                     @endphp
 
 
@@ -349,7 +354,7 @@
                                     {{-- <p class="lead text-danger"><strong>Amount Due 2/22/2014</strong></p> --}}
                                     <div class="float-xl-right mt-1">
                                         <span> <strong>Total Paid :
-                                            </strong>{{ number_format(totalPaidPayablesByContract($contract->id)['netPaid']) }}</span><br>
+                                            </strong>{{ number_format($net_paid) }}</span><br>
                                         <span> <strong>Remaining :
                                             </strong>{{ number_format($remaining_amount) }}</span>
                                     </div>

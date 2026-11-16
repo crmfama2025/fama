@@ -264,7 +264,7 @@ class ReceivablesClearingController extends Controller
                 'company_name' => $detail->agreementPayment?->agreement?->contract?->company?->company_short_code ?? '-',
             ];
         });
-        // dd($receivables);
+        // dd($receivables->toSql(), $receivables->getBindings());
         // dd($receivables->count());
 
         return response()->json([
@@ -308,8 +308,8 @@ class ReceivablesClearingController extends Controller
     public function receivableAllocations()
     {
         $title = "Receivable Allocations";
-         $companies = $this->companyService->getWithIndustry('finance', 'receivable_cheque_clearing');
-         $users =User::select('id', 'first_name','last_name')->get();
+        $companies = $this->companyService->getWithIndustry('finance', 'receivable_cheque_clearing');
+        $users = User::select('id', 'first_name', 'last_name')->get();
         return view('admin.finance.receivable-allocations', compact('title', 'companies', 'users'));
     }
 
@@ -320,10 +320,10 @@ class ReceivablesClearingController extends Controller
                 // 'company_id'  => $request->company_id,
                 'search'      => $request->search['value'] ?? null,
                 'company_id' => request('company_id'),
-    'added_by' => request('added_by'),
-    'paid_date' => request('paid_date'),
+                'added_by' => request('added_by'),
+                'paid_date' => request('paid_date'),
             ];
-        // dd($filters);
+            // dd($filters);
 
 
             return $this->tenantChequeService->getAllocationsTable($filters);
@@ -331,39 +331,39 @@ class ReceivablesClearingController extends Controller
     }
 
     public function projectUnits(ClearedReceivableAllocation $allocation)
-{
-    $ids = $allocation->cleared_receivable_ids;
+    {
+        $ids = $allocation->cleared_receivable_ids;
 
-if (is_string($ids)) {
-    $ids = json_decode($ids, true); // double-encoded rows come through the cast as a string
-}
+        if (is_string($ids)) {
+            $ids = json_decode($ids, true); // double-encoded rows come through the cast as a string
+        }
 
-$ids = is_array($ids) ? $ids : [];
+        $ids = is_array($ids) ? $ids : [];
 
-    $rows = ClearedReceivable::query()
-        ->whereIn('cleared_receivables.id', $ids ?: [])
-        ->join('agreement_payment_details', 'agreement_payment_details.id', '=', 'cleared_receivables.agreement_payment_details_id')
-        ->join('agreements', 'agreements.id', '=', 'agreement_payment_details.agreement_id')
-        ->join('contracts', 'contracts.id', '=', 'agreements.contract_id')
-        ->leftJoin('agreement_units', 'agreement_units.id', '=', 'agreement_payment_details.agreement_unit_id')
-        ->leftJoin('contract_unit_details', 'contract_unit_details.id', '=', 'agreement_units.contract_unit_details_id')
-        ->leftJoin('contract_subunit_details', 'contract_subunit_details.id', '=', 'agreement_units.contract_subunit_details_id')
-        ->select('contracts.project_number', 'contract_unit_details.unit_number', 'contract_subunit_details.subunit_no')
-        ->distinct()
-        ->orderBy('contracts.project_number')
-        ->orderBy('contract_unit_details.unit_number')
-        ->get();
+        $rows = ClearedReceivable::query()
+            ->whereIn('cleared_receivables.id', $ids ?: [])
+            ->join('agreement_payment_details', 'agreement_payment_details.id', '=', 'cleared_receivables.agreement_payment_details_id')
+            ->join('agreements', 'agreements.id', '=', 'agreement_payment_details.agreement_id')
+            ->join('contracts', 'contracts.id', '=', 'agreements.contract_id')
+            ->leftJoin('agreement_units', 'agreement_units.id', '=', 'agreement_payment_details.agreement_unit_id')
+            ->leftJoin('contract_unit_details', 'contract_unit_details.id', '=', 'agreement_units.contract_unit_details_id')
+            ->leftJoin('contract_subunit_details', 'contract_subunit_details.id', '=', 'agreement_units.contract_subunit_details_id')
+            ->select('contracts.project_number', 'contract_unit_details.unit_number', 'contract_subunit_details.subunit_no')
+            ->distinct()
+            ->orderBy('contracts.project_number')
+            ->orderBy('contract_unit_details.unit_number')
+            ->get();
 
-    return response()->json(
-        $rows->groupBy('project_number')->map(function ($group) {
-            return $group
-                ->map(fn ($r) => $r->subunit_no ? "{$r->unit_number}-{$r->subunit_no}" : $r->unit_number)
-                ->filter()
-                ->values();
-        })
-    );
-}
-public function allocationsExport(Request $request)
+        return response()->json(
+            $rows->groupBy('project_number')->map(function ($group) {
+                return $group
+                    ->map(fn($r) => $r->subunit_no ? "{$r->unit_number}-{$r->subunit_no}" : $r->unit_number)
+                    ->filter()
+                    ->values();
+            })
+        );
+    }
+    public function allocationsExport(Request $request)
     {
         // dd($request);
         $filters = [
@@ -384,21 +384,20 @@ public function allocationsExport(Request $request)
         );
     }
     public function deleteAllocation($id)
-{
-    try {
-        $this->tenantChequeService->deleteAllocation($id);
+    {
+        try {
+            $this->tenantChequeService->deleteAllocation($id);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Allocation deleted successfully.'
-        ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Allocation deleted successfully.'
+            ]);
+        } catch (\Throwable $e) {
 
-    } catch (\Throwable $e) {
-
-        return response()->json([
-            'success' => false,
-            'message' => $e->getMessage()
-        ], 500);
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
-}
 }

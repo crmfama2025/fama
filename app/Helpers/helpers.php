@@ -724,12 +724,13 @@ function totalPaidPayablesByContract($contractId)
 
     $returned = ContractPayableClear::where('contract_id', $contractId)
         ->where('returned_status', 1)
+        ->where('paid_mode', '>', 0)
         ->sum('paid_amount');
 
     return [
         'totalPaid' => $totalPaid,
-        'returned' => $returned,
-        'netPaid' => $totalPaid - $returned,
+        'returned'  => $returned,
+        'netPaid'   => $totalPaid - $returned,
     ];
 }
 
