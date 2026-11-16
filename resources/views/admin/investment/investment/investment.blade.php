@@ -118,15 +118,16 @@
                                         <tr>
                                             <th>#</th>
                                             <th>Action</th>
+                                            <th>Investment Date</th>
+                                            <th>Investor Name</th>
+                                            <th>Company Name</th>
+                                            <th>Investment Amount</th>
+                                            <th>Invested Company</th>
+                                            <th>Status</th>
+
                                             <th>Investment Code</th>
                                             <th>Added By</th>
-                                            <th>Status</th>
-                                            <th>Company Name</th>
-                                            <th>Invested Company</th>
-                                            <th>Investor Name</th>
-                                            <th>Investment Amount</th>
                                             <th>Received Amount</th>
-                                            <th>Investment Date</th>
                                             <th>Profit Interval</th>
                                             <th>Profit %</th>
                                             <th>Maturity date</th>
@@ -470,12 +471,28 @@
                         searchable: false
                     },
                     {
-                        data: 'investment_code',
-                        name: 'investment_code'
+                        data: 'investment_date',
+                        name: 'investment_date',
+                        orderable: true,
+                        searchable: true
                     },
                     {
-                        data: 'added_by',
-                        name: 'added_by',
+                        data: 'investor_name',
+                        name: 'investor.investor_name'
+                    },
+                    {
+                        data: 'company_name',
+                        name: 'company.company_name'
+                    },
+                    {
+                        data: 'investment_amount',
+                        name: 'investment_amount',
+                        orderable: true,
+                        searchable: true
+                    },
+                    {
+                        data: 'invested_company_name',
+                        name: 'invested_company_name',
                         orderable: true,
                         searchable: true
                     },
@@ -516,38 +533,26 @@
                         }
 
                     },
+
                     {
-                        data: 'company_name',
-                        name: 'company.company_name'
+                        data: 'investment_code',
+                        name: 'investment_code'
                     },
                     {
-                        data: 'invested_company_name',
-                        name: 'invested_company_name',
+                        data: 'added_by',
+                        name: 'added_by',
                         orderable: true,
                         searchable: true
                     },
-                    {
-                        data: 'investor_name',
-                        name: 'investor.investor_name'
-                    },
-                    {
-                        data: 'investment_amount',
-                        name: 'investment_amount',
-                        orderable: true,
-                        searchable: true
-                    },
+                    
+                    
                     {
                         data: 'total_received_amount',
                         name: 'total_received_amount',
                         orderable: true,
                         searchable: true
                     },
-                    {
-                        data: 'investment_date',
-                        name: 'investment_date',
-                        orderable: true,
-                        searchable: true
-                    },
+                    
                     {
                         data: 'profit_interval',
                         name: 'profitInterval.profit_interval_name'
