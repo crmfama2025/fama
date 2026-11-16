@@ -395,7 +395,7 @@
                                     <div class="form-group clrngamnt">
                                         <label for="exampleInputEmail1">Balance Amount</label>
                                         <input type="number" class="form-control" name="balance_amount"
-                                            id="balance_amount" placeholder="Balance Amount" required min="0"
+                                            id="balance_amount" placeholder="Balance Amount"  min="0"
                                             step="1">
                                         {{-- </div>
                                     <div class="form-group row"> --}}
@@ -412,7 +412,7 @@
                                                 class="icheck-primary mx-2 {{ $paymentmode->id == 2 ? 'bank' : ($paymentmode->id == 3 ? 'chq' : '') }}">
                                                 <input type="checkbox" id="mode{{ $paymentmode->id }}"
                                                     class="modeChange" value="{{ $paymentmode->id }}" name="paid_mode"
-                                                    required>
+                                                    >
                                                 <label for="mode{{ $paymentmode->id }}">
                                                     {{ $paymentmode->payment_mode_name }}
                                                 </label>
@@ -908,35 +908,61 @@
             hidelemnetsonload();
         });
 
+        // $('#received').on('change', function() {
+        //     if ($(this).prop('checked')) {
+        //         $('.paymentModeChecks').show();
+        //     } else {
+        //         $('.paymentModeChecks').hide();
+        //         $('.bankTerminate').hide();
+        //         $('.companyTerminate').hide();
+        //         $('.chequeTerminate').hide();
+        //     }
+        // });
+
+        // $('.modeChange').on('change', function() {
+
+        //     $('.modeChange').not(this).prop('checked', false);
+
+        //     let mode = $('.modeChange:checked').val();
+
+        //     if (mode == 2 || mode == 3) {
+        //         $('.companyTerminate').show();
+        //         $('.bankTerminate').show();
+        //         if (mode == 3) {
+        //             $('.chequeTerminate').show();
+        //         } else {
+        //             $('.chequeTerminate').hide();
+        //         }
+        //     } else {
+        //         $('.companyTerminate').hide();
+        //         $('.bankTerminate').hide();
+        //         $('.chequeTerminate').hide();
+        //     }
+        // });
         $('#received').on('change', function() {
             if ($(this).prop('checked')) {
                 $('.paymentModeChecks').show();
             } else {
-                $('.paymentModeChecks').hide();
-                $('.bankTerminate').hide();
-                $('.companyTerminate').hide();
-                $('.chequeTerminate').hide();
+                // clear everything so no hidden value is sent
+                $('.modeChange').prop('checked', false);
+                $('#paid_company').val('').trigger('change');
+                $('#bank_name').val('').trigger('change');
+                $('#cheque_no').val('');
+                hidelemnetsonload();
             }
         });
 
         $('.modeChange').on('change', function() {
-
             $('.modeChange').not(this).prop('checked', false);
 
             let mode = $('.modeChange:checked').val();
 
+            $('.companyTerminate, .bankTerminate, .chequeTerminate').hide();
+            $('#cheque_no').val('');
+
             if (mode == 2 || mode == 3) {
-                $('.companyTerminate').show();
-                $('.bankTerminate').show();
-                if (mode == 3) {
-                    $('.chequeTerminate').show();
-                } else {
-                    $('.chequeTerminate').hide();
-                }
-            } else {
-                $('.companyTerminate').hide();
-                $('.bankTerminate').hide();
-                $('.chequeTerminate').hide();
+                $('.companyTerminate, .bankTerminate').show();
+                if (mode == 3) $('.chequeTerminate').show();
             }
         });
 
@@ -977,50 +1003,107 @@
         });
 
 
-        function terminateContract() {
+        // function terminateContract() {
 
+        //     const form = document.getElementById("ContractTerminateForm");
+        //     var fdata = new FormData(form);
+
+        //     let isValid = true;
+        //     $(".error-text").remove(); // clear old errors
+        //     $(form).find("[required]:visible").each(function() {
+        //         const value = $(this).val()?.trim();
+
+        //         if (!value) {
+        //             isValid = false;
+        //             setInvalid(this);
+        //         } else {
+        //             setValid(this);
+        //         }
+        //     });
+
+        //     // Validate Select2 fields
+        //     $(form).find('[required]select.select2').each(function() {
+        //         const value = $(this).val();
+        //         const container = $(this).next('.select2-container');
+
+        //         // Skip validation if hidden (either the select or its container)
+        //         if (!$(this).is(':visible') || container.css('display') === 'none') {
+        //             container.removeClass('is-invalid is-valid');
+        //             return; // skip hidden selects
+        //         }
+
+
+        //         if (!value || value.length === 0) {
+        //             container.addClass('is-invalid').removeClass('is-valid');
+        //             isValid = false;
+        //         } else {
+        //             container.addClass('is-valid').removeClass('is-invalid');
+        //         }
+        //     });
+
+        //     // Validate payment mode (iCheck checkboxes)
+        //     if ($('.modeChange:checked').length === 0) {
+        //         isValid = false;
+        //         toastr.error('Please select at least one payment mode.');
+        //     }
+
+
+        //     if (!isValid) {
+        //         toastr.error('Please fill all required fields before submitting.');
+        //         return;
+        //     }
+
+        //     Swal.fire({
+        //         title: "Are you sure?",
+        //         icon: "warning",
+        //         showCancelButton: true,
+        //         confirmButtonColor: "#3085d6",
+        //         cancelButtonColor: "#d33",
+        //         confirmButtonText: "Yes, Terminate!"
+        //     }).then((result) => {
+        //         if (result.isConfirmed) {
+        //             $.ajax({
+        //                 // url: '/contracts/terminate',
+        //                 url: "{{ route('contract.terminate') }}",
+        //                 type: 'POST',
+        //                 data: fdata,
+        //                 processData: false,
+        //                 contentType: false,
+        //                 success: function(res) {
+        //                     toastr.success(res.message);
+        //                     location.reload();
+        //                 },
+        //                 error: function(err) {
+        //                     toastr.error('Something went wrong');
+        //                 }
+        //             });
+
+        //         } else {
+        //             toastr.error(errors.responseJSON.message);
+        //         }
+        //     });
+        // }
+        function terminateContract() {
             const form = document.getElementById("ContractTerminateForm");
             var fdata = new FormData(form);
 
             let isValid = true;
-            $(".error-text").remove(); // clear old errors
-            $(form).find("[required]:visible").each(function() {
-                const value = $(this).val()?.trim();
+            $(".error-text").remove();
 
-                if (!value) {
-                    isValid = false;
-                    setInvalid(this);
-                } else {
-                    setValid(this);
-                }
+            $(form).find("input[required]:visible, textarea[required]:visible").each(function() {
+                if (!$(this).val()?.trim()) { isValid = false; setInvalid(this); }
+                else { setValid(this); }
             });
 
-            // Validate Select2 fields
-            $(form).find('[required]select.select2').each(function() {
-                const value = $(this).val();
+            $(form).find('select.select2[required]').each(function() {
                 const container = $(this).next('.select2-container');
-
-                // Skip validation if hidden (either the select or its container)
-                if (!$(this).is(':visible') || container.css('display') === 'none') {
+                if (!container.is(':visible')) {
                     container.removeClass('is-invalid is-valid');
-                    return; // skip hidden selects
+                    return;
                 }
-
-
-                if (!value || value.length === 0) {
-                    container.addClass('is-invalid').removeClass('is-valid');
-                    isValid = false;
-                } else {
-                    container.addClass('is-valid').removeClass('is-invalid');
-                }
+                if (!$(this).val()) { container.addClass('is-invalid').removeClass('is-valid'); isValid = false; }
+                else { container.addClass('is-valid').removeClass('is-invalid'); }
             });
-
-            // Validate payment mode (iCheck checkboxes)
-            if ($('.modeChange:checked').length === 0) {
-                isValid = false;
-                toastr.error('Please select at least one payment mode.');
-            }
-
 
             if (!isValid) {
                 toastr.error('Please fill all required fields before submitting.');
@@ -1037,7 +1120,6 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
-                        // url: '/contracts/terminate',
                         url: "{{ route('contract.terminate') }}",
                         type: 'POST',
                         data: fdata,
@@ -1047,13 +1129,10 @@
                             toastr.success(res.message);
                             location.reload();
                         },
-                        error: function(err) {
-                            toastr.error('Something went wrong');
+                        error: function(xhr) {
+                            toastr.error(xhr.responseJSON?.message || 'Something went wrong');
                         }
                     });
-
-                } else {
-                    toastr.error(errors.responseJSON.message);
                 }
             });
         }

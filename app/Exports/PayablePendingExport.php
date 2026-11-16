@@ -32,8 +32,8 @@ class PayablePendingExport implements FromCollection, WithHeadings, WithColumnFo
 
     public function collection()
     {
-         $twoWeeksLater = now()->addDays(14)->toDateString();
-          $filters = $this->filters ?? [];
+        $twoWeeksLater = now()->addDays(14)->toDateString();
+        $filters = $this->filters ?? [];
 
         //   dd($filters);
 
@@ -55,11 +55,12 @@ class PayablePendingExport implements FromCollection, WithHeadings, WithColumnFo
             $q->where('contract_status', '>=', 2)
                 ->whereIn('company_id', $permittedCompanyIds);
         })
-            ->where('paid_status', '!=', 1);
+            ->where('paid_status', '!=', 1)
+            ->where('terminate_status', 0);
         // dd($this->filters);
 
 
-            $todate = '';
+        $todate = '';
         $fromDate = '';
         if (empty($filters['filter']) || empty($filters['filter']['date_to'])) {
             $todate = $twoWeeksLater;
@@ -98,7 +99,7 @@ class PayablePendingExport implements FromCollection, WithHeadings, WithColumnFo
                 });
             }
 
-             // company filter
+            // company filter
             if ($filter['contract_company_id']) {
                 $query->whereHas('contract', function ($q) use ($filter) {
                     $q->where('company_id', $filter['contract_company_id']);
@@ -108,22 +109,21 @@ class PayablePendingExport implements FromCollection, WithHeadings, WithColumnFo
             // project filter
             if ($filter['contract_id']) {
                 $query->where('contract_id', $filter['contract_id']);
-
             }
             // Date filters
-        $fromDate = !empty($filters['date_from'])
-            ? Carbon::createFromFormat('d-m-Y', $filters['date_from'])->startOfDay()
-            : null;
+            $fromDate = !empty($filters['date_from'])
+                ? Carbon::createFromFormat('d-m-Y', $filters['date_from'])->startOfDay()
+                : null;
             // dd($fromDate);
 
-        $todate = !empty($filters['date_to'])
-            ? Carbon::createFromFormat('d-m-Y', $filters['date_to'])->endOfDay()
-            : Carbon::parse($twoWeeksLater)->endOfDay();
-            }
+            $todate = !empty($filters['date_to'])
+                ? Carbon::createFromFormat('d-m-Y', $filters['date_to'])->endOfDay()
+                : Carbon::parse($twoWeeksLater)->endOfDay();
+        }
 
         // dd($fromDate, $todate);
 
-            if ($fromDate) {
+        if ($fromDate) {
             $query->whereBetween('payment_date', [
                 $fromDate,
                 $todate
@@ -194,8 +194,8 @@ class PayablePendingExport implements FromCollection, WithHeadings, WithColumnFo
                 'Locality' => $payable->contract->locality->locality_name ?? '',
                 // 'Payment Due' => $payable->payment_date,
                 'Payment Due' => $payable->payment_date
-                ? Date::dateTimeToExcel(Carbon::parse($payable->payment_date))
-                : null,
+                    ? Date::dateTimeToExcel(Carbon::parse($payable->payment_date))
+                    : null,
                 'Composition' => getComposition($payable->contract_id, $payable->id) ?? '-',
                 'Payment Amount' => $payable->payment_amount,
                 'Paid Amount' => totalPaidPayable($payable->payables),
@@ -258,13 +258,13 @@ class PayablePendingExport implements FromCollection, WithHeadings, WithColumnFo
     }
 
     public function columnFormats(): array
-{
-    return [
-        'C' => 'dd/mm/yyyy', // Start Date
-        'D' => 'dd/mm/yyyy', // End Date
-        'I' => 'dd/mm/yyyy', // Payment Due
-        'P' => 'dd/mm/yyyy', // Cheque Returned Date
-        'V' => 'dd/mm/yyyy', // Created_at
-    ];
-}
+    {
+        return [
+            'C' => 'dd/mm/yyyy', // Start Date
+            'D' => 'dd/mm/yyyy', // End Date
+            'I' => 'dd/mm/yyyy', // Payment Due
+            'P' => 'dd/mm/yyyy', // Cheque Returned Date
+            'V' => 'dd/mm/yyyy', // Created_at
+        ];
+    }
 }

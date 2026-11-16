@@ -472,177 +472,177 @@ class TenantChequeService
 
         return $validator->validated();
     }
-        public function clearReceivable(array $data)
-        {
+    public function clearReceivable(array $data)
+    {
+        // dd($data);
+        DB::transaction(function () use ($data) {
+
+            // Expecting $data['payment_detail_ids'] as array of checked IDs
+            $paymentIds = $data['payment_detail_ids'] ?? [];
+            if (empty($paymentIds)) {
+                throw new \Exception('No payment selected');
+            }
             // dd($data);
-            DB::transaction(function () use ($data) {
+            $clearedReceivableIds = [];
+            $companyId = null;
+            foreach ($paymentIds as $paymentId) {
 
-                // Expecting $data['payment_detail_ids'] as array of checked IDs
-                $paymentIds = $data['payment_detail_ids'] ?? [];
-                if (empty($paymentIds)) {
-                    throw new \Exception('No payment selected');
+                $payment = $this->tenantChequeRepository->getPaymentDetailById($paymentId);
+                if (!$payment) {
+                    continue;
                 }
+                // dd($payment->agreementPaymentDetail);
+                // dd($payment);
+                $companyId = $payment->agreement->company_id ?? null;
+
+                // Use existing mode info if none provided
+                $paidModeId = $data['paid_mode_id'] ?? $payment->payment_mode_id;
+                $paidBankId = $data['paid_bank_id'] ?? $payment->bank_id;
+                // $paidCheque = $data['paid_cheque_number'] ?? $payment->cheque_number;
+                $paidCheque = $paidModeId == 3
+                    ? ($data['paid_cheque_number'] ?? $payment->cheque_number)
+                    : null;
+
+
+                // $paidAmount = $data['paid_amount'] ?? $payment->payment_amount;
+                $allocatedAmounts = $data['allocated_amounts'] ?? [];
+                $paidAmount = isset($allocatedAmounts[$paymentId])
+                    ? (float) $allocatedAmounts[$paymentId]
+                    : (float) ($data['paid_amount'] ?? $payment->payment_amount);
+
+
+                $paidDate = $data['paid_date'];
+                $paidCompanyId = $data['paid_company_id'];
+                // dd($paidAmount);
+
+                if (!empty($paidDate)) {
+                    $paidDate = Carbon::createFromFormat('d-m-Y', $paidDate)->format('Y-m-d');
+                }
+
+                // Calculate pending amount & payment status
+                // $existingAmount = $payment->payment_amount;
+                $existingAmount = getReceivableAmount($paymentId);
+                // dd($existingAmount, $paidAmount);
+                // dd()
+                // dd(
+                //     sprintf('%.20f', $existingAmount),
+                //     sprintf('%.20f', $paidAmount)
+                // );
+
+
+                // if ($existingAmount > $paidAmount) {
+                //     dd("half");
+                //     $pendingAmount = $existingAmount - $paidAmount;
+                //     $isReceived = 2;
+                // } else {
+                //     // dd("full");
+                //     $pendingAmount = 0;
+                //     $isReceived = 1;
+                // }
+                // $diff = bcsub($existingAmount, $paidAmount, 2);
+
+                // if (bccomp($diff, '0', 2) === 1) {
+                //     dd("half");
+                //     $pendingAmount = $diff;
+                //     $isReceived = 2;
+                // } else {
+                //     dd('full');
+                //     $pendingAmount = 0;
+                //     $isReceived = 1;
+                // }
+                $diff = round($existingAmount - $paidAmount, 2);
+                if ($diff > 0) {
+                    $pendingAmount = $diff;
+                    $isReceived = 2;
+                } else {
+                    $pendingAmount = 0;
+                    $isReceived = 1;
+                }
+                // dd($pendingAmount);
+
+                $detail_data = [
+                    'is_payment_received' => $isReceived,
+                    'payment_detail_id' => $paymentId,
+                ];
+                // dd($detail_data);
                 // dd($data);
-                $clearedReceivableIds = [];
-                $companyId = null;
-                foreach ($paymentIds as $paymentId) {
+                $cleared_data = [
+                    'paid_date' => $paidDate,
+                    'paid_amount' => $paidAmount,
+                    'paid_mode_id' => $paidModeId,
+                    'paid_bank_id' => $paidBankId,
+                    'paid_cheque_number' => $paidCheque,
+                    'payment_remarks' => $data['payment_remarks'] ?? null,
+                    'pending_amount' => $pendingAmount,
+                    'agreement_payment_details_id' => $paymentId,
+                    'paid_by' => auth()->user()->id,
+                    'agreement_id' => $payment->agreement_id,
+                    'paid_company_id' => $paidCompanyId ?? null,
+                    'receipt_allocation_id' => $data['receipt_allocation_id'] ?? null,
+                    'bank_reference' => $data['bank_reference'] ?? null,
+                    'have_other_adjustmants' => $data['have_other_adjustmants'] ?? null,
+                    'loss_or_discount' => 0,
+                    'company_id' => $payment->agreement->company_id ?? null
+                ];
+                // dd($cleared_data);
+                // dd($detail_date);
+                $this->validate($cleared_data);
 
-                    $payment = $this->tenantChequeRepository->getPaymentDetailById($paymentId);
-                    if (!$payment) {
-                        continue;
+
+                $cleared =  $this->tenantChequeRepository->createClearedReceivables($cleared_data);
+                $this->tenantChequeRepository->updatePaymentDetail($detail_data);
+                $clearedReceivableIds[] = $cleared->id;
+
+
+                $TotalStatus = checkAgreementPayment($payment->agreement_payment_id);
+
+                $paymentData = [
+                    'agreement_payment_id'       => $payment->agreement_payment_id,
+                    'has_payment_received'       => 1,
+                    'has_payment_fully_received' => $TotalStatus,
+                ];
+                $agreement_unit = $payment->agreementUnit;
+                // dd($payment->transaction_type);
+                if ($payment->transaction_type == 1) {
+                    $unit_count = $payment->agreement->agreement_units->count();
+                    $amount = $cleared_data['paid_amount'] / $unit_count;
+                    // dd($amount);
+                    foreach ($payment->agreement->agreement_units as $unit) {
+
+                        updateContractUnitPayments($unit->contract_unit_details_id, $amount);
                     }
-                    // dd($payment->agreementPaymentDetail);
-                    // dd($payment);
-                    $companyId = $payment->agreement->company_id ?? null;
+                } elseif ($payment->transaction_type == 2) {
+                    $unit_count = $payment->agreement->agreement_units->count();
+                    $amount = $cleared_data['paid_amount'] / $unit_count;
+                    // dd($amount);
+                    foreach ($payment->agreement->agreement_units as $unit) {
 
-                    // Use existing mode info if none provided
-                    $paidModeId = $data['paid_mode_id'] ?? $payment->payment_mode_id;
-                    $paidBankId = $data['paid_bank_id'] ?? $payment->bank_id;
-                    // $paidCheque = $data['paid_cheque_number'] ?? $payment->cheque_number;
-                    $paidCheque = $paidModeId == 3
-                        ? ($data['paid_cheque_number'] ?? $payment->cheque_number)
-                        : null;
-
-
-                    // $paidAmount = $data['paid_amount'] ?? $payment->payment_amount;
-                    $allocatedAmounts = $data['allocated_amounts'] ?? [];
-                    $paidAmount = isset($allocatedAmounts[$paymentId])
-                        ? (float) $allocatedAmounts[$paymentId]
-                        : (float) ($data['paid_amount'] ?? $payment->payment_amount);
-
-
-                    $paidDate = $data['paid_date'];
-                    $paidCompanyId = $data['paid_company_id'];
-                    // dd($paidAmount);
-
-                    if (!empty($paidDate)) {
-                        $paidDate = Carbon::createFromFormat('d-m-Y', $paidDate)->format('Y-m-d');
+                        updateContractUnitReceivablePayback($unit->contract_unit_details_id, $amount);
                     }
-
-                    // Calculate pending amount & payment status
-                    // $existingAmount = $payment->payment_amount;
-                    $existingAmount = getReceivableAmount($paymentId);
-                    // dd($existingAmount, $paidAmount);
-                    // dd()
-                    // dd(
-                    //     sprintf('%.20f', $existingAmount),
-                    //     sprintf('%.20f', $paidAmount)
-                    // );
-
-
-                    // if ($existingAmount > $paidAmount) {
-                    //     dd("half");
-                    //     $pendingAmount = $existingAmount - $paidAmount;
-                    //     $isReceived = 2;
-                    // } else {
-                    //     // dd("full");
-                    //     $pendingAmount = 0;
-                    //     $isReceived = 1;
-                    // }
-                    // $diff = bcsub($existingAmount, $paidAmount, 2);
-
-                    // if (bccomp($diff, '0', 2) === 1) {
-                    //     dd("half");
-                    //     $pendingAmount = $diff;
-                    //     $isReceived = 2;
-                    // } else {
-                    //     dd('full');
-                    //     $pendingAmount = 0;
-                    //     $isReceived = 1;
-                    // }
-                    $diff = round($existingAmount - $paidAmount, 2);
-                    if ($diff > 0) {
-                        $pendingAmount = $diff;
-                        $isReceived = 2;
-                    } else {
-                        $pendingAmount = 0;
-                        $isReceived = 1;
-                    }
-                    // dd($pendingAmount);
-
-                    $detail_data = [
-                        'is_payment_received' => $isReceived,
-                        'payment_detail_id' => $paymentId,
-                    ];
-                    // dd($detail_data);
-                    // dd($data);
-                    $cleared_data = [
-                        'paid_date' => $paidDate,
-                        'paid_amount' => $paidAmount,
-                        'paid_mode_id' => $paidModeId,
-                        'paid_bank_id' => $paidBankId,
-                        'paid_cheque_number' => $paidCheque,
-                        'payment_remarks' => $data['payment_remarks'] ?? null,
-                        'pending_amount' => $pendingAmount,
-                        'agreement_payment_details_id' => $paymentId,
-                        'paid_by' => auth()->user()->id,
-                        'agreement_id' => $payment->agreement_id,
-                        'paid_company_id' => $paidCompanyId ?? null,
-                        'receipt_allocation_id' => $data['receipt_allocation_id'] ?? null,
-                        'bank_reference' => $data['bank_reference'] ?? null,
-                        'have_other_adjustmants' => $data['have_other_adjustmants'] ?? null,
-                        'loss_or_discount' => 0,
-                        'company_id' => $payment->agreement->company_id ?? null
-                    ];
-                    // dd($cleared_data);
-                    // dd($detail_date);
-                    $this->validate($cleared_data);
-
-
-                    $cleared =  $this->tenantChequeRepository->createClearedReceivables($cleared_data);
-                    $this->tenantChequeRepository->updatePaymentDetail($detail_data);
-                    $clearedReceivableIds[] = $cleared->id;
-
-
-                    $TotalStatus = checkAgreementPayment($payment->agreement_payment_id);
-
-                    $paymentData = [
-                        'agreement_payment_id'       => $payment->agreement_payment_id,
-                        'has_payment_received'       => 1,
-                        'has_payment_fully_received' => $TotalStatus,
-                    ];
-                    $agreement_unit = $payment->agreementUnit;
-                    // dd($payment->transaction_type);
-                    if ($payment->transaction_type == 1) {
-                        $unit_count = $payment->agreement->agreement_units->count();
-                        $amount = $cleared_data['paid_amount'] / $unit_count;
-                        // dd($amount);
-                        foreach ($payment->agreement->agreement_units as $unit) {
-
-                            updateContractUnitPayments($unit->contract_unit_details_id, $amount);
-                        }
-                    } elseif ($payment->transaction_type == 2) {
-                        $unit_count = $payment->agreement->agreement_units->count();
-                        $amount = $cleared_data['paid_amount'] / $unit_count;
-                        // dd($amount);
-                        foreach ($payment->agreement->agreement_units as $unit) {
-
-                            updateContractUnitReceivablePayback($unit->contract_unit_details_id, $amount);
-                        }
-                    } else {
-                        $contract_unit_details_id = $agreement_unit->contract_unit_details_id;
-                        updateContractUnitPayments($contract_unit_details_id, $cleared_data['paid_amount']);
-                    }
-
-                    $this->tenantChequeRepository->updatePayment($paymentData);
+                } else {
+                    $contract_unit_details_id = $agreement_unit->contract_unit_details_id;
+                    updateContractUnitPayments($contract_unit_details_id, $cleared_data['paid_amount']);
                 }
-                // dd(!empty($data['allocated_amount']));
-                if (!empty($data['allocated_amount'])) {
-                    $allocation = [
-                        'cleared_receivable_ids' => json_encode($clearedReceivableIds),
-                        'allocated_amount' => $data['allocated_amount'],
-                        'cleared_date' => $paidDate,
-                        'created_at' => now(),
-                        'added_by' => auth()->user()->id,
-                        'receipt_allocation_id' => $data['receipt_allocation_id'] ?? null,
-                        'bank_reference' => $data['bank_reference'] ?? null,
-                        'have_other_adjustmants' => $data['have_other_adjustmants'] ?? null,
-                        'company_id' => $companyId
-                    ];
-                    $this->tenantChequeRepository->createallocation($allocation);
-                }
-            });
-        }
+
+                $this->tenantChequeRepository->updatePayment($paymentData);
+            }
+            // dd(!empty($data['allocated_amount']));
+            if (!empty($data['allocated_amount'])) {
+                $allocation = [
+                    'cleared_receivable_ids' => json_encode($clearedReceivableIds),
+                    'allocated_amount' => $data['allocated_amount'],
+                    'cleared_date' => $paidDate,
+                    'created_at' => now(),
+                    'added_by' => auth()->user()->id,
+                    'receipt_allocation_id' => $data['receipt_allocation_id'] ?? null,
+                    'bank_reference' => $data['bank_reference'] ?? null,
+                    'have_other_adjustmants' => $data['have_other_adjustmants'] ?? null,
+                    'company_id' => $companyId
+                ];
+                $this->tenantChequeRepository->createallocation($allocation);
+            }
+        });
+    }
     public function bouncedCheque(array $data)
     {
         // dd($data);
@@ -1020,10 +1020,10 @@ class TenantChequeService
                 return '-';
             })
             ->addColumn('created_at', function ($row) {
-    return $row->created_at
-        ? Carbon::parse($row->created_at)->format('d-m-Y h:i A')
-        : '-';
-})
+                return $row->created_at
+                    ? Carbon::parse($row->created_at)->format('d-m-Y h:i A')
+                    : '-';
+            })
             ->addColumn('company_name', function ($row) {
                 return $row->company->company_name
                     ? $row->company->company_name
@@ -1031,13 +1031,12 @@ class TenantChequeService
             })
             ->addColumn('action', function ($row) {
                 // return "-";
-                 if (auth()->user()->hasAnyPermission(['finance.delete-allocation'], $row->company_id)) {
-                return '<button class="btn btn-danger mb-1" onclick="deleteConf(' . $row->id . ')" type="submit">Delete</button>
+                if (auth()->user()->hasAnyPermission(['finance.delete-allocation'], $row->company_id)) {
+                    return '<button class="btn btn-danger mb-1" onclick="deleteConf(' . $row->id . ')" type="submit">Delete</button>
                     ';
-                 }
-                 else{
+                } else {
                     return "-";
-                 }
+                }
             })
 
             ->addColumn('project_numbers', function ($row) {
@@ -1049,175 +1048,175 @@ class TenantChequeService
                         </button>';
             })
 
-            ->rawColumns(['action', 'allocated_by','created_at',  'project_numbers'])
+            ->rawColumns(['action', 'allocated_by', 'created_at',  'project_numbers'])
             ->toJson();
     }
 
     public function getAllocationsExportData(array $filters = [])
-{
-    $allocations = $this->tenantChequeRepository
-        ->getAllocationsQuery($filters)
-        ->get();
-
-    // Normalise cleared_receivable_ids per allocation (handles double-encoded rows)
-    $idsByAllocation = $allocations->mapWithKeys(function ($a) {
-        $ids = $a->cleared_receivable_ids;
-        if (is_string($ids)) {
-            $ids = json_decode($ids, true);
-        }
-        return [$a->id => is_array($ids) ? $ids : []];
-    });
-
-    $allIds = $idsByAllocation->flatten()->unique()->values()->all();
-
-    // One query for every receivable used by the exported allocations
-    $details = ClearedReceivable::query()
-        ->whereIn('cleared_receivables.id', $allIds)
-        ->join('agreement_payment_details', 'agreement_payment_details.id', '=', 'cleared_receivables.agreement_payment_details_id')
-        ->join('agreements', 'agreements.id', '=', 'agreement_payment_details.agreement_id')
-        ->join('contracts', 'contracts.id', '=', 'agreements.contract_id')
-        ->leftJoin('agreement_units', 'agreement_units.agreement_id', '=', 'agreements.id')
-        ->leftJoin('contract_unit_details', 'contract_unit_details.id', '=', 'agreement_units.contract_unit_details_id')
-        ->leftJoin('contract_subunit_details', 'contract_subunit_details.id', '=', 'agreement_units.contract_subunit_details_id')
-        ->select(
-            'cleared_receivables.id as cleared_receivable_id',
-            'contracts.project_number',
-            'contract_unit_details.unit_number',
-            'contract_subunit_details.subunit_no'
-        )
-        ->get()
-        ->groupBy('cleared_receivable_id');
-
-    return $allocations->values()->map(function ($row, $index) use ($idsByAllocation, $details) {
-        $grouped = [];
-
-        foreach ($idsByAllocation[$row->id] ?? [] as $receivableId) {
-            foreach ($details->get($receivableId, collect()) as $d) {
-                $grouped[$d->project_number] ??= [];
-
-                if ($d->unit_number) {
-                    $grouped[$d->project_number][] = $d->subunit_no
-                        ? "{$d->unit_number}-{$d->subunit_no}"
-                        : $d->unit_number;
-                }
-            }
-        }
-
-        $projects = implode(', ', array_keys($grouped));
-
-        $units = collect($grouped)
-            ->map(fn ($u, $project) => $project . ': ' . (implode(', ', array_unique($u)) ?: '-'))
-            ->implode(' | ');
-
-        return [
-            $index + 1,
-            $row->company->company_name ?? '-',
-            (float) $row->allocated_amount,
-            $row->cleared_date
-                ? Carbon::parse($row->cleared_date)->format('d-m-Y')
-                : '-',
-            $row->bank_reference ?: '-',
-            $row->addedBy
-                ? trim($row->addedBy->first_name . ' ' . $row->addedBy->last_name)
-                : '-',
-            $projects ?: '-',
-            $units ?: '-',
-            $row->created_at
-                ? Carbon::parse($row->created_at)->format('d-m-Y h:i A')
-                : '-',
-        ];
-    });
-}
-
-public function allocationsExportHeadings(): array
-{
-    return [
-        '#',
-        'Company Name',
-        'Allocated Amount',
-        'Allocation Date',
-        'Bank Reference',
-        'Allocated By',
-        'Project Numbers',
-        'Units (Project: Units)',
-        'Created At',
-    ];
-}
-public function deleteAllocation($allocationId)
-{
-    return DB::transaction(function () use ($allocationId) {
-
-        $allocation = ClearedReceivableAllocation::where('id', $allocationId)
-            ->lockForUpdate()
-            ->firstOrFail();
-        // dd($allocation);
-
-        $clearedReceivableIds = $allocation->cleared_receivable_ids;
-
-        if (is_string($clearedReceivableIds)) {
-            $clearedReceivableIds = json_decode($clearedReceivableIds, true) ?? [];
-        }
-
-        if (empty($clearedReceivableIds)) {
-            $allocation->delete();
-            return true;
-        }
-        // dd($clearedReceivableIds);
-
-        $clearedReceivables = ClearedReceivable::whereIn('id', $clearedReceivableIds)
-            ->lockForUpdate()
+    {
+        $allocations = $this->tenantChequeRepository
+            ->getAllocationsQuery($filters)
             ->get();
 
-        $paymentDetailIds = [];
+        // Normalise cleared_receivable_ids per allocation (handles double-encoded rows)
+        $idsByAllocation = $allocations->mapWithKeys(function ($a) {
+            $ids = $a->cleared_receivable_ids;
+            if (is_string($ids)) {
+                $ids = json_decode($ids, true);
+            }
+            return [$a->id => is_array($ids) ? $ids : []];
+        });
 
-        foreach ($clearedReceivables as $cleared) {
+        $allIds = $idsByAllocation->flatten()->unique()->values()->all();
 
-            $payment = AgreementPaymentDetail::with([
-                'agreement.agreement_units',
-                'agreementUnit'
-            ])->where('id', $cleared->agreement_payment_details_id)
-                ->lockForUpdate()
-                ->first();
+        // One query for every receivable used by the exported allocations
+        $details = ClearedReceivable::query()
+            ->whereIn('cleared_receivables.id', $allIds)
+            ->join('agreement_payment_details', 'agreement_payment_details.id', '=', 'cleared_receivables.agreement_payment_details_id')
+            ->join('agreements', 'agreements.id', '=', 'agreement_payment_details.agreement_id')
+            ->join('contracts', 'contracts.id', '=', 'agreements.contract_id')
+            ->leftJoin('agreement_units', 'agreement_units.agreement_id', '=', 'agreements.id')
+            ->leftJoin('contract_unit_details', 'contract_unit_details.id', '=', 'agreement_units.contract_unit_details_id')
+            ->leftJoin('contract_subunit_details', 'contract_subunit_details.id', '=', 'agreement_units.contract_subunit_details_id')
+            ->select(
+                'cleared_receivables.id as cleared_receivable_id',
+                'contracts.project_number',
+                'contract_unit_details.unit_number',
+                'contract_subunit_details.subunit_no'
+            )
+            ->get()
+            ->groupBy('cleared_receivable_id');
 
-            if (!$payment) {
-                continue;
+        return $allocations->values()->map(function ($row, $index) use ($idsByAllocation, $details) {
+            $grouped = [];
+
+            foreach ($idsByAllocation[$row->id] ?? [] as $receivableId) {
+                foreach ($details->get($receivableId, collect()) as $d) {
+                    $grouped[$d->project_number] ??= [];
+
+                    if ($d->unit_number) {
+                        $grouped[$d->project_number][] = $d->subunit_no
+                            ? "{$d->unit_number}-{$d->subunit_no}"
+                            : $d->unit_number;
+                    }
+                }
             }
 
-            $paidAmount = (float) $cleared->paid_amount;
-            $paymentDetailIds[] = $payment->id;
+            $projects = implode(', ', array_keys($grouped));
 
-            // Reverse contract unit payment totals
-            // if ($payment->transaction_type == 1) { // Receivable
+            $units = collect($grouped)
+                ->map(fn($u, $project) => $project . ': ' . (implode(', ', array_unique($u)) ?: '-'))
+                ->implode(' | ');
 
-            //     // $unitCount = $payment->agreement->agreement_units->count();
+            return [
+                $index + 1,
+                $row->company->company_name ?? '-',
+                (float) $row->allocated_amount,
+                $row->cleared_date
+                    ? Carbon::parse($row->cleared_date)->format('d-m-Y')
+                    : '-',
+                $row->bank_reference ?: '-',
+                $row->addedBy
+                    ? trim($row->addedBy->first_name . ' ' . $row->addedBy->last_name)
+                    : '-',
+                $projects ?: '-',
+                $units ?: '-',
+                $row->created_at
+                    ? Carbon::parse($row->created_at)->format('d-m-Y h:i A')
+                    : '-',
+            ];
+        });
+    }
 
-            //     // if ($unitCount > 0) {
-            //     //     $amount = $paidAmount / $unitCount;
+    public function allocationsExportHeadings(): array
+    {
+        return [
+            '#',
+            'Company Name',
+            'Allocated Amount',
+            'Allocation Date',
+            'Bank Reference',
+            'Allocated By',
+            'Project Numbers',
+            'Units (Project: Units)',
+            'Created At',
+        ];
+    }
+    public function deleteAllocation($allocationId)
+    {
+        return DB::transaction(function () use ($allocationId) {
 
-            //         foreach ($payment->agreement->agreement_units as $unit) {
-            //             $this->reverseContractUnitPayments(
-            //                 $unit->contract_unit_details_id,
-            //                 $paidAmount
-            //             );
-            //         // }
-            //     }
+            $allocation = ClearedReceivableAllocation::where('id', $allocationId)
+                ->lockForUpdate()
+                ->firstOrFail();
+            // dd($allocation);
 
-            // } elseif ($payment->transaction_type == 2) { //Payback
+            $clearedReceivableIds = $allocation->cleared_receivable_ids;
 
-            //     // $unitCount = $payment->agreement->agreement_units->count();
+            if (is_string($clearedReceivableIds)) {
+                $clearedReceivableIds = json_decode($clearedReceivableIds, true) ?? [];
+            }
 
-            //     // if ($unitCount > 0) {
-            //     //     $amount = $paidAmount / $unitCount;
+            if (empty($clearedReceivableIds)) {
+                $allocation->delete();
+                return true;
+            }
+            // dd($clearedReceivableIds);
 
-            //         foreach ($payment->agreement->agreement_units as $unit) {
-            //            $this->reverseContractUnitReceivablePayback(
-            //                 $unit->contract_unit_details_id,
-            //                 $paidAmount
-            //             );
-            //         // }
-            //     }
+            $clearedReceivables = ClearedReceivable::whereIn('id', $clearedReceivableIds)
+                ->lockForUpdate()
+                ->get();
 
-            // } else { // Run Away
+            $paymentDetailIds = [];
+
+            foreach ($clearedReceivables as $cleared) {
+
+                $payment = AgreementPaymentDetail::with([
+                    'agreement.agreement_units',
+                    'agreementUnit'
+                ])->where('id', $cleared->agreement_payment_details_id)
+                    ->lockForUpdate()
+                    ->first();
+
+                if (!$payment) {
+                    continue;
+                }
+
+                $paidAmount = (float) $cleared->paid_amount;
+                $paymentDetailIds[] = $payment->id;
+
+                // Reverse contract unit payment totals
+                // if ($payment->transaction_type == 1) { // Receivable
+
+                //     // $unitCount = $payment->agreement->agreement_units->count();
+
+                //     // if ($unitCount > 0) {
+                //     //     $amount = $paidAmount / $unitCount;
+
+                //         foreach ($payment->agreement->agreement_units as $unit) {
+                //             $this->reverseContractUnitPayments(
+                //                 $unit->contract_unit_details_id,
+                //                 $paidAmount
+                //             );
+                //         // }
+                //     }
+
+                // } elseif ($payment->transaction_type == 2) { //Payback
+
+                //     // $unitCount = $payment->agreement->agreement_units->count();
+
+                //     // if ($unitCount > 0) {
+                //     //     $amount = $paidAmount / $unitCount;
+
+                //         foreach ($payment->agreement->agreement_units as $unit) {
+                //            $this->reverseContractUnitReceivablePayback(
+                //                 $unit->contract_unit_details_id,
+                //                 $paidAmount
+                //             );
+                //         // }
+                //     }
+
+                // } else { // Run Away
 
                 $contractUnitDetailsId = $payment->agreementUnit->contract_unit_details_id ?? null;
 
@@ -1227,104 +1226,139 @@ public function deleteAllocation($allocationId)
                         $paidAmount
                     );
                 }
-            // }
-        }
-
-        // Delete cleared receivable records
-        // ClearedReceivable::whereIn('id', $clearedReceivableIds)->delete();
-        foreach ($clearedReceivables as $cleared) {
-            $cleared->delete();
-        }
-
-        // Recalculate payment detail statuses
-        foreach (array_unique($paymentDetailIds) as $paymentDetailId) {
-
-            $payment = AgreementPaymentDetail::find($paymentDetailId);
-
-            if (!$payment) {
-                continue;
+                // }
             }
 
-            $receivedAmount = (float) ClearedReceivable::where(
-                'agreement_payment_details_id',
-                $paymentDetailId
-            )->sum('paid_amount');
-
-            $paymentAmount = (float) $payment->payment_amount;
-
-            $pendingAmount = max(0, round($paymentAmount - $receivedAmount, 2));
-
-            if ($receivedAmount <= 0) {
-                $isReceived = 0;
-            } elseif ($pendingAmount > 0) {
-                $isReceived = 2;
-            } else {
-                $isReceived = 1;
+            // Delete cleared receivable records
+            // ClearedReceivable::whereIn('id', $clearedReceivableIds)->delete();
+            foreach ($clearedReceivables as $cleared) {
+                $cleared->delete();
             }
 
-            $payment->update([
-                'is_payment_received' => $isReceived,
-                // 'pending_amount' => $pendingAmount,
-            ]);
+            // Recalculate payment detail statuses
+            foreach (array_unique($paymentDetailIds) as $paymentDetailId) {
 
-            // Recalculate parent agreement payment status
-            $totalStatus = checkAgreementPayment($payment->agreement_payment_id);
+                $payment = AgreementPaymentDetail::find($paymentDetailId);
 
-            AgreementPayment::where('id', $payment->agreement_payment_id)
-                ->update([
-                    'has_payment_received' => $receivedAmount > 0 ? 1 : 0,
-                    'has_payment_fully_received' => $totalStatus,
+                if (!$payment) {
+                    continue;
+                }
+
+                $receivedAmount = (float) ClearedReceivable::where(
+                    'agreement_payment_details_id',
+                    $paymentDetailId
+                )->sum('paid_amount');
+
+                $paymentAmount = (float) $payment->payment_amount;
+
+                $pendingAmount = max(0, round($paymentAmount - $receivedAmount, 2));
+
+                if ($receivedAmount <= 0) {
+                    $isReceived = 0;
+                } elseif ($pendingAmount > 0) {
+                    $isReceived = 2;
+                } else {
+                    $isReceived = 1;
+                }
+
+                $payment->update([
+                    'is_payment_received' => $isReceived,
+                    // 'pending_amount' => $pendingAmount,
                 ]);
+
+                // Recalculate parent agreement payment status
+                $totalStatus = checkAgreementPayment($payment->agreement_payment_id);
+
+                AgreementPayment::where('id', $payment->agreement_payment_id)
+                    ->update([
+                        'has_payment_received' => $receivedAmount > 0 ? 1 : 0,
+                        'has_payment_fully_received' => $totalStatus,
+                    ]);
+            }
+
+            // Delete allocation
+            $allocation->delete();
+
+            return true;
+        });
+    }
+    function reverseContractUnitPayments($contract_unit_details_id, $paid_amount)
+    {
+        $contract_unit_detail = ContractUnitDetail::find($contract_unit_details_id);
+
+        if (!$contract_unit_detail) {
+            return false;
         }
 
-        // Delete allocation
-        $allocation->delete();
+        $contract_unit = $contract_unit_detail->contractUnit;
 
-        return true;
-    });
-}
-function reverseContractUnitPayments($contract_unit_details_id, $paid_amount)
-{
-    $contract_unit_detail = ContractUnitDetail::find($contract_unit_details_id);
+        if ($contract_unit) {
+            $contract_unit->total_payment_received -= $paid_amount;
+            $contract_unit->total_payment_pending += $paid_amount;
+            $contract_unit->save();
+        }
 
-    if (!$contract_unit_detail) {
-        return false;
+        $contract_unit_detail->total_payment_received -= $paid_amount;
+        $contract_unit_detail->total_payment_pending += $paid_amount;
+        $contract_unit_detail->save();
+
+        return $contract_unit_detail;
     }
+    function reverseContractUnitReceivablePayback($contract_unit_details_id, $paid_amount)
+    {
+        $contract_unit_detail = ContractUnitDetail::find($contract_unit_details_id);
 
-    $contract_unit = $contract_unit_detail->contractUnit;
+        if (!$contract_unit_detail) {
+            return false;
+        }
 
-    if ($contract_unit) {
-        $contract_unit->total_payment_received -= $paid_amount;
-        $contract_unit->total_payment_pending += $paid_amount;
-        $contract_unit->save();
+        $contract_unit = $contract_unit_detail->contractUnit;
+
+        if ($contract_unit) {
+            $contract_unit->total_payment_received += $paid_amount;
+            $contract_unit->total_payment_pending -= $paid_amount;
+            $contract_unit->save();
+        }
+
+        $contract_unit_detail->total_payment_received += $paid_amount;
+        $contract_unit_detail->total_payment_pending -= $paid_amount;
+        $contract_unit_detail->save();
+
+        return $contract_unit_detail;
     }
+    // public function terminateByContract($contractId, $terminatedDate)
+    // {
+    //     $date = \Carbon\Carbon::parse($terminatedDate)->format('Y-m-d');
 
-    $contract_unit_detail->total_payment_received -= $paid_amount;
-    $contract_unit_detail->total_payment_pending += $paid_amount;
-    $contract_unit_detail->save();
+    //     return AgreementPaymentDetail::
+    //         // 2. Take only the receivables that belong to agreements of THIS contract
+    //         whereIn('agreement_id', function ($q) use ($contractId) {
+    //             $q->select('id')->from('agreements')
+    //                 ->where('contract_id', $contractId)
+    //                 ->whereNull('deleted_at');
+    //         })
+    //         // 3. Only rows dated AFTER the termination date
+    //         ->whereDate('payment_date', '>', $date)
+    //         // 4. Skip rows that are already fully received
+    //         ->where('is_payment_received', '!=', 1)
+    //         // 5. Hide them from the receivable list
+    //         ->update(['terminate_status' => 1]);
+    // }
+    // public function terminateByContract($contractId, array $data)
+    // {
+    //     $agreementIds = Agreement::where('contract_id', $contractId)
+    //         ->where('agreement_status', 0)      // only active agreements
+    //         ->pluck('id');
 
-    return $contract_unit_detail;
-}
-function reverseContractUnitReceivablePayback($contract_unit_details_id, $paid_amount)
-{
-    $contract_unit_detail = ContractUnitDetail::find($contract_unit_details_id);
+    //     foreach ($agreementIds as $agreementId) {
+    //         $this->terminate([
+    //             'agreement_id'      => $agreementId,
+    //             'terminated_date'   => $data['terminated_date'],
+    //             'terminated_reason' => $data['terminated_reason'] ?? 'Vendor contract terminated',
+    //             // no 'amount' on purpose: the vendor balance_amount is not a tenant payment
+    //         ]);
+    //     }
 
-    if (!$contract_unit_detail) {
-        return false;
-    }
-
-    $contract_unit = $contract_unit_detail->contractUnit;
-
-    if ($contract_unit) {
-        $contract_unit->total_payment_received += $paid_amount;
-        $contract_unit->total_payment_pending -= $paid_amount;
-        $contract_unit->save();
-    }
-
-    $contract_unit_detail->total_payment_received += $paid_amount;
-    $contract_unit_detail->total_payment_pending -= $paid_amount;
-    $contract_unit_detail->save();
-
-    return $contract_unit_detail;
-}
+    //     return $agreementIds->count();
+    // }
 }
