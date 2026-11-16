@@ -1013,124 +1013,203 @@ class InvestmentService
             ->orderColumn('grace_period', function ($query, $order) {
                 $query->orderBy('investments.grace_period', $order);
             })
-            ->addColumn('action', function ($row) use ($filters) {
+            // ->addColumn('action', function ($row) use ($filters) {
+            //     $action = '';
+
+            //     if (!empty($filters['investor_id'])) {
+            //         if (auth()->user()->hasAnyPermission(['investment.view'], $row->company_id)) {
+            //             $action .= '<a href="' . route('investment.show', $row->id) . '"
+            //                 class="btn btn-sm btn-primary m-1"
+            //                 title="View Investment" target="_blank">
+            //                 <i class="fas fa-eye"></i>
+            //             </a>';
+            //         }
+            //     } else {
+            //         if (auth()->user()->hasAnyPermission(['investment.edit'], $row->company_id) && $row->is_profit_processed == 0 && $row->has_partial_withdrawal == 0) {
+            //             $action .= '<a href="' . route('investment.edit', $row->id) . '"
+            //                 class="btn btn-sm btn-info m-1 editInvestment"
+            //                 title="Edit Investment">
+            //                 <i class="fas fa-edit"></i>
+            //             </a>';
+            //         }
+            //         if (auth()->user()->hasAnyPermission(['investment.view'], $row->company_id)) {
+            //             $action .= '<a href="' . route('investment.show', $row->id) . '"
+            //                 class="btn btn-sm btn-primary m-1"
+            //                 title="View Investment">
+            //                 <i class="fas fa-eye"></i>
+            //             </a>';
+            //         }
+
+            //         if (auth()->user()->hasAnyPermission(['investment.delete'], $row->company_id) && $row->is_profit_processed == 0 && $row->terminate_status == 0 && $row->has_partial_withdrawal == 0) {
+            //             $action .= '<button
+            //                 class="btn btn-sm btn-danger m-1"
+            //                 title="Delete Investment"
+            //                 onclick="confirmDelete(' . $row->id . ')">
+            //                 <i class="fas fa-trash-alt"></i>
+            //             </button>';
+            //         }
+            //         if (!paymentFullyReceived($row->id) && $row->total_withdrawn_amount == 0 && auth()->user()->hasAnyPermission(['investment.submit_pending'], $row->company_id)) {
+            //             $action .= '
+            //                 <button class="btn btn-sm btn-success m-1 openPendingModal"
+            //                     data-id="' . $row->id . '" data-balance="' . $row->balance_amount . '"
+            //                     title="Submit Pending Investment">
+            //                     <i class="fas fa-money-check-alt"></i>
+            //                 </button>
+            //             ';
+            //         }
+            //         // if (($row->terminate_status == 1) && auth()->user()->hasAnyPermission(['investment.terminate'], $row->company_id)) {
+            //         //     $action .= '
+            //         //             <button class="btn btn-sm bg-gradient-navy m-1 openTerminationModal"
+            //         //             data-status = "' . $row->terminate_status . '"
+            //         //                 data-id="' . $row->id . '"
+            //         //                 data-requested-date="' . ($row->termination_requested_date ? \Carbon\Carbon::parse($row->termination_requested_date)->format('d-m-Y') : '') . '"
+            //         //                 data-duration="' . ($row->termination_duration ?? '') . '"
+            //         //                 data-termination-date="' . ($row->termination_date ? \Carbon\Carbon::parse($row->termination_date)->format('d-m-Y') : '') . '"
+            //         //                data-file-path="' . ($row->termination_document ? Storage::url($row->termination_document) : '') . '"
+            //         //                data-principal="' . ($row->investment_amount) . '"
+            //         //               data-outstanding="' . ($row->termination_outstanding) . '"
+            //         //                data-commission-outstanding="' . ($row->termination_referral_commission_outstanding) . '"
+            //         //                data-outstanding-profit = "' . ($row->outstanding_profit) . '"
+            //         //                 title="Edit termination Details">
+            //         //                 <i class="fas fa-file-signature"></i>
+            //         //             </button>
+            //         //         ';
+            //         // } elseif (auth()->user()->hasAnyPermission(['investment.terminate'], $row->company_id) && ($row->terminate_status == 0) && ($row->is_profit_processed == 1)) {
+            //         //     $action .= '
+            //         //         <button class="btn btn-sm btn-danger m-1 openTerminationModal"
+            //         //             data-id="' . $row->id . '"
+            //         //             data-balance="' . $row->balance_amount . '"
+            //         //             data-principal="' . ($row->investment_amount) . '"
+            //         //             data-outstanding="' . ($row->termination_outstanding) . '"
+            //         //             data-commission-outstanding="' . ($row->termination_referral_commission_outstanding) . '"
+            //         //             data-outstanding-profit = "' . ($row->outstanding_profit) . '"
+            //         //             data-status = "' . $row->terminate_status . '"
+            //         //             title="Terminate Investment">
+            //         //             <i class="fas fa-ban"></i>
+            //         //         </button>
+            //         //     ';
+            //         // }
+
+            //         if (($row->terminate_status == 0) && auth()->user()->hasAnyPermission(['investment.terminate'], $row->company_id) && $row->investment_term_type == 2) {
+            //             $action .= '
+            //                     <button class="btn btn-sm bg-gradient-navy m-1 shortTermTerminationModal"
+            //                     data-status = "' . $row->terminate_status . '"
+            //                         data-id="' . $row->id . '"
+            //                        data-principal="' . ($row->investment_amount) . '"
+            //                       data-outstanding="' . ($row->termination_outstanding) . '"
+            //                        data-commission-outstanding="' . ($row->termination_referral_commission_outstanding) . '"
+            //                        data-outstanding-profit = "' . ($row->outstanding_profit) . '"
+            //                         title="Edit termination Details">
+            //                         <i class="fas fa-file-signature"></i>
+            //                     </button>
+            //                 ';
+            //         }
+
+
+
+            //         if (auth()->user()->hasAnyPermission(['investment.add'], $row->company_id)) {
+            //             $action .= '<a href="' . route('investment.contracts.list', $row->id) . '"
+            //                 class="btn btn-sm btn-warning m-1"
+            //                 title="Documents">
+            //                 <i class="fas fa-file-upload"></i>
+            //             </a>';
+            //         }
+
+            //         $twoWeeksLater = Carbon::today()->addWeeks(2)->format('Y-m-d');
+            //         $renewal = 0;
+            //         if ($row->maturity_date <= $twoWeeksLater && $row->terminate_status == 0 && $row->investment_term_type == 1) {
+            //             $renewal = 1;
+            //         }
+
+            //         if ($renewal == 1 && auth()->user()->hasAnyPermission(['investment.renew'], $row->company_id)) {
+            //             $action .= '<a class="btn btn-secondary btn-sm" href="' . route('investments.renew', ['id' => $row->id]) . '" title="Renew Investment">
+            //                 <i class="fas fa-sync-alt"></i>
+            //             </a> ';
+            //         }
+            //         // $action .= '<a href="' . route('investment.ledger.list', $row->id) . '"
+            //         //         class="btn btn-sm btn-info m-1"
+            //         //         title="ledger">
+            //         //         <i class="fas fa-book"></i>
+            //         //     </a>';
+            //     }
+
+            //     return $action;
+            // })
+            ->addColumn('action', function ($row) {
+                $user   = auth()->user();
                 $action = '';
+                $companyId = $row->company_id;
 
-                if (!empty($filters['investor_id'])) {
-                    if (auth()->user()->hasAnyPermission(['investment.view'], $row->company_id)) {
-                        $action .= '<a href="' . route('investment.show', $row->id) . '"
-                            class="btn btn-sm btn-primary m-1"
-                            title="View Investment" target="_blank">
-                            <i class="fas fa-eye"></i>
-                        </a>';
-                    }
-                } else {
-                    if (auth()->user()->hasAnyPermission(['investment.edit'], $row->company_id) && $row->is_profit_processed == 0 && $row->has_partial_withdrawal == 0) {
-                        $action .= '<a href="' . route('investment.edit', $row->id) . '"
-                            class="btn btn-sm btn-info m-1 editInvestment"
-                            title="Edit Investment">
-                            <i class="fas fa-edit"></i>
-                        </a>';
-                    }
-                    if (auth()->user()->hasAnyPermission(['investment.view'], $row->company_id)) {
-                        $action .= '<a href="' . route('investment.show', $row->id) . '"
-                            class="btn btn-sm btn-primary m-1"
-                            title="View Investment">
-                            <i class="fas fa-eye"></i>
-                        </a>';
-                    }
+                if (
+                    $user->hasAnyPermission(['investment.edit'], $companyId)
+                    && $row->is_profit_processed == 0
+                    && $row->has_partial_withdrawal == 0
+                ) {
+                    $action .= '<a href="' . route('investment.edit', $row->id) . '"
+                    class="btn btn-sm btn-info m-1 editInvestment" title="Edit Investment">
+                    <i class="fas fa-edit"></i></a>';
+                }
 
-                    if (auth()->user()->hasAnyPermission(['investment.delete'], $row->company_id) && $row->is_profit_processed == 0 && $row->terminate_status == 0 && $row->has_partial_withdrawal == 0) {
-                        $action .= '<button
-                            class="btn btn-sm btn-danger m-1"
-                            title="Delete Investment"
-                            onclick="confirmDelete(' . $row->id . ')">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>';
-                    }
-                    if (!paymentFullyReceived($row->id) && $row->total_withdrawn_amount == 0 && auth()->user()->hasAnyPermission(['investment.submit_pending'], $row->company_id)) {
-                        $action .= '
-                            <button class="btn btn-sm btn-success m-1 openPendingModal"
-                                data-id="' . $row->id . '" data-balance="' . $row->balance_amount . '"
-                                title="Submit Pending Investment">
-                                <i class="fas fa-money-check-alt"></i>
-                            </button>
-                        ';
-                    }
-                    // if (($row->terminate_status == 1) && auth()->user()->hasAnyPermission(['investment.terminate'], $row->company_id)) {
-                    //     $action .= '
-                    //             <button class="btn btn-sm bg-gradient-navy m-1 openTerminationModal"
-                    //             data-status = "' . $row->terminate_status . '"
-                    //                 data-id="' . $row->id . '"
-                    //                 data-requested-date="' . ($row->termination_requested_date ? \Carbon\Carbon::parse($row->termination_requested_date)->format('d-m-Y') : '') . '"
-                    //                 data-duration="' . ($row->termination_duration ?? '') . '"
-                    //                 data-termination-date="' . ($row->termination_date ? \Carbon\Carbon::parse($row->termination_date)->format('d-m-Y') : '') . '"
-                    //                data-file-path="' . ($row->termination_document ? Storage::url($row->termination_document) : '') . '"
-                    //                data-principal="' . ($row->investment_amount) . '"
-                    //               data-outstanding="' . ($row->termination_outstanding) . '"
-                    //                data-commission-outstanding="' . ($row->termination_referral_commission_outstanding) . '"
-                    //                data-outstanding-profit = "' . ($row->outstanding_profit) . '"
-                    //                 title="Edit termination Details">
-                    //                 <i class="fas fa-file-signature"></i>
-                    //             </button>
-                    //         ';
-                    // } elseif (auth()->user()->hasAnyPermission(['investment.terminate'], $row->company_id) && ($row->terminate_status == 0) && ($row->is_profit_processed == 1)) {
-                    //     $action .= '
-                    //         <button class="btn btn-sm btn-danger m-1 openTerminationModal"
-                    //             data-id="' . $row->id . '"
-                    //             data-balance="' . $row->balance_amount . '"
-                    //             data-principal="' . ($row->investment_amount) . '"
-                    //             data-outstanding="' . ($row->termination_outstanding) . '"
-                    //             data-commission-outstanding="' . ($row->termination_referral_commission_outstanding) . '"
-                    //             data-outstanding-profit = "' . ($row->outstanding_profit) . '"
-                    //             data-status = "' . $row->terminate_status . '"
-                    //             title="Terminate Investment">
-                    //             <i class="fas fa-ban"></i>
-                    //         </button>
-                    //     ';
-                    // }
+                if ($user->hasAnyPermission(['investment.view'], $companyId)) {
+                    $action .= '<a href="' . route('investment.show', $row->id) . '"
+                    class="btn btn-sm btn-primary m-1" title="View Investment">
+                    <i class="fas fa-eye"></i></a>';
+                }
 
-                    if (($row->terminate_status == 0) && auth()->user()->hasAnyPermission(['investment.terminate'], $row->company_id) && $row->investment_term_type == 2) {
-                        $action .= '
-                                <button class="btn btn-sm bg-gradient-navy m-1 shortTermTerminationModal"
-                                data-status = "' . $row->terminate_status . '"
-                                    data-id="' . $row->id . '"
-                                   data-principal="' . ($row->investment_amount) . '"
-                                  data-outstanding="' . ($row->termination_outstanding) . '"
-                                   data-commission-outstanding="' . ($row->termination_referral_commission_outstanding) . '"
-                                   data-outstanding-profit = "' . ($row->outstanding_profit) . '"
-                                    title="Edit termination Details">
-                                    <i class="fas fa-file-signature"></i>
-                                </button>
-                            ';
-                    }
+                if (
+                    $user->hasAnyPermission(['investment.delete'], $companyId)
+                    && $row->is_profit_processed == 0
+                    && $row->terminate_status == 0
+                    && $row->has_partial_withdrawal == 0
+                ) {
+                    $action .= '<button class="btn btn-sm btn-danger m-1" title="Delete Investment"
+                    onclick="confirmDelete(' . $row->id . ')">
+                    <i class="fas fa-trash-alt"></i></button>';
+                }
 
+                if (
+                    !paymentFullyReceived($row->id)
+                    && $row->total_withdrawn_amount == 0
+                    && $user->hasAnyPermission(['investment.submit_pending'], $companyId)
+                ) {
+                    $action .= '<button class="btn btn-sm btn-success m-1 openPendingModal"
+                    data-id="' . $row->id . '" data-balance="' . $row->balance_amount . '"
+                    title="Submit Pending Investment">
+                    <i class="fas fa-money-check-alt"></i></button>';
+                }
 
+                if (
+                    $row->terminate_status == 0
+                    && $row->investment_term_type == 2
+                    && $user->hasAnyPermission(['investment.terminate'], $companyId)
+                ) {
+                    $action .= '<button class="btn btn-sm bg-gradient-navy m-1 shortTermTerminationModal"
+                    data-status="' . $row->terminate_status . '"
+                    data-id="' . $row->id . '"
+                    data-principal="' . $row->investment_amount . '"
+                    data-outstanding="' . $row->termination_outstanding . '"
+                    data-commission-outstanding="' . $row->termination_referral_commission_outstanding . '"
+                    data-outstanding-profit="' . $row->outstanding_profit . '"
+                    title="Terminate Investment">
+                    <i class="fas fa-file-signature"></i></button>';
+                }
 
-                    if (auth()->user()->hasAnyPermission(['investment.add'], $row->company_id)) {
-                        $action .= '<a href="' . route('investment.contracts.list', $row->id) . '"
-                            class="btn btn-sm btn-warning m-1"
-                            title="Documents">
-                            <i class="fas fa-file-upload"></i>
-                        </a>';
-                    }
+                if ($user->hasAnyPermission(['investment.add'], $companyId)) {
+                    $action .= '<a href="' . route('investment.contracts.list', $row->id) . '"
+                    class="btn btn-sm btn-warning m-1" title="Documents">
+                    <i class="fas fa-file-upload"></i></a>';
+                }
 
-                    $twoWeeksLater = Carbon::today()->addWeeks(2)->format('Y-m-d');
-                    $renewal = 0;
-                    if ($row->maturity_date <= $twoWeeksLater && $row->terminate_status == 0 && $row->investment_term_type == 1) {
-                        $renewal = 1;
-                    }
-
-                    if ($renewal == 1 && auth()->user()->hasAnyPermission(['investment.renew'], $row->company_id)) {
-                        $action .= '<a class="btn btn-secondary btn-sm" href="' . route('investments.renew', ['id' => $row->id]) . '" title="Renew Investment">
-                            <i class="fas fa-sync-alt"></i>
-                        </a> ';
-                    }
-                    // $action .= '<a href="' . route('investment.ledger.list', $row->id) . '"
-                    //         class="btn btn-sm btn-info m-1"
-                    //         title="ledger">
-                    //         <i class="fas fa-book"></i>
-                    //     </a>';
+                $twoWeeksLater = Carbon::today()->addWeeks(2)->format('Y-m-d');
+                if (
+                    $row->maturity_date <= $twoWeeksLater
+                    && $row->terminate_status == 0
+                    && $row->investment_term_type == 1
+                    && $user->hasAnyPermission(['investment.renew'], $companyId)
+                ) {
+                    $action .= '<a class="btn btn-secondary btn-sm"
+                    href="' . route('investments.renew', ['id' => $row->id]) . '" title="Renew Investment">
+                    <i class="fas fa-sync-alt"></i></a>';
                 }
 
                 return $action;
@@ -1351,7 +1430,6 @@ class InvestmentService
 
     public function validateTermination($data)
     {
-        // dd($data);
         $validator = Validator::make($data, [
             'termination_requested_date' => 'required|date',
             'duration' => 'required|integer|min:1',
@@ -2054,11 +2132,11 @@ class InvestmentService
                     //         $fileName
                     //     );
                     // } else {
-                        $filePath = $file->storeAs(
-                            'investments/documents/' . $investmentCode,
-                            $fileName,
-                            'public'
-                        );
+                    $filePath = $file->storeAs(
+                        'investments/documents/' . $investmentCode,
+                        $fileName,
+                        'public'
+                    );
                     // }
                 }
 
@@ -2096,11 +2174,11 @@ class InvestmentService
                         //         $addFileName
                         //     );
                         // } else {
-                            $addFilePath = $addFile->storeAs(
-                                'investments/documents/' . $investmentCode . '/additional_documents',
-                                $addFileName,
-                                'public'
-                            );
+                        $addFilePath = $addFile->storeAs(
+                            'investments/documents/' . $investmentCode . '/additional_documents',
+                            $addFileName,
+                            'public'
+                        );
                         // }
                         $investmentDocument->additionalDocuments()->create([
                             'document_name' => $additionalDocument['type'],
@@ -2118,38 +2196,38 @@ class InvestmentService
     }
 
     private function validateContractDocuments(array $data)
-{
-    $validator = Validator::make($data, [
-        'documents' => ['required', 'array'],
+    {
+        $validator = Validator::make($data, [
+            'documents' => ['required', 'array'],
 
-        'documents.*.document' => [
-            'nullable',
-            'file',
-            'max:10240',
-        ],
+            'documents.*.document' => [
+                'nullable',
+                'file',
+                'max:10240',
+            ],
 
-        'documents.*.additional_documents' => [
-            'nullable',
-            'array',
-        ],
+            'documents.*.additional_documents' => [
+                'nullable',
+                'array',
+            ],
 
-        'documents.*.additional_documents.*.file' => [
-            'nullable',
-            'file',
-            'max:10240',
-        ],
-    ], [
-        'documents.required' => 'Please upload at least one contract document.',
-        'documents.*.document.file' => 'Contract document must be a valid file.',
-        'documents.*.document.max' => 'Contract document size must not exceed 10MB.',
-        'documents.*.additional_documents.*.file.file' => 'Additional document must be a valid file.',
-        'documents.*.additional_documents.*.file.max' => 'Additional document size must not exceed 10MB.',
-    ]);
+            'documents.*.additional_documents.*.file' => [
+                'nullable',
+                'file',
+                'max:10240',
+            ],
+        ], [
+            'documents.required' => 'Please upload at least one contract document.',
+            'documents.*.document.file' => 'Contract document must be a valid file.',
+            'documents.*.document.max' => 'Contract document size must not exceed 10MB.',
+            'documents.*.additional_documents.*.file.file' => 'Additional document must be a valid file.',
+            'documents.*.additional_documents.*.file.max' => 'Additional document size must not exceed 10MB.',
+        ]);
 
-    if ($validator->fails()) {
-        throw new ValidationException($validator);
+        if ($validator->fails()) {
+            throw new ValidationException($validator);
+        }
     }
-}
 
     public function deleteContracts($id)
     {

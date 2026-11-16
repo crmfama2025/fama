@@ -1119,6 +1119,7 @@
                 confirmButtonText: "Yes, Terminate!"
             }).then((result) => {
                 if (result.isConfirmed) {
+                    showLoader();
                     $.ajax({
                         url: "{{ route('contract.terminate') }}",
                         type: 'POST',
@@ -1130,6 +1131,7 @@
                             location.reload();
                         },
                         error: function(xhr) {
+                            hideLoader();
                             toastr.error(xhr.responseJSON?.message || 'Something went wrong');
                         }
                     });
