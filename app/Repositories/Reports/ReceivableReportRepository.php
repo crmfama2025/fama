@@ -214,6 +214,7 @@ class ReceivableReportRepository
 
         // Cleared receivables summary
         $cleared = DB::table('cleared_receivables')
+            ->whereNull('deleted_at')
             ->selectRaw('
             agreement_payment_details_id,
             SUM(paid_amount) AS paid_amount_total,
@@ -223,6 +224,7 @@ class ReceivableReportRepository
 
         // Latest cleared receivable
         $latestClearIds = DB::table('cleared_receivables')
+            ->whereNull('deleted_at')
             ->selectRaw('
             agreement_payment_details_id,
             MAX(id) AS latest_clear_id
@@ -245,7 +247,8 @@ class ReceivableReportRepository
             COUNT(*) OVER (
                 PARTITION BY agreement_unit_id
             ) AS installment_count
-        ');
+        ')
+            ->whereNull('deleted_at');
         // ->where('terminate_status', 0);
 
         // Main query
@@ -331,12 +334,16 @@ class ReceivableReportRepository
                     );
                 }
             )
-            ->leftJoin(
-                'cleared_receivables as last_clear',
-                'last_clear.id',
-                '=',
-                'latest.latest_clear_id'
-            )
+            // ->leftJoin(
+            //     'cleared_receivables as last_clear',
+            //     'last_clear.id',
+            //     '=',
+            //     'latest.latest_clear_id'
+            // )
+            ->leftJoin('cleared_receivables as last_clear', function ($j) {
+                $j->on('last_clear.id', '=', 'latest.latest_clear_id')
+                    ->whereNull('last_clear.deleted_at');
+            })
             ->leftJoin(
                 'payment_modes as paid_pm',
                 'paid_pm.id',
@@ -349,12 +356,16 @@ class ReceivableReportRepository
                 '=',
                 'last_clear.paid_bank_id'
             )
-            ->leftJoin(
-                'companies as paid_company',
-                'paid_company.id',
-                '=',
-                'last_clear.paid_company_id'
-            )
+            // ->leftJoin(
+            //     'companies as paid_company',
+            //     'paid_company.id',
+            //     '=',
+            //     'last_clear.paid_company_id'
+            // )
+            ->leftJoin('companies as paid_company', function ($j) {
+                $j->on('paid_company.id', '=', 'last_clear.paid_company_id')
+                    ->whereNull('paid_company.deleted_at');
+            })
             ->leftJoin(
                 'installments as installment',
                 'installment.id',
