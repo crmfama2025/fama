@@ -33,9 +33,9 @@ class InvestorPaymentDistributionController extends Controller
         $banks = $this->bankService->getAll();
         $companies = $this->companyService->getAll('finance', 'payout');
         $investedCompanies = Company::whereHas('investments')
-                    ->select('id', 'company_name')
-                    ->orderBy('company_name')
-                    ->get();
+            ->select('id', 'company_name')
+            ->orderBy('company_name')
+            ->get();
         $paymentmodes = $this->paymentModeService->getAll()->where('id', '!=', 4);
         $payoutbatches = PayoutBatch::where('status', 1)->get();
         $investors = $this->investorService->getAllActive();
@@ -67,7 +67,7 @@ class InvestorPaymentDistributionController extends Controller
     //         return $this->investorDistrService->getPendingList($filters);
     //     }
     // }
-    
+
     public function getPayouts(Request $request)
     {
         if (!$request->ajax()) {
@@ -100,10 +100,11 @@ class InvestorPaymentDistributionController extends Controller
 
         $filterData = array_filter([
             'month'       => $request->input('month'),
+            'year'        => $request->input('year'),
             'batch_id'    => $request->input('batch_id'),
             'investor_id' => $request->input('investor_id'),
             'company_id'  => $request->input('company_id'),
-        ], fn ($v) => $v !== null && $v !== '');
+        ], fn($v) => $v !== null && $v !== '');
 
         return response()->json(
             $this->investorDistrService->getPendingSelection(['filter' => $filterData])
@@ -175,7 +176,7 @@ class InvestorPaymentDistributionController extends Controller
 
     //     return Excel::download(new DistributePendingExport($search, $filters), 'payout-pending-report.xlsx');
     // }
-    
+
     // public function exportPayoutPending()
     // {
     //     $filters = array_filter([
@@ -205,7 +206,7 @@ class InvestorPaymentDistributionController extends Controller
             'investor_id'   => request('investor_id'),
             'investment_id' => request('investment_id'),
             'company_id'    => request('company_id'),
-        ], fn ($value) => $value !== null && $value !== '');
+        ], fn($value) => $value !== null && $value !== '');
 
         $searchInput = request('search');
 

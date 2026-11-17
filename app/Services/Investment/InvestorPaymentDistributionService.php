@@ -243,6 +243,8 @@ class InvestorPaymentDistributionService
                         name="investor_payout_id[' . $row->id . ']"
                         value="' . $row->id . '"
                         data-amount="' . $row->amount_pending . '"
+                        data-investor-id="' . $row->investor_id . '"
+                        data-payout-type="' . $row->payout_type . '"
                         data-company-id="' . ($row->investment->company_id ?? '') . '">
                     <label for="ichek' . $row->id . '"></label>
                 </div>';
@@ -549,12 +551,17 @@ class InvestorPaymentDistributionService
                 'investor_payouts.id',
                 'investor_payouts.investment_id',
                 'investor_payouts.amount_pending',
+                'investor_payouts.investor_id',
+                'investor_payouts.payout_type',
+
             ]);
 
-        $items = $rows->map(fn ($r) => [
-            'id'         => $r->id,
-            'amount'     => (float) $r->amount_pending,
-            'company_id' => $r->investment->company_id ?? null,
+        $items = $rows->map(fn($r) => [
+            'id'          => $r->id,
+            'amount'      => (float) $r->amount_pending,
+            'company_id'  => $r->investment->company_id ?? null,
+            'investor_id' => $r->investor_id,
+            'payout_type' => (int) $r->payout_type,
         ])->values();
 
         return [
@@ -754,7 +761,7 @@ class InvestorPaymentDistributionService
             : $data['payout_ids'];
 
         $payoutIds = is_array($payoutIds) ? $payoutIds : [$payoutIds];
-        $payoutIds = array_values(array_unique(array_filter($payoutIds, fn ($id) => $id !== null && $id !== '')));
+        $payoutIds = array_values(array_unique(array_filter($payoutIds, fn($id) => $id !== null && $id !== '')));
 
         if (empty($payoutIds)) {
             throw new \Exception('Please select at least one payout.');
@@ -777,6 +784,27 @@ class InvestorPaymentDistributionService
 
             if ($companyCount > 1) {
                 throw new \Exception('You cannot pay out records of different companies together.');
+            }
+        }
+        $isReinvest = $isBulk && (int) ($data['reinvest'] ?? 0) === 1;
+
+        if ($isBulk && !$isReinvest) {
+            $companyCount = $payouts
+                ->pluck('investment.company_id')
+                ->unique()
+                ->count();
+
+            if ($companyCount > 1) {
+                throw new \Exception('You cannot pay out records of different companies together.');
+            }
+        }
+
+        if ($isReinvest) {
+            if ($payouts->pluck('investor_id')->unique()->count() > 1) {
+                throw new \Exception('Reinvest All is only allowed for payouts of the same investor.');
+            }
+            if ($payouts->contains(fn($p) => (int) $p->payout_type !== 1)) {
+                throw new \Exception('Only profit payouts can be reinvested.');
             }
         }
 
