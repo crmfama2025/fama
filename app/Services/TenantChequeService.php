@@ -474,7 +474,7 @@ class TenantChequeService
     }
     public function clearReceivable(array $data)
     {
-        // dd($data);
+
         DB::transaction(function () use ($data) {
 
             // Expecting $data['payment_detail_ids'] as array of checked IDs
@@ -1326,39 +1326,4 @@ class TenantChequeService
 
         return $contract_unit_detail;
     }
-    // public function terminateByContract($contractId, $terminatedDate)
-    // {
-    //     $date = \Carbon\Carbon::parse($terminatedDate)->format('Y-m-d');
-
-    //     return AgreementPaymentDetail::
-    //         // 2. Take only the receivables that belong to agreements of THIS contract
-    //         whereIn('agreement_id', function ($q) use ($contractId) {
-    //             $q->select('id')->from('agreements')
-    //                 ->where('contract_id', $contractId)
-    //                 ->whereNull('deleted_at');
-    //         })
-    //         // 3. Only rows dated AFTER the termination date
-    //         ->whereDate('payment_date', '>', $date)
-    //         // 4. Skip rows that are already fully received
-    //         ->where('is_payment_received', '!=', 1)
-    //         // 5. Hide them from the receivable list
-    //         ->update(['terminate_status' => 1]);
-    // }
-    // public function terminateByContract($contractId, array $data)
-    // {
-    //     $agreementIds = Agreement::where('contract_id', $contractId)
-    //         ->where('agreement_status', 0)      // only active agreements
-    //         ->pluck('id');
-
-    //     foreach ($agreementIds as $agreementId) {
-    //         $this->terminate([
-    //             'agreement_id'      => $agreementId,
-    //             'terminated_date'   => $data['terminated_date'],
-    //             'terminated_reason' => $data['terminated_reason'] ?? 'Vendor contract terminated',
-    //             // no 'amount' on purpose: the vendor balance_amount is not a tenant payment
-    //         ]);
-    //     }
-
-    //     return $agreementIds->count();
-    // }
 }
