@@ -2252,9 +2252,9 @@ class InvestmentContractService
 
             '{addendum_dates}'    => $addendumDates,
             '{addendum_text}' => $addendumText,
-            '{capital}' => $ledger->transaction_amount,
-            '{profit}' => $ledger->withdrawal_month_profit,
-            '{total_amount}' => $total_amount,
+            '{capital}'      => formatAmount($ledger->transaction_amount ?? 0),
+            '{profit}'       => formatAmount($ledger->withdrawal_month_profit ?? 0),
+            '{total_amount}' => formatAmount($total_amount),
 
             '{date}' =>  Carbon::parse($ledger->withdrawal_date)->format('d/m/Y'),
             '{claude2text}' => $clause2text

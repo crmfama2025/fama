@@ -51,6 +51,12 @@ if (!function_exists('toNumeric')) {
         return (float) $cleaned;
     }
 }
+if (!function_exists('formatAmount')) {
+    function formatAmount($value): string
+    {
+        return number_format(toNumeric($value), 2, '.', ',');
+    }
+}
 
 function dateFormatChange($value, $format)
 {
