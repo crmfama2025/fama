@@ -16,10 +16,8 @@ use Illuminate\Support\Facades\Log;
 
 class ProcessInvestmentMaturity extends Command
 {
-    // protected $signature = 'investments:process-maturity';
-    protected $signature = 'investments:process-maturity
-                        {--investment= : Only process this investment ID}
-                        {--dry-run : Show what would be processed, change nothing}';
+    protected $signature = 'investments:process-maturity';
+
     protected $description = 'Auto-terminate matured short-term investments and move capital to investor payouts';
 
     public function __construct(
@@ -34,66 +32,28 @@ class ProcessInvestmentMaturity extends Command
     public function handle()
     {
         Auth::loginUsingId((int) config('app.system_user_id', 1));
-        $query = Investment::where('investment_term_type', 2)
+
+        Investment::where('investment_term_type', 2)
             ->where('investment_status', 1)
             ->where('terminate_status', 0)
             ->where('investment_amount', '>', 0)
             ->whereNotNull('maturity_date')
-            ->whereDate('maturity_date', '<=', today());
-
-        if ($id = $this->option('investment')) {
-            $query->where('id', $id);
-        }
-
-        if ($this->option('dry-run')) {
-            $this->table(
-                ['ID', 'Code', 'Maturity', 'Capital'],
-                $query->get()->map(fn($i) => [
-                    $i->id,
-                    $i->investment_code,
-                    $i->getRawOriginal('maturity_date'),
-                    $i->investment_amount,
-                ])
-            );
-            return;
-        }
-
-        $query->orderBy('id')->chunkById(50, function ($investments) {
-            foreach ($investments as $investment) {
-                try {
-                    $this->settle($investment->id);
-                } catch (\Throwable $e) {
-                    Log::error('Maturity settlement failed', [
-                        'investment_id' => $investment->id,
-                        'error' => $e->getMessage(),
-                    ]);
+            ->whereDate('maturity_date', '<=', today())
+            ->orderBy('id')
+            ->chunkById(50, function ($investments) {
+                foreach ($investments as $investment) {
+                    try {
+                        $this->settle($investment->id);
+                    } catch (\Throwable $e) {
+                        Log::error('Maturity settlement failed', [
+                            'investment_id' => $investment->id,
+                            'error' => $e->getMessage(),
+                        ]);
+                    }
                 }
-            }
-        });
+            });
 
         $this->info('Maturity processing finished.');
-        // Investment::where('investment_term_type', 2)
-        //     ->where('investment_status', 1)
-        //     ->where('terminate_status', 0)
-        //     ->where('investment_amount', '>', 0)
-        //     ->whereNotNull('maturity_date')
-        //     ->whereDate('maturity_date', '<=', today())
-        //     ->orderBy('id')
-        //     ->chunkById(50, function ($investments) {
-        //         foreach ($investments as $investment) {
-        //             try {
-        //                 $this->settle($investment->id);
-        //             } catch (\Throwable $e) {
-        //                 // one failure must not stop the rest
-        //                 Log::error('Maturity settlement failed', [
-        //                     'investment_id' => $investment->id,
-        //                     'error' => $e->getMessage(),
-        //                 ]);
-        //             }
-        //         }
-        //     });
-
-        // $this->info('Maturity processing finished.');
     }
 
     protected function settle(int $investmentId): void
