@@ -120,10 +120,15 @@
                                             <button class="btn btn-success float-right m-1 bulktriggerbtn"
                                                 data-toggle="modal" data-target="#modal-payout"
                                                 data-clear-type="bulk">Payout All</button>
+                                                
 
                                             <a href="{{ route('distributed.report') }}"
                                                 class="btn btn-outline-maroon m-1"><i class="fas fa-book"></i>
                                                 View Report</a>
+                                            <button class="btn btn-secondary float-right m-1 reinvestAllBtn"
+                                                data-toggle="modal" data-target="#modal-payout"
+                                                data-clear-type="bulk" data-reinvest="1">
+                                                <i class="fas fa-redo"></i> Reinvest All</button>
                                         </span>
                                     </div>
                                     <div class="card-body">
@@ -414,16 +419,12 @@
             const id = String($(this).val());
             const companyId = String($(this).data('company-id'));
 
-            if (this.checked) {
-                const existing = selectedCompanyIds();
-                if (existing.length && existing[0] !== companyId) {
-                    this.checked = false;
-                    toastr.error('You cannot select payouts of different companies. Please select payouts of the same company.');
-                    return;
-                }
+             if (this.checked) {
                 selected[id] = {
                     amount: parseFloat($(this).data('amount')) || 0,
-                    company_id: companyId
+                    company_id: companyId,
+                    investor_id: String($(this).data('investor-id')),
+                    payout_type: parseInt($(this).data('payout-type'))
                 };
             } else {
                 delete selected[id];
@@ -455,18 +456,15 @@
                     return;
                 }
 
-                if (res.company_ids.length > 1) {
-                    el.checked = false;
-                    clearSelection(); 
-                    toastr.error('The filtered records belong to different companies. Please filter by company first.');
-                    return;
-                }
+              
 
                 selected = {};
                 res.items.forEach(function(i) {
                     selected[String(i.id)] = {
                         amount: parseFloat(i.amount) || 0,
-                        company_id: String(i.company_id)
+                        company_id: String(i.company_id),
+                        investor_id: String(i.investor_id),
+                        payout_type: parseInt(i.payout_type)
                     };
                 });
                 allFilteredCount = res.count;
@@ -561,6 +559,21 @@
                 return false;
             }
         });
+        $('.reinvestAllBtn').click(function(e) {
+           if (selectedIds().length === 0) {
+                toastr.error('Please select one or more items to continue.');
+                return false;
+            }
+            const vals = Object.values(selected);
+            if (new Set(vals.map(s => s.investor_id)).size > 1) {
+                toastr.error('Reinvest All works only for payouts of the same investor.');
+                return false;
+            }
+            if (vals.some(s => s.payout_type !== 1)) {
+                toastr.error('Only Profit payouts can be reinvested.');
+                return false;
+            }
+        });
 
         $('#modal-payout').on('show.bs.modal', function(event) {
             var button = $(event.relatedTarget);
@@ -574,19 +587,20 @@
             if (clearType === 'bulk') {
                 const total = getSelectedTotal();
                 const count = selectedIds().length;
+                const isReinvest = button.data('reinvest') == 1;
 
                 $('#paid_amount').off('input.payoutModal')
                     .val(total.toFixed(2))
                     .attr('readonly', true);
-                $('#amountLabel').text('Total Payout Amount (' + count + ' selected)');
                 $('#amountPending').text('');
-                $('#submitBtn').text('Submit');
-                $('#reinvest').val('');
+                $('#submitBtn').text(isReinvest ? 'Re-Invest All' : 'Submit');
+                $('#reinvest').val(isReinvest ? 1 : '');
                 $('#paid_company').prop('disabled', false);
 
                 $('.clrngamnt').show();
-                $('.chq').hide().css('display', 'none');   
-            } else {
+                $('.chq').hide().css('display', 'none');
+            } 
+            else {
                 $('#amountLabel').text('Payout Amount');
                 $('.chq').css('display', '');              
                 $('#payoutId').val(button.data('det-id'));
@@ -648,231 +662,10 @@
         });
 
     
-
-        // $('.bulktriggerbtn').click(function(e) {
-        //     e.preventDefault();
-        //     if ($('.groupCheckbox:checked').length === 0) {
-        //         toastr.error('Please select one or more items to continue.');
-        //         return false;
-        //     } else {
-        //         $('#modal-clear-payable').show();
-        //     }
-        // });
-
-
-
-        // $('#modal-payout').on('show.bs.modal', function(event) {
-        //     var button = $(event.relatedTarget); // Button that triggered the modal
-        //     var clearType = button.data('clear-type'); // Extract info from data-* attributes
-        //     $('#PayoutSubmitForm')[0].reset();
-        //     hidelemnetsonload();
-
-        //     $(this).find('input, select, textarea').removeClass('is-invalid is-valid');
-
-        //     $('#method').val(clearType);
-
-        //     // $('.modechange').hide();
-        //     if (clearType === 'bulk') {
-
-        //         $('.clrngamnt').hide();
-        //         $('.chq').hide().css('display', 'none', 'important');
-        //     } else {
-        //         $('#payoutId').val(button.data('det-id'));
-        //         let reinvest = button.data('reinvest');
-        //         $('#reinvest').val(reinvest);
-
-        //         let totalAmount = button.data('amount');
-
-        //         if (reinvest) {
-        //             $('#submitBtn').text('Re-Invest');
-        //             $('#paid_amount').val(totalAmount).attr('readonly', true);
-        //         } else {
-        //             // document.getElementById('paid_amount').addEventListener('input', function() {
-        //             //     let paid = parseFloat(this.value) || 0;
-        //             //     // Prevent entering more than total amount
-        //             //     if (paid > totalAmount) {
-        //             //         paid = totalAmount;
-        //             //         this.value = totalAmount;
-        //             //     }
-
-        //             //     let remaining = totalAmount - paid;
-
-        //             //     document.getElementById('amountPending').innerText =
-        //             //         'Remaining Amount: ' + remaining;
-        //             // });
-        //             $('#paid_amount').off('input.payoutModal').on('input.payoutModal', function() {
-        //                 let paid = parseFloat(this.value) || 0;
-        //                 console.log('paid', paid);
-        //                 if (paid > totalAmount) {
-        //                     paid = totalAmount;
-        //                     this.value = totalAmount;
-        //                 }
-
-        //                 let remaining = totalAmount - paid;
-
-        //                 $('#amountPending').text('Remaining Amount: ' + remaining.toFixed(2));
-        //             });
-
-        //             $('#submitBtn').text('Submit');
-        //             $('#paid_amount').attr('readonly', false);
-        //             $('#amountPending').text('Remaining Amount: ' + button.data('amount'));
-
-        //             const modeId = button.attr('data-mode-id');
-        //             const companyId = button.attr('data-company-id');
-        //             const bankId = button.attr('data-bank-id');
-        //             const chequeNo = button.attr('data-cheque-no');
-
-        //             if (modeId) {
-        //                 $('.singleClear[value="' + modeId + '"]').prop('checked', true);
-        //                 applyPaymentMode(modeId);
-        //             }
-
-        //             if (companyId) {
-        //                 $('#paid_company').val(companyId).trigger('change').prop('disabled', true);
-        //             }
-        //             if (bankId) {
-        //                 $('#bank_name').val(bankId).trigger('change');
-        //             }
-        //             $('#cheque_no').val(chequeNo || '');
-
-        //         }
-
-        //         $('.clrngamnt').show();
-        //         $('.chq').show();
-        //     }
-        // });
     </script>
 
     <script>
-        // $(function() {
-        //     let table = $('#payoutPendingTable').DataTable({
-        //         processing: true,
-        //         serverSide: true,
-        //         responsive: true,
-
-        //         ajax: {
-        //             url: "{{ route('payout.pending.list') }}",
-        //             data: function(d) {
-        //                 d.month = $('#month').val();
-        //                 d.batch_id = $('#batch_id').val();
-        //                 d.investor_id = $('#investor_id').val();
-        //                 d.company_id = $('#company_id').val();
-        //             }
-        //         },
-        //         columns: [{
-        //                 data: 'checkbox',
-        //                 name: 'checkbox',
-        //                 orderable: false,
-        //                 searchable: false
-        //             },
-        //             {
-        //                 data: 'investor_name',
-        //                 name: 'investor_name'
-        //             },
-        //             {
-        //                 data: 'company_name',
-        //                 name: 'company_name'
-        //             },
-        //             {
-        //                 data: 'investment_code',
-        //                 name: 'investment_code'
-        //             },
-        //             {
-        //                 data: 'payout_date',
-        //                 name: 'payout_date',
-        //                 searchable: false
-        //             },
-        //             {
-        //                 data: 'payout_type',
-        //                 name: 'payout_type'
-        //             },
-        //             {
-        //                 data: 'payout_amount',
-        //                 name: 'payout_amount'
-        //             },
-        //             {
-        //                 data: 'payment_mode',
-        //                 name: 'payment_mode',
-        //                 orderable: false,
-        //                 searchable: false
-        //             },
-        //             {
-        //                 data: 'action',
-        //                 name: 'action',
-        //                 orderable: false,
-        //                 searchable: false
-        //             },
-        //         ],
-        //         rowCallback: function(row, data, index) {
-        //             // Example: Highlight pending payments
-        //             console.log(data.has_returned);
-        //             if (data.has_returned === 1) {
-        //                 console.log(data.has_returned);
-        //                 $(row).css('background-color', '#ffe1e1'); // light red
-        //             }
-
-        //         },
-        //         order: [
-        //             [4, 'asc']
-        //         ],
-        //         dom: 'Bfrtip',
-        //         buttons: [{
-        //             extend: 'excelHtml5',
-        //             text: 'Export Excel',
-        //             title: 'Contract Data',
-        //             action: function(e, dt, node, config) {
-        //                 let searchValue = dt.search();
-
-        //                 let params = dt.ajax.params();
-
-        //                 params.month = $('#month').val();
-        //                 params.batch_id = $('#batch_id').val();
-        //                 params.investor_id = $('#investor_id').val();
-        //                 params.company_id = $('#company_id').val();
-        //                 params.search = dt.search();
-
-        //                 let queryString = $.param(params);
-
-        //                 let url = "{{ route('payout.pending.export') }}?" + queryString;
-        //                 window.location.href = url;
-        //             }
-        //         }]
-        //     });
-
-        //     // Filter buttons
-        //     $('.filter-btn').on('click', function() {
-        //         let filterValue = $(this).data('filter');
-
-        //         // Reset ALL buttons
-        //         $('.filter-btn').each(function() {
-        //             let solidClass = $(this).attr('add-class'); // btn-warning
-        //             let outlineClass = solidClass ? 'btn-outline-' + solidClass.replace('btn-',
-        //                 '') : '';
-
-        //             if (solidClass) {
-        //                 $(this).removeClass(solidClass).addClass(outlineClass);
-        //             }
-        //         });
-
-        //         // Apply ACTIVE state to clicked button
-        //         let solidClass = $(this).attr('add-class'); // e.g. btn-warning
-        //         let outlineClass = solidClass ? 'btn-outline-' + solidClass.replace('btn-', '') : '';
-
-
-        //         if (solidClass) {
-        //             $(this).removeClass(outlineClass).addClass(solidClass);
-        //         }
-
-        //         // Apply DataTable search column filter (status = column index 1)
-        //         table.column(2).search(filterValue).draw();
-        //     });
-
-        //     $('.searchbtnchq').on('click', function(e) {
-        //         e.preventDefault();
-        //         table.ajax.reload();
-        //     });
-
-        // });
+       
         $(function() {
         let table = $('#payoutPendingTable').DataTable({
             processing: true,
@@ -905,7 +698,6 @@
                     $(row).css('background-color', '#ffe1e1');
                 }
             },
-            // Re-tick the rows that are already selected after paging/sorting/searching
             drawCallback: function() {
                 $('.groupCheckbox').each(function() {
                     if (selected[String($(this).val())]) {
@@ -1017,69 +809,6 @@
             );
         }
 
-        // function submitForm() {
-        //     var form = document.getElementById('PayoutSubmitForm');
-        //     var fdata = new FormData(form);
-
-        //     fdata.append('_token', $('meta[name="csrf-token"]').attr('content'));
-
-        //     var selectedValues = [];
-
-        //     if ($('#method').val() == 'single') {
-        //         selectedValues.push($('#payoutId').val());
-        //     } else {
-        //         $('.groupCheckbox:checked').each(function() {
-        //             selectedValues.push($(this).val());
-        //         });
-        //     }
-
-        //     fdata.append('payout_ids', selectedValues);
-
-        //     showLoader();
-
-        //     $.ajax({
-        //         type: "POST",
-        //         url: "{{ route('payout.distribute.save') }}",
-        //         data: fdata,
-        //         dataType: "json",
-        //         processData: false,
-        //         contentType: false,
-        //         success: function(response) {
-        //             console.log(response);
-        //             $('#modal-payout').modal('hide');
-        //             hideLoader();
-        //             toastr.success(response.message);
-
-        //             if ($('#reinvest').val() == 1) {
-        //                 let params = {};
-
-        //                 // add your custom filters manually (important)
-        //                 params.reinvestment = $('#reinvest').val();
-        //                 params.parent_id = response.data[0].investment_id;
-        //                 params.investor_id = response.data[0].investor_id;
-        //                 params.amount = response.data[0].amount_paid;
-        //                 params.date = response.data[0].paid_date;
-
-        //                 // build query string
-        //                 let queryString = $.param(params);
-
-        //                 let url = "{{ route('investment.create') }}?" + queryString;
-        //                 window.location.href = url;
-        //                 // window.location.href = "/investment/create?" + queryString;
-
-
-        //             } else {
-        //                 $('#payoutPendingTable').DataTable().ajax.reload();
-        //             }
-
-        //             // window.location.href = "{{ route('investorPayout.index') }}";
-        //         },
-        //         error: function(errors) {
-        //             hideLoader();
-        //             toastr.error(errors.responseJSON.message);
-        //         }
-        //     });
-        // }
         function submitForm() {
             var form = document.getElementById('PayoutSubmitForm');
             var fdata = new FormData(form);
@@ -1110,16 +839,30 @@
                     hideLoader();
                     toastr.success(response.message);
 
+                    // if ($('#reinvest').val() == 1) {
+                    //     let params = {
+                    //         reinvestment: $('#reinvest').val(),
+                    //         parent_id: response.data[0].investment_id,
+                    //         investor_id: response.data[0].investor_id,
+                    //         amount: response.data[0].amount_paid,
+                    //         date: response.data[0].paid_date
+                    //     };
+                    //     window.location.href = "{{ route('investment.create') }}?" + $.param(params);
+                    // }
                     if ($('#reinvest').val() == 1) {
+                        let totalPaid = 0;
+                        response.data.forEach(r => totalPaid += parseFloat(r.amount_paid) || 0);
+
                         let params = {
-                            reinvestment: $('#reinvest').val(),
+                            reinvestment: 1,
                             parent_id: response.data[0].investment_id,
                             investor_id: response.data[0].investor_id,
-                            amount: response.data[0].amount_paid,
+                            amount: totalPaid.toFixed(2),
                             date: response.data[0].paid_date
                         };
                         window.location.href = "{{ route('investment.create') }}?" + $.param(params);
-                    } else {
+                    } 
+                    else {
                         clearSelection();
                         $('#payoutPendingTable').DataTable().ajax.reload();
                     }
