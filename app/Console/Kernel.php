@@ -57,6 +57,13 @@ class Kernel extends ConsoleKernel
                 \Log::info('profit:update-monthly-pending command finished');
             });
 
+        // Move matured investments (capital ) to payout
+
+        $schedule->command('investments:process-maturity')
+            ->dailyAt('00:45')
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path('logs/investment-maturity.log'));
+
 
 
         // auto create ff agreements from contracts (now modified tenant side)

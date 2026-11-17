@@ -384,8 +384,27 @@
                                                 <th>Composition</th>
                                             </tr>
                                         </thead>
+                                        @php
+                                            $receivableList = $contract->contract_payment_receivables;
+
+                                            if ($contract->contract_status == 9 && !empty($contract->terminated_date)) {
+                                                $terminatedOn = \Carbon\Carbon::parse($contract->terminated_date)->startOfDay();
+
+                                                $receivableList = $receivableList
+                                                    ->filter(function ($r) use ($terminatedOn) {
+                                                        // getRawOriginal avoids the date accessor format (d-m-Y)
+                                                        return \Carbon\Carbon::parse($r->getRawOriginal('receivable_date'))
+                                                            ->startOfDay()
+                                                            ->lte($terminatedOn);
+                                                    })
+                                                    ->values();
+                                            }
+
+                                            $total_receivable = $receivableList->sum(fn ($r) => toNumeric($r->receivable_amount));
+                                        @endphp
+                                        
                                         <tbody>
-                                            @foreach ($contract->contract_payment_receivables as $receivable)
+                                            @foreach ($receivableList as $receivable)
                                                 <tr>
                                                     <td>{{ $receivable->receivable_date }}</td>
                                                     <td> {{ strtoupper($receivable->receivable_amount) }}
@@ -417,11 +436,15 @@
                                     @endphp --}}
 
                                     <div class="float-xl-right mt-1">
-                                        <span> <strong>Total Installments :
+                                        {{-- <span> <strong>Total Installments :
                                             </strong>{{ $contract->contract_rentals->installment?->installment_name }}</span><br>
                                         <span> <strong>Total Rent Receivable Per Annum :
-                                            </strong>{{ $contract->contract_rentals->rent_receivable_per_annum }}</span>
-
+                                            </strong>{{ $contract->contract_rentals->rent_receivable_per_annum }}</span> --}}
+                                            <span><strong>Total Installments :</strong>
+                                                {{ $contract->contract_rentals->installment?->installment_name }}</span><br>
+                                            <span><strong>Total Rent Receivable Per Annum :</strong>
+                                                {{ $contract->contract_rentals->rent_receivable_per_annum }}</span><br>
+                                            <span><strong>Total Receivable :</strong> {{ number_format($total_receivable) }}</span>
                                     </div>
                                     <!-- /.row -->
 

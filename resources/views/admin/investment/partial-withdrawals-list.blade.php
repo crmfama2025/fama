@@ -78,7 +78,6 @@
                                                 <th>Requested Date</th>
                                                 <th>Duration Days</th>
                                                 <th>Withdrawal Date</th>
-
                                             </tr>
                                         </thead>
                                         <tbody>
