@@ -416,6 +416,7 @@ class AgreementRepository
             ->pluck('id');
         // dd($agreementIds);
         foreach ($agreementIds as $agreementId) {
+            print($agreementId);
             $this->terminate([
                 'agreement_id'      => $agreementId,
                 'terminated_date'   => $data['terminated_date'],
