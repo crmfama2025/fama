@@ -331,96 +331,145 @@ class AgreementRepository
         // dd($data);
         return DB::transaction(function () use ($data) {
             $agreement_id = $data['agreement_id'];
-            $agreement = $this->find($agreement_id);
+            $stage = 'Finding agreement';
 
-            // $agreement->deleted_by = auth()->user()->id;
-            $agreement->terminated_by = auth()->user()->id;
-            $agreement->terminated_reason = $data['terminated_reason'];
-            $agreement->terminated_date = $data['terminated_date'];
-            $agreement->agreement_status = 1;
-            $agreement->save();
+            try {
+                $agreement = Agreement::withoutGlobalScopes()->findOrFail($agreement_id);
+                $stage = 'Updating agreement status';
 
-            $contract_id = $agreement->contract_id;
-            // $contract = $this->contractRepository->find($contract_id);
-            // $type = $contract->contract_type_id;
-            // // $business_type = $contract->contract_unit->business_type;
-            // $contract_unit_details = $agreement->agreement_units->pluck('contract_unit_details_id');
-            // $contract_subunits = $agreement->agreement_units
-            //     ->pluck('subunit_ids')
-            //     ->flatten()
-            //     ->unique()
-            //     ->values()
-            //     ->toArray();
-            // dd($contract_subunits);
-            // if ($type == 2) {
-            //     foreach ($contract->contract_unit_details as $unit) {
-            //         makeUnitVacant($unit, $contract_id);
-            //     }
-            // } else {
-            //     foreach ($contract_unit_details as $unit) {
-            //         $unitdetail = ContractUnitDetail::find($unit);
-            //         if ($unitdetail) {
-            //             $unitdetail->is_vacant = 0;
-            //             $unitdetail->save();
-            //         }
-            //     }
-            //     foreach ($contract_subunits as $contract_subunit_id) {
-            //         $subunitdetail = ContractSubunitDetail::find($contract_subunit_id);
-            //         if ($subunitdetail) {
-            //             $subunitdetail->is_vacant = 0;
-            //             $subunitdetail->save();
-            //         }
-            //     }
-            // }
+                // $agreement->deleted_by = auth()->user()->id;
+                $agreement->terminated_by = auth()->user()->id;
+                $agreement->terminated_reason = $data['terminated_reason'];
+                $agreement->terminated_date = $data['terminated_date'];
+                $agreement->agreement_status = 1;
+                $agreement->save();
 
-            // $contract = $this->contractRepository->find($contract_id);
-            // $contract->is_agreement_added = 0;
-            // $contract->save();
+                $contract_id = $agreement->contract_id;
+                // $contract = $this->contractRepository->find($contract_id);
+                // $type = $contract->contract_type_id;
+                // // $business_type = $contract->contract_unit->business_type;
+                // $contract_unit_details = $agreement->agreement_units->pluck('contract_unit_details_id');
+                // $contract_subunits = $agreement->agreement_units
+                //     ->pluck('subunit_ids')
+                //     ->flatten()
+                //     ->unique()
+                //     ->values()
+                //     ->toArray();
+                // dd($contract_subunits);
+                // if ($type == 2) {
+                //     foreach ($contract->contract_unit_details as $unit) {
+                //         makeUnitVacant($unit, $contract_id);
+                //     }
+                // } else {
+                //     foreach ($contract_unit_details as $unit) {
+                //         $unitdetail = ContractUnitDetail::find($unit);
+                //         if ($unitdetail) {
+                //             $unitdetail->is_vacant = 0;
+                //             $unitdetail->save();
+                //         }
+                //     }
+                //     foreach ($contract_subunits as $contract_subunit_id) {
+                //         $subunitdetail = ContractSubunitDetail::find($contract_subunit_id);
+                //         if ($subunitdetail) {
+                //             $subunitdetail->is_vacant = 0;
+                //             $subunitdetail->save();
+                //         }
+                //     }
+                // }
 
-            // $anotherActiveAgreement = Agreement::where('contract_id', $contract_id)
-            //     ->where('id', '!=', $agreement_id)
-            //     ->where('agreement_status', 0)
-            //     ->exists();
-            // if (!$anotherActiveAgreement) {
-            //     $contract->has_agreement = 0;
-            //     $contract->save();
-            // }
+                // $contract = $this->contractRepository->find($contract_id);
+                // $contract->is_agreement_added = 0;
+                // $contract->save();
 
-            $this->makeVacant($agreement_id, $contract_id);
-            $this->updatePaymentDetails($agreement_id, $agreement->terminated_date);
-            if (!empty($data['amount'])) {
-                $insertdata = [
-                    'payment_amount' => $data['amount'],
-                    'payment_mode_id' => $data['payment_mode_id'],
-                    'bank_id' => $data['bank_id'],
-                    'cheque_number' => $data['cheque_number'],
-                    'transaction_type' => $data['transaction_type'],
-                    'agreement_payment_id' => 0,
-                    'agreement_unit_id' => 0,
-                    'agreement_id' => $data['agreement_id'],
-                    'payment_date' => $data['terminated_date'],
-                    'added_by' => auth()->user()->id
-                ];
-                $this->agreementPaymentDetailRepository->create($insertdata);
+                // $anotherActiveAgreement = Agreement::where('contract_id', $contract_id)
+                //     ->where('id', '!=', $agreement_id)
+                //     ->where('agreement_status', 0)
+                //     ->exists();
+                // if (!$anotherActiveAgreement) {
+                //     $contract->has_agreement = 0;
+                //     $contract->save();
+                // }
+
+                if (empty($data['terminate_stage'])) {
+                    $stage = 'Making units vacant';
+                    $this->makeVacant($agreement_id, $contract_id);
+                }
+
+                $stage = 'Updating payment details';
+                $this->updatePaymentDetails($agreement_id, $agreement->terminated_date);
+                if (!empty($data['amount'])) {
+                    $stage = 'Creating payment detail';
+                    $insertdata = [
+                        'payment_amount' => $data['amount'],
+                        'payment_mode_id' => $data['payment_mode_id'],
+                        'bank_id' => $data['bank_id'],
+                        'cheque_number' => $data['cheque_number'],
+                        'transaction_type' => $data['transaction_type'],
+                        'agreement_payment_id' => 0,
+                        'agreement_unit_id' => 0,
+                        'agreement_id' => $data['agreement_id'],
+                        'payment_date' => $data['terminated_date'],
+                        'added_by' => auth()->user()->id
+                    ];
+                    $this->agreementPaymentDetailRepository->create($insertdata);
+                }
+                // dd('test');
+
+                return true;
+            } catch (\Throwable $e) {
+
+                throw new \RuntimeException(
+                    "Agreement ID: {$agreement_id} | Failed at: {$stage} | Error: {$e->getMessage()}",
+                    0,
+                    $e
+                );
             }
-            // dd('test');
-
-            return;
         });
     }
     public function terminateByContract($contractId, array $data)
     {
-        $agreementIds = \App\Models\Agreement::withoutGlobalScopes()
+        \Log::info('Terminate by contract started', [
+            'contract_id' => $contractId
+        ]);
+
+        $agreementIds = Agreement::withoutGlobalScopes()
             ->where('contract_id', $contractId)
             ->where('agreement_status', 0)
             ->pluck('id');
 
+        \Log::info('Agreement IDs fetched', [
+            'agreement_ids' => $agreementIds->toArray()
+        ]);
+
         foreach ($agreementIds as $agreementId) {
-            $this->terminate([
-                'agreement_id'      => $agreementId,
-                'terminated_date'   => $data['terminated_date'],
-                'terminated_reason' => $data['terminated_reason'] ?? 'Vendor contract terminated',
+
+            \Log::info('Processing agreement', [
+                'agreement_id' => $agreementId
             ]);
+
+            try {
+                $this->terminate([
+                    'agreement_id' => $agreementId,
+                    'terminated_date' => $data['terminated_date'],
+                    'terminated_reason' => $data['terminated_reason'] ?? 'Vendor contract terminated',
+                    'terminate_stage' => 1,
+                ]);
+
+                \Log::info('Agreement terminated successfully', [
+                    'agreement_id' => $agreementId
+                ]);
+            } catch (\Throwable $e) {
+
+                \Log::error('Agreement termination failed', [
+                    'agreement_id' => $agreementId,
+                    'message' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+
+                throw $e;
+            }
         }
 
         return $agreementIds->count();
