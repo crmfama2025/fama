@@ -339,7 +339,7 @@ class AgreementRepository
             $agreement->terminated_date = $data['terminated_date'];
             $agreement->agreement_status = 1;
             $agreement->save();
-
+            dump($agreement_id);
             $contract_id = $agreement->contract_id;
             // $contract = $this->contractRepository->find($contract_id);
             // $type = $contract->contract_type_id;
@@ -421,9 +421,8 @@ class AgreementRepository
                 'terminated_date'   => $data['terminated_date'],
                 'terminated_reason' => $data['terminated_reason'] ?? 'Vendor contract terminated',
             ]);
-            dd($agreementId);
         }
-
+        dd($agreementIds);
         return $agreementIds->count();
     }
     public function updatePaymentDetails($agreement_id, $terminated_date)
