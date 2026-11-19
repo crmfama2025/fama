@@ -334,7 +334,7 @@ class AgreementRepository
             $stage = 'Finding agreement';
 
             try {
-                $agreement = $this->find($agreement_id);
+                $agreement = Agreement::withoutGlobalScopes()->findOrFail($agreement_id);
                 $stage = 'Updating agreement status';
 
                 // $agreement->deleted_by = auth()->user()->id;
