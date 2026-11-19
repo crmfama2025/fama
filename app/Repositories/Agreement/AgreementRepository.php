@@ -416,14 +416,14 @@ class AgreementRepository
             ->pluck('id');
         // dd($agreementIds);
         foreach ($agreementIds as $agreementId) {
-            var_dump($agreementId);
             $this->terminate([
                 'agreement_id'      => $agreementId,
                 'terminated_date'   => $data['terminated_date'],
                 'terminated_reason' => $data['terminated_reason'] ?? 'Vendor contract terminated',
             ]);
+            dd($agreementId);
         }
-        dd($agreementIds->count());
+
         return $agreementIds->count();
     }
     public function updatePaymentDetails($agreement_id, $terminated_date)
