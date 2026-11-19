@@ -423,7 +423,7 @@ class AgreementRepository
                 'terminated_reason' => $data['terminated_reason'] ?? 'Vendor contract terminated',
             ]);
         }
-
+        dd('value');
         return $agreementIds->count();
     }
     public function updatePaymentDetails($agreement_id, $terminated_date)
