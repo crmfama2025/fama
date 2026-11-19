@@ -382,7 +382,6 @@
 
                                         $paidData         = totalPaidPayablesByContract($contract->id);
                                         $net_paid         = $paidData['netPaid'];
-                                        $remaining_amount = $total_to_pay - $net_paid;
                                     @endphp --}}
 
 
