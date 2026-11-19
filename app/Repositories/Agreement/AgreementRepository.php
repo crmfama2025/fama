@@ -419,12 +419,35 @@ class AgreementRepository
             ->pluck('id');
         // dd($agreementIds);
         foreach ($agreementIds as $agreementId) {
-            $this->terminate([
-                'agreement_id'      => $agreementId,
-                'terminated_date'   => $data['terminated_date'],
-                'terminated_reason' => $data['terminated_reason'] ?? 'Vendor contract terminated',
-                'terminate_stage' => 1,
-            ]);
+            // $this->terminate([
+            //     'agreement_id'      => $agreementId,
+            //     'terminated_date'   => $data['terminated_date'],
+            //     'terminated_reason' => $data['terminated_reason'] ?? 'Vendor contract terminated',
+            //     'terminate_stage' => 1,
+            // ]);
+
+            try {
+
+                dump("Processing Agreement ID: " . $agreementId);
+
+                $this->terminate([
+                    'agreement_id'      => $agreementId,
+                    'terminated_date'   => $data['terminated_date'],
+                    'terminated_reason' => $data['terminated_reason'] ?? 'Vendor contract terminated',
+                    'terminate_stage' => 1,
+                ]);
+
+                dump("Successfully terminated Agreement ID: " . $agreementId);
+            } catch (\Throwable $e) {
+
+                dd([
+                    'failed_agreement_id' => $agreementId,
+                    'error_message'       => $e->getMessage(),
+                    'file'                => $e->getFile(),
+                    'line'                => $e->getLine(),
+                    'trace'               => $e->getTraceAsString(),
+                ]);
+            }
         }
         dd($agreementIds);
         return $agreementIds->count();
