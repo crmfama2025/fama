@@ -386,14 +386,15 @@ class UpdateMonthlyPendingProfit extends Command
                         $payoutReferrenceId = $bifurcationId;
                     } else { //profit payout
 
-                        // if ($originalDate->startOfMonth() != $currentMonth) {
-                        if (!$originalDate->isSameMonth($currentMonth)) {
-                            // $amount = $investment->profit_amount_per_interval;
-                            $amount = $profitRecord->profit_amount;
-                        } else {
-                            // $amount = ($investment->profit_amount_per_interval) + ($investment->outstanding_profit);
-                            $amount = ($profitRecord->profit_amount) + ($investment->outstanding_profit);
-                        }
+                        // // if ($originalDate->startOfMonth() != $currentMonth) {
+                        // if (!$originalDate->isSameMonth($currentMonth)) {
+                        //     // $amount = $investment->profit_amount_per_interval;
+                        //     $amount = $profitRecord->profit_amount;
+                        // } else {
+                        //     // $amount = ($investment->profit_amount_per_interval) + ($investment->outstanding_profit);
+                        //     $amount = ($profitRecord->profit_amount) + ($investment->outstanding_profit);
+                        // }
+                        $amount = $profitRecord->profit_amount;
                     }
                     $investorId = $investment->investor_id;
                     break;
