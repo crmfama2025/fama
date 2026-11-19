@@ -410,11 +410,11 @@ class AgreementRepository
     }
     public function terminateByContract($contractId, array $data)
     {
-        $agreementIds = \App\Models\Agreement::withoutGlobalScopes()
+        $agreementIds = Agreement::withoutGlobalScopes()
             ->where('contract_id', $contractId)
             ->where('agreement_status', 0)
             ->pluck('id');
-
+        dd($agreementIds);
         foreach ($agreementIds as $agreementId) {
             $this->terminate([
                 'agreement_id'      => $agreementId,

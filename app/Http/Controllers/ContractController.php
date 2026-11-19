@@ -8,6 +8,7 @@ use App\Models\Agreement;
 use App\Models\Bank;
 use App\Models\Contract;
 use App\Models\Company;
+use App\Models\ContractUnitDetail;
 use App\Models\DocumentType;
 use App\Models\PaymentMode;
 use App\Repositories\Agreement\AgreementRepository;
@@ -323,7 +324,7 @@ class ContractController extends Controller
 
     public function getRenewalContractsList(Request $request)
     {
-      
+
         if ($request->ajax()) {
             $filters = [
                 'search'      => $request->input('search.value'),
@@ -336,7 +337,7 @@ class ContractController extends Controller
             return $this->contractService->getRenewalDataTable($filters);
         }
     }
- 
+
 
     public function renewContracts($contract_id)
     {
@@ -683,5 +684,26 @@ class ContractController extends Controller
 
             return response()->json(['success' => false, 'message' => $e->getMessage(), 'error'   => $e], 500);
         }
+    }
+
+    public function testAgreementStatus($id)
+    {
+        $units = ContractUnitDetail::where('contract_id', $id)
+            ->with('contractSubUnitDetails')
+            ->get();
+
+        $allVacant = $units->every(function ($unit) {
+            return $unit->is_vacant == 1 &&
+                $unit->contractSubUnitDetails->every(function ($sub) {
+                    return $sub->is_vacant == 1;
+                });
+        });
+
+        dd([
+            'contract_id' => $id,
+            'total_units' => $units->count(),
+            'all_vacant' => $allVacant,
+            'units' => $units->toArray()
+        ]);
     }
 }
