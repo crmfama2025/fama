@@ -226,7 +226,26 @@
                                     </div>
                                 </div>
                             </div>
+                            @php
+                                $isTerminated = $contract->contract_status == 9
+                                    && !empty($contract->getRawOriginal('terminated_date'));
 
+                                $terminatedOn = $isTerminated
+                                    ? \Carbon\Carbon::parse($contract->getRawOriginal('terminated_date'))->startOfDay()
+                                    : null;
+
+                                $paymentDetails = $contract->contract_payments->contractPaymentDetails;
+
+                                if ($isTerminated) {
+                                    $paymentDetails = $paymentDetails
+                                        ->filter(function ($details) use ($terminatedOn) {
+                                            return \Carbon\Carbon::parse(
+                                                $details->getRawOriginal('payment_date')
+                                            )->startOfDay()->lte($terminatedOn);
+                                        })
+                                        ->values();
+                                }
+                            @endphp
                             <!-- Table row -->
                             <div class="row card">
                                 <div class="card-header text-center py-3 shadow-sm rounded-top bg-gradient-secondary">
@@ -247,7 +266,7 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @foreach ($contract->contract_payments->contractPaymentDetails as $details)
+                                            @foreach ($paymentDetails as $details)
                                                 {{-- @dump($details) --}}
                                                 @php
                                                     $bgColor = '';
@@ -330,10 +349,28 @@
 
                                         </tbody>
                                     </table>
+                                    @php
+                                        $total_to_pay = 0;
+                                        $net_paid = 0;
 
+                                        foreach ($paymentDetails as $details) {
+
+                                            if ($details->terminate_status == 1) {
+                                                continue;
+                                            }
+
+                                            $total_to_pay += toNumeric($details->payment_amount);
+
+                                            foreach ($details->contractPayableClears ?? [] as $clear) {
+                                                $net_paid += (float) ($clear->paid_amount ?? 0);
+                                            }
+                                        }
+
+                                        $remaining_amount = $total_to_pay - $net_paid;
+                                    @endphp
 
                                   
-                                    @php
+                                    {{-- @php
                                         $total_to_pay = 0;
 
                                         foreach ($contract->contract_payments->contractPaymentDetails as $details) {
@@ -346,7 +383,7 @@
                                         $paidData         = totalPaidPayablesByContract($contract->id);
                                         $net_paid         = $paidData['netPaid'];
                                         $remaining_amount = $total_to_pay - $net_paid;
-                                    @endphp
+                                    @endphp --}}
 
 
                                     {{-- <div class="row"> --}}

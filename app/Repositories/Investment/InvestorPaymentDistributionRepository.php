@@ -79,7 +79,7 @@ class InvestorPaymentDistributionRepository
     //         )
     //         ->where('investor_payouts.is_processed', 0)
 
-      
+
     //         ->whereHas('investment', function ($query) use (
     //             $permittedCompanyIds
     //         ) {
@@ -145,7 +145,7 @@ class InvestorPaymentDistributionRepository
     //         'investor_payouts.payout_release_month'
     //     );
     // }
-    
+
     public function getPendings(array $filters = []): \Illuminate\Database\Eloquent\Builder
     {
         $permittedCompanyIds = getUserPermittedCompanyIds(
@@ -228,10 +228,10 @@ class InvestorPaymentDistributionRepository
             });
         }
 
-      
+
         return $query;
     }
-    
+
 
 
     public function getDistributedList(array $filters = []): Builder
@@ -273,6 +273,26 @@ class InvestorPaymentDistributionRepository
                     $q->where('id', $filter['investment_id']);
                 });
             }
+        }
+
+
+
+        if (!empty($filter['investment_id'])) {
+            $query->whereHas('investorPayout.investment', function ($q) use ($filter) {
+                $q->where('id', $filter['investment_id']);
+            });
+        }
+
+        // NEW: investor filter
+        if (!empty($filter['investor_id'])) {
+            $query->where('investor_payment_distributions.investor_id', $filter['investor_id']);
+        }
+
+        // NEW: company filter
+        if (!empty($filter['company_id'])) {
+            $query->whereHas('investment', function ($q) use ($filter) {
+                $q->where('company_id', $filter['company_id']);
+            });
         }
 
         $query->whereBetween('investor_payment_distributions.paid_date', [

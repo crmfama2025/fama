@@ -131,24 +131,32 @@ class InvestorPaymentDistributionController extends Controller
         $banks = $this->bankService->getAll();
         $paymentmodes = $this->paymentModeService->getAll()->where('id', '!=', 4);
         $payoutbatches = PayoutBatch::where('status', 1)->get();
-        $investors = $this->investorService->getAllActive();
+        $investors = $this->investorService->getAllActive()
+            ->sortBy('investor_name', SORT_NATURAL | SORT_FLAG_CASE)
+            ->values();
+        $investedCompanies = Company::whereHas('investments')
+            ->select('id', 'company_name')
+            ->orderBy('company_name')
+            ->get();
 
-        return view("admin.investment.investor-payout-distribution-report", compact("title", "paymentmodes", "banks", "payoutbatches", "investors"));
+        return view("admin.investment.investor-payout-distribution-report", compact("title", "paymentmodes", "banks", "payoutbatches", "investors", "investedCompanies"));
     }
 
     public function getDistributedList(Request $request)
     {
-
         if ($request->ajax()) {
             $filterData = [];
+
             if ($request->date_From || $request->date_To) {
-                $filterData = array(
-                    'date_From' => dateFormatChange($request->date_From, 'Y-m-d'),
-                    'date_To' => dateFormatChange($request->date_To, 'Y-m-d'),
-                    'investment_id' => $request->investment_id
-                );
+                $filterData['date_From'] = dateFormatChange($request->date_From, 'Y-m-d');
+                $filterData['date_To']   = dateFormatChange($request->date_To, 'Y-m-d');
             }
 
+            foreach (['investment_id', 'investor_id', 'company_id'] as $key) {
+                if ($request->filled($key)) {
+                    $filterData[$key] = $request->input($key);
+                }
+            }
 
             $filters = [
                 'search' => $request->search['value'] ?? null,
@@ -230,12 +238,16 @@ class InvestorPaymentDistributionController extends Controller
     public function exportDistribute()
     {
         $filters = [];
+
         if (request('date_From') || request('date_To')) {
-            $filters = array(
-                'date_From' => dateFormatChange(request('date_From'), 'Y-m-d'),
-                'date_To' => dateFormatChange(request('date_To'), 'Y-m-d'),
-                'investment_id' => request('investment_id')
-            );
+            $filters['date_From'] = dateFormatChange(request('date_From'), 'Y-m-d');
+            $filters['date_To']   = dateFormatChange(request('date_To'), 'Y-m-d');
+        }
+
+        foreach (['investment_id', 'investor_id', 'company_id'] as $key) {
+            if (request()->filled($key)) {
+                $filters[$key] = request($key);
+            }
         }
 
         $search = request('search') ?? null;

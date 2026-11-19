@@ -76,6 +76,24 @@
                                                     </div>
                                                 </div>
                                             </div>
+                                            <div class="col-md-3">
+                                                <label>Investor</label>
+                                                <select class="form-control select2" id="investor_id">
+                                                    <option value="">Select Investor</option>
+                                                    @foreach ($investors as $investor)
+                                                        <option value="{{ $investor->id }}">{{ $investor->investor_name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label>Company</label>
+                                                <select class="form-control select2" id="company_id">
+                                                    <option value="">Select Company</option>
+                                                    @foreach ($investedCompanies as $company)
+                                                        <option value="{{ $company->id }}">{{ $company->company_name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
                                             <div class="col-md-1">
                                                 <button type="button" class="btn btn-info searchbtnchq">Search</button>
                                             </div>
@@ -253,6 +271,8 @@
                     data: function(d) {
                         d.date_From = $('#date_From').val();
                         d.date_To = $('#date_To').val();
+                        d.investor_id = $('#investor_id').val();
+                        d.company_id  = $('#company_id').val();
                     }
                 },
                 columns: [{
@@ -304,20 +324,15 @@
                     text: 'Export Excel',
                     title: 'Contract Data',
                     action: function(e, dt, node, config) {
-                        // redirect to your Laravel export route
-                        let searchValue = dt.search();
-
                         let params = dt.ajax.params();
 
-                        // add your custom filters manually (important)
-                        params.date_From = $('#date_From').val();
-                        params.date_To = $('#date_To').val();
-                        params.search = dt.search();
+                        params.date_From   = $('#date_From').val();
+                        params.date_To     = $('#date_To').val();
+                        params.investor_id = $('#investor_id').val();
+                        params.company_id  = $('#company_id').val();
+                        params.search      = dt.search();
 
-                        // build query string
-                        let queryString = $.param(params);
-
-                        let url = "{{ route('payout.report.export') }}?" + queryString;
+                        let url = "{{ route('payout.report.export') }}?" + $.param(params);
 
                         window.location.href = url;
                     }

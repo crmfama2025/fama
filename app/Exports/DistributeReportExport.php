@@ -53,6 +53,15 @@ class DistributeReportExport implements FromCollection, WithHeadings
                 });
             }
         }
+        if (!empty($this->filters['investor_id'])) {
+            $query->where('investor_payment_distributions.investor_id', $this->filters['investor_id']);
+        }
+
+        if (!empty($this->filters['company_id'])) {
+            $query->whereHas('investment', function ($q) {
+                $q->where('company_id', $this->filters['company_id']);
+            });
+        }
 
         $query->whereBetween('investor_payment_distributions.paid_date', [
             $fromDate,
