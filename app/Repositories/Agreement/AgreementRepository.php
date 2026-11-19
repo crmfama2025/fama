@@ -335,6 +335,7 @@ class AgreementRepository
 
             try {
                 $agreement = $this->find($agreement_id);
+                $stage = 'Updating agreement status';
 
                 // $agreement->deleted_by = auth()->user()->id;
                 $agreement->terminated_by = auth()->user()->id;
@@ -390,11 +391,14 @@ class AgreementRepository
                 // }
 
                 if (empty($data['terminate_stage'])) {
+                    $stage = 'Making units vacant';
                     $this->makeVacant($agreement_id, $contract_id);
                 }
 
+                $stage = 'Updating payment details';
                 $this->updatePaymentDetails($agreement_id, $agreement->terminated_date);
                 if (!empty($data['amount'])) {
+                    $stage = 'Creating payment detail';
                     $insertdata = [
                         'payment_amount' => $data['amount'],
                         'payment_mode_id' => $data['payment_mode_id'],
