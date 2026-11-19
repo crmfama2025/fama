@@ -334,7 +334,6 @@ class AgreementRepository
             $stage = 'Finding agreement';
 
             try {
-
                 $agreement = $this->find($agreement_id);
 
                 // $agreement->deleted_by = auth()->user()->id;
@@ -425,43 +424,50 @@ class AgreementRepository
     }
     public function terminateByContract($contractId, array $data)
     {
+        \Log::info('Terminate by contract started', [
+            'contract_id' => $contractId
+        ]);
+
         $agreementIds = Agreement::withoutGlobalScopes()
             ->where('contract_id', $contractId)
             ->where('agreement_status', 0)
             ->pluck('id');
-        // dd($agreementIds);
+
+        \Log::info('Agreement IDs fetched', [
+            'agreement_ids' => $agreementIds->toArray()
+        ]);
+
         foreach ($agreementIds as $agreementId) {
-            // $this->terminate([
-            //     'agreement_id'      => $agreementId,
-            //     'terminated_date'   => $data['terminated_date'],
-            //     'terminated_reason' => $data['terminated_reason'] ?? 'Vendor contract terminated',
-            //     'terminate_stage' => 1,
-            // ]);
+
+            \Log::info('Processing agreement', [
+                'agreement_id' => $agreementId
+            ]);
 
             try {
-
-                dump("Processing Agreement ID: " . $agreementId);
-
                 $this->terminate([
-                    'agreement_id'      => $agreementId,
-                    'terminated_date'   => $data['terminated_date'],
+                    'agreement_id' => $agreementId,
+                    'terminated_date' => $data['terminated_date'],
                     'terminated_reason' => $data['terminated_reason'] ?? 'Vendor contract terminated',
                     'terminate_stage' => 1,
                 ]);
 
-                dump("Successfully terminated Agreement ID: " . $agreementId);
+                \Log::info('Agreement terminated successfully', [
+                    'agreement_id' => $agreementId
+                ]);
             } catch (\Throwable $e) {
 
-                dd([
-                    'failed_agreement_id' => $agreementId,
-                    'error_message'       => $e->getMessage(),
-                    'file'                => $e->getFile(),
-                    'line'                => $e->getLine(),
-                    'trace'               => $e->getTraceAsString(),
+                \Log::error('Agreement termination failed', [
+                    'agreement_id' => $agreementId,
+                    'message' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'trace' => $e->getTraceAsString()
                 ]);
+
+                throw $e;
             }
         }
-        dd($agreementIds);
+
         return $agreementIds->count();
     }
     public function updatePaymentDetails($agreement_id, $terminated_date)
