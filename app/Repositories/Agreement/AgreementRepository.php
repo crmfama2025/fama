@@ -339,7 +339,7 @@ class AgreementRepository
             $agreement->terminated_date = $data['terminated_date'];
             $agreement->agreement_status = 1;
             $agreement->save();
-            dump($agreement_id);
+
             $contract_id = $agreement->contract_id;
             // $contract = $this->contractRepository->find($contract_id);
             // $type = $contract->contract_type_id;
@@ -386,7 +386,10 @@ class AgreementRepository
             //     $contract->save();
             // }
 
-            $this->makeVacant($agreement_id, $contract_id);
+            if (!$data['terminate_stage']) {
+                $this->makeVacant($agreement_id, $contract_id);
+            }
+
             $this->updatePaymentDetails($agreement_id, $agreement->terminated_date);
             if (!empty($data['amount'])) {
                 $insertdata = [
@@ -420,6 +423,7 @@ class AgreementRepository
                 'agreement_id'      => $agreementId,
                 'terminated_date'   => $data['terminated_date'],
                 'terminated_reason' => $data['terminated_reason'] ?? 'Vendor contract terminated',
+                'terminate_stage' => 1,
             ]);
         }
         dd($agreementIds);
