@@ -29,7 +29,7 @@
 
     <p>
         Please find below the detailed breakdown of your investment:
-        <strong>AED <span id="total-amount">{{ number_format($investments['grand_total'], 2) }}</span>/-</strong>
+        <strong>AED <span id="total-amount">{{ number_format($investments['long_term_total'], 2) }}</span>/-</strong>
     </p>
 
 
