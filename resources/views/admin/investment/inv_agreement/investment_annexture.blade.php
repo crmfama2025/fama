@@ -47,7 +47,7 @@
                 @if ($company->total_invested > 0)
                     <tr>
                         <td>{{ $company->company_name }}</td>
-                        <td class="text-right">AED {{ number_format($company->total_invested, 2) }}/-</td>
+                        <td class="text-right">AED {{ number_format($company->long_term_amount, 2) }}/-</td>
                     </tr>
                 @endif
             @endforeach
@@ -56,7 +56,7 @@
         <tfoot>
             <tr>
                 <td>Total</td>
-                <td class="text-right">AED {{ number_format($investments['grand_total'], 2) }}/-</td>
+                <td class="text-right">AED {{ number_format($investments['long_term_total'], 2) }}/-</td>
             </tr>
         </tfoot>
     </table>
