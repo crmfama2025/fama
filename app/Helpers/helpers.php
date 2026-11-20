@@ -1579,6 +1579,7 @@ function getSubModuleArray()
         'delete',
         'approve',
         'reject',
+        'makani_verification',
         'document_upload',
         'renew',
         'send_for_approval',
@@ -1616,6 +1617,35 @@ function getSubModuleArray()
         'comment_add',
         'approved_list'
     ];
+}
+function getMasterArray()
+{
+    return [
+        'area',
+        'locality',
+        'property',
+        'vendor',
+        'tenant',
+        'bank',
+        'installments',
+        'payment_mode',
+        'nationality',
+        'investor_legal_documents',
+    ];
+}
+function hasAnyMasterPermission($userId)
+{
+    $masters = getMasterArray();
+
+    return DB::table('user_permissions as up')
+        ->join('permissions as p', 'p.id', '=', 'up.permission_id')
+        ->where('up.user_id', $userId)
+        ->where(function ($query) use ($masters) {
+            foreach ($masters as $master) {
+                $query->orWhere('p.permission_name', 'LIKE', $master . '.%');
+            }
+        })
+        ->exists();
 }
 
 function iscontractRenewed($contractId)
@@ -1954,6 +1984,10 @@ if (!function_exists('getBankListByRegion')) {
                 [
                     'name' => 'National Bank of Abu Dhabi',
                     'arabic' => 'بنك أبوظبي الوطني',
+                ],
+                [
+                    'name' => 'HSBC Bank',
+                    'arabic' => 'بنك إتش إس بي سي',
                 ],
             ],
 
