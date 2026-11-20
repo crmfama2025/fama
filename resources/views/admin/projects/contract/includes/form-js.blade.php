@@ -2610,7 +2610,7 @@
                         //     .querySelector(
                         //         'input[name="receivables[id][]"]'
                         //     )).val();
-                        const detailId = '';
+                        let detailId = '';
                         if ({{ $edit }}) {
                             detailId = $(block.querySelector(
                                 'input[name="receivables[id][]"]')).val();
