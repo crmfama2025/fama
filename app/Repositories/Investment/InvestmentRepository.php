@@ -701,7 +701,7 @@ class InvestmentRepository
 
             DB::raw('SUM(
                 CASE
-                    WHEN investments.investment_term_type = 1
+                    WHEN investments.investment_term_type = 2
                     THEN investments.investment_amount
                     ELSE 0
                 END
@@ -709,7 +709,7 @@ class InvestmentRepository
 
             DB::raw('SUM(
                 CASE
-                    WHEN investments.investment_term_type = 2
+                    WHEN investments.investment_term_type = 1
                     THEN investments.investment_amount
                     ELSE 0
                 END

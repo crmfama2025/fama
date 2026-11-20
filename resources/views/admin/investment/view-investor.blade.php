@@ -293,10 +293,10 @@
                                                 <tfoot>
                                                     <tr style="background-color: #e9ecef;">
                                                         <th>Total</th>
-                                                        <th class="text-right" id="investmentBreakdownShortTotal">
+                                                        <th class="text-right" id="investmentBreakdownLongTotal">
                                                             AED 0.00/-
                                                         </th>
-                                                        <th class="text-right" id="investmentBreakdownLongTotal">
+                                                        <th class="text-right" id="investmentBreakdownShortTotal">
                                                             AED 0.00/-
                                                         </th>
                                                         <th class="text-right" id="investmentBreakdownTotal">
@@ -439,13 +439,13 @@
                                 row.append(
                                     $('<td>')
                                     .addClass('text-right')
-                                    .text(formatAED(company.short_term_amount))
+                                    .text(formatAED(company.long_term_amount))
                                 );
 
                                 row.append(
                                     $('<td>')
                                     .addClass('text-right')
-                                    .text(formatAED(company.long_term_amount))
+                                    .text(formatAED(company.short_term_amount))
                                 );
 
                                 row.append(
