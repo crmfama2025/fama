@@ -1096,6 +1096,19 @@ class InvestorPaymentDistributionService
                 });
             })
 
+            // ->filterColumn('investor_name', function ($query, $keyword) {
+            //     $query->whereHas('investor', function ($q) use ($keyword) {
+            //         $q->where('investor_name', 'like', "%{$keyword}%");
+            //     });
+            // })
+
+            // ->filterColumn('company_name', function ($query, $keyword) {
+            //     $query->whereHas('investment.company', function ($q) use ($keyword) {
+            //         $q->where('company_name', 'like', "%{$keyword}%");
+            //     });
+            // })
+
+
             ->filterColumn('company_name', function ($query, $keyword) {
                 $query->whereHas('investment.company', function ($q) use ($keyword) {
                     $q->where('company_name', 'like', "%{$keyword}%");

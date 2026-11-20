@@ -23,7 +23,7 @@ class PermissionSeeder extends Seeder
             ]);
 
             if ($module == 'finance') {
-                $subModule = ['payout', 'payable_cheque_clearing', 'receivable_cheque_clearing', 'add_excess', 'add_loss_or_discount','delete-allocation'];
+                $subModule = ['payout', 'payable_cheque_clearing', 'receivable_cheque_clearing', 'add_excess', 'add_loss_or_discount', 'delete-allocation'];
             } elseif ($module == 'report') {
                 $subModule = [
                     'view',
@@ -87,10 +87,12 @@ class PermissionSeeder extends Seeder
                     $subModule[] = 'reject';
                     $subModule[] = 'comment_add';
                     $subModule[] = 'approved_list';
-                
                 }
                 if (in_array($module, ['locality'])) {
                     $subModule[] = 'location_pricing';
+                }
+                if (in_array($module, ['property'])) {
+                    $subModule[] = 'makkani_verification';
                 }
             }
 

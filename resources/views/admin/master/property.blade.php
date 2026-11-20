@@ -33,17 +33,36 @@
                 <div class="row">
                     <div class="col-12">
                         <div class="card">
-                            @can('property.add')
+                            @if(auth()->user()->can('property.add') || auth()->user()->can('property.makani_verification'))
                                 <div class="card-header">
-                                    <!-- <h3 class="card-title">Property Details</h3> -->
                                     <span class="float-right">
-                                        <button class="btn btn-info float-right m-1" data-toggle="modal"
-                                            data-target="#modal-property">Add Property</button>
-                                        <button class="btn btn-secondary float-right m-1" data-toggle="modal"
-                                            data-target="#modal-import">Import</button>
+
+                                        @can('property.add')
+                                            <button class="btn btn-info m-1"
+                                                    data-toggle="modal"
+                                                    data-target="#modal-property">
+                                                Add Property
+                                            </button>
+
+                                            <button class="btn btn-secondary m-1"
+                                                    data-toggle="modal"
+                                                    data-target="#modal-import">
+                                                Import
+                                            </button>
+                                        @endcan
+
+                                        @can('property.makani_verification')
+                                            <button class="btn btn-success m-1"
+                                                    data-toggle="modal"
+                                                    data-target="#modal-makani-verification">
+                                                Verify Makani
+                                            </button>
+                                        @endcan
+
                                     </span>
                                 </div>
-                            @endcan
+                            @endif
+
                             <!-- /.card-header -->
                             <div class="card-body table-responsive">
                                 <table id="propertyTable" class="table table-striped table-hover" style="width: 100%">
@@ -108,6 +127,90 @@
                 <!-- /.modal-dialog -->
             </div>
             <!-- /.modal -->
+
+            <div class="modal fade" id="modal-makani-verification">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+
+                        <div class="modal-header">
+                            <h4 class="modal-title">Makani Verification</h4>
+
+                            <button type="button" class="close"
+                                data-dismiss="modal">
+                                <span>&times;</span>
+                            </button>
+                        </div>
+
+                        <form id="MakaniVerificationForm">
+
+                            @csrf
+
+                            <div class="modal-body">
+
+                                <div class="form-group">
+                                    <label>Area</label>
+                                    <select name="area_id" id="makani_area_id"
+                                        class="form-control select2" required>
+                                        <option value="">Select Area</option>
+                                        @foreach($areas as $area)
+                                            <option value="{{ $area->id }}">
+                                                {{ $area->area_name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Locality</label>
+                                    <select name="locality_id" id="makani_locality_id"
+                                        class="form-control select2" required>
+                                        <option value="">Select Locality</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Building Name</label>
+                                    <input type="text" name="building_name"
+                                        class="form-control" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Makani Number</label>
+                                    <input type="text" name="makani_number"
+                                        class="form-control" maxlength="10" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Google Maps Location Link</label>
+                                    <input type="url" name="location_link"
+                                        class="form-control"
+                                        placeholder="Paste Google Maps link">
+                                </div>
+
+                                <div id="makani-map"
+                                    style="height:350px; width:100%;">
+                                </div>
+
+                                <div id="makani-verification-result"></div>
+
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary"
+                                    data-dismiss="modal">
+                                    Close
+                                </button>
+
+                                <button type="submit" class="btn btn-success">
+                                    Verify Makani
+                                </button>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+
         </section>
         <!-- /.content -->
     </div>
