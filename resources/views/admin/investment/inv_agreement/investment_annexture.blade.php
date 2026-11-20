@@ -29,7 +29,7 @@
 
     <p>
         Please find below the detailed breakdown of your investment:
-        <strong>AED <span id="total-amount">{{ number_format($investments['long_term_total'], 2) }}</span>/-</strong>
+        <strong>AED <span id="total-amount">{{ number_format($investments['grand_total'], 2) }}</span>/-</strong>
     </p>
 
 
@@ -39,7 +39,8 @@
         <thead>
             <tr>
                 <th>Company Name</th>
-                <th class="text-right">Invested Amount</th>
+                <th class="text-right">Long Term Investment</th>
+                <th class="text-right">Short Term Investment</th>
             </tr>
         </thead>
         <tbody>
@@ -48,6 +49,7 @@
                     <tr>
                         <td>{{ $company->company_name }}</td>
                         <td class="text-right">AED {{ number_format($company->long_term_amount, 2) }}/-</td>
+                        <td class="text-right">AED {{ number_format($company->short_term_amount, 2) }}/-</td>
                     </tr>
                 @endif
             @endforeach
@@ -57,6 +59,7 @@
             <tr>
                 <td>Total</td>
                 <td class="text-right">AED {{ number_format($investments['long_term_total'], 2) }}/-</td>
+                <td class="text-right">AED {{ number_format($investments['short_term_total'], 2) }}/-</td>
             </tr>
         </tfoot>
     </table>
