@@ -1327,7 +1327,7 @@ class InvestmentContractService
             'company_id' => $companyId,
         ])
             ->where('investment_date', '<=', $docDetails->investment->investment_date)
-            ->where('id', '!=', $docDetails->investment_id)->get()->activeLongTermTerminateRequested();
+            ->where('id', '!=', $docDetails->investment_id)->activeLongTermTerminateRequested()->get();
 
         foreach ($allInv as $key => $inv) {
             $prevAmount += $inv->investment_amount;
