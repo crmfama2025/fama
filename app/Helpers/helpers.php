@@ -2157,3 +2157,42 @@ function getLegalTypes()
         ],
     ];
 }
+
+function getContractUnitSummary($units)
+{
+    $grouped = [];
+
+    foreach ($units as $unit) {
+
+        $type = $unit->unit_type->unit_type ?? 'Unknown';
+
+        $maid = $unit->maid_room == 1;
+
+        $key = $type . ($maid ? '_maid' : '');
+
+        if (!isset($grouped[$key])) {
+            $grouped[$key] = [
+                'count' => 0,
+                'type' => $type,
+                'maid' => $maid
+            ];
+        }
+
+        $grouped[$key]['count']++;
+    }
+
+    $result = [];
+
+    foreach ($grouped as $item) {
+
+        $description = $item['type'] . '(' . $item['count'] . ')';
+
+        if ($item['maid']) {
+            $description .= ' + M';
+        }
+
+        $result[] = $description;
+    }
+
+    return implode(', ', $result);
+}

@@ -109,7 +109,6 @@
                         </td>
                         <td style="border: solid 1px;">
                             <div align="center">{{ $contract->contract_unit->property_type }}
-                                {{ $unitdetail->maid_room == 1 ? ' + M' : '' }}
                             </div>
                         </td>
                     </tr>
@@ -186,8 +185,9 @@
                             <div align="left" class="mx-1">Unit Type</div>
                         </td>
                         <td style="border: solid 1px;">
-                            <div align="center">{{ formatUnitTypes($contract->contract_unit->unit_type_count) }}
-                            </div>
+                            {{-- <div align="center">{{ formatUnitTypes($contract->contract_unit->unit_type_count) }}
+                            </div> --}}
+                            <div align="center">{{ getContractUnitSummary($contract->contract_unit_details) }}</div>
                         </td>
                     </tr>
                     <tr style="border: solid 1px;">
