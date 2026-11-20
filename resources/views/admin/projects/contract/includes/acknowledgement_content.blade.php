@@ -108,7 +108,9 @@
                             <div align="left" class="mx-1">Property Type</div>
                         </td>
                         <td style="border: solid 1px;">
-                            <div align="center">{{ $contract->contract_unit->property_type }}</div>
+                            <div align="center">{{ $contract->contract_unit->property_type }}
+                                {{ $unitdetail->maid_room == 1 ? ' + M' : '' }}
+                            </div>
                         </td>
                     </tr>
                     <tr style="border: solid 1px;">
