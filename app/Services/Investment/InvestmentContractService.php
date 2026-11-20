@@ -1324,10 +1324,10 @@ class InvestmentContractService
         $prevAmount = 0;
         $allInv = Investment::where([
             'investor_id' => $docDetails->investor_id,
-            'company_id' => $companyId
+            'company_id' => $companyId,
         ])
             ->where('investment_date', '<=', $docDetails->investment->investment_date)
-            ->where('id', '!=', $docDetails->investment_id)->get();
+            ->where('id', '!=', $docDetails->investment_id)->get()->activeLongTermTerminateRequested();
 
         foreach ($allInv as $key => $inv) {
             $prevAmount += $inv->investment_amount;
