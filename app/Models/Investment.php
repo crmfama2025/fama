@@ -311,6 +311,14 @@ class Investment extends Model
             ->where('terminate_status', 0); //not terminated
     }
 
+    public function scopeActiveLongTermTerminateRequested(Builder $query): Builder
+    {
+        return $query
+            ->where('investment_status', 1) //active investments only
+            ->where('investment_term_type', 1) //long term investments only
+            ->where('terminate_status', '!=', 1); //termination requested but not terminated
+    }
+
     public function companyAllocations()
     {
         return $this->hasMany(InvestmentCompanyAllocation::class, 'investment_id', 'id');
