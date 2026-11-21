@@ -688,15 +688,60 @@ class ContractController extends Controller
 
     public function testAgreementStatus($id)
     {
+        // $units = ContractUnitDetail::where('contract_id', $id)
+        //     ->with('contractSubUnitDetails')
+        //     ->get();
+        // Contract::where('id', $id)
+        //     ->update(['has_agreement' =>  1]);
+
+        // $allVacant = $units->every(function ($unit) {
+        //     $unitVacant = $unit->is_vacant == 1;
+
+        //     $subUnitsVacant = $unit->contractSubUnitDetails->every(function ($sub) {
+        //         return $sub->is_vacant == 1;
+        //     });
+
+        //     return $unitVacant && $subUnitsVacant;
+        // });
+
+        // if ($allVacant) {
+        //     return Contract::where('id', $id)->update(['is_agreement_added' => 1]);
+        // }
+
+        // return ([
+        //     'contract_id' => $id,
+        //     'total_units' => $units->count(),
+        //     'all_vacant' => $allVacant,
+        //     'units' => $units->toArray()
+        // ]);
+
         $units = ContractUnitDetail::where('contract_id', $id)
             ->with('contractSubUnitDetails')
             ->get();
 
         $allVacant = $units->every(function ($unit) {
-            return $unit->is_vacant == 1 &&
-                $unit->contractSubUnitDetails->every(function ($sub) {
-                    return $sub->is_vacant == 1;
-                });
+
+            $unitVacant = $unit->is_vacant == 1;
+
+            $subUnitsVacant = $unit->contractSubUnitDetails->every(function ($sub) {
+                return $sub->is_vacant == 1;
+            });
+
+            dump([
+                'unit_id' => $unit->id,
+                'unit_is_vacant' => $unit->is_vacant,
+                'sub_units' => $unit->contractSubUnitDetails->map(function ($sub) {
+                    return [
+                        'sub_unit_id' => $sub->id,
+                        'is_vacant' => $sub->is_vacant,
+                    ];
+                })->toArray(),
+                'unit_vacant' => $unitVacant,
+                'sub_units_vacant' => $subUnitsVacant,
+                'result' => $unitVacant && $subUnitsVacant,
+            ]);
+
+            return $unitVacant && $subUnitsVacant;
         });
 
         dd([
