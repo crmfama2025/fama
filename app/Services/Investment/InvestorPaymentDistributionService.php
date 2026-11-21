@@ -986,11 +986,11 @@ class InvestorPaymentDistributionService
         $previouslyReleased = round((float) ($profitRecord->released_total_amount ?? 0), 2);
         $newReleasedTotal = round($previouslyReleased + $distributionAmount, 2);
         $profitAmount = round((float) $profitRecord->profit_amount, 2);
-        var_dump([
-            'previouslyReleased' => $previouslyReleased,
-            'newReleasedTotal' => $newReleasedTotal,
-            'profitAmount' => $profitAmount,
-        ]);
+        // var_dump([
+        //     'previouslyReleased' => $previouslyReleased,
+        //     'newReleasedTotal' => $newReleasedTotal,
+        //     'profitAmount' => $profitAmount,
+        // ]);
         if ($newReleasedTotal > $profitAmount) {
             throw ValidationException::withMessages([
                 'paid_amount' => sprintf(
