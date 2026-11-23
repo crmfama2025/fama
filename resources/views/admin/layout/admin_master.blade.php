@@ -247,7 +247,8 @@
                                 $report = 1;
                             }
                         @endphp
-                        @if (auth()->user()->hasPermissionInRange(1, 45) || auth()->user()->hasPermissionInRange(98, 102))
+                        {{-- @if (auth()->user()->hasPermissionInRange(1, 45) || auth()->user()->hasPermissionInRange(98, 102)) --}}
+                        @if (hasAnyMasterPermission(auth()->id()))
                             <li class="nav-item {{ $master ? 'menu-open' : '' }}">
                                 <a href="#"
                                     class="nav-link {{ $master ? 'active ' : '' }}">
@@ -285,7 +286,7 @@
                                             </a>
                                         </li>
                                     @endif --}}
-                                    @if (Gate::any(['Property', 'property.add', 'property.view', 'property.edit', 'property.delete']))
+                                    @if (Gate::any(['Property', 'property.add', 'property.view', 'property.edit', 'property.delete', 'property.makani_verification']))
                                         <li class="nav-item">
                                             <a href="{{ route('property.index') }}"
                                                 class="nav-link {{ request()->is('property*') ? 'active' : '' }}">

@@ -92,7 +92,7 @@ class PermissionSeeder extends Seeder
                     $subModule[] = 'location_pricing';
                 }
                 if (in_array($module, ['property'])) {
-                    $subModule[] = 'makkani_verification';
+                    $subModule[] = 'makani_verification';
                 }
             }
 

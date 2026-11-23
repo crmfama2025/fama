@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Exports\PropertyExport;
 use App\Imports\PropertyImport;
 use App\Models\Contract;
+use App\Models\Property;
 use App\Repositories\PropertyRepository;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Support\Facades\DB;
@@ -61,12 +62,66 @@ class PropertyService
         return $this->propertyRepository->create($data);
     }
 
+    // public function update($id, array $data)
+    // {
+    //     // dd($data);
+    //     $this->validate($data, $id);
+    //     $data['updated_by'] = auth()->user()->id;
+    //     return $this->propertyRepository->update($id, $data);
+    // }
     public function update($id, array $data)
     {
-        // dd($data);
-        $this->validate($data, $id);
-        $data['updated_by'] = auth()->user()->id;
-        return $this->propertyRepository->update($id, $data);
+        return DB::transaction(function () use ($id, $data) {
+            $property = $this->propertyRepository->find($id);
+
+            if ($property->ref_property_id) {
+                return $this->mergeRefIntoOld($property, $data);
+            }
+
+            $this->validate($data, $id);
+            $data['updated_by'] = auth()->id();
+            return $this->propertyRepository->update($id, $data);
+        });
+    }
+
+    private function mergeRefIntoOld(Property $ref, array $data)
+    {
+        $old = $this->propertyRepository->find($ref->ref_property_id);
+
+        $makaniFields = $ref->only([
+            'makani_number',
+            'makani_status',
+            'makani_latitude',
+            'makani_longitude',
+            'makani_distance_m',
+            'makani_verified_at',
+            'makani_verified_by',
+        ]);
+
+        // move contracts from the ref property to the old property
+        Contract::withTrashed()
+            ->withoutGlobalScopes()
+            ->where('property_id', $ref->id)
+            ->update(['property_id' => $old->id]);
+
+        // free the unique Makani, then drop the ref row
+        $ref->makani_number = null;
+        $ref->save();
+        $ref->delete();
+
+        $payload = array_merge($makaniFields, array_filter($data, fn($v) => $v !== null && $v !== ''));
+        unset($payload['id']);
+
+        if (($payload['plot_no'] ?? null) === '0') {
+            unset($payload['plot_no']);
+        }
+
+        $payload['plot_no']    = $payload['plot_no'] ?? $old->plot_no;
+        $payload['updated_by'] = auth()->id();
+
+        $this->validate($payload, $old->id);
+
+        return $this->propertyRepository->update($old->id, $payload);
     }
 
     public function delete($id)
@@ -105,12 +160,18 @@ class PropertyService
             // 'property_size' => 'required|numeric|min:0',
             // 'property_size_unit' => 'required|exists:property_size_units,id',
             'status' => 'required|in:0,1',
-            // 'makani_number' => ['nullable', 'digits:10'],
-            // 'makani_number' => ['nullable', 'regex:/^\d{5}\s\d{5}$/'],
+
+            // 'makani_number' => [
+            //     'nullable',
+            //     'regex:/^\d{5}\s\d{5}$/',
+            //     Rule::unique('properties', 'makani_number')->ignore($id),
+            // ],
             'makani_number' => [
                 'nullable',
                 'regex:/^\d{5}\s\d{5}$/',
-                Rule::unique('properties', 'makani_number')->ignore($id),
+                Rule::unique('properties', 'makani_number')
+                    ->ignore($id)
+                    ->whereNull('deleted_at'),
             ],
 
             'location' => 'nullable|url',

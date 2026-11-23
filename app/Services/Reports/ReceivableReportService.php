@@ -769,6 +769,7 @@ class ReceivableReportService
                 /*
              * Payment status
              */
+
                 if ((int) ($row->terminated_status ?? 0) === 1) {
                     return '<span class="badge bg-danger">Terminated</span>';
                 }
