@@ -498,6 +498,9 @@
                             if (row.has_bounced) {
                                 return '<span class="badge bg-danger">Bounced</span>';
                             }
+                            if (row.terminate_status == 1) {
+                                return '<span class="badge bg-danger">Terminated</span>';
+                            }
 
                             switch (data) {
                                 case 0:
