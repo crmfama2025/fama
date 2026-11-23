@@ -42,6 +42,11 @@ class InvestmentProfitRecord extends Model
         return $this->belongsTo(Investment::class);
     }
 
+    public function investorPayouts()
+    {
+        return $this->hasone(InvestorPayout::class, 'investment_profit_record_id');
+    }
+
     // -----------------------
     // Scopes
     // -----------------------
