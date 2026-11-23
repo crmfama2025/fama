@@ -769,6 +769,9 @@ class ReceivableReportService
                 /*
              * Payment status
              */
+                if ((int) ($row->terminated_status ?? 0) === 1) {
+                    return '<span class="badge bg-danger">Terminated</span>';
+                }
 
                 switch ((int) ($row->is_payment_received ?? 0)) {
 
@@ -1034,8 +1037,8 @@ class ReceivableReportService
                         ? 'Terminated'
                         : 'Not Terminated';
 
-                        $lossOrDiscountAmount = $row->loss_discount_amount ?? 0;
-                         $has_excess = match ((int) $row->has_excess_amount) {
+                    $lossOrDiscountAmount = $row->loss_discount_amount ?? 0;
+                    $has_excess = match ((int) $row->has_excess_amount) {
                         0 => 'No',
                         1 => 'Yes',
                         default => '-',
