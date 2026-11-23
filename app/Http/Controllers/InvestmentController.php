@@ -34,9 +34,9 @@ class InvestmentController extends Controller
 
     public function index()
     {
-         $title = 'Investments';
+        $title = 'Investments';
         // return view("admin.investment.investment.investment", compact("title"));
-         $permittedCompanyIds = getUserPermittedCompanyIds(
+        $permittedCompanyIds = getUserPermittedCompanyIds(
             auth()->id(),
             'investment'
         );
@@ -182,12 +182,32 @@ class InvestmentController extends Controller
             new InvestmentExport($search, $filters),
             'Investments.xlsx'
         );
-}
+    }
     public function show(Investment $investment)
     {
         $investment = $this->investmentService->getDetails($investment->id);
+
+        $profitRecords = $investment->profitRecords()
+            ->where('has_profit_amount', 1)
+            ->with([
+                'investorPayouts.latestPaymentDistribution'
+            ])
+            ->get()
+            ->sortBy(function ($record) {
+                return \Carbon\Carbon::parse(
+                    $record->getRawOriginal('profit_release_month')
+                )->timestamp;
+            })
+            ->values();
+
+        $renewalCounts = $profitRecords
+            ->map(fn($record) => (int) ($record->renewal_count ?? 0))
+            ->unique()
+            ->sort()
+            ->values();
+
         // dd($investment);
-        return view('admin.investment.investment.view-investment', compact('investment'));
+        return view('admin.investment.investment.view-investment', compact('investment', 'profitRecords', 'renewalCounts'));
     }
     public function destroy(Investment $investment)
     {

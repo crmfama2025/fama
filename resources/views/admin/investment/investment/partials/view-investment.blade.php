@@ -311,57 +311,53 @@
 
  </div>
 
-    <div class="card card-outline card-info">
-        <div class="card-header">
-            <h3 class="card-title text-teal font-weight-bold">
-                <i class="fas fa-comments mr-2"></i> Comments
-            </h3>
-        </div>
+ <div class="card card-outline card-info">
+     <div class="card-header">
+         <h3 class="card-title text-teal font-weight-bold">
+             <i class="fas fa-comments mr-2"></i> Comments
+         </h3>
+     </div>
 
-        <div class="card-body">
-            <div class="row">
+     <div class="card-body">
+         <div class="row">
 
-                {{-- Annexure Comment --}}
-                <div class="col-md-4 mb-3">
-                    <h6 class="font-weight-bold">
-                        Annexure Comment
-                    </h6>
+             {{-- Annexure Comment --}}
+             <div class="col-md-4 mb-3">
+                 <h6 class="font-weight-bold">
+                     Annexure Comment
+                 </h6>
 
-                    <div class="border rounded p-3 bg-light h-100"
-                        style="overflow-wrap: anywhere;">
-                        {{ $investment->annexure_comment ?: 'No comment available.' }}
-                    </div>
-                </div>
+                 <div class="border rounded p-3 bg-light h-100" style="overflow-wrap: anywhere;">
+                     {{ $investment->annexure_comment ?: 'No comment available.' }}
+                 </div>
+             </div>
 
-                {{-- Annexure Comment Arabic --}}
-                <div class="col-md-4 mb-3">
-                    <h6 class="font-weight-bold">
-                        Annexure Comment (Arabic)
-                    </h6>
+             {{-- Annexure Comment Arabic --}}
+             <div class="col-md-4 mb-3">
+                 <h6 class="font-weight-bold">
+                     Annexure Comment (Arabic)
+                 </h6>
 
-                    <div class="border rounded p-3 bg-light h-100"
-                        dir="rtl"
-                        lang="ar"
-                        style=" overflow-wrap: anywhere; text-align: right;">
-                        {{ $investment->annexure_comment_ar ?: 'لا توجد تعليقات.' }}
-                    </div>
-                </div>
+                 <div class="border rounded p-3 bg-light h-100" dir="rtl" lang="ar"
+                     style=" overflow-wrap: anywhere; text-align: right;">
+                     {{ $investment->annexure_comment_ar ?: 'لا توجد تعليقات.' }}
+                 </div>
+             </div>
 
-                {{-- Remarks --}}
-                <div class="col-md-4 mb-3">
-                    <h6 class="font-weight-bold">
-                        Remarks
-                    </h6>
+             {{-- Remarks --}}
+             <div class="col-md-4 mb-3">
+                 <h6 class="font-weight-bold">
+                     Remarks
+                 </h6>
 
-                    <div class="border rounded p-3 bg-light h-100"
-                        style="overflow-wrap: anywhere;">
-                        {{ $investment->common_comment ?: 'No remarks available.' }}
-                    </div>
-                </div>
+                 <div class="border rounded p-3 bg-light h-100" style="overflow-wrap: anywhere;">
+                     {{ $investment->common_comment ?: 'No remarks available.' }}
+                 </div>
+             </div>
 
-            </div>
-        </div>
-    </div>
+         </div>
+     </div>
+ </div>
 
 
 
@@ -483,19 +479,6 @@
 
 
  @php
-     $profitRecords = $investment->profitRecords
-         ->where('has_profit_amount', 1)
-         ->sortBy(function ($record) {
-             return \Carbon\Carbon::parse($record->getRawOriginal('profit_release_month'))->timestamp;
-         })
-         ->values();
-
-     $renewalCounts = $profitRecords
-         ->map(fn($record) => (int) ($record->renewal_count ?? 0))
-         ->unique()
-         ->sort()
-         ->values();
-
      $selectedRenewalCount = $renewalCounts->isNotEmpty() ? $renewalCounts->max() : null;
  @endphp
 
@@ -593,7 +576,11 @@
 
                              <td>
                                  <span class="text-bold text-sm">
-                                     {{ $profitRecord->last_released_at ? getFormattedDate($profitRecord->last_released_at) : '-' }}
+                                     @php
+                                         $paidDate =
+                                             $profitRecord->investorPayouts?->latestPaymentDistribution?->paid_date;
+                                     @endphp
+                                     {{ $paidDate ? getFormattedDate($paidDate) : '-' }}
                                  </span>
                              </td>
                          </tr>
