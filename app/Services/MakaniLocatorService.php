@@ -9,125 +9,140 @@ use Illuminate\Validation\ValidationException;
 
 class MakaniLocatorService
 {
+    /**
+     * Get coordinates using the 10-digit Makani number.
+     */
     public function fromMakani(string $makani): array
     {
         $makani = preg_replace('/\D/', '', $makani);
 
-        return Cache::remember('makani:' . $makani, now()->addDay(), function () use ($makani) {
-            $data = $this->fetchMakaniData($makani);
-            $info = $data['MAKANI_INFO'][0] ?? null;
-
-            if (!$info || empty($info['LATLNG'])) {
-                throw ValidationException::withMessages([
-                    'makani_number' => 'Could not find this Makani number.',
-                ]);
-            }
-
-            [$lat, $lng] = array_map('floatval', preg_split('/[,;\s]+/', trim($info['LATLNG'])));
-
-            return [
-                'lat'       => $lat,
-                'lng'       => $lng,
-                'building'  => $info['BLDG_NAME_E'] ?? $data['BLDG_NAME_E'] ?? null,
-                'community' => $info['COMMUNITY_E'] ?? $data['COMMUNITY_E'] ?? null,
-            ];
-        });
-    }
-
-    private function fetchMakaniData(string $makani): array
-    {
-        $base = rtrim(config('services.makani.url'), '/');
-
-
-        try {
-            $res = Http::timeout(15)->acceptJson()->get($base . '/GetMakaniDetails', [
-                'makanino' => $makani,
-                'remarks'  => 'Property verification',
+        if (strlen($makani) !== 10) {
+            throw ValidationException::withMessages([
+                'makani_number' => 'Makani number must be 10 digits.',
             ]);
-            $data = $this->decode($res->body());
-            if (!empty($data['MAKANI_INFO'])) {
-                return $data;
-            }
-            Log::warning('Makani REST lookup empty', ['status' => $res->status(), 'body' => mb_substr($res->body(), 0, 500)]);
-        } catch (\Throwable $e) {
-            Log::warning('Makani REST lookup error: ' . $e->getMessage());
         }
 
-        // 2) SOAP style (needs extension=soap)
-        try {
-            if (class_exists(\SoapClient::class)) {
-                $client = new \SoapClient($base . '?wsdl', ['exceptions' => true, 'connection_timeout' => 15]);
-                $res = $client->GetMakaniDetails(['makanino' => $makani, 'remarks' => 'Property verification']);
-                $data = $this->decode((string) ($res->GetMakaniDetailsResult ?? ''));
-                if (!empty($data['MAKANI_INFO'])) {
-                    return $data;
+        return Cache::remember(
+            'makani:' . $makani,
+            now()->addDay(),
+            function () use ($makani) {
+
+                $base = rtrim(config('services.makani.url'), '/');
+
+                try {
+                    // Call Makani SOAP API
+                    $client = new \SoapClient($base . '?wsdl', [
+                        'exceptions' => true,
+                        'trace' => true,
+                        'connection_timeout' => 15,
+                        'cache_wsdl' => WSDL_CACHE_MEMORY,
+                    ]);
+
+                    $response = $client->GetMakaniDetails([
+                        'makanino' => $makani,
+                        'remarks' => '',
+                    ]);
+
+                    $result = $response->GetMakaniDetailsResult ?? null;
+
+                    if (is_string($result)) {
+                        $result = json_decode($result, true);
+                    }
+
+                    if (is_object($result)) {
+                        $result = json_decode(json_encode($result), true);
+                    }
+
+                    $info = $result['MAKANI_INFO'][0] ?? null;
+
+                    if (!$info || empty($info['LATLNG'])) {
+                        throw new \RuntimeException(
+                            'Makani number was not found or coordinates are missing.'
+                        );
+                    }
+
+                    $coordinates = explode(',', $info['LATLNG']);
+
+                    if (count($coordinates) !== 2) {
+                        throw new \RuntimeException(
+                            'Invalid coordinates returned by Makani API.'
+                        );
+                    }
+
+                    return [
+                        'lat' => (float) trim($coordinates[0]),
+                        'lng' => (float) trim($coordinates[1]),
+                        'building' => $info['BUILDING_NAME'] ?? null,
+                        'community' => $info['COMMUNITY'] ?? null,
+                    ];
+                } catch (\Throwable $e) {
+                    Log::error('Makani API error', [
+                        'makani' => $makani,
+                        'message' => $e->getMessage(),
+                    ]);
+
+                    throw ValidationException::withMessages([
+                        'makani_number' => 'Unable to verify Makani number. Please try again.',
+                    ]);
                 }
-                Log::warning('Makani SOAP lookup empty', ['body' => mb_substr(json_encode($res), 0, 500)]);
             }
-        } catch (\Throwable $e) {
-            Log::warning('Makani SOAP lookup error: ' . $e->getMessage());
-        }
-
-        return [];
+        );
     }
 
+    /**
+     * Extract coordinates from Google Maps links.
+     */
     public function fromLink(string $url): array
     {
-
         $url = urldecode($url);
 
         if (preg_match_all('~!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)~', $url, $all, PREG_SET_ORDER)) {
             $last = end($all);
-            return ['lat' => (float) $last[1], 'lng' => (float) $last[2]];
-        }
 
-        if (preg_match('~(\d+)°(\d+)\'([\d.]+)"\s*([NS])\s*\+?\s*(\d+)°(\d+)\'([\d.]+)"\s*([EW])~u', $url, $m)) {
-            $lat = $m[1] + $m[2] / 60 + $m[3] / 3600;
-            $lng = $m[5] + $m[6] / 60 + $m[7] / 3600;
             return [
-                'lat' => $m[4] === 'S' ? -$lat : $lat,
-                'lng' => $m[8] === 'W' ? -$lng : $lng,
+                'lat' => (float) $last[1],
+                'lng' => (float) $last[2],
             ];
         }
 
-        $patterns = [
-            '~[?&](?:q|ll|query|destination)=(-?\d+\.\d+),(-?\d+\.\d+)~',
-            '~@(-?\d+\.\d+),(-?\d+\.\d+)~',
-        ];
-        foreach ($patterns as $p) {
-            if (preg_match($p, $url, $m)) {
-                return ['lat' => (float) $m[1], 'lng' => (float) $m[2]];
-            }
+        if (preg_match('~@(-?\d+\.\d+),(-?\d+\.\d+)~', $url, $m)) {
+            return [
+                'lat' => (float) $m[1],
+                'lng' => (float) $m[2],
+            ];
+        }
+
+        if (preg_match('~[?&](?:q|ll|query|destination)=(-?\d+\.\d+),(-?\d+\.\d+)~', $url, $m)) {
+            return [
+                'lat' => (float) $m[1],
+                'lng' => (float) $m[2],
+            ];
         }
 
         throw ValidationException::withMessages([
-            'location' => 'Could not read coordinates from this link. Drop a pin, tap Share and paste that link.',
+            'location_link' => 'Could not read coordinates from this link. Drop a pin, tap Share and paste that link.',
         ]);
     }
 
-    public static function distanceMeters(float $lat1, float $lng1, float $lat2, float $lng2): float
-    {
+    /**
+     * Calculate distance between two coordinates.
+     */
+    public static function distanceMeters(
+        float $lat1,
+        float $lng1,
+        float $lat2,
+        float $lng2
+    ): float {
         $r = 6371000;
+
         $dLat = deg2rad($lat2 - $lat1);
         $dLng = deg2rad($lng2 - $lng1);
-        $a = sin($dLat / 2) ** 2 + cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * sin($dLng / 2) ** 2;
-        return $r * 2 * atan2(sqrt($a), sqrt(1 - $a));
-    }
 
-    private function decode(string $body): array
-    {
-        $json = json_decode($body, true);
-        if (is_array($json)) {
-            foreach ($json as $k => $v) {
-                if (is_string($k) && str_ends_with($k, 'Result') && is_string($v)) {
-                    $json = json_decode($v, true) ?? [];
-                    break;
-                }
-            }
-        }
-        if (is_string($json)) {
-            $json = json_decode($json, true);
-        }
-        return is_array($json) ? $json : [];
+        $a = sin($dLat / 2) ** 2
+            + cos(deg2rad($lat1))
+            * cos(deg2rad($lat2))
+            * sin($dLng / 2) ** 2;
+
+        return $r * 2 * atan2(sqrt($a), sqrt(1 - $a));
     }
 }
