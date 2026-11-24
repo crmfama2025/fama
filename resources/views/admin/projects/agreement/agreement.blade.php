@@ -591,8 +591,24 @@
                 contentType: false,
                 success: function(response) {
                     toastr.success(response.message);
+                    // Close modal
                     $('#modal-terminate').modal('hide');
-                    window.location.href = "{{ route('agreement.index') }}";
+
+                    // Reset form fields
+                    $('#terminateForm')[0].reset();
+
+                    // Clear Select2 dropdown
+                    $('#bank_id').val('').trigger('change');
+
+                    // Reset validation errors if any
+                    $('#terminateForm').find('.is-invalid').removeClass('is-invalid');
+                    $('#terminateForm').find('.invalid-feedback').remove();
+
+                    // Enable button
+                    button.prop('disabled', false);
+
+                    // window.location.href = "{{ route('agreement.index') }}";
+                    $('#agreementTable').DataTable().ajax.reload(null, false);
                 },
                 error: function(xhr) {
                     button.prop('disabled', false);
@@ -612,6 +628,13 @@
             setTimeout(function() {
                 table.columns.adjust().responsive.recalc();
             }, 200);
+        });
+
+        $('#modal-terminate').on('hidden.bs.modal', function() {
+            $('#terminateForm')[0].reset();
+            $('#bank_id').val('').trigger('change');
+            $('#terminateForm').find('.is-invalid').removeClass('is-invalid');
+            $('#terminateForm').find('.invalid-feedback').remove();
         });
     </script>
     <script>
@@ -657,16 +680,18 @@
             }
 
             let companyContracts = contracts
-            .filter(function(contract) {
-                return contract.company_id == companyId;
-            })
-            .sort(function(a, b) {
-                return String(a.project_number).localeCompare(
-                    String(b.project_number),
-                    undefined,
-                    { numeric: true, sensitivity: 'base' }
-                );
-            });
+                .filter(function(contract) {
+                    return contract.company_id == companyId;
+                })
+                .sort(function(a, b) {
+                    return String(a.project_number).localeCompare(
+                        String(b.project_number),
+                        undefined, {
+                            numeric: true,
+                            sensitivity: 'base'
+                        }
+                    );
+                });
 
             $.each(companyContracts, function(index, contract) {
                 $('#projectSelect').append(
