@@ -92,36 +92,121 @@ class MakaniLocatorService
     /**
      * Extract coordinates from Google Maps links.
      */
+    // public function fromLink(string $url): array
+    // {
+    //     $url = urldecode($url);
+
+    //     if (preg_match_all('~!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)~', $url, $all, PREG_SET_ORDER)) {
+    //         $last = end($all);
+
+    //         return [
+    //             'lat' => (float) $last[1],
+    //             'lng' => (float) $last[2],
+    //         ];
+    //     }
+
+    //     if (preg_match('~@(-?\d+\.\d+),(-?\d+\.\d+)~', $url, $m)) {
+    //         return [
+    //             'lat' => (float) $m[1],
+    //             'lng' => (float) $m[2],
+    //         ];
+    //     }
+
+    //     if (preg_match('~[?&](?:q|ll|query|destination)=(-?\d+\.\d+),(-?\d+\.\d+)~', $url, $m)) {
+    //         return [
+    //             'lat' => (float) $m[1],
+    //             'lng' => (float) $m[2],
+    //         ];
+    //     }
+
+    //     throw ValidationException::withMessages([
+    //         'location_link' => 'Could not read coordinates from this link. Drop a pin, tap Share and paste that link.',
+    //     ]);
+    // }
     public function fromLink(string $url): array
     {
-        $url = urldecode($url);
+        $url = urldecode($this->expandShortLink(trim($url)));
 
         if (preg_match_all('~!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)~', $url, $all, PREG_SET_ORDER)) {
             $last = end($all);
-
-            return [
-                'lat' => (float) $last[1],
-                'lng' => (float) $last[2],
-            ];
+            return ['lat' => (float) $last[1], 'lng' => (float) $last[2]];
         }
 
         if (preg_match('~@(-?\d+\.\d+),(-?\d+\.\d+)~', $url, $m)) {
-            return [
-                'lat' => (float) $m[1],
-                'lng' => (float) $m[2],
-            ];
+            return ['lat' => (float) $m[1], 'lng' => (float) $m[2]];
         }
 
         if (preg_match('~[?&](?:q|ll|query|destination)=(-?\d+\.\d+),(-?\d+\.\d+)~', $url, $m)) {
-            return [
-                'lat' => (float) $m[1],
-                'lng' => (float) $m[2],
-            ];
+            return ['lat' => (float) $m[1], 'lng' => (float) $m[2]];
+        }
+
+        // Optional fallback: link has a place name but no coordinates
+        if ($coords = $this->geocodeFromPlaceName($url)) {
+            return $coords;
         }
 
         throw ValidationException::withMessages([
             'location_link' => 'Could not read coordinates from this link. Drop a pin, tap Share and paste that link.',
         ]);
+    }
+
+    /**
+     * Follow redirects of Google short links (no API key needed).
+     */
+    private function expandShortLink(string $url): string
+    {
+        $allowed = ['maps.app.goo.gl', 'goo.gl', 'g.co'];
+
+        for ($i = 0; $i < 5; $i++) {
+            $host = strtolower(parse_url($url, PHP_URL_HOST) ?? '');
+
+            if (!in_array($host, $allowed, true)) {
+                return $url; // already a full Google URL (or not a short link)
+            }
+
+            try {
+                $response = Http::withOptions(['allow_redirects' => false])
+                    ->timeout(10)
+                    ->get($url);
+            } catch (\Throwable $e) {
+                Log::warning('Short link expand failed', ['url' => $url, 'message' => $e->getMessage()]);
+                return $url;
+            }
+
+            $next = $response->header('Location');
+            if (!$next) {
+                return $url;
+            }
+            $url = $next;
+        }
+
+        return $url;
+    }
+
+    /**
+     * Fallback: /maps/place/<name>/ links without coordinates.
+     * Less precise than a dropped pin, so use with care.
+     */
+    private function geocodeFromPlaceName(string $url): ?array
+    {
+        if (!preg_match('~/maps/place/([^/@?]+)~', $url, $m)) {
+            return null;
+        }
+
+        $key = config('services.google.maps_key');
+        if (!$key) {
+            return null;
+        }
+
+        $res = Http::timeout(10)->get('https://maps.googleapis.com/maps/api/geocode/json', [
+            'address' => str_replace('+', ' ', $m[1]),
+            'region'  => 'ae',
+            'key'     => $key,
+        ]);
+
+        $loc = $res->json('results.0.geometry.location');
+
+        return $loc ? ['lat' => (float) $loc['lat'], 'lng' => (float) $loc['lng']] : null;
     }
 
     /**
