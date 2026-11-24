@@ -44,7 +44,6 @@ class AgreementService
     ) {}
 
 
-
     public function getAll()
     {
         return $this->agreementRepository->all();
@@ -83,6 +82,7 @@ class AgreementService
                     'added_by' => $data['added_by'],
                     'agreement_code' => $data['agreement_code'],
                     'tenant_id' => $data['tenant_id'],
+                    'contract_business_type' => $ct->contract_unit->business_type
                 ];
                 // Add only if present
                 if (!empty($data['renewal_status'])) {
@@ -179,6 +179,7 @@ class AgreementService
                     'added_by' => $data['added_by'],
                     'agreement_code' => $data['agreement_code'],
                     'tenant_id' => $data['tenant_id'],
+                    'contract_business_type' => $ct->contract_unit->business_type
                 ];
                 // Add only if present
                 if (!empty($data['renewal_status'])) {
@@ -321,6 +322,7 @@ class AgreementService
                     'added_by' => $data['added_by'],
                     'agreement_code' => $data['agreement_code'],
                     'tenant_id' => $tenant->id,
+                    'contract_business_type' => $ct->contract_unit->business_type
                 ];
                 if (!empty($data['sales_agreement_id'])) {
                     $agreementData['sales_tenant_agreement_id'] = $data['sales_agreement_id'];
