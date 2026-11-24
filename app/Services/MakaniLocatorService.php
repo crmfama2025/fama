@@ -31,11 +31,13 @@ class MakaniLocatorService
 
                 try {
                     // Call Makani SOAP API
+                    ini_set('default_socket_timeout', 30);
+
                     $client = new \SoapClient($base . '?wsdl', [
-                        'exceptions' => true,
-                        'trace' => true,
-                        'connection_timeout' => 15,
-                        'cache_wsdl' => WSDL_CACHE_MEMORY,
+                        'exceptions'         => true,
+                        'trace'              => true,
+                        'connection_timeout' => 30,
+                        'cache_wsdl'         => WSDL_CACHE_DISK, // keep the WSDL once it loads
                     ]);
 
                     $response = $client->GetMakaniDetails([
@@ -77,8 +79,10 @@ class MakaniLocatorService
                     ];
                 } catch (\Throwable $e) {
                     Log::error('Makani API error', [
-                        'makani' => $makani,
-                        'message' => $e->getMessage(),
+                        'makani'   => $makani,
+                        'class'    => get_class($e),
+                        'message'  => $e->getMessage(),
+                        'response' => $client ? substr((string) $client->__getLastResponse(), 0, 1000) : null,
                     ]);
 
                     throw ValidationException::withMessages([
