@@ -28,6 +28,9 @@ class receivableReportExport implements FromCollection, WithHeadings, ShouldAuto
 
         $query = ClearedReceivable::query()
             ->with([
+                'company',
+                'paidCompany',
+                'paidBy',
                 'agreementPaymentDetail',
                 'agreementPaymentDetail.agreementPayment.installment',
                 'agreementPaymentDetail.paymentMode',
@@ -95,7 +98,7 @@ class receivableReportExport implements FromCollection, WithHeadings, ShouldAuto
                     ->orWhereRaw("CAST(cleared_receivables.id AS CHAR) LIKE ?", ["%$search%"]);
             });
         }
-        $results = $query->get();
+        // $results = $query->get();
 
         // dd($results);
 
@@ -121,7 +124,11 @@ class receivableReportExport implements FromCollection, WithHeadings, ShouldAuto
                 'Tenant Email' => $detail->agreement->tenant->tenant_email ?? '-',
                 'Tenant Mobile' => $detail->agreement->tenant->tenant_mobile ?? '-',
                 'Project Number' => $detail->agreement->contract->project_number ?? '-',
-                'Company Name' => $detail->agreement->contract->company->company_name ?? '-',
+                // 'Company Name' => $detail->agreement->contract->company->company_name ?? '-',
+                'Company Name' => $row->company->company_name
+                    ?? $row->paidCompany->company_name
+                    ?? $detail->agreement->contract->company->company_name
+                    ?? '-',
                 'Contract Type' => $detail->agreement->contract->contract_type->contract_type ?? '-',
                 'Business Type' => $detail->agreement->contract->contract_unit->business_type() ?? '-',
                 'Property' => $detail->agreement->contract->property->property_name ?? '-',

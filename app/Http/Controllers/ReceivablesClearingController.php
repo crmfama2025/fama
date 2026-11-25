@@ -128,9 +128,7 @@ class ReceivablesClearingController extends Controller
     }
     public function receivableReportList(Request $request)
     {
-        // dd("test");
-        // dd($request->all());
-        // dd($request->company_id);
+
         if ($request->ajax()) {
             $filters = [
                 'company_id'  => $request->company_id,
