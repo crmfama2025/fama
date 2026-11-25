@@ -352,6 +352,9 @@ class TenantChequeRepository
 
 
             ->with([
+                'company',
+                'paidCompany',
+                'paidBy',
                 'agreementPaymentDetail',
                 'agreementPaymentDetail.agreementPayment.installment',
                 'agreementPaymentDetail.paymentMode',

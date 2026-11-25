@@ -776,10 +776,18 @@ class TenantChequeService
 
                 return $mode;
             })
+            // ->addColumn(
+            //     'company_name',
+            //     fn($row) =>
+            //     $row->paidCompany?->company_name
+            //         ?? $row->agreementPaymentDetail?->agreement?->contract?->company?->company_name
+            //         ?? '-'
+            // )
             ->addColumn(
                 'company_name',
                 fn($row) =>
-                $row->paidCompany?->company_name
+                $row->company?->company_name
+                    ?? $row->paidCompany?->company_name
                     ?? $row->agreementPaymentDetail?->agreement?->contract?->company?->company_name
                     ?? '-'
             )

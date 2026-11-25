@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ClearedReceivable extends Model
 {
-    use HasFactory,SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'cleared_receivables';
 
@@ -28,7 +28,8 @@ class ClearedReceivable extends Model
         'receipt_allocation_id',
         'have_other_adjustments',
         'loss_or_discount',
-        'company_id','deleted_by'
+        'company_id',
+        'deleted_by'
     ];
 
 
@@ -59,10 +60,14 @@ class ClearedReceivable extends Model
         return $this->belongsTo(Company::class, 'paid_company_id', 'id');
     }
     protected static function booted()
-{
-    static::deleting(function ($allocation) {
-        $allocation->deleted_by = auth()->id();
-        $allocation->saveQuietly();
-    });
-}
+    {
+        static::deleting(function ($allocation) {
+            $allocation->deleted_by = auth()->id();
+            $allocation->saveQuietly();
+        });
+    }
+    public function company()
+    {
+        return $this->belongsTo(Company::class, 'company_id');
+    }
 }
