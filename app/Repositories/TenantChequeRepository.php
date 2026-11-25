@@ -378,6 +378,10 @@ class TenantChequeRepository
         $query->whereHas('agreementPaymentDetail.agreement.company', function ($q) use ($permittedCompanyIds) {
             $q->whereIn('company_id', $permittedCompanyIds);
         });
+        $query->where(function ($q) {
+            $q->whereNull('cleared_receivables.loss_or_discount')
+                ->orWhere('cleared_receivables.loss_or_discount', 0);
+        });
 
 
         if (!empty($filters['search'])) {
@@ -477,8 +481,7 @@ class TenantChequeRepository
                 'have_other_adjustments',
                 'cleared_receivable_ids',
                 'created_at'
-            ])
-            ;
+            ]);
 
         if (!empty($filters['search'])) {
             $search = $filters['search'];
@@ -497,21 +500,19 @@ class TenantChequeRepository
         }
 
         if (!empty($filters['company_id'])) {
-    $query->where('company_id', $filters['company_id']);
-}
+            $query->where('company_id', $filters['company_id']);
+        }
 
-if (!empty($filters['added_by'])) {
-    $query->where('added_by', $filters['added_by']);
-}
+        if (!empty($filters['added_by'])) {
+            $query->where('added_by', $filters['added_by']);
+        }
 
-if (!empty($filters['paid_date'])) {
-    $query->whereDate('cleared_date', $filters['paid_date']);
-}
+        if (!empty($filters['paid_date'])) {
+            $query->whereDate('cleared_date', $filters['paid_date']);
+        }
         // $query->orderBy('id', 'desc');
         // dd($query->get()->toArray());
 
         return $query->orderBy('id', 'desc');
     }
-
-
 }
