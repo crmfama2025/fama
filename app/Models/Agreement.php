@@ -49,7 +49,8 @@ class Agreement extends Model
         'tenant_id',
         'renewal_status',
         'parent_agreement_id',
-        'sales_tenant_agreement_id'
+        'sales_tenant_agreement_id',
+        'contract_business_type'
 
     ];
 
