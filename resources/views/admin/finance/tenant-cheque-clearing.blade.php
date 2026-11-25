@@ -1252,6 +1252,19 @@
                     }
                 }]
             });
+
+            table.on('preXhr.dt', function() {
+                showLoader();
+            });
+
+            table.on('draw.dt', function() {
+                hideLoader();
+            });
+
+            // If the table's ajax request fails, draw.dt never fires
+            table.on('error.dt', function() {
+                hideLoader();
+            });
         });
     </script>
     <script>
@@ -1885,7 +1898,7 @@
                     $('#lossDiscountForm')[0].reset();
                     table.ajax.reload(null, false); // Reload DataTable without resetting pagination
                     // window.location.reload();
-                    hideLoader();
+                    // hideLoader();
                 },
                 error: function(xhr) {
                     hideLoader();
@@ -1898,7 +1911,7 @@
                     }
                 },
                 complete: function() {
-                    hideLoader();
+                    // hideLoader();
                     $('#lossDiscountForm button[type="submit"]').prop('disabled', false);
                 }
             });
