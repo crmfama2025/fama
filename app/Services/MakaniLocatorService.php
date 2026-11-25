@@ -20,7 +20,11 @@ class MakaniLocatorService
 
 
         for ($i = 0; $i < 5; $i++) {
-            $response = Http::withoutRedirecting()->timeout(10)->get($url);
+            $response = Http::withoutRedirecting()
+                ->withOptions(['force_ip_resolve' => 'v4'])
+                ->timeout(10)
+                ->get($url);
+
             $next = $response->header('Location');
 
             if (!$next) {
@@ -68,6 +72,7 @@ class MakaniLocatorService
     public function reverseGeocode(float $lat, float $lng): array
     {
         $json = Http::timeout(10)
+            ->withOptions(['force_ip_resolve' => 'v4'])
             ->get('https://maps.googleapis.com/maps/api/geocode/json', [
                 'latlng' => "{$lat},{$lng}",
                 'key'    => config('services.google.geocode_key'),
@@ -76,8 +81,11 @@ class MakaniLocatorService
 
         if (($json['status'] ?? '') !== 'OK' || empty($json['results'][0])) {
             Log::error('Google geocode error', [
-                'status'  => $json['status'] ?? null,
-                'message' => $json['error_message'] ?? null,
+                'status'      => $json['status'] ?? null,
+                'message'     => $json['error_message'] ?? null,
+                'lat'         => $lat,
+                'lng'         => $lng,
+                'key_present' => filled(config('services.google.geocode_key')),
             ]);
 
             throw ValidationException::withMessages([
