@@ -54,10 +54,10 @@ class receivableReportExport implements FromCollection, WithHeadings, ShouldAuto
         $query->whereHas('agreementPaymentDetail.agreement.company', function ($q) use ($permittedCompanyIds) {
             $q->whereIn('company_id', $permittedCompanyIds);
         });
-        $query->where(function ($q) {
-            $q->whereNull('cleared_receivables.loss_or_discount')
-                ->orWhere('cleared_receivables.loss_or_discount', 0);
-        });
+        // $query->where(function ($q) {
+        //     $q->whereNull('cleared_receivables.loss_or_discount')
+        //         ->orWhere('cleared_receivables.loss_or_discount', 0);
+        // });
 
 
         if (!empty($filters['search'])) {
