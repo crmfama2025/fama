@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
@@ -10,129 +9,43 @@ use Illuminate\Validation\ValidationException;
 class MakaniLocatorService
 {
     /**
-     * Get coordinates using the 10-digit Makani number.
+     * Follow Google short links (maps.app.goo.gl) to the full URL.
+     * Only Google short-link hosts are followed.
      */
-    public function fromMakani(string $makani): array
+    public function resolveLink(string $url): string
     {
-        $makani = preg_replace('/\D/', '', $makani);
-
-        if (strlen($makani) !== 10) {
-            throw ValidationException::withMessages([
-                'makani_number' => 'Makani number must be 10 digits.',
-            ]);
+        if (!preg_match('~^https?://(maps\.app\.goo\.gl|goo\.gl/maps)~i', $url)) {
+            return $url;
         }
 
-        return Cache::remember(
-            'makani:' . $makani,
-            now()->addDay(),
-            function () use ($makani) {
 
-                $base = rtrim(config('services.makani.url'), '/');
+        for ($i = 0; $i < 5; $i++) {
+            $response = Http::withoutRedirecting()->timeout(10)->get($url);
+            $next = $response->header('Location');
 
-                try {
-                    // Call Makani SOAP API
-                    ini_set('default_socket_timeout', 30);
-
-                    $client = new \SoapClient($base . '?wsdl', [
-                        'exceptions'         => true,
-                        'trace'              => true,
-                        'connection_timeout' => 30,
-                        'cache_wsdl'         => WSDL_CACHE_DISK, // keep the WSDL once it loads
-                    ]);
-
-                    $response = $client->GetMakaniDetails([
-                        'makanino' => $makani,
-                        'remarks' => '',
-                    ]);
-
-                    $result = $response->GetMakaniDetailsResult ?? null;
-
-                    if (is_string($result)) {
-                        $result = json_decode($result, true);
-                    }
-
-                    if (is_object($result)) {
-                        $result = json_decode(json_encode($result), true);
-                    }
-
-                    $info = $result['MAKANI_INFO'][0] ?? null;
-
-                    if (!$info || empty($info['LATLNG'])) {
-                        throw new \RuntimeException(
-                            'Makani number was not found or coordinates are missing.'
-                        );
-                    }
-
-                    $coordinates = explode(',', $info['LATLNG']);
-
-                    if (count($coordinates) !== 2) {
-                        throw new \RuntimeException(
-                            'Invalid coordinates returned by Makani API.'
-                        );
-                    }
-
-                    return [
-                        'lat' => (float) trim($coordinates[0]),
-                        'lng' => (float) trim($coordinates[1]),
-                        'building' => $info['BUILDING_NAME'] ?? null,
-                        'community' => $info['COMMUNITY'] ?? null,
-                    ];
-                } catch (\Throwable $e) {
-                    Log::error('Makani API error', [
-                        'makani'   => $makani,
-                        'class'    => get_class($e),
-                        'message'  => $e->getMessage(),
-                        'response' => $client ? substr((string) $client->__getLastResponse(), 0, 1000) : null,
-                    ]);
-
-                    throw ValidationException::withMessages([
-                        'makani_number' => 'Unable to verify Makani number. Please try again.',
-                    ]);
-                }
+            if (!$next) {
+                break;
             }
-        );
+            $url = $next;
+
+            if (!preg_match('~^https?://(maps\.app\.goo\.gl|goo\.gl/maps)~i', $url)) {
+                break;
+            }
+        }
+
+        return $url;
     }
 
     /**
-     * Extract coordinates from Google Maps links.
+     * Extract coordinates from a Google Maps link.
      */
-    // public function fromLink(string $url): array
-    // {
-    //     $url = urldecode($url);
-
-    //     if (preg_match_all('~!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)~', $url, $all, PREG_SET_ORDER)) {
-    //         $last = end($all);
-
-    //         return [
-    //             'lat' => (float) $last[1],
-    //             'lng' => (float) $last[2],
-    //         ];
-    //     }
-
-    //     if (preg_match('~@(-?\d+\.\d+),(-?\d+\.\d+)~', $url, $m)) {
-    //         return [
-    //             'lat' => (float) $m[1],
-    //             'lng' => (float) $m[2],
-    //         ];
-    //     }
-
-    //     if (preg_match('~[?&](?:q|ll|query|destination)=(-?\d+\.\d+),(-?\d+\.\d+)~', $url, $m)) {
-    //         return [
-    //             'lat' => (float) $m[1],
-    //             'lng' => (float) $m[2],
-    //         ];
-    //     }
-
-    //     throw ValidationException::withMessages([
-    //         'location_link' => 'Could not read coordinates from this link. Drop a pin, tap Share and paste that link.',
-    //     ]);
-    // }
     public function fromLink(string $url): array
     {
-        $url = urldecode($this->expandShortLink(trim($url)));
+        $url = urldecode($this->resolveLink($url));
 
         if (preg_match_all('~!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)~', $url, $all, PREG_SET_ORDER)) {
             $last = end($all);
+
             return ['lat' => (float) $last[1], 'lng' => (float) $last[2]];
         }
 
@@ -144,94 +57,50 @@ class MakaniLocatorService
             return ['lat' => (float) $m[1], 'lng' => (float) $m[2]];
         }
 
-        // Optional fallback: link has a place name but no coordinates
-        if ($coords = $this->geocodeFromPlaceName($url)) {
-            return $coords;
-        }
-
         throw ValidationException::withMessages([
             'location_link' => 'Could not read coordinates from this link. Drop a pin, tap Share and paste that link.',
         ]);
     }
 
     /**
-     * Follow redirects of Google short links (no API key needed).
+     * Reverse geocode with Google: address + is the point inside Dubai?
      */
-    private function expandShortLink(string $url): string
+    public function reverseGeocode(float $lat, float $lng): array
     {
-        $allowed = ['maps.app.goo.gl', 'goo.gl', 'g.co'];
+        $json = Http::timeout(10)
+            ->get('https://maps.googleapis.com/maps/api/geocode/json', [
+                'latlng' => "{$lat},{$lng}",
+                'key'    => config('services.google.geocode_key'),
+            ])
+            ->json();
 
-        for ($i = 0; $i < 5; $i++) {
-            $host = strtolower(parse_url($url, PHP_URL_HOST) ?? '');
+        if (($json['status'] ?? '') !== 'OK' || empty($json['results'][0])) {
+            Log::error('Google geocode error', [
+                'status'  => $json['status'] ?? null,
+                'message' => $json['error_message'] ?? null,
+            ]);
 
-            if (!in_array($host, $allowed, true)) {
-                return $url; // already a full Google URL (or not a short link)
-            }
-
-            try {
-                $response = Http::withOptions(['allow_redirects' => false])
-                    ->timeout(10)
-                    ->get($url);
-            } catch (\Throwable $e) {
-                Log::warning('Short link expand failed', ['url' => $url, 'message' => $e->getMessage()]);
-                return $url;
-            }
-
-            $next = $response->header('Location');
-            if (!$next) {
-                return $url;
-            }
-            $url = $next;
+            throw ValidationException::withMessages([
+                'location_link' => 'Could not locate this pin on the map. Please check the link.',
+            ]);
         }
 
-        return $url;
-    }
+        $first   = $json['results'][0];
+        $country = null;
+        $emirate = null;
 
-    /**
-     * Fallback: /maps/place/<name>/ links without coordinates.
-     * Less precise than a dropped pin, so use with care.
-     */
-    private function geocodeFromPlaceName(string $url): ?array
-    {
-        if (!preg_match('~/maps/place/([^/@?]+)~', $url, $m)) {
-            return null;
+        foreach ($first['address_components'] as $c) {
+            if (in_array('country', $c['types'])) {
+                $country = $c['short_name'];
+            }
+            if (in_array('administrative_area_level_1', $c['types'])) {
+                $emirate = $c['long_name'];
+            }
         }
 
-        $key = config('services.google.maps_key');
-        if (!$key) {
-            return null;
-        }
-
-        $res = Http::timeout(10)->get('https://maps.googleapis.com/maps/api/geocode/json', [
-            'address' => str_replace('+', ' ', $m[1]),
-            'region'  => 'ae',
-            'key'     => $key,
-        ]);
-
-        $loc = $res->json('results.0.geometry.location');
-
-        return $loc ? ['lat' => (float) $loc['lat'], 'lng' => (float) $loc['lng']] : null;
-    }
-
-    /**
-     * Calculate distance between two coordinates.
-     */
-    public static function distanceMeters(
-        float $lat1,
-        float $lng1,
-        float $lat2,
-        float $lng2
-    ): float {
-        $r = 6371000;
-
-        $dLat = deg2rad($lat2 - $lat1);
-        $dLng = deg2rad($lng2 - $lng1);
-
-        $a = sin($dLat / 2) ** 2
-            + cos(deg2rad($lat1))
-            * cos(deg2rad($lat2))
-            * sin($dLng / 2) ** 2;
-
-        return $r * 2 * atan2(sqrt($a), sqrt(1 - $a));
+        return [
+            'address'  => $first['formatted_address'],
+            'in_dubai' => $country === 'AE' && stripos((string) $emirate, 'Dubai') !== false,
+        ];
     }
 }

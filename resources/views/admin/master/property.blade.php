@@ -250,6 +250,204 @@
 
 
     <script>
+        // function esc(v) {
+        //     return $('<div>').text(v ?? '-').html();
+        // }
+        // $('#makani_area_id').on('change', function () {
+        //     makaniAreaChange($(this).val(), null);
+        // });
+
+        // function makaniAreaChange(areaId, localityVal) {
+        //     let options = '<option value="">Select Locality</option>';
+
+        //     allLocalities
+        //         .filter(l => l.area_id == areaId)
+        //         .sort((a, b) => a.locality_name.localeCompare(b.locality_name, undefined, { sensitivity: 'base' }))
+        //         .forEach(l => {
+        //             options += `<option value="${l.id}" ${l.id == localityVal ? 'selected' : ''}>${l.locality_name}</option>`;
+        //         });
+
+        //     $('#makani_locality_id').html(options).trigger('change');
+        // }
+
+        // let makaniMap, makaniOverlays = [], makaniTimer, makaniReq = 0;
+
+        // function initMakaniMap() {
+        //     if (!makaniMap) {
+        //         makaniMap = new google.maps.Map(document.getElementById('makani-map'), {
+        //             center: { lat: 25.2048, lng: 55.2708 }, zoom: 11
+        //         });
+        //     } else {
+        //         google.maps.event.trigger(makaniMap, 'resize');
+        //     }
+        // }
+
+        // function clearMakaniMap() {
+        //     makaniOverlays.forEach(o => o.setMap(null));
+        //     makaniOverlays = [];
+        // }
+
+        // function showMakaniResult(msg, type) {
+        //     $('#makani-verification-result').html(`<div class="alert alert-${type} py-2 mb-0">${msg}</div>`);
+        // }
+
+        // function drawMakaniMap(res) {
+        //     clearMakaniMap();
+        //     const m = { lat: res.makani.lat, lng: res.makani.lng };
+        //     const l = { lat: res.link.lat,   lng: res.link.lng };
+        //     const color = res.within ? '#28a745' : '#dc3545';
+
+        //     makaniOverlays.push(
+        //         new google.maps.Marker({ position: m, map: makaniMap, label: 'M', title: 'Makani location' }),
+        //         new google.maps.Marker({ position: l, map: makaniMap, label: 'L', title: 'Link location' }),
+        //         new google.maps.Polyline({ path: [m, l], map: makaniMap, strokeColor: color, strokeWeight: 3 }),
+        //         new google.maps.Circle({
+        //             center: m, radius: 100, map: makaniMap,
+        //             strokeColor: color, fillColor: color, fillOpacity: 0.12
+        //         })
+        //     );
+
+        //     const bounds = new google.maps.LatLngBounds();
+        //     bounds.extend(m); bounds.extend(l);
+        //     makaniMap.fitBounds(bounds, 60);
+        //     google.maps.event.addListenerOnce(makaniMap, 'idle', () => {
+        //         if (makaniMap.getZoom() > 19) makaniMap.setZoom(19);
+        //     });
+        // }
+
+        // function runMakaniCheck() {
+        //     const digits = $('#makani_verify_number').val().replace(/\D/g, '');
+        //     const link   = $('#makani_location_link').val().trim();
+        //     const $btn   = $('#makaniSubmitBtn');
+
+        //     $btn.prop('disabled', true);
+        //     if (digits.length !== 10 || !link) return;
+
+        //     const reqId = ++makaniReq;
+        //     showMakaniResult('Checking locations...', 'info');
+
+        //     $.ajax({
+        //         url: "{{ route('property.makani.locate') }}",
+        //         type: 'POST',
+        //         data: { _token: $('meta[name="csrf-token"]').attr('content'), makani_number: digits, location_link: link },
+        //         success: function (res) {
+        //             if (reqId !== makaniReq) return;          // ignore stale responses
+        //             drawMakaniMap(res);
+        //             if (res.within) {
+        //                 showMakaniResult(`Within range: ${res.distance} m apart. You can submit.`, 'success');
+        //                 $btn.prop('disabled', false);
+        //             } else {
+        //                 showMakaniResult(`Too far: ${res.distance} m apart (max 100 m).`, 'danger');
+        //             }
+        //         },
+        //         error: function (xhr) {
+        //             if (reqId !== makaniReq) return;
+        //             clearMakaniMap();
+        //             const errs = xhr.responseJSON?.errors;
+        //             const msg = errs ? Object.values(errs).flat().join('<br>') : (xhr.responseJSON?.message || 'Something went wrong.');
+        //             showMakaniResult(msg, 'danger');
+        //         }
+        //     });
+        // }
+
+        // // format "12345 67890" and trigger the check (debounced)
+        // $('#makani_verify_number').on('input', function () {
+        //     const d = this.value.replace(/\D/g, '').slice(0, 10);
+        //     this.value = d.length > 5 ? d.slice(0, 5) + ' ' + d.slice(5) : d;
+        // });
+        // $('#makani_verify_number, #makani_location_link').on('input change', function () {
+        //     clearTimeout(makaniTimer);
+        //     makaniTimer = setTimeout(runMakaniCheck, 600);
+        // });
+
+        // $('#modal-makani-verification').on('shown.bs.modal', function () {
+        //     const $modal = $(this);
+        //     $modal.find('.select2').each(function () {
+        //         if ($(this).hasClass('select2-hidden-accessible')) $(this).select2('destroy');
+        //         $(this).select2({ width: '100%', dropdownParent: $modal, placeholder: 'Select' });
+        //     });
+        //     initMakaniMap();
+        // });
+
+        // $('#modal-makani-verification').on('hidden.bs.modal', function () {
+        //     $('#MakaniVerificationForm')[0].reset();
+        //     $('#makani_area_id').val('').trigger('change');
+        //     $('#makani-verification-result').empty();
+        //     $('#makaniSubmitBtn').prop('disabled', true);
+        //     clearMakaniMap();
+        // });
+
+
+        // function esc(v) {
+        //     return $('<div>').text(v ?? '-').html();
+        // }
+
+        // function submitMakani(confirmUpdate = false) {
+        //     const $btn = $('#makaniSubmitBtn').prop('disabled', true);
+        //     let payload = $('#MakaniVerificationForm').serialize();
+        //     if (confirmUpdate) payload += '&confirm_update=1';
+
+        //     $.ajax({
+        //         url: "{{ route('property.makani.verify') }}",
+        //         type: 'POST',
+        //         data: payload,   // includes _token
+        //         success: function (res) {
+        //             toastr.success(res.message);
+        //             $('#modal-makani-verification').modal('hide');
+        //             $('#propertyTable').DataTable().ajax.reload();
+        //         },
+        //         error: function (xhr) {
+        //             // existing building without Makani -> ask the user
+        //             if (xhr.status === 409 && xhr.responseJSON?.needs_confirmation) {
+        //                 const p = xhr.responseJSON.existing;
+        //                 Swal.fire({
+        //                     title: 'Building already exists',
+        //                     icon: 'question',
+        //                     html: `
+        //                         <p class="mb-2">This building is already in the system <b>without a Makani number</b>:</p>
+        //                         <table class="table table-sm table-bordered text-left mb-2">
+        //                             <tr><th>Building</th><td>${esc(p.property_name)}</td></tr>
+        //                             <tr><th>Area</th><td>${esc(p.area)}</td></tr>
+        //                             <tr><th>Locality</th><td>${esc(p.locality)}</td></tr>
+        //                             <tr><th>Plot No</th><td>${esc(p.plot_no)}</td></tr>
+        //                             <tr><th>Size</th><td>${esc(p.property_size)}</td></tr>
+        //                             <tr><th>Makani</th><td>${esc(p.makani_number || 'Not set')}</td></tr>
+        //                         </table>
+        //                         <p class="mb-0">Do you want to continue and add the Makani number to this property?</p>`,
+        //                     showCancelButton: true,
+        //                     confirmButtonText: 'Yes, continue',
+        //                     cancelButtonText: 'Cancel',
+        //                     confirmButtonColor: '#28a745',
+        //                     cancelButtonColor: '#d33',
+        //                     // the Verify Makani modal is open, so keep the popup above it
+        //                     target: document.getElementById('modal-makani-verification')
+        //                 }).then(result => {
+        //                     if (result.isConfirmed) {
+        //                         submitMakani(true);
+        //                     } else {
+        //                         $btn.prop('disabled', false);
+        //                     }
+        //                 });
+        //                 return;
+        //             }
+
+        //             const errs = xhr.responseJSON?.errors;
+        //             const msg = errs ? Object.values(errs).flat().join('<br>') : (xhr.responseJSON?.message || 'Verification failed.');
+        //             showMakaniResult(msg, 'danger');
+        //             $btn.prop('disabled', false);
+        //         }
+        //     });
+        // }
+
+        // $('#MakaniVerificationForm').on('submit', function (e) {
+        //     e.preventDefault();
+        //     submitMakani(false);
+        // });
+
+        function esc(v) {
+            return $('<div>').text(v ?? '-').html();
+        }
+
         $('#makani_area_id').on('change', function () {
             makaniAreaChange($(this).val(), null);
         });
@@ -290,26 +488,14 @@
 
         function drawMakaniMap(res) {
             clearMakaniMap();
-            const m = { lat: res.makani.lat, lng: res.makani.lng };
-            const l = { lat: res.link.lat,   lng: res.link.lng };
-            const color = res.within ? '#28a745' : '#dc3545';
+            const l = { lat: res.link.lat, lng: res.link.lng };
 
             makaniOverlays.push(
-                new google.maps.Marker({ position: m, map: makaniMap, label: 'M', title: 'Makani location' }),
-                new google.maps.Marker({ position: l, map: makaniMap, label: 'L', title: 'Link location' }),
-                new google.maps.Polyline({ path: [m, l], map: makaniMap, strokeColor: color, strokeWeight: 3 }),
-                new google.maps.Circle({
-                    center: m, radius: 100, map: makaniMap,
-                    strokeColor: color, fillColor: color, fillOpacity: 0.12
-                })
+                new google.maps.Marker({ position: l, map: makaniMap, title: 'Link location' })
             );
 
-            const bounds = new google.maps.LatLngBounds();
-            bounds.extend(m); bounds.extend(l);
-            makaniMap.fitBounds(bounds, 60);
-            google.maps.event.addListenerOnce(makaniMap, 'idle', () => {
-                if (makaniMap.getZoom() > 19) makaniMap.setZoom(19);
-            });
+            makaniMap.setCenter(l);
+            makaniMap.setZoom(17);
         }
 
         function runMakaniCheck() {
@@ -321,7 +507,7 @@
             if (digits.length !== 10 || !link) return;
 
             const reqId = ++makaniReq;
-            showMakaniResult('Checking locations...', 'info');
+            showMakaniResult('Checking location...', 'info');
 
             $.ajax({
                 url: "{{ route('property.makani.locate') }}",
@@ -330,11 +516,15 @@
                 success: function (res) {
                     if (reqId !== makaniReq) return;          // ignore stale responses
                     drawMakaniMap(res);
+
                     if (res.within) {
-                        showMakaniResult(`Within range: ${res.distance} m apart. You can submit.`, 'success');
+                        showMakaniResult(
+                            `Location found: ${esc(res.address)}<br>The Makani number cannot be auto-verified, so it will be saved as <b>Pending</b>.`,
+                            'warning'
+                        );
                         $btn.prop('disabled', false);
                     } else {
-                        showMakaniResult(`Too far: ${res.distance} m apart (max 100 m).`, 'danger');
+                        showMakaniResult('This location is not inside Dubai.', 'danger');
                     }
                 },
                 error: function (xhr) {
@@ -374,11 +564,6 @@
             clearMakaniMap();
         });
 
-
-        function esc(v) {
-            return $('<div>').text(v ?? '-').html();
-        }
-
         function submitMakani(confirmUpdate = false) {
             const $btn = $('#makaniSubmitBtn').prop('disabled', true);
             let payload = $('#MakaniVerificationForm').serialize();
@@ -416,7 +601,6 @@
                             cancelButtonText: 'Cancel',
                             confirmButtonColor: '#28a745',
                             cancelButtonColor: '#d33',
-                            // the Verify Makani modal is open, so keep the popup above it
                             target: document.getElementById('modal-makani-verification')
                         }).then(result => {
                             if (result.isConfirmed) {

@@ -59,7 +59,29 @@ class Property extends Model
 {
     use HasFactory, SoftDeletes, HasActivityLog, HasDeletedBy;
 
-    protected $fillable = ['company_id', 'area_id', 'locality_id', 'property_type_id', 'property_code', 'property_name', 'property_size', 'property_size_unit', 'plot_no', 'added_by', 'updated_by', 'deleted_by', 'status', 'latitude', 'longitude', 'location', 'address', 'remarks', 'makani_number', 'ref_property_id'];
+    protected $fillable = [
+        'company_id',
+        'area_id',
+        'locality_id',
+        'property_type_id',
+        'property_code',
+        'property_name',
+        'property_size',
+        'property_size_unit',
+        'plot_no',
+        'added_by',
+        'updated_by',
+        'deleted_by',
+        'status',
+        'latitude',
+        'longitude',
+        'location',
+        'address',
+        'remarks',
+        'makani_number',
+        'ref_property_id',
+        'source'
+    ];
 
     public function user()
     {

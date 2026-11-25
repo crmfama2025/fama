@@ -48,8 +48,10 @@ return [
     ],
     'google' => [
         'maps_key' => env('GOOGLE_MAPS_KEY'),
+        'geocode_key' => env('GOOGLE_GEOCODE_KEY'),
     ],
     'makani' => [
         'url' => env('MAKANI_API_URL', 'https://www.makani.ae/MakaniPublicDataService/MakaniPublic.svc'),
     ],
+
 ];
