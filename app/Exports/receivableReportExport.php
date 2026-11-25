@@ -17,9 +17,7 @@ class receivableReportExport implements FromCollection, WithHeadings, ShouldAuto
         $this->filters = $filters;
     }
 
-    /**
-     * Fetch data using your repository/query method
-     */
+
     public function collection()
     {
         $filters = $this->filters;
@@ -52,6 +50,10 @@ class receivableReportExport implements FromCollection, WithHeadings, ShouldAuto
 
         $query->whereHas('agreementPaymentDetail.agreement.company', function ($q) use ($permittedCompanyIds) {
             $q->whereIn('company_id', $permittedCompanyIds);
+        });
+        $query->where(function ($q) {
+            $q->whereNull('cleared_receivables.loss_or_discount')
+                ->orWhere('cleared_receivables.loss_or_discount', 0);
         });
 
 
