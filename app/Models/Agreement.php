@@ -285,4 +285,9 @@ class Agreement extends Model
     {
         return $this->belongsTo(User::class, 'added_by');
     }
+
+    public function contract_business_type()
+    {
+        return $this->contract_business_type == 1 ? 'B2B' : 'B2C';
+    }
 }

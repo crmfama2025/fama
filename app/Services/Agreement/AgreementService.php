@@ -1301,9 +1301,9 @@ class AgreementService
                 </p>";
             })
             ->addColumn('business_type', function ($row) {
-                if ($row->business_type == 1) {
+                if ($row->contract_business_type == 1) {
                     $type = "B2B";
-                } elseif ($row->business_type == 2) {
+                } elseif ($row->contract_business_type == 2) {
                     $type = "B2C";
                 } else {
                     $type = "-";

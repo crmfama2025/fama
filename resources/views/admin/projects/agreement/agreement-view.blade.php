@@ -331,7 +331,7 @@
 
                                                                 @endphp
                                                                 @if ($type == 2)
-                                                                    {{ $types[$unit->contractSubunitDetail->subunit_type] ?? '-' }}
+                                                                    {{ $types[$unit->contractSubunitDetail?->subunit_type] ?? '-' }}
                                                                 @elseif($type == 1)
                                                                     @php
                                                                         $subunitType =
@@ -412,18 +412,18 @@
                                                         <span class="ml-3 text-green font-weight-bolder"
                                                             style="letter-spacing: .5px;">
                                                             Type:
-                                                            {{ $unit->contractUnitDetail->unit_type->unit_type ?? '-' }}
+                                                            {{ $unit->contractUnitDetail?->unit_type?->unit_type ?? '-' }}
                                                             @if ($unit->contractSubunitDetail)
-                                                                @if ($unit->contractSubunitDetail->subunit_type == 1)
+                                                                @if ($unit->contractSubunitDetail?->subunit_type == 1)
                                                                     | Partition:
-                                                                @elseif ($unit->contractSubunitDetail->subunit_type == 2)
+                                                                @elseif ($unit->contractSubunitDetail?->subunit_type == 2)
                                                                     | Bedspace:
-                                                                @elseif ($unit->contractSubunitDetail->subunit_type == 3)
+                                                                @elseif ($unit->contractSubunitDetail?->subunit_type == 3)
                                                                     | Room:
                                                                 @else
                                                                     | Full Flat:
                                                                 @endif
-                                                                {{ $unit->contractSubunitDetail->subunit_no }}
+                                                                {{ $unit->contractSubunitDetail?->subunit_no }}
                                                             @endif
                                                             | Rent/Month: {{ number_format($unit->rent_per_month, 2) }}
                                                             | Rent/Annum:

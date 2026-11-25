@@ -200,8 +200,10 @@ class TenantChequeService
                 // dd($row);
                 $number = 'P - ' . $row->agreement?->contract?->project_number ?? '-';
                 $type = $row->agreement?->contract?->contract_type->contract_type ?? '-';
-                $b_type_id = $row->agreement?->contract?->contract_unit->business_type;
-                $b_type = $row->agreement?->contract?->contract_unit->business_type();
+                // $b_type_id = $row->agreement?->contract?->contract_unit->business_type;
+                $b_type_id = $row->agreement->contract_business_type;
+                // $b_type = $row->agreement?->contract?->contract_unit->business_type();
+                $b_type = $row->agreement?->contract_business_type();
 
                 // return "<strong class=''>{$number}</strong><p class='mb-0'><span>{$type}</span></p>
                 // </p>";
