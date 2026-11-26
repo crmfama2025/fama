@@ -930,9 +930,7 @@ class InvestorPaymentDistributionService
     }
     private function updateProfitRecordOnPayout(InvestorPayout $payout, float $distributionAmount): void
     {
-        /*
-        * Only payout_type 1 represents an investment-profit payout.
-        */
+
         if ((int) $payout->payout_type !== 1) {
             return;
         }
@@ -944,35 +942,54 @@ class InvestorPaymentDistributionService
             ]);
         }
 
-        /*
-        * Preferred lookup: exact profit-record foreign key.
-        */
+
         if ($payout->investment_profit_record_id) {
             $profitRecord = InvestmentProfitRecord::query()
                 ->where('investment_id', $payout->investment_id)
                 ->lockForUpdate()
                 ->find($payout->investment_profit_record_id);
+            // } else {
+            //     /*
+            //     * Temporary fallback for old payout rows that do not yet
+            //     * contain investment_profit_record_id.
+            //     */
+            //     if (!$payout->payout_release_month) {
+            //         throw new \RuntimeException(
+            //             "Profit payout {$payout->id} is not linked to a profit record."
+            //         );
+            //     }
+
+            //     $profitDate = Carbon::parse(
+            //         $payout->payout_release_month
+            //     )->toDateString();
+
+            //     $profitRecord = InvestmentProfitRecord::query()
+            //         ->where('investment_id', $payout->investment_id)
+            //         ->whereDate(
+            //             'profit_release_month',
+            //             $profitDate
+            //         )
+            //         ->lockForUpdate()
+            //         ->first();
+            // }
         } else {
-            /*
-            * Temporary fallback for old payout rows that do not yet
-            * contain investment_profit_record_id.
-            */
-            if (!$payout->payout_release_month) {
+            $sourceDate = $payout->original_profit_date ?: $payout->payout_release_month;
+
+            if (!$sourceDate) {
                 throw new \RuntimeException(
                     "Profit payout {$payout->id} is not linked to a profit record."
                 );
             }
 
-            $profitDate = Carbon::parse(
-                $payout->payout_release_month
-            )->toDateString();
+            $profitDate = Carbon::parse($sourceDate);
 
             $profitRecord = InvestmentProfitRecord::query()
                 ->where('investment_id', $payout->investment_id)
-                ->whereDate(
-                    'profit_release_month',
-                    $profitDate
-                )
+                ->where('investor_id', $payout->investor_id)
+                ->whereYear('profit_release_month', $profitDate->year)
+                ->whereMonth('profit_release_month', $profitDate->month)
+                ->orderByDesc('has_profit_amount')
+                ->orderByDesc('id')
                 ->lockForUpdate()
                 ->first();
         }
@@ -1014,6 +1031,179 @@ class InvestorPaymentDistributionService
 
         ]);
     }
+
+    // private function updateProfitRecordOnPayout(
+    //     InvestorPayout $payout,
+    //     float $distributionAmount
+    //     ): void {
+
+    //     if ((int) $payout->payout_type !== 1) {
+    //         return;
+    //     }
+
+    //     $distributionAmount = round($distributionAmount, 2);
+
+    //     if ($distributionAmount <= 0) {
+    //         throw ValidationException::withMessages([
+    //             'paid_amount' => 'The paid amount must be greater than zero.',
+    //         ]);
+    //     }
+
+
+    //     if ($payout->investment_profit_record_id) {
+
+    //         $anchorRecord = InvestmentProfitRecord::query()
+    //             ->where('investment_id', $payout->investment_id)
+    //             ->where('investor_id', $payout->investor_id)
+    //             ->lockForUpdate()
+    //             ->find($payout->investment_profit_record_id);
+    //     } else {
+
+    //         if (!$payout->payout_release_month) {
+    //             throw new \RuntimeException(
+    //                 "Profit payout {$payout->id} is not linked to a profit record."
+    //             );
+    //         }
+
+    //         $profitDate = Carbon::parse(
+    //             $payout->payout_release_month
+    //         );
+
+    //         $anchorRecord = InvestmentProfitRecord::query()
+    //             ->where('investment_id', $payout->investment_id)
+    //             ->where('investor_id', $payout->investor_id)
+    //             ->whereYear('profit_release_month', $profitDate->year)
+    //             ->whereMonth('profit_release_month', $profitDate->month)
+    //             ->orderByDesc('id')
+    //             ->lockForUpdate()
+    //             ->first();
+    //     }
+
+    //     if (!$anchorRecord) {
+    //         throw new \RuntimeException(
+    //             "Profit record not found for payout {$payout->id}."
+    //         );
+    //     }
+
+
+    //     $anchorDate = Carbon::parse(
+    //         $anchorRecord->profit_release_month
+    //     )->toDateString();
+
+    //     $profitRecords = InvestmentProfitRecord::query()
+    //         ->where('investment_id', $payout->investment_id)
+    //         ->where('investor_id', $payout->investor_id)
+    //         ->where('has_profit_amount', 1)
+    //         ->whereDate('profit_release_month', '<=', $anchorDate)
+    //         ->whereRaw(
+    //             'COALESCE(profit_amount, 0) > COALESCE(released_total_amount, 0)'
+    //         )
+    //         ->orderBy('profit_release_month')
+    //         ->orderBy('id')
+    //         ->lockForUpdate()
+    //         ->get();
+
+    //     if ($profitRecords->isEmpty()) {
+    //         throw ValidationException::withMessages([
+    //             'paid_amount' => 'No pending profit records are available for this payout.',
+    //         ]);
+    //     }
+
+    //     $totalAvailableProfit = 0;
+
+    //     foreach ($profitRecords as $record) {
+
+    //         $profitAmount = round((float) $record->profit_amount, 2);
+
+    //         $releasedAmount = round(
+    //             (float) ($record->released_total_amount ?? 0),
+    //             2
+    //         );
+
+    //         $totalAvailableProfit += max(
+    //             0,
+    //             round($profitAmount - $releasedAmount, 2)
+    //         );
+    //     }
+
+    //     $totalAvailableProfit = round($totalAvailableProfit, 2);
+
+    //     if ($distributionAmount > $totalAvailableProfit) {
+    //         throw ValidationException::withMessages([
+    //             'paid_amount' => sprintf(
+    //                 'Insufficient profit balance. Available profit: %.2f, attempted payment: %.2f.',
+    //                 $totalAvailableProfit,
+    //                 $distributionAmount
+    //             ),
+    //         ]);
+    //     }
+
+
+    //     $remainingAmount = $distributionAmount;
+
+    //     foreach ($profitRecords as $profitRecord) {
+
+    //         if ($remainingAmount <= 0) {
+    //             break;
+    //         }
+
+    //         $profitAmount = round(
+    //             (float) $profitRecord->profit_amount,
+    //             2
+    //         );
+
+    //         $previouslyReleased = round(
+    //             (float) ($profitRecord->released_total_amount ?? 0),
+    //             2
+    //         );
+
+    //         $availableAmount = round(
+    //             $profitAmount - $previouslyReleased,
+    //             2
+    //         );
+
+    //         if ($availableAmount <= 0) {
+    //             continue;
+    //         }
+
+    //         $amountToRelease = min(
+    //             $remainingAmount,
+    //             $availableAmount
+    //         );
+
+    //         $newReleasedTotal = round(
+    //             $previouslyReleased + $amountToRelease,
+    //             2
+    //         );
+
+    //         $newRemainingAmount = round(
+    //             $remainingAmount - $amountToRelease,
+    //             2
+    //         );
+
+    //         $profitRecord->update([
+    //             'released_total_amount' => $newReleasedTotal,
+
+    //             'release_status' => $newReleasedTotal >= $profitAmount
+    //                 ? 'released'
+    //                 : 'partially_released',
+
+    //             'last_released_at' => now(),
+
+    //             'last_released_by' => auth()->id(),
+    //         ]);
+
+    //         $remainingAmount = $newRemainingAmount;
+    //     }
+
+
+    //     if ($remainingAmount > 0.009) {
+    //         throw new \RuntimeException(
+    //             'Unable to allocate the complete profit payout.'
+    //         );
+    //     }
+    // }
+
 
     private function validate(array $data, $id = null)
     {
