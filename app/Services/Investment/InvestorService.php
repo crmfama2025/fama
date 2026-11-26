@@ -758,8 +758,8 @@ class InvestorService
     {
         // dd($data);
         return DB::transaction(function () use ($investorId, $data) {
-
-            $appliedInvestments = json_encode(array_keys($data['investments'] ?? []));
+            // Rasmiya changed this on 26/11/2026 bcz all investment id is coming in this section other than the selected
+            // $appliedInvestments = json_encode(array_keys($data['investments'] ?? []));
 
             // Only keep investments that were actually selected with a valid amount
             $investments = collect($data['investments'] ?? [])
@@ -771,6 +771,9 @@ class InvestorService
                         && (float) $row['amount'] > 0;
                 })
                 ->toArray();
+
+            // Rasmiya changed this on 26/11/2026 bcz all investment id is coming in this section other than the selected
+            $appliedInvestments = json_encode(array_keys($investments ?? []));
 
             // --- 1. Update each investment's balance/withdrawn totals first ---
             // (bifurcation records get created later, once we know which ledger they attach to)
