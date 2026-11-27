@@ -8,10 +8,7 @@ use Illuminate\Validation\ValidationException;
 
 class MakaniLocatorService
 {
-    /**
-     * Follow Google short links (maps.app.goo.gl) to the full URL.
-     * Only Google short-link hosts are followed.
-     */
+
     public function resolveLink(string $url): string
     {
         if (!preg_match('~^https?://(maps\.app\.goo\.gl|goo\.gl/maps)~i', $url)) {
@@ -40,9 +37,7 @@ class MakaniLocatorService
         return $url;
     }
 
-    /**
-     * Extract coordinates from a Google Maps link.
-     */
+
     public function fromLink(string $url): array
     {
         $url = urldecode($this->resolveLink($url));
