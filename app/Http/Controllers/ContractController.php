@@ -419,11 +419,17 @@ class ContractController extends Controller
     }
     public function getTerminatedAgreementDetails($id)
     {
+        // $agreement = Agreement::where('contract_id', $id)
+        //     ->where('agreement_status', 1)
+        //     ->latest()
+        //     ->first();
+        // dd($agreement);
         $agreement = Agreement::where('contract_id', $id)
             ->where('agreement_status', 1)
-            ->latest()
+            ->whereNotNull('terminated_date')
+            ->orderByDesc('terminated_date')
+            ->orderByDesc('id')
             ->first();
-        // dd($agreement);
 
         // Contract details
         $contract = Contract::with('contract_payment_receivables')->find($id);
@@ -481,71 +487,129 @@ class ContractController extends Controller
             'terminated_date' => $terminatedDate->format('Y-m-d'),
             'remaining_installments' => $remainingCount,
             'remaining_receivables' => $remainingReceivables,
-            'remainingTotal' => $remainingAmountSum
+            'remainingTotal' => $remainingAmountSum,
+            'start_date_after_termination' => $terminatedDate->copy()->addDay()->format('Y-m-d'),
         ]);
     }
+    // public function checkAgreement(Request $request, $contractId)
+    // {
+    //     $unitId = $request->unit_id;
+    //     $subunitId = $request->subunit_id;
+
+    //     $agreement = Agreement::with('agreement_payment_details')
+    //         ->where('agreements.contract_id', $contractId)
+    //         ->where('agreements.agreement_status', 1)
+    //         ->whereHas('agreement_units', function ($query) use ($unitId, $subunitId) {
+    //             $query->where('contract_unit_details_id', $unitId)
+    //                 ->where('contract_subunit_details_id', $subunitId);
+    //         })
+    //         ->latest()
+    //         ->first();
+    //     // dd($agreement);
+
+    //     $contract = Contract::with('contract_payment_receivables')->find($contractId);
+    //     $receivables = $contract->contract_payment_receivables;
+
+    //     $remainingReceivables = collect();
+    //     $remainingCount = 0;
+    //     $remainingAmountSum = 0;
+    //     $terminatedDate = null;
+    //     if (!$agreement) {
+    //         return response()->json([
+    //             'exists' => false,
+    //             'agreement' => null,
+    //             'remaining_installments' => 0,
+    //             'remaining_receivables' => [],
+    //             'remainingTotal' => 0,
+    //         ]);
+    //     }
+
+    //     if ($agreement) {
+    //         $terminatedDate = Carbon::parse($agreement->terminated_date);
+    //         // dd($terminatedDate);
+
+    //         $remainingReceivables = $receivables
+    //             ->filter(function ($receivable) use ($terminatedDate) {
+    //                 return Carbon::parse($receivable->receivable_date)->greaterThan($terminatedDate);
+    //             })
+    //             ->map(function ($receivable) {
+    //                 return [
+    //                     'receivable_date' => Carbon::parse($receivable->receivable_date)->format('d-m-Y'),
+    //                     'receivable_amount' => $receivable->receivable_amount,
+    //                 ];
+    //             })
+    //             ->values();
+    //         // dd($remainingReceivables);
+
+    //         $remainingCount = $remainingReceivables->count();
+    //         $remainingAmountSum = $agreement->agreement_payment_details
+    //             ->where('terminated_status', 1)
+    //             ->sum('payment_amount');
+    //     }
+
+    //     return response()->json([
+    //         'exists' => $agreement ? true : false,
+    //         'agreement' => $agreement,
+    //         'remaining_installments' => $remainingCount,
+    //         'remaining_receivables' => $remainingReceivables,
+    //         'remainingTotal' => $remainingAmountSum
+    //     ]);
+    // }
     public function checkAgreement(Request $request, $contractId)
     {
-        $unitId = $request->unit_id;
+        $unitId    = $request->unit_id;
         $subunitId = $request->subunit_id;
 
         $agreement = Agreement::with('agreement_payment_details')
             ->where('agreements.contract_id', $contractId)
             ->where('agreements.agreement_status', 1)
+            ->whereNotNull('agreements.terminated_date')
             ->whereHas('agreement_units', function ($query) use ($unitId, $subunitId) {
                 $query->where('contract_unit_details_id', $unitId)
-                    ->where('contract_subunit_details_id', $subunitId);
+                    ->where(function ($q) use ($subunitId) {
+                        $q->whereNull('contract_subunit_details_id')            // B2B / unit-level agreement
+                            ->orWhere('contract_subunit_details_id', $subunitId); // same B2C subunit
+                    });
             })
-            ->latest()
+            ->orderByDesc('agreements.terminated_date')
+            ->orderByDesc('agreements.id')
             ->first();
-        // dd($agreement);
 
-        $contract = Contract::with('contract_payment_receivables')->find($contractId);
-        $receivables = $contract->contract_payment_receivables;
-
-        $remainingReceivables = collect();
-        $remainingCount = 0;
-        $remainingAmountSum = 0;
-        $terminatedDate = null;
         if (!$agreement) {
             return response()->json([
-                'exists' => false,
-                'agreement' => null,
+                'exists'                 => false,
+                'agreement'              => null,
                 'remaining_installments' => 0,
-                'remaining_receivables' => [],
-                'remainingTotal' => 0,
+                'remaining_receivables'  => [],
+                'remainingTotal'         => 0,
             ]);
         }
 
-        if ($agreement) {
-            $terminatedDate = Carbon::parse($agreement->terminated_date);
-            // dd($terminatedDate);
+        $contract    = Contract::with('contract_payment_receivables')->find($contractId);
+        $receivables = $contract->contract_payment_receivables;
 
-            $remainingReceivables = $receivables
-                ->filter(function ($receivable) use ($terminatedDate) {
-                    return Carbon::parse($receivable->receivable_date)->greaterThan($terminatedDate);
-                })
-                ->map(function ($receivable) {
-                    return [
-                        'receivable_date' => Carbon::parse($receivable->receivable_date)->format('d-m-Y'),
-                        'receivable_amount' => $receivable->receivable_amount,
-                    ];
-                })
-                ->values();
-            // dd($remainingReceivables);
+        $terminatedDate = Carbon::parse($agreement->terminated_date);
 
-            $remainingCount = $remainingReceivables->count();
-            $remainingAmountSum = $agreement->agreement_payment_details
-                ->where('terminated_status', 1)
-                ->sum('payment_amount');
-        }
+        $remainingReceivables = $receivables
+            ->filter(fn($r) => Carbon::parse($r->receivable_date)->greaterThan($terminatedDate))
+            ->map(fn($r) => [
+                'receivable_date'   => Carbon::parse($r->receivable_date)->format('d-m-Y'),
+                'receivable_amount' => $r->receivable_amount,
+            ])
+            ->values();
+
+        $remainingAmountSum = $agreement->agreement_payment_details
+            ->where('terminated_status', 1)
+            ->sum('payment_amount');
 
         return response()->json([
-            'exists' => $agreement ? true : false,
-            'agreement' => $agreement,
-            'remaining_installments' => $remainingCount,
-            'remaining_receivables' => $remainingReceivables,
-            'remainingTotal' => $remainingAmountSum
+            'exists'                 => true,
+            'agreement'              => $agreement,
+            'terminated_date'        => $terminatedDate->format('Y-m-d'),
+            'start_date'             => $terminatedDate->copy()->addDay()->format('d-m-Y'),
+            'remaining_installments' => $remainingReceivables->count(),
+            'remaining_receivables'  => $remainingReceivables,
+            'remainingTotal'         => $remainingAmountSum,
         ]);
     }
 

@@ -30,9 +30,13 @@
                 //     return;
                 // }
 
+                // $('#start_date').prop('disabled', false).prop('readonly', false);
+                // $('#startdate').datetimepicker('minDate', termDate);
+                // $('#startdate').datetimepicker('date', termDate);
+                const startAfterTerm = moment(terminated.terminated_date, "YYYY-MM-DD").add(1, 'days');
                 $('#start_date').prop('disabled', false).prop('readonly', false);
-                $('#startdate').datetimepicker('minDate', termDate);
-                $('#startdate').datetimepicker('date', termDate);
+                $('#startdate').datetimepicker('minDate', startAfterTerm);
+                $('#startdate').datetimepicker('date', startAfterTerm);
 
                 $('#end_date').prop('disabled', false).prop('readonly', false);
                 let endVal = $('#end_date').val();
@@ -93,7 +97,8 @@
                     remainingReceivables = response.remaining_receivables;
                     remainingInstallments = response.remaining_installments;
 
-                    const startDate = moment(remainingReceivables[0].receivable_date, "DD-MM-YYYY");
+                    // const startDate = moment(remainingReceivables[0].receivable_date, "DD-MM-YYYY");
+                    const startDate = moment(response.start_date, "DD-MM-YYYY");
                     const endDate = moment(remainingReceivables[remainingReceivables.length - 1]
                         .receivable_date, "DD-MM-YYYY");
 
@@ -122,6 +127,8 @@
                     // alert("exists");
 
                     remainingReceivables = null;
+                    $('#startdate').datetimepicker('minDate', false);   // clear the min set by a previous termination
+                    $('#enddate').datetimepicker('maxDate', false); 
                     console.log('defaultsnon', defaultStart, defaultEnd, defaultDuration)
                     if (defaultStart && defaultStart.isValid()) {
                         $('#startdate').datetimepicker('date', defaultStart);

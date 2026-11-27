@@ -990,9 +990,14 @@
             for (let i = 0; i < payment_count; i++) {
 
                 //  rent calcutaion in case of adjustment in months(loke 14 installments in 13 month duration)
-                let receivableValue = parseFloat(
-                    selectedContract.contract_payment_receivables?.[i]?.receivable_amount || 0
-                );
+                // let receivableValue = parseFloat(
+                //     selectedContract.contract_payment_receivables?.[i]?.receivable_amount || 0
+                // );
+                const receivableSource = (remainingReceivables && remainingReceivables.length > 0)
+                    ? remainingReceivables
+                    : selectedContract.contract_payment_receivables;
+
+                let receivableValue = parseFloat(receivableSource?.[i]?.receivable_amount || 0);
                 let totalreceivable = parseFloat(selectedContract?.contract_rentals
                     ?.rent_receivable_per_month || 0);
                 let rentTenant = parseFloat($('.rent_per_month').val()) || 0;
