@@ -134,7 +134,11 @@ class UpdateMonthlyPendingProfit extends Command
 
                         // @dump($partialWithdrawal, $investment->id);
 
-                        if ($nextProfitRelease->lt($currentMonthStart) || $nextProfitRelease->isSameMonth($currentMonth)) {
+                        // if ($nextProfitRelease->lt($currentMonthStart) || $nextProfitRelease->isSameMonth($currentMonth)) {
+                        if (
+                            ($nextProfitRelease->lt($currentMonthStart) || $nextProfitRelease->isSameMonth($currentMonth))
+                            && $nextProfitRelease->lte(Carbon::today())
+                        ) {
                             // @dump($partialWithdrawal, $investment->id);
                             // if ($termDate && ($termDate->isSameMonth($currentMonth) || $termDate->lt($nextProfitRelease))) {
                             //     // $investment->next_profit_release_date = $investment->next_profit_release_date;
