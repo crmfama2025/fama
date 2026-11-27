@@ -145,8 +145,8 @@ class TenantChequeRepository
             // ->withSum('clearedReceivables', 'paid_amount')
             ->where('is_payment_received', '!=', 1)
             ->where('terminate_status', 0)
-            // ->whereDate('payment_date', '<=', Carbon::today()->addWeeks(2));
-            ->whereDate('payment_date', '<=', '2027-08-27');
+            ->whereDate('payment_date', '<=', Carbon::today()->addWeeks(2));
+        // ->whereDate('payment_date', '<=', '2027-08-27');
 
         $query->whereHas('agreement.company', function ($q) use ($permittedCompanyIds) {
             $q->whereIn('company_id', $permittedCompanyIds);
