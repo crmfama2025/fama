@@ -477,7 +477,7 @@ class TenantChequeService
     }
     public function clearReceivable(array $data)
     {
-
+        // dd($data);
         DB::transaction(function () use ($data) {
 
             // Expecting $data['payment_detail_ids'] as array of checked IDs
@@ -509,9 +509,10 @@ class TenantChequeService
 
                 // $paidAmount = $data['paid_amount'] ?? $payment->payment_amount;
                 $allocatedAmounts = $data['allocated_amounts'] ?? [];
+                $totalPendingToClear = $payment->payment_amount - $payment->loss_discount_amount;
                 $paidAmount = isset($allocatedAmounts[$paymentId])
                     ? (float) $allocatedAmounts[$paymentId]
-                    : (float) ($data['paid_amount'] ?? $payment->payment_amount);
+                    : (float) ($data['paid_amount'] ?? $totalPendingToClear);
 
 
                 $paidDate = $data['paid_date'];

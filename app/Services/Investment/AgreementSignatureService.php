@@ -346,7 +346,20 @@ logEvent
             'status'      => $status,
         ]);
 
-        \Log::info("WhatsApp signature document response", ['response' => $response]);
+        \Log::info('WhatsApp signature document response', [
+            'contract_id' => $contract->id,
+            'status'      => $status,
+            'response'    => $response,
+        ]);
+
+        // Stop execution and return the actual API error
+        if (!$status) {
+            $errorMessage = $response['message'] ?? 'WhatsApp message could not be sent.';
+
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'whatsapp' => $errorMessage,
+            ]);
+        }
     }
 
     private function sendViaEmail($contract, string $signerRole, string $signLink): void
