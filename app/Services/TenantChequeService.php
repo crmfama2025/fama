@@ -277,7 +277,8 @@ class TenantChequeService
                 return $text;
             })
 
-            ->addColumn('payment_amount', fn($row) => getReceivableAmount($row->id))
+            // ->addColumn('payment_amount', fn($row) => getReceivableAmount($row->id))
+            ->addColumn('payment_amount', fn($row) => round((float) getReceivableAmount($row->id), 2))
             ->addColumn('installment_name', function ($row) {
                 // dd($row->transaction_type);
 
