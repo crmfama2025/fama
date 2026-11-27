@@ -145,7 +145,6 @@ class TenantChequeRepository
             // ->withSum('clearedReceivables', 'paid_amount')
             ->where('is_payment_received', '!=', 1)
             ->where('terminate_status', 0)
-            // ->whereDate('payment_date', '>=', Carbon::today())
             // ->whereDate('payment_date', '<=', Carbon::today()->addWeeks(2));
             ->whereDate('payment_date', '<=', '2027-08-27');
 
@@ -156,8 +155,6 @@ class TenantChequeRepository
         // Get the results
         // $results = $query->get();
         // dd($results);
-
-
 
 
         // $get = $query->get();
