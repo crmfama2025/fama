@@ -1282,10 +1282,20 @@
             let payment_id = $(this).data('id');
             current_bank_id = $(this).data('bank-id');
             current_cheque_number = $(this).data('cheque-number');
+
+            // Reset modal first
+            resetform();
+
+            // Restore clicked payment checkbox only for single clearing
+            if (formtype !== "bulk") {
+                checkRowCheckbox(payment_id);
+            }
+
+
             $('#current_mode_id').val(paymentMode);
             $('#current_bank_id').val(current_bank_id);
             $('#current_cheque_number').val(current_cheque_number);
-            checkRowCheckbox(payment_id);
+            // checkRowCheckbox(payment_id);
 
             // let formattedDate = "";
             // if (date) {
@@ -1298,8 +1308,9 @@
 
             // Fill fields
             // $('#clearing_date_input').val(formattedDate);
-            resetform();
+            // resetform();
             let checkedCount = $('#tenantChequeTable tbody input.groupCheckbox:checked').length;
+
             if (formtype === "bulk" && checkedCount === 0) {
                 Swal.fire({
                     toast: true,
@@ -1316,8 +1327,6 @@
                 $('.cheque').hide();
                 $('#clearing_amount_div').hide();
                 $('#clearing_diff_box').hide();
-
-
             } else {
                 $('#clearing_date_input').prop('required', true);
                 $('#payment_modes').show();
