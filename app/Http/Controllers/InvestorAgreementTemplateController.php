@@ -374,8 +374,24 @@ class InvestorAgreementTemplateController extends Controller
                 $validated['reason'] ?? null,
                 $validated['resign_role'] ?? null
             );
-        } catch (\RuntimeException $e) {
-            return response()->json(['message' => $e->getMessage()], 502);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+
+            return response()->json([
+                'status'  => false,
+                'message' => collect($e->errors())->flatten()->first(),
+                'errors'  => $e->errors(),
+            ], 422);
+        } catch (\Throwable $e) {
+
+            \Log::error('Signature sending failed', [
+                'contract_id' => $contract->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'status'  => false,
+                'message' => $e->getMessage(),
+            ], 500);
         }
 
         $who = ($validated['resign_role'] ?? 'investor') === 'company' ? 'company' : 'investor';
