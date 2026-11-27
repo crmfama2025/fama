@@ -289,7 +289,7 @@ class UpdateMonthlyPendingProfit extends Command
                         // $outstandingProfit += $payout->pending_amount;
                         $investment->update([
                             'outstanding_profit' => $outstandingProfit,
-                            'is_profit_processed' => 1
+                            'is_profit_processed' => ($outstandingProfit > 0) ? 1 : 0,
                         ]);
                         // }
                         // dd($investment->investmentReferral->next_referral_commission_release_date);
