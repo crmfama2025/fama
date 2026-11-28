@@ -554,6 +554,11 @@ Route::middleware(['auth', 'update.fcm'])->group(function () {
     Route::delete('allocations/delete/{allocation}', [ReceivablesClearingController::class, 'deleteAllocation'])->name('cleared-receivable-allocation.destroy');
 
     Route::get('/test-agreement-status/{id}', [ContractController::class, 'testAgreementStatus']);
+
+
+
+    Route::get('/payout/investor-pending-payouts', [InvestorPaymentDistributionController::class, 'getInvestorPendingPayouts'])->name('investor.pending.payouts');
+    Route::post('investor/payouts/fifo-save', [InvestorPaymentDistributionController::class, 'saveFifoPayment'])->name('investor.payout.fifo.save');
 });
 
 

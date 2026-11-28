@@ -4,6 +4,7 @@ namespace App\Services\Investment;
 
 use App\Models\InvestmentProfitRecord;
 use App\Models\InvestorPayout;
+use App\Models\InvestorPayoutAllocation;
 use App\Models\PartialWithdrawalBifurcation;
 use App\Models\WhatsappMessage;
 use App\Repositories\Investment\InvestmentRepository;
@@ -835,9 +836,110 @@ class InvestorPaymentDistributionService
             ];
         }
 
-        $distr_data = DB::transaction(function () use ($distributions) {
+        $method = $isReinvest ? 'reinvest' : ($isBulk ? 'bulk' : 'single');
+
+        $result = $this->processDistributions($distributions, $payouts, $method, $data);
+
+        // $distr_data = DB::transaction(function () use ($distributions) {
+
+        //     $distributionDatas = $this->investorDistRepo->createMany($distributions);
+
+        //     foreach ($distributionDatas as $distributionData) {
+
+        //         // Lock the payout row so concurrent payments can't overpay it
+        //         $payoutData = InvestorPayout::query()
+        //             ->lockForUpdate()
+        //             ->findOrFail($distributionData->payout_id);
+
+        //         $distributionAmount   = round(toNumeric($distributionData->amount_paid), 2);
+        //         $currentPendingAmount = round(toNumeric($payoutData->amount_pending), 2);
+        //         $currentPaidAmount    = round(toNumeric($payoutData->amount_paid), 2);
+
+        //         // Prevent zero, negative, or excessive payments
+        //         if ($distributionAmount <= 0) {
+        //             throw ValidationException::withMessages([
+        //                 'paid_amount' => 'The paid amount must be greater than zero.',
+        //             ]);
+        //         }
+
+        //         if ($distributionAmount > $currentPendingAmount) {
+        //             throw ValidationException::withMessages([
+        //                 'paid_amount' => sprintf(
+        //                     'Payment amount %.2f exceeds the pending amount %.2f for payout %d.',
+        //                     $distributionAmount,
+        //                     $currentPendingAmount,
+        //                     $payoutData->id
+        //                 ),
+        //             ]);
+        //         }
+
+        //         $balance = round($currentPendingAmount - $distributionAmount, 2);
+        //         $newPaidAmount = round($currentPaidAmount + $distributionAmount, 2);
+
+        //         // Avoid a negative-zero floating-point value
+        //         if (abs($balance) < 0.01) {
+        //             $balance = 0.00;
+        //         }
+
+        //         $payoutData->update([
+        //             'amount_paid'    => $newPaidAmount,
+        //             'amount_pending' => $balance,
+        //             'is_processed'   => $balance === 0.00 ? 1 : 0,
+        //         ]);
+
+        //         // If this is a profit payout, update the linked profit record
+        //         $this->updateProfitRecordOnPayout($payoutData, $distributionAmount);
+
+        //         // Withdrawal / Settlement
+        //         if ($payoutData->payout_type == 6 && $payoutData->bifurcation_id != null) {
+
+        //             $bifurcation = PartialWithdrawalBifurcation::find($payoutData->bifurcation_id);
+        //             $investment  = $this->investmentRepository->find($bifurcation->investment_id);
+
+        //             // bifurcation table update on withdrawal payout
+        //             updateBifuractionOnWithdrawal($bifurcation, $balance, $distributionData->amount_paid);
+
+        //             if ($investment->terminate_status == 1 && $balance == 0) {
+        //                 terminateStatusChange($investment->id);
+        //             }
+
+        //             updateInvestorLedgerOnPayout($bifurcation->ledger_id, $payoutData->payout_type);
+        //         }
+
+        //         // Withdrawal-month profit payout
+        //         if ($payoutData->payout_type == 1 && $payoutData->bifurcation_id != null) {
+        //             $bifurcation = PartialWithdrawalBifurcation::find($payoutData->bifurcation_id);
+
+        //             // bifurcation table update on profit payout
+        //             updateBifuractionOnProfitPayout($bifurcation, $balance, $distributionData->amount_paid);
+
+        //             updateInvestorLedgerOnPayout($bifurcation->ledger_id, $payoutData->payout_type);
+        //         }
+
+        //         // Investment update
+        //         $investment = updateInvestmentOnDistribution($payoutData, $distributionData);
+
+        //         // Referral commission update
+        //         if ($payoutData->payout_type == 2) {
+        //             refCommUpdateOnDistribution($payoutData, $distributionData);
+        //         }
+
+        //         // Investor update
+        //         investorUpdateOnDistribution($payoutData, $distributionData);
+        //     }
+
+        //     return $distributionDatas;
+        // });
+
+        return $result['distributions'];
+    }
+
+    private function processDistributions(array $distributions, $payouts, string $method, array $data): array
+    {
+        return DB::transaction(function () use ($distributions, $payouts, $method, $data) {
 
             $distributionDatas = $this->investorDistRepo->createMany($distributions);
+            $rows = [];
 
             foreach ($distributionDatas as $distributionData) {
 
@@ -921,13 +1023,47 @@ class InvestorPaymentDistributionService
 
                 // Investor update
                 investorUpdateOnDistribution($payoutData, $distributionData);
+
+                // ===== then, at the end of the loop body: =====
+                $rows[] = [
+                    'payout_id'       => $payoutData->id,
+                    'distribution_id' => $distributionData->id,
+                    'investor_id'     => $payoutData->investor_id,
+                    'investment_id'   => $payoutData->investment_id,
+                    'payout_type'     => (int) $payoutData->payout_type,
+                    'amount'          => number_format($distributionAmount, 2, '.', ''),
+                    'balance_after'   => number_format($balance, 2, '.', ''),
+                    'fully_paid'      => $balance === 0.00,
+                ];
             }
 
-            return $distributionDatas;
-        });
+            $investorIds = collect($rows)->pluck('investor_id')->unique();
+            $companyId   = $payouts->first()->investment->company_id ?? null;
+            $total       = collect($rows)->sum(fn($r) => (float) $r['amount']);
 
-        return $distr_data;
+            $allocation = InvestorPayoutAllocation::create([
+                'method'           => $method,
+                'company_id'       => $companyId,
+                'paid_company_id'  => $data['paid_company_id'] ?? null,
+                'investor_id'      => $investorIds->count() === 1 ? $investorIds->first() : null,
+                'allocated_amount' => number_format($total, 2, '.', ''),
+                'payout_ids'       => array_column($rows, 'payout_id'),
+                'distribution_ids' => array_column($rows, 'distribution_id'),
+                'allocations'      => $rows,
+                'month'            => $data['month'] ?? null,
+                'year'             => $data['year'] ?? null,
+                'cleared_date'     => Carbon::createFromFormat('d-m-Y', $data['paid_date'])->toDateString(),
+                'payment_mode_id'  => $data['paid_mode'] ?? null,
+                'bank_id'          => $data['paid_bank'] ?? null,
+                'cheque_no'        => $data['paid_cheque_number'] ?? null,
+                'remarks'          => $data['payment_remarks'] ?? null,
+                'added_by'         => auth()->id(),
+            ]);
+
+            return ['distributions' => $distributionDatas, 'allocation' => $allocation];
+        });
     }
+
     private function updateProfitRecordOnPayout(InvestorPayout $payout, float $distributionAmount): void
     {
 
@@ -1375,5 +1511,111 @@ class InvestorPaymentDistributionService
 
             \Log::info("WhatsApp {$lang} response", ['response' => $response]);
         }
+    }
+
+    public function allocateFifo(int $investorId, int $companyId, string|float $amount, bool $lock = false, ?int $month = null, ?int $year = null): array
+    {
+        $remaining   = number_format((float) $amount, 2, '.', '');
+        $allocations = [];
+
+        $pendings = $this->investorDistRepo->getFifoPendings($investorId, $companyId, $lock, $month, $year);
+
+        foreach ($pendings as $payout) {
+            if (bccomp($remaining, '0', 2) <= 0) {
+                break;
+            }
+
+            $due   = bcsub((string) $payout->payout_amount, (string) $payout->amount_paid, 2);
+            $apply = bccomp($remaining, $due, 2) >= 0 ? $due : $remaining;
+
+            $allocations[] = [
+                'id'              => $payout->id,
+                'investment_id'   => $payout->investment_id,
+                'investment_code' => $payout->investment->investment_code ?? null,
+                'payout_type'     => (int) $payout->payout_type,
+                'payout_date'     => $payout->original_profit_date,
+                'due'             => $due,
+                'apply'           => $apply,
+                'balance_after'   => bcsub($due, $apply, 2),
+                'fully_paid'      => bccomp($due, $apply, 2) === 0,
+                'payout_type'      => (int) $payout->payout_type,
+                'terminate_status' => (int) ($payout->investment->terminate_status ?? 0),
+            ];
+
+            $remaining = bcsub($remaining, $apply, 2);
+        }
+
+        $investor = $pendings->first()?->investor;
+
+        // reuse the same collection, no second query needed
+        $totalPending = $pendings->reduce(
+            fn($c, $p) => bcadd($c, bcsub((string) $p->payout_amount, (string) $p->amount_paid, 2), 2),
+            '0.00'
+        );
+
+        $requested = number_format((float) $amount, 2, '.', '');
+
+        return [
+            'investor' => $investor ? [
+                'id'   => $investor->id,
+                'code' => $investor->investor_code,
+                'name' => $investor->investor_name,
+            ] : null,
+            'requested'     => $requested,
+            'allocated'     => bcsub($requested, $remaining, 2),
+            'unallocated'   => $remaining,
+            'total_pending' => $totalPending,
+            'remaining_after' => bcsub($totalPending, bcsub($requested, $remaining, 2), 2),
+            'period'        => ['month' => $month, 'year' => $year],
+            'allocations'   => $allocations,
+        ];
+    }
+
+    public function saveFifoPayout(array $data): array
+    {
+        $this->validate($data);
+
+        return DB::transaction(function () use ($data) {
+            // recompute under lock, never trust the preview
+            $fifo = $this->allocateFifo(
+                (int) $data['investor_id'],
+                (int) $data['company_id'],
+                $data['amount'],
+                true,
+                !empty($data['month']) ? (int) $data['month'] : null,
+                !empty($data['year']) ? (int) $data['year'] : null,
+            );
+
+            if (bccomp($fifo['unallocated'], '0', 2) > 0) {
+                throw new \Exception('Amount exceeds the total outstanding for this investor.');
+            }
+            if (empty($fifo['allocations'])) {
+                throw new \Exception('No pending payouts found.');
+            }
+
+            $payouts = InvestorPayout::with('investment:id,company_id')
+                ->whereIn('id', array_column($fifo['allocations'], 'id'))
+                ->get()->keyBy('id');
+
+            $distributions = [];
+            foreach ($fifo['allocations'] as $row) {
+                $p = $payouts[$row['id']];
+                $distributions[] = [
+                    'payout_id'          => $p->id,
+                    'investor_id'        => $p->investor_id,
+                    'amount_paid'        => $row['apply'],          // can be a partial amount
+                    'investment_id'      => $p->investment_id,
+                    'paid_company_id'    => $data['paid_company_id'] ?? null,
+                    'paid_date'          => $data['paid_date'],
+                    'paid_mode_id'       => $data['paid_mode'] ?? 0,
+                    'paid_bank'          => $data['paid_bank'] ?? null,
+                    'paid_cheque_number' => $data['paid_cheque_number'] ?? null,
+                    'payment_remarks'    => $data['payment_remarks'] ?? null,
+                    'paid_by'            => auth()->id(),
+                ];
+            }
+
+            return $this->processDistributions($distributions, $payouts, 'fifo', $data);
+        });
     }
 }

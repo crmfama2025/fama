@@ -303,4 +303,44 @@ class InvestorPaymentDistributionRepository
 
         return $query;
     }
+
+    public function getFifoPendings(
+        int $investorId,
+        int $companyId,
+        bool $lock = false,
+        ?int $month = null,
+        ?int $year = null
+    ) {
+        $query = InvestorPayout::query()
+            ->with([
+                'investor:id,investor_code,investor_name',
+                'investment:id,investment_code,company_id,terminate_status',
+            ])
+            ->where('investor_payouts.investor_id', $investorId)
+            ->where('investor_payouts.is_processed', 0)
+            ->whereColumn('investor_payouts.payout_amount', '>', 'investor_payouts.amount_paid')
+            ->whereHas('investment', fn($q) => $q->where('company_id', $companyId));
+
+        if ($year && $month) {
+            $start = Carbon::create($year, $month, 1)->startOfMonth();
+            $query->where('investor_payouts.original_profit_date', '>=', $start->toDateString())
+                ->where('investor_payouts.original_profit_date', '<', $start->copy()->addMonth()->toDateString());
+        } elseif ($year) {
+            $query->where('investor_payouts.original_profit_date', '>=', "{$year}-01-01")
+                ->where('investor_payouts.original_profit_date', '<', ($year + 1) . '-01-01');
+        } elseif ($month) {
+            // month without year: spans all years, cannot use the range index
+            $query->whereMonth('investor_payouts.original_profit_date', $month);
+        }
+
+        $query->orderByRaw('investor_payouts.original_profit_date IS NULL')
+            ->orderBy('investor_payouts.original_profit_date', 'asc')
+            ->orderBy('investor_payouts.id', 'asc');
+
+        if ($lock) {
+            $query->lockForUpdate(); // only inside DB::transaction
+        }
+
+        return $query->get();
+    }
 }

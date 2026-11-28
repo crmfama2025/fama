@@ -169,24 +169,6 @@ class InvestorPaymentDistributionController extends Controller
 
     // public function exportPayoutPending()
     // {
-    //     $filters = [];
-
-    //     if (request('month') || request('batch_id') || request('investor_id') || request('investment_id')) {
-    //         $filters = array(
-    //             'month' => request('month'),
-    //             'batch_id' => request('batch_id'),
-    //             'investor_id' => request('investor_id'),
-    //             'investment_id' => request('investment_id')
-    //         );
-    //     }
-
-    //     $search = request('search') ?? null;
-
-    //     return Excel::download(new DistributePendingExport($search, $filters), 'payout-pending-report.xlsx');
-    // }
-
-    // public function exportPayoutPending()
-    // {
     //     $filters = array_filter([
     //         'month'         => request('month'),
     //         'batch_id'      => request('batch_id'),
@@ -253,5 +235,69 @@ class InvestorPaymentDistributionController extends Controller
         $search = request('search') ?? null;
 
         return Excel::download(new DistributeReportExport($search, $filters), 'payout-paid-report.xlsx');
+    }
+
+    public function getInvestorPendingPayouts(Request $request)
+    {
+        $request->validate([
+            'month'       => 'nullable|integer|between:1,12',
+            'year'        => 'nullable|integer',
+            'company_id'  => 'required|integer|exists:companies,id',
+            'investor_id' => 'required|integer|exists:investors,id',
+            'amount'      => 'required|numeric|gt:0',
+        ]);
+
+        $investorId = $request->investor_id;
+        $month = $request->month;
+        $year = $request->year;
+        $companyId = $request->company_id;
+
+        if (!auth()->user()->hasAnyPermission(['finance.payout'], $companyId)) {
+            return response()->json(['data' => [], 'message' => 'Unauthorized'], 403);
+        }
+
+        $result = $this->investorDistrService->allocateFifo(
+            (int) $investorId,
+            (int) $companyId,
+            $request->amount,
+            false,
+            $month ? (int) $month : null,
+            $year ? (int) $year : null,
+        );
+
+        return response()->json(['data' => $result]);
+    }
+
+    public function saveFifoPayment(Request $request)
+    {
+        $data = $request->validate([
+            'company_id'         => 'required|integer|exists:companies,id',
+            'investor_id'        => 'required|integer|exists:investors,id',
+            'amount'             => 'required|numeric|gt:0',
+            'month'              => 'nullable|integer|between:1,12',
+            'year'               => 'nullable|integer',
+            'paid_date'          => 'required|date_format:d-m-Y',
+            'paid_mode'          => 'required|integer',
+            'paid_company_id'    => 'nullable|integer|exists:companies,id',
+            'paid_bank'          => 'required_if:paid_mode,2|nullable|integer',
+            'paid_cheque_number' => 'required_if:paid_mode,3|nullable|string|max:100',
+            'payment_remarks'    => 'nullable|string',
+        ]);
+
+        if (!auth()->user()->hasAnyPermission(['finance.payout'], $data['company_id'])) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        try {
+            $result = $this->investorDistrService->saveFifoPayout($data);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Payment allocated successfully.',
+                'data'    => $result['allocation'],
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+        }
     }
 }
